@@ -1,0 +1,298 @@
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:miru_app_new/controllers/main_controller.dart';
+import 'package:miru_app_new/views/widgets/index.dart';
+import 'package:window_manager/window_manager.dart';
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  late final MainController c;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+    c = Get.put(MainController(_tabController));
+    _tabController.addListener(() {
+      c.selectedIndex.value = _tabController.index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+    return PlatformWidget(
+      mobileWidget: Scaffold(
+        extendBody: true,
+        body: PopScope(
+          canPop: false,
+          onPopInvoked: (didPop) {
+            if (didPop) return;
+            if (_NavObserver.isRoot) {
+              SystemNavigator.pop();
+            } else {
+              Get.back(id: 1);
+            }
+          },
+          child: Navigator(
+            key: Get.nestedKey(1),
+            observers: [_NavObserver()],
+            onGenerateRoute: (settings) {
+              return GetPageRoute(
+                page: () => TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  controller: c.rootPageTabController,
+                  children: c.pages,
+                ),
+              );
+            },
+          ),
+        ),
+        bottomNavigationBar: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withAlpha(200),
+                border: const Border(
+                  top: BorderSide(color: Colors.black38, width: 0.5),
+                ),
+              ),
+              height: 80,
+              child: Obx(
+                () => Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    for (var i = 0; i < c.navItems.length; i++) ...[
+                      Expanded(
+                        child: _NavButton(
+                          selectIcon: c.navItems[i].selectIcon,
+                          text: c.navItems[i].text,
+                          icon: c.navItems[i].icon,
+                          onPressed: () => c.selectIndex(i),
+                          selected: c.selectedIndex.value == i,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      desktopBuilder: Scaffold(
+        body: Obx(() {
+          return Stack(
+            children: [
+              Navigator(
+                key: Get.nestedKey(1),
+                onGenerateRoute: (settings) {
+                  return GetPageRoute(
+                    page: () => TabBarView(
+                      controller: c.rootPageTabController,
+                      children: c.pages,
+                    ),
+                  );
+                },
+              ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(200),
+                        border: const Border(
+                          bottom: BorderSide(color: Colors.black38, width: 0.5),
+                        ),
+                      ),
+                      height: 50,
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 20),
+                                    child: Row(
+                                      children: [
+                                        Button(
+                                          onPressed: () {
+                                            Get.back(id: 1);
+                                          },
+                                          trailing: const [
+                                            Icon(
+                                              Icons.chevron_left,
+                                              color: Colors.black,
+                                            ),
+                                          ],
+                                          child: const Text(
+                                            "Miru",
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        const Expanded(
+                                          child: DragToMoveArea(
+                                            child: SizedBox.expand(),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                for (var i = 0; i < c.navItems.length; i++) ...[
+                                  _NavButton(
+                                    selectIcon: c.navItems[i].selectIcon,
+                                    text: c.navItems[i].text,
+                                    icon: c.navItems[i].icon,
+                                    onPressed: () => c.selectIndex(i),
+                                    selected: c.selectedIndex.value == i,
+                                  ),
+                                  const SizedBox(width: 8)
+                                ],
+                                const Expanded(child: WindowCaption())
+                              ],
+                            ),
+                          ),
+                          c.isLoading.value
+                              ? const LinearProgressIndicator()
+                              : const SizedBox(height: 2),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+}
+
+class _NavButton extends StatefulWidget {
+  const _NavButton({
+    required this.text,
+    required this.icon,
+    required this.selectIcon,
+    required this.onPressed,
+    required this.selected,
+  });
+
+  final String text;
+  final IconData icon;
+  final IconData selectIcon;
+  final void Function() onPressed;
+  final bool selected;
+
+  @override
+  State<_NavButton> createState() => _NavButtonState();
+}
+
+class _NavButtonState extends State<_NavButton> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return PlatformWidget(
+      mobileWidget: GestureDetector(
+        onTap: widget.onPressed,
+        behavior: HitTestBehavior.translucent,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 45,
+              height: 45,
+              decoration: BoxDecoration(
+                color: widget.selected || _hover
+                    ? Colors.black.withAlpha(20)
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    widget.selected || _hover ? widget.selectIcon : widget.icon,
+                    color: widget.selected || _hover
+                        ? Colors.black
+                        : Colors.black.withAlpha(150),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+      desktopBuilder: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: GestureDetector(
+          onTap: widget.onPressed,
+          child: Container(
+            width: 40,
+            height: 40,
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: widget.selected || _hover
+                  ? Colors.black.withAlpha(20)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  widget.selected || _hover ? widget.selectIcon : widget.icon,
+                  color: widget.selected || _hover
+                      ? Colors.black
+                      : Colors.black.withAlpha(150),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavObserver extends NavigatorObserver {
+  static bool isRoot = true;
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    isRoot = previousRoute?.settings.name == null;
+    super.didPop(route, previousRoute);
+  }
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    isRoot = route.settings.name == null;
+    super.didPush(route, previousRoute);
+  }
+}
