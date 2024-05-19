@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -171,7 +172,8 @@ class _MainPageState extends State<MainPage>
                                   ),
                                   const SizedBox(width: 8)
                                 ],
-                                const Expanded(child: WindowCaption())
+                                if (Platform.isWindows)
+                                  const Expanded(child: WindowCaption())
                               ],
                             ),
                           ),
