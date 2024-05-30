@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:macos_window_utils/macos/ns_window_button_type.dart';
+import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_app_new/views/pages/main_page.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -19,6 +21,23 @@ void main() async {
       await windowManager.show();
       await windowManager.focus();
     });
+  }
+
+  if (GetPlatform.isMacOS) {
+    await WindowManipulator.initialize(enableWindowDelegate: true);
+    await WindowManipulator.addToolbar();
+    await WindowManipulator.overrideStandardWindowButtonPosition(
+      buttonType: NSWindowButtonType.closeButton,
+      offset: const Offset(15, 18),
+    );
+    await WindowManipulator.overrideStandardWindowButtonPosition(
+      buttonType: NSWindowButtonType.miniaturizeButton,
+      offset: const Offset(35, 18),
+    );
+    await WindowManipulator.overrideStandardWindowButtonPosition(
+      buttonType: NSWindowButtonType.zoomButton,
+      offset: const Offset(55, 18),
+    );
   }
 
   runApp(const App());

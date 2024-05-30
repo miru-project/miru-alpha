@@ -131,7 +131,9 @@ class _MainPageState extends State<MainPage>
                               children: [
                                 Expanded(
                                   child: Padding(
-                                    padding: const EdgeInsets.only(left: 20),
+                                    padding: EdgeInsets.only(
+                                      left: Platform.isMacOS ? 70 : 20,
+                                    ),
                                     child: Row(
                                       children: [
                                         Button(
@@ -172,8 +174,10 @@ class _MainPageState extends State<MainPage>
                                   ),
                                   const SizedBox(width: 8)
                                 ],
-                                if (Platform.isWindows)
-                                  const Expanded(child: WindowCaption())
+                                Expanded(
+                                    child: Platform.isWindows
+                                        ? const WindowCaption()
+                                        : const SizedBox.expand())
                               ],
                             ),
                           ),
