@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
+import 'package:moon_design/moon_design.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -78,6 +79,57 @@ class SettingsPage extends StatelessWidget {
             value: "Radio 1",
             onChanged: (value) {},
           ),
+          const SizedBox(height: 16),
+          MoonAccordion(
+            showBorder: true,
+            hasContentOutside: true,
+            label: const Text("Theme"),
+            children: [
+              MoonMenuItem(
+                onTap: () {},
+                label: const Text("Menu Item"),
+                leading:
+                    const Icon(MoonIcons.notifications_activity_32_regular),
+                trailing: const Icon(MoonIcons.controls_chevron_right_24_light),
+              ),
+              MoonMenuItem(
+                onTap: () {},
+                content: const Text("Content"),
+                label: const Text("Menu Item"),
+                leading:
+                    const Icon(MoonIcons.notifications_activity_32_regular),
+                trailing: const MoonSwitch(
+                  value: true,
+                ),
+              ),
+              MoonMenuItem(
+                  onTap: () {},
+                  content: const Text("Content"),
+                  label: const Text("Menu Item"),
+                  leading:
+                      const Icon(MoonIcons.notifications_activity_32_regular),
+                  trailing: MoonDropdown(
+                      show: false,
+                      content: Column(
+                        children: [
+                          MoonMenuItem(
+                            onTap: () {},
+                            content: const Text("Content"),
+                            label: const Text("Menu Item"),
+                            leading: const Icon(
+                                MoonIcons.notifications_activity_32_regular),
+                            trailing: const MoonSwitch(
+                              value: true,
+                            ),
+                          )
+                        ],
+                      ),
+                      child: const MoonChip(
+                        leading: Text("Radio"),
+                        label: Icon(MoonIcons.controls_chevron_down_32_regular),
+                      )))
+            ],
+          )
         ],
       ),
     );

@@ -41,7 +41,11 @@ dependencies:
   isar_flutter_libs: ^3.1.0+1
   snapping_sheet_2: ^3.1.5
   macos_window_utils: ^1.5.0
-
+  moon_design:
+    git:
+      url: https://github.com/coingaming/moon_flutter.git
+      ref: main
+  flutter_js: ^0.8.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
