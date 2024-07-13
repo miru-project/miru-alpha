@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
-import 'package:moon_design/moon_design.dart';
+import 'package:miru_app_new/utils/index.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -58,78 +58,49 @@ class SettingsPage extends StatelessWidget {
       body: MiruListView(
         maxWidth: 1000,
         children: [
-          SettingsToggleTile(
-            title: "Toggle Title",
-            subtitle: "Toggle Subtitle",
-            value: false,
-            onChanged: (value) {},
-          ),
-          const SizedBox(height: 16),
-          SettingsInputTile(
-            title: "Input Title",
-            subtitle: "Input Subtitle",
-            initialValue: "Initial Value",
-            onChanged: (value) {},
-          ),
-          const SizedBox(height: 16),
           SettingsRadiosTile(
             title: "Radios Title",
             subtitle: "Radios Subtitle",
             radios: const ["Radio 1", "Radio 2", "Radio 3"],
             value: "Radio 1",
-            onChanged: (value) {},
+            onChanged: (value) {
+              debugPrint(value);
+            },
           ),
           const SizedBox(height: 16),
-          MoonAccordion(
-            showBorder: true,
-            hasContentOutside: true,
-            label: const Text("Theme"),
-            children: [
-              MoonMenuItem(
-                onTap: () {},
-                label: const Text("Menu Item"),
-                leading:
-                    const Icon(MoonIcons.notifications_activity_32_regular),
-                trailing: const Icon(MoonIcons.controls_chevron_right_24_light),
-              ),
-              MoonMenuItem(
-                onTap: () {},
-                content: const Text("Content"),
-                label: const Text("Menu Item"),
-                leading:
-                    const Icon(MoonIcons.notifications_activity_32_regular),
-                trailing: const MoonSwitch(
-                  value: true,
-                ),
-              ),
-              MoonMenuItem(
-                  onTap: () {},
-                  content: const Text("Content"),
-                  label: const Text("Menu Item"),
-                  leading:
-                      const Icon(MoonIcons.notifications_activity_32_regular),
-                  trailing: MoonDropdown(
-                      show: false,
-                      content: Column(
-                        children: [
-                          MoonMenuItem(
-                            onTap: () {},
-                            content: const Text("Content"),
-                            label: const Text("Menu Item"),
-                            leading: const Icon(
-                                MoonIcons.notifications_activity_32_regular),
-                            trailing: const MoonSwitch(
-                              value: true,
-                            ),
-                          )
-                        ],
-                      ),
-                      child: const MoonChip(
-                        leading: Text("Radio"),
-                        label: Icon(MoonIcons.controls_chevron_down_32_regular),
-                      )))
-            ],
-          )
+          SettingsInputTile(
+              title: "repo-link",
+              subtitle: 'repo-link-subtitle',
+              initialValue:
+                  MiruStorage.getSettingSync(SettingKey.miruRepoUrl, String),
+              onChanged: (value) {
+                MiruStorage.setSettingSync(SettingKey.miruRepoUrl, value);
+              }),
+          SettingsInputTile(
+              title: "tmdb-api-key",
+              subtitle: 'tmdb-api-key-subtitle',
+              initialValue:
+                  MiruStorage.getSettingSync(SettingKey.tmdbKey, String),
+              onChanged: (value) {
+                MiruStorage.setSettingSync(SettingKey.tmdbKey, value);
+              }),
+          SettingsToggleTile(
+              title: 'auto-update',
+              subtitle: 'auto-update-subtitle',
+              value:
+                  MiruStorage.getSettingSync(SettingKey.autoCheckUpdate, bool),
+              onChanged: (value) {
+                MiruStorage.setSettingSync(
+                    SettingKey.autoCheckUpdate, value.toString());
+              }),
+          SettingsToggleTile(
+              title: 'allow-nsfw',
+              subtitle: 'allow-nsfw-subtitle',
+              value: MiruStorage.getSettingSync(SettingKey.enableNSFW, bool),
+              onChanged: (value) {
+                MiruStorage.setSettingSync(
+                    SettingKey.enableNSFW, value.toString());
+              })
         ],
       ),
     );

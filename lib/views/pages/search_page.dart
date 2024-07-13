@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:miru_app_new/utils/extension/extension_utils.dart';
+import 'package:miru_app_new/views/widgets/homepage/latest.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 
 class SearchPage extends StatelessWidget {
@@ -44,9 +46,14 @@ class SearchPage extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
+        const SizedBox(height: 15),
+        const Divider(
+          height: 1,
+        ),
+        const SizedBox(height: 15),
         SidebarExpander(
           title: '语言',
-          expanded: false,
+          expanded: true,
           children: [
             SideBarListTile(
               title: '全部',
@@ -55,7 +62,11 @@ class SearchPage extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 15),
+        const Divider(
+          height: 1,
+        ),
+        const SizedBox(height: 15),
         SidebarExpander(
           title: '扩展',
           actions: [
@@ -73,25 +84,35 @@ class SearchPage extends StatelessWidget {
       ],
       body: LayoutBuilder(
         builder: (context, constraints) {
-          return MiruGridView(
-            desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: constraints.maxWidth ~/ 150,
-              childAspectRatio: 0.6,
-            ),
-            mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: constraints.maxWidth ~/ 110,
-              childAspectRatio: 0.6,
-            ),
+          final service = ExtensionUtils.runtimes.entries.toList();
+
+          return MiruListView.builder(
             itemBuilder: (context, index) {
-              return MiruGridTile(
-                title: 'Title $index',
-                subtitle: 'Subtitle $index',
-                imageUrl: 'https://picsum.photos/200/300?random=$index',
-                onTap: () {},
+              return Latest(
+                extensionService: service[index].value,
               );
             },
-            itemCount: 20,
+            itemCount: service.length,
           );
+          // return MiruGridView(
+          //   desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          //     crossAxisCount: constraints.maxWidth ~/ 150,
+          //     childAspectRatio: 0.6,
+          //   ),
+          //   mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          //     crossAxisCount: constraints.maxWidth ~/ 110,
+          //     childAspectRatio: 0.6,
+          //   ),
+          //   itemBuilder: (context, index) {
+          //     return MiruGridTile(
+          //       title: 'Title $index',
+          //       subtitle: 'Subtitle $index',
+          //       imageUrl: 'https://picsum.photos/200/300?random=$index',
+          //       onTap: () {},
+          //     );
+          //   },
+          //   itemCount: 20,
+          // );
         },
       ),
     );

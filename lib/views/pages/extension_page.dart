@@ -1,5 +1,11 @@
+// import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
+import 'package:miru_app_new/utils/network/index.dart';
+import '../../model/index.dart';
 
 class ExtensionPage extends StatefulWidget {
   const ExtensionPage({super.key});
@@ -9,7 +15,29 @@ class ExtensionPage extends StatefulWidget {
 }
 
 class _ExtensionPageState extends State<ExtensionPage> {
-  bool _isInstalledPage = true;
+  final RxBool _isInstalledPage = true.obs;
+  final Stream<List<GithubExtension>> _extensionStream =
+      GithubNetwork.fetchRepo().asStream();
+  final List<GithubExtension> _fetchedRepo = [];
+  final RxList<GithubExtension> _extensionList = <GithubExtension>[].obs;
+  final RxInt _selectedType = 0.obs;
+  static const List<String> _types = ['', 'bangumi', 'comic', 'fikushon'];
+  void _filterExtensionListWithName(String query) {
+    final filtered = _fetchedRepo.where((element) {
+      return element.name.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+    _extensionList.assignAll(filtered);
+  }
+
+  void _filterByInstalled() {
+    final filtered = _fetchedRepo.where((element) {
+      return ExtensionUtils.runtimes.containsKey(element.package) ==
+              _isInstalledPage.value &&
+          (_selectedType.value == 0 ||
+              element.type.contains(_types[_selectedType.value]));
+    }).toList();
+    _extensionList.assignAll(filtered);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,63 +47,75 @@ class _ExtensionPageState extends State<ExtensionPage> {
       ),
       sidebar: [
         const SideBarListTitle(title: '搜索'),
-        const SideBarSearchBar(),
-        const SizedBox(height: 10),
-        SidebarExpander(
-          title: "状态",
-          expanded: true,
-          children: [
-            SideBarListTile(
-              title: '已安装',
-              selected: _isInstalledPage,
-              onPressed: () {
-                setState(() {
-                  _isInstalledPage = true;
-                });
-              },
-            ),
-            const SizedBox(height: 8),
-            SideBarListTile(
-              title: '未安装',
-              selected: !_isInstalledPage,
-              onPressed: () {
-                setState(() {
-                  _isInstalledPage = false;
-                });
-              },
-            ),
-          ],
+        SideBarSearchBar(
+          onChanged: _filterExtensionListWithName,
         ),
         const SizedBox(height: 10),
-        SidebarExpander(
-          title: "分类",
-          expanded: true,
-          children: [
-            SideBarListTile(
-              title: '全部',
-              selected: true,
-              onPressed: () {},
-            ),
-            const SizedBox(height: 8),
-            SideBarListTile(
-              title: '影视',
-              selected: false,
-              onPressed: () {},
-            ),
-            const SizedBox(height: 8),
-            SideBarListTile(
-              title: '漫画',
-              selected: false,
-              onPressed: () {},
-            ),
-            const SizedBox(height: 8),
-            SideBarListTile(
-              title: '小说',
-              selected: false,
-              onPressed: () {},
-            ),
-          ],
-        ),
+        Obx(() => SidebarExpander(
+              title: "状态",
+              expanded: true,
+              children: [
+                SideBarListTile(
+                  title: '已安装',
+                  selected: _isInstalledPage.value,
+                  onPressed: () {
+                    _isInstalledPage.value = true;
+                    _filterByInstalled();
+                  },
+                ),
+                const SizedBox(height: 8),
+                SideBarListTile(
+                  title: '未安装',
+                  selected: !_isInstalledPage.value,
+                  onPressed: () {
+                    _isInstalledPage.value = false;
+                    _filterByInstalled();
+                  },
+                ),
+              ],
+            )),
+        const SizedBox(height: 10),
+        Obx(() => SidebarExpander(
+              title: "分类",
+              expanded: true,
+              children: [
+                SideBarListTile(
+                  title: '全部',
+                  selected: _selectedType.value == 0,
+                  onPressed: () {
+                    _selectedType.value = 0;
+                    _filterByInstalled();
+                  },
+                ),
+                const SizedBox(height: 8),
+                SideBarListTile(
+                  title: '影视',
+                  selected: _selectedType.value == 1,
+                  onPressed: () {
+                    _selectedType.value = 1;
+                    _filterByInstalled();
+                  },
+                ),
+                const SizedBox(height: 8),
+                SideBarListTile(
+                  title: '漫画',
+                  selected: _selectedType.value == 2,
+                  onPressed: () {
+                    _selectedType.value = 2;
+                    _filterByInstalled();
+                  },
+                ),
+                const SizedBox(height: 8),
+                SideBarListTile(
+                  title: '小说',
+                  selected: _selectedType.value == 3,
+                  onPressed: () {
+                    _selectedType.value = 3;
+                    _filterByInstalled();
+                  },
+                ),
+              ],
+            )),
         const SizedBox(height: 10),
         SidebarExpander(
           title: "仓库",
@@ -103,27 +143,41 @@ class _ExtensionPageState extends State<ExtensionPage> {
       ],
       body: LayoutBuilder(
         builder: (context, constraints) {
-          return MiruGridView(
-            desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: constraints.maxWidth ~/ 280,
-              childAspectRatio: 1.4,
-            ),
-            mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: constraints.maxWidth ~/ 240,
-              childAspectRatio: 1.6,
-            ),
-            itemBuilder: (context, index) {
-              return ExtensionGridTile(
-                name: 'Extension $index',
-                version: '1.0.0',
-                author: 'Author $index',
-                type: 'Type $index',
-                icon: 'https://picsum.photos/100/100?random=$index',
-                onInstall: () {},
-              );
-            },
-            itemCount: 20,
-          );
+          return StreamBuilder(
+              stream: _extensionStream,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  _fetchedRepo.assignAll(snapshot.data!);
+                  _filterExtensionListWithName('');
+                  // debugPrint(snapshot.data.toString());
+                  return Obx(() => MiruGridView(
+                        desktopGridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: constraints.maxWidth ~/ 280,
+                          childAspectRatio: 1.4,
+                        ),
+                        mobileGridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: constraints.maxWidth ~/ 240,
+                          childAspectRatio: 1.6,
+                        ),
+                        itemBuilder: (context, index) {
+                          return ExtensionGridTile(
+                            name: _extensionList[index].name,
+                            version: _extensionList[index].version,
+                            author: _extensionList[index].author,
+                            type: _extensionList[index].type,
+                            icon: _extensionList[index].icon,
+                            onInstall: () {},
+                          );
+                        },
+                        itemCount: _extensionList.length,
+                      ));
+                }
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              });
         },
       ),
     );

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 
 class MiruGridTile extends StatefulWidget {
-  const MiruGridTile({
-    super.key,
-    this.imageUrl,
-    required this.title,
-    required this.subtitle,
-    this.onTap,
-  });
+  const MiruGridTile(
+      {super.key,
+      this.imageUrl,
+      required this.title,
+      required this.subtitle,
+      this.width,
+      this.onTap,
+      this.height});
   final String? imageUrl;
   final String title;
   final String subtitle;
   final void Function()? onTap;
-
+  final double? height;
+  final double? width;
   @override
   State<MiruGridTile> createState() => _MiruGridTileState();
 }
@@ -37,6 +39,8 @@ class _MiruGridTileState extends State<MiruGridTile> {
       child: GestureDetector(
         onTap: widget.onTap,
         child: Container(
+          width: widget.width ?? 200,
+          height: widget.height,
           margin: const EdgeInsets.all(8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

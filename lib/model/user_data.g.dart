@@ -208,13 +208,13 @@ P _historyDeserializeProp<P>(
 
 const _HistorytypeEnumValueMap = {
   r'manga': r'manga',
-  r'novel': r'novel',
-  r'movie': r'movie',
+  r'bangumi': r'bangumi',
+  r'fikushon': r'fikushon',
 };
 const _HistorytypeValueEnumMap = {
   r'manga': ExtensionType.manga,
-  r'novel': ExtensionType.novel,
-  r'movie': ExtensionType.movie,
+  r'bangumi': ExtensionType.bangumi,
+  r'fikushon': ExtensionType.fikushon,
 };
 
 Id _historyGetId(History object) {
@@ -4162,95 +4162,132 @@ extension MiruDetailQueryProperty
 // coverage:ignore-file
 // ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
 
-extension GetTMDBCollection on Isar {
-  IsarCollection<TMDB> get tMDBs => this.collection();
+extension GetFavoriteCollection on Isar {
+  IsarCollection<Favorite> get favorites => this.collection();
 }
 
-const TMDBSchema = CollectionSchema(
-  name: r'TMDB',
-  id: -4342917064049127585,
+const FavoriteSchema = CollectionSchema(
+  name: r'Favorite',
+  id: 5577971995748139032,
   properties: {
-    r'data': PropertySchema(
+    r'cover': PropertySchema(
       id: 0,
-      name: r'data',
+      name: r'cover',
       type: IsarType.string,
     ),
-    r'mediaType': PropertySchema(
+    r'date': PropertySchema(
       id: 1,
-      name: r'mediaType',
+      name: r'date',
+      type: IsarType.dateTime,
+    ),
+    r'package': PropertySchema(
+      id: 2,
+      name: r'package',
       type: IsarType.string,
     ),
-    r'tmdbID': PropertySchema(
-      id: 2,
-      name: r'tmdbID',
-      type: IsarType.long,
+    r'title': PropertySchema(
+      id: 3,
+      name: r'title',
+      type: IsarType.string,
+    ),
+    r'type': PropertySchema(
+      id: 4,
+      name: r'type',
+      type: IsarType.string,
+      enumMap: _FavoritetypeEnumValueMap,
+    ),
+    r'url': PropertySchema(
+      id: 5,
+      name: r'url',
+      type: IsarType.string,
     )
   },
-  estimateSize: _tMDBEstimateSize,
-  serialize: _tMDBSerialize,
-  deserialize: _tMDBDeserialize,
-  deserializeProp: _tMDBDeserializeProp,
+  estimateSize: _favoriteEstimateSize,
+  serialize: _favoriteSerialize,
+  deserialize: _favoriteDeserialize,
+  deserializeProp: _favoriteDeserializeProp,
   idName: r'id',
   indexes: {
-    r'tmdbID': IndexSchema(
-      id: 8362136059549777794,
-      name: r'tmdbID',
-      unique: true,
+    r'package_url': IndexSchema(
+      id: 3896244813367136588,
+      name: r'package_url',
+      unique: false,
       replace: false,
       properties: [
         IndexPropertySchema(
-          name: r'tmdbID',
-          type: IndexType.value,
-          caseSensitive: false,
+          name: r'package',
+          type: IndexType.hash,
+          caseSensitive: true,
+        ),
+        IndexPropertySchema(
+          name: r'url',
+          type: IndexType.hash,
+          caseSensitive: true,
         )
       ],
     )
   },
   links: {},
   embeddedSchemas: {},
-  getId: _tMDBGetId,
-  getLinks: _tMDBGetLinks,
-  attach: _tMDBAttach,
+  getId: _favoriteGetId,
+  getLinks: _favoriteGetLinks,
+  attach: _favoriteAttach,
   version: '3.1.0+1',
 );
 
-int _tMDBEstimateSize(
-  TMDB object,
+int _favoriteEstimateSize(
+  Favorite object,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  bytesCount += 3 + object.data.length * 3;
-  bytesCount += 3 + object.mediaType.length * 3;
+  {
+    final value = object.cover;
+    if (value != null) {
+      bytesCount += 3 + value.length * 3;
+    }
+  }
+  bytesCount += 3 + object.package.length * 3;
+  bytesCount += 3 + object.title.length * 3;
+  bytesCount += 3 + object.type.name.length * 3;
+  bytesCount += 3 + object.url.length * 3;
   return bytesCount;
 }
 
-void _tMDBSerialize(
-  TMDB object,
+void _favoriteSerialize(
+  Favorite object,
   IsarWriter writer,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.data);
-  writer.writeString(offsets[1], object.mediaType);
-  writer.writeLong(offsets[2], object.tmdbID);
+  writer.writeString(offsets[0], object.cover);
+  writer.writeDateTime(offsets[1], object.date);
+  writer.writeString(offsets[2], object.package);
+  writer.writeString(offsets[3], object.title);
+  writer.writeString(offsets[4], object.type.name);
+  writer.writeString(offsets[5], object.url);
 }
 
-TMDB _tMDBDeserialize(
+Favorite _favoriteDeserialize(
   Id id,
   IsarReader reader,
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  final object = TMDB();
-  object.data = reader.readString(offsets[0]);
+  final object = Favorite();
+  object.cover = reader.readStringOrNull(offsets[0]);
+  object.date = reader.readDateTime(offsets[1]);
   object.id = id;
-  object.mediaType = reader.readString(offsets[1]);
-  object.tmdbID = reader.readLong(offsets[2]);
+  object.package = reader.readString(offsets[2]);
+  object.title = reader.readString(offsets[3]);
+  object.type =
+      _FavoritetypeValueEnumMap[reader.readStringOrNull(offsets[4])] ??
+          ExtensionType.manga;
+  object.url = reader.readString(offsets[5]);
   return object;
 }
 
-P _tMDBDeserializeProp<P>(
+P _favoriteDeserializeProp<P>(
   IsarReader reader,
   int propertyId,
   int offset,
@@ -4258,100 +4295,56 @@ P _tMDBDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readString(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTime(offset)) as P;
     case 2:
-      return (reader.readLong(offset)) as P;
+      return (reader.readString(offset)) as P;
+    case 3:
+      return (reader.readString(offset)) as P;
+    case 4:
+      return (_FavoritetypeValueEnumMap[reader.readStringOrNull(offset)] ??
+          ExtensionType.manga) as P;
+    case 5:
+      return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
 
-Id _tMDBGetId(TMDB object) {
+const _FavoritetypeEnumValueMap = {
+  r'manga': r'manga',
+  r'bangumi': r'bangumi',
+  r'fikushon': r'fikushon',
+};
+const _FavoritetypeValueEnumMap = {
+  r'manga': ExtensionType.manga,
+  r'bangumi': ExtensionType.bangumi,
+  r'fikushon': ExtensionType.fikushon,
+};
+
+Id _favoriteGetId(Favorite object) {
   return object.id;
 }
 
-List<IsarLinkBase<dynamic>> _tMDBGetLinks(TMDB object) {
+List<IsarLinkBase<dynamic>> _favoriteGetLinks(Favorite object) {
   return [];
 }
 
-void _tMDBAttach(IsarCollection<dynamic> col, Id id, TMDB object) {
+void _favoriteAttach(IsarCollection<dynamic> col, Id id, Favorite object) {
   object.id = id;
 }
 
-extension TMDBByIndex on IsarCollection<TMDB> {
-  Future<TMDB?> getByTmdbID(int tmdbID) {
-    return getByIndex(r'tmdbID', [tmdbID]);
-  }
-
-  TMDB? getByTmdbIDSync(int tmdbID) {
-    return getByIndexSync(r'tmdbID', [tmdbID]);
-  }
-
-  Future<bool> deleteByTmdbID(int tmdbID) {
-    return deleteByIndex(r'tmdbID', [tmdbID]);
-  }
-
-  bool deleteByTmdbIDSync(int tmdbID) {
-    return deleteByIndexSync(r'tmdbID', [tmdbID]);
-  }
-
-  Future<List<TMDB?>> getAllByTmdbID(List<int> tmdbIDValues) {
-    final values = tmdbIDValues.map((e) => [e]).toList();
-    return getAllByIndex(r'tmdbID', values);
-  }
-
-  List<TMDB?> getAllByTmdbIDSync(List<int> tmdbIDValues) {
-    final values = tmdbIDValues.map((e) => [e]).toList();
-    return getAllByIndexSync(r'tmdbID', values);
-  }
-
-  Future<int> deleteAllByTmdbID(List<int> tmdbIDValues) {
-    final values = tmdbIDValues.map((e) => [e]).toList();
-    return deleteAllByIndex(r'tmdbID', values);
-  }
-
-  int deleteAllByTmdbIDSync(List<int> tmdbIDValues) {
-    final values = tmdbIDValues.map((e) => [e]).toList();
-    return deleteAllByIndexSync(r'tmdbID', values);
-  }
-
-  Future<Id> putByTmdbID(TMDB object) {
-    return putByIndex(r'tmdbID', object);
-  }
-
-  Id putByTmdbIDSync(TMDB object, {bool saveLinks = true}) {
-    return putByIndexSync(r'tmdbID', object, saveLinks: saveLinks);
-  }
-
-  Future<List<Id>> putAllByTmdbID(List<TMDB> objects) {
-    return putAllByIndex(r'tmdbID', objects);
-  }
-
-  List<Id> putAllByTmdbIDSync(List<TMDB> objects, {bool saveLinks = true}) {
-    return putAllByIndexSync(r'tmdbID', objects, saveLinks: saveLinks);
-  }
-}
-
-extension TMDBQueryWhereSort on QueryBuilder<TMDB, TMDB, QWhere> {
-  QueryBuilder<TMDB, TMDB, QAfterWhere> anyId() {
+extension FavoriteQueryWhereSort on QueryBuilder<Favorite, Favorite, QWhere> {
+  QueryBuilder<Favorite, Favorite, QAfterWhere> anyId() {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(const IdWhereClause.any());
     });
   }
-
-  QueryBuilder<TMDB, TMDB, QAfterWhere> anyTmdbID() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(
-        const IndexWhereClause.any(indexName: r'tmdbID'),
-      );
-    });
-  }
 }
 
-extension TMDBQueryWhere on QueryBuilder<TMDB, TMDB, QWhereClause> {
-  QueryBuilder<TMDB, TMDB, QAfterWhereClause> idEqualTo(Id id) {
+extension FavoriteQueryWhere on QueryBuilder<Favorite, Favorite, QWhereClause> {
+  QueryBuilder<Favorite, Favorite, QAfterWhereClause> idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IdWhereClause.between(
         lower: id,
@@ -4360,7 +4353,7 @@ extension TMDBQueryWhere on QueryBuilder<TMDB, TMDB, QWhereClause> {
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterWhereClause> idNotEqualTo(Id id) {
+  QueryBuilder<Favorite, Favorite, QAfterWhereClause> idNotEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -4382,7 +4375,7 @@ extension TMDBQueryWhere on QueryBuilder<TMDB, TMDB, QWhereClause> {
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterWhereClause> idGreaterThan(Id id,
+  QueryBuilder<Favorite, Favorite, QAfterWhereClause> idGreaterThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -4391,7 +4384,7 @@ extension TMDBQueryWhere on QueryBuilder<TMDB, TMDB, QWhereClause> {
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterWhereClause> idLessThan(Id id,
+  QueryBuilder<Favorite, Favorite, QAfterWhereClause> idLessThan(Id id,
       {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
@@ -4400,7 +4393,7 @@ extension TMDBQueryWhere on QueryBuilder<TMDB, TMDB, QWhereClause> {
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterWhereClause> idBetween(
+  QueryBuilder<Favorite, Favorite, QAfterWhereClause> idBetween(
     Id lowerId,
     Id upperId, {
     bool includeLower = true,
@@ -4416,149 +4409,168 @@ extension TMDBQueryWhere on QueryBuilder<TMDB, TMDB, QWhereClause> {
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterWhereClause> tmdbIDEqualTo(int tmdbID) {
+  QueryBuilder<Favorite, Favorite, QAfterWhereClause> packageEqualToAnyUrl(
+      String package) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(IndexWhereClause.equalTo(
-        indexName: r'tmdbID',
-        value: [tmdbID],
+        indexName: r'package_url',
+        value: [package],
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterWhereClause> tmdbIDNotEqualTo(int tmdbID) {
+  QueryBuilder<Favorite, Favorite, QAfterWhereClause> packageNotEqualToAnyUrl(
+      String package) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'tmdbID',
+              indexName: r'package_url',
               lower: [],
-              upper: [tmdbID],
+              upper: [package],
               includeUpper: false,
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'tmdbID',
-              lower: [tmdbID],
+              indexName: r'package_url',
+              lower: [package],
               includeLower: false,
               upper: [],
             ));
       } else {
         return query
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'tmdbID',
-              lower: [tmdbID],
+              indexName: r'package_url',
+              lower: [package],
               includeLower: false,
               upper: [],
             ))
             .addWhereClause(IndexWhereClause.between(
-              indexName: r'tmdbID',
+              indexName: r'package_url',
               lower: [],
-              upper: [tmdbID],
+              upper: [package],
               includeUpper: false,
             ));
       }
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterWhereClause> tmdbIDGreaterThan(
-    int tmdbID, {
-    bool include = false,
-  }) {
+  QueryBuilder<Favorite, Favorite, QAfterWhereClause> packageUrlEqualTo(
+      String package, String url) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'tmdbID',
-        lower: [tmdbID],
-        includeLower: include,
-        upper: [],
+      return query.addWhereClause(IndexWhereClause.equalTo(
+        indexName: r'package_url',
+        value: [package, url],
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterWhereClause> tmdbIDLessThan(
-    int tmdbID, {
-    bool include = false,
-  }) {
+  QueryBuilder<Favorite, Favorite, QAfterWhereClause>
+      packageEqualToUrlNotEqualTo(String package, String url) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'tmdbID',
-        lower: [],
-        upper: [tmdbID],
-        includeUpper: include,
-      ));
-    });
-  }
-
-  QueryBuilder<TMDB, TMDB, QAfterWhereClause> tmdbIDBetween(
-    int lowerTmdbID,
-    int upperTmdbID, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IndexWhereClause.between(
-        indexName: r'tmdbID',
-        lower: [lowerTmdbID],
-        includeLower: includeLower,
-        upper: [upperTmdbID],
-        includeUpper: includeUpper,
-      ));
+      if (query.whereSort == Sort.asc) {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'package_url',
+              lower: [package],
+              upper: [package, url],
+              includeUpper: false,
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'package_url',
+              lower: [package, url],
+              includeLower: false,
+              upper: [package],
+            ));
+      } else {
+        return query
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'package_url',
+              lower: [package, url],
+              includeLower: false,
+              upper: [package],
+            ))
+            .addWhereClause(IndexWhereClause.between(
+              indexName: r'package_url',
+              lower: [package],
+              upper: [package, url],
+              includeUpper: false,
+            ));
+      }
     });
   }
 }
 
-extension TMDBQueryFilter on QueryBuilder<TMDB, TMDB, QFilterCondition> {
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> dataEqualTo(
-    String value, {
+extension FavoriteQueryFilter
+    on QueryBuilder<Favorite, Favorite, QFilterCondition> {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverIsNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNull(
+        property: r'cover',
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverIsNotNull() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(const FilterCondition.isNotNull(
+        property: r'cover',
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverEqualTo(
+    String? value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'data',
+        property: r'cover',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> dataGreaterThan(
-    String value, {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverGreaterThan(
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'data',
+        property: r'cover',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> dataLessThan(
-    String value, {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverLessThan(
+    String? value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'data',
+        property: r'cover',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> dataBetween(
-    String lower,
-    String upper, {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverBetween(
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'data',
+        property: r'cover',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -4568,73 +4580,128 @@ extension TMDBQueryFilter on QueryBuilder<TMDB, TMDB, QFilterCondition> {
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> dataStartsWith(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'data',
+        property: r'cover',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> dataEndsWith(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'data',
+        property: r'cover',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> dataContains(String value,
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverContains(
+      String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
-        property: r'data',
+        property: r'cover',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> dataMatches(String pattern,
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverMatches(
+      String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
-        property: r'data',
+        property: r'cover',
         wildcard: pattern,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> dataIsEmpty() {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'data',
+        property: r'cover',
         value: '',
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> dataIsNotEmpty() {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> coverIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'data',
+        property: r'cover',
         value: '',
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> idEqualTo(Id value) {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> dateEqualTo(
+      DateTime value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'date',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> dateGreaterThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'date',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> dateLessThan(
+    DateTime value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'date',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> dateBetween(
+    DateTime lower,
+    DateTime upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'date',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'id',
@@ -4643,7 +4710,7 @@ extension TMDBQueryFilter on QueryBuilder<TMDB, TMDB, QFilterCondition> {
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> idGreaterThan(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> idGreaterThan(
     Id value, {
     bool include = false,
   }) {
@@ -4656,7 +4723,7 @@ extension TMDBQueryFilter on QueryBuilder<TMDB, TMDB, QFilterCondition> {
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> idLessThan(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> idLessThan(
     Id value, {
     bool include = false,
   }) {
@@ -4669,7 +4736,7 @@ extension TMDBQueryFilter on QueryBuilder<TMDB, TMDB, QFilterCondition> {
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> idBetween(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> idBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
@@ -4686,20 +4753,20 @@ extension TMDBQueryFilter on QueryBuilder<TMDB, TMDB, QFilterCondition> {
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> mediaTypeEqualTo(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> packageEqualTo(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'mediaType',
+        property: r'package',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> mediaTypeGreaterThan(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> packageGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -4707,14 +4774,14 @@ extension TMDBQueryFilter on QueryBuilder<TMDB, TMDB, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'mediaType',
+        property: r'package',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> mediaTypeLessThan(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> packageLessThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
@@ -4722,14 +4789,14 @@ extension TMDBQueryFilter on QueryBuilder<TMDB, TMDB, QFilterCondition> {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'mediaType',
+        property: r'package',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> mediaTypeBetween(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> packageBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -4738,7 +4805,7 @@ extension TMDBQueryFilter on QueryBuilder<TMDB, TMDB, QFilterCondition> {
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'mediaType',
+        property: r'package',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -4748,263 +4815,717 @@ extension TMDBQueryFilter on QueryBuilder<TMDB, TMDB, QFilterCondition> {
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> mediaTypeStartsWith(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> packageStartsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'mediaType',
+        property: r'package',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> mediaTypeEndsWith(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> packageEndsWith(
     String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'mediaType',
+        property: r'package',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> mediaTypeContains(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> packageContains(
       String value,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.contains(
-        property: r'mediaType',
+        property: r'package',
         value: value,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> mediaTypeMatches(
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> packageMatches(
       String pattern,
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.matches(
-        property: r'mediaType',
+        property: r'package',
         wildcard: pattern,
         caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> mediaTypeIsEmpty() {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> packageIsEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'mediaType',
+        property: r'package',
         value: '',
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> mediaTypeIsNotEmpty() {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> packageIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'mediaType',
+        property: r'package',
         value: '',
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> tmdbIDEqualTo(int value) {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> titleEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'tmdbID',
+        property: r'title',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> tmdbIDGreaterThan(
-    int value, {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> titleGreaterThan(
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'tmdbID',
+        property: r'title',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> tmdbIDLessThan(
-    int value, {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> titleLessThan(
+    String value, {
     bool include = false,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'tmdbID',
+        property: r'title',
         value: value,
+        caseSensitive: caseSensitive,
       ));
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterFilterCondition> tmdbIDBetween(
-    int lower,
-    int upper, {
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> titleBetween(
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'tmdbID',
+        property: r'title',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> titleStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'title',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> titleEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'title',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> titleContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'title',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> titleMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'title',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> titleIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'title',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> titleIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'title',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> typeEqualTo(
+    ExtensionType value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'type',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> typeGreaterThan(
+    ExtensionType value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'type',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> typeLessThan(
+    ExtensionType value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'type',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> typeBetween(
+    ExtensionType lower,
+    ExtensionType upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'type',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> typeStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'type',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> typeEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'type',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> typeContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'type',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> typeMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'type',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> typeIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'type',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> typeIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'type',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> urlEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> urlGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> urlLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> urlBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'url',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> urlStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> urlEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> urlContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'url',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> urlMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'url',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> urlIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'url',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterFilterCondition> urlIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'url',
+        value: '',
       ));
     });
   }
 }
 
-extension TMDBQueryObject on QueryBuilder<TMDB, TMDB, QFilterCondition> {}
+extension FavoriteQueryObject
+    on QueryBuilder<Favorite, Favorite, QFilterCondition> {}
 
-extension TMDBQueryLinks on QueryBuilder<TMDB, TMDB, QFilterCondition> {}
+extension FavoriteQueryLinks
+    on QueryBuilder<Favorite, Favorite, QFilterCondition> {}
 
-extension TMDBQuerySortBy on QueryBuilder<TMDB, TMDB, QSortBy> {
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> sortByData() {
+extension FavoriteQuerySortBy on QueryBuilder<Favorite, Favorite, QSortBy> {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByCover() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'data', Sort.asc);
+      return query.addSortBy(r'cover', Sort.asc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> sortByDataDesc() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByCoverDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'data', Sort.desc);
+      return query.addSortBy(r'cover', Sort.desc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> sortByMediaType() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByDate() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'mediaType', Sort.asc);
+      return query.addSortBy(r'date', Sort.asc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> sortByMediaTypeDesc() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByDateDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'mediaType', Sort.desc);
+      return query.addSortBy(r'date', Sort.desc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> sortByTmdbID() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByPackage() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'tmdbID', Sort.asc);
+      return query.addSortBy(r'package', Sort.asc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> sortByTmdbIDDesc() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByPackageDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'tmdbID', Sort.desc);
+      return query.addSortBy(r'package', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByTitle() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'title', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByTitleDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'title', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'type', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'type', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByUrl() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'url', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> sortByUrlDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'url', Sort.desc);
     });
   }
 }
 
-extension TMDBQuerySortThenBy on QueryBuilder<TMDB, TMDB, QSortThenBy> {
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> thenByData() {
+extension FavoriteQuerySortThenBy
+    on QueryBuilder<Favorite, Favorite, QSortThenBy> {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByCover() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'data', Sort.asc);
+      return query.addSortBy(r'cover', Sort.asc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> thenByDataDesc() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByCoverDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'data', Sort.desc);
+      return query.addSortBy(r'cover', Sort.desc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> thenById() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByDate() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'date', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByDateDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'date', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> thenByIdDesc() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> thenByMediaType() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByPackage() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'mediaType', Sort.asc);
+      return query.addSortBy(r'package', Sort.asc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> thenByMediaTypeDesc() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByPackageDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'mediaType', Sort.desc);
+      return query.addSortBy(r'package', Sort.desc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> thenByTmdbID() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByTitle() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'tmdbID', Sort.asc);
+      return query.addSortBy(r'title', Sort.asc);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QAfterSortBy> thenByTmdbIDDesc() {
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByTitleDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'tmdbID', Sort.desc);
+      return query.addSortBy(r'title', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByType() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'type', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByTypeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'type', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByUrl() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'url', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QAfterSortBy> thenByUrlDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'url', Sort.desc);
     });
   }
 }
 
-extension TMDBQueryWhereDistinct on QueryBuilder<TMDB, TMDB, QDistinct> {
-  QueryBuilder<TMDB, TMDB, QDistinct> distinctByData(
+extension FavoriteQueryWhereDistinct
+    on QueryBuilder<Favorite, Favorite, QDistinct> {
+  QueryBuilder<Favorite, Favorite, QDistinct> distinctByCover(
       {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'data', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'cover', caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QDistinct> distinctByMediaType(
-      {bool caseSensitive = true}) {
+  QueryBuilder<Favorite, Favorite, QDistinct> distinctByDate() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'mediaType', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'date');
     });
   }
 
-  QueryBuilder<TMDB, TMDB, QDistinct> distinctByTmdbID() {
+  QueryBuilder<Favorite, Favorite, QDistinct> distinctByPackage(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'tmdbID');
+      return query.addDistinctBy(r'package', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QDistinct> distinctByTitle(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'title', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QDistinct> distinctByType(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'type', caseSensitive: caseSensitive);
+    });
+  }
+
+  QueryBuilder<Favorite, Favorite, QDistinct> distinctByUrl(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'url', caseSensitive: caseSensitive);
     });
   }
 }
 
-extension TMDBQueryProperty on QueryBuilder<TMDB, TMDB, QQueryProperty> {
-  QueryBuilder<TMDB, int, QQueryOperations> idProperty() {
+extension FavoriteQueryProperty
+    on QueryBuilder<Favorite, Favorite, QQueryProperty> {
+  QueryBuilder<Favorite, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
     });
   }
 
-  QueryBuilder<TMDB, String, QQueryOperations> dataProperty() {
+  QueryBuilder<Favorite, String?, QQueryOperations> coverProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'data');
+      return query.addPropertyName(r'cover');
     });
   }
 
-  QueryBuilder<TMDB, String, QQueryOperations> mediaTypeProperty() {
+  QueryBuilder<Favorite, DateTime, QQueryOperations> dateProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'mediaType');
+      return query.addPropertyName(r'date');
     });
   }
 
-  QueryBuilder<TMDB, int, QQueryOperations> tmdbIDProperty() {
+  QueryBuilder<Favorite, String, QQueryOperations> packageProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'tmdbID');
+      return query.addPropertyName(r'package');
+    });
+  }
+
+  QueryBuilder<Favorite, String, QQueryOperations> titleProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'title');
+    });
+  }
+
+  QueryBuilder<Favorite, ExtensionType, QQueryOperations> typeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'type');
+    });
+  }
+
+  QueryBuilder<Favorite, String, QQueryOperations> urlProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'url');
     });
   }
 }

@@ -81,7 +81,7 @@ console.log = function (message) {
   if (typeof message === "object") {
     message = JSON.stringify(message);
   }
-  sendMessage("mobruLog", JSON.stringify([message.toString()]));
+  sendMessage("miruLog", JSON.stringify([message.toString()]));
 };
 
 class Extension {

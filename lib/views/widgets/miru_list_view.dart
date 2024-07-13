@@ -2,28 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 
 class MiruListView extends StatelessWidget {
-  const MiruListView({
-    super.key,
-    required this.children,
-    this.padding,
-    this.maxWidth,
-  })  : assert(children != null, 'children must not be null'),
+  const MiruListView(
+      {super.key,
+      required this.children,
+      this.padding,
+      this.maxWidth,
+      this.scrollDirection = Axis.vertical,
+      this.controller})
+      : assert(children != null, 'children must not be null'),
         itemBuilder = null,
         itemCount = 0;
-
+  final Axis scrollDirection;
   final IndexedWidgetBuilder? itemBuilder;
   final int itemCount;
   final List<Widget>? children;
   final EdgeInsetsGeometry? padding;
   final double? maxWidth;
-
-  const MiruListView.builder({
-    super.key,
-    required this.itemBuilder,
-    required this.itemCount,
-    this.padding,
-    this.maxWidth,
-  }) : children = null;
+  final ScrollController? controller;
+  const MiruListView.builder(
+      {super.key,
+      required this.itemBuilder,
+      required this.itemCount,
+      this.scrollDirection = Axis.vertical,
+      this.padding,
+      this.maxWidth,
+      this.controller})
+      : children = null;
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +68,7 @@ class MiruListView extends StatelessWidget {
 
     return PlatformWidget(
       mobileWidget: ListView.builder(
+        scrollDirection: scrollDirection,
         padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 130)
             .add(padding ?? EdgeInsets.zero)
             .add(widthPadding),
@@ -71,6 +76,7 @@ class MiruListView extends StatelessWidget {
         itemCount: itemCount,
       ),
       desktopBuilder: ListView.builder(
+        scrollDirection: scrollDirection,
         padding: const EdgeInsets.fromLTRB(20, 70, 20, 20)
             .add(padding ?? EdgeInsets.zero)
             .add(widthPadding),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SideBarSearchBar extends StatelessWidget {
-  const SideBarSearchBar({super.key});
+  final void Function(String)? onChanged;
+  const SideBarSearchBar({super.key, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -11,17 +12,18 @@ class SideBarSearchBar extends StatelessWidget {
         color: Colors.black.withAlpha(20),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.search,
             color: Colors.black54,
             size: 20,
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: TextField(
-              decoration: InputDecoration(
+              onChanged: onChanged,
+              decoration: const InputDecoration(
                 border: InputBorder.none,
                 hintText: '搜索',
                 isDense: true,
@@ -29,7 +31,7 @@ class SideBarSearchBar extends StatelessWidget {
                   fontSize: 14,
                 ),
               ),
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
               ),
             ),

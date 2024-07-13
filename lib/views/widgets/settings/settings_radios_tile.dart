@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:moon_design/moon_design.dart';
 
-class SettingsRadiosTile extends StatelessWidget {
+class SettingsRadiosTile extends StatefulWidget {
   const SettingsRadiosTile({
     super.key,
     required this.title,
@@ -8,68 +9,58 @@ class SettingsRadiosTile extends StatelessWidget {
     required this.radios,
     required this.value,
     required this.onChanged,
+    this.icon,
   });
+
   final String title;
   final String subtitle;
   final List<String> radios;
   final String value;
   final Function(String) onChanged;
+  final IconData? icon;
+
+  @override
+  createState() => _SettingsRadiosTileState();
+}
+
+class _SettingsRadiosTileState extends State<SettingsRadiosTile> {
+  bool _isToggle = false;
+  _showDropdown() {
+    setState(() {
+      _isToggle = !_isToggle;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title),
-              Text(
-                subtitle,
-                style: Theme.of(context).textTheme.bodySmall,
+    return MoonMenuItem(
+        onTap: () {},
+        content: Text(widget.title),
+        label: Text(widget.subtitle),
+        leading: (widget.icon == null)
+            ? null
+            : Icon(
+                widget.icon!,
+                size: 20,
               ),
-            ],
-          ),
-        ),
-        PopupMenuButton<String>(
-          onSelected: onChanged,
-          position: PopupMenuPosition.under,
-          padding: EdgeInsets.zero,
-          surfaceTintColor: Colors.white,
-          shape: ShapeBorder.lerp(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            1,
-          ),
-          itemBuilder: (BuildContext context) {
-            return radios.map((String radio) {
-              return PopupMenuItem<String>(
-                value: radio,
-                height: 40,
-                child: Text(radio),
+        trailing: MoonDropdown(
+            constrainWidthToChild: true,
+            onTapOutside: _showDropdown,
+            show: _isToggle,
+            content: Column(
+                children: List<Widget>.generate(widget.radios.length, (index) {
+              return MoonMenuItem(
+                onTap: () {
+                  widget.onChanged(widget.radios[index]);
+                  _showDropdown();
+                },
+                label: Text(widget.radios[index]),
               );
-            }).toList();
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: Colors.grey[200],
-            ),
-            child: Row(
-              children: [
-                Text(value),
-                const SizedBox(width: 8),
-                const Icon(Icons.arrow_drop_down),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
+            })),
+            child: MoonChip(
+              leading: Text(widget.value),
+              label: const Icon(MoonIcons.controls_chevron_down_32_regular),
+              onTap: _showDropdown,
+            )));
   }
 }

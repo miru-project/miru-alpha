@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/views/widgets/button.dart';
 
@@ -34,10 +35,11 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
             child: Row(
               children: [
                 if (widget.icon != null)
-                  Image.network(
+                  ExtendedImage.network(
                     widget.icon!,
                     width: 50,
                     height: 50,
+                    fit: BoxFit.cover,
                   ),
                 const SizedBox(width: 8),
                 Column(
@@ -132,16 +134,11 @@ class ExtensionGridTile extends StatelessWidget {
                   Row(
                     children: [
                       if (icon != null)
-                        Container(
+                        ExtendedImage.network(
+                          icon!,
                           width: 50,
                           height: 50,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(icon!),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                          fit: BoxFit.cover,
                         ),
                       const SizedBox(width: 8),
                       Column(
