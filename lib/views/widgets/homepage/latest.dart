@@ -16,7 +16,7 @@ class Latest extends StatelessWidget {
   final _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-    final _width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width;
     return FutureBuilder(
         future: extensionService.latest(1),
         builder: (context, snapShot) {
@@ -63,7 +63,7 @@ class Latest extends StatelessWidget {
                                 },
                                 cursor: SystemMouseCursors.click,
                                 child: Obx(() => AnimatedContainer(
-                                      width: _width / 20,
+                                      width: width / 20,
                                       height: double.infinity,
                                       decoration: _leftIsHover.value
                                           ? BoxDecoration(
@@ -107,7 +107,7 @@ class Latest extends StatelessWidget {
                                     },
                                     cursor: SystemMouseCursors.click,
                                     child: Obx(() => AnimatedContainer(
-                                          width: _width / 20,
+                                          width: width / 20,
                                           height: double.infinity,
                                           decoration: _rightIsHover.value
                                               ? BoxDecoration(
