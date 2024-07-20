@@ -13,7 +13,9 @@ class SidebarBox extends StatelessWidget {
     return Container(
       width: 230,
       decoration: BoxDecoration(
-        color: Colors.black.withAlpha(10),
+        color: MediaQuery.of(context).platformBrightness == Brightness.light
+            ? Colors.black.withAlpha(10)
+            : Colors.black.withAlpha(10),
         border: const Border(
           right: BorderSide(color: Colors.black12, width: 0.5),
         ),

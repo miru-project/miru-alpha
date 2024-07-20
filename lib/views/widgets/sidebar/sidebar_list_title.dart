@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moon_design/moon_design.dart';
 
 class SideBarListTitle extends StatelessWidget {
   const SideBarListTitle({
@@ -17,13 +18,6 @@ class SideBarListTitle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.black.withAlpha(20),
-          ),
-        ),
-      ),
       child: Row(
         children: [
           if (trailing != null) ...[
@@ -32,8 +26,8 @@ class SideBarListTitle extends StatelessWidget {
           ],
           Text(
             title,
-            style: const TextStyle(
-              color: Colors.black54,
+            style: TextStyle(
+              color: context.moonTheme?.chipTheme.colors.textColor,
               fontWeight: FontWeight.bold,
             ),
           ),

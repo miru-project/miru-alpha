@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:miru_app_new/controllers/main_controller.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
+import 'package:moon_design/moon_design.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainPage extends StatefulWidget {
@@ -67,8 +68,7 @@ class _MainPageState extends State<MainPage>
               decoration: BoxDecoration(
                 color: Colors.white.withAlpha(200),
                 border: const Border(
-                  top: BorderSide(color: Colors.black38, width: 0.5),
-                ),
+                    top: BorderSide(color: Colors.black38, width: 0.5)),
               ),
               height: 80,
               child: Obx(
@@ -79,7 +79,7 @@ class _MainPageState extends State<MainPage>
                       Expanded(
                         child: _NavButton(
                           selectIcon: c.navItems[i].selectIcon,
-                          text: c.navItems[i].text,
+                          // text: c.navItems[i].text,
                           icon: c.navItems[i].icon,
                           onPressed: () => c.selectIndex(i),
                           selected: c.selectedIndex.value == i,
@@ -117,7 +117,8 @@ class _MainPageState extends State<MainPage>
                     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(200),
+                        color: context
+                            .moonTheme?.textAreaTheme.colors.backgroundColor,
                         border: const Border(
                           bottom: BorderSide(color: Colors.black38, width: 0.5),
                         ),
@@ -140,16 +141,24 @@ class _MainPageState extends State<MainPage>
                                           onPressed: () {
                                             Get.back(id: 1);
                                           },
-                                          trailing: const [
+                                          trailing: [
                                             Icon(
                                               Icons.chevron_left,
-                                              color: Colors.black,
+                                              color: context
+                                                  .moonTheme
+                                                  ?.textAreaTheme
+                                                  .colors
+                                                  .textColor,
                                             ),
                                           ],
-                                          child: const Text(
+                                          child: Text(
                                             "Miru",
                                             style: TextStyle(
-                                              color: Colors.black,
+                                              color: context
+                                                  .moonTheme
+                                                  ?.textAreaTheme
+                                                  .colors
+                                                  .textColor,
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -167,7 +176,7 @@ class _MainPageState extends State<MainPage>
                                 for (var i = 0; i < c.navItems.length; i++) ...[
                                   _NavButton(
                                     selectIcon: c.navItems[i].selectIcon,
-                                    text: c.navItems[i].text,
+                                    // text: c.navItems[i].text,
                                     icon: c.navItems[i].icon,
                                     onPressed: () => c.selectIndex(i),
                                     selected: c.selectedIndex.value == i,
@@ -200,14 +209,14 @@ class _MainPageState extends State<MainPage>
 
 class _NavButton extends StatefulWidget {
   const _NavButton({
-    required this.text,
+    // required this.text,
     required this.icon,
     required this.selectIcon,
     required this.onPressed,
     required this.selected,
   });
 
-  final String text;
+  // final String text;
   final IconData icon;
   final IconData selectIcon;
   final void Function() onPressed;
@@ -234,7 +243,9 @@ class _NavButtonState extends State<_NavButton> {
               height: 45,
               decoration: BoxDecoration(
                 color: widget.selected || _hover
-                    ? Colors.black.withAlpha(20)
+                    ? context
+                        .moonTheme?.tabBarTheme.colors.selectedPillTextColor
+                        .withAlpha(20)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -244,8 +255,9 @@ class _NavButtonState extends State<_NavButton> {
                   Icon(
                     widget.selected || _hover ? widget.selectIcon : widget.icon,
                     color: widget.selected || _hover
-                        ? Colors.black
-                        : Colors.black.withAlpha(150),
+                        ? context.moonTheme?.tabBarTheme.colors.textColor
+                        : context.moonTheme?.tabBarTheme.colors.textColor
+                            .withAlpha(150),
                   ),
                 ],
               ),
@@ -265,7 +277,8 @@ class _NavButtonState extends State<_NavButton> {
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
               color: widget.selected || _hover
-                  ? Colors.black.withAlpha(20)
+                  ? context.moonTheme?.tabBarTheme.colors.selectedPillTextColor
+                      .withAlpha(20)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
             ),
@@ -275,8 +288,8 @@ class _NavButtonState extends State<_NavButton> {
                 Icon(
                   widget.selected || _hover ? widget.selectIcon : widget.icon,
                   color: widget.selected || _hover
-                      ? Colors.black
-                      : Colors.black.withAlpha(150),
+                      ? context.moonColors?.bulma
+                      : context.moonColors?.bulma.withAlpha(150),
                 ),
               ],
             ),

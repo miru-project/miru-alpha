@@ -133,6 +133,7 @@ class MiruStorage {
     SettingKey.subtitleBackgroundColor: Colors.black.value,
     SettingKey.subtitleBackgroundOpacity: 0.5,
     SettingKey.subtitleTextAlign: TextAlign.center.index,
+    SettingKey.accentColor: "krillin"
   };
   static _initSettings() async {
     await database.writeTxn(() async {
@@ -164,7 +165,9 @@ class MiruStorage {
           ..key = key
           ..value = value.toString());
       });
+      return;
     }
+    throw Exception('Setting $key not found');
   }
 
   static getSetting(String key, Type type) async {
@@ -179,7 +182,7 @@ class MiruStorage {
     return convertStringToObj(val!.value, type);
   }
 
-  static getSettingSync(String key, Type type) {
+  static T getSettingSync<T>(String key, Type type) {
     AppSetting? val;
     database.writeTxnSync(() {
       val = _settings.getByKeySync(key);
@@ -219,7 +222,7 @@ class MiruStorage {
       case const (Color):
         return Color(int.parse(value));
       default:
-        throw Exception('Unknown type');
+        throw Exception('Unknown $type');
     }
   }
 }
@@ -258,4 +261,5 @@ class SettingKey {
   static const subtitleTextAlign = "SubtitleTextAlign";
   static const subtitleLastLanguageSelected = "SubtitleLastLanguageSelected";
   static const subtitleLastTitleSelected = "SubtitleLastTitleSelected";
+  static const accentColor = "AccentColor";
 }

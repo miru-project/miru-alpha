@@ -20,20 +20,23 @@ class SideBarListTile extends StatefulWidget {
 class _SideBarListTileState extends State<SideBarListTile> {
   @override
   Widget build(BuildContext context) {
-    return MoonChip.text(
+    return MoonChip(
       width: double.infinity,
       height: 30,
       isActive: widget.selected,
       activeBackgroundColor:
-          widget.selected ? Theme.of(context).primaryColor : Colors.transparent,
-      activeColor: widget.selected ? Colors.white : Colors.black,
+          context.moonTheme?.tabBarTheme.colors.selectedPillTabColor,
+      backgroundColor: Colors.transparent,
       leading: widget.leading,
+      activeColor: context.moonTheme?.tabBarTheme.colors.selectedTextColor,
       label: Expanded(
           child: Text(
         widget.title,
-        style: TextStyle(
-          color: widget.selected ? Colors.white : Colors.black,
-        ),
+        // style: TextStyle(
+        //   color: widget.selected
+        //       ? context.moonTheme?.tabBarTheme.colors.selectedPillTextColor
+        //       : null,
+        // ),
       )),
       onTap: widget.onPressed,
       // backgroundColor: Theme.of(context).primaryColor,

@@ -8,7 +8,6 @@ import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/views/pages/main_page.dart';
-import 'package:moon_design/moon_design.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -69,35 +68,10 @@ class _App extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    final lightTokens = MoonTokens.light.copyWith(
-      colors: MoonColors.light.copyWith(
-        piccolo: Colors.blue,
-        textPrimary: Colors.amber,
-      ),
-      typography: MoonTypography.typography.copyWith(
-        heading: MoonTypography.typography.heading
-            .apply(fontFamily: "HarmonyOS_Sans_SC"),
-      ),
-    );
     return GetMaterialApp(
       title: 'Miru',
       home: const MainPage(),
-      theme: ThemeData.light().copyWith(
-        extensions: <ThemeExtension<dynamic>>[
-          MoonTheme(tokens: lightTokens).copyWith(
-            accordionTheme: MoonAccordionTheme(tokens: lightTokens).copyWith(
-              colors: MoonAccordionTheme(tokens: lightTokens).colors.copyWith(
-                    backgroundColor: Colors.green,
-                  ),
-            ),
-          ),
-        ],
-      ),
-
-      // theme: ThemeData(
-      //   fontFamily: 'HarmonyOS_Sans_SC',
-      //   primaryColor: MoonColors.light.roshi,
-      // ),
+      theme: c.currentThemeData,
       defaultTransition: Transition.downToUp,
       debugShowCheckedModeBanner: false,
     );

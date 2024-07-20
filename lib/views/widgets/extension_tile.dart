@@ -1,6 +1,7 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/views/widgets/button.dart';
+import 'package:moon_design/moon_design.dart';
 
 class ExtensionListTile extends StatefulWidget {
   const ExtensionListTile({
@@ -158,8 +159,10 @@ class ExtensionGridTile extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     description ?? 'No description',
-                    style: const TextStyle(
-                      color: Colors.grey,
+                    style: TextStyle(
+                      color: context
+                          .moonTheme?.tabBarTheme.colors.selectedPillTabColor
+                          .withAlpha(100),
                     ),
                   ),
                 ],
@@ -168,7 +171,7 @@ class ExtensionGridTile extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.all(8),
-            color: Colors.grey[200],
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

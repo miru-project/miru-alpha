@@ -24,22 +24,28 @@ class _SidebarExpanderState extends State<SidebarExpander> {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      MoonChip.text(
+      MoonChip(
         width: double.infinity,
         // padding: const EdgeInsets.only(right: 130),
         isActive: _expanded,
+        activeBackgroundColor: context
+            .moonTheme?.tabBarTheme.colors.selectedPillTabColor
+            .withAlpha(100),
+        backgroundColor:
+            context.moonTheme?.tabBarTheme.colors.selectedPillTabColor,
+        activeColor: context.moonTheme?.tabBarTheme.colors.selectedTextColor,
         leading: Icon(
           _expanded
               ? MoonIcons.controls_chevron_down_32_regular
               : MoonIcons.controls_chevron_right_32_regular,
-          color: Colors.black54,
+          color: context.moonTheme?.segmentedControlTheme.colors.textColor,
           size: 15,
         ),
         label: Expanded(
             child: Text(
           widget.title,
-          style: const TextStyle(
-            color: Colors.black54,
+          style: TextStyle(
+            color: context.moonTheme?.segmentedControlTheme.colors.textColor,
             fontWeight: FontWeight.bold,
           ),
         )),

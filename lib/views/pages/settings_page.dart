@@ -27,6 +27,7 @@ class SettingsPage extends StatelessWidget {
             title: Text('Settings'),
           ),
           sidebar: [
+            const SideBarListTitle(title: 'Settings'),
             sideBarTile('General', SideBarName.general),
             sideBarTile('Extension', SideBarName.extension),
             sideBarTile('Player', SideBarName.player),
