@@ -102,6 +102,8 @@ class ExtensionGridTile extends StatelessWidget {
     required this.type,
     this.description,
     required this.onInstall,
+    required this.onUninstall,
+    required this.isInstalled,
   });
   final String name;
   final String? icon;
@@ -110,7 +112,8 @@ class ExtensionGridTile extends StatelessWidget {
   final String type;
   final String? description;
   final void Function() onInstall;
-
+  final void Function() onUninstall;
+  final bool isInstalled;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -119,7 +122,9 @@ class ExtensionGridTile extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: Colors.black12,
+          color: context.moonTheme?.tabBarTheme.colors.selectedPillTabColor
+                  .withAlpha(100) ??
+              Colors.black12,
           width: 1,
         ),
       ),
@@ -159,11 +164,6 @@ class ExtensionGridTile extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     description ?? 'No description',
-                    style: TextStyle(
-                      color: context
-                          .moonTheme?.tabBarTheme.colors.selectedPillTabColor
-                          .withAlpha(100),
-                    ),
                   ),
                 ],
               ),
@@ -171,7 +171,8 @@ class ExtensionGridTile extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.all(8),
-            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            color: context.moonTheme?.tabBarTheme.colors.selectedPillTabColor
+                .withOpacity(.5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -181,10 +182,15 @@ class ExtensionGridTile extends StatelessWidget {
                     color: Colors.grey,
                   ),
                 ),
-                Button(
-                  onPressed: onInstall,
-                  child: const Text('Install'),
-                )
+                Row(children: [
+                  if (isInstalled)
+                    Button(
+                        onPressed: onUninstall, child: const Text('Uninstall')),
+                  Button(
+                    onPressed: onInstall,
+                    child: const Text('Install'),
+                  )
+                ])
               ],
             ),
           ),

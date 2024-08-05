@@ -17,7 +17,7 @@ class MiruGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    EdgeInsets padding = MediaQuery.paddingOf(context);
+    final EdgeInsets padding = MediaQuery.paddingOf(context);
 
     return PlatformWidget(
       mobileWidget: GridView.builder(

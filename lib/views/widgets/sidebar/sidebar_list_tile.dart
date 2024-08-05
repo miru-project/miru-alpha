@@ -32,38 +32,9 @@ class _SideBarListTileState extends State<SideBarListTile> {
       label: Expanded(
           child: Text(
         widget.title,
-        // style: TextStyle(
-        //   color: widget.selected
-        //       ? context.moonTheme?.tabBarTheme.colors.selectedPillTextColor
-        //       : null,
-        // ),
       )),
       onTap: widget.onPressed,
       // backgroundColor: Theme.of(context).primaryColor,
     );
-    // return MouseRegion(
-    //   onEnter: (_) => setState(() => _hover = true),
-    //   onExit: (_) => setState(() => _hover = false),
-    //   cursor: SystemMouseCursors.click,
-    //   child: GestureDetector(
-    //     onTap: widget.onPressed,
-    //     child: Container(
-    //       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-    //       width: double.infinity,
-    //       decoration: BoxDecoration(
-    //         color: widget.selected || _hover
-    //             ? Theme.of(context).primaryColor
-    //             : Colors.transparent,
-    //         borderRadius: BorderRadius.circular(10),
-    //       ),
-    //       child: Text(
-    //         widget.title,
-    //         style: TextStyle(
-    //           color: widget.selected || _hover ? Colors.white : Colors.black,
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    // );
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -17,29 +18,114 @@ import '../network/request.dart';
 import '../database_service.dart';
 import 'package:xpath_selector_html_parser/xpath_selector_html_parser.dart';
 
-class ExtensionService {
-  late Extension extension;
-  String _cuurentRequestUrl = '';
-  late JavascriptRuntime runtime;
-  late JsBridge jsBridge;
-  late String className;
-  String script = '';
-  Future<JavascriptRuntime> getJsRuntime() async {
+abstract class ExtensionRuntime {
+  static Future<JavascriptRuntime> _initJsRuntime() async {
+    late final String script;
+    late final JavascriptRuntime runtime;
     if (Platform.isLinux || Platform.isIOS) {
       script = await rootBundle.loadString('assets/js/jsCoreRuntime.js');
-
-      return JavascriptCoreRuntime();
+      runtime = JavascriptCoreRuntime();
+    } else {
+      script = await rootBundle.loadString('assets/js/quickJsRuntime.js');
+      runtime = QuickJsRuntime2();
     }
-    script = await rootBundle.loadString('assets/js/quickJsRuntime.js');
-    return QuickJsRuntime2();
-  }
-
-  initRuntime(Extension ext) async {
-    runtime = await getJsRuntime();
-    extension = ext;
     runtime.evaluate(script);
     runtime.enableHandlePromises();
-    className = ext.package.replaceAll('.', '');
+    return runtime;
+  }
+
+  static getRuntime() async {
+    return await _initJsRuntime();
+  }
+
+  static Future<T> runExtension<T>(Future<T> Function() fun) async {
+    try {
+      return await fun();
+    } catch (e, stacktrace) {
+      stacktrace.toString();
+      logger.info(e);
+      // ExtensionUtils.addLog(
+      //   extension,
+      //   ExtensionLogLevel.error,
+      //   e.toString(),
+      // );
+      rethrow;
+    }
+  }
+
+  static cleanCookie(String url) async {
+    await MiruRequest.cleanCookie(url);
+  }
+
+  static setCookie(String cookies, String url) async {
+    await MiruRequest.setCookie(cookies, url);
+  }
+
+  static Future<String> listCookie(String url) async {
+    return await MiruRequest.getCookie(url);
+  }
+}
+
+abstract class ExtensionBaseService {
+  initExtension() {}
+  Future<Map<String, ExtensionFilter>> createFilter({
+    Map<String, List<String>>? filter,
+  });
+  Future<ExtensionDetail> detail(String url);
+  Future<Object?> watch(String url);
+
+  Future<List<ExtensionListItem>> search(
+    String kw,
+    int page, {
+    Map<String, List<String>>? filter,
+  });
+  // Future<List<ExtensionListItem>> latest(int page);
+  void cleanCookie();
+  void setcookie(String cookie);
+  Future<String> listCookie();
+  Future<T> runExtension<T>(Future<T> Function() fun) async {
+    try {
+      return await fun();
+    } catch (e, stacktrace) {
+      stacktrace.toString();
+      logger.info(e);
+      // ExtensionUtils.addLog(
+      //   extension,
+      //   ExtensionLogLevel.error,
+      //   e.toString(),
+      // );
+      rethrow;
+    }
+  }
+}
+
+class ExtensionApiV1 extends ExtensionBaseService {
+  final Extension extension;
+  String _cuurentRequestUrl = '';
+  late JavascriptRuntime runtime;
+  // late JsBridge jsBridge;
+  late String className;
+  String script = '';
+  ExtensionApiV1({required this.extension});
+
+  @override
+  void cleanCookie() {
+    ExtensionRuntime.cleanCookie(extension.webSite);
+  }
+
+  @override
+  void setcookie(String cookie) {
+    ExtensionRuntime.setCookie(cookie, extension.webSite);
+  }
+
+  @override
+  Future<String> listCookie() async {
+    return await ExtensionRuntime.listCookie(extension.webSite);
+  }
+
+  @override
+  initExtension() async {
+    className = extension.package.replaceAll('.', '');
     // example: if the package name is com.example.extension the class name will be comexampleextension
     // but if  the package name is 9anime.to the class name will be animetoRenamed
 
@@ -49,7 +135,26 @@ class ExtensionService {
     final file =
         File('${ExtensionUtils.extensionsDir}/${extension.package}.js');
     final content = file.readAsStringSync();
+    runtime = await ExtensionRuntime.getRuntime();
+    final script = content.replaceAll(RegExp(r'export default class.*'),
+        'class $className extends Extension {');
 
+    runtime.evaluate('''
+      $script
+      if(typeof ${className}Instance !== 'undefined'){
+        delete ${className}Instance;
+      }
+      var ${className}Instance = new $className({webSite: "${extension.webSite}",className:"$className"});
+      ${className}Instance.load().then(()=>{
+        DartBridge.sendMessage("cleanSettings$className",JSON.stringify([extension.settingKeys]));
+      });
+    ''');
+    _initUtils();
+    logger.info('');
+    return this;
+  }
+
+  void _initUtils() {
     jsLog(dynamic args) {
       logger.info(args[0]);
       // ExtensionUtils.addLog(
@@ -71,7 +176,7 @@ class ExtensionService {
       final requestBody = args[1]['data'];
 
       final log = ExtensionNetworkLog(
-        extension: ext,
+        extension: extension,
         url: args[0],
         method: method,
         requestHeaders: headers,
@@ -127,7 +232,7 @@ class ExtensionService {
     }
 
     jsRegisterSetting(dynamic args) async {
-      args[0]['package'] = ext.package;
+      args[0]['package'] = extension.package;
 
       return DatabaseService.registerExtensionSetting(
         ExtensionSetting()
@@ -231,6 +336,7 @@ class ExtensionService {
     }
 
     if (Platform.isLinux) {
+      final jsBridge = JsBridge(jsRuntime: runtime);
       handleDartBridge(String channelName, Function fn) {
         jsBridge.setHandler(channelName, (message) async {
           final args = jsonDecode(message);
@@ -239,7 +345,7 @@ class ExtensionService {
         });
       }
 
-      jsBridge = JsBridge(jsRuntime: runtime);
+      logger.info('start');
       handleDartBridge('cleanSettings$className', jsCleanSettings);
       handleDartBridge('request$className', jsRequest);
       handleDartBridge('log$className', jsLog);
@@ -251,76 +357,34 @@ class ExtensionService {
       handleDartBridge('registerSetting$className', jsRegisterSetting);
       handleDartBridge('getSetting$className', jsGetMessage);
     } else {
-      runtime.onMessage('getSetting', (dynamic args) => jsGetMessage(args));
+      runtime.onMessage(
+          'getSetting$className', (dynamic args) => jsGetMessage(args));
       // 日志
-      runtime.onMessage('log', (args) => jsLog(args));
+      runtime.onMessage('log$className', (args) => jsLog(args));
       // 请求
-      runtime.onMessage('request', (args) => jsRequest(args));
+      runtime.onMessage('request$className', (args) => jsRequest(args));
       // 设置
-      runtime.onMessage('registerSetting', (args) => jsRegisterSetting(args));
+      runtime.onMessage(
+          'registerSetting$className', (args) => jsRegisterSetting(args));
       // 清理扩展设置
       runtime.onMessage(
-          'cleanSettings', (dynamic args) => jsCleanSettings(args));
+          'cleanSettings$className', (dynamic args) => jsCleanSettings(args));
       // xpath 选择器
-      runtime.onMessage('queryXPath', (arg) => jsQueryXPath(arg));
-      runtime.onMessage('removeSelector', (args) => jsRemoveSelector(args));
-      // 获取标签属性
-      runtime.onMessage('getAttributeText', (args) => jsGetAttributeText(args));
+      runtime.onMessage('queryXPath$className', (arg) => jsQueryXPath(arg));
       runtime.onMessage(
-          'querySelectorAll', (dynamic args) => jsQuerySelectorAll(args));
+          'removeSelector$className', (args) => jsRemoveSelector(args));
+      // 获取标签属性
+      runtime.onMessage(
+          'getAttributeText$className', (args) => jsGetAttributeText(args));
+      runtime.onMessage('querySelectorAll$className',
+          (dynamic args) => jsQuerySelectorAll(args));
       // css 选择器
-      runtime.onMessage('querySelector', (arg) => jsQuerySelector(arg));
-    }
-    await _initRunExtension(content);
-    return this;
-  }
-
-  _initRunExtension(String extScript) {
-    final ext = extScript.replaceAll(RegExp(r'export default class.*'),
-        'class $className extends Extension {');
-
-    runtime.evaluate('''
-      $ext
-      if(typeof ${className}Instance !== 'undefined'){
-        delete ${className}Instance;
-      }
-      var ${className}Instance = new $className({webSite: "${extension.webSite}",className:"$className"});
-      ${className}Instance.load().then(()=>{
-        if(${Platform.isLinux}){
-           DartBridge.sendMessage("cleanSettings$className",JSON.stringify([extension.settingKeys]));
-        }
-        sendMessage("cleanSettings", JSON.stringify([extension.settingKeys]));
-      });
-    ''');
-  }
-
-  Future<T> runExtension<T>(Future<T> Function() fun) async {
-    try {
-      return await fun();
-    } catch (e, stacktrace) {
-      stacktrace.toString();
-      logger.info(e);
-      // ExtensionUtils.addLog(
-      //   extension,
-      //   ExtensionLogLevel.error,
-      //   e.toString(),
-      // );
-      rethrow;
+      runtime.onMessage(
+          'querySelector$className', (arg) => jsQuerySelector(arg));
     }
   }
 
-  Future<Map<String, String>> get _defaultHeaders async {
-    return {
-      "Referer": _cuurentRequestUrl,
-      "User-Agent": MiruStorage.getUASetting(),
-      "Cookie": await listCookie(),
-    };
-  }
-
-  Future<String> listCookie() async {
-    return await MiruRequest.getCookie(extension.webSite);
-  }
-
+  // @override
   Future<List<ExtensionListItem>> latest(int page) async {
     return runExtension(() async {
       final jsResult = await runtime.handlePromise(
@@ -338,5 +402,104 @@ class ExtensionService {
       }
       return result;
     });
+  }
+
+  @override
+  Future<List<ExtensionListItem>> search(
+    String kw,
+    int page, {
+    Map<String, List<String>>? filter,
+  }) async {
+    return runExtension(() async {
+      final jsResult = await runtime.handlePromise(
+        await runtime.evaluateAsync(Platform.isLinux
+            ? '${className}Instance.search("$kw",$page,${filter == null ? null : jsonEncode(filter)})'
+            : 'stringify(()=>${className}Instance.search("$kw",$page,${filter == null ? null : jsonEncode(filter)}))'),
+      );
+      List<ExtensionListItem> result =
+          jsonDecode(jsResult.stringResult).map<ExtensionListItem>((e) {
+        return ExtensionListItem.fromJson(e);
+      }).toList();
+      for (var element in result) {
+        element.headers ??= await _defaultHeaders;
+      }
+      return result;
+    });
+  }
+
+  @override
+  Future<Map<String, ExtensionFilter>> createFilter({
+    Map<String, List<String>>? filter,
+  }) async {
+    late String eval;
+    if (filter == null) {
+      eval = Platform.isLinux
+          ? '${className}Instance.createFilter()'
+          : 'stringify(()=>${className}Instance.createFilter())';
+    } else {
+      eval = Platform.isLinux
+          ? '${className}Instance.createFilter(JSON.parse(\'${jsonEncode(filter)}\'))'
+          : 'stringify(()=>${className}Instance.createFilter(JSON.parse(\'${jsonEncode(filter)}\')))';
+    }
+    return runExtension(() async {
+      final jsResult = await runtime.handlePromise(
+        await runtime.evaluateAsync(eval),
+      );
+      Map<String, dynamic> result = jsonDecode(jsResult.stringResult);
+      return result.map(
+        (key, value) => MapEntry(
+          key,
+          ExtensionFilter.fromJson(value),
+        ),
+      );
+    });
+  }
+
+  @override
+  Future<ExtensionDetail> detail(String url) async {
+    return runExtension(() async {
+      final jsResult = await runtime.handlePromise(
+        await runtime.evaluateAsync(Platform.isLinux
+            ? '${className}Instance.detail("$url")'
+            : 'stringify(()=>${className}Instance.detail("$url"))'),
+      );
+      final result =
+          ExtensionDetail.fromJson(jsonDecode(jsResult.stringResult));
+      result.headers ??= await _defaultHeaders;
+      return result;
+    });
+  }
+
+  @override
+  Future<Object?> watch(String url) async {
+    return runExtension(() async {
+      final jsResult = await runtime.handlePromise(
+        await runtime.evaluateAsync(Platform.isLinux
+            ? '${className}Instance.watch("$url")'
+            : 'stringify(()=>${className}Instance.watch("$url"))'),
+      );
+      final data = jsonDecode(jsResult.stringResult);
+
+      switch (extension.type) {
+        case ExtensionType.bangumi:
+          final result = ExtensionBangumiWatch.fromJson(data);
+          result.headers ??= await _defaultHeaders;
+          return result;
+        case ExtensionType.manga:
+          final result = ExtensionMangaWatch.fromJson(data);
+          result.headers ??= await _defaultHeaders;
+          return result;
+        default:
+          return ExtensionFikushonWatch.fromJson(data);
+      }
+    });
+  }
+
+  Future<Map<String, String>> get _defaultHeaders async {
+    return {
+      "Referer": _cuurentRequestUrl,
+      "User-Agent": MiruStorage.getUASetting(),
+      "Cookie": await listCookie(),
+    };
   }
 }

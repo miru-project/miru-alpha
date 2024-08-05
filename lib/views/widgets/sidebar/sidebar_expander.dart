@@ -30,7 +30,7 @@ class _SidebarExpanderState extends State<SidebarExpander> {
         isActive: _expanded,
         activeBackgroundColor: context
             .moonTheme?.tabBarTheme.colors.selectedPillTabColor
-            .withAlpha(100),
+            .withAlpha(180),
         backgroundColor:
             context.moonTheme?.tabBarTheme.colors.selectedPillTabColor,
         activeColor: context.moonTheme?.tabBarTheme.colors.selectedTextColor,
@@ -56,6 +56,7 @@ class _SidebarExpanderState extends State<SidebarExpander> {
               ),
         onTap: () => setState(() => _expanded = !_expanded),
       ),
+      if (_expanded) const SizedBox(height: 10),
       if (_expanded) ...widget.children,
     ]);
     // return Column(

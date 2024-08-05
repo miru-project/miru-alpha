@@ -10,14 +10,14 @@ class Element {
 
   async execute(fun) {
     return await sendMessage(
-      "querySelector",
+      "querySelector"+this.extension.className,
       JSON.stringify([this.content, this.selector, fun])
     );
   }
 
   async removeSelector(selector) {
     this.content = await sendMessage(
-      "removeSelector",
+      "removeSelector"+this.extension.className,
       JSON.stringify([await this.outerHTML, selector])
     );
     return this;
@@ -25,7 +25,7 @@ class Element {
 
   async getAttributeText(attr) {
     return await sendMessage(
-      "getAttributeText",
+      "getAttributeText+this.extension.className",
       JSON.stringify([await this.outerHTML, this.selector, attr])
     );
   }
@@ -51,7 +51,7 @@ class XPathNode {
 
   async execute(fun) {
     return await sendMessage(
-      "queryXPath",
+      "queryXPath"+this.extension.className,
       JSON.stringify([this.content, this.selector, fun])
     );
   }
@@ -81,7 +81,7 @@ console.log = function (message) {
   if (typeof message === "object") {
     message = JSON.stringify(message);
   }
-  sendMessage("miruLog", JSON.stringify([message.toString()]));
+  sendMessage("miruLog"+this.extension.className, JSON.stringify([message.toString()]));
 };
 
 class Extension {
@@ -100,7 +100,7 @@ class Extension {
     const miruUrl = options.headers["Miru-Url"] || this.extension.webSite;
     options.method = options.method || "get";
     const res = await sendMessage(
-      "request",
+      "request" + this.extension.className,
       JSON.stringify([miruUrl + url, options])
     );
     try {
@@ -121,7 +121,7 @@ class Extension {
   async querySelectorAll(content, selector) {
     let elements = [];
     JSON.parse(
-      await sendMessage("querySelectorAll", JSON.stringify({ content: content, selector: selector }))
+      await sendMessage("querySelectorAll"+this.extension.className, JSON.stringify({ content: content, selector: selector }))
     ).forEach((e) => {
       elements.push(new Element(e, selector));
     });
@@ -130,7 +130,7 @@ class Extension {
 
   async getAttributeText(content, selector, attr) {
     return await sendMessage(
-      "getAttributeText",
+      "getAttributeText"+this.extension.className,
       JSON.stringify([content, selector, attr])
     );
   }
@@ -168,13 +168,13 @@ class Extension {
   }
 
   async getSetting(key) {
-    return sendMessage("getSetting", JSON.stringify([key]));
+    return sendMessage("getSetting"+this.extension.className, JSON.stringify([key]));
   }
 
   async registerSetting(settings) {
     console.log(JSON.stringify([settings]));
     this.settingKeys.push(settings.key);
-    return sendMessage("registerSetting", JSON.stringify([settings]));
+    return sendMessage("registerSetting"+this.extension.className, JSON.stringify([settings]));
   }
 
   async load() { }

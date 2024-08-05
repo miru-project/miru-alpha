@@ -64,13 +64,13 @@ class _MainPageState extends State<MainPage>
         bottomNavigationBar: ClipRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white.withAlpha(200),
-                border: const Border(
-                    top: BorderSide(color: Colors.black38, width: 0.5)),
-              ),
-              height: 80,
+            child: SizedBox(
+              // decoration: BoxDecoration(
+              //   color: Colors.white.withAlpha(200),
+              //   border: const Border(
+              //       top: BorderSide(color: Colors.black38, width: 0.5)),
+              // ),
+              height: 60,
               child: Obx(
                 () => Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -79,7 +79,7 @@ class _MainPageState extends State<MainPage>
                       Expanded(
                         child: _NavButton(
                           selectIcon: c.navItems[i].selectIcon,
-                          // text: c.navItems[i].text,
+                          text: c.navItems[i].text,
                           icon: c.navItems[i].icon,
                           onPressed: () => c.selectIndex(i),
                           selected: c.selectedIndex.value == i,
@@ -176,7 +176,7 @@ class _MainPageState extends State<MainPage>
                                 for (var i = 0; i < c.navItems.length; i++) ...[
                                   _NavButton(
                                     selectIcon: c.navItems[i].selectIcon,
-                                    // text: c.navItems[i].text,
+                                    text: c.navItems[i].text,
                                     icon: c.navItems[i].icon,
                                     onPressed: () => c.selectIndex(i),
                                     selected: c.selectedIndex.value == i,
@@ -209,14 +209,14 @@ class _MainPageState extends State<MainPage>
 
 class _NavButton extends StatefulWidget {
   const _NavButton({
-    // required this.text,
+    required this.text,
     required this.icon,
     required this.selectIcon,
     required this.onPressed,
     required this.selected,
   });
 
-  // final String text;
+  final String text;
   final IconData icon;
   final IconData selectIcon;
   final void Function() onPressed;
@@ -235,35 +235,49 @@ class _NavButtonState extends State<_NavButton> {
       mobileWidget: GestureDetector(
         onTap: widget.onPressed,
         behavior: HitTestBehavior.translucent,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 45,
-              height: 45,
-              decoration: BoxDecoration(
-                color: widget.selected || _hover
-                    ? context
-                        .moonTheme?.tabBarTheme.colors.selectedPillTextColor
-                        .withAlpha(20)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
+        child: Stack(children: [
+          Container(
+            color: context.theme.scaffoldBackgroundColor,
+          ),
+          (Container(
+              color: context.moonTheme?.tabBarTheme.colors.selectedPillTabColor
+                  .withAlpha(300),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    widget.selected || _hover ? widget.selectIcon : widget.icon,
-                    color: widget.selected || _hover
-                        ? context.moonTheme?.tabBarTheme.colors.textColor
-                        : context.moonTheme?.tabBarTheme.colors.textColor
-                            .withAlpha(150),
-                  ),
+                  Column(children: [
+                    const SizedBox(height: 5),
+                    Container(
+                      width: 45,
+                      height: 45,
+                      decoration: BoxDecoration(
+                        color: widget.selected || _hover
+                            ? context.moonTheme?.tabBarTheme.colors
+                                .selectedPillTabColor
+                                .withAlpha(100)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          widget.selected || _hover
+                              ? widget.selectIcon
+                              : widget.icon,
+                          color: widget.selected || _hover
+                              ? context.moonTheme?.tabBarTheme.colors.textColor
+                              : context.moonTheme?.tabBarTheme.colors.textColor
+                                  .withAlpha(150),
+                        ),
+                      ),
+                    ),
+                    // Text(
+                    //   widget.text,
+                    //   style: const TextStyle(fontSize: 11),
+                    // )
+                  ])
                 ],
-              ),
-            )
-          ],
-        ),
+              ))),
+        ]),
       ),
       desktopBuilder: MouseRegion(
         cursor: SystemMouseCursors.click,

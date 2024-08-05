@@ -14,9 +14,8 @@ import './extension_service.dart';
 import '../network/request.dart';
 
 class ExtensionUtils {
-  static Map<String, ExtensionService> runtimes = {};
+  static Map<String, ExtensionApiV1> runtimes = {};
   static Map<String, String> extensionErrorMap = {};
-
   static String get extensionsDir => path.join(
         MiruDirectory.getDirectory,
         'extensions',
@@ -103,7 +102,8 @@ class ExtensionUtils {
       final savePath = path.join(extensionsDir, '${ext.package}.js');
       // 保存文件
       File(savePath).writeAsStringSync(script);
-      runtimes[ext.package] = await ExtensionService().initRuntime(ext);
+      runtimes[ext.package] =
+          await ExtensionApiV1(extension: ext).initExtension();
       // _reloadPage();
     } catch (e) {
       if (context.mounted) {
@@ -135,7 +135,8 @@ class ExtensionUtils {
         if (path.basenameWithoutExtension(p) != ext.package) {
           throw Exception("Inconsistency between file name and package name");
         }
-        runtimes[ext.package] = await ExtensionService().initRuntime(ext);
+        runtimes[ext.package] =
+            await ExtensionApiV1(extension: ext).initExtension();
       } catch (e, stacktrace) {
         extensionErrorMap[p] = e.toString();
         logger.info(e.toString());

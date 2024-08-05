@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
 
@@ -34,7 +35,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
         lockOverflowDrag: true,
         snappingPositions: const [
           SnappingPosition.pixels(
-            positionPixels: 130,
+            positionPixels: 100,
             snappingCurve: Curves.easeOutExpo,
             snappingDuration: Duration(seconds: 1),
             grabbingContentOffset: GrabbingContentOffset.top,
@@ -56,7 +57,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
           draggable: (details) => true,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withAlpha(220),
+              color: context.theme.scaffoldBackgroundColor.withAlpha(220),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(30),
               ),
@@ -121,7 +122,7 @@ class _GrabbingWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          margin: const EdgeInsets.symmetric(vertical: 20),
+          margin: const EdgeInsets.symmetric(vertical: 15),
           width: 100,
           height: 7,
           decoration: BoxDecoration(

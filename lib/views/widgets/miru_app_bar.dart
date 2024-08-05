@@ -18,14 +18,14 @@ class MiruAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white.withAlpha(200),
-          ),
+          decoration: const BoxDecoration(
+              // color: Colors.white.withAlpha(200),
+              ),
           child: AppBar(
             title: title,
-            backgroundColor: Colors.transparent,
+            // backgroundColor: Colors.transparent,
             elevation: 0,
-            surfaceTintColor: Colors.transparent,
+            // surfaceTintColor: Colors.transparent,
             actions: actions,
           ),
         ),

@@ -67,9 +67,15 @@ class _MiruGridTileState extends State<MiruGridTile> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(widget.title),
+              Text(
+                widget.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               Text(
                 widget.subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 12,
