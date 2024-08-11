@@ -49,7 +49,13 @@ class HomePage extends StatelessWidget {
         SidebarExpander(
           title: '收藏夹',
           actions: [
-            Button(onPressed: () {}, child: const Icon(Icons.add)),
+            Button(
+              onPressed: () {},
+              child: const Icon(
+                Icons.add,
+                size: 15,
+              ),
+            ),
           ],
           expanded: true,
           children: [

@@ -45,11 +45,6 @@ class SearchPage extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 10),
-        const SizedBox(height: 15),
-        const Divider(
-          height: 1,
-        ),
         const SizedBox(height: 15),
         SidebarExpander(
           title: '语言',
@@ -63,14 +58,16 @@ class SearchPage extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 15),
-        const Divider(
-          height: 1,
-        ),
-        const SizedBox(height: 15),
         SidebarExpander(
           title: '扩展',
           actions: [
-            Button(onPressed: () {}, child: const Icon(Icons.add)),
+            Button(
+              onPressed: () {},
+              child: const Icon(
+                Icons.add,
+                size: 15,
+              ),
+            ),
           ],
           expanded: true,
           children: [
