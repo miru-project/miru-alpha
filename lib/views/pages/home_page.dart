@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:miru_app_new/views/pages/detail_page.dart';
+
 import 'package:miru_app_new/views/widgets/index.dart';
 
 class HomePage extends StatelessWidget {
@@ -79,14 +78,15 @@ class HomePage extends StatelessWidget {
               childAspectRatio: 0.6,
             ),
             itemBuilder: (context, index) {
-              return MiruGridTile(
-                title: 'Title $index',
-                subtitle: 'Subtitle $index',
-                imageUrl: 'https://picsum.photos/200/300?random=$index',
-                onTap: () {
-                  Get.to(() => const DetailPage(), id: 1, popGesture: false);
-                },
-              );
+              return Container();
+              // return MiruGridTile(
+              //   title: 'Title $index',
+              //   subtitle: 'Subtitle $index',
+              //   imageUrl: 'https://picsum.photos/200/300?random=$index',
+              //   onTap: () {
+              //     Get.to(() => const DetailPage(), id: 1, popGesture: false);
+              //   },
+              // );
             },
             itemCount: 20,
           );

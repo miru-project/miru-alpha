@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class PlatformWidget extends StatelessWidget {
   const PlatformWidget({
     super.key,
     required this.mobileWidget,
-    required this.desktopBuilder,
+    required this.desktopWidget,
   });
 
   final Widget mobileWidget;
-  final Widget desktopBuilder;
+  final Widget desktopWidget;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (Get.width < 800) {
+        if (MediaQuery.of(context).size.width < 800) {
           return mobileWidget;
         }
-        return desktopBuilder;
+        return desktopWidget;
       },
     );
   }

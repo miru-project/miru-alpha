@@ -181,7 +181,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
                   _filterExtensionListWithName('');
                   // debugPrint(snapshot.data.toString());
                   return PlatformWidget(
-                    desktopBuilder: Obx(() => MiruGridView(
+                    desktopWidget: Obx(() => MiruGridView(
                           desktopGridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: constraints.maxWidth ~/ 280,

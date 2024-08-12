@@ -93,7 +93,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
         appBar: widget.appBar,
         body: body,
       ),
-      desktopBuilder: Scaffold(
+      desktopWidget: Scaffold(
         body: Row(
           children: [
             if (widget.sidebar != null)

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/views/widgets/button.dart';
+import 'package:moon_design/moon_design.dart';
 
 class SidebarExpander extends StatefulWidget {
   const SidebarExpander({
@@ -38,14 +39,18 @@ class _SidebarExpanderState extends State<SidebarExpander> {
                       _expanded
                           ? Icons.keyboard_arrow_down
                           : Icons.keyboard_arrow_right,
-                      color: Colors.black54,
+                      color: Brightness.dark == Theme.of(context).brightness
+                          ? MoonColors.light.goku
+                          : MoonColors.dark.goku,
                       size: 15,
                     ),
                   ],
                   child: Text(
                     widget.title,
-                    style: const TextStyle(
-                      color: Colors.black54,
+                    style: TextStyle(
+                      color: Brightness.dark == Theme.of(context).brightness
+                          ? MoonColors.light.goku
+                          : MoonColors.dark.goku,
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),

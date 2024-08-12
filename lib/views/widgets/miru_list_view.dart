@@ -57,7 +57,7 @@ class MiruListView extends StatelessWidget {
               .add(widthPadding),
           children: children!,
         ),
-        desktopBuilder: ListView(
+        desktopWidget: ListView(
           padding: const EdgeInsets.fromLTRB(20, 70, 20, 20)
               .add(padding ?? EdgeInsets.zero)
               .add(widthPadding),
@@ -75,7 +75,7 @@ class MiruListView extends StatelessWidget {
         itemBuilder: itemBuilder!,
         itemCount: itemCount,
       ),
-      desktopBuilder: ListView.builder(
+      desktopWidget: ListView.builder(
         scrollDirection: scrollDirection,
         padding: const EdgeInsets.fromLTRB(20, 70, 20, 20)
             .add(padding ?? EdgeInsets.zero)

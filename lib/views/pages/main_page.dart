@@ -93,7 +93,7 @@ class _MainPageState extends State<MainPage>
           ),
         ),
       ),
-      desktopBuilder: Scaffold(
+      desktopWidget: Scaffold(
         body: Obx(() {
           return Stack(
             children: [
@@ -123,7 +123,7 @@ class _MainPageState extends State<MainPage>
                           bottom: BorderSide(color: Colors.black38, width: 0.5),
                         ),
                       ),
-                      height: 50,
+                      height: 55,
                       child: Column(
                         children: [
                           Expanded(
@@ -184,9 +184,10 @@ class _MainPageState extends State<MainPage>
                                   const SizedBox(width: 8)
                                 ],
                                 Expanded(
-                                    child: Platform.isWindows
-                                        ? const WindowCaption()
-                                        : const SizedBox.expand())
+                                    child:
+                                        Platform.isWindows || Platform.isLinux
+                                            ? const WindowCaption()
+                                            : const SizedBox.expand())
                               ],
                             ),
                           ),
@@ -279,7 +280,7 @@ class _NavButtonState extends State<_NavButton> {
               ))),
         ]),
       ),
-      desktopBuilder: MouseRegion(
+      desktopWidget: MouseRegion(
         cursor: SystemMouseCursors.click,
         onEnter: (_) => setState(() => _hover = true),
         onExit: (_) => setState(() => _hover = false),

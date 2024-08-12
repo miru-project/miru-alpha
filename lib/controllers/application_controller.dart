@@ -129,7 +129,7 @@ class ApplicationController extends GetxController {
       case "dark":
         return ThemeMode.dark;
       case "black":
-        return ThemeMode.light;
+        return ThemeMode.dark;
       default:
         return ThemeMode.system;
     }

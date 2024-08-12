@@ -26,7 +26,7 @@ class MiruGridView extends StatelessWidget {
         itemBuilder: itemBuilder,
         itemCount: itemCount,
       ),
-      desktopBuilder: GridView.builder(
+      desktopWidget: GridView.builder(
         padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
         gridDelegate: desktopGridDelegate,
         itemBuilder: itemBuilder,

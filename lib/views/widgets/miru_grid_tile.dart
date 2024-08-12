@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 
 class MiruGridTile extends StatefulWidget {
@@ -60,7 +61,8 @@ class _MiruGridTileState extends State<MiruGridTile> {
                         : null,
                     borderRadius: BorderRadius.circular(8),
                     image: DecorationImage(
-                      image: NetworkImage(widget.imageUrl ?? ''),
+                      image: ExtendedNetworkImageProvider(
+                          cache: true, widget.imageUrl ?? ''),
                       fit: BoxFit.cover,
                     ),
                   ),
