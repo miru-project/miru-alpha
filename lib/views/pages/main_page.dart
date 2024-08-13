@@ -4,13 +4,15 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/controllers/main_controller.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  final StatefulNavigationShell child;
+  const MainPage({super.key, required this.child});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -20,6 +22,28 @@ class _MainPageState extends State<MainPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late final MainController c;
+  static const List<NavItem> _navItems = [
+    NavItem(
+      text: 'Home',
+      icon: Icons.home_outlined,
+      selectIcon: Icons.home_filled,
+    ),
+    NavItem(
+      text: 'Search',
+      icon: Icons.explore_outlined,
+      selectIcon: Icons.explore,
+    ),
+    NavItem(
+      text: 'Extension',
+      icon: Icons.extension_outlined,
+      selectIcon: Icons.extension,
+    ),
+    NavItem(
+      text: 'Settings',
+      icon: Icons.settings_outlined,
+      selectIcon: Icons.settings,
+    ),
+  ];
 
   @override
   void initState() {
@@ -37,51 +61,28 @@ class _MainPageState extends State<MainPage>
     return PlatformWidget(
       mobileWidget: Scaffold(
         extendBody: true,
-        body: PopScope(
-          canPop: false,
-          onPopInvoked: (didPop) {
-            if (didPop) return;
-            if (_NavObserver.isRoot) {
-              SystemNavigator.pop();
-            } else {
-              Get.back(id: 1);
-            }
-          },
-          child: Navigator(
-            key: Get.nestedKey(1),
-            observers: [_NavObserver()],
-            onGenerateRoute: (settings) {
-              return GetPageRoute(
-                page: () => TabBarView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  controller: c.rootPageTabController,
-                  children: c.pages,
-                ),
-              );
-            },
-          ),
+        body: SafeArea(
+          child: widget.child,
         ),
         bottomNavigationBar: ClipRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: SizedBox(
-              // decoration: BoxDecoration(
-              //   color: Colors.white.withAlpha(200),
-              //   border: const Border(
-              //       top: BorderSide(color: Colors.black38, width: 0.5)),
-              // ),
               height: 60,
               child: Obx(
                 () => Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    for (var i = 0; i < c.navItems.length; i++) ...[
+                    for (var i = 0; i < _navItems.length; i++) ...[
                       Expanded(
                         child: _NavButton(
-                          selectIcon: c.navItems[i].selectIcon,
-                          text: c.navItems[i].text,
-                          icon: c.navItems[i].icon,
-                          onPressed: () => c.selectIndex(i),
+                          selectIcon: _navItems[i].selectIcon,
+                          text: _navItems[i].text,
+                          icon: _navItems[i].icon,
+                          onPressed: () {
+                            widget.child.goBranch(i);
+                            c.selectedIndex.value = i;
+                          },
                           selected: c.selectedIndex.value == i,
                         ),
                       ),
@@ -93,117 +94,95 @@ class _MainPageState extends State<MainPage>
           ),
         ),
       ),
-      desktopWidget: Scaffold(
-        body: Obx(() {
-          return Stack(
-            children: [
-              Navigator(
-                key: Get.nestedKey(1),
-                onGenerateRoute: (settings) {
-                  return GetPageRoute(
-                    page: () => TabBarView(
-                      controller: c.rootPageTabController,
-                      children: c.pages,
-                    ),
-                  );
-                },
+      desktopWidget: Column(children: [
+        ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                color: context.moonTheme?.textAreaTheme.colors.backgroundColor,
+                border: const Border(
+                  bottom: BorderSide(color: Colors.black38, width: 0.5),
+                ),
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: context
-                            .moonTheme?.textAreaTheme.colors.backgroundColor,
-                        border: const Border(
-                          bottom: BorderSide(color: Colors.black38, width: 0.5),
-                        ),
-                      ),
-                      height: 55,
-                      child: Column(
-                        children: [
-                          Expanded(
+              height: 55,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              left: Platform.isMacOS ? 70 : 20,
+                            ),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                      left: Platform.isMacOS ? 70 : 20,
+                                Button(
+                                  onPressed: () {
+                                    context.pop();
+                                  },
+                                  trailing: [
+                                    Icon(
+                                      Icons.chevron_left,
+                                      color: context.moonTheme?.textAreaTheme
+                                          .colors.textColor,
                                     ),
-                                    child: Row(
-                                      children: [
-                                        Button(
-                                          onPressed: () {
-                                            Get.back(id: 1);
-                                          },
-                                          trailing: [
-                                            Icon(
-                                              Icons.chevron_left,
-                                              color: context
-                                                  .moonTheme
-                                                  ?.textAreaTheme
-                                                  .colors
-                                                  .textColor,
-                                            ),
-                                          ],
-                                          child: Text(
-                                            "Miru",
-                                            style: TextStyle(
-                                              color: context
-                                                  .moonTheme
-                                                  ?.textAreaTheme
-                                                  .colors
-                                                  .textColor,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        const Expanded(
-                                          child: DragToMoveArea(
-                                            child: SizedBox.expand(),
-                                          ),
-                                        )
-                                      ],
-                                    ),
+                                  ],
+                                  child: Text(
+                                    "Miru",
+                                    style: TextStyle(
+                                        color: context.moonTheme?.textAreaTheme
+                                            .colors.textColor,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        decoration: TextDecoration.none),
                                   ),
                                 ),
-                                for (var i = 0; i < c.navItems.length; i++) ...[
-                                  _NavButton(
-                                    selectIcon: c.navItems[i].selectIcon,
-                                    text: c.navItems[i].text,
-                                    icon: c.navItems[i].icon,
-                                    onPressed: () => c.selectIndex(i),
-                                    selected: c.selectedIndex.value == i,
+                                const Expanded(
+                                  child: DragToMoveArea(
+                                    child: SizedBox.expand(),
                                   ),
-                                  const SizedBox(width: 8)
-                                ],
-                                Expanded(
-                                    child:
-                                        Platform.isWindows || Platform.isLinux
-                                            ? const WindowCaption()
-                                            : const SizedBox.expand())
+                                )
                               ],
                             ),
                           ),
-                          c.isLoading.value
-                              ? const LinearProgressIndicator()
-                              : const SizedBox(height: 2),
+                        ),
+                        for (var i = 0; i < _navItems.length; i++) ...[
+                          _NavButton(
+                            selectIcon: _navItems[i].selectIcon,
+                            text: _navItems[i].text,
+                            icon: _navItems[i].icon,
+                            onPressed: () {
+                              widget.child.goBranch(i);
+                              c.selectedIndex.value = i;
+                            },
+                            selected: c.selectedIndex.value == i,
+                          ),
+                          const SizedBox(width: 8)
                         ],
-                      ),
+                        Expanded(
+                            child: Platform.isWindows || Platform.isLinux
+                                ? const WindowCaption()
+                                : const SizedBox.expand())
+                      ],
                     ),
                   ),
-                ),
+                  c.isLoading.value
+                      ? const LinearProgressIndicator()
+                      : const SizedBox(height: 2),
+                ],
               ),
-            ],
-          );
-        }),
-      ),
+            ),
+          ),
+        ),
+        // TabBarView(
+        //   controller: c.rootPageTabController,
+        //   children: c.pages,
+        // ),
+        Expanded(child: widget.child)
+      ]),
     );
   }
 }

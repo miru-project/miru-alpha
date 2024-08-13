@@ -21,28 +21,28 @@ class MainController extends GetxController {
     SettingsPage(),
   ];
 
-  final List<NavItem> navItems = const [
-    NavItem(
-      text: 'Home',
-      icon: Icons.home_outlined,
-      selectIcon: Icons.home_filled,
-    ),
-    NavItem(
-      text: 'Search',
-      icon: Icons.explore_outlined,
-      selectIcon: Icons.explore,
-    ),
-    NavItem(
-      text: 'Extension',
-      icon: Icons.extension_outlined,
-      selectIcon: Icons.extension,
-    ),
-    NavItem(
-      text: 'Settings',
-      icon: Icons.settings_outlined,
-      selectIcon: Icons.settings,
-    ),
-  ];
+  // final List<NavItem> navItems = const [
+  //   NavItem(
+  //     text: 'Home',
+  //     icon: Icons.home_outlined,
+  //     selectIcon: Icons.home_filled,
+  //   ),
+  //   NavItem(
+  //     text: 'Search',
+  //     icon: Icons.explore_outlined,
+  //     selectIcon: Icons.explore,
+  //   ),
+  //   NavItem(
+  //     text: 'Extension',
+  //     icon: Icons.extension_outlined,
+  //     selectIcon: Icons.extension,
+  //   ),
+  //   NavItem(
+  //     text: 'Settings',
+  //     icon: Icons.settings_outlined,
+  //     selectIcon: Icons.settings,
+  //   ),
+  // ];
 
   final RxInt selectedIndex = 0.obs;
 
@@ -54,20 +54,20 @@ class MainController extends GetxController {
 
   final RxBool isLoading = false.obs;
 
-  Future<void> handleFutureFuture(Future Function() fun) async {
-    isLoading.value = true;
-    try {
-      await fun();
-    } catch (e) {
-      Get.snackbar(
-        'Error',
-        e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoading.value = false;
-    }
-  }
+  // Future<void> handleFutureFuture(Future Function() fun) async {
+  //   isLoading.value = true;
+  //   try {
+  //     await fun();
+  //   } catch (e) {
+  //     Get.snackbar(
+  //       'Error',
+  //       e.toString(),
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+  //   } finally {
+  //     isLoading.value = false;
+  //   }
+  // }
 }
 
 class NavItem {

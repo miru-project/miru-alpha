@@ -99,7 +99,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
             if (widget.sidebar != null)
               SidebarBox(
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(10, 60, 10, 10),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
                   children: widget.sidebar!,
                 ),
               ),

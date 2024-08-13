@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/model/index.dart';
@@ -223,10 +221,10 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  Future<ExtensionDetail> _loadData() async {
-    await Future.delayed(const Duration(seconds: 1000));
-    return widget.extensionService.detail(widget.url);
-  }
+  // Future<ExtensionDetail> _loadData() async {
+  //   await Future.delayed(const Duration(seconds: 1000));
+  //   return widget.extensionService.detail(widget.url);
+  // }
 
   final ValueNotifier<int> _selectedGroup = ValueNotifier(0);
 
@@ -918,7 +916,6 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                 : Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      const SizedBox(width: 20),
                                       Container(
                                         decoration: BoxDecoration(
                                           color: Colors.white,

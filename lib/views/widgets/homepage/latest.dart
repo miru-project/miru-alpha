@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
-import 'package:miru_app_new/utils/router/router_util.dart';
-import 'package:miru_app_new/views/pages/index.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 
@@ -24,7 +23,7 @@ class _LatestState extends State<Latest> {
   final _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-    final width = Get.width;
+    final width = MediaQuery.of(context).size.width;
     if (width > 800) {
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(widget.extensionService.extension.name,
@@ -51,14 +50,18 @@ class _LatestState extends State<Latest> {
                                 subtitle: data[index].update ?? "",
                                 imageUrl: data[index].cover,
                                 onTap: () {
-                                  Get.to(
-                                      () => DetailPage(
-                                            extensionService:
-                                                widget.extensionService,
-                                            url: data[index].url,
-                                          ),
-                                      id: 1,
-                                      popGesture: false);
+                                  context.go('/search/detail', extra: {
+                                    'service': widget.extensionService,
+                                    'url': data[index].url,
+                                  });
+                                  // Get.to(
+                                  //     () => DetailPage(
+                                  //           extensionService:
+                                  //               widget.extensionService,
+                                  //           url: data[index].url,
+                                  //         ),
+                                  //     id: 1,
+                                  //     popGesture: false);
                                 },
                                 width: 160,
                                 height: 200,
@@ -198,14 +201,18 @@ class _LatestState extends State<Latest> {
                             subtitle: data[index].update ?? "",
                             imageUrl: data[index].cover,
                             onTap: () {
-                              Get.to(
-                                  () => DetailPage(
-                                        extensionService:
-                                            widget.extensionService,
-                                        url: data[index].url,
-                                      ),
-                                  id: 1,
-                                  popGesture: false);
+                              context.go('/search/detail', extra: {
+                                'service': widget.extensionService,
+                                'url': data[index].url,
+                              });
+                              // Get.to(
+                              //     () => DetailPage(
+                              //           extensionService:
+                              //               widget.extensionService,
+                              //           url: data[index].url,
+                              //         ),
+                              //     id: 1,
+                              //     popGesture: false);
                             },
                             width: 100,
                             // height: 200,

@@ -8,7 +8,7 @@ import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
-import 'package:miru_app_new/views/pages/main_page.dart';
+
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -69,17 +69,17 @@ class _App extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    // return MaterialApp.router(
-    //   title: 'Miru',
-    //   routerConfig: RouterUtil.appRouter,
-    //   theme: c.currentThemeData,
-    // );
-    return GetMaterialApp(
+    return MaterialApp.router(
       title: 'Miru',
-      home: const MainPage(),
+      routerConfig: RouterUtil.appRouter,
       theme: c.currentThemeData,
-      defaultTransition: Transition.downToUp,
-      debugShowCheckedModeBanner: false,
     );
+    // return GetMaterialApp(
+    //   title: 'Miru',
+    //   home: const MainPage(),
+    //   theme: c.currentThemeData,
+    //   defaultTransition: Transition.downToUp,
+    //   debugShowCheckedModeBanner: false,
+    // );
   }
 }
