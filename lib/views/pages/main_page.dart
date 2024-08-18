@@ -294,18 +294,18 @@ class _NavButtonState extends State<_NavButton> {
   }
 }
 
-class _NavObserver extends NavigatorObserver {
-  static bool isRoot = true;
+// class _NavObserver extends NavigatorObserver {
+//   static bool isRoot = true;
 
-  @override
-  void didPop(Route route, Route? previousRoute) {
-    isRoot = previousRoute?.settings.name == null;
-    super.didPop(route, previousRoute);
-  }
+//   @override
+//   void didPop(Route route, Route? previousRoute) {
+//     isRoot = previousRoute?.settings.name == null;
+//     super.didPop(route, previousRoute);
+//   }
 
-  @override
-  void didPush(Route route, Route? previousRoute) {
-    isRoot = route.settings.name == null;
-    super.didPush(route, previousRoute);
-  }
-}
+//   @override
+//   void didPush(Route route, Route? previousRoute) {
+//     isRoot = route.settings.name == null;
+//     super.didPush(route, previousRoute);
+//   }
+// }

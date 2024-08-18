@@ -348,7 +348,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
       logger.info('start');
       handleDartBridge('cleanSettings$className', jsCleanSettings);
       handleDartBridge('request$className', jsRequest);
-      handleDartBridge('log$className', jsLog);
+      handleDartBridge('miruLog', jsLog);
       handleDartBridge('queryXPath$className', jsQueryXPath);
       handleDartBridge('removeSelector$className', jsRemoveSelector);
       handleDartBridge("getAttributeText$className", jsGetAttributeText);
@@ -360,7 +360,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
       runtime.onMessage(
           'getSetting$className', (dynamic args) => jsGetMessage(args));
       // 日志
-      runtime.onMessage('log$className', (args) => jsLog(args));
+      runtime.onMessage('miruLog', (args) => jsLog(args));
       // 请求
       runtime.onMessage('request$className', (args) => jsRequest(args));
       // 设置

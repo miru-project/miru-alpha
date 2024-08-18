@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fvp/fvp.dart';
 import 'package:get/get.dart';
 import 'package:macos_window_utils/macos/ns_window_button_type.dart';
 import 'package:macos_window_utils/window_manipulator.dart';
-import 'package:media_kit/media_kit.dart';
+// import 'package:media_kit/media_kit.dart';
 import 'package:miru_app_new/controllers/application_controller.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/index.dart';
@@ -49,8 +51,8 @@ void main() async {
   await MiruStorage.ensureInitialized();
   await MiruRequest.ensureInitialized();
   await ExtensionUtils.ensureInitialized();
-  MediaKit.ensureInitialized();
-  runApp(const App());
+  // MediaKit.ensureInitialized();
+  runApp(const ProviderScope(child: App()));
 }
 
 class App extends StatefulWidget {
@@ -65,6 +67,11 @@ class _App extends State<App> {
   void initState() {
     super.initState();
     c = Get.put(ApplicationController());
+    registerWith(options: {
+      'platforms': ['windows', 'linux'],
+      'video.decoders': ['D3D11', 'NVDEC', 'FFmpeg'],
+      'player': {'buffer': '2000+600000'}
+    });
   }
 
   @override

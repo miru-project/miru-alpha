@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/pages/index.dart';
 import 'package:miru_app_new/views/pages/main_page.dart';
+import 'package:miru_app_new/views/pages/video_player.dart';
 
 class RouterUtil {
   static Page getPage({
@@ -17,6 +20,24 @@ class RouterUtil {
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final shellNavigatorKey = GlobalKey<NavigatorState>();
   static final appRouter = GoRouter(navigatorKey: rootNavigatorKey, routes: [
+    GoRoute(
+      path: '/watch',
+      builder: (context, state) {
+        final extra = state.extra! as WatchParams;
+        switch (extra.type) {
+          case ExtensionType.bangumi:
+            return MiruVideoPlayer(
+              service: extra.service,
+              url: extra.url,
+              epGroup: extra.epGroup,
+            );
+          case ExtensionType.manga:
+            return Container();
+          default:
+            return Container();
+        }
+      },
+    ),
     StatefulShellRoute.indexedStack(
       branches: [
         StatefulShellBranch(routes: [

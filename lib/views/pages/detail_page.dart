@@ -1,7 +1,10 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
+import 'package:miru_app_new/utils/watch/watch_entry.dart';
+import 'package:miru_app_new/views/pages/video_player.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:shimmer/shimmer.dart';
@@ -35,7 +38,7 @@ class DetailEpButton extends StatelessWidget {
       required this.runSpacing});
   final ExtensionDetail detail;
   final ValueNotifier<int> notifier;
-  final VoidCallback onTap;
+  final Function(int) onTap;
   final double spacing;
   final double runSpacing;
   @override
@@ -49,23 +52,24 @@ class DetailEpButton extends StatelessWidget {
               spacing: spacing,
               runSpacing: runSpacing,
               children: [
-                ...List.generate(
-                    detail.episodes![selectedValue].urls.length,
-                    (index) => MoonButton(
-                          borderColor: context.moonTheme?.segmentedControlTheme
-                              .colors.backgroundColor,
-                          backgroundColor: context.moonTheme
-                              ?.segmentedControlTheme.colors.backgroundColor
-                              .withAlpha(150),
-                          hoverEffectColor: context.moonTheme
-                              ?.segmentedControlTheme.colors.backgroundColor,
-                          hoverTextColor: context
-                              .moonTheme?.tabBarTheme.colors.selectedTextColor,
-                          onTap: onTap,
-                          label: Text(
-                            detail.episodes![selectedValue].urls[index].name,
-                          ),
-                        ))
+                ...List.generate(detail.episodes![selectedValue].urls.length,
+                    (index) {
+                  return MoonButton(
+                    borderColor: context.moonTheme?.segmentedControlTheme.colors
+                        .backgroundColor,
+                    backgroundColor: context
+                        .moonTheme?.segmentedControlTheme.colors.backgroundColor
+                        .withAlpha(150),
+                    hoverEffectColor: context.moonTheme?.segmentedControlTheme
+                        .colors.backgroundColor,
+                    hoverTextColor:
+                        context.moonTheme?.tabBarTheme.colors.selectedTextColor,
+                    onTap: () => onTap(index),
+                    label: Text(
+                      detail.episodes![selectedValue].urls[index].name,
+                    ),
+                  );
+                })
               ],
             ));
   }
@@ -88,7 +92,7 @@ class DesktopDetail extends StatelessWidget {
   final ExtensionDetail? data;
 
   static const double _maxExtDesktop = 600;
-  static const double _minExtDesktop = 110;
+  static const double _minExtDesktop = 60;
   static const double _clampMaxDesktop = 200;
   static const _gloablDesktopPadding = 30.0;
   @override
@@ -259,7 +263,16 @@ class _DetailPageState extends State<DetailPage> {
                         DetailEpButton(
                             detail: data,
                             notifier: _selectedGroup,
-                            onTap: () {},
+                            onTap: (value) {
+                              context.push('/watch',
+                                  extra: WatchParams(
+                                      epGroup: data.episodes,
+                                      url: data.episodes![_selectedGroup.value]
+                                          .urls[value].url,
+                                      service: widget.extensionService,
+                                      type: widget
+                                          .extensionService.extension.type));
+                            },
                             spacing: 8,
                             runSpacing: 10)
                       ],
@@ -297,7 +310,16 @@ class _DetailPageState extends State<DetailPage> {
                         DetailEpButton(
                           notifier: _selectedGroup,
                           detail: data,
-                          onTap: () {},
+                          onTap: (value) {
+                            context.push('/watch',
+                                extra: WatchParams(
+                                    epGroup: data.episodes,
+                                    url: data.episodes![_selectedGroup.value]
+                                        .urls[value].url,
+                                    service: widget.extensionService,
+                                    type: widget
+                                        .extensionService.extension.type));
+                          },
                           spacing: 20,
                           runSpacing: 10,
                         ),
@@ -778,7 +800,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(
-                                height: 55,
+                                height: 10,
                               ),
                               Row(
                                   mainAxisAlignment:
