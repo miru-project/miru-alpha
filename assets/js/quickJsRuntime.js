@@ -1,7 +1,8 @@
 class Element {
-  constructor(content, selector) {
+  constructor(content, selector, extension) {
     this.content = content;
     this.selector = selector || "";
+    this.extension=extension;
   }
 
   async querySelector(selector) {
@@ -44,9 +45,10 @@ class Element {
 }
 
 class XPathNode {
-  constructor(content, selector) {
+  constructor(content, selector,extension) {
     this.content = content;
     this.selector = selector;
+    this.extension=extension;
   }
 
   async execute(fun) {
@@ -111,11 +113,11 @@ class Extension {
   }
 
   querySelector(content, selector) {
-    return new Element(content, selector);
+    return new Element(content, selector, this.extension);
   }
 
   queryXPath(content, selector) {
-    return new XPathNode(content, selector);
+    return new XPathNode(content, selector, this.extension);
   }
 
   async querySelectorAll(content, selector) {

@@ -22,7 +22,7 @@ abstract class ExtensionRuntime {
   static Future<JavascriptRuntime> _initJsRuntime() async {
     late final String script;
     late final JavascriptRuntime runtime;
-    if (Platform.isLinux || Platform.isIOS) {
+    if (Platform.isIOS) {
       script = await rootBundle.loadString('assets/js/jsCoreRuntime.js');
       runtime = JavascriptCoreRuntime();
     } else {
@@ -107,7 +107,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
   late String className;
   String script = '';
   ExtensionApiV1({required this.extension});
-
+  get _isJscore => Platform.isIOS;
   @override
   void cleanCookie() {
     ExtensionRuntime.cleanCookie(extension.webSite);
@@ -150,7 +150,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
       });
     ''');
     _initUtils();
-    logger.info('');
+    logger.info('started');
     return this;
   }
 
@@ -335,7 +335,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
       return elements;
     }
 
-    if (Platform.isLinux) {
+    if (_isJscore) {
       final jsBridge = JsBridge(jsRuntime: runtime);
       handleDartBridge(String channelName, Function fn) {
         jsBridge.setHandler(channelName, (message) async {
@@ -388,7 +388,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
   Future<List<ExtensionListItem>> latest(int page) async {
     return runExtension(() async {
       final jsResult = await runtime.handlePromise(
-        await runtime.evaluateAsync(Platform.isLinux
+        await runtime.evaluateAsync(_isJscore
             ? '${className}Instance.latest($page)'
             : 'stringify(()=>${className}Instance.latest($page))'),
       );
@@ -412,7 +412,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
   }) async {
     return runExtension(() async {
       final jsResult = await runtime.handlePromise(
-        await runtime.evaluateAsync(Platform.isLinux
+        await runtime.evaluateAsync(_isJscore
             ? '${className}Instance.search("$kw",$page,${filter == null ? null : jsonEncode(filter)})'
             : 'stringify(()=>${className}Instance.search("$kw",$page,${filter == null ? null : jsonEncode(filter)}))'),
       );
@@ -433,11 +433,11 @@ class ExtensionApiV1 extends ExtensionBaseService {
   }) async {
     late String eval;
     if (filter == null) {
-      eval = Platform.isLinux
+      eval = _isJscore
           ? '${className}Instance.createFilter()'
           : 'stringify(()=>${className}Instance.createFilter())';
     } else {
-      eval = Platform.isLinux
+      eval = _isJscore
           ? '${className}Instance.createFilter(JSON.parse(\'${jsonEncode(filter)}\'))'
           : 'stringify(()=>${className}Instance.createFilter(JSON.parse(\'${jsonEncode(filter)}\')))';
     }
@@ -459,7 +459,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
   Future<ExtensionDetail> detail(String url) async {
     return runExtension(() async {
       final jsResult = await runtime.handlePromise(
-        await runtime.evaluateAsync(Platform.isLinux
+        await runtime.evaluateAsync(_isJscore
             ? '${className}Instance.detail("$url")'
             : 'stringify(()=>${className}Instance.detail("$url"))'),
       );
@@ -474,7 +474,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
   Future<Object?> watch(String url) async {
     return runExtension(() async {
       final jsResult = await runtime.handlePromise(
-        await runtime.evaluateAsync(Platform.isLinux
+        await runtime.evaluateAsync(_isJscore
             ? '${className}Instance.watch("$url")'
             : 'stringify(()=>${className}Instance.watch("$url"))'),
       );
