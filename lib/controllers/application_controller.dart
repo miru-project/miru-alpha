@@ -78,19 +78,21 @@ class ApplicationController extends GetxController {
                             .colors
                             .copyWith(
                                 backgroundColor: color,
-                                textColor: color.computeLuminance() < .5
+                                textColor: color.computeLuminance() < .3
                                     ? MoonColors.light.goku
                                     : MoonColors.light.bulma)),
                 switchTheme: MoonSwitchTheme(tokens: _darkToken).copyWith(
                     colors: MoonSwitchTheme(tokens: _darkToken)
                         .colors
                         .copyWith(activeTrackColor: color)),
-                tabBarTheme: MoonTabBarTheme(tokens: _darkToken).copyWith(
-                    colors: MoonTabBarTheme(tokens: _darkToken).colors.copyWith(
-                        selectedPillTabColor: color,
-                        selectedTextColor: color.computeLuminance() > .5
-                            ? MoonColors.dark.goku
-                            : MoonColors.dark.bulma))),
+                chipTheme: MoonChipTheme(tokens: _darkToken).copyWith(
+                    colors: MoonChipTheme(tokens: _darkToken).colors.copyWith(
+                        activeBackgroundColor: color,
+                        activeColor: color.computeLuminance() < .3
+                            ? MoonColors.light.goku
+                            : MoonColors.light.bulma)),
+                tabBarTheme: MoonTabBarTheme(tokens: _darkToken)
+                    .copyWith(colors: MoonTabBarTheme(tokens: _darkToken).colors.copyWith(selectedPillTabColor: color, indicatorColor: color, selectedTextColor: color.computeLuminance() < .5 ? MoonColors.light.goku : MoonColors.light.bulma))),
           ],
         );
       // case "black":

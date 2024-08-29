@@ -70,7 +70,7 @@ dependencies:
   fvp: ^0.23.0
   video_player: ^2.9.1
   flutter_hooks: ^0.20.5
-
+  flutter_animate: ^4.5.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -98,6 +98,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  
   assets:
     - assets/js/
   fonts:

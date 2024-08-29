@@ -27,8 +27,11 @@ class RouterUtil {
         switch (extra.type) {
           case ExtensionType.bangumi:
             return MiruVideoPlayer(
+              name: extra.name,
+              selectedEpisodeIndex: extra.selectedEpisodeIndex,
+              selectedGroupIndex: extra.selectedGroupIndex,
               service: extra.service,
-              url: extra.url,
+              // url: extra.url,
               epGroup: extra.epGroup,
             );
           case ExtensionType.manga:

@@ -28,7 +28,8 @@ class _SideBarListTileState extends State<SideBarListTile> {
           context.moonTheme?.tabBarTheme.colors.selectedPillTabColor,
       backgroundColor: Colors.transparent,
       leading: widget.leading,
-      activeColor: context.moonTheme?.tabBarTheme.colors.selectedTextColor,
+      // activeColor:
+      //     context.moonTheme?.segmentedControlTheme.colors.selectedTextColor,
       label: Expanded(
           child: Text(
         widget.title,

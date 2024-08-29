@@ -21,12 +21,18 @@ class WatchEntry {
 
 class WatchParams {
   const WatchParams(
-      {required this.url,
-      required this.service,
+      {required this.service,
       required this.type,
+      required this.url,
+      required this.selectedGroupIndex,
+      required this.selectedEpisodeIndex,
+      required this.name,
       required this.epGroup});
-  final String url;
   final ExtensionApiV1 service;
-  final ExtensionType type;
+  final String url;
   final List<ExtensionEpisodeGroup>? epGroup;
+  final int selectedGroupIndex;
+  final int selectedEpisodeIndex;
+  final ExtensionType type;
+  final String name;
 }

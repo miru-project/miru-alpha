@@ -1,10 +1,11 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
-import 'package:miru_app_new/views/pages/video_player.dart';
+// import 'package:miru_app_new/views/pages/video_player.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:shimmer/shimmer.dart';
@@ -13,10 +14,14 @@ class DetailItemBox extends StatelessWidget {
   const DetailItemBox({
     required this.padding,
     required this.child,
+    required this.title,
+    this.isMobile = false,
     super.key,
   });
   final Widget child;
   final double padding;
+  final String title;
+  final bool isMobile;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -24,7 +29,28 @@ class DetailItemBox extends StatelessWidget {
             color: context.moonTheme?.textInputTheme.colors.textColor
                 .withAlpha(20),
             borderRadius: BorderRadius.circular(20)),
-        child: Padding(padding: EdgeInsets.all(padding), child: child));
+        child: Padding(
+            padding: EdgeInsets.all(padding),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: isMobile ? 16 : 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                MoonButton.icon(
+                  onTap: () {},
+                  iconColor: Colors.grey[500],
+                  icon: const Text('Expand'),
+                )
+              ]),
+              const Divider(),
+              const SizedBox(height: 10),
+              child,
+            ])));
   }
 }
 
@@ -62,8 +88,8 @@ class DetailEpButton extends StatelessWidget {
                         .withAlpha(150),
                     hoverEffectColor: context.moonTheme?.segmentedControlTheme
                         .colors.backgroundColor,
-                    hoverTextColor:
-                        context.moonTheme?.tabBarTheme.colors.selectedTextColor,
+                    hoverTextColor: context
+                        .moonTheme?.segmentedControlTheme.colors.textColor,
                     onTap: () => onTap(index),
                     label: Text(
                       detail.episodes![selectedValue].urls[index].name,
@@ -76,17 +102,18 @@ class DetailEpButton extends StatelessWidget {
 }
 
 class DesktopDetail extends StatelessWidget {
-  const DesktopDetail({
-    super.key,
-    this.data,
-    required this.season,
-    required this.desc,
-    required this.ep,
-    required this.extensionService,
-  });
-  final List<Widget> desc;
-  final List<Widget> ep;
-  final List<Widget> season;
+  const DesktopDetail(
+      {super.key,
+      this.data,
+      required this.season,
+      required this.desc,
+      required this.ep,
+      required this.extensionService,
+      required this.cast});
+  final Widget desc;
+  final Widget ep;
+  final Widget season;
+  final Widget cast;
   final ExtensionApiV1 extensionService;
 
   final ExtensionDetail? data;
@@ -121,28 +148,30 @@ class DesktopDetail extends StatelessWidget {
                     flex: 2,
                     child: Column(children: [
                       DetailItemBox(
+                          title: 'Season',
                           padding: _gloablDesktopPadding,
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: season)),
+                          child: season),
                       const SizedBox(height: 20),
                       DetailItemBox(
+                          title: 'Description',
                           padding: _gloablDesktopPadding,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: desc,
-                          ))
+                          child: desc)
                     ]),
                   ),
                   const SizedBox(width: 50),
                   Expanded(
                     flex: 6,
-                    child: DetailItemBox(
-                        padding: _gloablDesktopPadding,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: ep,
-                        )),
+                    child: Column(children: [
+                      DetailItemBox(
+                          title: 'Episode',
+                          padding: _gloablDesktopPadding,
+                          child: ep),
+                      const SizedBox(height: 20),
+                      DetailItemBox(
+                          padding: _gloablDesktopPadding,
+                          title: 'Cast & Rating',
+                          child: cast),
+                    ]),
                   ),
                 ],
               ),
@@ -162,8 +191,8 @@ class MobileDetail extends StatelessWidget {
       required this.desc,
       required this.ep,
       required this.extensionService});
-  final List<Widget> desc;
-  final List<Widget> ep;
+  final Widget desc;
+  final Widget ep;
   final ExtensionApiV1 extensionService;
   final ExtensionDetail? data;
   final Widget Function(Widget child) addition;
@@ -192,18 +221,16 @@ class MobileDetail extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DetailItemBox(
+                    title: 'Season',
+                    isMobile: true,
                     padding: _globalMobilePadding,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: desc,
-                    )),
+                    child: desc),
                 const SizedBox(height: 20),
                 DetailItemBox(
+                    title: 'Description',
+                    isMobile: true,
                     padding: _globalMobilePadding,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: ep,
-                    )),
+                    child: ep),
                 const SizedBox(height: 80),
               ],
             )),
@@ -225,11 +252,6 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  // Future<ExtensionDetail> _loadData() async {
-  //   await Future.delayed(const Duration(seconds: 1000));
-  //   return widget.extensionService.detail(widget.url);
-  // }
-
   final ValueNotifier<int> _selectedGroup = ValueNotifier(0);
 
   @override
@@ -251,68 +273,15 @@ class _DetailPageState extends State<DetailPage> {
                     mobileWidget: MobileDetail(
                       data: data,
                       extensionService: widget.extensionService,
-                      ep: [
-                        const Text(
-                          'Episode',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Divider(),
-                        DetailEpButton(
-                            detail: data,
-                            notifier: _selectedGroup,
-                            onTap: (value) {
-                              context.push('/watch',
-                                  extra: WatchParams(
-                                      epGroup: data.episodes,
-                                      url: data.episodes![_selectedGroup.value]
-                                          .urls[value].url,
-                                      service: widget.extensionService,
-                                      type: widget
-                                          .extensionService.extension.type));
-                            },
-                            spacing: 8,
-                            runSpacing: 10)
-                      ],
-                      desc: [
-                        const Text(
-                          'Description',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Divider(),
-                        Text(
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          data.desc ?? 'No Description',
-                          style: const TextStyle(
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                    desktopWidget: DesktopDetail(
-                      data: data,
-                      extensionService: widget.extensionService,
-                      ep: [
-                        const Text(
-                          'Episode',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Divider(),
-                        DetailEpButton(
-                          notifier: _selectedGroup,
+                      ep: DetailEpButton(
                           detail: data,
+                          notifier: _selectedGroup,
                           onTap: (value) {
                             context.push('/watch',
                                 extra: WatchParams(
+                                    name: data.title,
+                                    selectedEpisodeIndex: value,
+                                    selectedGroupIndex: _selectedGroup.value,
                                     epGroup: data.episodes,
                                     url: data.episodes![_selectedGroup.value]
                                         .urls[value].url,
@@ -320,67 +289,73 @@ class _DetailPageState extends State<DetailPage> {
                                     type: widget
                                         .extensionService.extension.type));
                           },
-                          spacing: 20,
-                          runSpacing: 10,
+                          spacing: 8,
+                          runSpacing: 10),
+                      desc: Text(
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        data.desc ?? 'No Description',
+                        style: const TextStyle(
+                          fontSize: 12,
                         ),
-                        const SizedBox(height: 8),
-                      ],
-                      season: [
-                        const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Season',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              MoonButton.icon(
-                                icon: Text('expand'),
-                              )
-                            ]),
-                        const Divider(),
-                        ...List.generate(
-                            (data.episodes ?? []).length,
-                            (index) => MoonChip(
-                                  width: double.infinity,
-                                  height: 30,
-                                  isActive: false,
-                                  activeBackgroundColor: context.moonTheme
-                                      ?.tabBarTheme.colors.selectedPillTabColor
-                                      .withAlpha(150),
-                                  backgroundColor: Colors.transparent,
+                      ),
+                    ),
+                    desktopWidget: DesktopDetail(
+                      data: data,
+                      extensionService: widget.extensionService,
+                      ep: DetailEpButton(
+                        notifier: _selectedGroup,
+                        detail: data,
+                        onTap: (value) {
+                          context.push('/watch',
+                              extra: WatchParams(
+                                  name: data.title,
+                                  selectedEpisodeIndex: value,
+                                  selectedGroupIndex: _selectedGroup.value,
+                                  epGroup: data.episodes,
+                                  url: data.episodes![_selectedGroup.value]
+                                      .urls[value].url,
+                                  service: widget.extensionService,
+                                  type:
+                                      widget.extensionService.extension.type));
+                        },
+                        spacing: 20,
+                        runSpacing: 10,
+                      ),
+                      season: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: List.generate(
+                              (data.episodes ?? []).length,
+                              (index) => MoonChip(
+                                    width: double.infinity,
+                                    height: 30,
+                                    isActive: false,
+                                    activeBackgroundColor: context
+                                        .moonTheme
+                                        ?.tabBarTheme
+                                        .colors
+                                        .selectedPillTabColor
+                                        .withAlpha(150),
+                                    backgroundColor: Colors.transparent,
 
-                                  activeColor: context.moonTheme?.tabBarTheme
-                                      .colors.selectedTextColor,
-                                  label: Expanded(
-                                      child: Text(
-                                    data.episodes![index].title,
-                                  )),
-                                  onTap: () {
-                                    _selectedGroup.value = index;
-                                  },
-                                  // backgroundColor: Theme.of(context).primaryColor,
-                                )),
-                        const SizedBox(height: 8),
-                      ],
-                      desc: [
-                        const Text(
-                          'Description',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                                    // activeColor: context.moonTheme?.tabBarTheme
+                                    //     .colors.selectedTextColor,
+                                    label: Expanded(
+                                        child: Text(
+                                      data.episodes![index].title,
+                                    )),
+                                    onTap: () {
+                                      _selectedGroup.value = index;
+                                    },
+                                    // backgroundColor: Theme.of(context).primaryColor,
+                                  ))),
+                      desc: Text(
+                        data.desc ?? 'No Description',
+                        style: const TextStyle(
+                          fontSize: 16,
                         ),
-                        const Divider(),
-                        Text(
-                          data.desc ?? 'No Description',
-                          style: const TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
+                      ),
+                      cast: _DetailCast(),
                     )),
               );
             }
@@ -388,88 +363,69 @@ class _DetailPageState extends State<DetailPage> {
             return PlatformWidget(
                 mobileWidget: MobileDetail(
                   extensionService: widget.extensionService,
-                  desc: const [
-                    Text(
-                      'Description',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Divider(),
-                    LoadingWidget(
-                      lineCount: 3,
-                      lineheight: 8,
-                      lineSeperate: 8,
-                      padding: EdgeInsets.all(5),
-                    ),
-                  ],
-                  ep: const [
-                    Text(
-                      'Episode',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Divider(),
-                    LoadingWidget(
-                      lineCount: 3,
-                      lineheight: 20,
-                      lineSeperate: 15,
-                      padding: EdgeInsets.all(5),
-                    ),
-                  ],
+                  desc: const LoadingWidget(
+                    lineCount: 3,
+                    lineheight: 8,
+                    lineSeperate: 8,
+                    padding: EdgeInsets.all(5),
+                  ),
+                  ep: const LoadingWidget(
+                    lineCount: 3,
+                    lineheight: 20,
+                    lineSeperate: 15,
+                    padding: EdgeInsets.all(5),
+                  ),
                 ),
                 desktopWidget: DesktopDetail(
-                  ep: const [
-                    Text(
-                      'Episode',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Divider(),
-                    LoadingWidget(
-                      lineCount: 16,
-                      lineheight: 20,
-                    )
-                  ],
-                  season: const [
-                    Text(
-                      'Season',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Divider(),
-                    LoadingWidget(
-                      lineCount: 4,
-                      lineheight: 20,
-                    )
-                  ],
-                  desc: const [
-                    Text(
-                      'Description',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Divider(),
-                    LoadingWidget(
-                      lineCount: 8,
-                      lineheight: 20,
-                    )
-                  ],
+                  cast: const LoadingWidget(
+                    lineCount: 8,
+                    lineheight: 20,
+                  ),
+                  ep: const LoadingWidget(
+                    lineCount: 8,
+                    lineheight: 20,
+                  ),
+                  season: const LoadingWidget(
+                    lineCount: 4,
+                    lineheight: 20,
+                  ),
+                  desc: const LoadingWidget(
+                    lineCount: 8,
+                    lineheight: 20,
+                  ),
                   extensionService: widget.extensionService,
                 ));
           }),
+    );
+  }
+}
+
+class _DetailCast extends HookWidget {
+  static const _tabs = ['TMDB', 'AniList'];
+  @override
+  Widget build(BuildContext context) {
+    final tabController = useTabController(initialLength: 2);
+    return Column(
+      children: [
+        MoonTabBar(
+            isExpanded: true,
+            tabController: tabController,
+            tabs: List.generate(
+                2,
+                (index) => MoonTab(
+                    tabStyle: MoonTabStyle(
+                      indicatorColor: context.moonTheme?.segmentedControlTheme
+                          .colors.backgroundColor,
+                      selectedTextColor: context.moonTheme
+                          ?.segmentedControlTheme.colors.backgroundColor,
+                    ),
+                    label: Text(_tabs[index])))),
+        SizedBox(
+            height: 100,
+            child: TabBarView(
+                controller: tabController,
+                children: const [Text('TMDB'), Text('AniList')]))
+      ],
     );
   }
 }
@@ -846,9 +802,9 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                             .backgroundColor,
                                         textColor: context
                                             .moonTheme
-                                            ?.tabBarTheme
+                                            ?.segmentedControlTheme
                                             .colors
-                                            .selectedTextColor,
+                                            .textColor,
                                         onTap: isLoading ? null : () {},
                                         label: const Text('Play'),
                                       ),
@@ -863,9 +819,9 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                             .backgroundColor,
                                         textColor: context
                                             .moonTheme
-                                            ?.tabBarTheme
+                                            ?.segmentedControlTheme
                                             .colors
-                                            .selectedTextColor,
+                                            .textColor,
                                         onTap: isLoading ? null : () {},
                                         label: const Text('Favorite'),
                                       )
