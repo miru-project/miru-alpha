@@ -1,115 +1,101 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/views/widgets/homepage/latest.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
+import 'package:moon_design/moon_design.dart';
 
-class SearchPage extends StatelessWidget {
+class SearchPage extends HookWidget {
   const SearchPage({super.key});
+  static const _categories = ['分類', '語言', '擴展'];
+
+  Widget buildCategories(List<String> items, void Function(int) onpress) {
+    final selected = useState(0);
+    return Column(
+      children: [
+        const SizedBox(
+          height: 10,
+        ),
+        ...List.generate(
+          items.length,
+          (index) => SideBarListTile(
+              title: items[index],
+              selected: selected.value == index,
+              onPressed: () {
+                selected.value = index;
+                onpress(index);
+              }),
+        )
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final controller =
+        useTabController(initialIndex: 0, initialLength: _categories.length);
+
     return MiruScaffold(
-      appBar: const MiruAppBar(
-        title: Text('Search'),
-      ),
-      sidebar: [
-        const SideBarListTitle(title: '搜索'),
-        const SideBarSearchBar(),
-        const SizedBox(height: 10),
-        SidebarExpander(
-          title: "分类",
-          expanded: true,
-          children: [
-            SideBarListTile(
-              title: '全部',
-              selected: true,
-              onPressed: () {},
-            ),
-            const SizedBox(height: 8),
-            SideBarListTile(
-              title: '影视',
-              selected: false,
-              onPressed: () {},
-            ),
-            const SizedBox(height: 8),
-            SideBarListTile(
-              title: '漫画',
-              selected: false,
-              onPressed: () {},
-            ),
-            const SizedBox(height: 8),
-            SideBarListTile(
-              title: '小说',
-              selected: false,
-              onPressed: () {},
-            ),
-          ],
-        ),
-        const SizedBox(height: 15),
-        SidebarExpander(
-          title: '语言',
-          expanded: true,
-          children: [
-            SideBarListTile(
-              title: '全部',
-              selected: true,
-              onPressed: () {},
-            ),
-          ],
-        ),
-        const SizedBox(height: 15),
-        SidebarExpander(
-          title: '扩展',
-          actions: [
-            Button(
-              onPressed: () {},
-              child: const Icon(
-                Icons.add,
-                size: 15,
+      sidebar: MediaQuery.of(context).size.width < 800
+          ? <Widget>[
+              //mobile
+              const SideBarListTitle(title: '搜索'),
+              const SideBarSearchBar(),
+              const SizedBox(height: 10),
+              MoonTabBar(
+                  tabController: controller,
+                  tabs: List.generate(
+                      _categories.length,
+                      (index) => MoonTab(
+                          tabStyle: MoonTabStyle(
+                              selectedTextColor: context
+                                  .moonTheme
+                                  ?.segmentedControlTheme
+                                  .colors
+                                  .backgroundColor),
+                          label: Text(_categories[index])))),
+              SizedBox(
+                  height: 200,
+                  child: TabBarView(
+                    controller: controller,
+                    children: [
+                      CategoryGroup(
+                          items: const ['全部', '影视', '漫画', '小说'],
+                          onpress: (val) {}),
+                      CategoryGroup(items: const ['全部'], onpress: (val) {}),
+                      CategoryGroup(items: const ['全部'], onpress: (val) {}),
+                    ],
+                  ))
+            ]
+          : [
+              //desktop
+              const SideBarListTitle(title: '搜索'),
+              const SideBarSearchBar(),
+              const SizedBox(height: 10),
+              SidebarExpander(
+                title: "分类",
+                expanded: true,
+                child: CategoryGroup(
+                    items: const ['全部', '影视', '漫画', '小说'], onpress: (val) {}),
               ),
-            ),
-          ],
-          expanded: true,
-          children: [
-            SideBarListTile(
-              title: '全部',
-              selected: true,
-              onPressed: () {},
-            ),
-          ],
-        ),
-      ],
+              const SizedBox(height: 15),
+              SidebarExpander(
+                  title: '語言',
+                  child: CategoryGroup(items: const ['全部'], onpress: (val) {})),
+              const SizedBox(height: 15),
+              SidebarExpander(
+                  title: '擴展',
+                  child: CategoryGroup(items: const ['全部'], onpress: (val) {})),
+            ],
       body: LayoutBuilder(
         builder: (context, constraints) {
           final service = ExtensionUtils.runtimes.entries.toList();
 
-          return MiruListView.builder(
-            itemBuilder: (context, index) {
-              return Latest(
-                extensionService: service[index].value,
-              );
-            },
-            itemCount: service.length,
-          );
-          // return MiruGridView(
-          //   desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          //     crossAxisCount: constraints.maxWidth ~/ 150,
-          //     childAspectRatio: 0.6,
-          //   ),
-          //   mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          //     crossAxisCount: constraints.maxWidth ~/ 110,
-          //     childAspectRatio: 0.6,
-          //   ),
-          //   itemBuilder: (context, index) {
-          //     return MiruGridTile(
-          //       title: 'Title $index',
-          //       subtitle: 'Subtitle $index',
-          //       imageUrl: 'https://picsum.photos/200/300?random=$index',
-          //       onTap: () {},
-          //     );
-          //   },
-          //   itemCount: 20,
-          // );
+          return MiruSingleChildView(
+              child: Column(
+            children: List.generate(service.length,
+                (index) => Latest(extensionService: service[index].value)),
+          ));
         },
       ),
     );

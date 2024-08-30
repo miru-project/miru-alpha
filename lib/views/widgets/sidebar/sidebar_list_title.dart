@@ -29,6 +29,7 @@ class SideBarListTitle extends StatelessWidget {
             style: TextStyle(
               color: context.moonTheme?.chipTheme.colors.textColor,
               fontWeight: FontWeight.bold,
+              fontSize: 20,
             ),
           ),
           const Spacer(),

@@ -7,12 +7,12 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/controllers/main_controller.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/provider/video_provider.dart';
+import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+// import 'package:flutter_animate/flutter_animate.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:window_manager/window_manager.dart';
@@ -61,6 +61,9 @@ class MiruVideoPlayer extends StatefulHookConsumerWidget {
 }
 
 class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
+  bool _hasOriented = false;
+  late double maxHeight;
+  late double maxWidth;
   @override
   void initState() {
     super.initState();
@@ -73,8 +76,21 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
   }
 
   @override
+  void dispose() {
+    if (_hasOriented) {
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeRight]);
+    maxWidth = MediaQuery.of(context).size.width;
+    maxHeight = MediaQuery.of(context).size.height;
+    if (maxWidth < maxHeight) {
+      _hasOriented = true;
+      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeRight]);
+    }
     final epNotifier = ref.watch(_episodeNotifierProvider);
     if (epNotifier.epGroup.isEmpty) {
       return Center(
@@ -91,8 +107,7 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
     final url = epNotifier.epGroup[epNotifier.selectedGroupIndex]
         .urls[epNotifier.selectedEpisodeIndex].url;
     final snapshot = ref.watch(VideoLoadProvider(url, widget.service));
-    final maxWidth = MediaQuery.of(context).size.width;
-    final maxHeight = MediaQuery.of(context).size.height;
+
     final sideWidth = MediaQuery.of(context).size.width < 800 ? 300.0 : 400.0;
 
     return snapshot.when(
@@ -118,7 +133,6 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
 
             return () {
               videoController.dispose();
-              ref.invalidate(subtitleProvider);
             };
           }, [videoController]);
           _videoPlayerProvider = StateNotifierProvider.family<
@@ -184,7 +198,7 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
                   PlatformWidget(
                       mobileWidget: _MobileVideoPlayer(),
                       desktopWidget: _DesktopVideoPlayer())
-                ]).animate().fade()),
+                ])),
             if (sideBarState.isShowSideBar) _SideBar(sideWidth: sideWidth)
           ]);
         },

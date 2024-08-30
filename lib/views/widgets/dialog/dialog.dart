@@ -1,4 +1,5 @@
-import 'package:get/get.dart';
+import 'dart:io';
+
 import 'package:moon_design/moon_design.dart';
 import 'package:flutter/material.dart';
 
@@ -7,7 +8,7 @@ showPaltformDialog(BuildContext context,
   return showMoonModal(
       context: context,
       builder: (context) {
-        if (GetPlatform.isMobile) {
+        if (Platform.isAndroid || Platform.isIOS) {
           return mobile;
         }
         return desktop;

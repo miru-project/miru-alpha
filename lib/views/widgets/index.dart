@@ -10,3 +10,4 @@ export 'miru_list_view.dart';
 export 'blur.dart';
 export 'settings/index.dart';
 export 'max_width.dart';
+export 'miru_single_child_view.dart';

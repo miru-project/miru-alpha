@@ -3,24 +3,24 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/controllers/main_controller.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:window_manager/window_manager.dart';
 
-class MainPage extends StatefulWidget {
+class MainPage extends ConsumerStatefulWidget {
   final StatefulNavigationShell child;
   const MainPage({super.key, required this.child});
 
   @override
-  State<MainPage> createState() => _MainPageState();
+  ConsumerState<MainPage> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage>
+class _MainPageState extends ConsumerState<MainPage>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  // late TabController _tabController;
   late final MainController c;
   static const List<NavItem> _navItems = [
     NavItem(
@@ -48,15 +48,17 @@ class _MainPageState extends State<MainPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
-    c = Get.put(MainController(_tabController));
-    _tabController.addListener(() {
-      c.selectedIndex.value = _tabController.index;
-    });
+    // _tabController = TabController(length: 4, vsync: this);
+    // c = Get.put(MainController(_tabController));
+    // _tabController.addListener(() {
+    //   c.selectedIndex.value = _tabController.index;
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = ref.read(mainControllerProvider.notifier);
+    final controller = ref.watch(mainControllerProvider);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     return PlatformWidget(
       mobileWidget: Scaffold(
@@ -69,26 +71,24 @@ class _MainPageState extends State<MainPage>
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: SizedBox(
               height: 60,
-              child: Obx(
-                () => Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    for (var i = 0; i < _navItems.length; i++) ...[
-                      Expanded(
-                        child: _NavButton(
-                          selectIcon: _navItems[i].selectIcon,
-                          text: _navItems[i].text,
-                          icon: _navItems[i].icon,
-                          onPressed: () {
-                            widget.child.goBranch(i);
-                            c.selectedIndex.value = i;
-                          },
-                          selected: c.selectedIndex.value == i,
-                        ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  for (var i = 0; i < _navItems.length; i++) ...[
+                    Expanded(
+                      child: _NavButton(
+                        selectIcon: _navItems[i].selectIcon,
+                        text: _navItems[i].text,
+                        icon: _navItems[i].icon,
+                        onPressed: () {
+                          widget.child.goBranch(i);
+                          c.selectIndex(i);
+                        },
+                        selected: controller.selectedIndex == i,
                       ),
-                    ],
+                    ),
                   ],
-                ),
+                ],
               ),
             ),
           ),
@@ -156,9 +156,9 @@ class _MainPageState extends State<MainPage>
                             icon: _navItems[i].icon,
                             onPressed: () {
                               widget.child.goBranch(i);
-                              c.selectedIndex.value = i;
+                              c.selectIndex(i);
                             },
-                            selected: c.selectedIndex.value == i,
+                            selected: controller.selectedIndex == i,
                           ),
                           const SizedBox(width: 8)
                         ],
@@ -169,7 +169,7 @@ class _MainPageState extends State<MainPage>
                       ],
                     ),
                   ),
-                  c.isLoading.value
+                  controller.isLoading
                       ? const LinearProgressIndicator()
                       : const SizedBox(height: 2),
                 ],
@@ -217,7 +217,7 @@ class _NavButtonState extends State<_NavButton> {
         behavior: HitTestBehavior.translucent,
         child: Stack(children: [
           Container(
-            color: context.theme.scaffoldBackgroundColor,
+            color: Theme.of(context).scaffoldBackgroundColor,
           ),
           (Container(
               color: context.moonTheme?.tabBarTheme.colors.selectedPillTabColor

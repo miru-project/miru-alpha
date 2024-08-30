@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class SideBarSearchBar extends StatelessWidget {
   final void Function(String)? onChanged;
@@ -17,7 +16,7 @@ class SideBarSearchBar extends StatelessWidget {
         children: [
           Icon(
             Icons.search,
-            color: context.theme.textTheme.bodyMedium?.color,
+            color: Theme.of(context).textTheme.bodyMedium?.color,
             size: 20,
           ),
           const SizedBox(width: 10),

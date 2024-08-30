@@ -1,18 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/views/pages/extension_page.dart';
 import 'package:miru_app_new/views/pages/home_page.dart';
 import 'package:miru_app_new/views/pages/search_page.dart';
 import 'package:miru_app_new/views/pages/settings_page.dart';
 
-class MainController extends GetxController {
-  MainController(
-    this.rootPageTabController,
-  );
+final mainControllerProvider = StateNotifierProvider<MainController, MainState>(
+  (ref) => MainController(),
+);
 
-  final TabController rootPageTabController;
+class MainState {
+  final int selectedIndex;
+  final bool isLoading;
 
-  static MainController get to => Get.find();
+  MainState({
+    required this.selectedIndex,
+    required this.isLoading,
+  });
+
+  MainState copyWith({
+    int? selectedIndex,
+    bool? isLoading,
+  }) {
+    return MainState(
+      selectedIndex: selectedIndex ?? this.selectedIndex,
+      isLoading: isLoading ?? this.isLoading,
+    );
+  }
+}
+
+class MainController extends StateNotifier<MainState> {
+  MainController()
+      : super(MainState(
+          selectedIndex: 0,
+          isLoading: false,
+        ));
 
   final List<Widget> pages = const [
     HomePage(),
@@ -21,53 +43,20 @@ class MainController extends GetxController {
     SettingsPage(),
   ];
 
-  // final List<NavItem> navItems = const [
-  //   NavItem(
-  //     text: 'Home',
-  //     icon: Icons.home_outlined,
-  //     selectIcon: Icons.home_filled,
-  //   ),
-  //   NavItem(
-  //     text: 'Search',
-  //     icon: Icons.explore_outlined,
-  //     selectIcon: Icons.explore,
-  //   ),
-  //   NavItem(
-  //     text: 'Extension',
-  //     icon: Icons.extension_outlined,
-  //     selectIcon: Icons.extension,
-  //   ),
-  //   NavItem(
-  //     text: 'Settings',
-  //     icon: Icons.settings_outlined,
-  //     selectIcon: Icons.settings,
-  //   ),
-  // ];
+  late final TabController rootPageTabController;
 
-  final RxInt selectedIndex = 0.obs;
+  void initTabController(TickerProvider vsync) {
+    rootPageTabController = TabController(length: pages.length, vsync: vsync);
+  }
 
   void selectIndex(int index) {
-    Get.until((route) => route.settings.name == null, id: 1);
-    selectedIndex.value = index;
+    state = state.copyWith(selectedIndex: index);
     rootPageTabController.animateTo(index);
   }
 
-  final RxBool isLoading = false.obs;
-
-  // Future<void> handleFutureFuture(Future Function() fun) async {
-  //   isLoading.value = true;
-  //   try {
-  //     await fun();
-  //   } catch (e) {
-  //     Get.snackbar(
-  //       'Error',
-  //       e.toString(),
-  //       snackPosition: SnackPosition.BOTTOM,
-  //     );
-  //   } finally {
-  //     isLoading.value = false;
-  //   }
-  // }
+  void setLoading(bool loading) {
+    state = state.copyWith(isLoading: loading);
+  }
 }
 
 class NavItem {

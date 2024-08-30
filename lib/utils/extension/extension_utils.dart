@@ -8,7 +8,6 @@ import '../../model/index.dart';
 // import 'dart:io';
 // import 'package:dio/dio.dart' as dio;
 import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
 // import 'package:path/path.dart' as path;
 import './extension_service.dart';
 import '../network/request.dart';

@@ -1,10 +1,13 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fvp/fvp.dart';
-import 'package:get/get.dart';
+
 import 'package:macos_window_utils/macos/ns_window_button_type.dart';
 import 'package:macos_window_utils/window_manipulator.dart';
-// import 'package:media_kit/media_kit.dart';
 import 'package:miru_app_new/controllers/application_controller.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/index.dart';
@@ -16,7 +19,7 @@ import 'package:window_manager/window_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (!GetPlatform.isMobile && !GetPlatform.isWeb) {
+  if (!(Platform.isAndroid || Platform.isIOS) && !kIsWeb) {
     await windowManager.ensureInitialized();
     WindowOptions windowOptions = const WindowOptions(
       size: Size(1300, 700),
@@ -31,7 +34,7 @@ void main() async {
     });
   }
 
-  if (GetPlatform.isMacOS) {
+  if (Platform.isMacOS) {
     await WindowManipulator.initialize(enableWindowDelegate: true);
     await WindowManipulator.addToolbar();
     await WindowManipulator.overrideStandardWindowButtonPosition(
@@ -53,20 +56,24 @@ void main() async {
   await ExtensionUtils.ensureInitialized();
   // MediaKit.ensureInitialized();
   runApp(const ProviderScope(child: App()));
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
 }
 
-class App extends StatefulWidget {
+class App extends ConsumerStatefulWidget {
   const App({super.key});
   @override
   createState() => _App();
 }
 
-class _App extends State<App> {
-  late ApplicationController c;
+class _App extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
-    c = Get.put(ApplicationController());
     registerWith(options: {
       'platforms': ['windows', 'linux'],
       'video.decoders': ['D3D11', 'NVDEC', 'FFmpeg'],
@@ -76,17 +83,11 @@ class _App extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+    final c = ref.watch(applicationControllerProvider);
     return MaterialApp.router(
       title: 'Miru',
       routerConfig: RouterUtil.appRouter,
-      theme: c.currentThemeData,
+      theme: c.themeData,
     );
-    // return GetMaterialApp(
-    //   title: 'Miru',
-    //   home: const MainPage(),
-    //   theme: c.currentThemeData,
-    //   defaultTransition: Transition.downToUp,
-    //   debugShowCheckedModeBanner: false,
-    // );
   }
 }

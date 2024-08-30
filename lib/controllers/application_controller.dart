@@ -1,49 +1,89 @@
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:moon_design/moon_design.dart';
 import '../utils/index.dart';
 import 'package:moon_design/src/theme/tab_bar/tab_bar_theme.dart';
 
-class ApplicationController extends GetxController {
+final applicationControllerProvider =
+    StateNotifierProvider<ApplicationController, ApplicationState>(
+  (ref) => ApplicationController(),
+);
+
+class ApplicationState {
+  final String themeText;
+  final AccentColors accentColor;
+  final ThemeData themeData;
+  ApplicationState({
+    required this.themeText,
+    required this.accentColor,
+    required this.themeData,
+  });
+
+  ApplicationState copyWith({
+    String? themeText,
+    AccentColors? accentColor,
+    ThemeData? themeData,
+  }) {
+    return ApplicationState(
+      themeData: themeData ?? this.themeData,
+      themeText: themeText ?? this.themeText,
+      accentColor: accentColor ?? this.accentColor,
+    );
+  }
+}
+
+class ApplicationController extends StateNotifier<ApplicationState> {
+  ApplicationController()
+      : super(ApplicationState(
+          themeData: ThemeData.dark(),
+          themeText: MiruStorage.getSettingSync(SettingKey.theme, String),
+          accentColor: ThemeUtils.settingToAccentColor[
+              MiruStorage.getSettingSync(SettingKey.accentColor, String)]!,
+        )) {
+    _init();
+  }
+
   static const _themeList = [
     'system',
     'dark',
     'light',
     'black',
   ];
+
   List<String> get themeList => _themeList;
-  final RxString _themeText = "system".obs;
-  final Rx<AccentColors> _accentColor = AccentColors.piccolo.obs;
+
   final _lightToken = MoonTokens.light.copyWith(
     typography: MoonTypography.typography.copyWith(
       heading: MoonTypography.typography.heading
           .apply(fontFamily: "HarmonyOS_Sans_SC"),
     ),
   );
+
   final _darkToken = MoonTokens.dark.copyWith(
     typography: MoonTypography.typography.copyWith(
       heading: MoonTypography.typography.heading
           .apply(fontFamily: "HarmonyOS_Sans_SC"),
     ),
   );
-  @override
-  void onInit() async {
-    _themeText.value = await MiruStorage.getSetting(SettingKey.theme, String);
-    _accentColor.value = ThemeUtils.settingToAccentColor[
-        await MiruStorage.getSetting(SettingKey.accentColor, String)]!;
-    super.onInit();
+
+  void _init() {
+    // final theme = MiruStorage.getSettingSync(SettingKey.theme, String);
+    // final accentColor = ThemeUtils.settingToAccentColor[
+    //     MiruStorage.getSettingSync(SettingKey.accentColor, String)]!;
+
+    state = state.copyWith(
+        themeData: currentThemeData(state.themeText, state.accentColor));
   }
 
-  ThemeData get currentThemeData {
-    switch (_themeText.value) {
+  currentThemeData(String themeText, AccentColors accentColor) {
+    switch (themeText) {
       case "light":
-        final color = ThemeUtils.accentToMoonColorBright[_accentColor.value]!;
+        final color = ThemeUtils.accentToMoonColorBright[accentColor]!;
         return ThemeData.light().copyWith(
           extensions: <ThemeExtension<dynamic>>[
             MoonTheme(
               tokens: _lightToken,
-              // text,
               tabBarTheme: MoonTabBarTheme(tokens: _lightToken).copyWith(
                   colors: MoonTabBarTheme(tokens: _lightToken).colors.copyWith(
                       selectedPillTabColor: color,
@@ -67,7 +107,7 @@ class ApplicationController extends GetxController {
           ],
         );
       default:
-        final color = ThemeUtils.accentToMoonColorDark[_accentColor.value]!;
+        final color = ThemeUtils.accentToMoonColorDark[accentColor]!;
         return ThemeData.dark().copyWith(
           extensions: <ThemeExtension<dynamic>>[
             MoonTheme(
@@ -91,41 +131,19 @@ class ApplicationController extends GetxController {
                         activeColor: color.computeLuminance() < .3
                             ? MoonColors.light.goku
                             : MoonColors.light.bulma)),
-                tabBarTheme: MoonTabBarTheme(tokens: _darkToken)
-                    .copyWith(colors: MoonTabBarTheme(tokens: _darkToken).colors.copyWith(selectedPillTabColor: color, indicatorColor: color, selectedTextColor: color.computeLuminance() < .5 ? MoonColors.light.goku : MoonColors.light.bulma))),
+                tabBarTheme: MoonTabBarTheme(tokens: _darkToken).copyWith(
+                    colors: MoonTabBarTheme(tokens: _darkToken).colors.copyWith(
+                          selectedPillTabColor: color,
+                          indicatorColor: color,
+                          selectedTextColor: color,
+                        ))),
           ],
         );
-      // case "black":
-      //   return ThemeData.dark(
-      //     useMaterial3: true,
-      //   ).copyWith(
-      //     scaffoldBackgroundColor: Colors.black,
-      //     canvasColor: Colors.black,
-      //     cardColor: Colors.black,
-      //     dialogBackgroundColor: Colors.black,
-      //     primaryColor: Colors.black,
-      //     hintColor: Colors.black,
-      //     primaryColorDark: Colors.black,
-      //     primaryColorLight: Colors.black,
-      //     colorScheme: const ColorScheme.dark(
-      //       primary: Colors.white,
-      //       onSecondary: Colors.white,
-      //       onSurface: Colors.white,
-      //       secondary: Colors.grey,
-      //       surface: Colors.black,
-      //       onPrimary: Colors.black,
-      //       primaryContainer: Color.fromARGB(255, 31, 31, 31),
-      //       surfaceTint: Colors.black,
-      //     ),
-      //   );
-      // default:
-      //   return ThemeData.light(useMaterial3: true);
     }
   }
 
-  get moonTokens => MoonTokens.dark;
   ThemeMode get theme {
-    switch (_themeText.value) {
+    switch (state.themeText) {
       case "light":
         return ThemeMode.light;
       case "dark":
@@ -137,15 +155,17 @@ class ApplicationController extends GetxController {
     }
   }
 
-  changeAccentColor(String color) {
+  void changeAccentColor(String color) {
     MiruStorage.setSettingSync(SettingKey.accentColor, color);
-    _accentColor.value = ThemeUtils.settingToAccentColor[color]!;
-    Get.forceAppUpdate();
+    final accentColor = ThemeUtils.settingToAccentColor[color]!;
+    state = state.copyWith(
+        accentColor: accentColor,
+        themeData: currentThemeData(state.themeText, accentColor));
   }
 
-  changeTheme(String mode) {
+  void changeTheme(String mode) {
     MiruStorage.setSettingSync(SettingKey.theme, mode);
-    _themeText.value = mode;
-    Get.forceAppUpdate();
+    state = state.copyWith(
+        themeText: mode, themeData: currentThemeData(mode, state.accentColor));
   }
 }

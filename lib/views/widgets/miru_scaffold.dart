@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
 
 class MiruScaffold extends StatefulWidget {
   const MiruScaffold({
     super.key,
-    required this.appBar,
+    this.appBar,
     required this.body,
     this.sidebar,
   });
-  final PreferredSizeWidget appBar;
+  final PreferredSizeWidget? appBar;
   final Widget body;
   final List<Widget>? sidebar;
 
@@ -35,7 +34,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
         lockOverflowDrag: true,
         snappingPositions: const [
           SnappingPosition.pixels(
-            positionPixels: 100,
+            positionPixels: 140,
             snappingCurve: Curves.easeOutExpo,
             snappingDuration: Duration(seconds: 1),
             grabbingContentOffset: GrabbingContentOffset.top,
@@ -57,7 +56,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
           draggable: (details) => true,
           child: Container(
             decoration: BoxDecoration(
-              color: context.theme.scaffoldBackgroundColor.withAlpha(220),
+              color: Theme.of(context).scaffoldBackgroundColor.withAlpha(220),
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(30),
               ),
@@ -74,7 +73,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
                 controller: scrollController,
                 padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
                 children: [
-                  const _GrabbingWidget(),
+                  _GrabbingWidget(),
                   ...widget.sidebar!,
                 ],
               ),
@@ -114,8 +113,6 @@ class _MiruScaffoldState extends State<MiruScaffold> {
 }
 
 class _GrabbingWidget extends StatelessWidget {
-  const _GrabbingWidget();
-
   @override
   Widget build(BuildContext context) {
     return Column(

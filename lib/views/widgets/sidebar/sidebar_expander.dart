@@ -6,12 +6,12 @@ class SidebarExpander extends StatefulWidget {
   const SidebarExpander({
     super.key,
     required this.title,
-    required this.children,
+    required this.child,
     this.expanded = false,
     this.actions,
   });
   final String title;
-  final List<Widget> children;
+  final Widget child;
   final bool expanded;
   final List<Widget>? actions;
 
@@ -61,7 +61,7 @@ class _SidebarExpanderState extends State<SidebarExpander> {
             ],
           ),
         ),
-        if (_expanded) ...widget.children,
+        if (_expanded) widget.child,
       ],
     );
   }

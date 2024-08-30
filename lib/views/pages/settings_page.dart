@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import '../widgets/settings/setting_items.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends HookWidget {
   const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Rx<SideBarName> select = SideBarName.general.obs;
+    final select = useState(SideBarName.general);
     Widget sideBarTile(String name, SideBarName selected) {
       return Column(children: [
         SideBarListTile(
@@ -22,21 +22,21 @@ class SettingsPage extends StatelessWidget {
       ]);
     }
 
-    return Obx(() => MiruScaffold(
-          appBar: const MiruAppBar(
-            title: Text('Settings'),
-          ),
-          sidebar: [
-            const SideBarListTitle(title: 'Settings'),
-            sideBarTile('General', SideBarName.general),
-            sideBarTile('Extension', SideBarName.extension),
-            sideBarTile('Player', SideBarName.player),
-            sideBarTile('BT Server', SideBarName.btServer),
-            sideBarTile('Reader', SideBarName.reader),
-            sideBarTile('Advanced', SideBarName.advanced),
-            sideBarTile('About', SideBarName.about),
-          ],
-          body: SettingItems(selected: select.value),
-        ));
+    return MiruScaffold(
+      appBar: const MiruAppBar(
+        title: Text('Settings'),
+      ),
+      sidebar: [
+        const SideBarListTitle(title: 'Settings'),
+        sideBarTile('General', SideBarName.general),
+        sideBarTile('Extension', SideBarName.extension),
+        sideBarTile('Player', SideBarName.player),
+        sideBarTile('BT Server', SideBarName.btServer),
+        sideBarTile('Reader', SideBarName.reader),
+        sideBarTile('Advanced', SideBarName.advanced),
+        sideBarTile('About', SideBarName.about),
+      ],
+      body: SettingItems(selected: select.value),
+    );
   }
 }

@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:flutter_js/javascriptcore/jscore_runtime.dart';
-import 'package:get/get.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/extension/extension_jscore_plugin.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
@@ -17,6 +16,13 @@ import 'package:dio/dio.dart';
 import '../network/request.dart';
 import '../database_service.dart';
 import 'package:xpath_selector_html_parser/xpath_selector_html_parser.dart';
+
+extension StringExtension on String {
+  bool get isAlphabetOnly {
+    final regex = RegExp(r'^[a-zA-Z]+$');
+    return regex.hasMatch(this);
+  }
+}
 
 abstract class ExtensionRuntime {
   static Future<JavascriptRuntime> _initJsRuntime() async {

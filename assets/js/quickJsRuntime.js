@@ -26,7 +26,7 @@ class Element {
 
   async getAttributeText(attr) {
     return await sendMessage(
-      "getAttributeText+this.extension.className",
+      "getAttributeText"+this.extension.className,
       JSON.stringify([await this.outerHTML, this.selector, attr])
     );
   }
@@ -132,7 +132,7 @@ class Extension {
 
   async getAttributeText(content, selector, attr) {
     return await sendMessage(
-      "getAttributeText"+this.extension.className,
+      `getAttributeText${this.extension.className}`,
       JSON.stringify([content, selector, attr])
     );
   }

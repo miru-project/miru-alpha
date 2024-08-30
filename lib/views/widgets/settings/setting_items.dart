@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/controllers/application_controller.dart';
 import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
@@ -17,21 +17,21 @@ enum SideBarName {
   tracking
 }
 
-class SettingItems extends StatefulWidget {
+// class SettingItems extends StatefulWidget {
+//   const SettingItems({super.key, required this.selected});
+//   final SideBarName selected;
+
+//   @override
+//   createState() => _SettingItemsState();
+// }
+
+class SettingItems extends ConsumerWidget {
   const SettingItems({super.key, required this.selected});
   final SideBarName selected;
-
   @override
-  createState() => _SettingItemsState();
-}
-
-class _SettingItemsState extends State<SettingItems> {
-  late final ApplicationController _c;
-  late final Map<SideBarName, List<Widget>> _nameMap;
-  @override
-  void initState() {
-    _c = Get.find<ApplicationController>();
-    _nameMap = <SideBarName, List<Widget>>{
+  Widget build(BuildContext context, ref) {
+    final c = ref.read(applicationControllerProvider.notifier);
+    final nameMap = <SideBarName, List<Widget>>{
       SideBarName.general: [
         SettingsRadiosTile(
           title: "Radios Title",
@@ -79,9 +79,9 @@ class _SettingItemsState extends State<SettingItems> {
           title: 'theme',
           subtitle: 'theme-subtitle',
           onchange: (value) {
-            _c.changeTheme(_c.themeList[value]);
+            c.changeTheme(c.themeList[value]);
           },
-          initValue: _c.themeList
+          initValue: c.themeList
               .indexOf(MiruStorage.getSettingSync(SettingKey.theme, String)),
           segments: const [
             Icon(MoonIcons.generic_settings_24_regular),
@@ -104,18 +104,18 @@ class _SettingItemsState extends State<SettingItems> {
               runSpacing: 8,
               children: List.generate(
                   ThemeUtils.accentToMoonColorBright.keys.length,
-                  (index) => InkWell(
+                  (index) => GestureDetector(
                       onTap: () {
                         final color =
                             ThemeUtils.settingToAccentColor.keys.toList();
-                        _c.changeAccentColor(color[index]);
+                        c.changeAccentColor(color[index]);
                       },
                       child: Container(
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            color: _c.theme == ThemeMode.light
+                            color: c.theme == ThemeMode.light
                                 ? ThemeUtils.accentToMoonColorBright.values
                                     .elementAt(index)
                                 : ThemeUtils.accentToMoonColorDark.values
@@ -152,19 +152,6 @@ class _SettingItemsState extends State<SettingItems> {
       SideBarName.player: [],
       SideBarName.tracking: [],
     };
-    super.initState();
-  }
-
-  @override
-  void didUpdateWidget(covariant oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.selected != widget.selected) {
-      setState(() {});
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MiruListView(children: _nameMap[widget.selected] ?? []);
+    return MiruListView(children: nameMap[selected] ?? []);
   }
 }
