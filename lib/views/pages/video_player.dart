@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,39 +9,32 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/controllers/main_controller.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
+import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
 import 'package:miru_app_new/utils/network/request.dart';
-import 'package:miru_app_new/views/widgets/index.dart';
+
 import 'package:moon_design/moon_design.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 // import 'package:flutter_animate/flutter_animate.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
+bool _hasOriented = false;
 late StateNotifierProviderFamily<VideoPlayerNotifier, VideoPlayerState, String>
     _videoPlayerProvider;
-final _sideBarProvider =
-    StateNotifierProvider<SideBarNotifier, SideBarState>((ref) {
-  return SideBarNotifier();
-});
 final _episodeNotifierProvider =
     StateNotifierProvider<EpisodeNotifier, EpisodeNotifierState>((ref) {
   return EpisodeNotifier();
 });
-
-class _MobileVideoPlayer extends ConsumerWidget {
-  // const _MobileVideoPlayer({});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Container();
-  }
-}
-
+final isMobile = Platform.isAndroid || Platform.isIOS;
+late FetchResolutionProvider _resolutionNotifer;
 final subtitleProvider =
     StateNotifierProvider<SubtitleNotifier, SubTitleGroupState>((ref) {
   return SubtitleNotifier();
 });
+String _videoUrl = '';
 
 class MiruVideoPlayer extends StatefulHookConsumerWidget {
   const MiruVideoPlayer(
@@ -61,7 +55,6 @@ class MiruVideoPlayer extends StatefulHookConsumerWidget {
 }
 
 class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
-  bool _hasOriented = false;
   late double maxHeight;
   late double maxWidth;
   @override
@@ -70,8 +63,12 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
     // init episodes
     Future.microtask(() {
       final epcontroller = ref.read(_episodeNotifierProvider.notifier);
-      epcontroller.initEpisodes(widget.selectedGroupIndex,
-          widget.selectedEpisodeIndex, widget.epGroup ?? [], widget.name);
+      epcontroller.initEpisodes(
+          widget.selectedGroupIndex,
+          widget.selectedEpisodeIndex,
+          widget.epGroup ?? [],
+          widget.name,
+          false);
     });
   }
 
@@ -85,11 +82,12 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    maxWidth = MediaQuery.of(context).size.width;
-    maxHeight = MediaQuery.of(context).size.height;
+    maxWidth = DeviceUtil.getWidth(context);
+    maxHeight = DeviceUtil.getHeight(context);
+
     if (maxWidth < maxHeight) {
       _hasOriented = true;
-      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeRight]);
+      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
     }
     final epNotifier = ref.watch(_episodeNotifierProvider);
     if (epNotifier.epGroup.isEmpty) {
@@ -107,100 +105,12 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
     final url = epNotifier.epGroup[epNotifier.selectedGroupIndex]
         .urls[epNotifier.selectedEpisodeIndex].url;
     final snapshot = ref.watch(VideoLoadProvider(url, widget.service));
-
-    final sideWidth = MediaQuery.of(context).size.width < 800 ? 300.0 : 400.0;
-
     return snapshot.when(
         data: (value) {
-          final subtitleUrl = value.subtitles?.first.url;
-          final currentSubtitle = useState<String>('');
-          final videoController = usePlayer(
-            url: value.url,
-          );
-          useEffect(() {
-            if (subtitleUrl != null) {
-              Future.microtask(() {
-                ref.read(subtitleProvider.notifier).init(value.subtitles);
-              });
-              videoController.addListener(() {
-                final position = videoController.value.position;
-                final subtitle = ref
-                    .read(subtitleProvider.notifier)
-                    .getCurrentSubtitle(position);
-                currentSubtitle.value = subtitle;
-              });
-            }
-
-            return () {
-              videoController.dispose();
-            };
-          }, [videoController]);
-          _videoPlayerProvider = StateNotifierProvider.family<
-              VideoPlayerNotifier, VideoPlayerState, String>(
-            (ref, url) {
-              return VideoPlayerNotifier(videoController, value.subtitles);
-            },
-          );
-          // final subContoller = ref.read(subtitleProvider.notifier);
-          final sideBarState = ref.watch(_sideBarProvider);
-          final sideBarNotifier = ref.read(_sideBarProvider.notifier);
-          return Row(children: [
-            AnimatedContainer(
-                onEnd: () {
-                  if (sideBarState.isOpenSideBar) {
-                    sideBarNotifier.showSideBar();
-                    return;
-                  }
-                  sideBarNotifier.hideSideBar();
-                },
-                duration: const Duration(milliseconds: 120),
-                width: sideBarState.isOpenSideBar
-                    ? maxWidth - sideWidth
-                    : maxWidth,
-                child: Stack(children: [
-                  //video player
-                  Center(
-                      child: AspectRatio(
-                          aspectRatio: videoController.value.size.width == 0
-                              ? maxWidth / maxHeight
-                              : videoController.value.size.width /
-                                  videoController.value.size.height,
-                          child: VideoPlayer(videoController))),
-                  //subtitle text
-                  if (currentSubtitle.value.isNotEmpty)
-                    Positioned(
-                      bottom: 50,
-                      left: 20,
-                      right: 20,
-                      child: IntrinsicWidth(
-                          child: Container(
-                        padding: const EdgeInsets.all(10.0),
-                        margin: const EdgeInsets.symmetric(horizontal: 20.0),
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: RichText(
-                          text: TextSpan(
-                            text: currentSubtitle.value,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              decoration:
-                                  TextDecoration.none, // Remove underline
-                            ),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      )),
-                    ),
-                  //player controls ui
-                  PlatformWidget(
-                      mobileWidget: _MobileVideoPlayer(),
-                      desktopWidget: _DesktopVideoPlayer())
-                ])),
-            if (sideBarState.isShowSideBar) _SideBar(sideWidth: sideWidth)
-          ]);
+          _resolutionNotifer =
+              FetchResolutionProvider(value.url, value.headers ?? {});
+          return PlayerResolution(
+              value: value, url: url, service: widget.service);
         },
         error: (error, trace) => Center(
                 child: Column(children: [
@@ -221,106 +131,345 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
   }
 }
 
-class _SideBar extends HookConsumerWidget {
-  const _SideBar({required this.sideWidth});
-  final double sideWidth;
+class PlayerResolution extends StatefulHookConsumerWidget {
+  const PlayerResolution(
+      {super.key,
+      required this.value,
+      required this.url,
+      required this.service});
+  final ExtensionBangumiWatch value;
+  final ExtensionApiV1 service;
+  final String url;
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tabController = useTabController(initialLength: 4);
-    return Container(
-      width: sideWidth,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-      child: Column(children: [
-        MoonTabBar(tabs: const [
-          MoonTab(label: Text('Subtitle')),
-          MoonTab(label: Text('Episodes')),
-          MoonTab(label: Text('Quality')),
-          MoonTab(label: Text('Settings')),
-        ]),
-        Expanded(
-            child: TabBarView(
-                controller: tabController,
-                children: [Container(), Container()]))
-      ]),
+  createState() => _PlayerResoltionState();
+}
+
+class _PlayerResoltionState extends ConsumerState<PlayerResolution> {
+  @override
+  void initState() {
+    _videoUrl = widget.value.url;
+    super.initState();
+  }
+
+  @override
+  Widget build(context) {
+    final aspectWidth = useState(DeviceUtil.getWidth(context));
+    final aspectHeight = useState(DeviceUtil.getHeight(context));
+    final currentSubtitle = useState<String>('');
+    final videoController = usePlayer(
+      url: _videoUrl,
     );
+    Future.microtask(() {
+      ref.read(subtitleProvider.notifier).init(widget.value.subtitles);
+    });
+    videoController.addListener(() {
+      final position = videoController.value.position;
+      aspectWidth.value = videoController.value.size.width;
+      aspectHeight.value = videoController.value.size.height;
+      final subtitle =
+          ref.read(subtitleProvider.notifier).getCurrentSubtitle(position);
+      currentSubtitle.value = subtitle;
+    });
+    _videoPlayerProvider = StateNotifierProvider.family<VideoPlayerNotifier,
+        VideoPlayerState, String>(
+      (ref, url) {
+        return VideoPlayerNotifier(videoController);
+      },
+    );
+    return Stack(children: [
+      //video player
+      Center(
+          child: AspectRatio(
+              aspectRatio: aspectWidth.value / aspectHeight.value,
+              child: VideoPlayer(videoController))),
+      //subtitle text
+      if (currentSubtitle.value.isNotEmpty)
+        Positioned(
+          bottom: 50,
+          left: 20,
+          right: 20,
+          child: IntrinsicWidth(
+              child: Container(
+            padding: const EdgeInsets.all(10.0),
+            margin: const EdgeInsets.symmetric(horizontal: 20.0),
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: RichText(
+              text: TextSpan(
+                text: currentSubtitle.value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  decoration: TextDecoration.none, // Remove underline
+                ),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          )),
+        ),
+      //player controls ui
+      _VideoPlayer()
+    ]);
   }
 }
 
-class _DesktopVideoPlayer extends StatefulHookConsumerWidget {
+class _VideoPlayer extends StatefulHookConsumerWidget {
   @override
   _DesktopVideoPlayerState createState() => _DesktopVideoPlayerState();
 }
 
-class _DesktopVideoPlayerState extends ConsumerState<_DesktopVideoPlayer> {
+class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
   Timer? _timer;
-  bool _showControls = false;
+  late ValueNotifier<bool> _showControls;
+
+  double _currentBrightness = 0;
+  double _currentVolume = 0;
+  // 是否是调整亮度
+  bool _isBrightness = false;
+  // 是否正在调节
+  bool _isAdjusting = false;
+  // 滑动时的进度
+  Duration _position = Duration.zero;
+  // 是否左右滑动调整进度
+  bool _isSeeking = false;
+  // 是否长按加速
+  bool _isLongPress = false;
   _updateTimer() {
     _timer?.cancel();
     _timer = null;
-    setState(() {
-      _showControls = true;
-    });
+    _showControls.value = true;
     _timer = Timer.periodic(
       const Duration(seconds: 3),
       (_) {
         if (mounted) {
-          setState(() {
-            _showControls = false;
-          });
+          _showControls.value = false;
         }
       },
     );
   }
 
+  Widget buildcontent(VideoPlayerState controller, VideoPlayerNotifier c) {
+    void close() {
+      controller.controller.dispose();
+      WindowManager.instance.setAlwaysOnTop(false);
+      ref.invalidate(subtitleProvider);
+      context.pop();
+    }
+
+    if (_showControls.value) {
+      return Column(
+        children: [
+          Material(
+            child: _hasOriented
+                ? _Header(
+                    titleSize: 15,
+                    subTitleSize: 12,
+                    iconSize: 20,
+                    onClose: close)
+                : _Header(onClose: close),
+          ),
+          Expanded(
+              child: (!controller.isPlaying)
+                  ? Center(
+                      child: MoonButton.icon(
+                      icon:
+                          const Icon(size: 60, MoonIcons.media_play_24_regular),
+                      buttonSize: MoonButtonSize.lg,
+                      onTap: () {
+                        c.play();
+                      },
+                    ))
+                  : Container(
+                      color: Colors.transparent,
+                    )),
+          Material(child: _DesktopFooter())
+        ],
+      );
+    }
+
+    return const SizedBox.expand();
+  }
+
   @override
   Widget build(BuildContext context) {
+    _showControls = useState(false);
     final controller = ref.watch(_videoPlayerProvider(''));
     final c = ref.watch(_videoPlayerProvider('').notifier);
     // final epNotifier = ref.watch(_episodeNotifierProvider);
-    return MouseRegion(
-        onHover: (event) {
-          _updateTimer();
-        },
-        child: _showControls
-            ? Column(
-                children: [
-                  Material(child: _Header(onClose: () {
-                    controller.controller.dispose();
-                    WindowManager.instance.setAlwaysOnTop(false);
-                    ref.invalidate(subtitleProvider);
-                    context.pop();
-                  })),
-                  Expanded(
-                      child: (!controller.isPlaying)
-                          ? Center(
-                              child: MoonButton.icon(
-                              icon: const Icon(
-                                  size: 60, MoonIcons.media_play_24_regular),
-                              buttonSize: MoonButtonSize.lg,
-                              onTap: () {
-                                c.play();
-                              },
-                            ))
-                          : Container(
-                              color: Colors.transparent,
-                            )),
-                  Material(
-                      child: Container(
-                          color: Colors.transparent,
-                          child: Padding(
-                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 15),
-                              child: _DesktopFooter())))
-                ],
-              )
-            : const SizedBox.expand());
+    return Stack(
+      children: [
+        DefaultTextStyle(
+            style: const TextStyle(fontSize: 30),
+            child: Positioned(
+              top: 30,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    color: Colors.black45,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_isSeeking)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '${_position.inMinutes}:${(_position.inSeconds % 60).toString().padLeft(2, '0')}',
+                              ),
+                              const Text('/'),
+                              Text(
+                                '${controller.duration.inMinutes}:${(controller.duration.inSeconds % 60).toString().padLeft(2, '0')}',
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (_isLongPress)
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text('Playing at 3x speed'),
+                        ),
+                      if (_isAdjusting)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_isBrightness) ...[
+                                const Icon(Icons.brightness_5),
+                                const SizedBox(width: 5),
+                                Text(
+                                  (_currentBrightness * 100).toStringAsFixed(0),
+                                )
+                              ],
+                              if (!_isBrightness) ...[
+                                const Icon(Icons.volume_up),
+                                const SizedBox(width: 5),
+                                Text(
+                                  (_currentVolume * 100).toStringAsFixed(0),
+                                )
+                              ],
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            )),
+        if (_hasOriented)
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              if (_showControls.value) {
+                _showControls.value = false;
+                return;
+              }
+              _updateTimer();
+            },
+            onDoubleTapDown: (details) {
+              // 如果左边点击快退，中间暂停，右边快进
+              final dx = details.localPosition.dx;
+              final width = MediaQuery.of(context).size.width / 3;
+              if (dx < width) {
+                c.seek(controller.position - const Duration(seconds: 10));
+              } else if (dx > width * 2) {
+                c.seek(
+                  controller.position + const Duration(seconds: 10),
+                );
+              } else {
+                c.playOrPause();
+              }
+            },
+            onVerticalDragStart: (details) {
+              _isBrightness = details.localPosition.dx <
+                  MediaQuery.of(context).size.width / 2;
+            },
+            // 左右两边上下滑动
+            onVerticalDragUpdate: (details) {
+              final add = details.delta.dy / 500;
+              // 如果是左边调节亮度
+              if (_isBrightness) {
+                _currentBrightness = (_currentBrightness - add).clamp(0, 1);
+                ScreenBrightness().setScreenBrightness(_currentBrightness);
+              }
+              // 如果是右边调节音量
+              else {
+                _currentVolume = (_currentVolume - add).clamp(0, 1);
+                VolumeController().setVolume(_currentVolume);
+              }
+              _isAdjusting = true;
+              setState(() {});
+            },
+            onHorizontalDragStart: (details) {
+              _position = controller.position;
+            },
+            onVerticalDragEnd: (details) {
+              _isAdjusting = false;
+              setState(() {});
+            },
+            // 左右滑动
+            onHorizontalDragUpdate: (details) {
+              double scale = 200000 / MediaQuery.of(context).size.width;
+              Duration pos = _position +
+                  Duration(
+                    milliseconds: (details.delta.dx * scale).round(),
+                  );
+              _position = Duration(
+                milliseconds: pos.inMilliseconds.clamp(
+                  0,
+                  controller.duration.inMilliseconds,
+                ),
+              );
+              _isSeeking = true;
+              setState(() {});
+            },
+            onHorizontalDragEnd: (details) {
+              c.seek(_position);
+              _isSeeking = false;
+              setState(() {});
+            },
+            onLongPressStart: (details) {
+              _isLongPress = true;
+              c.setSpeed(3);
+              setState(() {});
+            },
+            onLongPressEnd: (details) {
+              c.setSpeed(controller.speed);
+              _isLongPress = false;
+              setState(() {});
+            },
+            child: buildcontent(controller, c),
+          )
+        else
+          MouseRegion(
+              onHover: (event) {
+                _updateTimer();
+              },
+              child: buildcontent(controller, c))
+      ],
+    );
   }
 }
 
 class _Header extends ConsumerStatefulWidget {
   const _Header({
     required this.onClose,
+    this.titleSize = 20,
+    this.subTitleSize = 18,
+    this.iconSize = 24,
   });
   final VoidCallback onClose;
+  final double titleSize;
+  final double subTitleSize;
+  final double iconSize;
   @override
   ConsumerState<_Header> createState() => _HeaderState();
 }
@@ -331,9 +480,35 @@ class _HeaderState extends ConsumerState<_Header> {
   @override
   void initState() {
     super.initState();
-    WindowManager.instance.isAlwaysOnTop().then((value) {
-      _isAlwaysOnTop = value;
-    });
+    if (!DeviceUtil.isMobile) {
+      WindowManager.instance.isAlwaysOnTop().then((value) {
+        _isAlwaysOnTop = value;
+      });
+    }
+  }
+
+  Widget buildcontent(EpisodeNotifierState epNotifier) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          epNotifier.name,
+          style: TextStyle(
+            fontSize: widget.titleSize,
+            fontWeight: FontWeight.bold,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Text(
+          '${epNotifier.epGroup[epNotifier.selectedGroupIndex].title}-${epNotifier.epGroup[epNotifier.selectedGroupIndex].urls[epNotifier.selectedEpisodeIndex].name}',
+          style: TextStyle(
+            fontSize: widget.subTitleSize,
+            fontWeight: FontWeight.w300,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -342,81 +517,75 @@ class _HeaderState extends ConsumerState<_Header> {
     return Container(
       color: Colors.black.withOpacity(0.5),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: Row(
-          children: [
-            Expanded(
-              child: DragToMoveArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      epNotifier.name,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        overflow: TextOverflow.ellipsis,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: DeviceUtil.isMobile
+                    ? buildcontent(epNotifier)
+                    : DragToMoveArea(
+                        child: buildcontent(epNotifier),
                       ),
-                    ),
-                    Text(
-                      '${epNotifier.epGroup[epNotifier.selectedGroupIndex].title}-${epNotifier.epGroup[epNotifier.selectedGroupIndex].urls[epNotifier.selectedEpisodeIndex].name}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w300,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+              ),
+              // 置顶
+              if (!DeviceUtil.isMobile) ...[
+                IconButton(
+                  icon: Icon(
+                    _isAlwaysOnTop ? Icons.push_pin_outlined : Icons.push_pin,
+                  ),
+                  onPressed: () async {
+                    WindowManager.instance.setAlwaysOnTop(
+                      !_isAlwaysOnTop,
+                    );
+                    setState(() {
+                      _isAlwaysOnTop = !_isAlwaysOnTop;
+                    });
+                  },
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  icon: const Icon(
+                    MoonIcons.controls_minus_24_regular,
+                  ),
+                  onPressed: () {
+                    WindowManager.instance.minimize();
+                  },
+                )
+              ],
+              const SizedBox(width: 10),
+              IconButton(
+                onPressed: widget.onClose,
+                iconSize: widget.iconSize,
+                icon: const Icon(
+                  MoonIcons.controls_chevron_down_24_regular,
                 ),
               ),
-            ),
-            // 置顶
-            IconButton(
-              icon: Icon(
-                _isAlwaysOnTop ? Icons.push_pin_outlined : Icons.push_pin,
-              ),
-              onPressed: () async {
-                WindowManager.instance.setAlwaysOnTop(
-                  !_isAlwaysOnTop,
-                );
-                setState(() {
-                  _isAlwaysOnTop = !_isAlwaysOnTop;
-                });
-              },
-            ),
-            const SizedBox(width: 10),
-            IconButton(
-              icon: const Icon(
-                MoonIcons.controls_minus_24_regular,
-              ),
-              onPressed: () {
-                WindowManager.instance.minimize();
-              },
-            ),
-            const SizedBox(width: 10),
-            IconButton(
-              onPressed: widget.onClose,
-              icon: const Icon(
-                MoonIcons.controls_chevron_down_24_regular,
-              ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          )),
     );
   }
 }
 
 class _DesktopFooter extends HookConsumerWidget {
+  void showDialog(context, int index) {
+    showMoonModal(
+        useRootNavigator: false,
+        context: context,
+        builder: (context) {
+          return _DesktopSettingDialog(
+            initialIndex: index,
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isspeedToggled = useState(false);
-    final isSubtitlesToggled = useState(false);
+    // final isSubtitlesToggled = useState(false);
 
     final controller = ref.watch(_videoPlayerProvider(''));
     final c = ref.watch(_videoPlayerProvider('').notifier);
-    // final sideBarState = ref.watch(_sideBarProvider);
-    final sideBarNotiier = ref.read(_sideBarProvider.notifier);
+    final buttonSize = _hasOriented ? null : 30.0;
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -433,7 +602,7 @@ class _DesktopFooter extends HookConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _SeekBar(),
-          const SizedBox(height: 10),
+          if (!_hasOriented) const SizedBox(height: 10),
           Row(
             children: [
               IconButton(
@@ -443,17 +612,17 @@ class _DesktopFooter extends HookConsumerWidget {
               if (controller.isPlaying)
                 IconButton(
                   onPressed: c.pause,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.pause,
-                    size: 30,
+                    size: buttonSize,
                   ),
                 )
               else
                 IconButton(
                   onPressed: c.play,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.play_arrow,
-                    size: 30,
+                    size: buttonSize,
                   ),
                 ),
               IconButton(
@@ -513,7 +682,6 @@ class _DesktopFooter extends HookConsumerWidget {
               //     ),
               //   );
               // }),
-              const SizedBox(width: 10),
               // 倍速
               MoonPopover(
                   onTapOutside: () {
@@ -553,38 +721,17 @@ class _DesktopFooter extends HookConsumerWidget {
               //     icon: const Icon(Icons.video_file),
               //   );
               // }),
-              MoonPopover(
-                  onTapOutside: () {
-                    isSubtitlesToggled.value = false;
+              MoonButton.icon(
+                  onTap: () {
+                    showDialog(context, 1);
                   },
-                  show: isSubtitlesToggled.value,
-                  content: Column(
-                    children: List.generate(
-                        c.subList.length,
-                        (index) => MoonMenuItem(
-                              label: Text('${c.subList[index].language}x'),
-                              onTap: () {
-                                c.changeSubtitle(index);
-                              },
-                            )),
-                  ),
-                  child: MoonButton.icon(
-                      onTap: () {
-                        sideBarNotiier.toggleSideBar();
-                      },
-                      icon: const Icon(Icons.subtitles))),
+                  icon: const Icon(Icons.subtitles)),
               // 播放列表
               IconButton(
                 icon: const Icon(Icons.playlist_play),
                 onPressed: () {
-                  showMoonModal(
-                      useRootNavigator: false,
-                      context: context,
-                      builder: (context) {
-                        return const _DesktopSettingDialog(
-                          initialIndex: 1,
-                        );
-                      });
+                  showDialog(context, 0);
+
                   // controller.toggleSideBar(SidebarTab.episodes);
                 },
               ),
@@ -630,6 +777,7 @@ class _DialogButton extends HookWidget {
   @override
   Widget build(context) {
     final hover = useState(0);
+    final ishover = useState(false);
     final selectedIndex = useState(initIndex ?? 0);
     return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -638,9 +786,11 @@ class _DialogButton extends HookWidget {
             (index) => MouseRegion(
                   cursor: SystemMouseCursors.click,
                   onEnter: (_) {
+                    ishover.value = true;
                     hover.value = index;
                   },
                   onExit: (_) {
+                    ishover.value = false;
                     hover.value = index;
                   },
                   child: GestureDetector(
@@ -653,19 +803,20 @@ class _DialogButton extends HookWidget {
                       height: 40,
                       padding: const EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                        color:
-                            selectedIndex.value == index || hover.value == index
-                                ? context.moonTheme?.tabBarTheme.colors
-                                    .selectedPillTextColor
-                                    .withAlpha(20)
-                                : Colors.transparent,
+                        color: selectedIndex.value == index ||
+                                (hover.value == index && ishover.value)
+                            ? context.moonTheme?.tabBarTheme.colors
+                                .selectedPillTextColor
+                                .withAlpha(20)
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            selectedIndex.value == index || hover.value == index
+                            selectedIndex.value == index ||
+                                    (hover.value == index && ishover.value)
                                 ? _navItems[index].selectIcon
                                 : _navItems[index].icon,
                             color: selectedIndex.value == index ||
@@ -685,22 +836,6 @@ class _DesktopSettingDialog extends HookConsumerWidget {
   static const _buttonGap = 60.0;
   const _DesktopSettingDialog({this.initialIndex = 0});
   final int initialIndex;
-  Widget episodes() {
-    return Container();
-  }
-
-  Widget resolution() {
-    return Container();
-  }
-
-  Widget subtitle() {
-    return Container();
-  }
-
-  Widget settings() {
-    return Container();
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = useState(initialIndex);
@@ -710,6 +845,9 @@ class _DesktopSettingDialog extends HookConsumerWidget {
     final epNotifier = ref.read(_episodeNotifierProvider.notifier);
     final subController = ref.watch(subtitleProvider);
     final subNotifier = ref.read(subtitleProvider.notifier);
+    final resolutionController = ref.watch(_resolutionNotifer);
+    // final videoController = ref.watch(_videoPlayerProvider(''));
+    final videoNotifer = ref.watch(_videoPlayerProvider('').notifier);
     final dialogContent = [
       // episodes
       ListView.builder(
@@ -745,7 +883,26 @@ class _DesktopSettingDialog extends HookConsumerWidget {
         itemCount: epController.epGroup.length,
       ),
       // resolution
-      Container(),
+      resolutionController.when(
+          data: (Map<String, String> value) {
+            final keys = value.keys.toList();
+            return ListView.builder(
+              itemBuilder: (context, index) => MoonMenuItem(
+                onTap: () {
+                  if (value[keys[index]] != null) {
+                    _videoUrl = value[keys[index]]!;
+                    epNotifier.rebuild();
+                  }
+                  context.pop();
+                },
+                label: Text(keys[index]),
+              ),
+              itemCount: value.length,
+            );
+          },
+          error: (e, stack) =>
+              Column(children: [Text(e.toString()), Text(stack.toString())]),
+          loading: () => const CircularProgressIndicator()),
       // subtitle
       ListView.builder(
           itemCount: subController.subtitlesRaw.length,
@@ -764,10 +921,11 @@ class _DesktopSettingDialog extends HookConsumerWidget {
       // settings
       Container(),
     ];
+    final dialogFactor = _hasOriented ? 0.8 : .5;
     return Center(
         child: SizedBox(
-      height: height / 2,
-      width: width / 2,
+      height: height * dialogFactor,
+      width: width * dialogFactor,
       child: Row(children: [
         Container(
           width: _buttonGap,
@@ -786,7 +944,7 @@ class _DesktopSettingDialog extends HookConsumerWidget {
         ),
         Expanded(
             child: Container(
-          height: height / 2,
+          height: height * dialogFactor,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius:
@@ -823,28 +981,6 @@ class BookmarkClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class BookmarkTab extends StatelessWidget {
-  final String text;
-  final Color color;
-
-  const BookmarkTab({super.key, required this.text, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipPath(
-      clipper: BookmarkClipper(),
-      child: Container(
-        color: color,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Text(
-          text,
-          style: const TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  }
 }
 
 class _SeekBar extends ConsumerWidget {
@@ -984,7 +1120,6 @@ class VideoPlayerState {
   final double speed;
   final List<DurationRange> buffered;
   final Size size;
-  final List<ExtensionBangumiWatchSubtitle> subtitles;
   final int selectedSubtitleIndex;
   final bool isOpenSideBar;
   final bool isShowSideBar;
@@ -996,7 +1131,6 @@ class VideoPlayerState {
     this.speed = 1.0,
     this.buffered = const [],
     this.size = const Size(0, 0),
-    this.subtitles = const [],
     this.selectedSubtitleIndex = 0,
     this.isOpenSideBar = false,
     this.isShowSideBar = false,
@@ -1023,7 +1157,6 @@ class VideoPlayerState {
       buffered: buffered ?? this.buffered,
       speed: speed ?? this.speed,
       size: size ?? this.size,
-      subtitles: subtitles ?? this.subtitles,
       selectedSubtitleIndex:
           selectedSubtitleIndex ?? this.selectedSubtitleIndex,
       isOpenSideBar: isOpenSideBar ?? this.isOpenSideBar,
@@ -1034,15 +1167,13 @@ class VideoPlayerState {
 
 class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
   VideoPlayerNotifier(VideoPlayerController controller,
-      [List<ExtensionBangumiWatchSubtitle>? subtitles,
-      int selectedSubtitleIndex = 0])
+      [int selectedSubtitleIndex = 0])
       : super(VideoPlayerState(
             controller: controller,
-            subtitles: subtitles ?? const [],
             selectedSubtitleIndex: selectedSubtitleIndex)) {
     _initialize();
   }
-  List<ExtensionBangumiWatchSubtitle> get subList => state.subtitles;
+
   get speedList => const [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0];
   void _initialize() {
     state.controller.addListener(_updatePosition);
@@ -1052,7 +1183,6 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
       duration: state.controller.value.duration,
       buffered: state.controller.value.buffered,
       size: state.controller.value.size,
-      subtitles: state.subtitles,
       selectedSubtitleIndex: state.selectedSubtitleIndex,
       isOpenSideBar: state.isOpenSideBar,
       isShowSideBar: state.isShowSideBar,
@@ -1075,6 +1205,20 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
   void play() {
     state.controller.play();
     state = state.copyWith(isPlaying: true);
+  }
+
+  void changeVideoUrl(String url) {
+    state = state.copyWith(
+        controller: VideoPlayerController.networkUrl(Uri.parse(url)));
+    _initialize();
+  }
+
+  void playOrPause() {
+    if (state.isPlaying) {
+      pause();
+    } else {
+      play();
+    }
   }
 
   void toggleSideBar() {
@@ -1173,47 +1317,27 @@ class SideBarState {
   }
 }
 
-class SideBarNotifier extends StateNotifier<SideBarState> {
-  SideBarNotifier() : super(SideBarState());
-
-  void toggleSideBar() {
-    if (!state.isOpenSideBar) {
-      openSideBar();
-    } else {
-      hideSideBar();
-    }
-  }
-
-  void openSideBar() {
-    state = state.copyWith(isOpenSideBar: true);
-  }
-
-  void showSideBar() {
-    state = state.copyWith(isShowSideBar: true, isOpenSideBar: true);
-  }
-
-  void hideSideBar() {
-    state = state.copyWith(isShowSideBar: false, isOpenSideBar: false);
-  }
-}
-
 class EpisodeNotifierState {
   final List<ExtensionEpisodeGroup> epGroup;
   final int selectedGroupIndex;
   final int selectedEpisodeIndex;
   final String name;
+  final bool flag;
   EpisodeNotifierState(
       {this.epGroup = const [],
       this.selectedGroupIndex = 0,
       this.name = '',
+      this.flag = false,
       this.selectedEpisodeIndex = 0});
   EpisodeNotifierState copyWith(
       {List<ExtensionEpisodeGroup>? epGroup,
       String? name,
+      bool? flag,
       int? selectedGroupIndex,
       int? selectedEpisodeIndex}) {
     return EpisodeNotifierState(
         epGroup: epGroup ?? this.epGroup,
+        flag: flag ?? this.flag,
         name: name ?? this.name,
         selectedGroupIndex: selectedGroupIndex ?? this.selectedGroupIndex,
         selectedEpisodeIndex:
@@ -1231,12 +1355,19 @@ class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
   }
 
   void initEpisodes(int groupIndex, int episodeIndex,
-      List<ExtensionEpisodeGroup> epGroup, String name) {
+      List<ExtensionEpisodeGroup> epGroup, String name, bool flag) {
     state = state.copyWith(
         epGroup: epGroup,
+        flag: flag,
         name: name,
         selectedGroupIndex: groupIndex,
         selectedEpisodeIndex: episodeIndex);
+  }
+
+  void rebuild() {
+    state = state.copyWith(
+      flag: !state.flag,
+    );
   }
 }
 

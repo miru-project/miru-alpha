@@ -23,9 +23,6 @@ class SettingsPage extends HookWidget {
     }
 
     return MiruScaffold(
-      appBar: const MiruAppBar(
-        title: Text('Settings'),
-      ),
       sidebar: [
         const SideBarListTitle(title: 'Settings'),
         sideBarTile('General', SideBarName.general),

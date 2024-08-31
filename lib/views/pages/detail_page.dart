@@ -56,7 +56,7 @@ class DetailItemBox extends StatelessWidget {
   }
 }
 
-class DetailEpButton extends StatelessWidget {
+class DetailEpButton extends HookWidget {
   const DetailEpButton(
       {super.key,
       required this.detail,
@@ -209,7 +209,7 @@ class MobileDetail extends StatelessWidget {
   final ExtensionApiV1 extensionService;
   final ExtensionDetail? data;
   final Widget Function(Widget child) addition;
-  static const double _maxExtMobile = 400;
+  static const double _maxExtMobile = 250;
   static const double _minExtMobile = 50;
   static const double _clampMaxMobile = 100;
   static const _globalMobilePadding = 15.0;
@@ -234,13 +234,13 @@ class MobileDetail extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DetailItemBox(
-                    title: 'Season',
+                    title: 'Description',
                     isMobile: true,
                     padding: _globalMobilePadding,
                     child: desc),
                 const SizedBox(height: 20),
                 DetailItemBox(
-                    title: 'Description',
+                    title: 'Episode',
                     isMobile: true,
                     padding: _globalMobilePadding,
                     child: ep),
@@ -293,11 +293,11 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                     )),
                 const SizedBox(height: 10),
                 Row(
-                  children: [
+                  children: <Widget>[
                     MoonButton(
                         onTap: () {},
                         label: const Text('play'),
-                        leading: const Icon(MoonIcons.media_play_24_regular))
+                        leading: const Icon(MoonIcons.media_play_24_regular)),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -595,186 +595,10 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                     ],
             )),
             child: PlatformWidget(
-                mobileWidget: LayoutBuilder(
-                    builder: (context, constraint) => shrinkOffset > 200
-                        ? MaxWidth(
-                            maxWidth: constraint.maxWidth - 20.0,
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(children: [
-                                          MoonChip(
-                                            chipSize: MoonChipSize.sm,
-                                            // width: 40,
-                                            activeBackgroundColor: context
-                                                .moonTheme
-                                                ?.segmentedControlTheme
-                                                .colors
-                                                .backgroundColor,
-                                            backgroundColor: Colors.transparent,
-                                            textColor: context
-                                                .moonTheme
-                                                ?.textInputTheme
-                                                .colors
-                                                .textColor,
-                                            label: const Icon(MoonIcons
-                                                .sport_featured_24_regular),
-                                          ),
-                                          SizedBox(
-                                              width: constraint.maxWidth * .6,
-                                              child: Text(
-                                                detail?.title ??
-                                                    'Title Not Found',
-                                                style: const TextStyle(
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 20,
-                                                ),
-                                              )),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            extensionService.extension.name,
-                                            style: const TextStyle(),
-                                          )
-                                        ]),
-                                      ])
-                                ]))
-                        : Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Container(
-                                child: (isLoading)
-                                    ? Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          const SizedBox(
-                                            width: 20,
-                                          ),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                            .brightness ==
-                                                        Brightness.dark
-                                                    ? MoonColors.dark.gohan
-                                                    : MoonColors.light.gohan,
-                                                borderRadius:
-                                                    BorderRadius.circular(10)),
-                                            child: Shimmer.fromColors(
-                                              baseColor: context
-                                                  .moonTheme!
-                                                  .segmentedControlTheme
-                                                  .colors
-                                                  .backgroundColor
-                                                  .withAlpha(50),
-                                              highlightColor: context
-                                                  .moonTheme!
-                                                  .segmentedControlTheme
-                                                  .colors
-                                                  .backgroundColor
-                                                  .withAlpha(100),
-                                              child: Container(
-                                                width: 150,
-                                                height: 200,
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey,
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 20),
-                                          const LoadingWidget(
-                                              padding: EdgeInsets.all(0),
-                                              lineCount: 2,
-                                              lineheight: 20),
-                                        ],
-                                      )
-                                    : LayoutBuilder(
-                                        builder: (context, contraint) => Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                const SizedBox(width: 10),
-                                                Container(
-                                                  width: 100,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  clipBehavior: Clip.antiAlias,
-                                                  child: ExtendedImage.network(
-                                                    detail?.cover ?? '',
-                                                    width: 100,
-                                                    height: 160,
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 15),
-                                                SizedBox(
-                                                    width: constraint.maxWidth -
-                                                        135,
-                                                    child: DefaultTextStyle(
-                                                      style: TextStyle(
-                                                        color: context
-                                                            .moonTheme
-                                                            ?.textInputTheme
-                                                            .colors
-                                                            .textColor,
-                                                      ),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            detail?.title ?? '',
-                                                            softWrap: true,
-                                                            maxLines: 3,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 20,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 10),
-                                                          Text(
-                                                            extensionService
-                                                                .extension.name,
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 12,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    )),
-                                              ],
-                                            )),
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-                          )),
-                desktopWidget: shrinkOffset > 300
-                    ? MaxWidth(
-                        maxWidth: 1500,
+                mobileWidget: LayoutBuilder(builder: (context, constraint) {
+                  if (shrinkOffset > 60) {
+                    return MaxWidth(
+                        maxWidth: constraint.maxWidth - 20.0,
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -800,56 +624,233 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                         label: const Icon(MoonIcons
                                             .sport_featured_24_regular),
                                       ),
-                                      const SizedBox(width: 10),
-                                      Text(
-                                        detail?.title ?? 'Title Not Found',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 25,
-                                        ),
-                                      ),
+                                      SizedBox(
+                                          width: constraint.maxWidth * .6,
+                                          child: Text(
+                                            detail?.title ?? 'Title Not Found',
+                                            style: const TextStyle(
+                                              overflow: TextOverflow.ellipsis,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                            ),
+                                          )),
                                       const SizedBox(width: 10),
                                       Text(
                                         extensionService.extension.name,
                                         style: const TextStyle(),
                                       )
                                     ]),
-                                    Row(children: [
-                                      MoonButton(
-                                        leading: const Icon(
-                                            MoonIcons.media_play_24_regular),
-                                        backgroundColor: context
-                                            .moonTheme
-                                            ?.segmentedControlTheme
-                                            .colors
-                                            .backgroundColor,
-                                        textColor: context
-                                            .moonTheme
-                                            ?.segmentedControlTheme
-                                            .colors
-                                            .textColor,
-                                        onTap: isLoading ? null : () {},
-                                        label: const Text('Play'),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      MoonButton(
-                                        leading: const Icon(MoonIcons
-                                            .sport_featured_24_regular),
-                                        backgroundColor: context
-                                            .moonTheme
-                                            ?.segmentedControlTheme
-                                            .colors
-                                            .backgroundColor,
-                                        textColor: context
-                                            .moonTheme
-                                            ?.segmentedControlTheme
-                                            .colors
-                                            .textColor,
-                                        onTap: isLoading ? null : () {},
-                                        label: const Text('Favorite'),
-                                      )
-                                    ])
                                   ])
+                            ]));
+                  }
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        child: (isLoading)
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        color: Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? MoonColors.dark.gohan
+                                            : MoonColors.light.gohan,
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Shimmer.fromColors(
+                                      baseColor: context
+                                          .moonTheme!
+                                          .segmentedControlTheme
+                                          .colors
+                                          .backgroundColor
+                                          .withAlpha(50),
+                                      highlightColor: context
+                                          .moonTheme!
+                                          .segmentedControlTheme
+                                          .colors
+                                          .backgroundColor
+                                          .withAlpha(100),
+                                      child: Container(
+                                        width: 150,
+                                        height: 200,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  const LoadingWidget(
+                                      padding: EdgeInsets.all(0),
+                                      lineCount: 2,
+                                      lineheight: 20),
+                                ],
+                              )
+                            : LayoutBuilder(
+                                builder: (context, contraint) => Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(width: 10),
+                                        Container(
+                                          width: 100,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          clipBehavior: Clip.antiAlias,
+                                          child: ExtendedImage.network(
+                                            detail?.cover ?? '',
+                                            width: 100,
+                                            height: 160,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 15),
+                                        SizedBox(
+                                            width: constraint.maxWidth - 135,
+                                            child: DefaultTextStyle(
+                                              style: TextStyle(
+                                                color: context
+                                                    .moonTheme
+                                                    ?.textInputTheme
+                                                    .colors
+                                                    .textColor,
+                                              ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    detail?.title ?? '',
+                                                    softWrap: true,
+                                                    maxLines: 3,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 10),
+                                                  Text(
+                                                    extensionService
+                                                        .extension.name,
+                                                    style: const TextStyle(
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )),
+                                      ],
+                                    )),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  );
+                }),
+                desktopWidget: shrinkOffset > 250
+                    ? MaxWidth(
+                        maxWidth: 1500,
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              LayoutBuilder(
+                                  builder: (context, constraint) => Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(children: [
+                                              MoonChip(
+                                                chipSize: MoonChipSize.sm,
+                                                // width: 40,
+                                                activeBackgroundColor: context
+                                                    .moonTheme
+                                                    ?.segmentedControlTheme
+                                                    .colors
+                                                    .backgroundColor,
+                                                backgroundColor:
+                                                    Colors.transparent,
+                                                textColor: context
+                                                    .moonTheme
+                                                    ?.textInputTheme
+                                                    .colors
+                                                    .textColor,
+                                                label: const Icon(MoonIcons
+                                                    .sport_featured_24_regular),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                      maxWidth:
+                                                          constraint.maxWidth *
+                                                              .5),
+                                                  child: Text(
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    detail?.title ??
+                                                        'Title Not Found',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 25,
+                                                    ),
+                                                  )),
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                extensionService.extension.name,
+                                                style: const TextStyle(),
+                                              )
+                                            ]),
+                                            Row(children: [
+                                              MoonButton(
+                                                leading: const Icon(MoonIcons
+                                                    .media_play_24_regular),
+                                                backgroundColor: context
+                                                    .moonTheme
+                                                    ?.segmentedControlTheme
+                                                    .colors
+                                                    .backgroundColor,
+                                                textColor: context
+                                                    .moonTheme
+                                                    ?.segmentedControlTheme
+                                                    .colors
+                                                    .textColor,
+                                                onTap: isLoading ? null : () {},
+                                                label: const Text('Play'),
+                                              ),
+                                              const SizedBox(width: 10),
+                                              MoonButton(
+                                                leading: const Icon(MoonIcons
+                                                    .sport_featured_24_regular),
+                                                backgroundColor: context
+                                                    .moonTheme
+                                                    ?.segmentedControlTheme
+                                                    .colors
+                                                    .backgroundColor,
+                                                textColor: context
+                                                    .moonTheme
+                                                    ?.segmentedControlTheme
+                                                    .colors
+                                                    .textColor,
+                                                onTap: isLoading ? null : () {},
+                                                label: const Text('Favorite'),
+                                              )
+                                            ])
+                                          ]))
                             ]))
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -914,60 +915,76 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                           lineheight: 20),
                                     ],
                                   )
-                                : Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        clipBehavior: Clip.antiAlias,
-                                        child: PlatformWidget(
-                                          mobileWidget: ExtendedImage.network(
-                                            detail?.cover ?? '',
-                                            width: 150,
-                                            height: 200,
-                                            fit: BoxFit.cover,
-                                          ),
-                                          desktopWidget: ExtendedImage.network(
-                                            detail?.cover ?? '',
-                                            width: 200,
-                                            height: 300,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 20),
-                                      DefaultTextStyle(
-                                        style: TextStyle(
-                                          color: context.moonTheme
-                                              ?.textInputTheme.colors.textColor,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                : LayoutBuilder(
+                                    builder: (context, constraint) => Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
                                           children: [
-                                            Text(
-                                              detail?.title ?? '',
-                                              style: const TextStyle(
-                                                fontSize: 30,
-                                                fontWeight: FontWeight.bold,
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              clipBehavior: Clip.antiAlias,
+                                              child: PlatformWidget(
+                                                mobileWidget:
+                                                    ExtendedImage.network(
+                                                  detail?.cover ?? '',
+                                                  width: 150,
+                                                  height: 200,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                                desktopWidget:
+                                                    ExtendedImage.network(
+                                                  detail?.cover ?? '',
+                                                  width: 200,
+                                                  height: 300,
+                                                  fit: BoxFit.cover,
+                                                ),
                                               ),
                                             ),
-                                            const SizedBox(height: 10),
-                                            Text(
-                                              extensionService.extension.name,
-                                              style: const TextStyle(
-                                                fontSize: 16,
+                                            const SizedBox(width: 20),
+                                            DefaultTextStyle(
+                                              style: TextStyle(
+                                                color: context
+                                                    .moonTheme
+                                                    ?.textInputTheme
+                                                    .colors
+                                                    .textColor,
                                               ),
+                                              child: ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                      maxWidth:
+                                                          constraint.maxWidth *
+                                                              .8),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        detail?.title ?? '',
+                                                        style: const TextStyle(
+                                                          fontSize: 30,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 10),
+                                                      Text(
+                                                        extensionService
+                                                            .extension.name,
+                                                        style: const TextStyle(
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )),
                                             ),
                                           ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                        )),
                           ),
                           const SizedBox(height: 20),
                         ],

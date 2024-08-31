@@ -38,7 +38,7 @@ class HomePage extends HookWidget {
                     CategoryGroup(items: const ['全部'], onpress: (val) {}),
                   ])),
             ]
-          : [
+          : <Widget>[
               const SideBarListTitle(title: '主页'),
               const SideBarSearchBar(),
               const SizedBox(height: 10),
@@ -46,7 +46,9 @@ class HomePage extends HookWidget {
                 title: "分类",
                 expanded: true,
                 child: CategoryGroup(
-                    items: const ['全部', '影視', '漫畫', '小說'], onpress: (val) {}),
+                    needSpacer: false,
+                    items: const ['全部', '影視', '漫畫', '小說'],
+                    onpress: (val) {}),
               ),
               const SizedBox(height: 10),
               SidebarExpander(
@@ -61,7 +63,8 @@ class HomePage extends HookWidget {
                   ),
                 ],
                 expanded: true,
-                child: CategoryGroup(items: const ['全部'], onpress: (val) {}),
+                child: CategoryGroup(
+                    needSpacer: false, items: const ['全部'], onpress: (val) {}),
               ),
             ],
       body: LayoutBuilder(

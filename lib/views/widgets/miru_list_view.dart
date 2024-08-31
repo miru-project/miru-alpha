@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 
 class MiruListView extends StatelessWidget {
@@ -50,20 +51,22 @@ class MiruListView extends StatelessWidget {
     }
 
     if (itemBuilder == null) {
-      return PlatformWidget(
-        mobileWidget: ListView(
-          padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 130)
-              .add(padding ?? EdgeInsets.zero)
-              .add(widthPadding),
-          children: children!,
-        ),
-        desktopWidget: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 70, 20, 20)
-              .add(padding ?? EdgeInsets.zero)
-              .add(widthPadding),
-          children: children!,
-        ),
-      );
+      return Container(
+          color: ThemeUtils.getBackgroundColor(context),
+          child: PlatformWidget(
+            mobileWidget: ListView(
+              padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 130)
+                  .add(padding ?? EdgeInsets.zero)
+                  .add(widthPadding),
+              children: children!,
+            ),
+            desktopWidget: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 70, 20, 20)
+                  .add(padding ?? EdgeInsets.zero)
+                  .add(widthPadding),
+              children: children!,
+            ),
+          ));
     }
 
     return PlatformWidget(

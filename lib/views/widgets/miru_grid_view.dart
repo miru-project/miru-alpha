@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 
 class MiruGridView extends StatelessWidget {
@@ -19,19 +20,21 @@ class MiruGridView extends StatelessWidget {
   Widget build(BuildContext context) {
     final EdgeInsets padding = MediaQuery.paddingOf(context);
 
-    return PlatformWidget(
-      mobileWidget: GridView.builder(
-        padding: EdgeInsets.fromLTRB(8, (8 + padding.top), 8, 130),
-        gridDelegate: mobileGridDelegate,
-        itemBuilder: itemBuilder,
-        itemCount: itemCount,
-      ),
-      desktopWidget: GridView.builder(
-        padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
-        gridDelegate: desktopGridDelegate,
-        itemBuilder: itemBuilder,
-        itemCount: itemCount,
-      ),
-    );
+    return Container(
+        color: ThemeUtils.getBackgroundColor(context),
+        child: PlatformWidget(
+          mobileWidget: GridView.builder(
+            padding: EdgeInsets.fromLTRB(8, (8 + padding.top), 8, 130),
+            gridDelegate: mobileGridDelegate,
+            itemBuilder: itemBuilder,
+            itemCount: itemCount,
+          ),
+          desktopWidget: GridView.builder(
+            padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
+            gridDelegate: desktopGridDelegate,
+            itemBuilder: itemBuilder,
+            itemCount: itemCount,
+          ),
+        ));
   }
 }

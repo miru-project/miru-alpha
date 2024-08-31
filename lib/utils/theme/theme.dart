@@ -1,5 +1,4 @@
-import 'dart:ui';
-
+import 'package:flutter/material.dart';
 import 'package:moon_design/moon_design.dart';
 
 enum AccentColors {
@@ -96,4 +95,11 @@ class ThemeUtils {
     AccentColors.frieza: MoonColors.dark.frieza,
     AccentColors.nappa: MoonColors.dark.nappa,
   };
+  static bool isDarkMode(BuildContext context) {
+    return MediaQuery.of(context).platformBrightness == Brightness.dark;
+  }
+
+  static Color getBackgroundColor(BuildContext context) {
+    return isDarkMode(context) ? MoonColors.dark.goku : MoonColors.light.goku;
+  }
 }

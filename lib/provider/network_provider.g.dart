@@ -341,7 +341,7 @@ class _FetchExtensionDetailProviderElement
 }
 
 String _$fetchExtensionLatestHash() =>
-    r'c4afbfedcbbc4092a7844664ddce80e8fec70272';
+    r'7b24f188442a096ddc6e2d3a661f2ee029b04be8';
 
 /// See also [fetchExtensionLatest].
 @ProviderFor(fetchExtensionLatest)
@@ -490,6 +490,154 @@ class _FetchExtensionLatestProviderElement
       (origin as FetchExtensionLatestProvider).extensionService;
   @override
   int get page => (origin as FetchExtensionLatestProvider).page;
+}
+
+String _$fetchResolutionHash() => r'd1c7917829de5bc8d6e758055d748c4b0610fa9c';
+
+/// See also [fetchResolution].
+@ProviderFor(fetchResolution)
+const fetchResolutionProvider = FetchResolutionFamily();
+
+/// See also [fetchResolution].
+class FetchResolutionFamily extends Family<AsyncValue<Map<String, String>>> {
+  /// See also [fetchResolution].
+  const FetchResolutionFamily();
+
+  /// See also [fetchResolution].
+  FetchResolutionProvider call(
+    String url,
+    Map<String, dynamic> headers,
+  ) {
+    return FetchResolutionProvider(
+      url,
+      headers,
+    );
+  }
+
+  @override
+  FetchResolutionProvider getProviderOverride(
+    covariant FetchResolutionProvider provider,
+  ) {
+    return call(
+      provider.url,
+      provider.headers,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'fetchResolutionProvider';
+}
+
+/// See also [fetchResolution].
+class FetchResolutionProvider
+    extends AutoDisposeFutureProvider<Map<String, String>> {
+  /// See also [fetchResolution].
+  FetchResolutionProvider(
+    String url,
+    Map<String, dynamic> headers,
+  ) : this._internal(
+          (ref) => fetchResolution(
+            ref as FetchResolutionRef,
+            url,
+            headers,
+          ),
+          from: fetchResolutionProvider,
+          name: r'fetchResolutionProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$fetchResolutionHash,
+          dependencies: FetchResolutionFamily._dependencies,
+          allTransitiveDependencies:
+              FetchResolutionFamily._allTransitiveDependencies,
+          url: url,
+          headers: headers,
+        );
+
+  FetchResolutionProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.url,
+    required this.headers,
+  }) : super.internal();
+
+  final String url;
+  final Map<String, dynamic> headers;
+
+  @override
+  Override overrideWith(
+    FutureOr<Map<String, String>> Function(FetchResolutionRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: FetchResolutionProvider._internal(
+        (ref) => create(ref as FetchResolutionRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        url: url,
+        headers: headers,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<Map<String, String>> createElement() {
+    return _FetchResolutionProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FetchResolutionProvider &&
+        other.url == url &&
+        other.headers == headers;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, url.hashCode);
+    hash = _SystemHash.combine(hash, headers.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin FetchResolutionRef on AutoDisposeFutureProviderRef<Map<String, String>> {
+  /// The parameter `url` of this provider.
+  String get url;
+
+  /// The parameter `headers` of this provider.
+  Map<String, dynamic> get headers;
+}
+
+class _FetchResolutionProviderElement
+    extends AutoDisposeFutureProviderElement<Map<String, String>>
+    with FetchResolutionRef {
+  _FetchResolutionProviderElement(super.provider);
+
+  @override
+  String get url => (origin as FetchResolutionProvider).url;
+  @override
+  Map<String, dynamic> get headers =>
+      (origin as FetchResolutionProvider).headers;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

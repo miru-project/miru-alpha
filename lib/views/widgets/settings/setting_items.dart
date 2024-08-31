@@ -33,15 +33,15 @@ class SettingItems extends ConsumerWidget {
     final c = ref.read(applicationControllerProvider.notifier);
     final nameMap = <SideBarName, List<Widget>>{
       SideBarName.general: [
-        SettingsRadiosTile(
-          title: "Radios Title",
-          subtitle: "Radios Subtitle",
-          radios: const ["Radio 1", "Radio 2", "Radio 3"],
-          value: "Radio 1",
-          onChanged: (value) {
-            debugPrint(value);
-          },
-        ),
+        // SettingsRadiosTile(
+        //   title: "Radios Title",
+        //   subtitle: "Radios Subtitle",
+        //   radios: const ["Radio 1", "Radio 2", "Radio 3"],
+        //   value: "Radio 1",
+        //   onChanged: (value) {
+        //     debugPrint(value);
+        //   },
+        // ),
         const SizedBox(height: 16),
         SettingsInputTile(
             title: "repo-link",

@@ -150,10 +150,16 @@ class ExtensionPage extends HookConsumerWidget {
                       })),
               SidebarExpander(
                   title: '倉庫',
-                  child: CategoryGroup(items: const ['全部'], onpress: (val) {})),
+                  child: CategoryGroup(
+                      needSpacer: false,
+                      items: const ['全部'],
+                      onpress: (val) {})),
               SidebarExpander(
                   title: '語言',
-                  child: CategoryGroup(items: const ['全部'], onpress: (val) {})),
+                  child: CategoryGroup(
+                      needSpacer: false,
+                      items: const ['全部'],
+                      onpress: (val) {})),
               // SidebarExpander(
               //   title: "状态",
               //   expanded: true,

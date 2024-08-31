@@ -1,3 +1,4 @@
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
@@ -32,9 +33,10 @@ class SearchPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final needRefresh = useState(false);
     final controller =
         useTabController(initialIndex: 0, initialLength: _categories.length);
-
+    final scrollController = useScrollController();
     return MiruScaffold(
       sidebar: MediaQuery.of(context).size.width < 800
           ? <Widget>[
@@ -76,28 +78,52 @@ class SearchPage extends HookWidget {
                 title: "分类",
                 expanded: true,
                 child: CategoryGroup(
-                    items: const ['全部', '影视', '漫画', '小说'], onpress: (val) {}),
+                    needSpacer: false,
+                    items: const ['全部', '影视', '漫画', '小说'],
+                    onpress: (val) {}),
               ),
               const SizedBox(height: 15),
               SidebarExpander(
                   title: '語言',
-                  child: CategoryGroup(items: const ['全部'], onpress: (val) {})),
+                  child: CategoryGroup(
+                      needSpacer: false,
+                      items: const ['全部'],
+                      onpress: (val) {})),
               const SizedBox(height: 15),
               SidebarExpander(
                   title: '擴展',
-                  child: CategoryGroup(items: const ['全部'], onpress: (val) {})),
+                  child: CategoryGroup(
+                      needSpacer: false,
+                      items: const ['全部'],
+                      onpress: (val) {})),
+              // MoonButton(
+              //   onTap: () {
+              //     needRefresh.value = !needRefresh.value;
+              //   },
+              //   label: const Text('刷新'),
+              // )
             ],
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final service = ExtensionUtils.runtimes.entries.toList();
+      body: EasyRefresh(
+          onRefresh: () {
+            debugPrint('refresh');
+            needRefresh.value = !needRefresh.value;
+          },
+          scrollController: scrollController,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final service = ExtensionUtils.runtimes.entries.toList();
 
-          return MiruSingleChildView(
-              child: Column(
-            children: List.generate(service.length,
-                (index) => Latest(extensionService: service[index].value)),
-          ));
-        },
-      ),
+              return MiruSingleChildView(
+                  controller: scrollController,
+                  child: Column(
+                    children: List.generate(
+                        service.length,
+                        (index) => Latest(
+                            needrefresh: needRefresh,
+                            extensionService: service[index].value)),
+                  ));
+            },
+          )),
     );
   }
 }

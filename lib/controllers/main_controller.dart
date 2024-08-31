@@ -51,7 +51,7 @@ class MainController extends StateNotifier<MainState> {
 
   void selectIndex(int index) {
     state = state.copyWith(selectedIndex: index);
-    rootPageTabController.animateTo(index);
+    // rootPageTabController.animateTo(index);
   }
 
   void setLoading(bool loading) {

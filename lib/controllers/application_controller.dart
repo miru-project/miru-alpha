@@ -55,15 +55,15 @@ class ApplicationController extends StateNotifier<ApplicationState> {
 
   final _lightToken = MoonTokens.light.copyWith(
     typography: MoonTypography.typography.copyWith(
-      heading: MoonTypography.typography.heading
-          .apply(fontFamily: "HarmonyOS_Sans_SC"),
+      heading:
+          MoonTypography.typography.heading.apply(fontFamily: "HarmonyOS_Sans"),
     ),
   );
 
   final _darkToken = MoonTokens.dark.copyWith(
     typography: MoonTypography.typography.copyWith(
-      heading: MoonTypography.typography.heading
-          .apply(fontFamily: "HarmonyOS_Sans_SC"),
+      heading:
+          MoonTypography.typography.heading.apply(fontFamily: "HarmonyOS_Sans"),
     ),
   );
 

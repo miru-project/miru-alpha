@@ -62,6 +62,7 @@ void main() async {
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 }
 
 class App extends ConsumerStatefulWidget {
