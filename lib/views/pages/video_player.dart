@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,32 +9,24 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/controllers/main_controller.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
+import 'package:miru_app_new/provider/watch/video_player_provider.dart';
+import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
-import 'package:miru_app_new/utils/network/request.dart';
 
 import 'package:moon_design/moon_design.dart';
 import 'package:screen_brightness/screen_brightness.dart';
-// import 'package:flutter_animate/flutter_animate.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
 bool _hasOriented = false;
-late StateNotifierProviderFamily<VideoPlayerNotifier, VideoPlayerState, String>
-    _videoPlayerProvider;
 final _episodeNotifierProvider =
-    StateNotifierProvider<EpisodeNotifier, EpisodeNotifierState>((ref) {
+    AutoDisposeStateNotifierProvider<EpisodeNotifier, EpisodeNotifierState>(
+        (ref) {
   return EpisodeNotifier();
 });
-final isMobile = Platform.isAndroid || Platform.isIOS;
-late FetchResolutionProvider _resolutionNotifer;
-final subtitleProvider =
-    StateNotifierProvider<SubtitleNotifier, SubTitleGroupState>((ref) {
-  return SubtitleNotifier();
-});
-String _videoUrl = '';
 
 class MiruVideoPlayer extends StatefulHookConsumerWidget {
   const MiruVideoPlayer(
@@ -43,8 +35,10 @@ class MiruVideoPlayer extends StatefulHookConsumerWidget {
       required this.selectedGroupIndex,
       required this.selectedEpisodeIndex,
       required this.name,
+      required this.detailImageUrl,
       required this.epGroup});
   final ExtensionApiV1 service;
+  final String detailImageUrl;
   final List<ExtensionEpisodeGroup>? epGroup;
   final int selectedGroupIndex;
   final int selectedEpisodeIndex;
@@ -90,6 +84,7 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
       SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
     }
     final epNotifier = ref.watch(_episodeNotifierProvider);
+    final epcontroller = ref.read(_episodeNotifierProvider.notifier);
     if (epNotifier.epGroup.isEmpty) {
       return Center(
           child: Column(children: [
@@ -105,12 +100,17 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
     final url = epNotifier.epGroup[epNotifier.selectedGroupIndex]
         .urls[epNotifier.selectedEpisodeIndex].url;
     final snapshot = ref.watch(VideoLoadProvider(url, widget.service));
+    epcontroller.putinformation(
+        widget.service.extension.type, widget.service.extension.package);
     return snapshot.when(
         data: (value) {
-          _resolutionNotifer =
-              FetchResolutionProvider(value.url, value.headers ?? {});
+          // _resolutionNotifer =
+          //     FetchResolutionProvider(value.url, value.headers ?? {});
           return PlayerResolution(
-              value: value, url: url, service: widget.service);
+              name: widget.name,
+              value: value,
+              url: url,
+              service: widget.service);
         },
         error: (error, trace) => Center(
                 child: Column(children: [
@@ -134,10 +134,12 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
 class PlayerResolution extends StatefulHookConsumerWidget {
   const PlayerResolution(
       {super.key,
+      required this.name,
       required this.value,
       required this.url,
       required this.service});
   final ExtensionBangumiWatch value;
+  final String name;
   final ExtensionApiV1 service;
   final String url;
   @override
@@ -147,43 +149,20 @@ class PlayerResolution extends StatefulHookConsumerWidget {
 class _PlayerResoltionState extends ConsumerState<PlayerResolution> {
   @override
   void initState() {
-    _videoUrl = widget.value.url;
+    VideoPlayerProvider.initProvider(widget.value.url,
+        widget.value.subtitles ?? [], widget.value.headers ?? {});
     super.initState();
   }
 
   @override
   Widget build(context) {
-    final aspectWidth = useState(DeviceUtil.getWidth(context));
-    final aspectHeight = useState(DeviceUtil.getHeight(context));
-    final currentSubtitle = useState<String>('');
-    final videoController = usePlayer(
-      url: _videoUrl,
-    );
-    Future.microtask(() {
-      ref.read(subtitleProvider.notifier).init(widget.value.subtitles);
-    });
-    videoController.addListener(() {
-      final position = videoController.value.position;
-      aspectWidth.value = videoController.value.size.width;
-      aspectHeight.value = videoController.value.size.height;
-      final subtitle =
-          ref.read(subtitleProvider.notifier).getCurrentSubtitle(position);
-      currentSubtitle.value = subtitle;
-    });
-    _videoPlayerProvider = StateNotifierProvider.family<VideoPlayerNotifier,
-        VideoPlayerState, String>(
-      (ref, url) {
-        return VideoPlayerNotifier(videoController);
-      },
-    );
+    final controller = ref.watch(VideoPlayerProvider.provider);
+
     return Stack(children: [
       //video player
-      Center(
-          child: AspectRatio(
-              aspectRatio: aspectWidth.value / aspectHeight.value,
-              child: VideoPlayer(videoController))),
+      Center(child: VideoPlayer(controller.controller!)),
       //subtitle text
-      if (currentSubtitle.value.isNotEmpty)
+      if (controller.currentSubtitle.isNotEmpty)
         Positioned(
           bottom: 50,
           left: 20,
@@ -198,7 +177,7 @@ class _PlayerResoltionState extends ConsumerState<PlayerResolution> {
             ),
             child: RichText(
               text: TextSpan(
-                text: currentSubtitle.value,
+                text: controller.currentSubtitle,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -224,7 +203,6 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
   Timer? _timer;
   late ValueNotifier<bool> _showControls;
 
-  double _currentBrightness = 0;
   double _currentVolume = 0;
   // 是否是调整亮度
   bool _isBrightness = false;
@@ -252,9 +230,9 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
 
   Widget buildcontent(VideoPlayerState controller, VideoPlayerNotifier c) {
     void close() {
-      controller.controller.dispose();
       WindowManager.instance.setAlwaysOnTop(false);
-      ref.invalidate(subtitleProvider);
+      // ref.invalidate(subtitleProvider);
+
       context.pop();
     }
 
@@ -294,9 +272,10 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
+    final currentBrightness = useState(0.0);
     _showControls = useState(false);
-    final controller = ref.watch(_videoPlayerProvider(''));
-    final c = ref.watch(_videoPlayerProvider('').notifier);
+    final controller = ref.watch(VideoPlayerProvider.provider);
+    final c = ref.watch(VideoPlayerProvider.provider.notifier);
     // final epNotifier = ref.watch(_episodeNotifierProvider);
     return Stack(
       children: [
@@ -346,7 +325,8 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                                 const Icon(Icons.brightness_5),
                                 const SizedBox(width: 5),
                                 Text(
-                                  (_currentBrightness * 100).toStringAsFixed(0),
+                                  (currentBrightness.value * 100)
+                                      .toStringAsFixed(0),
                                 )
                               ],
                               if (!_isBrightness) ...[
@@ -364,7 +344,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                 ),
               ),
             )),
-        if (_hasOriented)
+        if (DeviceUtil.isMobile)
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
@@ -397,8 +377,9 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
               final add = details.delta.dy / 500;
               // 如果是左边调节亮度
               if (_isBrightness) {
-                _currentBrightness = (_currentBrightness - add).clamp(0, 1);
-                ScreenBrightness().setScreenBrightness(_currentBrightness);
+                currentBrightness.value =
+                    (currentBrightness.value - add).clamp(0, 1);
+                ScreenBrightness().setScreenBrightness(currentBrightness.value);
               }
               // 如果是右边调节音量
               else {
@@ -422,12 +403,12 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                   Duration(
                     milliseconds: (details.delta.dx * scale).round(),
                   );
-              _position = Duration(
-                milliseconds: pos.inMilliseconds.clamp(
-                  0,
-                  controller.duration.inMilliseconds,
-                ),
-              );
+              // _position = Duration(
+              //   milliseconds: pos.inMilliseconds.clamp(
+              //     0,
+              //     controller.duration.inMilliseconds,
+              //   ),
+              // );
               _isSeeking = true;
               setState(() {});
             },
@@ -583,8 +564,8 @@ class _DesktopFooter extends HookConsumerWidget {
     final isspeedToggled = useState(false);
     // final isSubtitlesToggled = useState(false);
 
-    final controller = ref.watch(_videoPlayerProvider(''));
-    final c = ref.watch(_videoPlayerProvider('').notifier);
+    final controller = ref.watch(VideoPlayerProvider.provider);
+    final c = ref.watch(VideoPlayerProvider.provider.notifier);
     final buttonSize = _hasOriented ? null : 30.0;
     return Container(
       decoration: const BoxDecoration(
@@ -843,11 +824,11 @@ class _DesktopSettingDialog extends HookConsumerWidget {
     final width = MediaQuery.of(context).size.width;
     final epController = ref.watch(_episodeNotifierProvider);
     final epNotifier = ref.read(_episodeNotifierProvider.notifier);
-    final subController = ref.watch(subtitleProvider);
-    final subNotifier = ref.read(subtitleProvider.notifier);
-    final resolutionController = ref.watch(_resolutionNotifer);
-    // final videoController = ref.watch(_videoPlayerProvider(''));
-    final videoNotifer = ref.watch(_videoPlayerProvider('').notifier);
+    // final subController = ref.watch(subtitleProvider);
+    // final subNotifier = ref.read(subtitleProvider.notifier);
+    final controller = ref.read(VideoPlayerProvider.provider);
+    final notifer = ref.read(VideoPlayerProvider.provider.notifier);
+    // final resolutionController = ref.watch(FetchResolutionProvider(url, headers));
     final dialogContent = [
       // episodes
       ListView.builder(
@@ -882,42 +863,35 @@ class _DesktopSettingDialog extends HookConsumerWidget {
         ),
         itemCount: epController.epGroup.length,
       ),
-      // resolution
-      resolutionController.when(
-          data: (Map<String, String> value) {
-            final keys = value.keys.toList();
-            return ListView.builder(
-              itemBuilder: (context, index) => MoonMenuItem(
-                onTap: () {
-                  if (value[keys[index]] != null) {
-                    _videoUrl = value[keys[index]]!;
-                    epNotifier.rebuild();
-                  }
-                  context.pop();
-                },
-                label: Text(keys[index]),
-              ),
-              itemCount: value.length,
-            );
-          },
-          error: (e, stack) =>
-              Column(children: [Text(e.toString()), Text(stack.toString())]),
-          loading: () => const CircularProgressIndicator()),
+      ListView.builder(
+        itemBuilder: (context, index) {
+          final item = controller.qualityMap.keys.toList()[index];
+          return MoonMenuItem(
+              onTap: () {
+                notifer.changeVideoQuality(controller.qualityMap[item]!);
+                context.pop();
+              },
+              label: Text(
+                item,
+              ));
+        },
+        itemCount: controller.qualityMap.length,
+      ),
       // subtitle
       ListView.builder(
-          itemCount: subController.subtitlesRaw.length,
+          itemCount: controller.subtitlesRaw.length,
           itemBuilder: (context, int index) => MoonMenuItem(
-              backgroundColor: (index == subController.selectedSubtitleIndex &&
-                      subController.isShowSubtitle)
+              backgroundColor: (index == controller.selectedSubtitleIndex &&
+                      controller.isShowSubtitle)
                   ? context
                       .moonTheme?.segmentedControlTheme.colors.backgroundColor
                   : null,
               onTap: () {
-                subNotifier.setSelectedIndex(index);
+                notifer.setSelectedIndex(index);
                 context.pop();
               },
-              trailing: Text('${subController.subtitlesRaw[index].language}'),
-              label: Text(subController.subtitlesRaw[index].title))),
+              trailing: Text('${controller.subtitlesRaw[index].language}'),
+              label: Text(controller.subtitlesRaw[index].title))),
       // settings
       Container(),
     ];
@@ -987,8 +961,8 @@ class _SeekBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     bool isSliderDraging = false;
-    final controller = ref.watch(_videoPlayerProvider(''));
-    final c = ref.watch(_videoPlayerProvider('').notifier);
+    final controller = ref.watch(VideoPlayerProvider.provider);
+    final c = ref.watch(VideoPlayerProvider.provider.notifier);
     final duration = controller.duration.inMilliseconds;
     final position = controller.position.inMilliseconds;
     return Material(
@@ -1046,277 +1020,6 @@ class _SeekBar extends ConsumerWidget {
   }
 }
 
-class Subtitle {
-  final Duration start;
-  final Duration end;
-  final String text;
-
-  Subtitle({
-    required this.start,
-    required this.end,
-    required this.text,
-  });
-}
-
-class SubtitleUtil {
-  static Future<List<Subtitle>> parseVttSubtitles(String url) async {
-    // #todo
-    final String data = (await dio.get<String>(url)).data!;
-    final List<Subtitle> subtitles = [];
-    RegExp regExp = RegExp(
-      r'(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\n(.+)',
-      multiLine: true,
-    );
-
-    for (final RegExpMatch match in regExp.allMatches(data)) {
-      final start = _parseHours(match.group(1)!);
-      final end = _parseHours(match.group(2)!);
-      final text = match.group(3)!;
-      subtitles.add(Subtitle(start: start, end: end, text: text));
-    }
-    if (subtitles.isNotEmpty) {
-      return subtitles;
-    }
-    regExp = RegExp(
-      r'(\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}\.\d{3})\n(.+)',
-      multiLine: true,
-    );
-    for (final RegExpMatch match in regExp.allMatches(data)) {
-      final start = _parseMinutes(match.group(1)!);
-      final end = _parseMinutes(match.group(2)!);
-      final text = match.group(3)!;
-      subtitles.add(Subtitle(start: start, end: end, text: text));
-    }
-    return subtitles;
-  }
-
-  static Duration _parseHours(String time) {
-    final parts = time.split(':');
-    final secondsParts = parts[2].split('.');
-    return Duration(
-      hours: int.parse(parts[0]),
-      minutes: int.parse(parts[1]),
-      seconds: int.parse(secondsParts[0]),
-      milliseconds: int.parse(secondsParts[1]),
-    );
-  }
-
-  static Duration _parseMinutes(String time) {
-    final parts = time.split(':');
-    final secondsParts = parts[1].split('.');
-    return Duration(
-      minutes: int.parse(parts[0]),
-      seconds: int.parse(secondsParts[0]),
-      milliseconds: int.parse(secondsParts[1]),
-    );
-  }
-}
-
-class VideoPlayerState {
-  final VideoPlayerController controller;
-  final Duration position;
-  final bool isPlaying;
-  final Duration duration;
-  final double speed;
-  final List<DurationRange> buffered;
-  final Size size;
-  final int selectedSubtitleIndex;
-  final bool isOpenSideBar;
-  final bool isShowSideBar;
-  VideoPlayerState({
-    required this.controller,
-    this.position = Duration.zero,
-    this.isPlaying = false,
-    this.duration = Duration.zero,
-    this.speed = 1.0,
-    this.buffered = const [],
-    this.size = const Size(0, 0),
-    this.selectedSubtitleIndex = 0,
-    this.isOpenSideBar = false,
-    this.isShowSideBar = false,
-  });
-
-  VideoPlayerState copyWith({
-    VideoPlayerController? controller,
-    Duration? position,
-    bool? isPlaying,
-    Duration? duration,
-    double? speed,
-    List<DurationRange>? buffered,
-    Size? size,
-    List<ExtensionBangumiWatchSubtitle>? subtitles,
-    int? selectedSubtitleIndex,
-    bool? isOpenSideBar,
-    bool? isShowSideBar,
-  }) {
-    return VideoPlayerState(
-      controller: controller ?? this.controller,
-      position: position ?? this.position,
-      isPlaying: isPlaying ?? this.isPlaying,
-      duration: duration ?? this.duration,
-      buffered: buffered ?? this.buffered,
-      speed: speed ?? this.speed,
-      size: size ?? this.size,
-      selectedSubtitleIndex:
-          selectedSubtitleIndex ?? this.selectedSubtitleIndex,
-      isOpenSideBar: isOpenSideBar ?? this.isOpenSideBar,
-      isShowSideBar: isShowSideBar ?? this.isShowSideBar,
-    );
-  }
-}
-
-class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
-  VideoPlayerNotifier(VideoPlayerController controller,
-      [int selectedSubtitleIndex = 0])
-      : super(VideoPlayerState(
-            controller: controller,
-            selectedSubtitleIndex: selectedSubtitleIndex)) {
-    _initialize();
-  }
-
-  get speedList => const [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0];
-  void _initialize() {
-    state.controller.addListener(_updatePosition);
-    state = state.copyWith(
-      position: state.controller.value.position,
-      isPlaying: state.controller.value.isPlaying,
-      duration: state.controller.value.duration,
-      buffered: state.controller.value.buffered,
-      size: state.controller.value.size,
-      selectedSubtitleIndex: state.selectedSubtitleIndex,
-      isOpenSideBar: state.isOpenSideBar,
-      isShowSideBar: state.isShowSideBar,
-    );
-  }
-
-  void _updatePosition() {
-    state = state.copyWith(
-      position: state.controller.value.position,
-      isPlaying: state.controller.value.isPlaying,
-      duration: state.controller.value.duration,
-      buffered: state.controller.value.buffered,
-    );
-  }
-
-  void changeSubtitle(int index) {
-    state = state.copyWith(selectedSubtitleIndex: index);
-  }
-
-  void play() {
-    state.controller.play();
-    state = state.copyWith(isPlaying: true);
-  }
-
-  void changeVideoUrl(String url) {
-    state = state.copyWith(
-        controller: VideoPlayerController.networkUrl(Uri.parse(url)));
-    _initialize();
-  }
-
-  void playOrPause() {
-    if (state.isPlaying) {
-      pause();
-    } else {
-      play();
-    }
-  }
-
-  void toggleSideBar() {
-    state = state.copyWith(isOpenSideBar: !state.isOpenSideBar);
-  }
-
-  void pause() {
-    state.controller.pause();
-    state = state.copyWith(isPlaying: false);
-  }
-
-  void seek(Duration position) {
-    state.controller.seekTo(position);
-    state = state.copyWith(position: position);
-  }
-
-  void setSpeed(double speed) {
-    state.controller.setPlaybackSpeed(speed);
-    state = state.copyWith(speed: speed);
-  }
-
-  @override
-  void dispose() {
-    state.controller.removeListener(_updatePosition);
-    state.controller.dispose();
-    super.dispose();
-  }
-}
-
-VideoPlayerController usePlayer({
-  List<Object?>? keys,
-  required String url,
-  VideoPlayerOptions? videoPlayerOptions,
-  VoidCallback? listener,
-}) {
-  return use(
-    _PlayerHook(
-      listener: listener,
-      url: url,
-      keys: keys,
-      videoPlayerOptions: videoPlayerOptions,
-    ),
-  );
-}
-
-class _PlayerHook extends Hook<VideoPlayerController> {
-  const _PlayerHook(
-      {required this.url, this.videoPlayerOptions, this.listener, super.keys});
-  final String url;
-  final VideoPlayerOptions? videoPlayerOptions;
-  final VoidCallback? listener;
-  @override
-  HookState<VideoPlayerController, Hook<VideoPlayerController>> createState() =>
-      _PlayerControllerHookState();
-}
-
-class _PlayerControllerHookState
-    extends HookState<VideoPlayerController, _PlayerHook> {
-  late final VideoPlayerController player;
-  @override
-  void initHook() {
-    player = VideoPlayerController.networkUrl(Uri.parse(hook.url),
-        videoPlayerOptions: hook.videoPlayerOptions)
-      ..initialize().then((_) {
-        player.play();
-      });
-
-    super.initHook();
-  }
-
-  @override
-  VideoPlayerController build(BuildContext context) => player;
-
-  @override
-  void dispose() {
-    player.dispose();
-    super.dispose();
-  }
-
-  @override
-  String get debugLabel => 'usePlayer';
-}
-
-enum SidebarTab { subtitles, episodes, qualitys, settings }
-
-class SideBarState {
-  final bool isOpenSideBar;
-  final bool isShowSideBar;
-  SideBarState({this.isOpenSideBar = false, this.isShowSideBar = false});
-
-  SideBarState copyWith({bool? isOpenSideBar, bool? isShowSideBar}) {
-    return SideBarState(
-      isOpenSideBar: isOpenSideBar ?? this.isOpenSideBar,
-      isShowSideBar: isShowSideBar ?? this.isShowSideBar,
-    );
-  }
-}
-
 class EpisodeNotifierState {
   final List<ExtensionEpisodeGroup> epGroup;
   final int selectedGroupIndex;
@@ -1346,6 +1049,8 @@ class EpisodeNotifierState {
 }
 
 class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
+  late String package;
+  late ExtensionType type;
   EpisodeNotifier() : super(EpisodeNotifierState());
   void selectEpisode(int groupIndex, int episodeIndex) {
     state = state.copyWith(
@@ -1364,74 +1069,28 @@ class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
         selectedEpisodeIndex: episodeIndex);
   }
 
-  void rebuild() {
-    state = state.copyWith(
-      flag: !state.flag,
-    );
-  }
-}
-
-class SubTitleGroupState {
-  final List<ExtensionBangumiWatchSubtitle> subtitlesRaw;
-  final int selectedSubtitleIndex;
-  final List<Subtitle> subtitles;
-  final bool isShowSubtitle;
-  SubTitleGroupState(
-      {this.subtitlesRaw = const [],
-      this.selectedSubtitleIndex = 0,
-      this.isShowSubtitle = false,
-      this.subtitles = const []});
-  SubTitleGroupState copyWith(
-      {List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
-      bool? isShowSubtitle,
-      int? selectedSubtitleIndex,
-      List<Subtitle>? subtitles}) {
-    return SubTitleGroupState(
-      subtitlesRaw: subtitlesRaw ?? this.subtitlesRaw,
-      isShowSubtitle: isShowSubtitle ?? this.isShowSubtitle,
-      subtitles: subtitles ?? this.subtitles,
-      selectedSubtitleIndex:
-          selectedSubtitleIndex ?? this.selectedSubtitleIndex,
-    );
-  }
-}
-
-class SubtitleNotifier extends StateNotifier<SubTitleGroupState> {
-  SubtitleNotifier() : super(SubTitleGroupState());
-
-  void setSubtitles(List<Subtitle> subtitles, int index) {
-    state = state.copyWith(subtitles: subtitles, selectedSubtitleIndex: index);
+  void putinformation(ExtensionType type, String package) {
+    this.package = package;
+    this.type = type;
   }
 
-  String getCurrentSubtitle(Duration position) {
-    final subtitle = state.subtitles.firstWhere(
-      (subtitle) => position >= subtitle.start && position <= subtitle.end,
-      orElse: () =>
-          Subtitle(start: Duration.zero, end: Duration.zero, text: ''),
-    );
-    return subtitle.text;
-  }
+  @override
+  void dispose() {
+    DatabaseService.putHistory(History()
+      ..title = state.name
+      ..package = package
+      ..type = type
+      ..url = state.epGroup[state.selectedGroupIndex]
+          .urls[state.selectedEpisodeIndex].url
+      ..episodeGroupId = state.selectedGroupIndex
+      ..episodeId = state.selectedEpisodeIndex
+      ..progress = state.selectedEpisodeIndex.toString()
+      ..totalProgress =
+          state.epGroup[state.selectedGroupIndex].urls.length.toString()
+      ..episodeTitle = state.epGroup[state.selectedGroupIndex]
+          .urls[state.selectedEpisodeIndex].name
+      ..date = DateTime.now());
 
-  void setSelectedIndex(int index) {
-    state = state.copyWith(selectedSubtitleIndex: index, isShowSubtitle: true);
-    SubtitleUtil.parseVttSubtitles(state.subtitlesRaw[index].url).then((value) {
-      setSubtitles(value, index);
-    });
+    super.dispose();
   }
-
-  void closeSubtitle() {
-    state = state.copyWith(isShowSubtitle: false);
-  }
-
-  void init(List<ExtensionBangumiWatchSubtitle>? subtitles) {
-    state = state.copyWith(
-        subtitlesRaw: subtitles,
-        isShowSubtitle: false,
-        selectedSubtitleIndex: 0,
-        subtitles: const []);
-  }
-
-  int get length => state.subtitles.length;
-  List<Subtitle> get subtitles => state.subtitles;
-  int get selectedIndex => state.selectedSubtitleIndex;
 }

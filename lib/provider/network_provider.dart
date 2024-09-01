@@ -44,9 +44,14 @@ Future<List<ExtensionListItem>> fetchExtensionLatest(
   return result;
 }
 
-@riverpod
-Future<Map<String, String>> fetchResolution(
-    FetchResolutionRef ref, String url, Map<String, dynamic> headers) async {
+// @riverpod
+// Future<Map<String, String>> fetchResolution(
+//     FetchResolutionRef ref, String url, Map<String, dynamic> headers) async {
+//   return getQuality(url, headers);
+// }
+
+Future<Map<String, String>> getQuality(
+    String url, Map<String, dynamic> headers) async {
   final defaultRes = <String, String>{"": url};
   final response = await dio.get(
     url,

@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:isar/isar.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
+import 'package:miru_app_new/utils/database_service.dart';
 
 import 'package:miru_app_new/utils/extension/extension_service.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
+import 'package:path/path.dart';
 import 'package:shimmer/shimmer.dart';
 
 class DetailItemBox extends StatelessWidget {
@@ -335,6 +338,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                         onTap: (value) {
                           context.push('/watch',
                               extra: WatchParams(
+                                  detailImageUrl: data.cover ?? '',
                                   name: data.title,
                                   selectedEpisodeIndex: value,
                                   selectedGroupIndex: _selectedGroup.value,
@@ -366,6 +370,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                         context.push('/watch',
                             extra: WatchParams(
                                 name: data.title,
+                                detailImageUrl: data.cover ?? '',
                                 selectedEpisodeIndex: value,
                                 selectedGroupIndex: _selectedGroup.value,
                                 epGroup: data.episodes,
@@ -564,7 +569,14 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
     int alpha = _mapRange(shrinkOffset, minExt, maxExt, 0, 255)
         .clamp(0, clampMax)
         .toInt();
+    final query = DatabaseService.db.historys
+        .filter()
+        .packageEqualTo(extensionService.extension.package)
+        .build();
 
+    query.watch().listen((event) {
+      debugPrint(event.toString());
+    });
     return (Container(
         decoration: BoxDecoration(
             color: Colors.grey,
@@ -643,6 +655,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                   ])
                             ]));
                   }
+
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [

@@ -28,6 +28,7 @@ class RouterUtil {
           case ExtensionType.bangumi:
             return MiruVideoPlayer(
               name: extra.name,
+              detailImageUrl: extra.detailImageUrl,
               selectedEpisodeIndex: extra.selectedEpisodeIndex,
               selectedGroupIndex: extra.selectedGroupIndex,
               service: extra.service,

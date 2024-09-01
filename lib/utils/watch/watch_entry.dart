@@ -27,11 +27,13 @@ class WatchParams {
       required this.selectedGroupIndex,
       required this.selectedEpisodeIndex,
       required this.name,
+      required this.detailImageUrl,
       required this.epGroup});
   final ExtensionApiV1 service;
   final String url;
   final List<ExtensionEpisodeGroup>? epGroup;
   final int selectedGroupIndex;
+  final String detailImageUrl;
   final int selectedEpisodeIndex;
   final ExtensionType type;
   final String name;
