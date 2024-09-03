@@ -4,6 +4,7 @@ import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/pages/index.dart';
 import 'package:miru_app_new/views/pages/main_page.dart';
+import 'package:miru_app_new/views/pages/manga_reader.dart';
 import 'package:miru_app_new/views/pages/video_player.dart';
 
 class RouterUtil {
@@ -36,7 +37,15 @@ class RouterUtil {
               epGroup: extra.epGroup,
             );
           case ExtensionType.manga:
-            return Container();
+            return MiruMangaReader(
+              name: extra.name,
+              detailImageUrl: extra.detailImageUrl,
+              selectedEpisodeIndex: extra.selectedEpisodeIndex,
+              selectedGroupIndex: extra.selectedGroupIndex,
+              service: extra.service,
+              // url: extra.url,
+              epGroup: extra.epGroup,
+            );
           default:
             return Container();
         }

@@ -176,7 +176,7 @@ class Extension {
   async registerSetting(settings) {
     console.log(JSON.stringify([settings]));
     this.settingKeys.push(settings.key);
-    return sendMessage("registerSetting"+this.extension.className, JSON.stringify([settings]));
+    return sendMessage(`registerSetting${this.extension.className}`, JSON.stringify([settings]));
   }
 
   async load() { }

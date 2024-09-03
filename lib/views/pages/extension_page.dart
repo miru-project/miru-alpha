@@ -1,5 +1,6 @@
 // import 'dart:ffi';
 
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -291,60 +292,67 @@ class ExtensionPage extends HookConsumerWidget {
                         },
                         itemCount: extensionList.value.length,
                       ),
-                      mobileWidget: MiruListView.builder(
-                        itemBuilder: (context, index) {
-                          final data = value[index];
-                          return MoonMenuItem(
-                            onTap: () {},
-                            trailing: Row(
-                              children: [
-                                if (ExtensionUtils.runtimes
-                                    .containsKey(data.package))
-                                  MoonButton(
-                                    onTap: () {
-                                      uninstall(data.package);
-                                    },
-                                    leading: const Icon(
-                                        MoonIcons.generic_delete_24_regular),
-                                  )
-                                else
-                                  MoonButton(
-                                    onTap: () {
-                                      install(data.package);
-                                    },
-                                    leading: const Icon(
-                                        MoonIcons.generic_download_24_regular),
-                                  )
-                              ],
-                            ),
-                            leading: SizedBox(
-                              width: 40,
-                              height: 40,
-                              child: data.icon == null
-                                  ? null
-                                  : Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: ExtendedImage.network(
-                                        data.icon!,
-                                        loadStateChanged:
-                                            (ExtendedImageState state) {
-                                          if (state.extendedImageLoadState ==
-                                              LoadState.failed) {
-                                            return const Icon(MoonIcons
-                                                .notifications_error_16_regular); // Fallback widget
-                                          }
-                                          return null; // Use the default widget
+                      mobileWidget: EasyRefresh(
+                          onRefresh: () {
+                            ref.invalidate(fetchExtensionRepoProvider);
+                            ref.read(fetchExtensionRepoProvider);
+                          },
+                          child: MiruListView.builder(
+                            itemBuilder: (context, index) {
+                              final data = value[index];
+                              return MoonMenuItem(
+                                onTap: () {},
+                                trailing: Row(
+                                  children: [
+                                    if (ExtensionUtils.runtimes
+                                        .containsKey(data.package))
+                                      MoonButton(
+                                        onTap: () {
+                                          uninstall(data.package);
                                         },
-                                      ),
-                                    ),
-                            ),
-                            label: Text(data.name),
-                          );
-                        },
-                        itemCount: extensionList.value.length,
-                      ),
+                                        leading: const Icon(MoonIcons
+                                            .generic_delete_24_regular),
+                                      )
+                                    else
+                                      MoonButton(
+                                        onTap: () {
+                                          install(data.package);
+                                        },
+                                        leading: const Icon(MoonIcons
+                                            .generic_download_24_regular),
+                                      )
+                                  ],
+                                ),
+                                leading: SizedBox(
+                                  width: 40,
+                                  height: 40,
+                                  child: data.icon == null
+                                      ? null
+                                      : Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: ExtendedImage.network(
+                                            data.icon!,
+                                            loadStateChanged:
+                                                (ExtendedImageState state) {
+                                              if (state
+                                                      .extendedImageLoadState ==
+                                                  LoadState.failed) {
+                                                return const Icon(MoonIcons
+                                                    .notifications_error_16_regular); // Fallback widget
+                                              }
+                                              return null; // Use the default widget
+                                            },
+                                          ),
+                                        ),
+                                ),
+                                label: Text(data.name),
+                              );
+                            },
+                            itemCount: extensionList.value.length,
+                          )),
                     );
                   });
             },
@@ -360,7 +368,7 @@ class ExtensionPage extends HookConsumerWidget {
                 )
               ]),
             ),
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: MoonCircularLoader()),
           );
         },
       ),

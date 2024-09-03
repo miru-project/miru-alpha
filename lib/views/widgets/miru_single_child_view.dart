@@ -42,7 +42,7 @@ class MiruSingleChildView extends StatelessWidget {
         child: PlatformWidget(
           mobileWidget: SingleChildScrollView(
             scrollDirection: scrollDirection,
-            padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 130)
+            padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 190)
                 .add(padding ?? EdgeInsets.zero)
                 .add(widthPadding),
             child: child,

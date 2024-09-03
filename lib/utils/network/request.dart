@@ -1,13 +1,15 @@
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-// import 'package:flutter_socks_proxy/socks_proxy.dart';
-import '../../utils/miru_directory.dart';
+import 'package:miru_app_new/utils/index.dart';
+import 'package:flutter_socks_proxy/socks_proxy.dart';
+// import '../../utils/miru_directory.dart';
 // import '../../utils/miru_storage.dart';
 
 late final Dio dio;
 
 class MiruRequest {
+  static bool _isInitialized = false;
   static final _cookieJar = PersistCookieJar(
     ignoreExpires: true,
     storage: FileStorage("${MiruDirectory.getDirectory}/.cookies/"),
@@ -19,25 +21,25 @@ class MiruRequest {
     dio = Dio();
     final cookieManager = CookieManager(_cookieJar);
     dio.interceptors.add(cookieManager);
-    // refreshProxy();
-    // _isInitialized = true;
+    refreshProxy();
+    _isInitialized = true;
   }
 
-  // static refreshProxy() {
-  //   String proxy = "";
-  //   final type = MiruStorage.getSetting(SettingKey.proxyType);
-  //   if (type == "DIRECT") {
-  //     proxy = type;
-  //   } else {
-  //     proxy = '$type ${MiruStorage.getSetting(SettingKey.proxy)}';
-  //   }
+  static refreshProxy() {
+    String proxy = "";
+    final type = MiruStorage.getSettingSync(SettingKey.proxyType, String);
+    if (type == "DIRECT") {
+      proxy = type;
+    } else {
+      proxy = '$type ${MiruStorage.getSettingSync(SettingKey.proxy, String)}';
+    }
 
-  //   if (!_isInitialized) {
-  //     SocksProxy.initProxy(proxy: proxy);
-  //     return;
-  //   }
-  //   SocksProxy.setProxy(proxy);
-  // }
+    if (!_isInitialized) {
+      SocksProxy.initProxy(proxy: proxy);
+      return;
+    }
+    SocksProxy.setProxy(proxy);
+  }
 
   static Future<void> cleanCookie(String url) async {
     await _cookieJar.delete(Uri.parse(url));

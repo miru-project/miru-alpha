@@ -122,41 +122,37 @@ class DatabaseService {
   }
 
   // 更新扩展设置
-  static Future<Id?> putExtensionSetting(
-      String package, String key, String value) async {
-    final extensionSetting = await getExtensionSetting(package, key);
+  static Id? putExtensionSetting(String package, String key, String value) {
+    final extensionSetting = getExtensionSetting(package, key);
     if (extensionSetting == null) {
       return null;
     }
     extensionSetting.value = value;
-    return db.writeTxn(() => db.extensionSettings.put(extensionSetting));
+    return db
+        .writeTxnSync(() => db.extensionSettings.putSync(extensionSetting));
   }
 
   // 获取扩展设置
-  static Future<ExtensionSetting?> getExtensionSetting(
-      String package, String key) async {
-    return db.extensionSettings
-        .filter()
-        .packageEqualTo(package)
-        .and()
-        .keyEqualTo(key)
-        .findFirst();
+  static ExtensionSetting? getExtensionSetting(String package, String key) {
+    // db.extensionSettings.getByPackageKeySync(package, key);
+    return db.extensionSettings.getByPackageKeySync(package, key);
   }
 
   // 添加扩展设置
-  static Future<Id> registerExtensionSetting(
+  static Id registerExtensionSetting(
     ExtensionSetting extensionSetting,
-  ) async {
+  ) {
     if (extensionSetting.type == ExtensionSettingType.radio &&
         extensionSetting.options == null) {
       throw Exception('options is null');
     }
 
-    final extSetting = await getExtensionSetting(
-        extensionSetting.package, extensionSetting.key);
+    final extSetting =
+        getExtensionSetting(extensionSetting.package, extensionSetting.key);
     // 如果不存在相同设置，则添加
     if (extSetting == null) {
-      return db.writeTxn(() => db.extensionSettings.put(extensionSetting));
+      return db
+          .writeTxnSync(() => db.extensionSettings.putSync(extensionSetting));
     }
 
     extSetting.defaultValue = extensionSetting.defaultValue;
@@ -171,8 +167,8 @@ class DatabaseService {
     extSetting.options = extensionSetting.options;
     extSetting.title = extensionSetting.title;
 
-    return db.writeTxn(
-      () => db.extensionSettings.putByIndex(r'package&key', extSetting),
+    return db.writeTxnSync(
+      () => db.extensionSettings.putByIndexSync(r'package&key', extSetting),
     );
   }
 

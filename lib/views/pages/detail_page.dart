@@ -12,7 +12,6 @@ import 'package:miru_app_new/utils/extension/extension_service.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
-import 'package:path/path.dart';
 import 'package:shimmer/shimmer.dart';
 
 class DetailItemBox extends StatelessWidget {
@@ -123,10 +122,12 @@ class DesktopDetail extends StatelessWidget {
       this.data,
       required this.season,
       required this.desc,
+      required this.isLoading,
       required this.ep,
       required this.extensionService,
       required this.cast});
   final Widget desc;
+  final bool isLoading;
   final Widget ep;
   final Widget season;
   final Widget cast;
@@ -149,7 +150,7 @@ class DesktopDetail extends StatelessWidget {
                 minExt: _minExtDesktop,
                 clampMax: _clampMaxDesktop,
                 extensionService: extensionService,
-                isLoading: false,
+                isLoading: isLoading,
                 detail: data)),
         SliverList.list(children: [
           const SizedBox(height: 20),
@@ -205,9 +206,11 @@ class MobileDetail extends StatelessWidget {
       this.data,
       this.addition = _default,
       required this.desc,
+      required this.isLoading,
       required this.ep,
       required this.extensionService});
   final Widget desc;
+  final bool isLoading;
   final Widget ep;
   final ExtensionApiV1 extensionService;
   final ExtensionDetail? data;
@@ -330,6 +333,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
               context: context,
               child: PlatformWidget(
                   mobileWidget: MobileDetail(
+                    isLoading: false,
                     data: data,
                     extensionService: widget.extensionService,
                     ep: DetailEpButton(
@@ -361,6 +365,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                     ),
                   ),
                   desktopWidget: DesktopDetail(
+                    isLoading: false,
                     data: data,
                     extensionService: widget.extensionService,
                     ep: DetailEpButton(
@@ -418,6 +423,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
           },
           loading: () => PlatformWidget(
               mobileWidget: MobileDetail(
+                isLoading: true,
                 extensionService: widget.extensionService,
                 desc: const LoadingWidget(
                   lineCount: 3,
@@ -433,6 +439,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                 ),
               ),
               desktopWidget: DesktopDetail(
+                isLoading: true,
                 cast: const LoadingWidget(
                   lineCount: 8,
                   lineheight: 20,

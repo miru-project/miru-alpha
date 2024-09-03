@@ -3,23 +3,22 @@ import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
 
 class MiruScaffold extends StatefulWidget {
-  const MiruScaffold({
-    super.key,
-    this.appBar,
-    required this.body,
-    this.sidebar,
-  });
+  const MiruScaffold(
+      {super.key,
+      this.appBar,
+      required this.body,
+      this.sidebar,
+      this.scrollController});
   final PreferredSizeWidget? appBar;
   final Widget body;
   final List<Widget>? sidebar;
-
+  final ScrollController? scrollController;
   @override
   State<MiruScaffold> createState() => _MiruScaffoldState();
 }
 
 class _MiruScaffoldState extends State<MiruScaffold> {
-  final scrollController = ScrollController();
-
+  late ScrollController scrollController;
   @override
   void dispose() {
     scrollController.dispose();
@@ -27,70 +26,73 @@ class _MiruScaffoldState extends State<MiruScaffold> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    late Widget body;
-    if (widget.sidebar != null) {
-      body = SnappingSheet(
-        lockOverflowDrag: true,
-        snappingPositions: const [
-          SnappingPosition.pixels(
-            positionPixels: 140,
-            snappingCurve: Curves.easeOutExpo,
-            snappingDuration: Duration(seconds: 1),
-            grabbingContentOffset: GrabbingContentOffset.top,
-          ),
-          SnappingPosition.factor(
-            snappingCurve: Curves.elasticOut,
-            snappingDuration: Duration(milliseconds: 1750),
-            positionFactor: 0.5,
-          ),
-          SnappingPosition.factor(
-            grabbingContentOffset: GrabbingContentOffset.bottom,
-            snappingCurve: Curves.easeInExpo,
-            snappingDuration: Duration(seconds: 1),
-            positionFactor: 0.9,
-          ),
-        ],
-        sheetBelow: SnappingSheetContent(
-          childScrollController: scrollController,
-          draggable: (details) => true,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor.withAlpha(220),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(30),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 25,
-                  color: Colors.black.withOpacity(0.2),
-                ),
-              ],
+  initState() {
+    scrollController = widget.scrollController ?? ScrollController();
+    super.initState();
+  }
+
+  Widget sheet() {
+    return SnappingSheet(
+      lockOverflowDrag: true,
+      snappingPositions: const [
+        SnappingPosition.pixels(
+          positionPixels: 190,
+          snappingCurve: Curves.easeOutExpo,
+          snappingDuration: Duration(seconds: 1),
+          grabbingContentOffset: GrabbingContentOffset.top,
+        ),
+        SnappingPosition.factor(
+          snappingCurve: Curves.elasticOut,
+          snappingDuration: Duration(milliseconds: 1750),
+          positionFactor: 0.5,
+        ),
+        SnappingPosition.factor(
+          grabbingContentOffset: GrabbingContentOffset.bottom,
+          snappingCurve: Curves.easeInExpo,
+          snappingDuration: Duration(seconds: 1),
+          positionFactor: 0.9,
+        ),
+      ],
+      sheetBelow: SnappingSheetContent(
+        childScrollController: scrollController,
+        draggable: (details) => true,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor.withAlpha(220),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(30),
             ),
-            clipBehavior: Clip.antiAlias,
-            child: Blur(
-              child: ListView(
-                controller: scrollController,
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
-                children: [
-                  _GrabbingWidget(),
-                  ...widget.sidebar!,
-                ],
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 25,
+                color: Colors.black.withOpacity(0.2),
               ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Blur(
+            child: ListView(
+              controller: scrollController,
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
+              children: [
+                _GrabbingWidget(),
+                ...widget.sidebar!,
+              ],
             ),
           ),
         ),
-        child: widget.body,
-      );
-    } else {
-      body = widget.body;
-    }
+      ),
+      child: widget.body,
+    );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return PlatformWidget(
       mobileWidget: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: widget.appBar,
-        body: body,
+        body: widget.sidebar != null ? sheet() : widget.body,
       ),
       desktopWidget: Scaffold(
         body: Row(

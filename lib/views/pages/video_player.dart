@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +26,7 @@ final _episodeNotifierProvider =
   return EpisodeNotifier();
 });
 
+//Changing epsisode will make this reload
 class MiruVideoPlayer extends StatefulHookConsumerWidget {
   const MiruVideoPlayer(
       {super.key,
@@ -100,8 +99,8 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
     final url = epNotifier.epGroup[epNotifier.selectedGroupIndex]
         .urls[epNotifier.selectedEpisodeIndex].url;
     final snapshot = ref.watch(VideoLoadProvider(url, widget.service));
-    epcontroller.putinformation(
-        widget.service.extension.type, widget.service.extension.package);
+    epcontroller.putinformation(widget.service.extension.type,
+        widget.service.extension.package, widget.detailImageUrl);
     return snapshot.when(
         data: (value) {
           // _resolutionNotifer =
@@ -127,10 +126,11 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
                 )
               ])
             ])),
-        loading: () => const Center(child: CircularProgressIndicator()));
+        loading: () => const Center(child: MoonCircularLoader()));
   }
 }
 
+//changing video quality will make this reload
 class PlayerResolution extends StatefulHookConsumerWidget {
   const PlayerResolution(
       {super.key,
@@ -403,12 +403,12 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                   Duration(
                     milliseconds: (details.delta.dx * scale).round(),
                   );
-              // _position = Duration(
-              //   milliseconds: pos.inMilliseconds.clamp(
-              //     0,
-              //     controller.duration.inMilliseconds,
-              //   ),
-              // );
+              _position = Duration(
+                milliseconds: pos.inMilliseconds.clamp(
+                  0,
+                  controller.duration.inMilliseconds,
+                ),
+              );
               _isSeeking = true;
               setState(() {});
             },
@@ -1051,6 +1051,7 @@ class EpisodeNotifierState {
 class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
   late String package;
   late ExtensionType type;
+  late String imageUrl;
   EpisodeNotifier() : super(EpisodeNotifierState());
   void selectEpisode(int groupIndex, int episodeIndex) {
     state = state.copyWith(
@@ -1069,9 +1070,10 @@ class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
         selectedEpisodeIndex: episodeIndex);
   }
 
-  void putinformation(ExtensionType type, String package) {
+  void putinformation(ExtensionType type, String package, String imageUrl) {
     this.package = package;
     this.type = type;
+    this.imageUrl = imageUrl;
   }
 
   @override
@@ -1085,6 +1087,7 @@ class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
       ..episodeGroupId = state.selectedGroupIndex
       ..episodeId = state.selectedEpisodeIndex
       ..progress = state.selectedEpisodeIndex.toString()
+      ..cover = imageUrl
       ..totalProgress =
           state.epGroup[state.selectedGroupIndex].urls.length.toString()
       ..episodeTitle = state.epGroup[state.selectedGroupIndex]

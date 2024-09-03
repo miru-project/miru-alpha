@@ -49,6 +49,19 @@ Future<List<ExtensionListItem>> fetchExtensionLatest(
 //     FetchResolutionRef ref, String url, Map<String, dynamic> headers) async {
 //   return getQuality(url, headers);
 // }
+@riverpod
+Future<ExtensionMangaWatch> mangaLoad(
+    MangaLoadRef ref, String url, ExtensionApiV1 service) async {
+  final result = await service.watch(url) as ExtensionMangaWatch;
+  return result;
+}
+
+@riverpod
+Future<ExtensionFikushonWatch> fikushonLoad(
+    FikushonLoadRef ref, String url, ExtensionApiV1 service) async {
+  final result = await service.watch(url) as ExtensionFikushonWatch;
+  return result;
+}
 
 Future<Map<String, String>> getQuality(
     String url, Map<String, dynamic> headers) async {

@@ -13,7 +13,8 @@ class MiruStorage {
   static const int _lastDatabaseVersion = 2;
   static late String _path;
   static late IsarCollection<AppSetting> _settings;
-  static final _settingCache = <String, int>{};
+  static final _settingidCache = <String, int>{};
+  static final _settingCache = <String, dynamic>{};
   static ensureInitialized() async {
     _path = MiruDirectory.getDirectory;
 
@@ -38,7 +39,7 @@ class MiruStorage {
   }
 
   static performMigrationIfNeeded() async {
-    final currentVersion = await getDatabaseVersion();
+    final currentVersion = getDatabaseVersion();
     debugPrint(currentVersion.toString());
     switch (currentVersion) {
       case 1:
@@ -83,9 +84,9 @@ class MiruStorage {
   }
 
   // 获取数据库版本
-  static Future<int> getDatabaseVersion() async {
+  static int getDatabaseVersion() {
     // 先获取数据库版本
-    final version = await getSetting(SettingKey.databaseVersion, int);
+    final version = getSettingSync(SettingKey.databaseVersion, int);
     // 如果没有版本号，并且没有数据库文件说明是第一次使用，返回最新的数据库版本
     if (version == null) {
       final path = MiruDirectory.getDirectory;
@@ -94,7 +95,8 @@ class MiruStorage {
         return 1;
       }
       // 设置数据库版本并返回最新版本
-      await setSetting(SettingKey.databaseVersion, _lastDatabaseVersion);
+      setSettingSync(
+          SettingKey.databaseVersion, _lastDatabaseVersion.toString());
       return _lastDatabaseVersion;
     }
     // 如果有版本号，返回版本号
@@ -136,10 +138,12 @@ class MiruStorage {
     SettingKey.accentColor: "krillin"
   };
   static _initSettings() async {
+    //init from default settings
     await database.writeTxn(() async {
       for (final entry in _defaultSettings.entries) {
         final result =
             await _settings.filter().keyEqualTo(entry.key).findFirst();
+        //add Setting to ISAR if not exist
         if (result == null) {
           await _settings.putByKey(AppSetting()
             ..key = entry.key
@@ -147,26 +151,34 @@ class MiruStorage {
         }
       }
     });
+    final allSettings =
+        await database.txn(() async => database.appSettings.where().findAll());
+    for (final AppSetting i in allSettings) {
+      _settingCache[i.key] = i.value;
+      _settingidCache[i.key] = i.id;
+    }
   }
 
-  static setSetting(String key, dynamic value) async {
-    await database.writeTxn(() async {
-      await _settings.put(AppSetting()
-        ..key = key
-        ..value = value.toString());
-    });
-  }
+  // static setSetting(String key, dynamic value) async {
+  //   await database.writeTxn(() async {
+  //     await _settings.put(AppSetting()
+  //       ..key = key
+  //       ..value = value.toString());
+  //   });
+  // }
 
   static setSettingSync(String key, String value) {
     if (_settingCache[key] != null) {
       database.writeTxnSync(() {
         _settings.putByKeySync(AppSetting()
-          ..id = _settingCache[key]!
+          ..id = _settingidCache[key]!
           ..key = key
           ..value = value.toString());
       });
+      _settingCache[key] = value;
       return;
     }
+
     throw Exception('Setting $key not found');
   }
 
@@ -178,20 +190,20 @@ class MiruStorage {
     if (val == null) {
       throw Exception('Setting $key not found');
     }
-    _settingCache[key] = val!.id;
+    _settingidCache[key] = val!.id;
     return convertStringToObj(val!.value, type);
   }
 
   static T getSettingSync<T>(String key, Type type) {
-    AppSetting? val;
-    database.writeTxnSync(() {
-      val = _settings.getByKeySync(key);
-    });
-    if (val == null) {
-      throw Exception('Setting $key not found');
-    }
-    _settingCache[key] = val!.id;
-    return convertStringToObj(val!.value, type);
+    // AppSetting? val;
+    // database.writeTxnSync(() {
+    //   val = _settings.getByKeySync(key);
+    // });
+    // if (val == null) {
+    //   throw Exception('Setting $key not found');
+    // }
+    // _settingidCache[key] = val!.id;
+    return convertStringToObj(_settingCache[key], type);
   }
 
   static String getUASetting() {
@@ -203,9 +215,9 @@ class MiruStorage {
 
   static setUASetting(String value) async {
     if (Platform.isAndroid) {
-      setSetting(SettingKey.androidWebviewUA, value);
+      setSettingSync(SettingKey.androidWebviewUA, value);
     } else {
-      setSetting(SettingKey.windowsWebviewUA, value);
+      setSettingSync(SettingKey.windowsWebviewUA, value);
     }
   }
 
@@ -221,6 +233,7 @@ class MiruStorage {
         return value;
       case const (Color):
         return Color(int.parse(value));
+
       default:
         throw Exception('Unknown $type');
     }

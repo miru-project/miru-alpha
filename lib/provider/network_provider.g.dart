@@ -491,5 +491,297 @@ class _FetchExtensionLatestProviderElement
   @override
   int get page => (origin as FetchExtensionLatestProvider).page;
 }
+
+String _$mangaLoadHash() => r'504dd9abbfeb48124e2deba15f0f193b1f19980f';
+
+/// See also [mangaLoad].
+@ProviderFor(mangaLoad)
+const mangaLoadProvider = MangaLoadFamily();
+
+/// See also [mangaLoad].
+class MangaLoadFamily extends Family<AsyncValue<ExtensionMangaWatch>> {
+  /// See also [mangaLoad].
+  const MangaLoadFamily();
+
+  /// See also [mangaLoad].
+  MangaLoadProvider call(
+    String url,
+    ExtensionApiV1 service,
+  ) {
+    return MangaLoadProvider(
+      url,
+      service,
+    );
+  }
+
+  @override
+  MangaLoadProvider getProviderOverride(
+    covariant MangaLoadProvider provider,
+  ) {
+    return call(
+      provider.url,
+      provider.service,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'mangaLoadProvider';
+}
+
+/// See also [mangaLoad].
+class MangaLoadProvider extends AutoDisposeFutureProvider<ExtensionMangaWatch> {
+  /// See also [mangaLoad].
+  MangaLoadProvider(
+    String url,
+    ExtensionApiV1 service,
+  ) : this._internal(
+          (ref) => mangaLoad(
+            ref as MangaLoadRef,
+            url,
+            service,
+          ),
+          from: mangaLoadProvider,
+          name: r'mangaLoadProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$mangaLoadHash,
+          dependencies: MangaLoadFamily._dependencies,
+          allTransitiveDependencies: MangaLoadFamily._allTransitiveDependencies,
+          url: url,
+          service: service,
+        );
+
+  MangaLoadProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.url,
+    required this.service,
+  }) : super.internal();
+
+  final String url;
+  final ExtensionApiV1 service;
+
+  @override
+  Override overrideWith(
+    FutureOr<ExtensionMangaWatch> Function(MangaLoadRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: MangaLoadProvider._internal(
+        (ref) => create(ref as MangaLoadRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        url: url,
+        service: service,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<ExtensionMangaWatch> createElement() {
+    return _MangaLoadProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is MangaLoadProvider &&
+        other.url == url &&
+        other.service == service;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, url.hashCode);
+    hash = _SystemHash.combine(hash, service.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin MangaLoadRef on AutoDisposeFutureProviderRef<ExtensionMangaWatch> {
+  /// The parameter `url` of this provider.
+  String get url;
+
+  /// The parameter `service` of this provider.
+  ExtensionApiV1 get service;
+}
+
+class _MangaLoadProviderElement
+    extends AutoDisposeFutureProviderElement<ExtensionMangaWatch>
+    with MangaLoadRef {
+  _MangaLoadProviderElement(super.provider);
+
+  @override
+  String get url => (origin as MangaLoadProvider).url;
+  @override
+  ExtensionApiV1 get service => (origin as MangaLoadProvider).service;
+}
+
+String _$fikushonLoadHash() => r'8271bce34dd2a932698e486d2ebe8b80df96afdb';
+
+/// See also [fikushonLoad].
+@ProviderFor(fikushonLoad)
+const fikushonLoadProvider = FikushonLoadFamily();
+
+/// See also [fikushonLoad].
+class FikushonLoadFamily extends Family<AsyncValue<ExtensionFikushonWatch>> {
+  /// See also [fikushonLoad].
+  const FikushonLoadFamily();
+
+  /// See also [fikushonLoad].
+  FikushonLoadProvider call(
+    String url,
+    ExtensionApiV1 service,
+  ) {
+    return FikushonLoadProvider(
+      url,
+      service,
+    );
+  }
+
+  @override
+  FikushonLoadProvider getProviderOverride(
+    covariant FikushonLoadProvider provider,
+  ) {
+    return call(
+      provider.url,
+      provider.service,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'fikushonLoadProvider';
+}
+
+/// See also [fikushonLoad].
+class FikushonLoadProvider
+    extends AutoDisposeFutureProvider<ExtensionFikushonWatch> {
+  /// See also [fikushonLoad].
+  FikushonLoadProvider(
+    String url,
+    ExtensionApiV1 service,
+  ) : this._internal(
+          (ref) => fikushonLoad(
+            ref as FikushonLoadRef,
+            url,
+            service,
+          ),
+          from: fikushonLoadProvider,
+          name: r'fikushonLoadProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$fikushonLoadHash,
+          dependencies: FikushonLoadFamily._dependencies,
+          allTransitiveDependencies:
+              FikushonLoadFamily._allTransitiveDependencies,
+          url: url,
+          service: service,
+        );
+
+  FikushonLoadProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.url,
+    required this.service,
+  }) : super.internal();
+
+  final String url;
+  final ExtensionApiV1 service;
+
+  @override
+  Override overrideWith(
+    FutureOr<ExtensionFikushonWatch> Function(FikushonLoadRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: FikushonLoadProvider._internal(
+        (ref) => create(ref as FikushonLoadRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        url: url,
+        service: service,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<ExtensionFikushonWatch> createElement() {
+    return _FikushonLoadProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FikushonLoadProvider &&
+        other.url == url &&
+        other.service == service;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, url.hashCode);
+    hash = _SystemHash.combine(hash, service.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin FikushonLoadRef on AutoDisposeFutureProviderRef<ExtensionFikushonWatch> {
+  /// The parameter `url` of this provider.
+  String get url;
+
+  /// The parameter `service` of this provider.
+  ExtensionApiV1 get service;
+}
+
+class _FikushonLoadProviderElement
+    extends AutoDisposeFutureProviderElement<ExtensionFikushonWatch>
+    with FikushonLoadRef {
+  _FikushonLoadProviderElement(super.provider);
+
+  @override
+  String get url => (origin as FikushonLoadProvider).url;
+  @override
+  ExtensionApiV1 get service => (origin as FikushonLoadProvider).service;
+}
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member

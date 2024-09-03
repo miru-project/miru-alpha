@@ -54,7 +54,6 @@ void main() async {
   await MiruStorage.ensureInitialized();
   await MiruRequest.ensureInitialized();
   await ExtensionUtils.ensureInitialized();
-  // MediaKit.ensureInitialized();
   runApp(const ProviderScope(child: App()));
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,

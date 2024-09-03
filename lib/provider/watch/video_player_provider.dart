@@ -283,13 +283,6 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
   void dispose() {
     state.controller?.removeListener(_updatePosition);
     state.controller?.dispose();
-    // DatabaseService.putHistory(History()
-    //   ..title = name
-    //   ..package = package
-
-    //   ..type = type
-    //   ..url = url
-    //   ..date = DateTime.now());
     super.dispose();
   }
 }

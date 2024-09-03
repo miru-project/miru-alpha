@@ -49,107 +49,63 @@ class _LatestState extends ConsumerState<Latest> {
           height: 10,
         ),
         snapShot.when(
-            data: (data) =>
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  SizedBox(
-                      height: 270,
-                      child: Stack(children: [
-                        ListView.builder(
-                          controller: _scrollController,
-                          itemBuilder: (context, index) => MiruGridTile(
-                            title: data[index].title,
-                            subtitle: data[index].update ?? "",
-                            imageUrl: data[index].cover,
-                            onTap: () {
-                              context.go('/search/detail', extra: {
-                                'service': widget.extensionService,
-                                'url': data[index].url,
-                              });
-                            },
-                            width: 160,
-                            height: 200,
-                          ),
-                          itemCount: data.length,
-                          scrollDirection: Axis.horizontal,
-                        ),
-                        GestureDetector(
-                            onTapDown: (_) {
-                              _scrollController.animateTo(
-                                  _scrollController.offset - 100,
-                                  duration: Durations.short1,
-                                  curve: Curves.ease);
-                            },
-                            child: MouseRegion(
-                                onHover: (event) {
-                                  leftIsHover.value = true;
+            data: (data) => GestureDetector(
+                onTapDown: (_) {},
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                          height: 270,
+                          child: Stack(children: [
+                            ListView.builder(
+                              controller: _scrollController,
+                              itemBuilder: (context, index) => MiruGridTile(
+                                title: data[index].title,
+                                subtitle: data[index].update ?? "",
+                                imageUrl: data[index].cover,
+                                onTap: () {
+                                  context.go('/search/detail', extra: {
+                                    'service': widget.extensionService,
+                                    'url': data[index].url,
+                                  });
                                 },
-                                onExit: (event) {
-                                  leftIsHover.value = false;
-                                },
-                                cursor: SystemMouseCursors.click,
-                                child: ValueListenableBuilder(
-                                    valueListenable: rightIsHover,
-                                    builder: (context, lvalue, child) =>
-                                        AnimatedContainer(
-                                          width: width / 20,
-                                          height: double.infinity,
-                                          decoration: lvalue
-                                              ? BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  gradient: LinearGradient(
-                                                    colors: _colorgradient,
-                                                    begin: Alignment.centerLeft,
-                                                    end: Alignment.centerRight,
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black
-                                                          .withOpacity(0.2),
-                                                      blurRadius: 10,
-                                                      spreadRadius: 2,
-                                                    ),
-                                                  ],
-                                                )
-                                              : null,
-                                          duration: Durations.short1,
-                                          child: const Icon(
-                                              color: Colors.white,
-                                              MoonIcons.arrows_left_32_regular),
-                                        )))),
-                        Align(
-                            alignment: Alignment.centerRight,
-                            child: GestureDetector(
+                                width: 160,
+                                height: 200,
+                              ),
+                              itemCount: data.length,
+                              scrollDirection: Axis.horizontal,
+                            ),
+                            GestureDetector(
                                 onTapDown: (_) {
                                   _scrollController.animateTo(
-                                      _scrollController.offset + 100,
+                                      _scrollController.offset - 100,
                                       duration: Durations.short1,
                                       curve: Curves.ease);
                                 },
                                 child: MouseRegion(
                                     onHover: (event) {
-                                      rightIsHover.value = true;
+                                      leftIsHover.value = true;
                                     },
                                     onExit: (event) {
-                                      rightIsHover.value = false;
+                                      leftIsHover.value = false;
                                     },
                                     cursor: SystemMouseCursors.click,
                                     child: ValueListenableBuilder(
                                         valueListenable: rightIsHover,
-                                        builder: (context, rvalue, child) =>
+                                        builder: (context, lvalue, child) =>
                                             AnimatedContainer(
                                               width: width / 20,
                                               height: double.infinity,
-                                              decoration: rvalue
+                                              decoration: lvalue
                                                   ? BoxDecoration(
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               10),
                                                       gradient: LinearGradient(
                                                         colors: _colorgradient,
-                                                        end: Alignment
-                                                            .centerLeft,
                                                         begin: Alignment
+                                                            .centerLeft,
+                                                        end: Alignment
                                                             .centerRight,
                                                       ),
                                                       boxShadow: [
@@ -166,13 +122,68 @@ class _LatestState extends ConsumerState<Latest> {
                                               child: const Icon(
                                                   color: Colors.white,
                                                   MoonIcons
-                                                      .arrows_right_32_regular),
-                                            )))))
-                      ])),
-                  const SizedBox(
-                    height: 20,
-                  )
-                ]),
+                                                      .arrows_left_32_regular),
+                                            )))),
+                            Align(
+                                alignment: Alignment.centerRight,
+                                child: GestureDetector(
+                                    onTapDown: (_) {
+                                      _scrollController.animateTo(
+                                          _scrollController.offset + 100,
+                                          duration: Durations.short1,
+                                          curve: Curves.ease);
+                                    },
+                                    child: MouseRegion(
+                                        onHover: (event) {
+                                          rightIsHover.value = true;
+                                        },
+                                        onExit: (event) {
+                                          rightIsHover.value = false;
+                                        },
+                                        cursor: SystemMouseCursors.click,
+                                        child: ValueListenableBuilder(
+                                            valueListenable: rightIsHover,
+                                            builder: (context, rvalue, child) =>
+                                                AnimatedContainer(
+                                                  width: width / 20,
+                                                  height: double.infinity,
+                                                  decoration: rvalue
+                                                      ? BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          gradient:
+                                                              LinearGradient(
+                                                            colors:
+                                                                _colorgradient,
+                                                            end: Alignment
+                                                                .centerLeft,
+                                                            begin: Alignment
+                                                                .centerRight,
+                                                          ),
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                              color: Colors
+                                                                  .black
+                                                                  .withOpacity(
+                                                                      0.2),
+                                                              blurRadius: 10,
+                                                              spreadRadius: 2,
+                                                            ),
+                                                          ],
+                                                        )
+                                                      : null,
+                                                  duration: Durations.short1,
+                                                  child: const Icon(
+                                                      color: Colors.white,
+                                                      MoonIcons
+                                                          .arrows_right_32_regular),
+                                                )))))
+                          ])),
+                      const SizedBox(
+                        height: 20,
+                      )
+                    ])),
             error: (error, stack) => Text(snapShot.error.toString()),
             loading: () => SizedBox(
                 height: 270,

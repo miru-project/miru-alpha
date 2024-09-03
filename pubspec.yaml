@@ -71,7 +71,7 @@ dependencies:
   flutter_hooks: ^0.20.5
   easy_refresh: ^3.4.0
   flutter_hls_parser: ^2.0.1
-  # flutter_animate: ^4.5.0
+  scrollable_positioned_list: ^0.3.8
 dev_dependencies:
   flutter_test:
     sdk: flutter

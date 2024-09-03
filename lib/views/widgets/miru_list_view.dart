@@ -55,7 +55,7 @@ class MiruListView extends StatelessWidget {
           color: ThemeUtils.getBackgroundColor(context),
           child: PlatformWidget(
             mobileWidget: ListView(
-              padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 130)
+              padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 190)
                   .add(padding ?? EdgeInsets.zero)
                   .add(widthPadding),
               children: children!,
@@ -72,7 +72,7 @@ class MiruListView extends StatelessWidget {
     return PlatformWidget(
       mobileWidget: ListView.builder(
         scrollDirection: scrollDirection,
-        padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 130)
+        padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 190)
             .add(padding ?? EdgeInsets.zero)
             .add(widthPadding),
         itemBuilder: itemBuilder!,

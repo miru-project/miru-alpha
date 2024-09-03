@@ -151,11 +151,15 @@ class ExtensionApiV1 extends ExtensionBaseService {
         delete ${className}Instance;
       }
       var ${className}Instance = new $className({webSite: "${extension.webSite}",className:"$className"});
+      
+    ''');
+    _initUtils();
+    runtime.evaluate('''
       ${className}Instance.load().then(()=>{
         DartBridge.sendMessage("cleanSettings$className",JSON.stringify([extension.settingKeys]));
       });
     ''');
-    _initUtils();
+
     logger.info('started');
     return this;
   }
@@ -255,7 +259,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
 
     jsGetMessage(dynamic args) async {
       final setting =
-          await DatabaseService.getExtensionSetting(extension.package, args[0]);
+          DatabaseService.getExtensionSetting(extension.package, args[0]);
       return setting!.value ?? setting.defaultValue;
     }
 
