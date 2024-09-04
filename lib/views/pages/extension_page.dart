@@ -1,4 +1,5 @@
 // import 'dart:ffi';
+import 'dart:developer';
 
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_image/extended_image.dart';
@@ -11,19 +12,33 @@ import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 
 import 'package:moon_design/moon_design.dart';
+import 'package:snapping_sheet_2/snapping_sheet.dart';
 import '../../model/index.dart';
 
-class ExtensionPage extends HookConsumerWidget {
+class ExtensionPage extends StatefulHookConsumerWidget {
   const ExtensionPage({super.key});
+  @override
+  createState() => _ExtensionPageState();
+}
+
+class _ExtensionPageState extends ConsumerState<ExtensionPage> {
+  // const ExtensionPage({super.key});
   static const List<String> _types = ['', 'bangumi', 'manga', 'fikushon'];
   static const _categories = ['狀態', '分類', '倉庫', '語言'];
+  late final SnappingSheetController snappingController;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    snappingController = SnappingSheetController();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // final extensionStream = useStream(GithubNetwork.fetchRepo().asStream());
     final fetchedRepo = ValueNotifier(<GithubExtension>[]);
     final extensionList = ValueNotifier(<GithubExtension>[]);
-
+    final scrollController = useScrollController();
     void filterExtensionListWithName(String query) {
       final filtered = fetchedRepo.value.where((element) {
         return element.name.toLowerCase().contains(query.toLowerCase());
@@ -31,27 +46,12 @@ class ExtensionPage extends HookConsumerWidget {
       extensionList.value = filtered;
     }
 
-    Future<void> install(String package) async {
-      try {
-        final url = MiruStorage.getSettingSync(SettingKey.miruRepoUrl, String) +
-            "/repo/$package.js";
-        await ExtensionUtils.install(url, context);
-      } catch (e) {
-        debugPrint(e.toString());
-      }
-    }
-
-    Future<void> uninstall(String package) async {
-      try {
-        await ExtensionUtils.uninstall(package);
-      } catch (e) {
-        debugPrint(e.toString());
-      }
-    }
-
     final snapShot = ref.watch(fetchExtensionRepoProvider);
     final controller = useTabController(initialLength: _categories.length);
+
     return MiruScaffold(
+      scrollController: scrollController,
+      snappingSheetController: snappingController,
       sidebar: MediaQuery.of(context).size.width < 800
           //mobile
           ? <Widget>[
@@ -60,15 +60,28 @@ class ExtensionPage extends HookConsumerWidget {
                 onChanged: filterExtensionListWithName,
               ),
               const SizedBox(height: 10),
-              MoonTabBar(
-                tabController: controller,
-                tabs: List.generate(
-                  _categories.length,
-                  (index) => MoonTab(
-                    label: Text(_categories[index]),
-                  ),
-                ),
-              ),
+              Listener(
+                  behavior: HitTestBehavior.translucent,
+                  onPointerDown: (_) {
+                    // scrollController.jumpTo(100);
+                    debugPrint(snappingController.currentPosition.toString());
+                    if (snappingController.currentPosition < 200) {
+                      snappingController.setSnappingSheetPosition(400);
+                    }
+
+                    // snappingController.snapToPosition(
+                    //   const SnappingPosition.factor(positionFactor: 1),
+                    // );
+                  },
+                  child: MoonTabBar(
+                    tabController: controller,
+                    tabs: List.generate(
+                      _categories.length,
+                      (index) => MoonTab(
+                        label: Text(_categories[index]),
+                      ),
+                    ),
+                  )),
               const SizedBox(height: 10),
               SizedBox(
                   height: 300,
@@ -161,95 +174,6 @@ class ExtensionPage extends HookConsumerWidget {
                       needSpacer: false,
                       items: const ['全部'],
                       onpress: (val) {})),
-              // SidebarExpander(
-              //   title: "状态",
-              //   expanded: true,
-              //   children: [
-              //     SideBarListTile(
-              //       title: '已安装',
-              //       selected: isInstalledPage.value,
-              //       onPressed: () {
-              //         isInstalledPage.value = true;
-              //         filterByInstalled();
-              //       },
-              //     ),
-              //     const SizedBox(height: 8),
-              //     SideBarListTile(
-              //       title: '未安装',
-              //       selected: !isInstalledPage.value,
-              //       onPressed: () {
-              //         isInstalledPage.value = false;
-              //         filterByInstalled();
-              //       },
-              //     ),
-              //   ],
-              // ),
-              const SizedBox(height: 10),
-              // SidebarExpander(
-              //   title: "分类",
-              //   expanded: true,
-              //   children: [
-              //     SideBarListTile(
-              //       title: '全部',
-              //       selected: selectedType.value == 0,
-              //       onPressed: () {
-              //         selectedType.value = 0;
-              //         filterByInstalled();
-              //       },
-              //     ),
-              //     const SizedBox(height: 8),
-              //     SideBarListTile(
-              //       title: '影视',
-              //       selected: selectedType.value == 1,
-              //       onPressed: () {
-              //         selectedType.value = 1;
-              //         filterByInstalled();
-              //       },
-              //     ),
-              //     const SizedBox(height: 8),
-              //     SideBarListTile(
-              //       title: '漫画',
-              //       selected: selectedType.value == 2,
-              //       onPressed: () {
-              //         selectedType.value = 2;
-              //         filterByInstalled();
-              //       },
-              //     ),
-              //     const SizedBox(height: 8),
-              //     SideBarListTile(
-              //       title: '小说',
-              //       selected: selectedType.value == 3,
-              //       onPressed: () {
-              //         selectedType.value = 3;
-              //         filterByInstalled();
-              //       },
-              //     ),
-              //   ],
-              // ),
-              const SizedBox(height: 10),
-              // SidebarExpander(
-              //   title: "仓库",
-              //   expanded: true,
-              //   children: [
-              //     SideBarListTile(
-              //       title: '官方',
-              //       selected: true,
-              //       onPressed: () {},
-              //     ),
-              //   ],
-              // ),
-              const SizedBox(height: 10),
-              // SidebarExpander(
-              //   title: "语言",
-              //   expanded: false,
-              //   children: [
-              //     SideBarListTile(
-              //       title: '全部',
-              //       selected: true,
-              //       onPressed: () {},
-              //     ),
-              //   ],
-              // ),
             ],
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -274,21 +198,7 @@ class ExtensionPage extends HookConsumerWidget {
                         ),
                         itemBuilder: (context, index) {
                           final data = value[index];
-                          return ExtensionGridTile(
-                            isInstalled: ExtensionUtils.runtimes
-                                .containsKey(data.package),
-                            name: data.name,
-                            version: data.version,
-                            author: data.author,
-                            type: data.type,
-                            icon: data.icon,
-                            onInstall: () {
-                              install(data.package);
-                            },
-                            onUninstall: () {
-                              uninstall(data.package);
-                            },
-                          );
+                          return _ExtensionTile(data: data);
                         },
                         itemCount: extensionList.value.length,
                       ),
@@ -300,56 +210,7 @@ class ExtensionPage extends HookConsumerWidget {
                           child: MiruListView.builder(
                             itemBuilder: (context, index) {
                               final data = value[index];
-                              return MoonMenuItem(
-                                onTap: () {},
-                                trailing: Row(
-                                  children: [
-                                    if (ExtensionUtils.runtimes
-                                        .containsKey(data.package))
-                                      MoonButton(
-                                        onTap: () {
-                                          uninstall(data.package);
-                                        },
-                                        leading: const Icon(MoonIcons
-                                            .generic_delete_24_regular),
-                                      )
-                                    else
-                                      MoonButton(
-                                        onTap: () {
-                                          install(data.package);
-                                        },
-                                        leading: const Icon(MoonIcons
-                                            .generic_download_24_regular),
-                                      )
-                                  ],
-                                ),
-                                leading: SizedBox(
-                                  width: 40,
-                                  height: 40,
-                                  child: data.icon == null
-                                      ? null
-                                      : Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: ExtendedImage.network(
-                                            data.icon!,
-                                            loadStateChanged:
-                                                (ExtendedImageState state) {
-                                              if (state
-                                                      .extendedImageLoadState ==
-                                                  LoadState.failed) {
-                                                return const Icon(MoonIcons
-                                                    .notifications_error_16_regular); // Fallback widget
-                                              }
-                                              return null; // Use the default widget
-                                            },
-                                          ),
-                                        ),
-                                ),
-                                label: Text(data.name),
-                              );
+                              return _ExtensionTile(data: data);
                             },
                             itemCount: extensionList.value.length,
                           )),
@@ -370,6 +231,91 @@ class ExtensionPage extends HookConsumerWidget {
             ),
             loading: () => const Center(child: MoonCircularLoader()),
           );
+        },
+      ),
+    );
+  }
+}
+
+class _ExtensionTile extends HookWidget {
+  final GithubExtension data;
+  const _ExtensionTile({required this.data});
+  Future<void> install(String package, BuildContext context) async {
+    try {
+      final url = MiruStorage.getSettingSync(SettingKey.miruRepoUrl, String) +
+          "/repo/$package.js";
+      await ExtensionUtils.install(url, context);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<void> uninstall(String package) async {
+    try {
+      await ExtensionUtils.uninstall(package);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PlatformWidget(
+      mobileWidget: MoonMenuItem(
+        onTap: () {},
+        trailing: Row(
+          children: [
+            if (ExtensionUtils.runtimes.containsKey(data.package))
+              MoonButton(
+                onTap: () {
+                  uninstall(data.package);
+                },
+                leading: const Icon(MoonIcons.generic_delete_24_regular),
+              )
+            else
+              MoonButton(
+                onTap: () async {
+                  await install(data.package, context);
+                },
+                leading: const Icon(MoonIcons.generic_download_24_regular),
+              )
+          ],
+        ),
+        leading: SizedBox(
+          width: 40,
+          height: 40,
+          child: data.icon == null
+              ? null
+              : Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ExtendedImage.network(
+                    data.icon!,
+                    loadStateChanged: (ExtendedImageState state) {
+                      if (state.extendedImageLoadState == LoadState.failed) {
+                        return const Icon(MoonIcons
+                            .notifications_error_16_regular); // Fallback widget
+                      }
+                      return null; // Use the default widget
+                    },
+                  ),
+                ),
+        ),
+        label: Text(data.name),
+      ),
+      desktopWidget: ExtensionGridTile(
+        isInstalled: ExtensionUtils.runtimes.containsKey(data.package),
+        name: data.name,
+        version: data.version,
+        author: data.author,
+        type: data.type,
+        icon: data.icon,
+        onInstall: () {
+          install(data.package, context);
+        },
+        onUninstall: () {
+          uninstall(data.package);
         },
       ),
     );

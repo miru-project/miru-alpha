@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 
 class MiruSingleChildView extends StatelessWidget {
@@ -37,23 +36,21 @@ class MiruSingleChildView extends StatelessWidget {
       }
     }
 
-    return Container(
-        color: ThemeUtils.getBackgroundColor(context),
-        child: PlatformWidget(
-          mobileWidget: SingleChildScrollView(
-            scrollDirection: scrollDirection,
-            padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 190)
-                .add(padding ?? EdgeInsets.zero)
-                .add(widthPadding),
-            child: child,
-          ),
-          desktopWidget: SingleChildScrollView(
-            scrollDirection: scrollDirection,
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20)
-                .add(padding ?? EdgeInsets.zero)
-                .add(widthPadding),
-            child: child,
-          ),
-        ));
+    return PlatformWidget(
+      mobileWidget: SingleChildScrollView(
+        scrollDirection: scrollDirection,
+        padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 190)
+            .add(padding ?? EdgeInsets.zero)
+            .add(widthPadding),
+        child: child,
+      ),
+      desktopWidget: SingleChildScrollView(
+        scrollDirection: scrollDirection,
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20)
+            .add(padding ?? EdgeInsets.zero)
+            .add(widthPadding),
+        child: child,
+      ),
+    );
   }
 }

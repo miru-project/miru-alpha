@@ -492,6 +492,191 @@ class _FetchExtensionLatestProviderElement
   int get page => (origin as FetchExtensionLatestProvider).page;
 }
 
+String _$fetchExtensionSearchHash() =>
+    r'8daa10acb3c849afdf62bd037cd96e29d0ce4727';
+
+/// See also [fetchExtensionSearch].
+@ProviderFor(fetchExtensionSearch)
+const fetchExtensionSearchProvider = FetchExtensionSearchFamily();
+
+/// See also [fetchExtensionSearch].
+class FetchExtensionSearchFamily
+    extends Family<AsyncValue<List<ExtensionListItem>>> {
+  /// See also [fetchExtensionSearch].
+  const FetchExtensionSearchFamily();
+
+  /// See also [fetchExtensionSearch].
+  FetchExtensionSearchProvider call(
+    ExtensionApiV1 extensionService,
+    String query,
+    int page, {
+    Map<String, List<String>>? filter,
+  }) {
+    return FetchExtensionSearchProvider(
+      extensionService,
+      query,
+      page,
+      filter: filter,
+    );
+  }
+
+  @override
+  FetchExtensionSearchProvider getProviderOverride(
+    covariant FetchExtensionSearchProvider provider,
+  ) {
+    return call(
+      provider.extensionService,
+      provider.query,
+      provider.page,
+      filter: provider.filter,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'fetchExtensionSearchProvider';
+}
+
+/// See also [fetchExtensionSearch].
+class FetchExtensionSearchProvider
+    extends AutoDisposeFutureProvider<List<ExtensionListItem>> {
+  /// See also [fetchExtensionSearch].
+  FetchExtensionSearchProvider(
+    ExtensionApiV1 extensionService,
+    String query,
+    int page, {
+    Map<String, List<String>>? filter,
+  }) : this._internal(
+          (ref) => fetchExtensionSearch(
+            ref as FetchExtensionSearchRef,
+            extensionService,
+            query,
+            page,
+            filter: filter,
+          ),
+          from: fetchExtensionSearchProvider,
+          name: r'fetchExtensionSearchProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$fetchExtensionSearchHash,
+          dependencies: FetchExtensionSearchFamily._dependencies,
+          allTransitiveDependencies:
+              FetchExtensionSearchFamily._allTransitiveDependencies,
+          extensionService: extensionService,
+          query: query,
+          page: page,
+          filter: filter,
+        );
+
+  FetchExtensionSearchProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.extensionService,
+    required this.query,
+    required this.page,
+    required this.filter,
+  }) : super.internal();
+
+  final ExtensionApiV1 extensionService;
+  final String query;
+  final int page;
+  final Map<String, List<String>>? filter;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<ExtensionListItem>> Function(FetchExtensionSearchRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: FetchExtensionSearchProvider._internal(
+        (ref) => create(ref as FetchExtensionSearchRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        extensionService: extensionService,
+        query: query,
+        page: page,
+        filter: filter,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<ExtensionListItem>> createElement() {
+    return _FetchExtensionSearchProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FetchExtensionSearchProvider &&
+        other.extensionService == extensionService &&
+        other.query == query &&
+        other.page == page &&
+        other.filter == filter;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, extensionService.hashCode);
+    hash = _SystemHash.combine(hash, query.hashCode);
+    hash = _SystemHash.combine(hash, page.hashCode);
+    hash = _SystemHash.combine(hash, filter.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+mixin FetchExtensionSearchRef
+    on AutoDisposeFutureProviderRef<List<ExtensionListItem>> {
+  /// The parameter `extensionService` of this provider.
+  ExtensionApiV1 get extensionService;
+
+  /// The parameter `query` of this provider.
+  String get query;
+
+  /// The parameter `page` of this provider.
+  int get page;
+
+  /// The parameter `filter` of this provider.
+  Map<String, List<String>>? get filter;
+}
+
+class _FetchExtensionSearchProviderElement
+    extends AutoDisposeFutureProviderElement<List<ExtensionListItem>>
+    with FetchExtensionSearchRef {
+  _FetchExtensionSearchProviderElement(super.provider);
+
+  @override
+  ExtensionApiV1 get extensionService =>
+      (origin as FetchExtensionSearchProvider).extensionService;
+  @override
+  String get query => (origin as FetchExtensionSearchProvider).query;
+  @override
+  int get page => (origin as FetchExtensionSearchProvider).page;
+  @override
+  Map<String, List<String>>? get filter =>
+      (origin as FetchExtensionSearchProvider).filter;
+}
+
 String _$mangaLoadHash() => r'504dd9abbfeb48124e2deba15f0f193b1f19980f';
 
 /// See also [mangaLoad].

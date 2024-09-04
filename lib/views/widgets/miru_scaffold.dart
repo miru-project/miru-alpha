@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
 
-class MiruScaffold extends StatefulWidget {
+class MiruScaffold extends StatefulHookWidget {
   const MiruScaffold(
       {super.key,
       this.appBar,
       required this.body,
       this.sidebar,
+      this.snappingSheetController,
       this.scrollController});
   final PreferredSizeWidget? appBar;
   final Widget body;
   final List<Widget>? sidebar;
   final ScrollController? scrollController;
+  final SnappingSheetController? snappingSheetController;
   @override
   State<MiruScaffold> createState() => _MiruScaffoldState();
 }
@@ -34,6 +37,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
   Widget sheet() {
     return SnappingSheet(
       lockOverflowDrag: true,
+      controller: widget.snappingSheetController,
       snappingPositions: const [
         SnappingPosition.pixels(
           positionPixels: 190,
@@ -92,7 +96,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
       mobileWidget: Scaffold(
         extendBodyBehindAppBar: true,
         appBar: widget.appBar,
-        body: widget.sidebar != null ? sheet() : widget.body,
+        body: widget.sidebar == null ? widget.body : sheet(),
       ),
       desktopWidget: Scaffold(
         body: Row(

@@ -167,7 +167,7 @@ class HomePage extends HookWidget {
       // appBar: const MiruAppBar(
       //   // title: Text('Home'),
       // ),
-      sidebar: (MediaQuery.of(context).size.width < 800)
+      sidebar: (DeviceUtil.getWidth(context) < 800)
           //mobile
           ? [
               const SideBarListTitle(title: '主页'),

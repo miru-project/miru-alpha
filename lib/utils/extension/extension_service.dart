@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_js/extensions/fetch.dart';
 import 'package:flutter_js/flutter_js.dart';
 import 'package:flutter_js/javascriptcore/jscore_runtime.dart';
 import 'package:miru_app_new/model/index.dart';
@@ -35,8 +36,15 @@ abstract class ExtensionRuntime {
       script = await rootBundle.loadString('assets/js/quickJsRuntime.js');
       runtime = QuickJsRuntime2();
     }
-    runtime.evaluate(script);
+    final md5 = await rootBundle.loadString('assets/js/md5.min.js');
+    final jsenc = await rootBundle.loadString('assets/js/jsencrypt.min.js');
+    final cryptojs = await rootBundle.loadString('assets/js/CryptoJS.min.js');
+    runtime.enableFetch();
     runtime.enableHandlePromises();
+    runtime.evaluate(md5);
+    runtime.evaluate(jsenc);
+    runtime.evaluate(cryptojs);
+    runtime.evaluate(script);
     return runtime;
   }
 

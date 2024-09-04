@@ -3,18 +3,19 @@ import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 
 class MiruGridView extends StatelessWidget {
-  const MiruGridView({
-    super.key,
-    required this.mobileGridDelegate,
-    required this.desktopGridDelegate,
-    required this.itemBuilder,
-    required this.itemCount,
-  });
+  const MiruGridView(
+      {super.key,
+      required this.mobileGridDelegate,
+      required this.desktopGridDelegate,
+      required this.itemBuilder,
+      required this.itemCount,
+      this.scrollController});
 
   final SliverGridDelegate mobileGridDelegate;
   final SliverGridDelegate desktopGridDelegate;
   final IndexedWidgetBuilder itemBuilder;
   final int itemCount;
+  final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class MiruGridView extends StatelessWidget {
         color: ThemeUtils.getBackgroundColor(context),
         child: PlatformWidget(
           mobileWidget: GridView.builder(
-            padding: EdgeInsets.fromLTRB(8, (8 + padding.top), 8, 130),
+            padding: EdgeInsets.fromLTRB(8, (8 + padding.top), 8, 190),
             gridDelegate: mobileGridDelegate,
             itemBuilder: itemBuilder,
             itemCount: itemCount,

@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
+import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
+import 'package:miru_app_new/views/widgets/miru_grid_tile_loading_box.dart';
 import 'package:moon_design/moon_design.dart';
-import 'package:shimmer/shimmer.dart';
 
 class Latest extends ConsumerStatefulWidget {
   const Latest(
@@ -190,21 +191,32 @@ class _LatestState extends ConsumerState<Latest> {
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) {
-                    return const _LatestLoadingBox(width: 160, height: 200);
+                    return const MiruGridTileLoadingBox(
+                        width: 160, height: 200);
                   },
                 )))
       ]);
     }
     //mobile
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(widget.extensionService.extension.name,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+      MoonButton(
+        onTap: () {
+          context.push('/search/single',
+              extra: SearchPageParam(
+                  service: widget.extensionService, query: null));
+        },
+        padding: const EdgeInsets.only(left: 10),
+        trailing: const Icon(MoonIcons.controls_chevron_right_24_regular),
+        label: Text(widget.extensionService.extension.name,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+      ),
       const SizedBox(
         height: 10,
       ),
       Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         SizedBox(
             height: 200,
+            width: double.infinity,
             child: snapShot.when(
               data: (data) => ListView.builder(
                 controller: _scrollController,
@@ -228,7 +240,7 @@ class _LatestState extends ConsumerState<Latest> {
               loading: () => ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
-                  return const _LatestLoadingBox(width: 100);
+                  return const MiruGridTileLoadingBox(width: 100);
                 },
               ),
             )),
@@ -237,52 +249,5 @@ class _LatestState extends ConsumerState<Latest> {
         )
       ])
     ]);
-  }
-}
-
-class _LatestLoadingBox extends StatelessWidget {
-  const _LatestLoadingBox({this.width, this.height});
-  final double? width;
-  final double? height;
-  @override
-  Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: context.moonTheme!.segmentedControlTheme.colors.backgroundColor
-          .withAlpha(50),
-      highlightColor: context
-          .moonTheme!.segmentedControlTheme.colors.backgroundColor
-          .withAlpha(100),
-      child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(children: [
-            Expanded(
-                child: Container(
-              width: width,
-              height: height,
-              decoration: BoxDecoration(
-                color: Colors.grey,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            )),
-            const SizedBox(height: 8),
-            Container(
-              width: width,
-              height: 10,
-              decoration: BoxDecoration(
-                color: Colors.grey,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Container(
-              width: width,
-              height: 10,
-              decoration: BoxDecoration(
-                color: Colors.grey,
-                borderRadius: BorderRadius.circular(10),
-              ),
-            )
-          ])),
-    );
   }
 }

@@ -143,18 +143,46 @@ class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
   Widget build(BuildContext context) {
     // final controller = ref.watch(MangaProvider.provider);
     final item = widget.data.urls;
-
-    // final controller = ref.watch(MangaProvider.provider);
+    final List<int> pointer = [];
+    final isZoom = useState(false);
     final c = ref.watch(MangaProvider.provider.notifier);
-    return ScrollablePositionedList.builder(
-        itemScrollController: c.itemScrollController,
-        scrollOffsetController: c.scrollOffsetController,
-        scrollOffsetListener: c.scrollOffsetListener,
-        itemPositionsListener: c.itemPositionsListener,
-        itemCount: item.length,
-        itemBuilder: (context, index) {
-          return _ImageWidget(imgUrl: item[index]);
-        });
+    return Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: (event) {
+          pointer.add(event.pointer);
+          if (pointer.length == 2) {
+            isZoom.value = true;
+          }
+        },
+        onPointerUp: (event) {
+          pointer.remove(event.pointer);
+          // if (pointer.length == 1) {
+          //   isZoom.value = false;
+          //   debugPrint('zooming');
+          // }
+          // debugPrint(pointer.length.toString());
+          isZoom.value = false;
+        },
+        child: InteractiveViewer(
+            panAxis: PanAxis.free,
+            // transformationController: TransformationController(),
+            onInteractionStart: (details) {
+              debugPrint('start');
+            },
+            // panEnabled: false,s
+            scaleEnabled: isZoom.value,
+            child: ScrollablePositionedList.builder(
+                padding: const EdgeInsets.only(bottom: 190),
+                physics:
+                    isZoom.value ? const NeverScrollableScrollPhysics() : null,
+                itemScrollController: c.itemScrollController,
+                scrollOffsetController: c.scrollOffsetController,
+                scrollOffsetListener: c.scrollOffsetListener,
+                itemPositionsListener: c.itemPositionsListener,
+                itemCount: item.length,
+                itemBuilder: (context, index) {
+                  return _ImageWidget(imgUrl: item[index]);
+                })));
   }
 }
 

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/index.dart';
@@ -93,7 +91,7 @@ class MangaReaderProvider extends StateNotifier<MangaReaderState> {
 
   void _whenItemPositionChange() {
     final index = itemPositionsListener.itemPositions.value.first.index;
-    debugPrint('index: $index');
+
     state = state.copyWith(
       itemPosition: index,
     );

@@ -220,8 +220,10 @@ class _NavButtonState extends State<_NavButton> {
             color: Theme.of(context).scaffoldBackgroundColor,
           ),
           (Container(
-              color: context.moonTheme?.tabBarTheme.colors.selectedPillTabColor
-                  .withAlpha(300),
+              decoration: BoxDecoration(
+                  color: context
+                      .moonTheme?.tabBarTheme.colors.selectedPillTabColor
+                      .withAlpha(50)),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

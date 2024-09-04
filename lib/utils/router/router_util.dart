@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/utils/extension/extension_service.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/pages/index.dart';
 import 'package:miru_app_new/views/pages/main_page.dart';
 import 'package:miru_app_new/views/pages/manga_reader.dart';
+import 'package:miru_app_new/views/pages/search_page_single_view.dart';
 import 'package:miru_app_new/views/pages/video_player.dart';
 
 class RouterUtil {
@@ -76,6 +78,13 @@ class RouterUtil {
                             'url']); // Pass the parameter to the DetailPage
                   },
                 ),
+                GoRoute(
+                    path: 'single',
+                    builder: (context, state) {
+                      final extra = state.extra as SearchPageParam;
+                      return SearchPageSingleView(
+                          query: extra.query, service: extra.service);
+                    })
               ])
         ]),
         StatefulShellBranch(routes: [
@@ -131,4 +140,10 @@ class RouterUtil {
     //           builder: (context, state) => const SettingsPage()),
     //     ])
   ]);
+}
+
+class SearchPageParam {
+  final String? query;
+  final ExtensionApiV1 service;
+  const SearchPageParam({this.query, required this.service});
 }
