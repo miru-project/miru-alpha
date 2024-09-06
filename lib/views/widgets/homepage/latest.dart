@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
@@ -11,9 +14,13 @@ import 'package:moon_design/moon_design.dart';
 
 class Latest extends ConsumerStatefulWidget {
   const Latest(
-      {super.key, required this.extensionService, required this.needrefresh});
+      {super.key,
+      required this.extensionService,
+      required this.needrefresh,
+      required this.searchValue});
   final ExtensionApiV1 extensionService;
   final ValueNotifier<bool> needrefresh;
+  final ValueNotifier<String> searchValue;
   @override
   createState() => _LatestState();
 }
@@ -21,6 +28,7 @@ class Latest extends ConsumerStatefulWidget {
 class _LatestState extends ConsumerState<Latest> {
   late final ValueNotifier<bool> leftIsHover;
   late final ValueNotifier<bool> rightIsHover;
+  bool isRefreshing = false;
   final _colorgradient = [
     Colors.black.withAlpha(80),
     Colors.transparent,
@@ -32,16 +40,38 @@ class _LatestState extends ConsumerState<Latest> {
     leftIsHover = ValueNotifier(false);
     rightIsHover = ValueNotifier(false);
     widget.needrefresh.addListener(() {
-      ref.invalidate(fetchExtensionLatestProvider(widget.extensionService, 1));
-      ref.read(fetchExtensionLatestProvider(widget.extensionService, 1));
+      if (widget.searchValue.value.isEmpty) {
+        if (isRefreshing) {
+          return;
+        }
+        isRefreshing = true;
+        ref.invalidate(
+            fetchExtensionLatestProvider(widget.extensionService, 1));
+        ref
+            .read(fetchExtensionLatestProvider(widget.extensionService, 1))
+            .whenData((_) => isRefreshing = false);
+        return;
+      }
+      ref.invalidate(fetchExtensionSearchProvider(
+          widget.extensionService, widget.searchValue.value, 1));
+      ref
+          .read(fetchExtensionSearchProvider(
+              widget.extensionService, widget.searchValue.value, 1))
+          .whenData((_) => isRefreshing = false);
     });
   }
 
+  AsyncValue<List<ExtensionListItem>> snapShot = const AsyncValue.loading();
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final snapShot =
-        ref.watch(fetchExtensionLatestProvider(widget.extensionService, 1));
+    if (widget.searchValue.value.isEmpty) {
+      snapShot =
+          ref.watch(fetchExtensionLatestProvider(widget.extensionService, 1));
+    } else {
+      snapShot = ref.watch(fetchExtensionSearchProvider(
+          widget.extensionService, widget.searchValue.value, 1));
+    }
     if (width > 800) {
       //desktop
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -219,24 +249,37 @@ class _LatestState extends ConsumerState<Latest> {
             height: 200,
             width: double.infinity,
             child: snapShot.when(
-              data: (data) => ListView.builder(
-                controller: _scrollController,
-                itemBuilder: (context, index) => MiruGridTile(
-                  title: data[index].title,
-                  subtitle: data[index].update ?? "",
-                  imageUrl: data[index].cover,
-                  onTap: () {
-                    context.go('/search/detail',
-                        extra: DetailParam(
-                            service: widget.extensionService,
-                            url: data[index].url));
-                  },
-                  width: 100,
-                  // height: 200,
-                ),
-                itemCount: data.length,
-                scrollDirection: Axis.horizontal,
-              ),
+              data: (data) {
+                if (data.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      "No Results Found  :( ",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          fontFamily: "HarmonyOS_Sans"),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  controller: _scrollController,
+                  itemBuilder: (context, index) => MiruGridTile(
+                    title: data[index].title,
+                    subtitle: data[index].update ?? "",
+                    imageUrl: data[index].cover,
+                    onTap: () {
+                      context.go('/search/detail',
+                          extra: DetailParam(
+                              service: widget.extensionService,
+                              url: data[index].url));
+                    },
+                    width: 100,
+                    // height: 200,
+                  ),
+                  itemCount: data.length,
+                  scrollDirection: Axis.horizontal,
+                );
+              },
               error: (error, stackTrace) => Text(snapShot.error.toString()),
               loading: () => ListView.builder(
                 scrollDirection: Axis.horizontal,

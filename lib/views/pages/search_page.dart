@@ -36,13 +36,29 @@ class SearchPage extends HookWidget {
     final needRefresh = useState(false);
     final controller =
         useTabController(initialIndex: 0, initialLength: _categories.length);
+    final editController = useTextEditingController();
     final scrollController = useScrollController();
+    final searchValue = useState('');
     return MiruScaffold(
       sidebar: MediaQuery.of(context).size.width < 800
           ? <Widget>[
               //mobile
               const SideBarListTitle(title: '搜索'),
-              const SideBarSearchBar(),
+              SideBarSearchBar(
+                controller: editController,
+                onsubmitted: (val) {
+                  searchValue.value = val;
+                  needRefresh.value = !needRefresh.value;
+                },
+                trailing: MoonButton.icon(
+                  icon: const Icon(MoonIcons.controls_close_24_regular),
+                  onTap: () {
+                    editController.clear();
+                    searchValue.value = '';
+                    needRefresh.value = !needRefresh.value;
+                  },
+                ),
+              ),
               const SizedBox(height: 10),
               MoonTabBar(
                   tabController: controller,
@@ -119,6 +135,7 @@ class SearchPage extends HookWidget {
                     children: List.generate(
                         service.length,
                         (index) => Latest(
+                            searchValue: searchValue,
                             needrefresh: needRefresh,
                             extensionService: service[index].value)),
                   ));
