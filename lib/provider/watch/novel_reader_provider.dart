@@ -4,26 +4,26 @@ import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-class MangaProvider {
-  static final AutoDisposeStateNotifierProvider<MangaReaderProvider,
+class NovelProvider {
+  static final AutoDisposeStateNotifierProvider<NovelReaderProvider,
           MangaReaderState> _mangaReaderProvider =
-      StateNotifierProvider.autoDispose<MangaReaderProvider, MangaReaderState>(
+      StateNotifierProvider.autoDispose<NovelReaderProvider, MangaReaderState>(
           (ref) {
-    return MangaReaderProvider([]);
+    return NovelReaderProvider([]);
   });
 
-  static late AutoDisposeStateNotifierProvider<MangaEpisodeNotifier,
-      MangaEpisodeNotifierState> _episodeNotifier;
+  static late AutoDisposeStateNotifierProvider<NovelEpisodeNotifier,
+      NovelEpisodeNotifierState> _episodeNotifier;
 
-  static AutoDisposeStateNotifierProvider<MangaReaderProvider, MangaReaderState>
+  static AutoDisposeStateNotifierProvider<NovelReaderProvider, MangaReaderState>
       get provider => _mangaReaderProvider;
-  static AutoDisposeStateNotifierProvider<MangaEpisodeNotifier,
-      MangaEpisodeNotifierState> get epProvider => _episodeNotifier;
+  static AutoDisposeStateNotifierProvider<NovelEpisodeNotifier,
+      NovelEpisodeNotifierState> get epProvider => _episodeNotifier;
   static initEpisode(List<ExtensionEpisodeGroup> epGroup, String name,
       int selectedGroupIndex, int selectedEpisodeIndex) {
-    _episodeNotifier = StateNotifierProvider.autoDispose<MangaEpisodeNotifier,
-        MangaEpisodeNotifierState>((ref) {
-      return MangaEpisodeNotifier(
+    _episodeNotifier = StateNotifierProvider.autoDispose<NovelEpisodeNotifier,
+        NovelEpisodeNotifierState>((ref) {
+      return NovelEpisodeNotifier(
           epGroup, name, selectedGroupIndex, selectedEpisodeIndex);
     });
   }
@@ -66,8 +66,8 @@ class MangaReaderState {
   }
 }
 
-class MangaReaderProvider extends StateNotifier<MangaReaderState> {
-  MangaReaderProvider(List<String> content) : super(const MangaReaderState()) {
+class NovelReaderProvider extends StateNotifier<MangaReaderState> {
+  NovelReaderProvider(List<String> content) : super(const MangaReaderState()) {
     _init(content);
   }
   final itemPositionsListener = ItemPositionsListener.create();
@@ -107,23 +107,23 @@ class MangaReaderProvider extends StateNotifier<MangaReaderState> {
   }
 }
 
-class MangaEpisodeNotifierState {
+class NovelEpisodeNotifierState {
   final List<ExtensionEpisodeGroup> epGroup;
   final int selectedGroupIndex;
   final int selectedEpisodeIndex;
   final String name;
-  MangaEpisodeNotifierState(
+  NovelEpisodeNotifierState(
       {this.epGroup = const [],
       this.selectedGroupIndex = 0,
       this.name = '',
       this.selectedEpisodeIndex = 0});
-  MangaEpisodeNotifierState copyWith(
+  NovelEpisodeNotifierState copyWith(
       {List<ExtensionEpisodeGroup>? epGroup,
       String? name,
       bool? flag,
       int? selectedGroupIndex,
       int? selectedEpisodeIndex}) {
-    return MangaEpisodeNotifierState(
+    return NovelEpisodeNotifierState(
         epGroup: epGroup ?? this.epGroup,
         name: name ?? this.name,
         selectedGroupIndex: selectedGroupIndex ?? this.selectedGroupIndex,
@@ -132,10 +132,10 @@ class MangaEpisodeNotifierState {
   }
 }
 
-class MangaEpisodeNotifier extends StateNotifier<MangaEpisodeNotifierState> {
-  MangaEpisodeNotifier(List<ExtensionEpisodeGroup> epGroup, String name,
+class NovelEpisodeNotifier extends StateNotifier<NovelEpisodeNotifierState> {
+  NovelEpisodeNotifier(List<ExtensionEpisodeGroup> epGroup, String name,
       int selectedGroupIndex, int selectedEpisodeIndex)
-      : super(MangaEpisodeNotifierState(
+      : super(NovelEpisodeNotifierState(
             epGroup: epGroup,
             name: name,
             selectedEpisodeIndex: selectedEpisodeIndex,

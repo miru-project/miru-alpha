@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -291,6 +289,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                   _isLoading.value = false;
                 }
                 return _GridView(
+                    service: widget.service,
                     scrollController: _scrollController,
                     cons: cons,
                     query: _query,
@@ -329,6 +328,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                 _isLoading.value = false;
               }
               return _GridView(
+                  service: widget.service,
                   scrollController: _scrollController,
                   cons: cons,
                   query: _query,
@@ -382,11 +382,13 @@ class _GridView extends StatelessWidget {
   // late final scrollController = ScrollController();
   // final ValueNotifier<bool> isLoading = ValueNotifier(false);
   final ValueNotifier<bool> isLoading;
+  final ExtensionApiV1 service;
   const _GridView(
       {required this.scrollController,
       required this.cons,
       required this.query,
       required this.page,
+      required this.service,
       required this.result,
       required this.isLoading});
   @override
@@ -440,6 +442,12 @@ class _GridView extends StatelessWidget {
                       childAspectRatio: 0.6,
                     ),
                     itemBuilder: (context, index) => MiruGridTile(
+                        onTap: () {
+                          context.push('/search/detail', extra: {
+                            'service': service,
+                            'url': value[index].url,
+                          });
+                        },
                         title: value[index].title,
                         imageUrl: value[index].cover,
                         subtitle: value[index].update ?? ''),

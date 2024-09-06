@@ -493,7 +493,7 @@ class _FetchExtensionLatestProviderElement
 }
 
 String _$fetchExtensionSearchHash() =>
-    r'8daa10acb3c849afdf62bd037cd96e29d0ce4727';
+    r'dedd10d2eb600acedc83cfe95f3dbbca2d514edd';
 
 /// See also [fetchExtensionSearch].
 @ProviderFor(fetchExtensionSearch)

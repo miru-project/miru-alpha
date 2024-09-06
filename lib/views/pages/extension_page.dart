@@ -1,6 +1,3 @@
-// import 'dart:ffi';
-import 'dart:developer';
-
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -239,7 +236,8 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
 
 class _ExtensionTile extends HookWidget {
   final GithubExtension data;
-  const _ExtensionTile({required this.data});
+  final bool isInstalled;
+  const _ExtensionTile({required this.data, this.isInstalled = false});
   Future<void> install(String package, BuildContext context) async {
     try {
       final url = MiruStorage.getSettingSync(SettingKey.miruRepoUrl, String) +
@@ -260,12 +258,14 @@ class _ExtensionTile extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final installed = useState(isInstalled);
     return PlatformWidget(
       mobileWidget: MoonMenuItem(
         onTap: () {},
         trailing: Row(
           children: [
-            if (ExtensionUtils.runtimes.containsKey(data.package))
+            if (ExtensionUtils.runtimes.containsKey(data.package) ||
+                installed.value)
               MoonButton(
                 onTap: () {
                   uninstall(data.package);
@@ -286,20 +286,18 @@ class _ExtensionTile extends HookWidget {
           height: 40,
           child: data.icon == null
               ? null
-              : Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: ExtendedImage.network(
-                    data.icon!,
-                    loadStateChanged: (ExtendedImageState state) {
-                      if (state.extendedImageLoadState == LoadState.failed) {
-                        return const Icon(MoonIcons
-                            .notifications_error_16_regular); // Fallback widget
-                      }
-                      return null; // Use the default widget
-                    },
-                  ),
+              : ExtendedImage.network(
+                  borderRadius: BorderRadius.circular(10),
+                  shape: BoxShape.rectangle,
+                  cache: true,
+                  data.icon!,
+                  loadStateChanged: (ExtendedImageState state) {
+                    if (state.extendedImageLoadState == LoadState.failed) {
+                      return const Icon(MoonIcons
+                          .notifications_error_16_regular); // Fallback widget
+                    }
+                    return null; // Use the default widget
+                  },
                 ),
         ),
         label: Text(data.name),

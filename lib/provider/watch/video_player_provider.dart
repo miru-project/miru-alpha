@@ -12,10 +12,11 @@ class VideoPlayerProvider {
   static void initProvider(
       String url,
       List<ExtensionBangumiWatchSubtitle> subtitle,
-      Map<String, String> headers) {
+      Map<String, String> headers,
+      Size ratio) {
     _videoPlayerNotifier = StateNotifierProvider.autoDispose<
         VideoPlayerNotifier, VideoPlayerState>((ref) {
-      return VideoPlayerNotifier(url, subtitle, headers);
+      return VideoPlayerNotifier(url, subtitle, headers, ratio);
     });
   }
 
@@ -43,7 +44,7 @@ class VideoPlayerState {
   final String name;
   final String currentSubtitle;
   final Map<String, String> qualityMap;
-
+  final double ratio;
   VideoPlayerState(
       {this.controller,
       this.position = Duration.zero,
@@ -63,6 +64,7 @@ class VideoPlayerState {
       this.name = '',
       this.selectedEpisodeIndex = 0,
       this.qualityMap = const {},
+      this.ratio = 0.0,
       this.currentSubtitle = ''});
 
   VideoPlayerState copyWith(
@@ -84,6 +86,7 @@ class VideoPlayerState {
       int? selectedEpisodeIndex,
       String? name,
       String? currentSubtitle,
+      double? ratio,
       Map<String, String>? qualityMap}) {
     return VideoPlayerState(
         controller: controller ?? this.controller,
@@ -105,16 +108,18 @@ class VideoPlayerState {
         selectedEpisodeIndex: selectedEpisodeIndex ?? this.selectedEpisodeIndex,
         name: name ?? this.name,
         currentSubtitle: currentSubtitle ?? this.currentSubtitle,
+        ratio: ratio ?? this.ratio,
         qualityMap: qualityMap ?? this.qualityMap);
   }
 }
 
 class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
   VideoPlayerNotifier(String url, List<ExtensionBangumiWatchSubtitle> subtitle,
-      Map<String, String> headers)
+      Map<String, String> headers, Size ratio)
       : super(VideoPlayerState(
             subtitlesRaw: subtitle,
             controller: VideoPlayerController.networkUrl(Uri.parse(url)))) {
+    defaultSize = ratio;
     _init(url, headers);
   }
 
@@ -185,6 +190,8 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
       duration: state.controller?.value.duration,
       buffered: state.controller?.value.buffered,
       currentSubtitle: getCurrentSubtitle(),
+      ratio: state.controller?.value.aspectRatio ??
+          defaultSize.width / defaultSize.height,
     );
   }
 
@@ -256,6 +263,11 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
         isShowSubtitle: false,
         selectedSubtitleIndex: 0,
         subtitles: const []);
+  }
+
+  late final Size defaultSize;
+  void putVideoDefaultRatio(Size size) {
+    defaultSize = size;
   }
 
   int get length => state.subtitles.length;

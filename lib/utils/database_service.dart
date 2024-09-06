@@ -82,14 +82,13 @@ class DatabaseService {
     return db.historys.filter().typeEqualTo(type).sortByDateDesc().findAll();
   }
 
-  static Future<History?> getHistoryByPackageAndUrl(
-      String package, String url) async {
+  static History? getHistoryByPackageAndUrl(String package, String url) {
     return db.historys
         .filter()
         .packageEqualTo(package)
         .and()
         .urlEqualTo(url)
-        .findFirst();
+        .findFirstSync();
   }
 
   // 更新历史

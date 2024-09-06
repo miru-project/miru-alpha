@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,9 +36,11 @@ class MiruVideoPlayer extends StatefulHookConsumerWidget {
       required this.selectedEpisodeIndex,
       required this.name,
       required this.detailImageUrl,
+      required this.detailUrl,
       required this.epGroup});
   final ExtensionApiV1 service;
   final String detailImageUrl;
+  final String detailUrl;
   final List<ExtensionEpisodeGroup>? epGroup;
   final int selectedGroupIndex;
   final int selectedEpisodeIndex;
@@ -99,13 +102,17 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
     final url = epNotifier.epGroup[epNotifier.selectedGroupIndex]
         .urls[epNotifier.selectedEpisodeIndex].url;
     final snapshot = ref.watch(VideoLoadProvider(url, widget.service));
-    epcontroller.putinformation(widget.service.extension.type,
-        widget.service.extension.package, widget.detailImageUrl);
+    epcontroller.putinformation(
+        widget.service.extension.type,
+        widget.service.extension.package,
+        widget.detailImageUrl,
+        widget.detailUrl);
     return snapshot.when(
         data: (value) {
           // _resolutionNotifer =
           //     FetchResolutionProvider(value.url, value.headers ?? {});
           return PlayerResolution(
+              ratio: MediaQuery.of(context).size,
               name: widget.name,
               value: value,
               url: url,
@@ -137,11 +144,13 @@ class PlayerResolution extends StatefulHookConsumerWidget {
       required this.name,
       required this.value,
       required this.url,
+      required this.ratio,
       required this.service});
   final ExtensionBangumiWatch value;
   final String name;
   final ExtensionApiV1 service;
   final String url;
+  final Size ratio;
   @override
   createState() => _PlayerResoltionState();
 }
@@ -150,17 +159,26 @@ class _PlayerResoltionState extends ConsumerState<PlayerResolution> {
   @override
   void initState() {
     VideoPlayerProvider.initProvider(widget.value.url,
-        widget.value.subtitles ?? [], widget.value.headers ?? {});
+        widget.value.subtitles ?? [], widget.value.headers ?? {}, widget.ratio);
+
     super.initState();
   }
 
   @override
   Widget build(context) {
-    final controller = ref.watch(VideoPlayerProvider.provider);
+    final controller = ref.watch(VideoPlayerProvider.provider.select((it) => it
+      ..currentSubtitle
+      ..ratio
+      ..controller));
 
     return Stack(children: [
       //video player
-      Center(child: VideoPlayer(controller.controller!)),
+      Center(
+          child: AspectRatio(
+              aspectRatio: controller.ratio == 0
+                  ? widget.ratio.width / widget.ratio.height
+                  : controller.ratio,
+              child: VideoPlayer(controller.controller!))),
       //subtitle text
       if (controller.currentSubtitle.isNotEmpty)
         Positioned(
@@ -239,10 +257,12 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
     if (_showControls.value) {
       return Column(
         children: [
-          Material(
+          DefaultTextStyle(
+            // color: Colors.transparent,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             child: _hasOriented
                 ? _Header(
-                    titleSize: 15,
+                    titleSize: 20,
                     subTitleSize: 12,
                     iconSize: 20,
                     onClose: close)
@@ -262,7 +282,10 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                   : Container(
                       color: Colors.transparent,
                     )),
-          Material(child: _DesktopFooter())
+          Material(
+            color: Colors.transparent,
+            child: _DesktopFooter(),
+          )
         ],
       );
     }
@@ -496,9 +519,20 @@ class _HeaderState extends ConsumerState<_Header> {
   Widget build(BuildContext context) {
     final epNotifier = ref.watch(_episodeNotifierProvider);
     return Container(
-      color: Colors.black.withOpacity(0.5),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor.withAlpha(220),
+        borderRadius: const BorderRadius.vertical(
+          bottom: Radius.circular(20),
+        ),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 25,
+            color: Colors.black.withOpacity(0.2),
+          ),
+        ],
+      ),
       child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
           child: Row(
             children: [
               Expanded(
@@ -568,16 +602,30 @@ class _DesktopFooter extends HookConsumerWidget {
     final c = ref.watch(VideoPlayerProvider.provider.notifier);
     final buttonSize = _hasOriented ? null : 30.0;
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          colors: [
-            Colors.black54,
-            Colors.transparent,
-          ],
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor.withAlpha(220),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(30),
         ),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 25,
+            color: Colors.black.withOpacity(0.2),
+          ),
+        ],
       ),
+      // decoration: const BoxDecoration(
+
+      //   gradient: LinearGradient(
+      //     begin: Alignment.bottomCenter,
+      //     end: Alignment.topCenter,
+      //     colors: [
+      //       Colors.black54,
+      //       Colors.transparent,
+      //     ],
+      //   ),
+      // ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -931,32 +979,6 @@ class _DesktopSettingDialog extends HookConsumerWidget {
   }
 }
 
-class BookmarkClipper extends CustomClipper<Path> {
-  static const _radius = 20.0;
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-    path.lineTo(size.width - _radius, 0);
-    path.arcToPoint(
-      Offset(size.width, 20),
-      radius: const Radius.circular(20),
-      clockwise: true,
-    );
-    path.lineTo(size.width, size.height + 20);
-    path.arcToPoint(
-      Offset(size.width - 20, size.height),
-      radius: const Radius.circular(20),
-      clockwise: true,
-    );
-    path.lineTo(0, size.height + 20);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
 class _SeekBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -965,11 +987,11 @@ class _SeekBar extends ConsumerWidget {
     final c = ref.watch(VideoPlayerProvider.provider.notifier);
     final duration = controller.duration.inMilliseconds;
     final position = controller.position.inMilliseconds;
-    return Material(
-        child: SizedBox(
+    return SizedBox(
       height: 13,
       child: SliderTheme(
         data: SliderThemeData(
+          overlayColor: Colors.transparent,
           trackHeight: 2,
           activeTrackColor: context
               .moonTheme?.segmentedControlTheme.colors.backgroundColor
@@ -1016,7 +1038,7 @@ class _SeekBar extends ConsumerWidget {
           },
         ),
       ),
-    ));
+    );
   }
 }
 
@@ -1049,9 +1071,6 @@ class EpisodeNotifierState {
 }
 
 class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
-  late String package;
-  late ExtensionType type;
-  late String imageUrl;
   EpisodeNotifier() : super(EpisodeNotifierState());
   void selectEpisode(int groupIndex, int episodeIndex) {
     state = state.copyWith(
@@ -1070,10 +1089,16 @@ class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
         selectedEpisodeIndex: episodeIndex);
   }
 
-  void putinformation(ExtensionType type, String package, String imageUrl) {
+  late String imageUrl;
+  late String package;
+  late ExtensionType type;
+  late String detailUrl;
+  void putinformation(
+      ExtensionType type, String package, String imageUrl, String detailUrl) {
     this.package = package;
     this.type = type;
     this.imageUrl = imageUrl;
+    this.detailUrl = detailUrl;
   }
 
   @override
@@ -1082,8 +1107,6 @@ class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
       ..title = state.name
       ..package = package
       ..type = type
-      ..url = state.epGroup[state.selectedGroupIndex]
-          .urls[state.selectedEpisodeIndex].url
       ..episodeGroupId = state.selectedGroupIndex
       ..episodeId = state.selectedEpisodeIndex
       ..progress = state.selectedEpisodeIndex.toString()
@@ -1092,6 +1115,7 @@ class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
           state.epGroup[state.selectedGroupIndex].urls.length.toString()
       ..episodeTitle = state.epGroup[state.selectedGroupIndex]
           .urls[state.selectedEpisodeIndex].name
+      ..url = detailUrl
       ..date = DateTime.now());
 
     super.dispose();

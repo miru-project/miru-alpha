@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
+import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:miru_app_new/views/widgets/miru_grid_tile_loading_box.dart';
 import 'package:moon_design/moon_design.dart';
@@ -65,10 +66,10 @@ class _LatestState extends ConsumerState<Latest> {
                                 subtitle: data[index].update ?? "",
                                 imageUrl: data[index].cover,
                                 onTap: () {
-                                  context.go('/search/detail', extra: {
-                                    'service': widget.extensionService,
-                                    'url': data[index].url,
-                                  });
+                                  context.go('/search/detail',
+                                      extra: DetailParam(
+                                          service: widget.extensionService,
+                                          url: data[index].url));
                                 },
                                 width: 160,
                                 height: 200,
@@ -225,10 +226,10 @@ class _LatestState extends ConsumerState<Latest> {
                   subtitle: data[index].update ?? "",
                   imageUrl: data[index].cover,
                   onTap: () {
-                    context.go('/search/detail', extra: {
-                      'service': widget.extensionService,
-                      'url': data[index].url,
-                    });
+                    context.go('/search/detail',
+                        extra: DetailParam(
+                            service: widget.extensionService,
+                            url: data[index].url));
                   },
                   width: 100,
                   // height: 200,

@@ -6,6 +6,7 @@ import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/pages/index.dart';
 import 'package:miru_app_new/views/pages/main_page.dart';
 import 'package:miru_app_new/views/pages/manga_reader.dart';
+import 'package:miru_app_new/views/pages/novel_reader.dart';
 import 'package:miru_app_new/views/pages/search_page_single_view.dart';
 import 'package:miru_app_new/views/pages/video_player.dart';
 
@@ -35,7 +36,7 @@ class RouterUtil {
               selectedEpisodeIndex: extra.selectedEpisodeIndex,
               selectedGroupIndex: extra.selectedGroupIndex,
               service: extra.service,
-              // url: extra.url,
+              detailUrl: extra.detailUrl,
               epGroup: extra.epGroup,
             );
           case ExtensionType.manga:
@@ -45,11 +46,19 @@ class RouterUtil {
               selectedEpisodeIndex: extra.selectedEpisodeIndex,
               selectedGroupIndex: extra.selectedGroupIndex,
               service: extra.service,
-              // url: extra.url,
+              detailUrl: extra.detailUrl,
               epGroup: extra.epGroup,
             );
           default:
-            return Container();
+            return MiruNovelReader(
+              name: extra.name,
+              detailImageUrl: extra.detailImageUrl,
+              selectedEpisodeIndex: extra.selectedEpisodeIndex,
+              selectedGroupIndex: extra.selectedGroupIndex,
+              service: extra.service,
+              detailUrl: extra.detailUrl,
+              epGroup: extra.epGroup,
+            );
         }
       },
     ),
@@ -68,14 +77,13 @@ class RouterUtil {
                   getPage(state: state, child: const SearchPage()),
               routes: [
                 GoRoute(
-                  path: 'detail', // Define the path with a parameter
+                  path: 'detail',
                   builder: (context, state) {
-                    final extra = state.extra!
-                        as Map<String, dynamic>; // Extract the parameter
+                    final extra = state.extra as DetailParam;
                     return DetailPage(
-                        extensionService: extra['service'],
-                        url: extra[
-                            'url']); // Pass the parameter to the DetailPage
+                      extensionService: extra.service,
+                      url: extra.url,
+                    );
                   },
                 ),
                 GoRoute(

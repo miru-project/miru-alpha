@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -14,47 +16,89 @@ import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:shimmer/shimmer.dart';
 
-class DetailItemBox extends StatelessWidget {
+class DetailItemBox extends HookWidget {
   const DetailItemBox({
     required this.padding,
     required this.child,
     required this.title,
     this.isMobile = false,
+    this.needExpand = true,
     super.key,
   });
+
   final Widget child;
   final double padding;
   final String title;
   final bool isMobile;
+  final minHeight = 300.0;
+  final bool needExpand;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final isExpanded = useState(true);
+
+    return ClipRect(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        height: needExpand
+            ? null
+            : isExpanded.value
+                ? null
+                : minHeight, // Expand or restrict height
         decoration: BoxDecoration(
-            color: context.moonTheme?.textInputTheme.colors.textColor
-                .withAlpha(20),
-            borderRadius: BorderRadius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 25,
+              color: Colors.black.withOpacity(0.2),
+            ),
+          ],
+          color:
+              context.moonTheme?.textInputTheme.colors.textColor.withAlpha(20),
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Padding(
-            padding: EdgeInsets.all(padding),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: isMobile ? 18 : 20,
-                    fontWeight: FontWeight.bold,
+          padding: EdgeInsets.all(padding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title and Expand/Collapse Button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: isMobile ? 18 : 20,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "HarmonyOS_Sans",
+                    ),
                   ),
-                ),
-                MoonButton.icon(
-                  onTap: () {},
-                  iconColor: Colors.grey[500],
-                  icon: const Text('Expand'),
-                )
-              ]),
+                  if (needExpand)
+                    MoonButton.icon(
+                      onTap: () {
+                        isExpanded.value = !isExpanded.value;
+                      },
+                      iconColor: Colors.grey[500],
+                      icon: Text(isExpanded.value ? 'Collapse' : 'Expand'),
+                    ),
+                ],
+              ),
               const Divider(),
               const SizedBox(height: 10),
-              child,
-            ])));
+              // Wrap the content with SingleChildScrollView
+              if (!isExpanded.value)
+                SizedBox(
+                    height: minHeight - 100,
+                    child: SingleChildScrollView(
+                      child: child,
+                    ))
+              else
+                child,
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -170,6 +214,7 @@ class DesktopDetail extends StatelessWidget {
                           child: season),
                       const SizedBox(height: 20),
                       DetailItemBox(
+                          needExpand: false,
                           title: 'Description',
                           padding: _gloablDesktopPadding,
                           child: desc)
@@ -218,7 +263,7 @@ class MobileDetail extends StatelessWidget {
   static const double _maxExtMobile = 250;
   static const double _minExtMobile = 50;
   static const double _clampMaxMobile = 100;
-  static const _globalMobilePadding = 15.0;
+  static const _globalMobilePadding = 20.0;
   static Widget _default(Widget child) => child;
   @override
   Widget build(context) {
@@ -242,6 +287,7 @@ class MobileDetail extends StatelessWidget {
                 DetailItemBox(
                     title: 'Description',
                     isMobile: true,
+                    needExpand: false,
                     padding: _globalMobilePadding,
                     child: desc),
                 const SizedBox(height: 20),
@@ -270,9 +316,37 @@ class DetailPage extends StatefulHookConsumerWidget {
   createState() => _DetailPageState();
 }
 
+class HistoryNotifier extends StateNotifier<History?> {
+  HistoryNotifier(super.state);
+  void putHistory(History? history) {
+    state = history;
+  }
+}
+
 class _DetailPageState extends ConsumerState<DetailPage> {
   final ValueNotifier<int> _selectedGroup = ValueNotifier(0);
   static const _trackingTab = ['TMDB', 'AniList'];
+  final _history = StateNotifierProvider<HistoryNotifier, History?>((ref) {
+    return HistoryNotifier(null);
+  });
+  @override
+  void initState() {
+    DatabaseService.db.historys
+        .filter()
+        .packageEqualTo(widget.extensionService.extension.package)
+        .build()
+        .watchLazy()
+        .listen((val) {
+      DatabaseService.db.historys.where().findFirst().then((value) {
+        ref.read(_history.notifier).putHistory(value);
+      });
+    });
+    Future.microtask(() => ref.read(_history.notifier).putHistory(
+        DatabaseService.getHistoryByPackageAndUrl(
+            widget.extensionService.extension.package, widget.url)));
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final tancontroller = useTabController(initialLength: _trackingTab.length);
@@ -301,7 +375,41 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                 Row(
                   children: <Widget>[
                     MoonButton(
-                        onTap: () {},
+                        onTap: ref.watch(_history) == null
+                            ? null
+                            : () {
+                                final snapshot = ref.watch(
+                                    fetchExtensionDetailProvider(
+                                        widget.extensionService, widget.url));
+                                snapshot.whenData((data) {
+                                  if (data.episodes == null ||
+                                      data.episodes!.isEmpty) {
+                                    return;
+                                  }
+                                  context.push('/watch',
+                                      extra: WatchParams(
+                                          name: ref.watch(_history)!.title,
+                                          detailImageUrl: data.cover ?? '',
+                                          selectedEpisodeIndex:
+                                              ref.watch(_history)!.episodeId,
+                                          selectedGroupIndex: ref
+                                              .watch(_history)!
+                                              .episodeGroupId,
+                                          epGroup: data.episodes,
+                                          detailUrl: widget.url,
+                                          url: data
+                                              .episodes![ref
+                                                  .watch(_history)!
+                                                  .episodeGroupId]
+                                              .urls[ref
+                                                  .watch(_history)!
+                                                  .episodeId]
+                                              .url,
+                                          service: widget.extensionService,
+                                          type: widget.extensionService
+                                              .extension.type));
+                                });
+                              },
                         label: const Text('play'),
                         leading: const Icon(MoonIcons.media_play_24_regular)),
                   ],
@@ -342,6 +450,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                         onTap: (value) {
                           context.push('/watch',
                               extra: WatchParams(
+                                  detailUrl: widget.url,
                                   detailImageUrl: data.cover ?? '',
                                   name: data.title,
                                   selectedEpisodeIndex: value,
@@ -379,6 +488,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                                 selectedEpisodeIndex: value,
                                 selectedGroupIndex: _selectedGroup.value,
                                 epGroup: data.episodes,
+                                detailUrl: widget.url,
                                 url: data.episodes![_selectedGroup.value]
                                     .urls[value].url,
                                 service: widget.extensionService,
@@ -576,14 +686,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
     int alpha = _mapRange(shrinkOffset, minExt, maxExt, 0, 255)
         .clamp(0, clampMax)
         .toInt();
-    final query = DatabaseService.db.historys
-        .filter()
-        .packageEqualTo(extensionService.extension.package)
-        .build();
 
-    query.watch().listen((event) {
-      debugPrint(event.toString());
-    });
     return (Container(
         decoration: BoxDecoration(
             color: Colors.grey,
@@ -648,6 +751,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                           child: Text(
                                             detail?.title ?? 'Title Not Found',
                                             style: const TextStyle(
+                                              fontFamily: "HarmonyOS_Sans",
                                               overflow: TextOverflow.ellipsis,
                                               fontWeight: FontWeight.bold,
                                               fontSize: 20,
@@ -718,7 +822,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
                                       children: [
-                                        const SizedBox(width: 10),
+                                        const SizedBox(width: 30),
                                         Container(
                                           width: 100,
                                           decoration: BoxDecoration(
@@ -736,7 +840,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                         ),
                                         const SizedBox(width: 15),
                                         SizedBox(
-                                            width: constraint.maxWidth - 135,
+                                            width: constraint.maxWidth - 145,
                                             child: DefaultTextStyle(
                                               style: TextStyle(
                                                 color: context
@@ -756,19 +860,113 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: const TextStyle(
+                                                      fontFamily:
+                                                          "HarmonyOS_Sans",
                                                       fontSize: 20,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 10),
-                                                  Text(
-                                                    extensionService
-                                                        .extension.name,
-                                                    style: const TextStyle(
-                                                      fontSize: 12,
-                                                    ),
+                                                  SizedBox(
+                                                      height: 20,
+                                                      child: Row(children: [
+                                                        ExtendedImage.network(
+                                                          width: 20,
+                                                          height: 20,
+                                                          extensionService
+                                                                  .extension
+                                                                  .icon ??
+                                                              '',
+                                                          loadStateChanged:
+                                                              (state) {
+                                                            if (state
+                                                                    .extendedImageLoadState ==
+                                                                LoadState
+                                                                    .failed) {
+                                                              return const Icon(
+                                                                  Icons.error);
+                                                            }
+                                                            return null;
+                                                          },
+                                                          cache: true,
+                                                          shape: BoxShape
+                                                              .rectangle,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 10),
+                                                        Text(
+                                                          extensionService
+                                                              .extension.name,
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 12,
+                                                          ),
+                                                        )
+                                                      ])),
+                                                  const SizedBox(
+                                                    height: 40,
                                                   ),
+                                                  Row(children: [
+                                                    MoonButton(
+                                                      borderColor: context
+                                                          .moonTheme
+                                                          ?.segmentedControlTheme
+                                                          .colors
+                                                          .backgroundColor,
+                                                      textColor: context
+                                                          .moonTheme
+                                                          ?.segmentedControlTheme
+                                                          .colors
+                                                          .textColor,
+                                                      backgroundColor: context
+                                                          .moonTheme
+                                                          ?.segmentedControlTheme
+                                                          .colors
+                                                          .backgroundColor,
+                                                      label: const Text('Play'),
+                                                      onTap: () {},
+                                                    ),
+                                                    const SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    MoonChip(
+                                                      activeColor: context
+                                                          .moonTheme
+                                                          ?.segmentedControlTheme
+                                                          .colors
+                                                          .textColor,
+                                                      borderColor: context
+                                                          .moonTheme
+                                                          ?.segmentedControlTheme
+                                                          .colors
+                                                          .backgroundColor,
+                                                      textColor: context
+                                                          .moonTheme
+                                                          ?.textInputTheme
+                                                          .colors
+                                                          .textColor,
+                                                      backgroundColor: context
+                                                          .moonTheme
+                                                          ?.textInputTheme
+                                                          .colors
+                                                          .backgroundColor,
+                                                      label: const Text(
+                                                        'Favorite',
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontFamily:
+                                                                "HarmonyOS_Sans"),
+                                                      ),
+                                                      leading: const Icon(MoonIcons
+                                                          .generic_star_24_regular),
+                                                      onTap: () {},
+                                                    )
+                                                  ])
                                                 ],
                                               ),
                                             )),

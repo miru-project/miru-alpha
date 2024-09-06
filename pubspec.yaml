@@ -72,6 +72,7 @@ dependencies:
   easy_refresh: ^3.4.0
   flutter_hls_parser: ^2.0.1
   scrollable_positioned_list: ^0.3.8
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

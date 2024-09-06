@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 
@@ -80,6 +79,7 @@ class _CatergoryGroupChipState extends State<CatergoryGroupChip>
             height: 10,
           ),
         Wrap(
+          // crossAxisAlignment: WrapCrossAlignment.start,
           spacing: 5,
           runSpacing: 10,
           children: (List.generate(
@@ -88,7 +88,12 @@ class _CatergoryGroupChipState extends State<CatergoryGroupChip>
                   valueListenable: selected,
                   builder: (context, val, _) => MoonChip(
                         isActive: selected.value.contains(index),
-                        label: Text(widget.items[index]),
+                        label: Text(
+                          widget.items[index],
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: "HarmonyOS_Sans"),
+                        ),
                         onTap: () {
                           final newSelected = List<int>.from(selected.value);
                           if (newSelected.contains(index) &&
