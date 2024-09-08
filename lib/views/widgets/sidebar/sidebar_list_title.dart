@@ -5,13 +5,13 @@ class SideBarListTitle extends StatelessWidget {
   const SideBarListTitle({
     super.key,
     required this.title,
-    this.actions,
-    this.trailing,
+    this.trailings,
+    this.leading,
   });
 
   final String title;
-  final List<Widget>? trailing;
-  final List<Widget>? actions;
+  final List<Widget>? leading;
+  final List<Widget>? trailings;
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +20,8 @@ class SideBarListTitle extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
-          if (trailing != null) ...[
-            ...trailing!,
+          if (leading != null) ...[
+            ...leading!,
             const SizedBox(width: 8),
           ],
           Text(
@@ -33,7 +33,7 @@ class SideBarListTitle extends StatelessWidget {
                 fontFamily: "HarmonyOS_Sans"),
           ),
           const Spacer(),
-          if (actions != null) ...actions!,
+          if (trailings != null) ...trailings!,
         ],
       ),
     );

@@ -28,6 +28,7 @@ class MiruStorage {
         MiruDetailSchema,
         TMDBSchema,
         AppSettingSchema,
+        FavoriateGroupSchema,
       ],
       directory: _path,
     );

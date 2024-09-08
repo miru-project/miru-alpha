@@ -8,7 +8,7 @@ import 'package:moon_design/moon_design.dart';
 
 class SearchPage extends HookWidget {
   const SearchPage({super.key});
-  static const _categories = ['分類', '語言', '擴展'];
+  static const _categories = ['Type', 'Language', 'Extension'];
 
   Widget buildCategories(List<String> items, void Function(int) onpress) {
     final selected = useState(0);
@@ -43,7 +43,7 @@ class SearchPage extends HookWidget {
       sidebar: MediaQuery.of(context).size.width < 800
           ? <Widget>[
               //mobile
-              const SideBarListTitle(title: '搜索'),
+              const SideBarListTitle(title: 'Seach'),
               SideBarSearchBar(
                 controller: editController,
                 onsubmitted: (val) {
@@ -78,39 +78,53 @@ class SearchPage extends HookWidget {
                     controller: controller,
                     children: [
                       CategoryGroup(
-                          items: const ['全部', '影视', '漫画', '小说'],
+                          items: const ['ALL', 'Video', 'Manga', 'Novel'],
                           onpress: (val) {}),
-                      CategoryGroup(items: const ['全部'], onpress: (val) {}),
-                      CategoryGroup(items: const ['全部'], onpress: (val) {}),
+                      CategoryGroup(items: const ['ALL'], onpress: (val) {}),
+                      CategoryGroup(items: const ['ALL'], onpress: (val) {}),
                     ],
                   ))
             ]
           : [
               //desktop
-              const SideBarListTitle(title: '搜索'),
-              const SideBarSearchBar(),
+              const SideBarListTitle(title: 'Search'),
+              SideBarSearchBar(
+                controller: editController,
+                onsubmitted: (val) {
+                  searchValue.value = val;
+                  needRefresh.value = !needRefresh.value;
+                },
+                trailing: MoonButton.icon(
+                  icon: const Icon(MoonIcons.controls_close_24_regular),
+                  onTap: () {
+                    editController.clear();
+                    searchValue.value = '';
+                    needRefresh.value = !needRefresh.value;
+                  },
+                ),
+              ),
               const SizedBox(height: 10),
               SidebarExpander(
-                title: "分类",
+                title: "Type",
                 expanded: true,
                 child: CategoryGroup(
                     needSpacer: false,
-                    items: const ['全部', '影视', '漫画', '小说'],
+                    items: const ['ALL', 'Video', 'Manga', 'Novel'],
                     onpress: (val) {}),
               ),
               const SizedBox(height: 15),
               SidebarExpander(
-                  title: '語言',
+                  title: 'Language',
                   child: CategoryGroup(
                       needSpacer: false,
-                      items: const ['全部'],
+                      items: const ['ALL'],
                       onpress: (val) {})),
               const SizedBox(height: 15),
               SidebarExpander(
-                  title: '擴展',
+                  title: 'Extension',
                   child: CategoryGroup(
                       needSpacer: false,
-                      items: const ['全部'],
+                      items: const ['ALL'],
                       onpress: (val) {})),
               // MoonButton(
               //   onTap: () {

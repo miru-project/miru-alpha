@@ -39,18 +39,14 @@ class _SidebarExpanderState extends State<SidebarExpander> {
                       _expanded
                           ? Icons.keyboard_arrow_down
                           : Icons.keyboard_arrow_right,
-                      color: Brightness.dark == Theme.of(context).brightness
-                          ? MoonColors.light.goku
-                          : MoonColors.dark.goku,
+                      color: context.moonTheme?.textInputTheme.colors.textColor,
                       size: 15,
                     ),
                   ],
                   child: Text(
                     widget.title,
                     style: TextStyle(
-                      color: Brightness.dark == Theme.of(context).brightness
-                          ? MoonColors.light.goku
-                          : MoonColors.dark.goku,
+                      color: context.moonTheme?.textInputTheme.colors.textColor,
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
                     ),

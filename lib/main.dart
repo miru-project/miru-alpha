@@ -54,7 +54,6 @@ void main() async {
   await MiruStorage.ensureInitialized();
   await MiruRequest.ensureInitialized();
   await ExtensionUtils.ensureInitialized();
-  runApp(const ProviderScope(child: App()));
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -62,6 +61,7 @@ void main() async {
     DeviceOrientation.landscapeRight,
   ]);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  runApp(const ProviderScope(child: App()));
 }
 
 class App extends ConsumerStatefulWidget {

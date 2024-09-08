@@ -2,59 +2,135 @@ import 'dart:convert';
 
 import 'package:isar/isar.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/index.dart';
 
 class DatabaseService {
   static final db = MiruStorage.database;
 
-  static toggleFavorite({
-    required String package,
-    required String url,
-    required String name,
-    String? cover,
-  }) async {
-    return db.writeTxn(() async {
-      if (await isFavorite(
-        package: package,
-        url: url,
-      )) {
-        return db.favorites
-            .filter()
-            .packageEqualTo(package)
-            .and()
-            .urlEqualTo(url)
-            .deleteAll();
-      } else {
-        final runtime = ExtensionUtils.runtimes[package];
-        if (runtime == null) {
-          throw Exception('extension not found');
-        }
-        final extension = runtime.extension;
-        return db.favorites.put(
-          Favorite()
-            ..cover = cover
-            ..title = name
-            ..package = extension.package
-            ..type = extension.type
-            ..url = url,
-        );
-      }
+  // static toggleFavorite({
+  //   required String package,
+  //   required String url,
+  //   required String name,
+  //   String? cover,
+  // }) async {
+  //   return db.writeTxn(() async {
+  //     if (await isFavorite(
+  //       package: package,
+  //       url: url,
+  //     )) {
+  //       return db.favorites
+  //           .filter()
+  //           .packageEqualTo(package)
+  //           .and()
+  //           .urlEqualTo(url)
+  //           .deleteAll();
+  //     } else {
+  //       final runtime = ExtensionUtils.runtimes[package];
+  //       if (runtime == null) {
+  //         throw Exception('extension not found');
+  //       }
+  //       final extension = runtime.extension;
+  //       return db.favorites.put(
+  //         Favorite()
+  //           ..cover = cover
+  //           ..title = name
+  //           ..package = extension.package
+  //           ..type = extension.type
+  //           ..url = url,
+  //       );
+  //     }
+  //   });
+  // }
+  static deleteFavoriteGroup(List<String> name) {
+    DatabaseService.db.writeTxnSync(() {
+      DatabaseService.db.favoriateGroups.deleteAllByNameSync(name);
     });
   }
 
-  static Future<bool> isFavorite({
-    required String package,
-    required String url,
-  }) async {
-    return (await db.favorites
-            .filter()
-            .packageEqualTo(package)
-            .and()
-            .urlEqualTo(url)
-            .findFirst()) !=
-        null;
+  static renameFavoriteGroup(String oldName, String newName) {
+    DatabaseService.db.writeTxnSync(() {
+      final group = DatabaseService.db.favoriateGroups
+          .filter()
+          .nameEqualTo(oldName)
+          .findFirstSync();
+      group!.name = newName;
+      DatabaseService.db.favoriateGroups.putSync(group);
+      // DatabaseService.db.favoriateGroups.delete(group.id);
+    });
   }
+
+  static List<FavoriateGroup> getFavoriteGroupsById(int id) {
+    return DatabaseService.db.favoriateGroups
+        .filter()
+        .itemsElementEqualTo(id)
+        .findAllSync();
+  }
+
+  static List<Favorite> getAllFavorite() {
+    return DatabaseService.db.favorites.where().findAllSync();
+  }
+
+  static List<FavoriateGroup> getAllFavoriteGroup() {
+    return DatabaseService.db.favoriateGroups.where().findAllSync();
+  }
+
+  static putFavoriteByIndex(List<FavoriateGroup> result) {
+    return DatabaseService.db.writeTxnSync(() {
+      DatabaseService.db.favoriateGroups.putAllByIndexSync("name", result);
+    });
+  }
+
+  static FavoriateGroup putFavoriteGroup(String name,
+      [List<int> items = const []]) {
+    final group = FavoriateGroup()
+      ..items = items
+      ..name = name;
+    DatabaseService.db.writeTxnSync(() {
+      DatabaseService.db.favoriateGroups.putByIndexSync("name", group);
+    });
+    return group;
+  }
+
+  // put favorite use, use at detail page
+  static Favorite putFavorite(String detailUrl, ExtensionDetail? detail,
+      String package, ExtensionType type) {
+    final fav = Favorite()
+      ..cover = detail!.cover
+      ..package = package
+      ..type = type
+      ..date = DateTime.now()
+      ..title = detail.title
+      ..url = detailUrl;
+    DatabaseService.db.writeTxnSync(() {
+      DatabaseService.db.favorites.putByIndexSync('package&url', fav);
+    });
+    return fav;
+  }
+
+  // delete favorite
+  static deleteFavorite(String detailUrl, String package) {
+    DatabaseService.db.writeTxnSync(() {
+      DatabaseService.db.favorites
+          .filter()
+          .packageEqualTo(package)
+          .and()
+          .urlEqualTo(detailUrl)
+          .deleteFirstSync();
+    });
+  }
+
+  // static Future<bool> isFavorite({
+  //   required String package,
+  //   required String url,
+  // }) async {
+  //   return (await db.favorites
+  //           .filter()
+  //           .packageEqualTo(package)
+  //           .and()
+  //           .urlEqualTo(url)
+  //           .findFirst()) !=
+  //       null;
+  // }
 
   static Future<List<Favorite>> getFavoritesByType({
     ExtensionType? type,

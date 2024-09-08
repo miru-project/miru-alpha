@@ -9,9 +9,12 @@ import 'package:isar/isar.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
+import 'package:miru_app_new/utils/device_util.dart';
 
 import 'package:miru_app_new/utils/extension/extension_service.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
+import 'package:miru_app_new/views/widgets/dialog/favorite_add_group_dialog.dart';
+import 'package:miru_app_new/views/widgets/dialog/favorite_warning_dialog.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:shimmer/shimmer.dart';
@@ -164,6 +167,7 @@ class DesktopDetail extends StatelessWidget {
   const DesktopDetail(
       {super.key,
       this.data,
+      this.detailUrl,
       required this.season,
       required this.desc,
       required this.isLoading,
@@ -176,7 +180,7 @@ class DesktopDetail extends StatelessWidget {
   final Widget season;
   final Widget cast;
   final ExtensionApiV1 extensionService;
-
+  final String? detailUrl;
   final ExtensionDetail? data;
 
   static const double _maxExtDesktop = 600;
@@ -190,6 +194,7 @@ class DesktopDetail extends StatelessWidget {
         SliverPersistentHeader(
             pinned: true,
             delegate: DetailHeaderDelegate(
+                detailUrl: detailUrl,
                 maxExt: _maxExtDesktop,
                 minExt: _minExtDesktop,
                 clampMax: _clampMaxDesktop,
@@ -250,6 +255,7 @@ class MobileDetail extends StatelessWidget {
       {super.key,
       this.data,
       this.addition = _default,
+      this.detailUrl,
       required this.desc,
       required this.isLoading,
       required this.ep,
@@ -260,6 +266,7 @@ class MobileDetail extends StatelessWidget {
   final ExtensionApiV1 extensionService;
   final ExtensionDetail? data;
   final Widget Function(Widget child) addition;
+  final String? detailUrl;
   static const double _maxExtMobile = 250;
   static const double _minExtMobile = 50;
   static const double _clampMaxMobile = 100;
@@ -275,6 +282,7 @@ class MobileDetail extends StatelessWidget {
                 maxExt: _maxExtMobile,
                 minExt: _minExtMobile,
                 clampMax: _clampMaxMobile,
+                detailUrl: detailUrl,
                 extensionService: extensionService,
                 isLoading: false,
                 detail: data)),
@@ -323,12 +331,23 @@ class HistoryNotifier extends StateNotifier<History?> {
   }
 }
 
+class FavoriteNotifier with ChangeNotifier {
+  Favorite? favorite;
+  void putFavorite(Favorite? favorite) {
+    this.favorite = favorite;
+    notifyListeners();
+  }
+}
+
+final _history = StateNotifierProvider<HistoryNotifier, History?>((ref) {
+  return HistoryNotifier(null);
+});
+final _favoriteNotifer = FavoriteNotifier();
+
 class _DetailPageState extends ConsumerState<DetailPage> {
   final ValueNotifier<int> _selectedGroup = ValueNotifier(0);
   static const _trackingTab = ['TMDB', 'AniList'];
-  final _history = StateNotifierProvider<HistoryNotifier, History?>((ref) {
-    return HistoryNotifier(null);
-  });
+
   @override
   void initState() {
     DatabaseService.db.historys
@@ -341,6 +360,11 @@ class _DetailPageState extends ConsumerState<DetailPage> {
         ref.read(_history.notifier).putHistory(value);
       });
     });
+    _favoriteNotifer.putFavorite(DatabaseService.db.favorites
+        .where()
+        .packageUrlEqualTo(
+            widget.extensionService.extension.package, widget.url)
+        .findFirstSync());
     Future.microtask(() => ref.read(_history.notifier).putHistory(
         DatabaseService.getHistoryByPackageAndUrl(
             widget.extensionService.extension.package, widget.url)));
@@ -353,7 +377,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     final snapShot = ref.watch(
         fetchExtensionDetailProvider(widget.extensionService, widget.url));
     return MiruScaffold(
-        sidebar: MediaQuery.of(context).size.width < 600
+        sidebar: DeviceUtil.isMobileLayout(context)
             ? <Widget>[
                 Align(
                     alignment: Alignment.centerLeft,
@@ -441,6 +465,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
               context: context,
               child: PlatformWidget(
                   mobileWidget: MobileDetail(
+                    detailUrl: widget.url,
                     isLoading: false,
                     data: data,
                     extensionService: widget.extensionService,
@@ -475,6 +500,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                   ),
                   desktopWidget: DesktopDetail(
                     isLoading: false,
+                    detailUrl: widget.url,
                     data: data,
                     extensionService: widget.extensionService,
                     ep: DetailEpButton(
@@ -659,6 +685,427 @@ class LoadingWidget extends StatelessWidget {
   }
 }
 
+class _DetailSideWidgetMobile extends ConsumerWidget {
+  const _DetailSideWidgetMobile(
+      {required this.constraint,
+      this.detail,
+      this.detailUrl,
+      required this.extensionService});
+  final ExtensionDetail? detail;
+  final String? detailUrl;
+  final ExtensionApiV1 extensionService;
+  final BoxConstraints constraint;
+  @override
+  Widget build(BuildContext context, ref) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const SizedBox(width: 30),
+        Container(
+          width: 100,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: ExtendedImage.network(
+            detail?.cover ?? '',
+            width: 100,
+            height: 160,
+            fit: BoxFit.cover,
+          ),
+        ),
+        const SizedBox(width: 15),
+        SizedBox(
+            width: constraint.maxWidth - 145,
+            child: DefaultTextStyle(
+              style: TextStyle(
+                color: context.moonTheme?.textInputTheme.colors.textColor,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    detail?.title ?? '',
+                    softWrap: true,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: "HarmonyOS_Sans",
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                      height: 20,
+                      child: Row(children: [
+                        ExtendedImage.network(
+                          width: 20,
+                          height: 20,
+                          extensionService.extension.icon ?? '',
+                          loadStateChanged: (state) {
+                            if (state.extendedImageLoadState ==
+                                LoadState.failed) {
+                              return const Icon(Icons.error);
+                            }
+                            return null;
+                          },
+                          cache: true,
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          extensionService.extension.name,
+                          style: const TextStyle(
+                            fontSize: 12,
+                          ),
+                        )
+                      ])),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  Row(children: [
+                    MoonButton(
+                      borderColor: context.moonTheme?.segmentedControlTheme
+                          .colors.backgroundColor,
+                      textColor: context
+                          .moonTheme?.segmentedControlTheme.colors.textColor,
+                      backgroundColor: context.moonTheme?.segmentedControlTheme
+                          .colors.backgroundColor,
+                      label: const Text('Play'),
+                      onTap: () {},
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    ListenableBuilder(
+                        listenable: _favoriteNotifer,
+                        builder: (context, _) => MoonChip(
+                              isActive: _favoriteNotifer.favorite != null,
+                              activeColor: context.moonTheme
+                                  ?.segmentedControlTheme.colors.textColor,
+                              borderColor: context
+                                  .moonTheme
+                                  ?.segmentedControlTheme
+                                  .colors
+                                  .backgroundColor,
+                              textColor: context
+                                  .moonTheme?.textInputTheme.colors.textColor,
+                              backgroundColor: context.moonTheme?.textInputTheme
+                                  .colors.backgroundColor,
+                              label: Text(
+                                _favoriteNotifer.favorite != null
+                                    ? 'Favorited'
+                                    : 'Favorite',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: "HarmonyOS_Sans"),
+                              ),
+                              leading:
+                                  const Icon(MoonIcons.generic_star_24_regular),
+                              onTap: () {
+                                if (detail == null || detailUrl == null) {
+                                  return;
+                                }
+                                showMoonModal(
+                                    context: context,
+                                    builder: (context) => _FavoriteDialog(
+                                          extensionService: extensionService,
+                                          detail: detail!,
+                                          detailUrl: detailUrl!,
+                                        ));
+                                // if (detail == null || detailUrl == null) {
+                                //   return;
+                                // }
+                                // if (_favoriteNotifer.favorite == null) {
+                                //   //add to favorite
+                                //   final fav = DatabaseService.putFavorite(
+                                //       detailUrl!,
+                                //       detail!,
+                                //       extensionService.extension.package,
+                                //       extensionService.extension.type);
+                                //   _favoriteNotifer.putFavorite(fav);
+                                //   return;
+                                // }
+                                // //remove from favorite
+                                // DatabaseService.deleteFavorite(detailUrl!,
+                                //     extensionService.extension.package);
+                                // _favoriteNotifer.putFavorite(null);
+                              },
+                            ))
+                  ])
+                ],
+              ),
+            )),
+      ],
+    );
+  }
+}
+
+// class FavoriteChip{
+//   final String name;
+//   final bool isSelected;
+//   final bool isSelectedLongPress;
+//   const FavoriteChip({required this.name, required this.isSelected, required this.isSelectedLongPress});
+// }
+
+class _FavoriteDialog extends StatefulHookWidget {
+  const _FavoriteDialog(
+      {required this.extensionService,
+      required this.detailUrl,
+      required this.detail});
+  final String detailUrl;
+  final ExtensionDetail detail;
+  final ExtensionApiV1 extensionService;
+
+  @override
+  createState() => _FavoriteDialogState();
+}
+
+class _FavoriteDialogState extends State<_FavoriteDialog> {
+  final ValueNotifier<List<FavoriateGroup>> group = ValueNotifier([]);
+  final ValueNotifier<List<int>> selected = ValueNotifier([]);
+  final ValueNotifier<List<int>> selectedToDelete = ValueNotifier([]);
+  final ValueNotifier<List<int>> setLongPress = ValueNotifier([]);
+  final ValueNotifier<List<int>> setSelected = ValueNotifier([]);
+  final List<int> initSelected = [];
+  @override
+  void initState() {
+    group.value = DatabaseService.db.favoriateGroups.where().findAllSync();
+    DatabaseService.db.favoriateGroups.where().watchLazy().listen((_) {
+      group.value = DatabaseService.db.favoriateGroups.where().findAllSync();
+      // debugger();
+    });
+    if (_favoriteNotifer.favorite != null) {
+      final result =
+          DatabaseService.getFavoriteGroupsById(_favoriteNotifer.favorite!.id);
+      final nameList = group.value.map((e) => e.name).toList();
+      for (final item in result) {
+        initSelected.add(nameList.indexOf(item.name));
+      }
+      selected.value = initSelected;
+      debugPrint(initSelected.toString());
+    }
+    super.initState();
+  }
+
+  // @override
+  // void dispose() {
+  //   group.dispose();
+  //   selected.dispose();
+  //   selectedToDelete.dispose();
+  //   super.dispose();
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    final factor = DeviceUtil.isMobileLayout(context) ? 0.8 : .5;
+    final width = DeviceUtil.getWidth(context);
+    final height = DeviceUtil.getHeight(context);
+
+    return MoonModal(
+        decoration: BoxDecoration(
+          color: MoonColors.dark.goku,
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 10,
+              color:
+                  MediaQuery.of(context).platformBrightness == Brightness.light
+                      ? MoonColors.light.goku.withOpacity(0.2)
+                      : MoonColors.dark.goku.withOpacity(0.2),
+            ),
+          ],
+        ),
+        child: ValueListenableBuilder(
+            valueListenable: group,
+            builder: (context, value, _) => SizedBox(
+                width: width * factor,
+                height: height * factor,
+                child: Padding(
+                    padding: const EdgeInsets.all(30),
+                    child: DefaultTextStyle(
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: "HarmonyOS_Sans"),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Favorite ?',
+                                style: TextStyle(fontSize: 25),
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Selected Group',
+                                      style: TextStyle(fontSize: 15),
+                                    ),
+                                    ValueListenableBuilder(
+                                        valueListenable: selectedToDelete,
+                                        builder: (context, delete, _) => delete
+                                                .isEmpty
+                                            ? Text(
+                                                DeviceUtil.device(
+                                                    mobile:
+                                                        'Long Press To Delete Group',
+                                                    desktop:
+                                                        'Right Click To Delete Group',
+                                                    context: context),
+                                                style: TextStyle(
+                                                    color: Colors.grey[500],
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    fontSize: 10))
+                                            : MoonButton(
+                                                label: const Icon(MoonIcons
+                                                    .generic_delete_24_regular),
+                                                onTap: () {
+                                                  showMoonModal(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          FavoriteWarningDialog(
+                                                              setLongPress:
+                                                                  setLongPress,
+                                                              setSelected:
+                                                                  setSelected,
+                                                              selectedToDelete:
+                                                                  selectedToDelete,
+                                                              selected:
+                                                                  selected,
+                                                              group: group));
+                                                },
+                                              ))
+                                  ]),
+                              const SizedBox(height: 10),
+                              Expanded(
+                                  child: SingleChildScrollView(
+                                      child: CatergoryGroupChip(
+                                          setLongPress: setLongPress,
+                                          setSelected: setSelected,
+                                          onLongPress: (p0) {
+                                            selectedToDelete.value = p0;
+                                          },
+                                          minSelected: 0,
+                                          trailing: MoonButton(
+                                            leading: const Icon(MoonIcons
+                                                .controls_plus_24_regular),
+                                            width: width * factor - 100,
+                                            backgroundColor: context
+                                                .moonTheme
+                                                ?.textInputTheme
+                                                .colors
+                                                .backgroundColor,
+                                            onTap: () {
+                                              showMoonModal(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      FavoriteAddGroupDialog(
+                                                        onComplete: (p0) {
+                                                          DatabaseService
+                                                              .putFavoriteGroup(
+                                                                  p0);
+                                                        },
+                                                      ));
+                                            },
+                                            label: const Text('Add Group',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFamily:
+                                                        "HarmonyOS_Sans")),
+                                          ),
+                                          items: group.value
+                                              .map((val) => val.name)
+                                              .toList(),
+                                          onpress: (val) {
+                                            selected.value = val;
+                                          },
+                                          initSelected: initSelected))),
+                              (Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  MoonButton(
+                                    buttonSize: MoonButtonSize.lg,
+                                    label: const Text('Cancel'),
+                                    onTap: () {
+                                      context.pop();
+                                    },
+                                  ),
+                                  Row(children: [
+                                    MoonButton(
+                                      buttonSize: MoonButtonSize.lg,
+                                      label: const Text(
+                                        'Delete',
+                                      ),
+                                      onTap: _favoriteNotifer.favorite == null
+                                          ? null
+                                          : () {
+                                              //remove from favorite
+                                              DatabaseService.deleteFavorite(
+                                                  widget.detailUrl,
+                                                  widget.extensionService
+                                                      .extension.package);
+                                              _favoriteNotifer
+                                                  .putFavorite(null);
+                                              context.pop();
+                                            },
+                                    ),
+                                    MoonButton(
+                                      buttonSize: MoonButtonSize.lg,
+                                      label: Text(
+                                        'Confirm',
+                                        style: TextStyle(
+                                            color: context
+                                                .moonTheme
+                                                ?.segmentedControlTheme
+                                                .colors
+                                                .backgroundColor),
+                                      ),
+                                      onTap: () {
+                                        final fav = DatabaseService.putFavorite(
+                                            widget.detailUrl,
+                                            widget.detail,
+                                            widget.extensionService.extension
+                                                .package,
+                                            widget.extensionService.extension
+                                                .type);
+                                        _favoriteNotifer.putFavorite(fav);
+
+                                        final result = group.value.map((e) {
+                                          final List<int> item =
+                                              e.items.toList(growable: true);
+                                          // remove every fav id from the group
+                                          item.removeWhere(
+                                            (element) => element == fav.id,
+                                          );
+                                          // add the fav id to the group if selected
+                                          if (selected.value.contains(
+                                              group.value.indexOf(e))) {
+                                            item.add(fav.id);
+                                          }
+                                          e.items = item;
+                                          return e;
+                                        }).toList();
+
+                                        DatabaseService.putFavoriteByIndex(
+                                            result);
+
+                                        context.pop();
+                                      },
+                                    )
+                                  ])
+                                ],
+                              ))
+                            ]))))));
+  }
+}
+
 class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
   double _mapRange(
       double value, double inMin, double inMax, double outMin, double outMax) {
@@ -671,6 +1118,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
       required this.minExt,
       required this.maxExt,
       required this.clampMax,
+      this.detailUrl,
       this.detail});
   final double maxExt;
   final double minExt;
@@ -678,6 +1126,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
   final bool isLoading;
   final ExtensionDetail? detail;
   final ExtensionApiV1 extensionService;
+  final String? detailUrl;
 
   @override
   Widget build(
@@ -734,7 +1183,6 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                     Row(children: [
                                       MoonChip(
                                         chipSize: MoonChipSize.sm,
-                                        // width: 40,
                                         activeBackgroundColor: context
                                             .moonTheme
                                             ?.segmentedControlTheme
@@ -818,160 +1266,12 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                 ],
                               )
                             : LayoutBuilder(
-                                builder: (context, contraint) => Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(width: 30),
-                                        Container(
-                                          width: 100,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          clipBehavior: Clip.antiAlias,
-                                          child: ExtendedImage.network(
-                                            detail?.cover ?? '',
-                                            width: 100,
-                                            height: 160,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 15),
-                                        SizedBox(
-                                            width: constraint.maxWidth - 145,
-                                            child: DefaultTextStyle(
-                                              style: TextStyle(
-                                                color: context
-                                                    .moonTheme
-                                                    ?.textInputTheme
-                                                    .colors
-                                                    .textColor,
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    detail?.title ?? '',
-                                                    softWrap: true,
-                                                    maxLines: 3,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: const TextStyle(
-                                                      fontFamily:
-                                                          "HarmonyOS_Sans",
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 10),
-                                                  SizedBox(
-                                                      height: 20,
-                                                      child: Row(children: [
-                                                        ExtendedImage.network(
-                                                          width: 20,
-                                                          height: 20,
-                                                          extensionService
-                                                                  .extension
-                                                                  .icon ??
-                                                              '',
-                                                          loadStateChanged:
-                                                              (state) {
-                                                            if (state
-                                                                    .extendedImageLoadState ==
-                                                                LoadState
-                                                                    .failed) {
-                                                              return const Icon(
-                                                                  Icons.error);
-                                                            }
-                                                            return null;
-                                                          },
-                                                          cache: true,
-                                                          shape: BoxShape
-                                                              .rectangle,
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 10),
-                                                        Text(
-                                                          extensionService
-                                                              .extension.name,
-                                                          style:
-                                                              const TextStyle(
-                                                            fontSize: 12,
-                                                          ),
-                                                        )
-                                                      ])),
-                                                  const SizedBox(
-                                                    height: 40,
-                                                  ),
-                                                  Row(children: [
-                                                    MoonButton(
-                                                      borderColor: context
-                                                          .moonTheme
-                                                          ?.segmentedControlTheme
-                                                          .colors
-                                                          .backgroundColor,
-                                                      textColor: context
-                                                          .moonTheme
-                                                          ?.segmentedControlTheme
-                                                          .colors
-                                                          .textColor,
-                                                      backgroundColor: context
-                                                          .moonTheme
-                                                          ?.segmentedControlTheme
-                                                          .colors
-                                                          .backgroundColor,
-                                                      label: const Text('Play'),
-                                                      onTap: () {},
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    MoonChip(
-                                                      activeColor: context
-                                                          .moonTheme
-                                                          ?.segmentedControlTheme
-                                                          .colors
-                                                          .textColor,
-                                                      borderColor: context
-                                                          .moonTheme
-                                                          ?.segmentedControlTheme
-                                                          .colors
-                                                          .backgroundColor,
-                                                      textColor: context
-                                                          .moonTheme
-                                                          ?.textInputTheme
-                                                          .colors
-                                                          .textColor,
-                                                      backgroundColor: context
-                                                          .moonTheme
-                                                          ?.textInputTheme
-                                                          .colors
-                                                          .backgroundColor,
-                                                      label: const Text(
-                                                        'Favorite',
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontFamily:
-                                                                "HarmonyOS_Sans"),
-                                                      ),
-                                                      leading: const Icon(MoonIcons
-                                                          .generic_star_24_regular),
-                                                      onTap: () {},
-                                                    )
-                                                  ])
-                                                ],
-                                              ),
-                                            )),
-                                      ],
-                                    )),
+                                builder: (context, contraint) =>
+                                    _DetailSideWidgetMobile(
+                                        constraint: constraint,
+                                        detail: detail,
+                                        detailUrl: detailUrl,
+                                        extensionService: extensionService)),
                       ),
                       const SizedBox(height: 20),
                     ],
@@ -1051,22 +1351,11 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                                 label: const Text('Play'),
                                               ),
                                               const SizedBox(width: 10),
-                                              MoonButton(
-                                                leading: const Icon(MoonIcons
-                                                    .sport_featured_24_regular),
-                                                backgroundColor: context
-                                                    .moonTheme
-                                                    ?.segmentedControlTheme
-                                                    .colors
-                                                    .backgroundColor,
-                                                textColor: context
-                                                    .moonTheme
-                                                    ?.segmentedControlTheme
-                                                    .colors
-                                                    .textColor,
-                                                onTap: isLoading ? null : () {},
-                                                label: const Text('Favorite'),
-                                              )
+                                              _FavButton(
+                                                  extensionService:
+                                                      extensionService,
+                                                  detailUrl: detailUrl,
+                                                  detail: detail)
                                             ])
                                           ]))
                             ]))
@@ -1162,7 +1451,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                                 ),
                                               ),
                                             ),
-                                            const SizedBox(width: 20),
+                                            const SizedBox(width: 40),
                                             DefaultTextStyle(
                                               style: TextStyle(
                                                 color: context
@@ -1198,6 +1487,14 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                                           fontSize: 16,
                                                         ),
                                                       ),
+                                                      const SizedBox(
+                                                        height: 60,
+                                                      ),
+                                                      _FavButton(
+                                                          extensionService:
+                                                              extensionService,
+                                                          detailUrl: detailUrl,
+                                                          detail: detail),
                                                     ],
                                                   )),
                                             ),
@@ -1218,4 +1515,41 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
       true;
+}
+
+class _FavButton extends StatelessWidget {
+  const _FavButton(
+      {required this.extensionService, this.detailUrl, this.detail});
+  final String? detailUrl;
+  final ExtensionDetail? detail;
+  final ExtensionApiV1 extensionService;
+  @override
+  Widget build(BuildContext context) {
+    return MoonChip(
+      isActive: _favoriteNotifer.favorite != null,
+      activeColor: context.moonTheme?.segmentedControlTheme.colors.textColor,
+      borderColor:
+          context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
+      textColor: context.moonTheme?.textInputTheme.colors.textColor,
+      backgroundColor: context.moonTheme?.textInputTheme.colors.backgroundColor,
+      label: Text(
+        _favoriteNotifer.favorite != null ? 'Favorited' : 'Favorite',
+        style: const TextStyle(
+            fontWeight: FontWeight.bold, fontFamily: "HarmonyOS_Sans"),
+      ),
+      leading: const Icon(MoonIcons.generic_star_24_regular),
+      onTap: () {
+        if (detail == null || detailUrl == null) {
+          return;
+        }
+        showMoonModal(
+            context: context,
+            builder: (context) => _FavoriteDialog(
+                  extensionService: extensionService,
+                  detail: detail!,
+                  detailUrl: detailUrl!,
+                ));
+      },
+    );
+  }
 }

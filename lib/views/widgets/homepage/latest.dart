@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +17,7 @@ class Latest extends ConsumerStatefulWidget {
       required this.needrefresh,
       required this.searchValue});
   final ExtensionApiV1 extensionService;
+  // a trigger to refresh the latest
   final ValueNotifier<bool> needrefresh;
   final ValueNotifier<String> searchValue;
   @override
@@ -34,6 +33,12 @@ class _LatestState extends ConsumerState<Latest> {
     Colors.transparent,
   ];
   final _scrollController = ScrollController();
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +66,11 @@ class _LatestState extends ConsumerState<Latest> {
     });
   }
 
+  void onTap() {
+    context.push('/search/single',
+        extra: SearchPageParam(service: widget.extensionService, query: null));
+  }
+
   AsyncValue<List<ExtensionListItem>> snapShot = const AsyncValue.loading();
   @override
   Widget build(BuildContext context) {
@@ -75,8 +85,24 @@ class _LatestState extends ConsumerState<Latest> {
     if (width > 800) {
       //desktop
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(widget.extensionService.extension.name,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          MoonButton(
+            onTap: onTap,
+            padding: const EdgeInsets.only(left: 10),
+            trailing: const Icon(MoonIcons.controls_chevron_right_24_regular),
+            label: Text(widget.extensionService.extension.name,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          ),
+          MoonButton(
+            padding: const EdgeInsets.only(right: 20),
+            label: Text(
+              'More',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            onTap: onTap,
+          )
+        ]),
         const SizedBox(
           height: 10,
         ),
@@ -102,7 +128,6 @@ class _LatestState extends ConsumerState<Latest> {
                                           url: data[index].url));
                                 },
                                 width: 160,
-                                height: 200,
                               ),
                               itemCount: data.length,
                               scrollDirection: Axis.horizontal,
@@ -230,17 +255,24 @@ class _LatestState extends ConsumerState<Latest> {
     }
     //mobile
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      MoonButton(
-        onTap: () {
-          context.push('/search/single',
-              extra: SearchPageParam(
-                  service: widget.extensionService, query: null));
-        },
-        padding: const EdgeInsets.only(left: 10),
-        trailing: const Icon(MoonIcons.controls_chevron_right_24_regular),
-        label: Text(widget.extensionService.extension.name,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-      ),
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        MoonButton(
+          onTap: onTap,
+          padding: const EdgeInsets.only(left: 10),
+          trailing: const Icon(MoonIcons.controls_chevron_right_24_regular),
+          label: Text(widget.extensionService.extension.name,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        ),
+        MoonButton(
+          padding: const EdgeInsets.only(right: 20),
+          label: Text(
+            'More',
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+          onTap: onTap,
+        )
+      ]),
       const SizedBox(
         height: 10,
       ),

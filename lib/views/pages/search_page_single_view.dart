@@ -6,6 +6,7 @@ import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
+import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:miru_app_new/views/widgets/miru_grid_tile_loading_box.dart';
 import 'package:moon_design/moon_design.dart';
@@ -173,7 +174,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                                     _fileNotifier.value[keys[index]]?.max,
                                 minSelected:
                                     _fileNotifier.value[keys[index]]?.min,
-                                intitSelected: _selected.value[index],
+                                initSelected: _selected.value[index],
                                 items:
                                     map[keys[index]]!.options.values.toList(),
                                 onpress: (val) {
@@ -438,15 +439,14 @@ class _GridView extends StatelessWidget {
                     ),
                     desktopGridDelegate:
                         SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: cons.maxWidth ~/ 110,
-                      childAspectRatio: 0.6,
+                      crossAxisCount: cons.maxWidth ~/ 180,
+                      childAspectRatio: 0.65,
                     ),
                     itemBuilder: (context, index) => MiruGridTile(
                         onTap: () {
-                          context.push('/search/detail', extra: {
-                            'service': service,
-                            'url': value[index].url,
-                          });
+                          context.push('/search/detail',
+                              extra: DetailParam(
+                                  service: service, url: value[index].url));
                         },
                         title: value[index].title,
                         imageUrl: value[index].cover,

@@ -56,6 +56,7 @@ class ApplicationController extends StateNotifier<ApplicationState> {
     typography: MoonTypography.typography.copyWith(
       heading:
           MoonTypography.typography.heading.apply(fontFamily: "HarmonyOS_Sans"),
+      body: MoonTypography.typography.body.apply(fontFamily: "HarmonyOS_Sans"),
     ),
   );
 
@@ -73,135 +74,169 @@ class ApplicationController extends StateNotifier<ApplicationState> {
   }
 
   currentThemeData(String themeText, AccentColors accentColor) {
-    switch (themeText) {
-      case "light":
-        final token = _lighttoken;
-        final color = ThemeUtils.accentToMoonColorBright[accentColor]!;
-        final textColor = color.computeLuminance() < .5
-            ? MoonColors.light.goku
-            : MoonColors.light.bulma;
-        return ThemeData.light(useMaterial3: true).copyWith(
-            // textTheme: ,
-            extensions: <ThemeExtension<dynamic>>[
-              MoonTheme(
-                tokens: token,
-                switchTheme: MoonSwitchTheme(tokens: token).copyWith(
-                    colors: MoonSwitchTheme(tokens: token)
-                        .colors
-                        .copyWith(activeTrackColor: color)),
-                segmentedControlTheme: MoonSegmentedControlTheme(tokens: token)
-                    .copyWith(
-                        colors: MoonSegmentedControlTheme(tokens: token)
-                            .colors
-                            .copyWith(
-                                backgroundColor: color, textColor: textColor)),
-                tabBarTheme: MoonTheme(tokens: token).tabBarTheme.copyWith(
-                    colors:
-                        MoonTheme(tokens: token).tabBarTheme.colors.copyWith(
-                              selectedPillTabColor: color,
-                              indicatorColor: color,
-                              selectedTextColor: color,
-                            )),
-                circularLoaderTheme: MoonTheme(tokens: token)
-                    .circularLoaderTheme
-                    .copyWith(
-                        colors: MoonTheme(tokens: token)
-                            .circularLoaderTheme
-                            .colors
-                            .copyWith(color: color)),
-                circularProgressTheme: MoonTheme(tokens: token)
-                    .circularProgressTheme
-                    .copyWith(
-                        colors: MoonTheme(tokens: token)
-                            .circularProgressTheme
-                            .colors
-                            .copyWith(color: color)),
-              ),
-            ],
-            brightness: Brightness.light,
-            sliderTheme: SliderThemeData(
-              trackHeight: 2,
-              activeTrackColor: color.withAlpha(200),
-              thumbColor: color,
-              secondaryActiveTrackColor: color.withAlpha(100),
-              thumbShape: const RoundSliderThumbShape(
-                enabledThumbRadius: 6,
-              ),
-              overlayShape: const RoundSliderOverlayShape(
-                overlayRadius: 12,
-              ),
-            ));
-      default:
-        final color = ThemeUtils.accentToMoonColorDark[accentColor]!;
-        final token = _darktoken;
-        final textColor = color.computeLuminance() < .3
-            ? MoonColors.light.goku
-            : MoonColors.light.bulma;
-        final selectedTextColor = color.computeLuminance() < .3
-            ? MoonColors.dark.goku
-            : MoonColors.dark.bulma;
-        return ThemeData.dark(useMaterial3: true).copyWith(
-            extensions: <ThemeExtension<dynamic>>[
-              MoonTheme(
-                tokens: token,
-                segmentedControlTheme: MoonSegmentedControlTheme(tokens: token)
-                    .copyWith(
-                        colors: MoonSegmentedControlTheme(tokens: token)
-                            .colors
-                            .copyWith(
-                                selectedSegmentColor: selectedTextColor,
-                                selectedTextColor: textColor,
-                                backgroundColor: color,
-                                textColor: textColor)),
-                switchTheme: MoonSwitchTheme(tokens: token).copyWith(
-                    colors: MoonSwitchTheme(tokens: token)
-                        .colors
-                        .copyWith(activeTrackColor: color)),
-                chipTheme: MoonChipTheme(tokens: token).copyWith(
-                    colors: MoonChipTheme(tokens: token).colors.copyWith(
-                        activeBackgroundColor: color, activeColor: textColor)),
-                dotIndicatorTheme: MoonDotIndicatorTheme(tokens: token)
-                    .copyWith(
-                        colors: MoonDotIndicatorTheme(tokens: token)
-                            .colors
-                            .copyWith(selectedColor: color)),
-                tabBarTheme: MoonTheme(tokens: token).tabBarTheme.copyWith(
-                    colors:
-                        MoonTheme(tokens: token).tabBarTheme.colors.copyWith(
-                              selectedPillTabColor: color,
-                              indicatorColor: color,
-                              selectedTextColor: color,
-                            )),
-                circularLoaderTheme: MoonTheme(tokens: token)
-                    .circularLoaderTheme
-                    .copyWith(
-                        colors: MoonTheme(tokens: token)
-                            .circularLoaderTheme
-                            .colors
-                            .copyWith(color: color)),
-                circularProgressTheme: MoonTheme(tokens: token)
-                    .circularProgressTheme
-                    .copyWith(
-                        colors: MoonTheme(tokens: token)
-                            .circularProgressTheme
-                            .colors
-                            .copyWith(color: color)),
-              ),
-            ],
-            brightness: Brightness.dark,
-            sliderTheme: SliderThemeData(
-              trackHeight: 2,
-              activeTrackColor: color.withAlpha(200),
-              thumbColor: color,
-              secondaryActiveTrackColor: color.withAlpha(100),
-              thumbShape: const RoundSliderThumbShape(
-                enabledThumbRadius: 6,
-              ),
-              overlayShape: const RoundSliderOverlayShape(
-                overlayRadius: 12,
-              ),
-            ));
+    late MoonTokens token;
+    late final Color color;
+    late final Color textColor;
+    late final Color selectedTextColor;
+    late ThemeData themeData;
+    if (themeText == "light") {
+      token = _lighttoken;
+      color = ThemeUtils.accentToMoonColorBright[accentColor]!;
+      textColor = color.computeLuminance() < .5
+          ? MoonColors.light.goku
+          : MoonColors.light.bulma;
+      selectedTextColor = color.computeLuminance() < .5
+          ? MoonColors.light.goku
+          : MoonColors.light.bulma;
+      themeData = ThemeData.light(useMaterial3: true);
+    } else {
+      color = ThemeUtils.accentToMoonColorDark[accentColor]!;
+      token = _darktoken;
+      textColor = color.computeLuminance() < .3
+          ? MoonColors.dark.bulma
+          : MoonColors.dark.goku;
+      selectedTextColor = color.computeLuminance() < .5
+          ? MoonColors.dark.bulma
+          : MoonColors.dark.goku;
+      themeData = ThemeData.dark(useMaterial3: true);
     }
+    return themeData.copyWith(
+        extensions: <ThemeExtension<dynamic>>[
+          MoonTheme(
+            tokens: token,
+            segmentedControlTheme: MoonSegmentedControlTheme(tokens: token)
+                .copyWith(
+                    colors: MoonSegmentedControlTheme(tokens: token)
+                        .colors
+                        .copyWith(
+                            selectedSegmentColor: textColor,
+                            selectedTextColor: color,
+                            backgroundColor: color,
+                            textColor: textColor)),
+            switchTheme: MoonSwitchTheme(tokens: token).copyWith(
+                colors: MoonSwitchTheme(tokens: token)
+                    .colors
+                    .copyWith(activeTrackColor: color)),
+            chipTheme: MoonChipTheme(tokens: token).copyWith(
+                colors: MoonChipTheme(tokens: token).colors.copyWith(
+                    activeBackgroundColor: color, activeColor: textColor)),
+            dotIndicatorTheme: MoonDotIndicatorTheme(tokens: token).copyWith(
+                colors: MoonDotIndicatorTheme(tokens: token)
+                    .colors
+                    .copyWith(selectedColor: color)),
+            tabBarTheme: MoonTheme(tokens: token).tabBarTheme.copyWith(
+                colors: MoonTheme(tokens: token).tabBarTheme.colors.copyWith(
+                      selectedPillTabColor: color,
+                      indicatorColor: color,
+                      selectedTextColor: color,
+                    )),
+            circularLoaderTheme: MoonTheme(tokens: token)
+                .circularLoaderTheme
+                .copyWith(
+                    colors: MoonTheme(tokens: token)
+                        .circularLoaderTheme
+                        .colors
+                        .copyWith(color: color)),
+            textInputTheme: MoonTextInputTheme(tokens: token).copyWith(
+                colors: MoonTheme(tokens: token)
+                    .textInputTheme
+                    .colors
+                    .copyWith(activeBorderColor: color)),
+            circularProgressTheme: MoonTheme(tokens: token)
+                .circularProgressTheme
+                .copyWith(
+                    colors: MoonTheme(tokens: token)
+                        .circularProgressTheme
+                        .colors
+                        .copyWith(color: color)),
+          ),
+        ],
+        brightness: Brightness.dark,
+        sliderTheme: SliderThemeData(
+          trackHeight: 2,
+          activeTrackColor: color.withAlpha(200),
+          thumbColor: color,
+          secondaryActiveTrackColor: color.withAlpha(100),
+          thumbShape: const RoundSliderThumbShape(
+            enabledThumbRadius: 6,
+          ),
+          overlayShape: const RoundSliderOverlayShape(
+            overlayRadius: 12,
+          ),
+        ));
+    // switch (themeText) {
+    //   case "light":
+    //   default:
+    //     color = ThemeUtils.accentToMoonColorDark[accentColor]!;
+    //     token = _darktoken;
+    //     textColor = color.computeLuminance() < .3
+    //         ? MoonColors.light.goku
+    //         : MoonColors.light.bulma;
+    //     selectedTextColor = color.computeLuminance() < .3
+    //         ? MoonColors.dark.goku
+    //         : MoonColors.dark.bulma;
+    //     return ThemeData.dark(useMaterial3: true).copyWith(
+    //         extensions: <ThemeExtension<dynamic>>[
+    //           MoonTheme(
+    //             tokens: token,
+    //             segmentedControlTheme: MoonSegmentedControlTheme(tokens: token)
+    //                 .copyWith(
+    //                     colors: MoonSegmentedControlTheme(tokens: token)
+    //                         .colors
+    //                         .copyWith(
+    //                             selectedSegmentColor: selectedTextColor,
+    //                             selectedTextColor: textColor,
+    //                             backgroundColor: color,
+    //                             textColor: textColor)),
+    //             switchTheme: MoonSwitchTheme(tokens: token).copyWith(
+    //                 colors: MoonSwitchTheme(tokens: token)
+    //                     .colors
+    //                     .copyWith(activeTrackColor: color)),
+    //             chipTheme: MoonChipTheme(tokens: token).copyWith(
+    //                 colors: MoonChipTheme(tokens: token).colors.copyWith(
+    //                     activeBackgroundColor: color, activeColor: textColor)),
+    //             dotIndicatorTheme: MoonDotIndicatorTheme(tokens: token)
+    //                 .copyWith(
+    //                     colors: MoonDotIndicatorTheme(tokens: token)
+    //                         .colors
+    //                         .copyWith(selectedColor: color)),
+    //             tabBarTheme: MoonTheme(tokens: token).tabBarTheme.copyWith(
+    //                 colors:
+    //                     MoonTheme(tokens: token).tabBarTheme.colors.copyWith(
+    //                           selectedPillTabColor: color,
+    //                           indicatorColor: color,
+    //                           selectedTextColor: color,
+    //                         )),
+    //             circularLoaderTheme: MoonTheme(tokens: token)
+    //                 .circularLoaderTheme
+    //                 .copyWith(
+    //                     colors: MoonTheme(tokens: token)
+    //                         .circularLoaderTheme
+    //                         .colors
+    //                         .copyWith(color: color)),
+    //             circularProgressTheme: MoonTheme(tokens: token)
+    //                 .circularProgressTheme
+    //                 .copyWith(
+    //                     colors: MoonTheme(tokens: token)
+    //                         .circularProgressTheme
+    //                         .colors
+    //                         .copyWith(color: color)),
+    //           ),
+    //         ],
+    //         brightness: Brightness.dark,
+    //         sliderTheme: SliderThemeData(
+    //           trackHeight: 2,
+    //           activeTrackColor: color.withAlpha(200),
+    //           thumbColor: color,
+    //           secondaryActiveTrackColor: color.withAlpha(100),
+    //           thumbShape: const RoundSliderThumbShape(
+    //             enabledThumbRadius: 6,
+    //           ),
+    //           overlayShape: const RoundSliderOverlayShape(
+    //             overlayRadius: 12,
+    //           ),
+    //         ));
+    // }
   }
 
   ThemeMode get theme {

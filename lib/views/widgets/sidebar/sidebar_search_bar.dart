@@ -31,7 +31,7 @@ class SideBarSearchBar extends StatelessWidget {
         ),
         onSubmitted: onsubmitted,
         onChanged: onChanged,
-        hintText: '搜索',
+        hintText: 'Search',
         style: const TextStyle(
           fontSize: 14,
         ),

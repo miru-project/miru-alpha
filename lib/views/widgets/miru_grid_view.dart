@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
+import 'package:moon_design/moon_design.dart';
 
 class MiruGridView extends StatelessWidget {
   const MiruGridView(
@@ -22,7 +22,7 @@ class MiruGridView extends StatelessWidget {
     final EdgeInsets padding = MediaQuery.paddingOf(context);
 
     return Container(
-        color: ThemeUtils.getBackgroundColor(context),
+        color: context.moonTheme?.textInputTheme.colors.backgroundColor,
         child: PlatformWidget(
           mobileWidget: GridView.builder(
             padding: EdgeInsets.fromLTRB(8, (8 + padding.top), 8, 190),

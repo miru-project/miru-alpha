@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
+import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
@@ -21,7 +22,7 @@ class ExtensionPage extends StatefulHookConsumerWidget {
 class _ExtensionPageState extends ConsumerState<ExtensionPage> {
   // const ExtensionPage({super.key});
   static const List<String> _types = ['', 'bangumi', 'manga', 'fikushon'];
-  static const _categories = ['狀態', '分類', '倉庫', '語言'];
+  static const _categories = ['Status', 'Type', 'Repo', 'Language'];
   late final SnappingSheetController snappingController;
 
   @override
@@ -49,10 +50,10 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     return MiruScaffold(
       scrollController: scrollController,
       snappingSheetController: snappingController,
-      sidebar: MediaQuery.of(context).size.width < 800
+      sidebar: DeviceUtil.isMobileLayout(context)
           //mobile
           ? <Widget>[
-              const SideBarListTitle(title: '擴展'),
+              const SideBarListTitle(title: 'Extension'),
               SideBarSearchBar(
                 onChanged: filterExtensionListWithName,
               ),
@@ -86,7 +87,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                     controller: controller,
                     children: [
                       CategoryGroup(
-                        items: const ['已安裝', '未安裝'],
+                        items: const ['Installed', 'Not installed'],
                         onpress: (val) {
                           final filtered = fetchedRepo.value.where((element) {
                             return ExtensionUtils.runtimes
@@ -106,7 +107,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                         },
                       ),
                       CategoryGroup(
-                          items: const ['全部', '影視', '漫畫', '小說'],
+                          items: const ['ALL', 'Video', 'Manga', 'Novel'],
                           onpress: (val) {
                             final filtered = fetchedRepo.value.where((element) {
                               return val == 0 ||
@@ -114,22 +115,22 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                             }).toList();
                             extensionList.value = filtered;
                           }),
-                      CategoryGroup(items: const ['全部'], onpress: (val) {}),
-                      CategoryGroup(items: const ['全部'], onpress: (val) {})
+                      CategoryGroup(items: const ['ALL'], onpress: (val) {}),
+                      CategoryGroup(items: const ['ALL'], onpress: (val) {})
                     ],
                   )),
             ]
           : <Widget>[
-              const SideBarListTitle(title: '擴展'),
+              const SideBarListTitle(title: 'Extneion'),
               SideBarSearchBar(
                 onChanged: filterExtensionListWithName,
               ),
               const SizedBox(height: 10),
               SidebarExpander(
-                title: "状态",
+                title: 'Status',
                 child: CategoryGroup(
                   needSpacer: false,
-                  items: const ['已安裝', '未安裝'],
+                  items: const ['Installed', 'Not installed'],
                   onpress: (val) {
                     final filtered = fetchedRepo.value.where((element) {
                       return ExtensionUtils.runtimes
@@ -149,10 +150,10 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                 ),
               ),
               SidebarExpander(
-                  title: '分類',
+                  title: 'Type',
                   child: CategoryGroup(
                       needSpacer: false,
-                      items: const ['全部', '影視', '漫畫', '小說'],
+                      items: const ['ALL', 'Video', 'Manga', 'Novel'],
                       onpress: (val) {
                         final filtered = fetchedRepo.value.where((element) {
                           return val == 0 || element.type.contains(_types[val]);
@@ -160,16 +161,16 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                         extensionList.value = filtered;
                       })),
               SidebarExpander(
-                  title: '倉庫',
+                  title: 'Repo',
                   child: CategoryGroup(
                       needSpacer: false,
-                      items: const ['全部'],
+                      items: const ['ALL'],
                       onpress: (val) {})),
               SidebarExpander(
-                  title: '語言',
+                  title: 'Language',
                   child: CategoryGroup(
                       needSpacer: false,
-                      items: const ['全部'],
+                      items: const ['ALL'],
                       onpress: (val) {})),
             ],
       body: LayoutBuilder(
@@ -200,11 +201,13 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                         itemCount: extensionList.value.length,
                       ),
                       mobileWidget: EasyRefresh(
+                          scrollController: scrollController,
                           onRefresh: () {
                             ref.invalidate(fetchExtensionRepoProvider);
                             ref.read(fetchExtensionRepoProvider);
                           },
                           child: MiruListView.builder(
+                            controller: scrollController,
                             itemBuilder: (context, index) {
                               final data = value[index];
                               return _ExtensionTile(data: data);
@@ -236,8 +239,8 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
 
 class _ExtensionTile extends HookWidget {
   final GithubExtension data;
-  final bool isInstalled;
-  const _ExtensionTile({required this.data, this.isInstalled = false});
+  // final bool isInstalled;
+  const _ExtensionTile({required this.data});
   Future<void> install(String package, BuildContext context) async {
     try {
       final url = MiruStorage.getSettingSync(SettingKey.miruRepoUrl, String) +
@@ -258,7 +261,8 @@ class _ExtensionTile extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final installed = useState(isInstalled);
+    final installed =
+        useState(ExtensionUtils.runtimes.containsKey(data.package));
     return PlatformWidget(
       mobileWidget: MoonMenuItem(
         onTap: () {},
@@ -267,8 +271,9 @@ class _ExtensionTile extends HookWidget {
             if (ExtensionUtils.runtimes.containsKey(data.package) ||
                 installed.value)
               MoonButton(
-                onTap: () {
-                  uninstall(data.package);
+                onTap: () async {
+                  await uninstall(data.package);
+                  installed.value = false;
                 },
                 leading: const Icon(MoonIcons.generic_delete_24_regular),
               )
@@ -276,6 +281,7 @@ class _ExtensionTile extends HookWidget {
               MoonButton(
                 onTap: () async {
                   await install(data.package, context);
+                  installed.value = true;
                 },
                 leading: const Icon(MoonIcons.generic_download_24_regular),
               )
@@ -303,17 +309,19 @@ class _ExtensionTile extends HookWidget {
         label: Text(data.name),
       ),
       desktopWidget: ExtensionGridTile(
-        isInstalled: ExtensionUtils.runtimes.containsKey(data.package),
+        isInstalled: installed.value,
         name: data.name,
         version: data.version,
         author: data.author,
         type: data.type,
         icon: data.icon,
-        onInstall: () {
+        onInstall: () async {
           install(data.package, context);
+          installed.value = true;
         },
-        onUninstall: () {
-          uninstall(data.package);
+        onUninstall: () async {
+          await uninstall(data.package);
+          installed.value = false;
         },
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_app_new/utils/device_util.dart';
 
 class PlatformWidget extends StatelessWidget {
   const PlatformWidget({
@@ -14,7 +15,7 @@ class PlatformWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (MediaQuery.of(context).size.width < 800) {
+        if (DeviceUtil.isMobileLayout(context)) {
           return mobileWidget;
         }
         return desktopWidget;

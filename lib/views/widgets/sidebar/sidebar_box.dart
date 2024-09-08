@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_app_new/utils/device_util.dart';
 
 class SidebarBox extends StatelessWidget {
   const SidebarBox({
@@ -11,11 +12,9 @@ class SidebarBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 230,
+      width: DeviceUtil.getWidth(context) * .125,
       decoration: BoxDecoration(
-        color: MediaQuery.of(context).platformBrightness == Brightness.light
-            ? Colors.black.withAlpha(10)
-            : Colors.black.withAlpha(10),
+        color: Colors.black.withAlpha(10),
         border: const Border(
           right: BorderSide(color: Colors.black12, width: 0.5),
         ),

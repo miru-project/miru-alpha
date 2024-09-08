@@ -142,6 +142,7 @@ class ExtensionGridTile extends StatelessWidget {
                       if (icon != null)
                         ExtendedImage.network(
                           icon!,
+                          cache: true,
                           width: 50,
                           height: 50,
                           fit: BoxFit.cover,
@@ -178,17 +179,20 @@ class ExtensionGridTile extends StatelessWidget {
               children: [
                 Text(
                   version,
-                  style: const TextStyle(
-                    color: Colors.grey,
+                  style: TextStyle(
+                    color: context.moonTheme?.textInputTheme.colors.textColor,
                   ),
                 ),
                 Row(children: [
                   if (isInstalled)
-                    Button(
-                        onPressed: onUninstall, child: const Text('Uninstall')),
-                  Button(
-                    onPressed: onInstall,
-                    child: const Text('Install'),
+                    MoonButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        onTap: onUninstall,
+                        label: const Text('Uninstall')),
+                  MoonButton(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    onTap: onInstall,
+                    label: const Text('Install'),
                   )
                 ])
               ],

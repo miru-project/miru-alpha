@@ -12,6 +12,7 @@ import 'package:miru_app_new/provider/watch/video_player_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
+import 'package:miru_app_new/views/widgets/index.dart';
 
 import 'package:moon_design/moon_design.dart';
 import 'package:screen_brightness/screen_brightness.dart';
@@ -284,7 +285,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                     )),
           Material(
             color: Colors.transparent,
-            child: _DesktopFooter(),
+            child: Blur(child: _DesktopFooter()),
           )
         ],
       );
@@ -520,7 +521,7 @@ class _HeaderState extends ConsumerState<_Header> {
     final epNotifier = ref.watch(_episodeNotifierProvider);
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor.withAlpha(220),
+        color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
         borderRadius: const BorderRadius.vertical(
           bottom: Radius.circular(20),
         ),
@@ -531,52 +532,55 @@ class _HeaderState extends ConsumerState<_Header> {
           ),
         ],
       ),
-      child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: DeviceUtil.isMobile
-                    ? buildcontent(epNotifier)
-                    : DragToMoveArea(
-                        child: buildcontent(epNotifier),
+      child: Blur(
+          child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DeviceUtil.isMobile
+                        ? buildcontent(epNotifier)
+                        : DragToMoveArea(
+                            child: buildcontent(epNotifier),
+                          ),
+                  ),
+                  // 置顶
+                  if (!DeviceUtil.isMobile) ...[
+                    IconButton(
+                      icon: Icon(
+                        _isAlwaysOnTop
+                            ? Icons.push_pin_outlined
+                            : Icons.push_pin,
                       ),
-              ),
-              // 置顶
-              if (!DeviceUtil.isMobile) ...[
-                IconButton(
-                  icon: Icon(
-                    _isAlwaysOnTop ? Icons.push_pin_outlined : Icons.push_pin,
+                      onPressed: () async {
+                        WindowManager.instance.setAlwaysOnTop(
+                          !_isAlwaysOnTop,
+                        );
+                        setState(() {
+                          _isAlwaysOnTop = !_isAlwaysOnTop;
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 10),
+                    IconButton(
+                      icon: const Icon(
+                        MoonIcons.controls_minus_24_regular,
+                      ),
+                      onPressed: () {
+                        WindowManager.instance.minimize();
+                      },
+                    )
+                  ],
+                  const SizedBox(width: 10),
+                  IconButton(
+                    onPressed: widget.onClose,
+                    iconSize: widget.iconSize,
+                    icon: const Icon(
+                      MoonIcons.controls_chevron_down_24_regular,
+                    ),
                   ),
-                  onPressed: () async {
-                    WindowManager.instance.setAlwaysOnTop(
-                      !_isAlwaysOnTop,
-                    );
-                    setState(() {
-                      _isAlwaysOnTop = !_isAlwaysOnTop;
-                    });
-                  },
-                ),
-                const SizedBox(width: 10),
-                IconButton(
-                  icon: const Icon(
-                    MoonIcons.controls_minus_24_regular,
-                  ),
-                  onPressed: () {
-                    WindowManager.instance.minimize();
-                  },
-                )
-              ],
-              const SizedBox(width: 10),
-              IconButton(
-                onPressed: widget.onClose,
-                iconSize: widget.iconSize,
-                icon: const Icon(
-                  MoonIcons.controls_chevron_down_24_regular,
-                ),
-              ),
-            ],
-          )),
+                ],
+              ))),
     );
   }
 }
@@ -604,14 +608,14 @@ class _DesktopFooter extends HookConsumerWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor.withAlpha(220),
+        color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(30),
         ),
         boxShadow: [
           BoxShadow(
             blurRadius: 25,
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withAlpha(30),
           ),
         ],
       ),
@@ -627,7 +631,7 @@ class _DesktopFooter extends HookConsumerWidget {
       //   ),
       // ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Column(
+      child: (Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           _SeekBar(),
@@ -767,7 +771,7 @@ class _DesktopFooter extends HookConsumerWidget {
             ],
           ),
         ],
-      ),
+      )),
     );
   }
 }
