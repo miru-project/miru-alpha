@@ -42,7 +42,7 @@ class SettingItems extends ConsumerWidget {
         //     debugPrint(value);
         //   },
         // ),
-        const SizedBox(height: 16),
+        // const SizedBox(height: 16),
         SettingsInputTile(
             title: "repo-link",
             subtitle: 'repo-link-subtitle',
@@ -74,6 +74,15 @@ class SettingItems extends ConsumerWidget {
             onChanged: (value) {
               MiruStorage.setSettingSync(
                   SettingKey.enableNSFW, value.toString());
+            }),
+        SettingsToggleTile(
+            title: 'mobile-title-position',
+            subtitle: 'mobile-title-position-subtitle',
+            value:
+                MiruStorage.getSettingSync(SettingKey.mobiletitleIsonTop, bool),
+            onChanged: (value) {
+              MiruStorage.setSettingSync(
+                  SettingKey.mobiletitleIsonTop, value.toString());
             }),
         SettingSegmentControll(
           title: 'theme',

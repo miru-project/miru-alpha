@@ -112,41 +112,39 @@ class _MainPageState extends ConsumerState<MainPage>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              left: Platform.isMacOS ? 70 : 20,
-                            ),
-                            child: Row(
-                              children: [
-                                Button(
-                                  onPressed: () {
-                                    context.pop();
-                                  },
-                                  trailing: [
-                                    Icon(
+                        SizedBox(
+                            width: 230,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                left: Platform.isMacOS ? 70 : 20,
+                              ),
+                              child: Row(
+                                children: [
+                                  MoonButton(
+                                    onTap: () {
+                                      context.pop();
+                                    },
+                                    leading: Icon(
                                       Icons.chevron_left,
                                       color: context.moonTheme?.textAreaTheme
                                           .colors.textColor,
                                     ),
-                                  ],
-                                  child: Text(
-                                    "Miru",
-                                    style: TextStyle(
-                                        color: context.moonTheme?.textAreaTheme
-                                            .colors.textColor,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        decoration: TextDecoration.none),
+                                    label: Text(
+                                      "Miru",
+                                      style: TextStyle(
+                                          color: context.moonTheme
+                                              ?.textAreaTheme.colors.textColor,
+                                          fontSize: 25,
+                                          fontWeight: FontWeight.bold,
+                                          decoration: TextDecoration.none),
+                                    ),
                                   ),
-                                ),
-                                const Expanded(
-                                  child: DragToMoveArea(
-                                    child: SizedBox.expand(),
-                                  ),
-                                )
-                              ],
-                            ),
+                                ],
+                              ),
+                            )),
+                        const Expanded(
+                          child: DragToMoveArea(
+                            child: SizedBox.expand(),
                           ),
                         ),
                         for (var i = 0; i < _navItems.length; i++) ...[

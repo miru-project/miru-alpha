@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
 
@@ -10,12 +11,14 @@ class MiruScaffold extends StatefulHookWidget {
       required this.body,
       this.sidebar,
       this.snappingSheetController,
+      this.mobileHeader,
       this.scrollController});
   final PreferredSizeWidget? appBar;
   final Widget body;
   final List<Widget>? sidebar;
   final ScrollController? scrollController;
   final SnappingSheetController? snappingSheetController;
+  final Widget? mobileHeader;
   @override
   State<MiruScaffold> createState() => _MiruScaffoldState();
 }
@@ -80,13 +83,21 @@ class _MiruScaffoldState extends State<MiruScaffold> {
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
               children: [
                 _GrabbingWidget(),
+                if (widget.mobileHeader != null &&
+                    !MiruStorage.getSettingSync(
+                        SettingKey.mobiletitleIsonTop, bool))
+                  widget.mobileHeader!,
                 ...widget.sidebar!,
               ],
             ),
           ),
         ),
       ),
-      child: widget.body,
+      child: Column(children: [
+        if (MiruStorage.getSettingSync(SettingKey.mobiletitleIsonTop, bool))
+          const SizedBox(height: 50),
+        Expanded(child: widget.body)
+      ]),
     );
   }
 
@@ -95,7 +106,12 @@ class _MiruScaffoldState extends State<MiruScaffold> {
     return PlatformWidget(
       mobileWidget: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: widget.appBar,
+        appBar: MiruStorage.getSettingSync(SettingKey.mobiletitleIsonTop, bool)
+            ? AppBar(
+                automaticallyImplyLeading: false,
+                title: widget.mobileHeader,
+              )
+            : null,
         body: widget.sidebar == null ? widget.body : sheet(),
       ),
       desktopWidget: Scaffold(

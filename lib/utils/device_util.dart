@@ -16,14 +16,14 @@ class DeviceUtil {
   }
 
   static T device<T>(
-      {required T mobile, required T desktop, required BuildContext context}) {
+      {required BuildContext context, required T mobile, required T desktop}) {
     return isMobileLayout(context) ? mobile : desktop;
   }
 
-  static Widget deviceWidget(
-      {required Widget Function(Widget buildchild) mobile,
-      required Widget Function(Widget buildchild) desktop,
-      required Widget child,
+  static Y deviceWidget<T, Y>(
+      {required Y Function(T buildchild) mobile,
+      required Y Function(T buildchild) desktop,
+      required T child,
       required BuildContext context}) {
     if (isMobileLayout(context)) {
       return mobile(child);

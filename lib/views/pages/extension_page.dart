@@ -50,10 +50,10 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     return MiruScaffold(
       scrollController: scrollController,
       snappingSheetController: snappingController,
+      mobileHeader: const SideBarListTitle(title: 'Extension'),
       sidebar: DeviceUtil.isMobileLayout(context)
           //mobile
           ? <Widget>[
-              const SideBarListTitle(title: 'Extension'),
               SideBarSearchBar(
                 onChanged: filterExtensionListWithName,
               ),

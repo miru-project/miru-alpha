@@ -40,16 +40,8 @@ class SettingsPage extends HookWidget {
     }
 
     return MiruScaffold(
+      mobileHeader: const SideBarListTitle(title: 'Settings'),
       sidebar: [
-        const SideBarListTitle(title: 'Settings'),
-        // (MoonTabBar(
-        //   tabs: List.generate(
-        //       _categories.length,
-        //       (index) => MoonTab(
-        //           tabStyle:
-        //               MoonTabStyle(tabPadding: EdgeInsets.all(10), tabGap: 0),
-        //           label: Icon(size: 35, _icon[index]))),
-        // ))
         sideBarTile('General', SideBarName.general),
         sideBarTile('Extension', SideBarName.extension),
         sideBarTile('Player', SideBarName.player),

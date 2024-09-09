@@ -377,24 +377,23 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     final snapShot = ref.watch(
         fetchExtensionDetailProvider(widget.extensionService, widget.url));
     return MiruScaffold(
+        mobileHeader: Align(
+            alignment: Alignment.centerLeft,
+            child: MoonButton(
+              label: const Text(
+                'Detail',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              onTap: () {
+                context.pop();
+              },
+              leading: const Icon(MoonIcons.controls_chevron_left_16_regular),
+            )),
         sidebar: DeviceUtil.isMobileLayout(context)
             ? <Widget>[
-                Align(
-                    alignment: Alignment.centerLeft,
-                    child: MoonButton(
-                      label: const Text(
-                        'Detail',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
-                      onTap: () {
-                        context.pop();
-                      },
-                      leading: const Icon(
-                          MoonIcons.controls_chevron_left_16_regular),
-                    )),
                 const SizedBox(height: 10),
                 Row(
                   children: <Widget>[

@@ -136,7 +136,8 @@ class MiruStorage {
     SettingKey.subtitleBackgroundColor: Colors.black.value,
     SettingKey.subtitleBackgroundOpacity: 0.5,
     SettingKey.subtitleTextAlign: TextAlign.center.index,
-    SettingKey.accentColor: "krillin"
+    SettingKey.accentColor: "krillin",
+    SettingKey.mobiletitleIsonTop: false,
   };
   static _initSettings() async {
     //init from default settings
@@ -183,17 +184,17 @@ class MiruStorage {
     throw Exception('Setting $key not found');
   }
 
-  static getSetting(String key, Type type) async {
-    AppSetting? val;
-    await database.writeTxn(() async {
-      val = await _settings.getByKey(key);
-    });
-    if (val == null) {
-      throw Exception('Setting $key not found');
-    }
-    _settingidCache[key] = val!.id;
-    return convertStringToObj(val!.value, type);
-  }
+  // static getSetting(String key, Type type) async {
+  //   AppSetting? val;
+  //   await database.writeTxn(() async {
+  //     val = await _settings.getByKey(key);
+  //   });
+  //   if (val == null) {
+  //     throw Exception('Setting $key not found');
+  //   }
+  //   _settingidCache[key] = val!.id;
+  //   return convertStringToObj(val!.value, type);
+  // }
 
   static T getSettingSync<T>(String key, Type type) {
     // AppSetting? val;
@@ -205,6 +206,11 @@ class MiruStorage {
     // }
     // _settingidCache[key] = val!.id;
     return convertStringToObj(_settingCache[key], type);
+  }
+
+  static ValueNotifier<T> getSettingNotifier<T>(String key, Type type) {
+    final notifier = ValueNotifier<T>(getSettingSync(key, type));
+    return notifier;
   }
 
   static String getUASetting() {
@@ -276,4 +282,5 @@ class SettingKey {
   static const subtitleLastLanguageSelected = "SubtitleLastLanguageSelected";
   static const subtitleLastTitleSelected = "SubtitleLastTitleSelected";
   static const accentColor = "AccentColor";
+  static const mobiletitleIsonTop = "MobileTitleIsOnTop";
 }

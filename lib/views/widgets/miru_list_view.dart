@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
+import 'package:moon_design/moon_design.dart';
 
 class MiruListView extends StatelessWidget {
   const MiruListView(
@@ -50,20 +51,22 @@ class MiruListView extends StatelessWidget {
     }
 
     if (itemBuilder == null) {
-      return PlatformWidget(
-        mobileWidget: ListView(
-          padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 190)
-              .add(padding ?? EdgeInsets.zero)
-              .add(widthPadding),
-          children: children!,
-        ),
-        desktopWidget: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 70, 20, 20)
-              .add(padding ?? EdgeInsets.zero)
-              .add(widthPadding),
-          children: children!,
-        ),
-      );
+      return Container(
+          color: context.moonTheme?.textInputTheme.colors.backgroundColor,
+          child: PlatformWidget(
+            mobileWidget: ListView(
+              padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 190)
+                  .add(padding ?? EdgeInsets.zero)
+                  .add(widthPadding),
+              children: children!,
+            ),
+            desktopWidget: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 70, 20, 20)
+                  .add(padding ?? EdgeInsets.zero)
+                  .add(widthPadding),
+              children: children!,
+            ),
+          ));
     }
 
     return PlatformWidget(

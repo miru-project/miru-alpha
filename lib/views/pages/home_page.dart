@@ -144,19 +144,6 @@ class _HistoryPageState extends State<HistoryPage>
   // late List<History> _history;
   @override
   get wantKeepAlive => true;
-  convertTime(DateTime time) {
-    final now = DateTime.now();
-    final diff = now.difference(time);
-    if (diff.inDays > 0) {
-      return '${diff.inDays} days ago';
-    } else if (diff.inHours > 0) {
-      return '${diff.inHours} hours ago';
-    } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes} minutes ago';
-    } else {
-      return 'Just now';
-    }
-  }
 
   @override
   void initState() {
@@ -286,8 +273,9 @@ class HistoryChangeNotifier with ChangeNotifier {
 }
 
 class FavoritePage extends StatefulHookWidget {
-  const FavoritePage({super.key, required this.selected});
+  const FavoritePage({super.key, required this.selected, required this.search});
   final ValueNotifier<List<int>> selected;
+  final ValueNotifier<String> search;
   @override
   State<StatefulWidget> createState() => _FavoritePageState();
 }
@@ -295,13 +283,20 @@ class FavoritePage extends StatefulHookWidget {
 class _FavoritePageState extends State<FavoritePage>
     with AutomaticKeepAliveClientMixin {
   final ValueNotifier<List<FavoriateGroup>> _favGroup = ValueNotifier([]);
+  // This value only effect by filtering
+  List<Favorite> filterFav = [];
   @override
   get wantKeepAlive => true;
   final ValueNotifier<List<Favorite>> _fav = ValueNotifier([]);
   @override
   void initState() {
     _fav.value = DatabaseService.getAllFavorite();
+    filterFav = _fav.value;
     _favGroup.value = DatabaseService.getAllFavoriteGroup();
+
+    widget.search.addListener(() {
+      _fav.value = filterBySearch(filterFav);
+    });
     //listen to favorite change  and filter by group if changes
     DatabaseService.db.favorites.watchLazy().listen((event) {
       if (widget.selected.value.isEmpty) {
@@ -327,6 +322,16 @@ class _FavoritePageState extends State<FavoritePage>
     super.initState();
   }
 
+  List<Favorite> filterBySearch(List<Favorite> fav) {
+    if (widget.search.value.isEmpty) {
+      return fav;
+    }
+    return filterFav
+        .where((element) =>
+            element.title.toLowerCase().contains(widget.search.value))
+        .toList();
+  }
+
   List<Favorite> filterFavoriteByGroup(List<Favorite> fav) {
     final List<FavoriateGroup> selectedFavGroup =
         widget.selected.value.map((e) => _favGroup.value[e]).toList();
@@ -339,7 +344,11 @@ class _FavoritePageState extends State<FavoritePage>
         DatabaseService.db.favorites.getAllSync(favId.toList()),
         growable: true);
     // result.removeWhere((element) => element == null);
-    return result.whereType<Favorite>().toList();
+    filterFav = result.whereType<Favorite>().toList();
+    if (widget.search.value.isNotEmpty) {
+      return filterBySearch(filterFav);
+    }
+    return filterFav;
   }
 
   @override
@@ -356,7 +365,7 @@ class _FavoritePageState extends State<FavoritePage>
         builder: (context, fav, _) => MiruGridView(
             desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 220,
-              childAspectRatio: 0.65,
+              childAspectRatio: 0.7,
             ),
             mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: DeviceUtil.getWidth(context) ~/ 150,
@@ -387,15 +396,13 @@ class _FavoritePageState extends State<FavoritePage>
 class FavoriteTab extends StatefulHookWidget {
   const FavoriteTab(
       {super.key,
-      required this.isLongPress,
       required this.favGroup,
-      required this.setSelected,
       required this.selected,
       required this.setLongPress});
-  final ValueNotifier<bool> isLongPress;
+
   final ValueNotifier<List<int>> setLongPress;
   final ValueNotifier<List<FavoriateGroup>> favGroup;
-  final ValueNotifier<List<int>> setSelected;
+
   final ValueNotifier<List<int>> selected;
   @override
   State<StatefulWidget> createState() => _FavoriteTabState();
@@ -431,280 +438,264 @@ class _FavoriteTabState extends State<FavoriteTab> {
       }
       errorText.value = null;
     });
+    void showPopUp(List<FavoriateGroup> favGroupValue, int index) {
+      textController.text = favGroupValue[index].name;
+      widget.setLongPress.value = [index];
+    }
+
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
         child: (ValueListenableBuilder(
             valueListenable: widget.favGroup,
             builder: (context, favGroupValue, _) => ValueListenableBuilder(
                 valueListenable: widget.selected,
-                builder: (context, val, _) => Wrap(
-                      spacing: 5,
-                      runSpacing: 10,
-                      children: [
-                        ...List.generate(
-                            favGroupValue.length,
-                            (index) => MoonPopover(
-                                onTapOutside: () {
-                                  widget.setLongPress.value = [];
-                                },
-                                maxWidth: 170,
-                                decoration: BoxDecoration(
-                                    color: context.moonTheme?.chipTheme.colors
-                                        .backgroundColor,
-                                    borderRadius: BorderRadius.circular(10)),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                popoverPosition: MoonPopoverPosition.bottom,
-                                content: Column(
-                                  children: [
-                                    Text('Edit',
-                                        style: TextStyle(
-                                            color: context.moonTheme?.chipTheme
-                                                .colors.textColor,
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: "HarmonyOS_Sans")),
-                                    const SizedBox(height: 20),
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 5),
-                                        child: MoonFormTextInput(
-                                          errorText: errorText.value,
-                                          inactiveBorderColor:
-                                              Colors.transparent,
-                                          hintText: 'Group Name',
-                                          trailing: MoonButton.icon(
-                                              onTap: () {
-                                                textController.clear();
-                                              },
-                                              buttonSize: MoonButtonSize.sm,
-                                              icon: const Icon(MoonIcons
-                                                  .controls_close_24_regular)),
-                                          style: const TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                              fontFamily: "HarmonyOS_Sans"),
-                                          // textInputSize:
-                                          //     MoonTextInputSize.sm,
-                                          controller: textController,
-                                        )),
-                                    // const SizedBox(height: 10),
-                                    Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                builder: (context, val, _) => DeviceUtil.deviceWidget(
+                        child: <Widget>[
+                          ...List.generate(
+                              favGroupValue.length,
+                              (index) => GestureDetector(
+                                  onSecondaryTap: () =>
+                                      showPopUp(favGroupValue, index),
+                                  child: MoonPopover(
+                                      onTapOutside: () {
+                                        widget.setLongPress.value = [];
+                                      },
+                                      maxWidth: 170,
+                                      decoration: BoxDecoration(
+                                          color: context.moonTheme?.chipTheme
+                                              .colors.backgroundColor,
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 20, vertical: 10),
+                                      popoverPosition:
+                                          MoonPopoverPosition.bottom,
+                                      content: Column(
                                         children: [
-                                          MoonButton.icon(
-                                            onTap: () {
-                                              // delete group
-                                              DatabaseService
-                                                  .deleteFavoriteGroup([
-                                                favGroupValue[index].name
-                                              ]);
-                                              if (widget.selected.value
-                                                  .contains(index)) {
-                                                final update =
-                                                    List<int>.from(val);
-                                                update.removeWhere((element) =>
-                                                    element == index);
-                                                widget.selected.value = update;
-                                                widget.setLongPress.value = [];
-                                                return;
-                                              }
-                                              //shift the slected index after delete
-                                              for (int i = 0;
-                                                  i <
-                                                      widget.selected.value
-                                                          .length;
-                                                  i++) {
-                                                if (widget.selected.value[i] >
-                                                    index) {
-                                                  widget.selected.value[i]--;
-                                                }
-                                              }
-
-                                              widget.setLongPress.value = [];
-                                            },
-                                            icon: const Icon(MoonIcons
-                                                .generic_delete_24_light),
-                                            // label: const Text('Remove'),
-                                          ),
-                                          MoonButton.icon(
-                                            iconColor: context
-                                                .moonTheme
-                                                ?.segmentedControlTheme
-                                                .colors
-                                                .backgroundColor,
-                                            icon: const Icon(MoonIcons
-                                                .generic_edit_24_regular),
-                                            onTap: errorText.value == null
-                                                ? () {
-                                                    final oldname =
-                                                        favGroupValue[index]
-                                                            .name;
+                                          Text('Edit',
+                                              style: TextStyle(
+                                                  color: context
+                                                      .moonTheme
+                                                      ?.chipTheme
+                                                      .colors
+                                                      .textColor,
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily:
+                                                      "HarmonyOS_Sans")),
+                                          const SizedBox(height: 20),
+                                          Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 5),
+                                              child: Material(
+                                                  child: MoonFormTextInput(
+                                                errorText: errorText.value,
+                                                inactiveBorderColor:
+                                                    Colors.transparent,
+                                                hintText: 'Group Name',
+                                                trailing: MoonButton.icon(
+                                                    onTap: () {
+                                                      textController.clear();
+                                                    },
+                                                    buttonSize:
+                                                        MoonButtonSize.sm,
+                                                    icon: const Icon(MoonIcons
+                                                        .controls_close_24_regular)),
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontFamily:
+                                                        "HarmonyOS_Sans"),
+                                                controller: textController,
+                                              ))),
+                                          // const SizedBox(height: 10),
+                                          Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                MoonButton.icon(
+                                                  onTap: () {
+                                                    // delete group
                                                     DatabaseService
-                                                        .renameFavoriteGroup(
-                                                            oldname,
-                                                            textController
-                                                                .text);
+                                                        .deleteFavoriteGroup([
+                                                      favGroupValue[index].name
+                                                    ]);
+                                                    if (widget.selected.value
+                                                        .contains(index)) {
+                                                      final update =
+                                                          List<int>.from(val);
+                                                      update.removeWhere(
+                                                          (element) =>
+                                                              element == index);
+                                                      widget.selected.value =
+                                                          update;
+                                                      widget.setLongPress
+                                                          .value = [];
+                                                      return;
+                                                    }
+                                                    //shift the slected index after delete
+                                                    for (int i = 0;
+                                                        i <
+                                                            widget.selected
+                                                                .value.length;
+                                                        i++) {
+                                                      if (widget.selected
+                                                              .value[i] >
+                                                          index) {
+                                                        widget.selected
+                                                            .value[i]--;
+                                                      }
+                                                    }
+
                                                     widget.setLongPress.value =
                                                         [];
-                                                  }
-                                                : null,
-                                          )
-                                        ])
-                                  ],
-                                ),
-                                show: widget.setLongPress.value.contains(index),
-                                child: MoonChip(
-                                  onLongPress: () {
-                                    textController.text =
-                                        favGroupValue[index].name;
-                                    widget.setLongPress.value = [index];
-                                  },
-                                  onTap: () {
-                                    final update = List<int>.from(val);
-                                    if (widget.selected.value.contains(index)) {
-                                      update.remove(index);
-                                      widget.selected.value = update;
-                                      return;
-                                    }
-                                    update.add(index);
-                                    widget.selected.value = update;
-                                  },
-                                  isActive: val.contains(index),
-                                  gap: 5,
-                                  label: Text(favGroupValue[index].name,
-                                      style: const TextStyle(
-                                          fontSize: 15,
+                                                  },
+                                                  icon: const Icon(MoonIcons
+                                                      .generic_delete_24_light),
+                                                  // label: const Text('Remove'),
+                                                ),
+                                                MoonButton.icon(
+                                                  iconColor: context
+                                                      .moonTheme
+                                                      ?.segmentedControlTheme
+                                                      .colors
+                                                      .backgroundColor,
+                                                  icon: const Icon(MoonIcons
+                                                      .generic_edit_24_regular),
+                                                  onTap: errorText.value == null
+                                                      ? () {
+                                                          final oldname =
+                                                              favGroupValue[
+                                                                      index]
+                                                                  .name;
+                                                          DatabaseService
+                                                              .renameFavoriteGroup(
+                                                                  oldname,
+                                                                  textController
+                                                                      .text);
+                                                          widget.setLongPress
+                                                              .value = [];
+                                                        }
+                                                      : null,
+                                                )
+                                              ])
+                                        ],
+                                      ),
+                                      show: widget.setLongPress.value
+                                          .contains(index),
+                                      child: MoonChip(
+                                        onLongPress: () =>
+                                            showPopUp(favGroupValue, index),
+                                        onTap: () {
+                                          final update = List<int>.from(val);
+                                          if (widget.selected.value
+                                              .contains(index)) {
+                                            update.remove(index);
+                                            widget.selected.value = update;
+                                            return;
+                                          }
+                                          update.add(index);
+                                          widget.selected.value = update;
+                                        },
+                                        isActive: val.contains(index),
+                                        gap: 5,
+                                        label: Text(favGroupValue[index].name,
+                                            style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                fontFamily: "HarmonyOS_Sans")),
+                                      )))),
+                          MoonPopover(
+                              popoverPosition: MoonPopoverPosition.bottom,
+                              onTapOutside: () => isShowAddPopUp.value = false,
+                              show: isShowAddPopUp.value,
+                              decoration: BoxDecoration(
+                                  color: context.moonTheme?.chipTheme.colors
+                                      .backgroundColor,
+                                  borderRadius: BorderRadius.circular(10)),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              maxWidth: 170,
+                              content: Column(
+                                children: [
+                                  Text('Add',
+                                      style: TextStyle(
+                                          color: context.moonTheme?.chipTheme
+                                              .colors.textColor,
+                                          fontSize: 17,
                                           fontWeight: FontWeight.bold,
                                           fontFamily: "HarmonyOS_Sans")),
-                                ))),
-                        MoonPopover(
-                            popoverPosition: MoonPopoverPosition.bottom,
-                            onTapOutside: () => isShowAddPopUp.value = false,
-                            show: isShowAddPopUp.value,
-                            decoration: BoxDecoration(
-                                color: context.moonTheme?.chipTheme.colors
-                                    .backgroundColor,
-                                borderRadius: BorderRadius.circular(10)),
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            maxWidth: 170,
-                            content: Column(
-                              children: [
-                                Text('Add',
-                                    style: TextStyle(
-                                        color: context.moonTheme?.chipTheme
-                                            .colors.textColor,
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: "HarmonyOS_Sans")),
-                                const SizedBox(height: 20),
-                                Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5),
-                                    child: MoonFormTextInput(
-                                      errorText: errorText.value,
-                                      inactiveBorderColor: Colors.transparent,
-                                      hintText: 'Group Name',
-                                      trailing: MoonButton.icon(
-                                          onTap: () {
+                                  const SizedBox(height: 20),
+                                  Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 5),
+                                      child: Material(
+                                          child: MoonFormTextInput(
+                                        errorText: errorText.value,
+                                        inactiveBorderColor: Colors.transparent,
+                                        hintText: 'Group Name',
+                                        trailing: MoonButton.icon(
+                                            onTap: () {
+                                              textController.clear();
+                                            },
+                                            buttonSize: MoonButtonSize.sm,
+                                            icon: const Icon(MoonIcons
+                                                .controls_close_24_regular)),
+                                        style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: "HarmonyOS_Sans"),
+                                        // textInputSize:
+                                        //     MoonTextInputSize.sm,
+                                        controller: textController,
+                                      ))),
+                                  // const SizedBox(height: 10),
+                                  MoonButton.icon(
+                                    iconColor: context
+                                        .moonTheme
+                                        ?.segmentedControlTheme
+                                        .colors
+                                        .backgroundColor,
+                                    icon: const Text('Confirm'),
+                                    onTap: errorText.value == null
+                                        ? () {
+                                            DatabaseService.putFavoriteGroup(
+                                                textController.text);
                                             textController.clear();
-                                          },
-                                          buttonSize: MoonButtonSize.sm,
-                                          icon: const Icon(MoonIcons
-                                              .controls_close_24_regular)),
-                                      style: const TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                          fontFamily: "HarmonyOS_Sans"),
-                                      // textInputSize:
-                                      //     MoonTextInputSize.sm,
-                                      controller: textController,
-                                    )),
-                                // const SizedBox(height: 10),
-                                MoonButton.icon(
-                                  iconColor: context
-                                      .moonTheme
-                                      ?.segmentedControlTheme
-                                      .colors
-                                      .backgroundColor,
-                                  icon: const Text('Confirm'),
-                                  onTap: errorText.value == null
-                                      ? () {
-                                          DatabaseService.putFavoriteGroup(
-                                              textController.text);
-                                          textController.clear();
-                                          isShowAddPopUp.value = false;
-                                          context.pop();
-                                        }
-                                      : null,
-                                )
-                              ],
+                                            isShowAddPopUp.value = false;
+                                            context.pop();
+                                          }
+                                        : null,
+                                  )
+                                ],
+                              ),
+                              child: MoonButton(
+                                backgroundColor: context.moonTheme?.chipTheme
+                                    .colors.backgroundColor,
+                                leading: const Icon(
+                                    MoonIcons.controls_plus_24_regular),
+                                onTap: () {
+                                  textController.clear();
+                                  isShowAddPopUp.value = !isShowAddPopUp.value;
+                                },
+                                label: const Text('ADD'),
+                              ))
+                        ],
+                        mobile: (children) => Wrap(
+                              spacing: 5,
+                              runSpacing: 10,
+                              children: children,
                             ),
-                            child: MoonButton(
-                              backgroundColor: context
-                                  .moonTheme?.chipTheme.colors.backgroundColor,
-                              leading: const Icon(
-                                  MoonIcons.controls_plus_24_regular),
-                              onTap: () {
-                                textController.clear();
-                                isShowAddPopUp.value = !isShowAddPopUp.value;
-                              },
-                              label: const Text('ADD'),
-                            ))
-                      ],
-                    ))
-            // => CatergoryGroupChip(
-            //       onLongPress: (p0) {},
-            //       customOnTap: (val) {
-            //         if (widget.isLongPress.value) {
-            //           final update = List<int>.from(widget.setLongPress.value);
-            //           if (widget.setLongPress.value.contains(val[0])) {
-            //             update.remove(val[0]);
-            //             widget.setLongPress.value = update;
-            //             return widget.setSelected.value;
-            //           }
-            //           update.add(val[0]);
-            //           widget.setLongPress.value = update;
-            //           return widget.setSelected.value;
-            //         }
-            //         widget.setSelected.value = val;
-            //         widget.selected.value = val;
-            //         return val;
-            //       },
-            //       customOnLongPress: (p0) {
-            //         if (!widget.isLongPress.value) {
-            //           widget.isLongPress.value = true;
-            //           widget.setLongPress.value = p0;
-            //           return p0;
-            //         }
-            //         return widget.setLongPress.value;
-            //       },
-            //       setLongPress: widget.setLongPress,
-            //       setSelected: widget.setSelected,
-            //       items: favGroupValue.map((e) => e.name).toList(),
-            //       onpress: (val) {},
-            //       initSelected: const [],
-            //       trailing: MoonButton(
-            //         padding: const EdgeInsets.all(2),
-            //         backgroundColor:
-            //             context.moonTheme?.chipTheme.colors.backgroundColor,
-            //         onTap: () {
-            //           showMoonModal(
-            //               context: context,
-            //               builder: (context) {
-            //                 return FavoriteAddGroupDialog(
-            //                   onComplete: (p0) {
-            //                     DatabaseService.putFavoriteGroup(p0);
-            //                   },
-            //                 );
-            //               });
-            //         },
-            //         leading: const Icon(MoonIcons.controls_plus_24_regular),
-            //       ),
-            //     )
-            )));
+                        desktop: (children) => SizedBox(
+                            height: 35,
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: children,
+                            )),
+                        context: context)))));
   }
 }
 
@@ -760,197 +751,194 @@ class _HomePageState extends State<HomePage> {
 
   final historyNotifier = HistoryChangeNotifier();
   final ValueNotifier<List<FavoriateGroup>> favGroup = ValueNotifier([]);
-  final ValueNotifier<List<int>> setLongPress = ValueNotifier([]);
-  final ValueNotifier<List<int>> setSelected = ValueNotifier([]);
   final ValueNotifier<List<int>> selected = ValueNotifier([]);
   @override
   Widget build(BuildContext context) {
+    final currentTab = useState(0);
     final controler = useTabController(initialLength: _categories.length);
-    final isLongPress = useState(false);
+    final search = useState('');
+    final textcontroller = useTextEditingController();
+    controler.addListener(() {
+      currentTab.value = controler.index;
+    });
     final setLongPress = useState(<int>[]);
     return MiruScaffold(
       // appBar: const MiruAppBar(
       //   // title: Text('Home'),
       // ),
-      sidebar: (DeviceUtil.isMobileLayout(context))
-          //mobile
-          ? <Widget>[
-              const SideBarListTitle(
-                title: 'Home',
-                // trailings: [
-                //   if (isLongPress.value) ...[
-                //     MoonButton.icon(
-                //       icon: const Icon(MoonIcons.generic_delete_24_regular),
-                //       onTap: () {
-                //         FavoriteWarningDialog(
-                //           selected: selected,
-                //           setSelected: setSelected,
-                //           setLongPress: setLongPress,
-                //           group: favGroup,
-                //           selectedToDelete: setLongPress,
-                //         );
-                //       },
-                //     ),
-                //     MoonButton.icon(
-                //       icon: const Icon(MoonIcons.controls_close_24_regular),
-                //       onTap: () {
-                //         isLongPress.value = false;
-                //         setLongPress.value = [];
-                //       },
-                //     )
-                //   ]
-                // ],
+      mobileHeader: const SideBarListTitle(
+        title: 'Home',
+      ),
+      sidebar: DeviceUtil.device(context: context, mobile: <Widget>[
+        SideBarSearchBar(
+          controller: textcontroller,
+          trailing: MoonButton.icon(
+            icon: const Icon(MoonIcons.controls_close_24_regular),
+            onTap: () {
+              textcontroller.clear();
+              search.value = '';
+            },
+          ),
+          onChanged: (p0) {
+            search.value = p0;
+          },
+        ),
+        const SizedBox(height: 10),
+        MoonTabBar(
+          tabController: controler,
+          tabs: List.generate(
+            _categories.length,
+            (index) => MoonTab(
+              label: Text(_categories[index]),
+            ),
+          ),
+        ),
+        // const SizedBox(height: 10),
+        SizedBox(
+            height: 300,
+            child: TabBarView(controller: controler, children: <Widget>[
+              DefaultTextStyle(
+                  style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "HarmonyOS_Sans"),
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10),
+                            const Text(
+                              'Time',
+                            ),
+                            CatergoryGroupChip(
+                                maxSelected: 1,
+                                minSelected: 1,
+                                items: const [
+                                  'All',
+                                  '1 day',
+                                  '1 week',
+                                  '1 month'
+                                ],
+                                onpress: (val) {
+                                  _selectedTime = val[0];
+                                  final history = filterByDateAndCategory(
+                                      _times[_selectedTime],
+                                      _types[_selectedType]);
+                                  debugPrint(history.toString());
+                                  historyNotifier.update(history);
+                                },
+                                initSelected: const [0]),
+                            const SizedBox(height: 10),
+                            const Text('Category'),
+                            CatergoryGroupChip(
+                                maxSelected: 1,
+                                minSelected: 1,
+                                items: const ['All', 'Video', 'Comic', 'Novel'],
+                                onpress: (val) {
+                                  _selectedType = val[0];
+                                  final history = filterByDateAndCategory(
+                                      _times[_selectedTime],
+                                      _types[_selectedType]);
+                                  debugPrint(history.toString());
+                                  historyNotifier.update(history);
+                                },
+                                initSelected: const [0]),
+                          ]))),
+              FavoriteTab(
+                selected: selected,
+                favGroup: favGroup,
+                setLongPress: setLongPress,
               ),
-              const SideBarSearchBar(),
-              const SizedBox(height: 10),
-              MoonTabBar(
-                tabController: controler,
-                tabs: List.generate(
-                  _categories.length,
-                  (index) => MoonTab(
-                    label: Text(_categories[index]),
+            ])),
+      ], desktop: <Widget>[
+        const SideBarListTitle(title: 'Home'),
+        const SideBarSearchBar(),
+        const SizedBox(height: 10),
+        if (currentTab.value == 0) ...[
+          SidebarExpander(
+            title: 'Time',
+            expanded: true,
+            child: CategoryGroup(
+                needSpacer: false,
+                items: const ['All', '1 day', '1 week', '1 month'],
+                onpress: (val) {
+                  final history = filterByDateAndCategory(
+                      _times[val], _types[_selectedType]);
+                  debugPrint(history.toString());
+                  historyNotifier.update(history);
+                }),
+          ),
+          const SizedBox(height: 10),
+          SidebarExpander(
+            title: 'Type',
+            expanded: true,
+            child: CategoryGroup(
+                needSpacer: false,
+                items: const ['ALL', 'Video', 'Comic', 'Novel'],
+                onpress: (val) {
+                  final history = filterByDateAndCategory(
+                      _times[_selectedTime], _types[val]);
+                  debugPrint(history.toString());
+                  historyNotifier.update(history);
+                }),
+          ),
+        ] else
+          SidebarExpander(
+              title: 'Favorite',
+              actions: [
+                Button(
+                  onPressed: () {},
+                  child: const Icon(
+                    Icons.add,
+                    size: 15,
                   ),
                 ),
-              ),
-              // const SizedBox(height: 10),
-              SizedBox(
-                  height: 300,
-                  child: TabBarView(controller: controler, children: <Widget>[
-                    DefaultTextStyle(
-                        style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: "HarmonyOS_Sans"),
-                        child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 10),
-                                  const Text(
-                                    'Time',
-                                  ),
-                                  CatergoryGroupChip(
-                                      maxSelected: 1,
-                                      minSelected: 1,
-                                      items: const [
-                                        'All',
-                                        '1 day',
-                                        '1 week',
-                                        '1 month'
-                                      ],
-                                      onpress: (val) {
-                                        _selectedTime = val[0];
-                                        final history = filterByDateAndCategory(
-                                            _times[_selectedTime],
-                                            _types[_selectedType]);
-                                        debugPrint(history.toString());
-                                        historyNotifier.update(history);
-                                      },
-                                      initSelected: const [0]),
-                                  const SizedBox(height: 10),
-                                  const Text('Category'),
-                                  CatergoryGroupChip(
-                                      maxSelected: 1,
-                                      minSelected: 1,
-                                      items: const [
-                                        'All',
-                                        'Video',
-                                        'Comic',
-                                        'Novel'
-                                      ],
-                                      onpress: (val) {
-                                        _selectedType = val[0];
-                                        final history = filterByDateAndCategory(
-                                            _times[_selectedTime],
-                                            _types[_selectedType]);
-                                        debugPrint(history.toString());
-                                        historyNotifier.update(history);
-                                      },
-                                      initSelected: const [0]),
-                                ]))),
-                    FavoriteTab(
-                      selected: selected,
-                      setSelected: setSelected,
-                      favGroup: favGroup,
-                      setLongPress: setLongPress,
-                      isLongPress: isLongPress,
-                    ),
-                  ])),
-            ]
-          : <Widget>[
-              const SideBarListTitle(title: 'Home'),
-              const SideBarSearchBar(),
-              const SizedBox(height: 10),
-              SidebarExpander(
-                title: 'History',
-                expanded: true,
-                child: CategoryGroup(
-                    needSpacer: false, items: const ['ALL'], onpress: (val) {}),
-              ),
-              SidebarExpander(
-                title: 'Type',
-                expanded: true,
-                child: CategoryGroup(
-                    needSpacer: false,
-                    items: const ['ALL', 'Video', 'Comic', 'Novel'],
-                    onpress: (val) {}),
-              ),
-              const SizedBox(height: 10),
-              SidebarExpander(
-                title: 'Favorite',
-                actions: [
-                  Button(
-                    onPressed: () {},
-                    child: const Icon(
-                      Icons.add,
-                      size: 15,
-                    ),
-                  ),
-                ],
-                expanded: true,
-                child: CategoryGroup(
-                    needSpacer: false, items: const ['ALL'], onpress: (val) {}),
-              ),
-            ],
+              ],
+              expanded: true,
+              child: Container()),
+        const SizedBox(height: 10),
+      ]),
       body: PlatformWidget(
         mobileWidget: TabBarView(controller: controler, children: <Widget>[
           HistoryPage(historyNotifier: historyNotifier),
-          FavoritePage(selected: selected),
+          FavoritePage(selected: selected, search: search),
         ]),
         desktopWidget: LayoutBuilder(
-            builder: (context, cons) => Column(
+            builder: (context, cons) => Container(
+                color: context.moonTheme?.textInputTheme.colors.backgroundColor,
+                child: Column(
                   children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
                     Center(
-                        child: MoonTabBar.pill(
+                        child: MoonTabBar(
                             tabController: controler,
-                            pillTabs: List.generate(
+                            tabs: List.generate(
                                 _categories.length,
-                                (index) => MoonPillTab(
-                                    tabStyle: MoonPillTabStyle(
-                                        selectedTextColor: context
-                                            .moonTheme
-                                            ?.segmentedControlTheme
-                                            .colors
-                                            .selectedSegmentColor,
-                                        textStyle:
-                                            const TextStyle(fontSize: 20)),
+                                (index) => MoonTab(
+                                    tabStyle: const MoonTabStyle(
+                                        indicatorHeight: 3,
+                                        textStyle: TextStyle(fontSize: 20)),
                                     label: Text(_categories[index]))))),
+                    if (currentTab.value == 1)
+                      FavoriteTab(
+                          favGroup: favGroup,
+                          selected: selected,
+                          setLongPress: setLongPress),
                     const SizedBox(
-                      height: 20,
+                      height: 10,
                     ),
                     Expanded(
                         child: TabBarView(
                             controller: controler,
                             children: <Widget>[
                           HistoryPage(historyNotifier: historyNotifier),
-                          FavoritePage(selected: selected),
+                          FavoritePage(
+                            selected: selected,
+                            search: search,
+                          ),
                         ]))
                   ],
-                )),
+                ))),
       ),
     );
   }
