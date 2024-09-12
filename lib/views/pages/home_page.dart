@@ -785,27 +785,59 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final currentTab = useState(0);
-    final controler = useTabController(initialLength: _categories.length);
+    final tabcontroller = useTabController(initialLength: _categories.length);
     final search = useState('');
     final anilistCurrentStatus = useState(_anilistStatus[0]);
     final textcontroller = useTextEditingController();
     final aniListisAnime = useState(true);
-    controler.addListener(() {
-      currentTab.value = controler.index;
+    tabcontroller.addListener(() {
+      currentTab.value = tabcontroller.index;
     });
     final setLongPress = useState(<int>[]);
     return MiruScaffold(
       // appBar: const MiruAppBar(
       //   // title: Text('Home'),
       // ),
-      mobileHeader: const SideBarListTitle(
-        title: 'Home',
+      mobileHeader: SideBarListTitle(
+        title: (tabcontroller.index == 2) ? 'Anilist' : 'Home',
       ),
       sidebar: DeviceUtil.device(context: context, mobile: <Widget>[
-        buildHomeSearchBar(textcontroller, search),
+        if (tabcontroller.index == 2)
+          ListenableBuilder(
+              listenable: _notifer,
+              builder: (context, _) {
+                if (!_notifer.anilistIsLogin) {
+                  return const SizedBox(
+                    height: 40,
+                  );
+                }
+                return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ExtendedImage.network(
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.circular(10),
+                              width: 40,
+                              height: 40,
+                              _notifer.anilistUserData.userData["UserAvatar"]),
+                          const SizedBox(width: 10),
+                          Text(
+                            _notifer.anilistUserData.userData["User"],
+                            style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "HarmonyOS_Sans"),
+                          )
+                        ]));
+              })
+        else
+          buildHomeSearchBar(textcontroller, search),
+
         const SizedBox(height: 10),
         MoonTabBar(
-          tabController: controler,
+          tabController: tabcontroller,
           tabs: List.generate(
             _categories.length,
             (index) => MoonTab(
@@ -816,7 +848,7 @@ class _HomePageState extends State<HomePage> {
         // const SizedBox(height: 10),
         SizedBox(
             height: 300,
-            child: TabBarView(controller: controler, children: <Widget>[
+            child: TabBarView(controller: tabcontroller, children: <Widget>[
               DefaultTextStyle(
                   style: const TextStyle(
                       fontSize: 15,
@@ -870,7 +902,42 @@ class _HomePageState extends State<HomePage> {
                 favGroup: favGroup,
                 setLongPress: setLongPress,
               ),
-              Container()
+              Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: DefaultTextStyle(
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: "HarmonyOS_Sans"),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10),
+                            const Text(
+                              'Anilist',
+                            ),
+                            CatergoryGroupChip(
+                                maxSelected: 1,
+                                minSelected: 1,
+                                items: const ['Anime', 'Manga'],
+                                onpress: (val) {
+                                  aniListisAnime.value = val[0] == 0;
+                                },
+                                initSelected: const [0]),
+                            const SizedBox(height: 10),
+                            const Text(
+                              'Anilist Status',
+                            ),
+                            CatergoryGroupChip(
+                                maxSelected: 1,
+                                minSelected: 1,
+                                items: _anilistStatus,
+                                onpress: (val) {
+                                  anilistCurrentStatus.value =
+                                      _anilistStatus[val[0]];
+                                },
+                                initSelected: const [0])
+                          ])))
             ])),
       ], desktop: <Widget>[
         const SideBarListTitle(title: 'Home'),
@@ -931,10 +998,12 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 10),
       ]),
       body: PlatformWidget(
-        mobileWidget: TabBarView(controller: controler, children: <Widget>[
+        mobileWidget: TabBarView(controller: tabcontroller, children: <Widget>[
           HistoryPage(historyNotifier: historyNotifier),
           FavoritePage(selected: selected, search: search),
-          Container(),
+          _AnilistHomePage(
+              anilistStatus: anilistCurrentStatus,
+              anilistisAnime: aniListisAnime),
         ]),
         desktopWidget: LayoutBuilder(
             builder: (context, cons) => Container(
@@ -955,7 +1024,7 @@ class _HomePageState extends State<HomePage> {
                                 padding:
                                     const EdgeInsets.fromLTRB(12, 5, 12, 7),
                                 child: MoonTabBar(
-                                    tabController: controler,
+                                    tabController: tabcontroller,
                                     tabs: List.generate(
                                         _categories.length,
                                         (index) => MoonTab(
@@ -1000,7 +1069,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Expanded(
                         child: TabBarView(
-                            controller: controler,
+                            controller: tabcontroller,
                             children: <Widget>[
                           HistoryPage(historyNotifier: historyNotifier),
                           FavoritePage(
@@ -1054,7 +1123,7 @@ class _AnilistHomePageState extends ConsumerState<_AnilistHomePage>
               child: CircularProgressIndicator(),
             );
           }
-          // debugPrint(notifer.anilistUserData.animeData.toString());
+          debugPrint(_notifer.anilistUserData.userData.toString());
           // debugPrint(notifer.anilistUserData.animeData["CURRENT"].toString());
           return ValueListenableBuilder(
               valueListenable: widget.anilistisAnime,

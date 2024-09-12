@@ -14,6 +14,7 @@ import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 
 import 'package:miru_app_new/utils/extension/extension_service.dart';
+import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/widgets/dialog/favorite_add_group_dialog.dart';
 import 'package:miru_app_new/views/widgets/dialog/favorite_warning_dialog.dart';
@@ -378,6 +379,8 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     final tancontroller = useTabController(initialLength: _trackingTab.length);
     final snapShot = ref.watch(
         fetchExtensionDetailProvider(widget.extensionService, widget.url));
+    final isdropDown = useState(false);
+    final epGroup = useState(<ExtensionEpisodeGroup>[]);
     return MiruScaffold(
         mobileHeader: Align(
             alignment: Alignment.centerLeft,
@@ -437,6 +440,64 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                               },
                         label: const Text('play'),
                         leading: const Icon(MoonIcons.media_play_24_regular)),
+                    SizedBox(
+                        width: DeviceUtil.getWidth(context) / 3,
+                        child: MoonDropdown(
+                            dropdownAnchorPosition:
+                                MoonDropdownAnchorPosition.top,
+                            show: isdropDown.value,
+                            content: Column(
+                              children: List.generate(
+                                  epGroup.value.length,
+                                  (index) => MoonMenuItem(
+                                        backgroundColor:
+                                            index == _selectedGroup.value
+                                                ? context
+                                                    .moonTheme
+                                                    ?.segmentedControlTheme
+                                                    .colors
+                                                    .backgroundColor
+                                                : null,
+                                        label: Text(
+                                          overflow: TextOverflow.ellipsis,
+                                          epGroup.value[index].title,
+                                          style: TextStyle(
+                                              color: index ==
+                                                      _selectedGroup.value
+                                                  ? context
+                                                      .moonTheme
+                                                      ?.segmentedControlTheme
+                                                      .colors
+                                                      .textColor
+                                                  : null),
+                                        ),
+                                        onTap: () {
+                                          _selectedGroup.value = index;
+                                          isdropDown.value = false;
+                                        },
+                                      )),
+                            ),
+                            child: MoonButton(
+                              label: Text(
+                                  overflow: TextOverflow.ellipsis,
+                                  epGroup.value.isEmpty
+                                      ? 'No Season'
+                                      : epGroup
+                                          .value[_selectedGroup.value].title),
+                              onTap: () {
+                                isdropDown.value = !isdropDown.value;
+                              },
+                            ))),
+                    MoonButton(
+                      label: const Text('WebView'),
+                      onTap: () {
+                        context.push('/mobileWebView',
+                            extra: WebviewParam(
+                                url: widget.url,
+                                service: widget.extensionService));
+                      },
+                      leading: const Icon(MoonIcons.generic_globe_24_regular),
+                    )
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -462,6 +523,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
             : null,
         body: snapShot.when(
           data: (data) {
+            epGroup.value = data.episodes ?? [];
             return MediaQuery.removePadding(
               context: context,
               child: PlatformWidget(
@@ -841,23 +903,6 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                                           detail: detail!,
                                           detailUrl: detailUrl!,
                                         ));
-                                // if (detail == null || detailUrl == null) {
-                                //   return;
-                                // }
-                                // if (_favoriteNotifer.favorite == null) {
-                                //   //add to favorite
-                                //   final fav = DatabaseService.putFavorite(
-                                //       detailUrl!,
-                                //       detail!,
-                                //       extensionService.extension.package,
-                                //       extensionService.extension.type);
-                                //   _favoriteNotifer.putFavorite(fav);
-                                //   return;
-                                // }
-                                // //remove from favorite
-                                // DatabaseService.deleteFavorite(detailUrl!,
-                                //     extensionService.extension.package);
-                                // _favoriteNotifer.putFavorite(null);
                               },
                             ))
                   ])
@@ -868,13 +913,6 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
     );
   }
 }
-
-// class FavoriteChip{
-//   final String name;
-//   final bool isSelected;
-//   final bool isSelectedLongPress;
-//   const FavoriteChip({required this.name, required this.isSelected, required this.isSelectedLongPress});
-// }
 
 class _FavoriteDialog extends StatefulHookWidget {
   const _FavoriteDialog(

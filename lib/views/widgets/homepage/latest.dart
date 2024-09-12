@@ -122,7 +122,7 @@ class _LatestState extends ConsumerState<Latest> {
                                 subtitle: data[index].update ?? "",
                                 imageUrl: data[index].cover,
                                 onTap: () {
-                                  context.go('/search/detail',
+                                  context.push('/search/detail',
                                       extra: DetailParam(
                                           service: widget.extensionService,
                                           url: data[index].url));
@@ -300,7 +300,7 @@ class _LatestState extends ConsumerState<Latest> {
                     subtitle: data[index].update ?? "",
                     imageUrl: data[index].cover,
                     onTap: () {
-                      context.go('/search/detail',
+                      context.push('/search/detail',
                           extra: DetailParam(
                               service: widget.extensionService,
                               url: data[index].url));

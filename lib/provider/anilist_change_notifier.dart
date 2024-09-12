@@ -5,6 +5,7 @@ import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/tracking/anilist_provider.dart';
+import 'package:go_router/go_router.dart';
 
 class AnilistPageNotifier with ChangeNotifier {
   bool _anilistIsLogin = false;
@@ -52,13 +53,9 @@ class AnilistPageNotifier with ChangeNotifier {
   void loginAniList(BuildContext context) async {
     const loginUrl =
         "https://anilist.co/api/v2/oauth/authorize?client_id=16214&response_type=token";
-    if (Platform.isAndroid) {
-      // final result = await Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //       builder: (context) => const AnilistWebViewPage(url: loginUrl)),
-      // );
-      // _saveAnilistToken(result);
+    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+      final result = await context.push<String>('/anilist', extra: loginUrl);
+      _saveAnilistToken(result ?? '');
       return;
     }
     final webview = await WebviewWindow.create(

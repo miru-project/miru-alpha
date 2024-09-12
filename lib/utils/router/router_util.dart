@@ -3,9 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
+import 'package:miru_app_new/views/pages/anilist_webview.dart';
 import 'package:miru_app_new/views/pages/index.dart';
 import 'package:miru_app_new/views/pages/main_page.dart';
 import 'package:miru_app_new/views/pages/manga_reader.dart';
+import 'package:miru_app_new/views/pages/mobile_webview.dart';
 import 'package:miru_app_new/views/pages/novel_reader.dart';
 import 'package:miru_app_new/views/pages/search_page_single_view.dart';
 import 'package:miru_app_new/views/pages/video_player.dart';
@@ -62,6 +64,17 @@ class RouterUtil {
         }
       },
     ),
+    GoRoute(
+        path: '/anilist',
+        builder: (context, state) {
+          return AnilistWebViewPage(url: state.extra as String);
+        }),
+    GoRoute(
+        path: '/mobileWebView',
+        builder: (context, state) {
+          final extra = state.extra as WebviewParam;
+          return WebViewPage(extensionRuntime: extra.service, url: extra.url);
+        }),
     StatefulShellRoute.indexedStack(
       branches: [
         StatefulShellBranch(routes: [
@@ -157,4 +170,10 @@ class SearchPageParam {
   final String? query;
   final ExtensionApiV1 service;
   const SearchPageParam({this.query, required this.service});
+}
+
+class WebviewParam {
+  final ExtensionApiV1 service;
+  final String url;
+  const WebviewParam({required this.service, required this.url});
 }
