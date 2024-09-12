@@ -169,7 +169,7 @@ class MiruStorage {
   //   });
   // }
 
-  static setSettingSync(String key, String value) {
+  static void setSettingSync(String key, String value) {
     if (_settingCache[key] != null) {
       database.writeTxnSync(() {
         _settings.putByKeySync(AppSetting()

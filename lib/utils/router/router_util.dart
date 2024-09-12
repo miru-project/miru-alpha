@@ -73,8 +73,11 @@ class RouterUtil {
         StatefulShellBranch(routes: [
           GoRoute(
               path: '/search',
-              pageBuilder: (context, state) =>
-                  getPage(state: state, child: const SearchPage()),
+              pageBuilder: (context, state) => getPage(
+                  state: state,
+                  child: SearchPage(
+                    search: state.extra as String?,
+                  )),
               routes: [
                 GoRoute(
                   path: 'detail',

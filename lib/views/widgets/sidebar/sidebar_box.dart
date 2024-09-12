@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/utils/device_util.dart';
 
 class SidebarBox extends StatelessWidget {
   const SidebarBox({

@@ -3,11 +3,14 @@ import 'dart:developer';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:isar/isar.dart';
+import 'package:miru_app_new/provider/anilist_change_notifier.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
+import 'package:miru_app_new/utils/tracking/anilist_provider.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
@@ -46,7 +49,7 @@ class HomePageCarousel extends StatelessWidget {
         child: Container(
             decoration: BoxDecoration(
                 color: context.moonTheme?.textInputTheme.colors.textColor
-                    .withAlpha(20),
+                    .withAlpha(40),
                 borderRadius: BorderRadius.circular(20)),
             child: Row(children: [
               ExtendedImage.network(
@@ -699,6 +702,8 @@ class _FavoriteTabState extends State<FavoriteTab> {
   }
 }
 
+final _notifer = AnilistPageNotifier();
+
 class HomePage extends StatefulHookWidget {
   const HomePage({super.key});
 
@@ -707,7 +712,7 @@ class HomePage extends StatefulHookWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static const _categories = ['History', 'Favorite'];
+  static const _categories = ['History', 'Favorite', 'Tracking'];
   static final List<DateTime?> _times = [
     null,
     DateTime.now().subtract(const Duration(days: 1)),
@@ -752,12 +757,39 @@ class _HomePageState extends State<HomePage> {
   final historyNotifier = HistoryChangeNotifier();
   final ValueNotifier<List<FavoriateGroup>> favGroup = ValueNotifier([]);
   final ValueNotifier<List<int>> selected = ValueNotifier([]);
+  Widget buildHomeSearchBar(
+      TextEditingController textcontroller, ValueNotifier<String> search) {
+    return SideBarSearchBar(
+      controller: textcontroller,
+      trailing: MoonButton.icon(
+        icon: const Icon(MoonIcons.controls_close_24_regular),
+        onTap: () {
+          textcontroller.clear();
+          search.value = '';
+        },
+      ),
+      onChanged: (p0) {
+        search.value = p0;
+      },
+    );
+  }
+
+  static const _anilistStatus = [
+    'CURRENT',
+    'PLANNING',
+    'COMPLETED',
+    'DROPPED',
+    'PAUSED',
+    'REPEATING',
+  ];
   @override
   Widget build(BuildContext context) {
     final currentTab = useState(0);
     final controler = useTabController(initialLength: _categories.length);
     final search = useState('');
+    final anilistCurrentStatus = useState(_anilistStatus[0]);
     final textcontroller = useTextEditingController();
+    final aniListisAnime = useState(true);
     controler.addListener(() {
       currentTab.value = controler.index;
     });
@@ -770,19 +802,7 @@ class _HomePageState extends State<HomePage> {
         title: 'Home',
       ),
       sidebar: DeviceUtil.device(context: context, mobile: <Widget>[
-        SideBarSearchBar(
-          controller: textcontroller,
-          trailing: MoonButton.icon(
-            icon: const Icon(MoonIcons.controls_close_24_regular),
-            onTap: () {
-              textcontroller.clear();
-              search.value = '';
-            },
-          ),
-          onChanged: (p0) {
-            search.value = p0;
-          },
-        ),
+        buildHomeSearchBar(textcontroller, search),
         const SizedBox(height: 10),
         MoonTabBar(
           tabController: controler,
@@ -850,10 +870,11 @@ class _HomePageState extends State<HomePage> {
                 favGroup: favGroup,
                 setLongPress: setLongPress,
               ),
+              Container()
             ])),
       ], desktop: <Widget>[
         const SideBarListTitle(title: 'Home'),
-        const SideBarSearchBar(),
+        buildHomeSearchBar(textcontroller, search),
         const SizedBox(height: 10),
         if (currentTab.value == 0) ...[
           SidebarExpander(
@@ -883,47 +904,97 @@ class _HomePageState extends State<HomePage> {
                   historyNotifier.update(history);
                 }),
           ),
-        ] else
-          SidebarExpander(
-              title: 'Favorite',
-              actions: [
-                Button(
-                  onPressed: () {},
-                  child: const Icon(
-                    Icons.add,
-                    size: 15,
-                  ),
-                ),
-              ],
-              expanded: true,
-              child: Container()),
+        ] else if (currentTab.value == 2) ...[
+          ListenableBuilder(
+              listenable: _notifer,
+              builder: (context, _) => SidebarExpander(
+                    title: 'Anilist',
+                    actions: _notifer.anilistIsLogin
+                        ? [
+                            MoonButton.icon(
+                              icon: const Text('Logout'),
+                              onTap: () {
+                                _notifer.logoutAniList();
+                              },
+                            )
+                          ]
+                        : null,
+                    expanded: true,
+                    child: CategoryGroup(
+                        needSpacer: false,
+                        items: const ['Anime', 'Manga'],
+                        onpress: (val) {
+                          aniListisAnime.value = val == 0;
+                        }),
+                  ))
+        ],
         const SizedBox(height: 10),
       ]),
       body: PlatformWidget(
         mobileWidget: TabBarView(controller: controler, children: <Widget>[
           HistoryPage(historyNotifier: historyNotifier),
           FavoritePage(selected: selected, search: search),
+          Container(),
         ]),
         desktopWidget: LayoutBuilder(
             builder: (context, cons) => Container(
                 color: context.moonTheme?.textInputTheme.colors.backgroundColor,
                 child: Column(
                   children: [
+                    const SizedBox(
+                      height: 10,
+                    ),
                     Center(
-                        child: MoonTabBar(
-                            tabController: controler,
-                            tabs: List.generate(
-                                _categories.length,
-                                (index) => MoonTab(
-                                    tabStyle: const MoonTabStyle(
-                                        indicatorHeight: 3,
-                                        textStyle: TextStyle(fontSize: 20)),
-                                    label: Text(_categories[index]))))),
+                        child: Container(
+                            decoration: BoxDecoration(
+                                color: context
+                                    .moonTheme?.textInputTheme.colors.textColor
+                                    .withAlpha(40),
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(12, 5, 12, 7),
+                                child: MoonTabBar(
+                                    tabController: controler,
+                                    tabs: List.generate(
+                                        _categories.length,
+                                        (index) => MoonTab(
+                                            tabStyle: const MoonTabStyle(
+                                                indicatorHeight: 3,
+                                                textStyle:
+                                                    TextStyle(fontSize: 17)),
+                                            label:
+                                                Text(_categories[index]))))))),
                     if (currentTab.value == 1)
                       FavoriteTab(
                           favGroup: favGroup,
                           selected: selected,
                           setLongPress: setLongPress),
+                    if (currentTab.value == 2) ...[
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                            _anilistStatus.length,
+                            (index) => MoonChip(
+                                  onTap: () {
+                                    anilistCurrentStatus.value =
+                                        _anilistStatus[index];
+                                  },
+                                  isActive: anilistCurrentStatus.value ==
+                                      _anilistStatus[index],
+                                  chipSize: MoonChipSize.sm,
+                                  label: Text(
+                                    _anilistStatus[index],
+                                    style: const TextStyle(
+                                        fontFamily: 'HarmonyOS_Sans',
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                )),
+                      )
+                    ],
                     const SizedBox(
                       height: 10,
                     ),
@@ -936,6 +1007,10 @@ class _HomePageState extends State<HomePage> {
                             selected: selected,
                             search: search,
                           ),
+                          _AnilistHomePage(
+                            anilistisAnime: aniListisAnime,
+                            anilistStatus: anilistCurrentStatus,
+                          ),
                         ]))
                   ],
                 ))),
@@ -944,9 +1019,100 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// class DesktopHistoryPage extends StatelessWidget {
-//   final HistoryChangeNotifier historyNotifier;
-//   const DesktopHistoryPage({super.key, required this.historyNotifier});
-//   @override
-//   Widget build(BuildContext context) {}
-// }
+class _AnilistHomePage extends ConsumerStatefulWidget {
+  @override
+  createState() => _AnilistHomePageState();
+  final ValueNotifier<String> anilistStatus;
+  final ValueNotifier<bool> anilistisAnime;
+  const _AnilistHomePage(
+      {required this.anilistStatus, required this.anilistisAnime});
+}
+
+class _AnilistHomePageState extends ConsumerState<_AnilistHomePage>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  get wantKeepAlive => true;
+  bool isLogin = false;
+
+  final type = ValueNotifier(AnilistType.anime);
+  @override
+  void initState() {
+    _notifer.init();
+    _notifer.anilistDataLoad();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return ListenableBuilder(
+      listenable: _notifer,
+      builder: (context, child) {
+        if (_notifer.anilistIsLogin) {
+          if (_notifer.isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          // debugPrint(notifer.anilistUserData.animeData.toString());
+          // debugPrint(notifer.anilistUserData.animeData["CURRENT"].toString());
+          return ValueListenableBuilder(
+              valueListenable: widget.anilistisAnime,
+              builder: (context, isanime, child) {
+                return ValueListenableBuilder(
+                    valueListenable: widget.anilistStatus,
+                    builder: (context, value, child) =>
+                        LayoutBuilder(builder: (context, cons) {
+                          final element = isanime
+                              ? _notifer.anilistUserData.animeData[value]
+                              : _notifer.anilistUserData.mangaData[value];
+
+                          if (element == null) {
+                            return const Center(
+                              child: Text('No data',
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: "HarmonyOS_Sans")),
+                            );
+                          }
+                          return MiruGridView(
+                            mobileGridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: cons.maxWidth ~/ 110,
+                              childAspectRatio: 0.6,
+                            ),
+                            desktopGridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: cons.maxWidth ~/ 180,
+                              childAspectRatio: 0.65,
+                            ),
+                            itemBuilder: (context, index) => MiruGridTile(
+                              onTap: () {
+                                context.push('/search',
+                                    extra: element[index]["media"]["title"]
+                                        ["userPreferred"]);
+                              },
+                              imageUrl: element[index]["media"]["coverImage"]
+                                  ["large"],
+                              title: element[index]["media"]["title"]
+                                  ["userPreferred"],
+                              subtitle:
+                                  '${element[index]["progress"]} / ${element[index]["media"]["episodes"]} / ${element[index]["media"]["episodes"]}',
+                            ),
+                            itemCount: element.length,
+                          );
+                        }));
+              });
+        }
+        return Center(
+            child: MoonButton(
+          label: const Text('Login to Anilist'),
+          onTap: () {
+            _notifer.loginAniList(context);
+          },
+        ));
+      },
+    );
+  }
+}

@@ -8,7 +8,8 @@ import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 
 class SearchPage extends HookWidget {
-  const SearchPage({super.key});
+  const SearchPage({super.key, this.search});
+  final String? search;
   static const _categories = ['Type', 'Language', 'Extension'];
 
   Widget buildCategories(List<String> items, void Function(int) onpress) {
@@ -39,7 +40,7 @@ class SearchPage extends HookWidget {
         useTabController(initialIndex: 0, initialLength: _categories.length);
     final editController = useTextEditingController();
     final scrollController = useScrollController();
-    final searchValue = useState('');
+    final searchValue = useState(search ?? '');
     return MiruScaffold(
       mobileHeader: const SideBarListTitle(title: 'Seach'),
       sidebar: DeviceUtil.device(mobile: <Widget>[

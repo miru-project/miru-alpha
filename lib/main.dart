@@ -10,10 +10,10 @@ import 'package:macos_window_utils/macos/ns_window_button_type.dart';
 import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_app_new/controllers/application_controller.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
+import 'package:miru_app_new/utils/i18n.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
-
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
@@ -61,6 +61,7 @@ void main() async {
     DeviceOrientation.landscapeRight,
   ]);
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const ProviderScope(child: App()));
 }
 
@@ -85,6 +86,7 @@ class _App extends ConsumerState<App> {
   Widget build(BuildContext context) {
     final c = ref.watch(applicationControllerProvider);
     return MaterialApp.router(
+      key: navigatorKey,
       title: 'Miru',
       routerConfig: RouterUtil.appRouter,
       theme: c.themeData,

@@ -1,5 +1,7 @@
-import 'dart:developer';
+import 'dart:async';
+import 'dart:io';
 
+import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -774,7 +776,31 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                       backgroundColor: context.moonTheme?.segmentedControlTheme
                           .colors.backgroundColor,
                       label: const Text('Play'),
-                      onTap: () {},
+                      onTap: ref.watch(_history) == null
+                          ? null
+                          : () {
+                              if (detail == null || detailUrl == null) {
+                                return;
+                              }
+                              context.push('/watch',
+                                  extra: WatchParams(
+                                      name: ref.watch(_history)!.title,
+                                      detailImageUrl: detail!.cover ?? '',
+                                      selectedEpisodeIndex:
+                                          ref.watch(_history)!.episodeId,
+                                      selectedGroupIndex:
+                                          ref.watch(_history)!.episodeGroupId,
+                                      epGroup: detail!.episodes,
+                                      detailUrl: detailUrl!,
+                                      url: detail!
+                                          .episodes![ref
+                                              .watch(_history)!
+                                              .episodeGroupId]
+                                          .urls[ref.watch(_history)!.episodeId]
+                                          .url,
+                                      service: extensionService,
+                                      type: extensionService.extension.type));
+                            },
                     ),
                     const SizedBox(
                       width: 10,
@@ -1364,141 +1390,11 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                           Container(
                             constraints: const BoxConstraints(maxWidth: 1500),
                             child: (isLoading)
-                                ? Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(
-                                        width: 20,
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                            color:
-                                                Theme.of(context).brightness ==
-                                                        Brightness.dark
-                                                    ? MoonColors.dark.gohan
-                                                    : MoonColors.light.gohan,
-                                            borderRadius:
-                                                BorderRadius.circular(10)),
-                                        child: Shimmer.fromColors(
-                                          baseColor: context
-                                              .moonTheme!
-                                              .segmentedControlTheme
-                                              .colors
-                                              .backgroundColor
-                                              .withAlpha(50),
-                                          highlightColor: context
-                                              .moonTheme!
-                                              .segmentedControlTheme
-                                              .colors
-                                              .backgroundColor
-                                              .withAlpha(100),
-                                          child: PlatformWidget(
-                                            mobileWidget: Container(
-                                              width: 150,
-                                              height: 200,
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                            desktopWidget: Container(
-                                              width: 200,
-                                              height: 300,
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 20),
-                                      const LoadingWidget(
-                                          padding: EdgeInsets.all(0),
-                                          lineCount: 2,
-                                          lineheight: 20),
-                                    ],
-                                  )
-                                : LayoutBuilder(
-                                    builder: (context, constraint) => Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              clipBehavior: Clip.antiAlias,
-                                              child: PlatformWidget(
-                                                mobileWidget:
-                                                    ExtendedImage.network(
-                                                  detail?.cover ?? '',
-                                                  width: 150,
-                                                  height: 200,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                                desktopWidget:
-                                                    ExtendedImage.network(
-                                                  detail?.cover ?? '',
-                                                  width: 200,
-                                                  height: 300,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 40),
-                                            DefaultTextStyle(
-                                              style: TextStyle(
-                                                color: context
-                                                    .moonTheme
-                                                    ?.textInputTheme
-                                                    .colors
-                                                    .textColor,
-                                              ),
-                                              child: ConstrainedBox(
-                                                  constraints: BoxConstraints(
-                                                      maxWidth:
-                                                          constraint.maxWidth *
-                                                              .8),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        detail?.title ?? '',
-                                                        style: const TextStyle(
-                                                          fontSize: 30,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                          height: 10),
-                                                      Text(
-                                                        extensionService
-                                                            .extension.name,
-                                                        style: const TextStyle(
-                                                          fontSize: 16,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 60,
-                                                      ),
-                                                      _FavButton(
-                                                          extensionService:
-                                                              extensionService,
-                                                          detailUrl: detailUrl,
-                                                          detail: detail),
-                                                    ],
-                                                  )),
-                                            ),
-                                          ],
-                                        )),
+                                ? _DesktopLoadingWidgetExtended()
+                                : _DesktopWidgetExtended(
+                                    extensionService: extensionService,
+                                    detailUrl: detailUrl,
+                                    detail: detail),
                           ),
                           const SizedBox(height: 20),
                         ],
@@ -1514,6 +1410,170 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
       true;
+}
+
+class _DesktopWidgetExtended extends StatelessWidget {
+  const _DesktopWidgetExtended(
+      {required this.extensionService, this.detailUrl, this.detail});
+  final String? detailUrl;
+  final ExtensionDetail? detail;
+  final ExtensionApiV1 extensionService;
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+        builder: (context, constraint) => Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: PlatformWidget(
+                    mobileWidget: ExtendedImage.network(
+                      detail?.cover ?? '',
+                      width: 150,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
+                    desktopWidget: ExtendedImage.network(
+                      detail?.cover ?? '',
+                      width: 200,
+                      height: 300,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 40),
+                DefaultTextStyle(
+                  style: TextStyle(
+                    color: context.moonTheme?.textInputTheme.colors.textColor,
+                  ),
+                  child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(maxWidth: constraint.maxWidth * .8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            detail?.title ?? '',
+                            style: const TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            extensionService.extension.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 60,
+                          ),
+                          Row(children: [
+                            _FavButton(
+                                extensionService: extensionService,
+                                detailUrl: detailUrl,
+                                detail: detail),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            MoonButton(
+                              leading: const Icon(
+                                  MoonIcons.generic_globe_24_regular),
+                              label: const Text('Webview'),
+                              onTap: () async {
+                                final url = extensionService.extension.webSite +
+                                    detailUrl!;
+                                final webview = await WebviewWindow.create(
+                                  configuration: CreateConfiguration(
+                                    windowHeight: 1280,
+                                    windowWidth: 720,
+                                    title: "ExampleTestWindow",
+                                    titleBarTopPadding:
+                                        Platform.isMacOS ? 20 : 0,
+                                    // userDataFolderWindows: await _getWebViewPath(),
+                                  ),
+                                )
+                                  ..launch(url);
+                                final timer = Timer.periodic(
+                                    const Duration(seconds: 1), (timer) async {
+                                  try {
+                                    final cookies =
+                                        await webview.getAllCookies();
+
+                                    if (cookies.isEmpty) {
+                                      debugPrint('⚠️ no cookies found');
+                                    }
+
+                                    final cookieString = cookies
+                                        .map((e) => '${e.name}=${e.value}')
+                                        .toList()
+                                        .join(';');
+                                    extensionService.setcookie(cookieString);
+                                  } catch (e, stack) {
+                                    debugPrint('getAllCookies error: $e');
+                                    debugPrintStack(stackTrace: stack);
+                                  }
+                                });
+                                webview.onClose.whenComplete(() async {
+                                  debugPrint("on close");
+                                  timer.cancel();
+
+                                  // timer.cancel();
+                                });
+                              },
+                            )
+                          ]),
+                        ],
+                      )),
+                ),
+              ],
+            ));
+  }
+}
+
+class _DesktopLoadingWidgetExtended extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        const SizedBox(
+          width: 20,
+        ),
+        Container(
+          decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? MoonColors.dark.gohan
+                  : MoonColors.light.gohan,
+              borderRadius: BorderRadius.circular(10)),
+          child: Shimmer.fromColors(
+            baseColor: context
+                .moonTheme!.segmentedControlTheme.colors.backgroundColor
+                .withAlpha(50),
+            highlightColor: context
+                .moonTheme!.segmentedControlTheme.colors.backgroundColor
+                .withAlpha(100),
+            child: Container(
+              width: 200,
+              height: 300,
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 20),
+        const LoadingWidget(
+            padding: EdgeInsets.all(0), lineCount: 2, lineheight: 20),
+      ],
+    );
+  }
 }
 
 class _FavButton extends StatelessWidget {

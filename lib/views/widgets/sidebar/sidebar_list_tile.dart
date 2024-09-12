@@ -20,22 +20,27 @@ class SideBarListTile extends StatefulWidget {
 class _SideBarListTileState extends State<SideBarListTile> {
   @override
   Widget build(BuildContext context) {
-    return MoonChip(
-      width: double.infinity,
-      height: 30,
-      isActive: widget.selected,
-      activeBackgroundColor:
-          context.moonTheme?.tabBarTheme.colors.selectedPillTabColor,
-      backgroundColor: Colors.transparent,
-      leading: widget.leading,
-      // activeColor:
-      //     context.moonTheme?.segmentedControlTheme.colors.selectedTextColor,
-      label: Expanded(
-          child: Text(
-        widget.title,
-      )),
-      onTap: widget.onPressed,
-      // backgroundColor: Theme.of(context).primaryColor,
-    );
+    return Column(children: [
+      MoonChip(
+        width: double.infinity,
+        height: 30,
+        isActive: widget.selected,
+        activeBackgroundColor:
+            context.moonTheme?.tabBarTheme.colors.selectedPillTabColor,
+        backgroundColor: Colors.transparent,
+        leading: widget.leading,
+        // activeColor:
+        //     context.moonTheme?.segmentedControlTheme.colors.selectedTextColor,
+        label: Expanded(
+            child: Text(
+          widget.title,
+        )),
+        onTap: widget.onPressed,
+        // backgroundColor: Theme.of(context).primaryColor,
+      ),
+      const SizedBox(
+        height: 5,
+      )
+    ]);
   }
 }
