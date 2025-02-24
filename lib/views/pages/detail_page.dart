@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:isar/isar.dart';
 import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/objectbox.g.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
@@ -353,21 +353,34 @@ class _DetailPageState extends ConsumerState<DetailPage> {
 
   @override
   void initState() {
-    DatabaseService.db.historys
-        .filter()
-        .packageEqualTo(widget.extensionService.extension.package)
-        .build()
-        .watchLazy()
-        .listen((val) {
-      DatabaseService.db.historys.where().findFirst().then((value) {
-        ref.read(_history.notifier).putHistory(value);
-      });
+    final watchedQuery = DatabaseService.historys.query(
+        History_.package.equals(widget.extensionService.extension.package));
+    watchedQuery.watch().listen((query) {
+      final value = query.findFirst();
+      ref.read(_history.notifier).putHistory(value);
     });
-    _favoriteNotifer.putFavorite(DatabaseService.db.favorites
-        .where()
-        .packageUrlEqualTo(
-            widget.extensionService.extension.package, widget.url)
-        .findFirstSync());
+    final favQuery = DatabaseService.fav
+        .query(Favorite_.package
+            .equals(widget.extensionService.extension.package)
+            .and(Favorite_.url.equals(widget.url)))
+        .build();
+
+    _favoriteNotifer.putFavorite(favQuery.findFirst());
+    // DatabaseService.historys
+    //     .filter()
+    //     .packageEqualTo(widget.extensionService.extension.package)
+    //     .build()
+    //     .watchLazy()
+    //     .listen((val) {
+    //   DatabaseService.db.historys.where().findFirst().then((value) {
+    //     ref.read(_history.notifier).putHistory(value);
+    //   });
+    // });
+    // _favoriteNotifer.putFavorite(DatabaseService.db.favorites
+    //     .where()
+    //     .packageUrlEqualTo(
+    //         widget.extensionService.extension.package, widget.url)
+    //     .findFirstSync());
     Future.microtask(() => ref.read(_history.notifier).putHistory(
         DatabaseService.getHistoryByPackageAndUrl(
             widget.extensionService.extension.package, widget.url)));
@@ -936,11 +949,14 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
   final List<int> initSelected = [];
   @override
   void initState() {
-    group.value = DatabaseService.db.favoriateGroups.where().findAllSync();
-    DatabaseService.db.favoriateGroups.where().watchLazy().listen((_) {
-      group.value = DatabaseService.db.favoriateGroups.where().findAllSync();
-      // debugger();
+    group.value = DatabaseService.favGroup.getAll();
+    DatabaseService.favGroup.query().watch().listen((query) {
+      group.value = query.find();
     });
+    // DatabaseService.db.favoriateGroups.where().watchLazy().listen((_) {
+    //   group.value = DatabaseService.db.favoriateGroups.where().findAllSync();
+    //   // debugger();
+    // });
     if (_favoriteNotifer.favorite != null) {
       final result =
           DatabaseService.getFavoriteGroupsById(_favoriteNotifer.favorite!.id);
@@ -1141,18 +1157,18 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                                         _favoriteNotifer.putFavorite(fav);
 
                                         final result = group.value.map((e) {
-                                          final List<int> item =
-                                              e.items.toList(growable: true);
+                                          final List<Favorite> item =
+                                              e.favorite.toList(growable: true);
                                           // remove every fav id from the group
                                           item.removeWhere(
-                                            (element) => element == fav.id,
+                                            (element) => element.id == fav.id,
                                           );
                                           // add the fav id to the group if selected
                                           if (selected.value.contains(
                                               group.value.indexOf(e))) {
-                                            item.add(fav.id);
+                                            item.add(fav);
                                           }
-                                          e.items = item;
+                                          e.favorite.addAll(item);
                                           return e;
                                         }).toList();
 

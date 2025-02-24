@@ -36,17 +36,17 @@ dependencies:
   cupertino_icons: ^1.0.6
   window_manager: ^0.4.2
   flutter_svg: ^2.0.10+1
-  isar: ^3.1.0+1
-  isar_flutter_libs: ^3.1.0+1
+  # isar: ^3.1.0+1
+  # isar_flutter_libs: ^3.1.0+1
   snapping_sheet_2: ^3.1.5
   macos_window_utils: ^1.5.0
   moon_design:
     git:
       url: https://github.com/coingaming/moon_flutter.git
       ref: main
-  flutter_js: ^0.8.0
+  flutter_js: ^0.8.2
   dio: ^5.4.3+1
-  extended_image: ^8.2.1
+  extended_image: ^9.0.7
   path_provider: ^2.1.3
   path: ^1.9.0
   cookie_jar: ^4.0.8
@@ -55,40 +55,41 @@ dependencies:
   logging: ^1.2.0
   html: ^0.15.4
   xpath_selector_html_parser: ^3.0.1
-  # media_kit: ^1.1.10+1
-  # media_kit_video: ^1.2.4
-  # media_kit_libs_video: ^1.0.4
   json_annotation: ^4.9.0
   go_router: ^14.2.1
   shimmer: ^3.0.0
-  flutter_riverpod: ^2.5.1
-  riverpod_annotation: ^2.3.5
+  flutter_riverpod: any
+  riverpod_annotation: any
   volume_controller: ^2.0.8
-  screen_brightness: ^1.0.1
-  hooks_riverpod: ^2.5.1
-  fvp: ^0.25.0
+  screen_brightness: ^2.0.1
+  hooks_riverpod: any
+  fvp: ^0.28.0
   video_player: ^2.9.1
   flutter_hooks: ^0.20.5
   easy_refresh: ^3.4.0
   flutter_hls_parser: ^2.0.1
   scrollable_positioned_list: ^0.3.8
-  # flutter_inappwebview: ^6.0.0
-  # flutter_linux_webview: ^0.1.3
   desktop_webview_window:
     git:
       url: https://github.com/wgh136/flutter_desktop_webview
       path: packages/desktop_webview_window
-  webview_cookie_manager: ^2.0.6
+  # webview_cookie_manager: ^2.0.6
   flutter_i18n: ^0.36.0
   flutter_inappwebview: ^6.0.0
-  # webview_flutter: ^3.0.4
+  device_info_plus: ^11.2.0
+  package_info_plus: ^8.0.2
+  objectbox: ^4.1.0
+  objectbox_flutter_libs: any
+  # ffigen: ^16.1.0
+  ffi: ^2.1.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   go_router_builder: any
   build_verify: any
-  build_runner: ^2.4.11
-  isar_generator: ^3.1.0+1
+  build_runner: ^2.4.15
+  # isar_generator: ^3.1.0+1
   json_serializable: ^6.8.0
   
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -96,10 +97,14 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
-  riverpod_generator: ^2.4.0
-  custom_lint: ^0.6.4
-
+  flutter_lints: ^5.0.0
+  # custom_lint: ^0
+  riverpod_generator: any
+  objectbox_generator: ^4.1.0
+  # source_gen: ^2.0.0
+  
+# dependency_overrides:
+#   analyzer: 7.0.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

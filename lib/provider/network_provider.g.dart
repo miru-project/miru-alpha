@@ -154,6 +154,8 @@ class VideoLoadProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin VideoLoadRef on AutoDisposeFutureProviderRef<ExtensionBangumiWatch> {
   /// The parameter `url` of this provider.
   String get url;
@@ -189,6 +191,8 @@ final fetchExtensionRepoProvider =
   allTransitiveDependencies: null,
 );
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 typedef FetchExtensionRepoRef
     = AutoDisposeFutureProviderRef<List<GithubExtension>>;
 String _$fetchExtensionDetailHash() =>
@@ -320,6 +324,8 @@ class FetchExtensionDetailProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin FetchExtensionDetailRef on AutoDisposeFutureProviderRef<ExtensionDetail> {
   /// The parameter `extensionService` of this provider.
   ExtensionApiV1 get extensionService;
@@ -471,6 +477,8 @@ class FetchExtensionLatestProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin FetchExtensionLatestRef
     on AutoDisposeFutureProviderRef<List<ExtensionListItem>> {
   /// The parameter `extensionService` of this provider.
@@ -645,6 +653,8 @@ class FetchExtensionSearchProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin FetchExtensionSearchRef
     on AutoDisposeFutureProviderRef<List<ExtensionListItem>> {
   /// The parameter `extensionService` of this provider.
@@ -803,6 +813,8 @@ class MangaLoadProvider extends AutoDisposeFutureProvider<ExtensionMangaWatch> {
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin MangaLoadRef on AutoDisposeFutureProviderRef<ExtensionMangaWatch> {
   /// The parameter `url` of this provider.
   String get url;
@@ -950,6 +962,8 @@ class FikushonLoadProvider
   }
 }
 
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
 mixin FikushonLoadRef on AutoDisposeFutureProviderRef<ExtensionFikushonWatch> {
   /// The parameter `url` of this provider.
   String get url;
@@ -969,4 +983,4 @@ class _FikushonLoadProviderElement
   ExtensionApiV1 get service => (origin as FikushonLoadProvider).service;
 }
 // ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member
+// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

@@ -1,14 +1,15 @@
-import 'package:isar/isar.dart';
+import 'package:objectbox/objectbox.dart';
 
-part 'app_setting.g.dart';
-
-@collection
+@Entity()
 class AppSetting {
-  Id id = Isar.autoIncrement;
+  // @Id(assignable: true)
+  int id;
 
-  @Index(unique: true)
+  @Unique(onConflict: ConflictStrategy.replace)
   // 键
-  late String key;
+  String key;
   // 值
-  late String value;
+  String value;
+
+  AppSetting({this.id = 0, required this.key, required this.value});
 }

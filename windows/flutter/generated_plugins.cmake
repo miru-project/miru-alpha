@@ -4,11 +4,12 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_webview_window
+  flutter_inappwebview_windows
   flutter_js
   fvp
-  isar_flutter_libs
+  objectbox_flutter_libs
   screen_brightness_windows
-  screen_retriever
+  screen_retriever_windows
   window_manager
 )
 

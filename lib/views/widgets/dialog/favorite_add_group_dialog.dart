@@ -31,7 +31,8 @@ class FavoriteAddGroupDialog extends HookWidget {
                       context: context),
                   child: (Padding(
                       padding: const EdgeInsets.all(20),
-                      child: Column(children: [
+                      child: SingleChildScrollView(
+                          child: Column(children: [
                         const Text('Add Group', style: TextStyle(fontSize: 25)),
                         const SizedBox(height: 30),
                         MoonFormTextInput(
@@ -62,7 +63,7 @@ class FavoriteAddGroupDialog extends HookWidget {
                         const SizedBox(
                           height: 10,
                         )
-                      ]))))),
+                      ])))))),
         ));
   }
 }

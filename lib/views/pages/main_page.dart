@@ -162,7 +162,11 @@ class _MainPageState extends ConsumerState<MainPage>
                         ],
                         Expanded(
                             child: Platform.isWindows || Platform.isLinux
-                                ? const WindowCaption()
+                                ? WindowCaption(
+                                    brightness: Brightness.dark,
+                                    backgroundColor: context.moonTheme
+                                        ?.textAreaTheme.colors.backgroundColor,
+                                  )
                                 : const SizedBox.expand())
                       ],
                     ),

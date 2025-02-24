@@ -253,15 +253,25 @@ class ExtensionApiV1 extends ExtensionBaseService {
       args[0]['package'] = extension.package;
 
       return DatabaseService.registerExtensionSetting(
-        ExtensionSetting()
-          ..package = extension.package
-          ..title = args[0]['title']
-          ..key = args[0]['key']
-          ..value = args[0]['value']
-          ..type = ExtensionSetting.stringToType(args[0]['type'])
-          ..description = args[0]['description']
-          ..defaultValue = args[0]['defaultValue']
-          ..options = jsonEncode(args[0]['options']),
+        ExtensionSetting(
+            package: extension.package,
+            title: args[0]['title'],
+            key: args[0]['key'],
+            value: args[0]['value'],
+            dbType: EnumToString.convertToString(
+                ExtensionSetting.stringToType(args[0]['type'])),
+            description: args[0]['description'],
+            defaultValue: args[0]['defaultValue'],
+            options: jsonEncode(args[0]['options'])),
+        // ExtensionSetting()
+        //   ..package = extension.package
+        //   ..title = args[0]['title']
+        //   ..key = args[0]['key']
+        //   ..value = args[0]['value']
+        //   ..dbType = ExtensionSetting.stringToType(args[0]['type'])
+        //   ..description = args[0]['description']
+        //   ..defaultValue = args[0]['defaultValue']
+        //   ..options = jsonEncode(args[0]['options']),
       );
     }
 

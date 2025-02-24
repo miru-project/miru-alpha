@@ -1,5 +1,5 @@
 # Project-level configuration.
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.17)
 project(runner LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
@@ -49,6 +49,13 @@ endfunction()
 # Flutter library and tool build rules.
 set(FLUTTER_MANAGED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/flutter")
 add_subdirectory(${FLUTTER_MANAGED_DIR})
+
+
+message(STATUS "Project root: ${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "Binary dir: ${CMAKE_BINARY_DIR}")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "ORIGIN: ${ORIGIN}")
+message(STATUS "Flutter managed directory: ${FLUTTER_MANAGED_DIR}")
 
 # System-level dependencies.
 find_package(PkgConfig REQUIRED)
@@ -143,3 +150,5 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/ffmpeg_merge ${CMAKE_BINARY_DIR}/lib)

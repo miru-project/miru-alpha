@@ -1,6 +1,4 @@
-import 'package:isar/isar.dart';
-
-part 'extension_setting.g.dart';
+import 'package:objectbox/objectbox.dart';
 
 enum ExtensionSettingType {
   // 输入框
@@ -11,27 +9,65 @@ enum ExtensionSettingType {
   toggle,
 }
 
-@collection
+@Entity()
 class ExtensionSetting {
-  Id id = Isar.autoIncrement;
+  @Id()
+  int id;
 
-  @Index(name: 'package&key', composite: [CompositeIndex('key')], unique: true)
-  late String package;
+  String package;
+
   // 标题
-  late String title;
+  String title;
+
   // 键
-  late String key;
+  String key;
+
   // 值
   String? value;
+
   // 默认值
-  late String defaultValue;
+  String defaultValue;
+
   // 类型
-  @Enumerated(EnumType.name)
-  late ExtensionSettingType type;
+  String dbType;
+
+  @Transient()
+  ExtensionSettingType? type;
+
   // 描述
   String? description;
 
   String? options;
+
+  ExtensionSetting({
+    this.id = 0,
+    required this.package,
+    required this.title,
+    required this.key,
+    this.value,
+    required this.defaultValue,
+    this.dbType = "input",
+    this.description,
+    this.options,
+  }) {
+    type = stringToType(dbType);
+  }
+
+  // int? get dbExtensionSetting {
+  //   _ensureStableEnumValues();
+  //   return dbType.index;
+  // }
+
+  // void _ensureStableEnumValues() {
+  //   assert(ExtensionSettingType.input.index == 0);
+  //   assert(ExtensionSettingType.radio.index == 1);
+  //   assert(ExtensionSettingType.toggle.index == 2);
+  // }
+
+  // set dbExtensionSetting(int? value) {
+  //   _ensureStableEnumValues();
+  //   dbType = ExtensionSettingType.values[value ?? 0];
+  // }
 
   static ExtensionSettingType stringToType(String type) {
     switch (type) {
@@ -43,6 +79,17 @@ class ExtensionSetting {
         return ExtensionSettingType.toggle;
       default:
         return ExtensionSettingType.input;
+    }
+  }
+
+  static String typeToString(ExtensionSettingType type) {
+    switch (type) {
+      case ExtensionSettingType.input:
+        return 'input';
+      case ExtensionSettingType.radio:
+        return 'radio';
+      case ExtensionSettingType.toggle:
+        return 'toggle';
     }
   }
 }

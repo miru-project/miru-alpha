@@ -119,10 +119,10 @@ class AniListProvider {
                 .toString()
                 .toLowerCase()
                 .contains("invalid token")) {
-          showSnackBar(
-            context: navigatorKey.currentContext!,
-            text: "Anilist not login",
-          );
+          // showSnackBar(
+          //   context: navigatorKey.currentContext!,
+          //   text: "Anilist not login",
+          // );
         }
       }
       rethrow;

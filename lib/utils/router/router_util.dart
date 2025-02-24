@@ -12,6 +12,18 @@ import 'package:miru_app_new/views/pages/novel_reader.dart';
 import 'package:miru_app_new/views/pages/search_page_single_view.dart';
 import 'package:miru_app_new/views/pages/video_player.dart';
 
+class ParamCache {
+  static DetailParam? detailParam;
+
+  static getDetailParam(DetailParam? param) {
+    if (param != null) {
+      detailParam = param;
+      return param;
+    }
+    return detailParam;
+  }
+}
+
 class RouterUtil {
   static Page getPage({
     required Widget child,
@@ -95,7 +107,9 @@ class RouterUtil {
                 GoRoute(
                   path: 'detail',
                   builder: (context, state) {
-                    final extra = state.extra as DetailParam;
+                    final extra =
+                        ParamCache.getDetailParam(state.extra as DetailParam?);
+
                     return DetailPage(
                       extensionService: extra.service,
                       url: extra.url,

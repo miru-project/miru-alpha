@@ -1,10 +1,11 @@
 import 'dart:developer';
+import 'dart:ffi';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:isar/isar.dart';
+import 'package:miru_app_new/objectbox.g.dart';
 import 'package:miru_app_new/provider/anilist_change_notifier.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/model/index.dart';
@@ -15,6 +16,7 @@ import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ffi/ffi.dart';
 
 class HomePageCarousel extends StatelessWidget {
   const HomePageCarousel({super.key, required this.item});
@@ -150,11 +152,16 @@ class _HistoryPageState extends State<HistoryPage>
 
   @override
   void initState() {
-    final history = DatabaseService.db.historys
-        .where()
-        .sortByDateDesc()
-        // .limit(40)
-        .findAllSync();
+    // final history = DatabaseService.db.historys
+    //     .where()
+    //     .sortByDateDesc()
+    //     // .limit(40)
+    //     .findAllSync();
+    final history = DatabaseService.historys
+        .query()
+        .order(History_.date, flags: Order.descending)
+        .build()
+        .find();
     widget.historyNotifier.update(history);
     super.initState();
   }
@@ -301,19 +308,29 @@ class _FavoritePageState extends State<FavoritePage>
       _fav.value = filterBySearch(filterFav);
     });
     //listen to favorite change  and filter by group if changes
-    DatabaseService.db.favorites.watchLazy().listen((event) {
-      if (widget.selected.value.isEmpty) {
-        _fav.value = DatabaseService.getAllFavorite();
-        return;
-      }
-      _fav.value = filterFavoriteByGroup(DatabaseService.getAllFavorite());
+    DatabaseService.fav.query().watch().listen((query) {
+      _fav.value = filterFavoriteByGroup(_fav.value);
     });
+    // DatabaseService.db.favorites.watchLazy().listen((event) {
+    //   if (widget.selected.value.isEmpty) {
+    //     _fav.value = DatabaseService.getAllFavorite();
+    //     return;
+    //   }
+    //   _fav.value = filterFavoriteByGroup(DatabaseService.getAllFavorite());
+    // });
+
     //listen to group change
-    DatabaseService.db.favoriateGroups.watchLazy().listen((event) {
-      _favGroup.value =
-          DatabaseService.db.favoriateGroups.where().findAllSync();
+
+    // DatabaseService.db.favoriateGroups.watchLazy().listen((event) {
+    //   _favGroup.value =
+    //       DatabaseService.db.favoriateGroups.where().findAllSync();
+    // });
+    DatabaseService.favGroup.query().watch().listen((query) {
+      _favGroup.value = DatabaseService.getAllFavoriteGroup();
     });
+
     // listen to selected group change
+
     widget.selected.addListener(() {
       if (widget.selected.value.isEmpty) {
         _fav.value = DatabaseService.getAllFavorite();
@@ -340,12 +357,11 @@ class _FavoritePageState extends State<FavoritePage>
         widget.selected.value.map((e) => _favGroup.value[e]).toList();
     final Set<int> favId = {};
     for (final group in selectedFavGroup) {
-      favId.addAll(group.items);
+      favId.addAll(group.favorite.map((e) => e.id).toList());
     }
 
-    final List<Favorite?> result = List.from(
-        DatabaseService.db.favorites.getAllSync(favId.toList()),
-        growable: true);
+    final List<Favorite?> result =
+        List.from(DatabaseService.fav.getMany(favId.toList()), growable: true);
     // result.removeWhere((element) => element == null);
     filterFav = result.whereType<Favorite>().toList();
     if (widget.search.value.isNotEmpty) {
@@ -414,12 +430,16 @@ class FavoriteTab extends StatefulHookWidget {
 class _FavoriteTabState extends State<FavoriteTab> {
   @override
   void initState() {
-    widget.favGroup.value =
-        DatabaseService.db.favoriateGroups.where().findAllSync();
-    DatabaseService.db.favoriateGroups.watchLazy().listen((event) {
-      widget.favGroup.value =
-          DatabaseService.db.favoriateGroups.where().findAllSync();
+    widget.favGroup.value = DatabaseService.getAllFavoriteGroup();
+    DatabaseService.favGroup.query().watch().listen((query) {
+      widget.favGroup.value = DatabaseService.getAllFavoriteGroup();
     });
+    // widget.favGroup.value =
+    //     DatabaseService.db.favoriateGroups.where().findAllSync();
+    // DatabaseService.db.favoriateGroups.watchLazy().listen((event) {
+    //   widget.favGroup.value =
+    //       DatabaseService.db.favoriateGroups.where().findAllSync();
+    // });
     super.initState();
   }
 
@@ -712,7 +732,7 @@ class HomePage extends StatefulHookWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static const _categories = ['History', 'Favorite', 'Tracking'];
+  static const _categories = ['History', 'Favorite', 'Tracking', 'Download'];
   static final List<DateTime?> _times = [
     null,
     DateTime.now().subtract(const Duration(days: 1)),
@@ -729,29 +749,49 @@ class _HomePageState extends State<HomePage> {
   int _selectedType = 0;
   List<History> filterByDateAndCategory(DateTime? date, ExtensionType? type) {
     if (date == null && type == null) {
-      return DatabaseService.db.historys
-          .where()
-          .sortByDateDesc()
-          .limit(40)
-          .findAllSync();
+      // return DatabaseService.db.historys
+      //     .where()
+      //     .sortByDateDesc()
+      //     .limit(40)
+      //     .findAllSync();
+      final query = DatabaseService.historys
+          .query()
+          .order(History_.date, flags: Order.descending)
+          .build();
+      return query.find();
     }
     if (date != null && type != null) {
-      return DatabaseService.db.historys
-          .filter()
-          .dateLessThan(date)
-          .typeEqualTo(type)
-          .findAllSync();
+      final query = DatabaseService.historys
+          .query(History_.date.lessThanDate(date) &
+              History_.type.equals(EnumToString.convertToString(type)))
+          .order(History_.date, flags: Order.descending)
+          .build();
+      return query.find();
+      // return DatabaseService.db.historys
+      //     .filter()
+      //     .dateLessThan(date)
+      //     .typeEqualTo(type)
+      //     .findAllSync();
     }
     if (date == null) {
-      return DatabaseService.db.historys
-          .filter()
-          .typeEqualTo(type!)
-          .findAllSync();
+      final query = DatabaseService.historys
+          .query(History_.type.equals(EnumToString.convertToString(type!)))
+          .order(History_.date, flags: Order.descending)
+          .build();
+      return query.find();
+      // return DatabaseService.db.historys
+      //     .filter()
+      //     .typeEqualTo(type!)
+      //     .findAllSync();
     }
-    return DatabaseService.db.historys
-        .filter()
-        .dateLessThan(date)
-        .findAllSync();
+    return DatabaseService.historys
+        .query(History_.date.lessThanDate(date))
+        .build()
+        .find();
+    // return DatabaseService.db.historys
+    //     .filter()
+    //     .dateLessThan(date)
+    //     .findAllSync();
   }
 
   final historyNotifier = HistoryChangeNotifier();
@@ -1080,6 +1120,7 @@ class _HomePageState extends State<HomePage> {
                             anilistisAnime: aniListisAnime,
                             anilistStatus: anilistCurrentStatus,
                           ),
+                          DownloadPage()
                         ]))
                   ],
                 ))),
@@ -1183,5 +1224,70 @@ class _AnilistHomePageState extends ConsumerState<_AnilistHomePage>
         ));
       },
     );
+  }
+}
+
+class DownloadPage extends StatefulHookWidget {
+  const DownloadPage({super.key});
+  @override
+  createState() => _DownloadPageState();
+}
+
+class _DownloadPageState extends State<DownloadPage> {
+  @override
+  Widget build(BuildContext context) {
+    return MoonButton(
+      label: Text('Test'),
+      onTap: () {
+        DownloadUtils.openlib();
+        DownloadUtils.combineTsToMp4(
+          [
+            "/home/noonecare/Documents/GitHub/miru_new/out.mp4",
+            "/home/noonecare/Documents/GitHub/miru_new/s1.ts",
+            "/home/noonecare/Documents/GitHub/miru_new/s2.ts",
+            "/home/noonecare/Documents/GitHub/miru_new/s3.ts",
+            // "/home/noonecare/Documents/GitHub/miru_new/video3.ts",
+            // "/home/noonecare/Documents/GitHub/miru_new/video4.ts",
+            // "/home/noonecare/Documents/GitHub/miru_new/video5.ts",
+          ],
+        );
+      },
+    );
+  }
+}
+
+typedef StartNative = Int32 Function(Int32 num, Pointer<Pointer<Utf8>> files);
+typedef Start = int Function(int num, Pointer<Pointer<Utf8>> files);
+
+class DownloadUtils {
+  static late Start start;
+  static late DynamicLibrary _lib;
+
+  static void openlib() {
+    _lib = DynamicLibrary.open('libffmpeg_merge.so');
+    start = _lib.lookupFunction<StartNative, Start>('start');
+  }
+
+  static void combineTsToMp4(List<String> inputFiles) {
+    final inputFilesUtf8 = inputFiles.map((f) => f.toNativeUtf8()).toList();
+    final array = calloc<Pointer<Utf8>>(inputFiles.length);
+
+    for (var i = 0; i < inputFiles.length; i++) {
+      array[i] = inputFilesUtf8[i];
+    }
+
+    try {
+      final inputFileNum = inputFiles.length;
+      final result = start(inputFileNum, array);
+      if (result != 0) {
+        throw Exception('Failed to combine videos: error code $result');
+      }
+    } finally {
+      // Clean up allocated memory
+      for (var ptr in inputFilesUtf8) {
+        calloc.free(ptr);
+      }
+      calloc.free(array);
+    }
   }
 }

@@ -1,6 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:moon_design/moon_design.dart';
 
-showSnackBar({required BuildContext context, required String text}) {
+showTextSnackBar({required BuildContext context, required String text}) {
   MoonToast.show(context, label: Text(text));
+}
+
+showSnackBar({required BuildContext context, required Widget content}) {
+  MoonToast.show(context, label: content);
+}
+
+showErrorSnackBar({required BuildContext context, required String text}) {
+  MoonToast.show(context,
+      label: Text(text),
+      trailing: Row(
+        children: [
+          MoonButton.icon(
+            icon: const Text("Copy Message"),
+            onTap: () => Clipboard.setData(ClipboardData(text: text)),
+          )
+        ],
+      ));
 }

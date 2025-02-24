@@ -1,12 +1,11 @@
-import 'package:isar/isar.dart';
+import 'package:objectbox/objectbox.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'tmdb.g.dart';
 
-@collection
+@Entity()
 class TMDB {
-  Id id = Isar.autoIncrement;
-  @Index(unique: true)
+  int? id;
   late int tmdbID;
   late String data;
   late String mediaType;

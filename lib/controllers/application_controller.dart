@@ -52,7 +52,7 @@ class ApplicationController extends StateNotifier<ApplicationState> {
 
   List<String> get themeList => _themeList;
 
-  final _lighttoken = MoonTokens.light.copyWith(
+  final _lightToken = MoonTokens.light.copyWith(
     typography: MoonTypography.typography.copyWith(
       heading:
           MoonTypography.typography.heading.apply(fontFamily: "HarmonyOS_Sans"),
@@ -60,7 +60,7 @@ class ApplicationController extends StateNotifier<ApplicationState> {
     ),
   );
 
-  final _darktoken = MoonTokens.dark.copyWith(
+  final _darkToken = MoonTokens.dark.copyWith(
     typography: MoonTypography.typography.copyWith(
       body: MoonTypography.typography.body.apply(fontFamily: "HarmonyOS_Sans"),
       heading:
@@ -80,7 +80,7 @@ class ApplicationController extends StateNotifier<ApplicationState> {
     late final Color selectedTextColor;
     late ThemeData themeData;
     if (themeText == "light") {
-      token = _lighttoken;
+      token = _lightToken;
       color = ThemeUtils.accentToMoonColorBright[accentColor]!;
       textColor = color.computeLuminance() < .5
           ? MoonColors.light.goku
@@ -91,7 +91,7 @@ class ApplicationController extends StateNotifier<ApplicationState> {
       themeData = ThemeData.light(useMaterial3: true);
     } else {
       color = ThemeUtils.accentToMoonColorDark[accentColor]!;
-      token = _darktoken;
+      token = _darkToken;
       textColor = color.computeLuminance() < .3
           ? MoonColors.dark.bulma
           : MoonColors.dark.goku;

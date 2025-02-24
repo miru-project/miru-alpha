@@ -1107,20 +1107,34 @@ class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
 
   @override
   void dispose() {
-    DatabaseService.putHistory(History()
-      ..title = state.name
-      ..package = package
-      ..type = type
-      ..episodeGroupId = state.selectedGroupIndex
-      ..episodeId = state.selectedEpisodeIndex
-      ..progress = state.selectedEpisodeIndex.toString()
-      ..cover = imageUrl
-      ..totalProgress =
-          state.epGroup[state.selectedGroupIndex].urls.length.toString()
-      ..episodeTitle = state.epGroup[state.selectedGroupIndex]
-          .urls[state.selectedEpisodeIndex].name
-      ..url = detailUrl
-      ..date = DateTime.now());
+    DatabaseService.putHistory(History(
+      title: state.name,
+      package: package,
+      type: EnumToString.convertToString(type),
+      episodeGroupId: state.selectedGroupIndex,
+      episodeId: state.selectedEpisodeIndex,
+      progress: state.selectedEpisodeIndex.toString(),
+      cover: imageUrl,
+      totalProgress:
+          state.epGroup[state.selectedGroupIndex].urls.length.toString(),
+      episodeTitle: state.epGroup[state.selectedGroupIndex]
+          .urls[state.selectedEpisodeIndex].name,
+      url: detailUrl,
+      date: DateTime.now(),
+    ));
+    // ..title = state.name
+    // ..package = package
+    // ..type = type
+    // ..episodeGroupId = state.selectedGroupIndex
+    // ..episodeId = state.selectedEpisodeIndex
+    // ..progress = state.selectedEpisodeIndex.toString()
+    // ..cover = imageUrl
+    // ..totalProgress =
+    //     state.epGroup[state.selectedGroupIndex].urls.length.toString()
+    // ..episodeTitle = state.epGroup[state.selectedGroupIndex]
+    //     .urls[state.selectedEpisodeIndex].name
+    // ..url = detailUrl
+    // ..date = DateTime.now());
 
     super.dispose();
   }

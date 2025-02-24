@@ -6,8 +6,8 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_webview_window
   flutter_js
   fvp
-  isar_flutter_libs
-  screen_retriever
+  objectbox_flutter_libs
+  screen_retriever_linux
   window_manager
 )
 

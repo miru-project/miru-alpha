@@ -9,6 +9,7 @@ import 'package:fvp/fvp.dart';
 import 'package:macos_window_utils/macos/ns_window_button_type.dart';
 import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_app_new/controllers/application_controller.dart';
+import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/i18n.dart';
 import 'package:miru_app_new/utils/index.dart';
@@ -50,6 +51,7 @@ void main() async {
       offset: const Offset(55, 18),
     );
   }
+  await DeviceUtil.ensureInitialized();
   await MiruDirectory.ensureInitialized();
   await MiruStorage.ensureInitialized();
   await MiruRequest.ensureInitialized();

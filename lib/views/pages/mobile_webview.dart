@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:miru_app_new/utils/extension/extension_service.dart';
 import 'package:miru_app_new/utils/index.dart';
-import 'package:webview_cookie_manager/webview_cookie_manager.dart';
+// import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 
 class WebViewPage extends StatefulWidget {
   const WebViewPage({
@@ -19,20 +19,20 @@ class WebViewPage extends StatefulWidget {
 
 class _WebViewPageState extends State<WebViewPage> {
   late String url = widget.extensionRuntime.extension.webSite + widget.url;
-  final cookieManager = WebviewCookieManager();
+  // final cookieManager = WebviewCookieManager();
   late Uri loadUrl = Uri.parse(url);
 
   _setCookie() async {
     if (loadUrl.host != Uri.parse(url).host) {
       return;
     }
-    final cookies = await cookieManager.getCookies(loadUrl.toString());
-    final cookieString =
-        cookies.map((e) => '${e.name}=${e.value}').toList().join(';');
-    debugPrint('$url $cookieString');
-    widget.extensionRuntime.setcookie(
-      cookieString,
-    );
+    // final cookies = await cookieManager.getCookies(loadUrl.toString());
+    // final cookieString =
+    //     cookies.map((e) => '${e.name}=${e.value}').toList().join(';');
+    // debugPrint('$url $cookieString');
+    // widget.extensionRuntime.setcookie(
+    //   cookieString,
+    // );
   }
 
   @override

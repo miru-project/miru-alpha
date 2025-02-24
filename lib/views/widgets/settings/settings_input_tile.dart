@@ -15,7 +15,7 @@ class SettingsInputTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final String initialValue;
-  final Function(String) onChanged;
+  final void Function(String) onChanged;
   final void Function()? onTap;
   final IconData? icon;
 

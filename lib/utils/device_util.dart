@@ -1,6 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+late PackageInfo packageInfo;
+late AndroidDeviceInfo androidDeviceInfo;
+late WindowsDeviceInfo windowsDeviceInfo;
+late LinuxDeviceInfo linuxDeviceInfo;
 
 class DeviceUtil {
   static double getHeight(BuildContext context) {
@@ -32,4 +39,21 @@ class DeviceUtil {
   }
 
   static bool get isMobile => Platform.isAndroid || Platform.isIOS;
+
+  static Future<PackageInfo> ensureInitialized() async {
+    packageInfo = await PackageInfo.fromPlatform();
+    final deviceInfo = DeviceInfoPlugin();
+    if (Platform.isAndroid) {
+      androidDeviceInfo = await deviceInfo.androidInfo;
+      return packageInfo;
+    }
+    if (Platform.isLinux) {
+      linuxDeviceInfo = await deviceInfo.linuxInfo;
+      return packageInfo;
+    }
+    if (Platform.isWindows) {
+      windowsDeviceInfo = await deviceInfo.windowsInfo;
+    }
+    return packageInfo;
+  }
 }
