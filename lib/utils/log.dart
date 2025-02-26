@@ -17,13 +17,12 @@ class MiruLog {
     Logger.root.onRecord.listen((record) {
       final log =
           '${record.loggerName} ${record.level.name} ${record.time}: ${record.message} ${record.error ?? ''} ${record.stackTrace ?? ''}';
+      debugPrint(log);
       // 如果是开发环境则打印到控制台
       if (kReleaseMode) {
         writeLogToFile(log);
         return;
       }
-
-      debugPrint(log);
     });
   }
 

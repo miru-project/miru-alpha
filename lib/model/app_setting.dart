@@ -2,8 +2,8 @@ import 'package:objectbox/objectbox.dart';
 
 @Entity()
 class AppSetting {
-  // @Id(assignable: true)
-  int id;
+  @Id()
+  int id = 0;
 
   @Unique(onConflict: ConflictStrategy.replace)
   // 键
@@ -11,5 +11,5 @@ class AppSetting {
   // 值
   String value;
 
-  AppSetting({this.id = 0, required this.key, required this.value});
+  AppSetting({required this.key, required this.value});
 }

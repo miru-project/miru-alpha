@@ -487,23 +487,26 @@ obx_int.ModelDefinition getObjectBoxModel() {
           fbb.addInt64(0, object.tmdbID);
           fbb.addOffset(1, dataOffset);
           fbb.addOffset(2, mediaTypeOffset);
-          fbb.addInt64(4, object.id ?? 0);
+          fbb.addInt64(4, object.id);
           fbb.finish(fbb.endTable());
-          return object.id ?? 0;
+          return object.id;
         },
         objectFromFB: (obx.Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-
-          final object = TMDB()
-            ..tmdbID =
-                const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0)
-            ..data = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 6, '')
-            ..mediaType = const fb.StringReader(asciiOptimization: true)
-                .vTableGet(buffer, rootOffset, 8, '')
-            ..id = const fb.Int64Reader()
-                .vTableGetNullable(buffer, rootOffset, 12);
+          final idParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0);
+          final tmdbIDParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          final dataParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '');
+          final mediaTypeParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 8, '');
+          final object = TMDB(
+              id: idParam,
+              tmdbID: tmdbIDParam,
+              data: dataParam,
+              mediaType: mediaTypeParam);
 
           return object;
         }),
@@ -784,14 +787,12 @@ obx_int.ModelDefinition getObjectBoxModel() {
         objectFromFB: (obx.Store store, ByteData fbData) {
           final buffer = fb.BufferContext(fbData);
           final rootOffset = buffer.derefObject(0);
-          final idParam =
-              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
           final keyParam = const fb.StringReader(asciiOptimization: true)
               .vTableGet(buffer, rootOffset, 6, '');
           final valueParam = const fb.StringReader(asciiOptimization: true)
               .vTableGet(buffer, rootOffset, 8, '');
-          final object =
-              AppSetting(id: idParam, key: keyParam, value: valueParam);
+          final object = AppSetting(key: keyParam, value: valueParam)
+            ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
 
           return object;
         })

@@ -16,7 +16,7 @@ class SettingsRadiosTile extends StatefulWidget {
   final String subtitle;
   final List<String> radios;
   final String value;
-  final Function(String) onChanged;
+  final void Function(String) onChanged;
   final IconData? icon;
 
   @override
@@ -25,10 +25,17 @@ class SettingsRadiosTile extends StatefulWidget {
 
 class _SettingsRadiosTileState extends State<SettingsRadiosTile> {
   bool _isToggle = false;
+  late String _selected;
   _showDropdown() {
     setState(() {
       _isToggle = !_isToggle;
     });
+  }
+
+  @override
+  void initState() {
+    _selected = widget.value;
+    super.initState();
   }
 
   @override
@@ -53,12 +60,15 @@ class _SettingsRadiosTileState extends State<SettingsRadiosTile> {
                 onTap: () {
                   widget.onChanged(widget.radios[index]);
                   _showDropdown();
+                  setState(() {
+                    _selected = widget.radios[index];
+                  });
                 },
                 label: Text(widget.radios[index]),
               );
             })),
             child: MoonChip(
-              leading: Text(widget.value),
+              leading: Text(_selected),
               label: const Icon(MoonIcons.controls_chevron_down_32_regular),
               onTap: _showDropdown,
             )));

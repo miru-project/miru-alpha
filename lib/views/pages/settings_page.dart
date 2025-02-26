@@ -32,6 +32,7 @@ class SettingsPage extends HookWidget {
         sideBarTile('BT Server', SideBarName.btServer),
         sideBarTile('Reader', SideBarName.reader),
         sideBarTile('Advanced', SideBarName.advanced),
+        sideBarTile('Download', SideBarName.download),
         sideBarTile('About', SideBarName.about),
       ], desktop: [
         const SideBarListTitle(title: 'Settings'),
@@ -41,6 +42,7 @@ class SettingsPage extends HookWidget {
         sideBarTile('BT Server', SideBarName.btServer),
         sideBarTile('Reader', SideBarName.reader),
         sideBarTile('Advanced', SideBarName.advanced),
+        sideBarTile('Download', SideBarName.download),
         sideBarTile('About', SideBarName.about),
       ], context: context),
       body: SettingItems(selected: select.value),

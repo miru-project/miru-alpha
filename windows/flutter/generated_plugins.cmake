@@ -8,8 +8,10 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_js
   fvp
   objectbox_flutter_libs
+  permission_handler_windows
   screen_brightness_windows
   screen_retriever_windows
+  volume_controller
   window_manager
 )
 

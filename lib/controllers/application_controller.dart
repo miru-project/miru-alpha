@@ -77,17 +77,21 @@ class ApplicationController extends StateNotifier<ApplicationState> {
     late MoonTokens token;
     late final Color color;
     late final Color textColor;
-    late final Color selectedTextColor;
+    // late final Color selectedTextColor;
+    // late final Color selectSegmentColor;
     late ThemeData themeData;
     if (themeText == "light") {
       token = _lightToken;
       color = ThemeUtils.accentToMoonColorBright[accentColor]!;
-      textColor = color.computeLuminance() < .5
+      textColor = color.computeLuminance() < .3
           ? MoonColors.light.goku
           : MoonColors.light.bulma;
-      selectedTextColor = color.computeLuminance() < .5
-          ? MoonColors.light.goku
-          : MoonColors.light.bulma;
+      // selectedTextColor = color.computeLuminance() < .5
+      //     ? MoonColors.light.goku
+      //     : MoonColors.light.bulma;
+      // selectSegmentColor = color.computeLuminance() < .5
+      //     ? MoonColors.light.bulma
+      //     : MoonColors.light.goku;
       themeData = ThemeData.light(useMaterial3: true);
     } else {
       color = ThemeUtils.accentToMoonColorDark[accentColor]!;
@@ -95,9 +99,9 @@ class ApplicationController extends StateNotifier<ApplicationState> {
       textColor = color.computeLuminance() < .3
           ? MoonColors.dark.bulma
           : MoonColors.dark.goku;
-      selectedTextColor = color.computeLuminance() < .5
-          ? MoonColors.dark.bulma
-          : MoonColors.dark.goku;
+      // selectedTextColor = color.computeLuminance() < .5
+      //     ? MoonColors.dark.bulma
+      //     : MoonColors.dark.goku;
       themeData = ThemeData.dark(useMaterial3: true);
     }
     return themeData.copyWith(
@@ -109,10 +113,12 @@ class ApplicationController extends StateNotifier<ApplicationState> {
                     colors: MoonSegmentedControlTheme(tokens: token)
                         .colors
                         .copyWith(
-                            selectedSegmentColor: textColor,
-                            selectedTextColor: color,
-                            backgroundColor: color,
-                            textColor: textColor)),
+                          selectedSegmentColor: MoonColors.dark.bulma,
+                          selectedTextColor: MoonColors.dark.goku,
+                          textColor: textColor,
+                          backgroundColor: color,
+                          // textColor: textColor
+                        )),
             switchTheme: MoonSwitchTheme(tokens: token).copyWith(
                 colors: MoonSwitchTheme(tokens: token)
                     .colors

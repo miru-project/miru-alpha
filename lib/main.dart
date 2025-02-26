@@ -10,6 +10,7 @@ import 'package:macos_window_utils/macos/ns_window_button_type.dart';
 import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_app_new/controllers/application_controller.dart';
 import 'package:miru_app_new/utils/device_util.dart';
+import 'package:miru_app_new/utils/download/download_utils.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/i18n.dart';
 import 'package:miru_app_new/utils/index.dart';
@@ -55,6 +56,7 @@ void main() async {
   await MiruDirectory.ensureInitialized();
   await MiruStorage.ensureInitialized();
   await MiruRequest.ensureInitialized();
+  await DownloadUtils.ensureInitialized();
   await ExtensionUtils.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -77,11 +79,13 @@ class _App extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
-    registerWith(options: {
-      'platforms': ['windows', 'linux'],
-      'video.decoders': ['D3D11', 'NVDEC', 'FFmpeg'],
-      'player': {'buffer': '2000+600000'}
-    });
+    registerWith(
+      options: {
+        'platforms': ['windows', 'linux'],
+        'video.decoders': ['D3D11', 'NVDEC', 'FFmpeg'],
+        'player': {'buffer': '2000+600000'},
+      },
+    );
   }
 
   @override

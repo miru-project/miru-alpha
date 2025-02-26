@@ -15,30 +15,38 @@ part 'network_provider.g.dart';
 
 @riverpod
 Future<ExtensionBangumiWatch> videoLoad(
-    VideoLoadRef ref, String url, ExtensionApiV1 service) async {
+  VideoLoadRef ref,
+  String url,
+  ExtensionApiV1 service,
+) async {
   final result = await service.watch(url) as ExtensionBangumiWatch;
   return result;
 }
 
 @riverpod
 Future<List<GithubExtension>> fetchExtensionRepo(
-    FetchExtensionRepoRef ref) async {
+  FetchExtensionRepoRef ref,
+) async {
   final result = await GithubNetwork.fetchRepo();
   return result;
 }
 
 @riverpod
-Future<ExtensionDetail> fetchExtensionDetail(FetchExtensionDetailRef ref,
-    ExtensionApiV1 extensionService, String url) async {
+Future<ExtensionDetail> fetchExtensionDetail(
+  FetchExtensionDetailRef ref,
+  ExtensionApiV1 extensionService,
+  String url,
+) async {
   final result = await extensionService.detail(url);
   return result;
 }
 
 @riverpod
 Future<List<ExtensionListItem>> fetchExtensionLatest(
-    FetchExtensionLatestRef ref,
-    ExtensionApiV1 extensionService,
-    int page) async {
+  FetchExtensionLatestRef ref,
+  ExtensionApiV1 extensionService,
+  int page,
+) async {
   final result = await extensionService.latest(page);
   debugPrint('fetchExtensionLatest: ${extensionService.extension.name}');
   return result;
@@ -46,38 +54,44 @@ Future<List<ExtensionListItem>> fetchExtensionLatest(
 
 @riverpod
 Future<List<ExtensionListItem>> fetchExtensionSearch(
-    FetchExtensionSearchRef ref,
-    ExtensionApiV1 extensionService,
-    String query,
-    int page,
-    {Map<String, List<String>>? filter}) async {
+  FetchExtensionSearchRef ref,
+  ExtensionApiV1 extensionService,
+  String query,
+  int page, {
+  Map<String, List<String>>? filter,
+}) async {
   final result = await extensionService.search(query, page, filter: filter);
   return result;
 }
 
 @riverpod
 Future<ExtensionMangaWatch> mangaLoad(
-    MangaLoadRef ref, String url, ExtensionApiV1 service) async {
+  MangaLoadRef ref,
+  String url,
+  ExtensionApiV1 service,
+) async {
   final result = await service.watch(url) as ExtensionMangaWatch;
   return result;
 }
 
 @riverpod
 Future<ExtensionFikushonWatch> fikushonLoad(
-    FikushonLoadRef ref, String url, ExtensionApiV1 service) async {
+  FikushonLoadRef ref,
+  String url,
+  ExtensionApiV1 service,
+) async {
   final result = await service.watch(url) as ExtensionFikushonWatch;
   return result;
 }
 
 Future<Map<String, String>> getQuality(
-    String url, Map<String, dynamic> headers) async {
+  String url,
+  Map<String, dynamic> headers,
+) async {
   final defaultRes = <String, String>{"": url};
   final response = await dio.get(
     url,
-    options: Options(
-      headers: headers,
-      responseType: ResponseType.stream,
-    ),
+    options: Options(headers: headers, responseType: ResponseType.stream),
   );
   final contentType = response.headers.value('content-type')?.toLowerCase();
   if (contentType == null ||
@@ -119,21 +133,13 @@ Future<Map<String, String>> getQuality(
   }
 
   if (playlist is HlsMasterPlaylist) {
-    final urlList = playlist.mediaPlaylistUrls
-        .map(
-          (e) => e.toString(),
-        )
-        .toList();
+    final urlList =
+        playlist.mediaPlaylistUrls.map((e) => e.toString()).toList();
     final resolution = playlist.variants.map(
       (it) => "${it.format.width}x${it.format.height}",
     );
     final qualityMap = <String, String>{};
-    qualityMap.addAll(
-      Map.fromIterables(
-        resolution,
-        urlList,
-      ),
-    );
+    qualityMap.addAll(Map.fromIterables(resolution, urlList));
     return qualityMap;
   }
   return defaultRes;

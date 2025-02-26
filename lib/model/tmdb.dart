@@ -5,10 +5,18 @@ part 'tmdb.g.dart';
 
 @Entity()
 class TMDB {
-  int? id;
-  late int tmdbID;
-  late String data;
-  late String mediaType;
+  @Id()
+  int id;
+  int tmdbID;
+  String data;
+  String mediaType;
+
+  TMDB({
+    this.id = 0,
+    required this.tmdbID,
+    required this.data,
+    required this.mediaType,
+  });
 }
 
 @JsonSerializable()

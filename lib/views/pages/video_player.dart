@@ -408,7 +408,8 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
               // 如果是右边调节音量
               else {
                 _currentVolume = (_currentVolume - add).clamp(0, 1);
-                VolumeController().setVolume(_currentVolume);
+                // VolumeController.setVolume(_currentVolume);
+                VolumeController.instance.setVolume(_currentVolume);
               }
               _isAdjusting = true;
               setState(() {});

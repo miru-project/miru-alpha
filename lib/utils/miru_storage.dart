@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/objectbox.g.dart';
+import 'package:miru_app_new/utils/log.dart';
 // import 'package:path/path.dart' as p;
 import './miru_directory.dart';
 import '../model/index.dart';
@@ -10,26 +11,32 @@ class MiruStorage {
   static late final Store database;
   // static late final Box settings;
   // static const int _lastDatabaseVersion = 2;
-  static late String _path;
-  static final Box<AppSetting> _settings = database.box<AppSetting>();
-  static final Box<FavoriateGroup> favoriteGroup =
-      database.box<FavoriateGroup>();
-  static final Box<Favorite> favorite = database.box<Favorite>();
-  static final Box<History> history = database.box<History>();
-  static final Box<ExtensionSetting> extensionSetting =
-      database.box<ExtensionSetting>();
-  static final Box<MiruDetail> miruDetail = database.box<MiruDetail>();
-  static final Box<MangaSetting> mangaSetting = database.box<MangaSetting>();
-  static final Box<TMDB> tmdb = database.box<TMDB>();
-  static final _settingidCache = <String, int>{};
+  static late final String _path;
+  static late final Box<AppSetting> _settings;
+  static late final Box<FavoriateGroup> favoriteGroup;
+  static late final Box<Favorite> favorite;
+  static late final Box<History> history;
+  static late final Box<ExtensionSetting> extensionSetting;
+  static late final Box<MiruDetail> miruDetail;
+  static late final Box<MangaSetting> mangaSetting;
+  static late final Box<TMDB> tmdb;
+  // static final _settingidCache = <String, int>{};
   static final _settingCache = <String, dynamic>{};
   static ensureInitialized() async {
     _path = MiruDirectory.getDirectory;
 
     // 初始化数据库
     database = await openStore(directory: _path);
+
     // 初始化设置
-    // _settings = database.box<AppSetting>();
+    _settings = database.box<AppSetting>();
+    favoriteGroup = database.box<FavoriateGroup>();
+    favorite = database.box<Favorite>();
+    history = database.box<History>();
+    extensionSetting = database.box<ExtensionSetting>();
+    miruDetail = database.box<MiruDetail>();
+    mangaSetting = database.box<MangaSetting>();
+    tmdb = database.box<TMDB>();
     await _initSettings();
   }
 
@@ -125,67 +132,46 @@ class MiruStorage {
     SettingKey.proxyType: 'DIRECT',
     SettingKey.saveLog: true,
     SettingKey.subtitleFontSize: 46.0,
-    SettingKey.subtitleFontColor: Colors.white.value,
+    SettingKey.subtitleFontColor: Colors.white.toARGB32(),
     SettingKey.subtitleFontWeight: 'bold',
-    SettingKey.subtitleBackgroundColor: Colors.black.value,
+    SettingKey.subtitleBackgroundColor: Colors.black.toARGB32(),
     SettingKey.subtitleBackgroundOpacity: 0.5,
     SettingKey.subtitleTextAlign: TextAlign.center.index,
     SettingKey.accentColor: "krillin",
     SettingKey.mobiletitleIsonTop: false,
-    SettingKey.btServerLink: "https://github.com/miru-project/bt-server"
+    SettingKey.btServerLink: "https://github.com/miru-project/bt-server",
+    SettingKey.maxConnection: "3",
   };
   static _initSettings() async {
     //init from default settings
+    final dataFromDB = await _settings.getAllAsync();
+    final saveData = <AppSetting>[];
+    for (final i in dataFromDB) {
+      _settingCache[i.key] = i.value;
+    }
     for (final entry in _defaultSettings.entries) {
-      final result = _settings
-          .query(AppSetting_.key.equals(entry.key))
-          .build()
-          .findFirst();
-      if (result == null) {
-        await _settings.putAsync(
-            AppSetting(key: entry.key, value: entry.value.toString()),
-            mode: PutMode.update);
+      if (_settingCache[entry.key] == null) {
+        saveData.add(AppSetting(key: entry.key, value: entry.value.toString()));
+        _settingCache[entry.key] = entry.value;
+        // final result =
+        //     _settings
+        //         .query(AppSetting_.key.equals(entry.key.toString()))
+        //         .build()
+        //         .findFirst();
+        // if (result == null) {
+        //   await _settings.putAsync(
+        //     AppSetting(key: entry.key, value: entry.value.toString()),
+        //   );
       }
     }
-    // await database.writeTxn(() async {
-    //   for (final entry in _defaultSettings.entries) {
-    //     final result =
-    //         await _settings.filter().keyEqualTo(entry.key).findFirst();
-    //     //add Setting to ISAR if not exist
-    //     if (result == null) {
-    //       await _settings.putByKey(AppSetting()
-    //         ..key = entry.key
-    //         ..value = entry.value.toString());
-    //     }
-    //   }
-    // });
-    // final allSettings =
-    //     await database.txn(() async => database.appSettings.where().findAll());
-
-    // getting app setting from database
-    final allSettings = _settings.getAll();
-    for (final AppSetting i in allSettings) {
-      _settingCache[i.key] = i.value;
-      _settingidCache[i.key] = i.id;
+    if (saveData.isNotEmpty) {
+      await _settings.putManyAsync(saveData);
     }
+    logger.info('Settings initialized');
   }
-
-  // static setSetting(String key, dynamic value) async {
-  //   await database.writeTxn(() async {
-  //     await _settings.put(AppSetting()
-  //       ..key = key
-  //       ..value = value.toString());
-  //   });
-  // }
 
   static void setSettingSync(String key, String value) {
     if (_settingCache[key] != null) {
-      // database.writeTxnSync(() {
-      //   _settings.putByKeySync(AppSetting()
-      //     ..id = _settingidCache[key]!
-      //     ..key = key
-      //     ..value = value.toString());
-      // });
       _settings.put(AppSetting(key: key, value: value));
       _settingCache[key] = value;
       return;
@@ -194,27 +180,7 @@ class MiruStorage {
     throw Exception('Setting $key not found');
   }
 
-  // static getSetting(String key, Type type) async {
-  //   AppSetting? val;s
-  //   await database.writeTxn(() async {
-  //     val = await _settings.getByKey(key);
-  //   });
-  //   if (val == null) {
-  //     throw Exception('Setting $key not found');
-  //   }
-  //   _settingidCache[key] = val!.id;
-  //   return convertStringToObj(val!.value, type);
-  // }
-
   static T getSettingSync<T>(String key, Type type) {
-    // AppSetting? val;
-    // database.writeTxnSync(() {
-    //   val = _settings.getByKeySync(key);
-    // });
-    // if (val == null) {
-    //   throw Exception('Setting $key not found');
-    // }
-    // _settingidCache[key] = val!.id;
     return convertStringToObj(_settingCache[key], type);
   }
 
@@ -294,4 +260,5 @@ class SettingKey {
   static const accentColor = "AccentColor";
   static const mobiletitleIsonTop = "MobileTitleIsOnTop";
   static const btServerLink = "BtServerLink";
+  static const maxConnection = "MaxConnection";
 }

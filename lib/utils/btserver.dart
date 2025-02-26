@@ -18,9 +18,7 @@ class BTServerUtils {
   static Process? _process;
 
   // 下载 bt-server
-  static downloadLatestBTServer({
-    Function(int, int)? onReceiveProgress,
-  }) async {
+  static downloadLatestBTServer({Function(int, int)? onReceiveProgress}) async {
     debugPrint("检测最新版本");
     // 获取最新版本
     final url =
@@ -98,11 +96,9 @@ class BTServerUtils {
       } else {
         // 添加运行权限
         await Process.run("chmod", ["+x", btServerPath]);
-        _process = await Process.start(
-          btServerPath,
-          ["&"],
-          workingDirectory: savePath,
-        );
+        _process = await Process.start(btServerPath, [
+          "&",
+        ], workingDirectory: savePath);
         logger.info("bt-server started");
       }
     } catch (e) {
@@ -182,23 +178,22 @@ class StartServerException implements Exception {
 
 class BTServerApi {
   static const baseApi = "http://localhost:3000";
-  static final dio = Dio(BaseOptions(
-    baseUrl: baseApi,
-  ));
+  static final dio = Dio(BaseOptions(baseUrl: baseApi));
   static Future<String> getVersion() async {
     return (await dio.get<String>("/version")).data!;
   }
 
   static Future<String> addTorrent(Uint8List torrent) async {
-    return (await dio.post<Map<String, dynamic>>("/torrent",
-            data: torrent,
-            options: Options(
-              headers: {
-                "Content-Type": "application/x-bittorrent",
-                "Content-Length": torrent.length,
-              },
-            )))
-        .data!["infoHash"];
+    return (await dio.post<Map<String, dynamic>>(
+      "/torrent",
+      data: torrent,
+      options: Options(
+        headers: {
+          "Content-Type": "application/x-bittorrent",
+          "Content-Length": torrent.length,
+        },
+      ),
+    )).data!["infoHash"];
   }
 
   static Future<String> removeTorrent(String infoHash) async {
@@ -206,8 +201,10 @@ class BTServerApi {
   }
 
   static Future<List<String>> getFileList(String infoHash) async {
-    final fileList = (await dio.get<Map<String, dynamic>>("/torrent/$infoHash"))
-        .data!['files'];
+    final fileList =
+        (await dio.get<Map<String, dynamic>>(
+          "/torrent/$infoHash",
+        )).data!['files'];
     return List<String>.from(fileList);
   }
 }
@@ -217,7 +214,7 @@ class BTDialogController with ChangeNotifier {
   bool _isDownloading = false;
   double _progress = 0.0;
   bool _hasUpdate = false;
-  String _remoteVersion = "";
+  final String _remoteVersion = "";
 
   String btServerVersion = "";
   final btServerisRunning = ValueNotifier(false);
@@ -286,7 +283,11 @@ class BTDialogController with ChangeNotifier {
       );
     } catch (e) {
       if (context.mounted) {
-        showErrorSnackBar(context: context, text: e.toString());
+        showErrorSnackBar(
+          context: context,
+          errorText: "Failed to Download Bt-server",
+          detailErrortext: e.toString(),
+        );
       }
     } finally {
       _isDownloading = false;

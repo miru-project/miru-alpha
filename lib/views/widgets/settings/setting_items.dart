@@ -16,7 +16,8 @@ enum SideBarName {
   reader,
   advanced,
   about,
-  tracking
+  tracking,
+  download
 }
 
 // class SettingItems extends StatefulWidget {
@@ -206,6 +207,27 @@ class _SettingItemsState extends ConsumerState<SettingItems> {
         return [];
       case SideBarName.tracking:
         return [];
+      case SideBarName.download:
+        return [
+          SettingsRadiosTile(
+              title: 'max-connection',
+              subtitle: 'max-connection-subtitle',
+              radios: List.generate(3, (i) => (i + 2).toString()),
+              value:
+                  MiruStorage.getSettingSync(SettingKey.maxConnection, String),
+              onChanged: (val) {
+                MiruStorage.setSettingSync(SettingKey.maxConnection, val);
+              }),
+          MoonMenuItem(
+            trailing: MoonButton(
+              label: const Text('choose-path'),
+              onTap: () {},
+            ),
+            label: const Text('download-path-subtitle'),
+            content: Text('download-path'),
+            onTap: () {},
+          )
+        ];
     }
   }
 

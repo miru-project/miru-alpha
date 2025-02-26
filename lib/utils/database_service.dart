@@ -449,26 +449,26 @@ class DatabaseService {
   }
 
   // 更新 TMDB 数据
-  static Future<int> putTMDBDetail(
-    int tmdbID,
-    TMDBDetail tmdbDetail,
-    String mediaType,
-  ) {
-    return tmdb.putAsync(
-      TMDB()
-        ..data = jsonEncode(tmdbDetail.toJson())
-        ..tmdbID = tmdbID
-        ..mediaType = mediaType,
-    );
-    // return db.writeTxn(
-    //   () => db.tMDBs.putByTmdbID(
-    //     TMDB()
-    //       ..data = jsonEncode(tmdbDetail.toJson())
-    //       ..tmdbID = tmdbID
-    //       ..mediaType = mediaType,
-    //   ),
-    // );
-  }
+  // static Future<int> putTMDBDetail(
+  //   int tmdbID,
+  //   TMDBDetail tmdbDetail,
+  //   String mediaType,
+  // ) {
+  //   return tmdb.putAsync(
+  //     TMDB()
+  //       ..data = jsonEncode(tmdbDetail.toJson())
+  //       ..tmdbID = tmdbID
+  //       ..mediaType = mediaType,
+  //   );
+  //   // return db.writeTxn(
+  //   //   () => db.tMDBs.putByTmdbID(
+  //   //     TMDB()
+  //   //       ..data = jsonEncode(tmdbDetail.toJson())
+  //   //       ..tmdbID = tmdbID
+  //   //       ..mediaType = mediaType,
+  //   //   ),
+  //   // );
+  // }
 
   // 获取 TMDB 数据
   static Future<TMDBDetail?> getTMDBDetail(int tmdbID) async {

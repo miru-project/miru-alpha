@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_js/extensions/fetch.dart';
 import 'package:flutter_js/flutter_js.dart';
@@ -9,11 +10,13 @@ import 'package:flutter_js/javascriptcore/jscore_runtime.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/extension/extension_jscore_plugin.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
+import 'package:miru_app_new/utils/i18n.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/log.dart';
-import 'package:html/dom.dart';
-import 'package:html/parser.dart';
+import 'package:html/dom.dart' as dom;
+import 'package:html/parser.dart' as parser;
 import 'package:dio/dio.dart';
+import 'package:miru_app_new/views/widgets/snackbar.dart';
 import '../network/request.dart';
 import '../database_service.dart';
 import 'package:xpath_selector_html_parser/xpath_selector_html_parser.dart';
@@ -103,6 +106,16 @@ abstract class ExtensionBaseService {
     } catch (e, stacktrace) {
       stacktrace.toString();
       logger.info(e);
+      if (navigatorKey.currentContext == null) {
+        rethrow;
+      }
+      final context =
+          ScaffoldMessenger.of(navigatorKey.currentContext!).context;
+      showErrorSnackBar(
+        context: context,
+        errorText: "Failed to fetch data",
+        detailErrortext: e.toString(),
+      );
       // ExtensionUtils.addLog(
       //   extension,
       //   ExtensionLogLevel.error,
@@ -146,12 +159,15 @@ class ExtensionApiV1 extends ExtensionBaseService {
     if (!className.isAlphabetOnly) {
       className = "${className.replaceAll(RegExp(r'[^a-zA-z]'), '')}Renamed";
     }
-    final file =
-        File('${ExtensionUtils.extensionsDir}/${extension.package}.js');
+    final file = File(
+      '${ExtensionUtils.extensionsDir}/${extension.package}.js',
+    );
     final content = file.readAsStringSync();
     runtime = await ExtensionRuntime.getRuntime();
-    final script = content.replaceAll(RegExp(r'export default class.*'),
-        'class $className extends Extension {');
+    final script = content.replaceAll(
+      RegExp(r'export default class.*'),
+      'class $className extends Extension {',
+    );
 
     runtime.evaluate('''
       $script
@@ -210,18 +226,12 @@ class ExtensionApiV1 extends ExtensionBaseService {
           url,
           data: requestBody,
           queryParameters: args[1]['queryParameters'] ?? {},
-          options: Options(
-            headers: headers,
-            method: method,
-          ),
+          options: Options(headers: headers, method: method),
         );
         log.requestHeaders = res.requestOptions.headers;
         log.responseBody = res.data;
         log.responseHeaders = res.headers.map.map(
-          (key, value) => MapEntry(
-            key,
-            value.join(';'),
-          ),
+          (key, value) => MapEntry(key, value.join(';')),
         );
         log.statusCode = res.statusCode;
 
@@ -235,10 +245,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
         log.requestHeaders = e.requestOptions.headers;
         log.responseBody = e.response?.data;
         log.responseHeaders = e.response?.headers.map.map(
-          (key, value) => MapEntry(
-            key,
-            value.join(';'),
-          ),
+          (key, value) => MapEntry(key, value.join(';')),
         );
         log.statusCode = e.response?.statusCode;
         // ExtensionUtils.addNetworkLog(
@@ -254,15 +261,17 @@ class ExtensionApiV1 extends ExtensionBaseService {
 
       return DatabaseService.registerExtensionSetting(
         ExtensionSetting(
-            package: extension.package,
-            title: args[0]['title'],
-            key: args[0]['key'],
-            value: args[0]['value'],
-            dbType: EnumToString.convertToString(
-                ExtensionSetting.stringToType(args[0]['type'])),
-            description: args[0]['description'],
-            defaultValue: args[0]['defaultValue'],
-            options: jsonEncode(args[0]['options'])),
+          package: extension.package,
+          title: args[0]['title'],
+          key: args[0]['key'],
+          value: args[0]['value'],
+          dbType: EnumToString.convertToString(
+            ExtensionSetting.stringToType(args[0]['type']),
+          ),
+          description: args[0]['description'],
+          defaultValue: args[0]['defaultValue'],
+          options: jsonEncode(args[0]['options']),
+        ),
         // ExtensionSetting()
         //   ..package = extension.package
         //   ..title = args[0]['title']
@@ -276,15 +285,19 @@ class ExtensionApiV1 extends ExtensionBaseService {
     }
 
     jsGetMessage(dynamic args) async {
-      final setting =
-          DatabaseService.getExtensionSetting(extension.package, args[0]);
+      final setting = DatabaseService.getExtensionSetting(
+        extension.package,
+        args[0],
+      );
       return setting!.value ?? setting.defaultValue;
     }
 
     jsCleanSettings(dynamic args) async {
       // debugPrint('cleanSettings: ${args[0]}');
       return DatabaseService.cleanExtensionSettings(
-          extension.package, List<String>.from(args[0]));
+        extension.package,
+        List<String>.from(args[0]),
+      );
     }
 
     jsQuerySelector(dynamic args) {
@@ -292,7 +305,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
       final selector = args[1];
       final fun = args[2];
 
-      final doc = parse(content).querySelector(selector);
+      final doc = parser.parse(content).querySelector(selector);
       String result = '';
       switch (fun) {
         case 'text':
@@ -323,12 +336,13 @@ class ExtensionApiV1 extends ExtensionBaseService {
         case 'text':
           returnVal = result.node?.text ?? '';
         case 'allHTML':
-          returnVal = result.nodes
-              .map((e) => (e.node as Element).outerHtml)
-              .toList()
-              .toString();
+          returnVal =
+              result.nodes
+                  .map((e) => (e.node as dom.Element).outerHtml)
+                  .toList()
+                  .toString();
         case 'outerHTML':
-          returnVal = (result.node?.node as Element).outerHtml;
+          returnVal = (result.node?.node as dom.Element).outerHtml;
         default:
           returnVal = result.node?.text ?? "";
       }
@@ -338,7 +352,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
     jsRemoveSelector(dynamic args) {
       final content = args[0];
       final selector = args[1];
-      final doc = parse(content);
+      final doc = parser.parse(content);
       doc.querySelectorAll(selector).forEach((element) {
         element.remove();
       });
@@ -349,17 +363,19 @@ class ExtensionApiV1 extends ExtensionBaseService {
       final content = args[0];
       final selector = args[1];
       final attr = args[2];
-      final doc = parse(content).querySelector(selector);
+      final doc = parser.parse(content).querySelector(selector);
       return doc?.attributes[attr];
     }
 
     jsQuerySelectorAll(dynamic args) async {
       final content = args["content"];
       final selector = args["selector"];
-      final doc = parse(content).querySelectorAll(selector);
-      final elements = jsonEncode(doc.map((e) {
-        return e.outerHtml;
-      }).toList());
+      final doc = parser.parse(content).querySelectorAll(selector);
+      final elements = jsonEncode(
+        doc.map((e) {
+          return e.outerHtml;
+        }).toList(),
+      );
       return elements;
     }
 
@@ -386,29 +402,43 @@ class ExtensionApiV1 extends ExtensionBaseService {
       handleDartBridge('getSetting$className', jsGetMessage);
     } else {
       runtime.onMessage(
-          'getSetting$className', (dynamic args) => jsGetMessage(args));
+        'getSetting$className',
+        (dynamic args) => jsGetMessage(args),
+      );
       // 日志
       runtime.onMessage('miruLog', (args) => jsLog(args));
       // 请求
       runtime.onMessage('request$className', (args) => jsRequest(args));
       // 设置
       runtime.onMessage(
-          'registerSetting$className', (args) => jsRegisterSetting(args));
+        'registerSetting$className',
+        (args) => jsRegisterSetting(args),
+      );
       // 清理扩展设置
       runtime.onMessage(
-          'cleanSettings$className', (dynamic args) => jsCleanSettings(args));
+        'cleanSettings$className',
+        (dynamic args) => jsCleanSettings(args),
+      );
       // xpath 选择器
       runtime.onMessage('queryXPath$className', (arg) => jsQueryXPath(arg));
       runtime.onMessage(
-          'removeSelector$className', (args) => jsRemoveSelector(args));
+        'removeSelector$className',
+        (args) => jsRemoveSelector(args),
+      );
       // 获取标签属性
       runtime.onMessage(
-          'getAttributeText$className', (args) => jsGetAttributeText(args));
-      runtime.onMessage('querySelectorAll$className',
-          (dynamic args) => jsQuerySelectorAll(args));
+        'getAttributeText$className',
+        (args) => jsGetAttributeText(args),
+      );
+      runtime.onMessage(
+        'querySelectorAll$className',
+        (dynamic args) => jsQuerySelectorAll(args),
+      );
       // css 选择器
       runtime.onMessage(
-          'querySelector$className', (arg) => jsQuerySelector(arg));
+        'querySelector$className',
+        (arg) => jsQuerySelector(arg),
+      );
     }
   }
 
@@ -416,15 +446,17 @@ class ExtensionApiV1 extends ExtensionBaseService {
   Future<List<ExtensionListItem>> latest(int page) async {
     return runExtension(() async {
       final jsResult = await runtime.handlePromise(
-        await runtime.evaluateAsync(_isJscore
-            ? '${className}Instance.latest($page)'
-            : 'stringify(()=>${className}Instance.latest($page))'),
+        await runtime.evaluateAsync(
+          _isJscore
+              ? '${className}Instance.latest($page)'
+              : 'stringify(()=>${className}Instance.latest($page))',
+        ),
       );
 
       List<ExtensionListItem> result =
           jsonDecode(jsResult.stringResult).map<ExtensionListItem>((e) {
-        return ExtensionListItem.fromJson(e);
-      }).toList();
+            return ExtensionListItem.fromJson(e);
+          }).toList();
       for (var element in result) {
         element.headers ??= await _defaultHeaders;
       }
@@ -440,14 +472,16 @@ class ExtensionApiV1 extends ExtensionBaseService {
   }) async {
     return runExtension(() async {
       final jsResult = await runtime.handlePromise(
-        await runtime.evaluateAsync(_isJscore
-            ? '${className}Instance.search("$kw",$page,${filter == null ? null : jsonEncode(filter)})'
-            : 'stringify(()=>${className}Instance.search("$kw",$page,${filter == null ? null : jsonEncode(filter)}))'),
+        await runtime.evaluateAsync(
+          _isJscore
+              ? '${className}Instance.search("$kw",$page,${filter == null ? null : jsonEncode(filter)})'
+              : 'stringify(()=>${className}Instance.search("$kw",$page,${filter == null ? null : jsonEncode(filter)}))',
+        ),
       );
       List<ExtensionListItem> result =
           jsonDecode(jsResult.stringResult).map<ExtensionListItem>((e) {
-        return ExtensionListItem.fromJson(e);
-      }).toList();
+            return ExtensionListItem.fromJson(e);
+          }).toList();
       for (var element in result) {
         element.headers ??= await _defaultHeaders;
       }
@@ -461,13 +495,15 @@ class ExtensionApiV1 extends ExtensionBaseService {
   }) async {
     late String eval;
     if (filter == null) {
-      eval = _isJscore
-          ? '${className}Instance.createFilter()'
-          : 'stringify(()=>${className}Instance.createFilter())';
+      eval =
+          _isJscore
+              ? '${className}Instance.createFilter()'
+              : 'stringify(()=>${className}Instance.createFilter())';
     } else {
-      eval = _isJscore
-          ? '${className}Instance.createFilter(JSON.parse(\'${jsonEncode(filter)}\'))'
-          : 'stringify(()=>${className}Instance.createFilter(JSON.parse(\'${jsonEncode(filter)}\')))';
+      eval =
+          _isJscore
+              ? '${className}Instance.createFilter(JSON.parse(\'${jsonEncode(filter)}\'))'
+              : 'stringify(()=>${className}Instance.createFilter(JSON.parse(\'${jsonEncode(filter)}\')))';
     }
     return runExtension(() async {
       final jsResult = await runtime.handlePromise(
@@ -475,10 +511,7 @@ class ExtensionApiV1 extends ExtensionBaseService {
       );
       Map<String, dynamic> result = jsonDecode(jsResult.stringResult);
       return result.map(
-        (key, value) => MapEntry(
-          key,
-          ExtensionFilter.fromJson(value),
-        ),
+        (key, value) => MapEntry(key, ExtensionFilter.fromJson(value)),
       );
     });
   }
@@ -487,24 +520,29 @@ class ExtensionApiV1 extends ExtensionBaseService {
   Future<ExtensionDetail> detail(String url) async {
     return runExtension(() async {
       final jsResult = await runtime.handlePromise(
-        await runtime.evaluateAsync(_isJscore
-            ? '${className}Instance.detail("$url")'
-            : 'stringify(()=>${className}Instance.detail("$url"))'),
+        await runtime.evaluateAsync(
+          _isJscore
+              ? '${className}Instance.detail("$url")'
+              : 'stringify(()=>${className}Instance.detail("$url"))',
+        ),
       );
-      final result =
-          ExtensionDetail.fromJson(jsonDecode(jsResult.stringResult));
+      final result = ExtensionDetail.fromJson(
+        jsonDecode(jsResult.stringResult),
+      );
       result.headers ??= await _defaultHeaders;
       return result;
     });
   }
 
   @override
-  Future<Object?> watch(String url) async {
+  Future<BaseWatch?> watch(String url) async {
     return runExtension(() async {
       final jsResult = await runtime.handlePromise(
-        await runtime.evaluateAsync(_isJscore
-            ? '${className}Instance.watch("$url")'
-            : 'stringify(()=>${className}Instance.watch("$url"))'),
+        await runtime.evaluateAsync(
+          _isJscore
+              ? '${className}Instance.watch("$url")'
+              : 'stringify(()=>${className}Instance.watch("$url"))',
+        ),
       );
       final data = jsonDecode(jsResult.stringResult);
 

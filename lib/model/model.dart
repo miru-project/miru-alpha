@@ -6,10 +6,7 @@ enum ExtensionType { manga, bangumi, fikushon }
 
 enum ExtensionWatchBangumiType { hls, mp4, torrent }
 
-enum ExtensionLogLevel {
-  info,
-  error,
-}
+enum ExtensionLogLevel { info, error }
 
 enum MangaReadMode {
   // 标准 从左到右
@@ -124,10 +121,7 @@ class ExtensionDetail {
 
 @JsonSerializable()
 class ExtensionEpisodeGroup {
-  ExtensionEpisodeGroup({
-    required this.title,
-    required this.urls,
-  });
+  ExtensionEpisodeGroup({required this.title, required this.urls});
   final String title;
   final List<ExtensionEpisode> urls;
 
@@ -139,10 +133,7 @@ class ExtensionEpisodeGroup {
 
 @JsonSerializable()
 class ExtensionEpisode {
-  ExtensionEpisode({
-    required this.name,
-    required this.url,
-  });
+  ExtensionEpisode({required this.name, required this.url});
   final String name;
   final String url;
 
@@ -153,7 +144,7 @@ class ExtensionEpisode {
 }
 
 @JsonSerializable()
-class ExtensionBangumiWatch {
+class ExtensionBangumiWatch extends BaseWatch {
   ExtensionBangumiWatch({
     required this.type,
     required this.url,
@@ -190,12 +181,11 @@ class ExtensionBangumiWatchSubtitle {
   Map<String, dynamic> toJson() => _$ExtensionBangumiWatchSubtitleToJson(this);
 }
 
+abstract class BaseWatch {}
+
 @JsonSerializable()
-class ExtensionMangaWatch {
-  ExtensionMangaWatch({
-    required this.urls,
-    this.headers,
-  });
+class ExtensionMangaWatch extends BaseWatch {
+  ExtensionMangaWatch({required this.urls, this.headers});
 
   final List<String> urls;
   late Map<String, String>? headers;
@@ -207,7 +197,7 @@ class ExtensionMangaWatch {
 }
 
 @JsonSerializable()
-class ExtensionFikushonWatch {
+class ExtensionFikushonWatch extends BaseWatch {
   final List<String> content;
   final String title;
   final String? subtitle;
@@ -283,18 +273,19 @@ class GithubExtension {
   final String website;
   final bool isNsfw;
   final String package;
-  GithubExtension(
-      {required this.name,
-      this.description,
-      required this.license,
-      required this.version,
-      required this.author,
-      required this.package,
-      this.icon,
-      required this.type,
-      required this.language,
-      required this.website,
-      required this.isNsfw});
+  GithubExtension({
+    required this.name,
+    this.description,
+    required this.license,
+    required this.version,
+    required this.author,
+    required this.package,
+    this.icon,
+    required this.type,
+    required this.language,
+    required this.website,
+    required this.isNsfw,
+  });
 
   factory GithubExtension.fromJson(Map<String, dynamic> json) {
     return GithubExtension(

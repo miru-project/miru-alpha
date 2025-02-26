@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import '../i18n.dart';
 import 'package:miru_app_new/utils/index.dart';
-import 'package:miru_app_new/views/widgets/snackbar.dart';
 
 enum AnilistType { anime, manga }
 
