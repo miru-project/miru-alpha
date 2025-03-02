@@ -1739,7 +1739,7 @@ class _DownloadDialogState extends State<_DownloadDialog>
     );
   }
 
-  Widget tabView(List<ExtensionEpisodeGroup> epGroup) {
+  Widget tabView(List<ExtensionEpisodeGroup> epGroup, BuildContext context) {
     final service = widget.extensionService;
     return ValueListenableBuilder(
       valueListenable: isSelected,
@@ -1751,6 +1751,21 @@ class _DownloadDialogState extends State<_DownloadDialog>
               (index) => ListView.builder(
                 itemBuilder: (context, index) {
                   return MoonMenuItem(
+                    // onTap: () {
+                    //   final testM3u8 =
+                    //       "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+                    //   DownloadUtils.addTask(
+                    //     VideoDownlodTasks(
+                    //       episodeName: epGroup[value].urls[index].name,
+                    //       episodeGroupName: epGroup[value].title,
+                    //       videoName: widget.detail.title,
+                    //       watchType: ExtensionWatchBangumiType.hls,
+                    //       videoUrl: testM3u8,
+                    //       packageName: service.className,
+                    //     ),
+                    //     context,
+                    //   );
+                    // },
                     onTap: () async {
                       final videoWatch =
                           await widget.extensionService.watch(
@@ -1758,15 +1773,17 @@ class _DownloadDialogState extends State<_DownloadDialog>
                               )
                               as ExtensionBangumiWatch?;
 
-                      if (videoWatch == null) {
-                        return;
-                      }
+                      if (videoWatch == null) return;
                       DownloadUtils.addTask(
                         VideoDownlodTasks(
-                          videoWatch.type,
-                          videoWatch.url,
-                          service.extension.package,
+                          episodeName: epGroup[value].urls[index].name,
+                          episodeGroupName: epGroup[value].title,
+                          videoName: widget.detail.title,
+                          watchType: videoWatch.type,
+                          videoUrl: videoWatch.url,
+                          packageName: service.extension.package,
                         ),
+                        context,
                       );
                     },
                     label: Text(epGroup[value].urls[index].name),
@@ -1813,7 +1830,7 @@ class _DownloadDialogState extends State<_DownloadDialog>
                               children: [
                                 tabBar(),
                                 const SizedBox(height: 10),
-                                Expanded(child: tabView(epGroup)),
+                                Expanded(child: tabView(epGroup, context)),
                               ],
                             ),
                           ),

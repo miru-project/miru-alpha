@@ -332,10 +332,46 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "10:6428831893210716971",
+      "lastPropertyId": "5:228082095699691301",
+      "name": "DownloadRecord",
+      "properties": [
+        {
+          "id": "1:82205819777661288",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:3714488703173983156",
+          "name": "saveDir",
+          "type": 9,
+          "flags": 34848,
+          "indexId": "8:5047224365622605909"
+        },
+        {
+          "id": "3:7218879448102637492",
+          "name": "url",
+          "type": 9
+        },
+        {
+          "id": "4:1169560337227185070",
+          "name": "currentSegment",
+          "type": 6
+        },
+        {
+          "id": "5:228082095699691301",
+          "name": "totalSegment",
+          "type": 6
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "9:6830163541747943357",
-  "lastIndexId": "7:4704967599161924607",
+  "lastEntityId": "10:6428831893210716971",
+  "lastIndexId": "8:5047224365622605909",
   "lastRelationId": "3:4323399748270565105",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

@@ -46,46 +46,29 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
+                    Text(widget.name, style: const TextStyle(fontSize: 18)),
                     Text(
                       widget.author,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
           Expanded(
             child: Text(
               widget.version,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ),
           Expanded(
             child: Text(
               widget.type,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ),
-          Button(
-            onPressed: widget.onUninstall,
-            child: const Text('Uninstall'),
-          ),
+          Button(onPressed: widget.onUninstall, child: const Text('Uninstall')),
         ],
       ),
     );
@@ -122,7 +105,8 @@ class ExtensionGridTile extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: context.moonTheme?.tabBarTheme.colors.selectedPillTabColor
+          color:
+              context.moonTheme?.tabBarTheme.colors.selectedPillTabColor
                   .withAlpha(100) ??
               Colors.black12,
           width: 1,
@@ -154,18 +138,14 @@ class ExtensionGridTile extends StatelessWidget {
                           Text(name),
                           Text(
                             author,
-                            style: const TextStyle(
-                              color: Colors.grey,
-                            ),
+                            style: const TextStyle(color: Colors.grey),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    description ?? 'No description',
-                  ),
+                  Text(description ?? 'No description'),
                 ],
               ),
             ),
@@ -173,7 +153,7 @@ class ExtensionGridTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             color: context.moonTheme?.tabBarTheme.colors.selectedPillTabColor
-                .withOpacity(.5),
+                .withValues(alpha: .5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -183,18 +163,21 @@ class ExtensionGridTile extends StatelessWidget {
                     color: context.moonTheme?.textInputTheme.colors.textColor,
                   ),
                 ),
-                Row(children: [
-                  if (isInstalled)
-                    MoonButton(
+                Row(
+                  children: [
+                    if (isInstalled)
+                      MoonButton(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         onTap: onUninstall,
-                        label: const Text('Uninstall')),
-                  MoonButton(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    onTap: onInstall,
-                    label: const Text('Install'),
-                  )
-                ])
+                        label: const Text('Uninstall'),
+                      ),
+                    MoonButton(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      onTap: onInstall,
+                      label: const Text('Install'),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

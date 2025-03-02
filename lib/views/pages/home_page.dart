@@ -1,9 +1,9 @@
 import 'dart:developer';
-import 'dart:ffi';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:encrypt/encrypt.dart' as enc;
 import 'package:extended_image/extended_image.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -18,8 +18,6 @@ import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:go_router/go_router.dart';
-import 'package:ffi/ffi.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class HomePageCarousel extends StatelessWidget {
   const HomePageCarousel({super.key, required this.item});
@@ -1385,71 +1383,48 @@ class _DownloadPageState extends State<DownloadPage> {
     return MoonButton(
       label: Text('Test'),
       onTap: () async {
-        if (Platform.isAndroid) {
-          await Permission.manageExternalStorage.request();
-          // if (!await Permission.storage.request().isGranted) {
-          //   debugPrint('Permission denied');
-          //   return;
-          // }
-          final path = await FilePicker.platform.getDirectoryPath();
-          if (path == null) {
-            return;
-          }
-          FFMpegUtils.openlib();
-          FFMpegUtils.combineTsToMp4([
-            "$path/out.mp4",
-            "$path/s1.ts",
-            "$path/s2.ts",
-            "$path/s3.ts",
-          ]);
-          return;
-        }
-        FFMpegUtils.openlib();
-        FFMpegUtils.combineTsToMp4([
-          "/home/noonecare/Documents/GitHub/miru_new/out.mp4",
-          "/home/noonecare/Documents/GitHub/miru_new/s1.ts",
-          "/home/noonecare/Documents/GitHub/miru_new/s2.ts",
-          "/home/noonecare/Documents/GitHub/miru_new/s3.ts",
-          // "/home/noonecare/Documents/GitHub/miru_new/video3.ts",
-          // "/home/noonecare/Documents/GitHub/miru_new/video4.ts",
-          // "/home/noonecare/Documents/GitHub/miru_new/video5.ts",
-        ]);
+        final keyFile =
+            await File('/home/noonecare/Videos/mon.key').readAsBytes();
+        final key = enc.Key(keyFile);
+        final iv = enc.IV(Uint8List(16));
+        final encrypter = enc.Encrypter(
+          enc.AES(key, mode: enc.AESMode.cbc, padding: null),
+        );
+        final encrypted = enc.Encrypted(
+          await File(
+            '/home/noonecare/Videos/segment-1-v1-a1.jpg',
+          ).readAsBytes(),
+        );
+
+        final decrpted = encrypter.decryptBytes(encrypted, iv: iv);
+        File('/home/noonecare/Videos/1.ts').writeAsBytes(decrpted);
       },
+      // () async {
+      //   if (Platform.isAndroid) {
+      //     await Permission.manageExternalStorage.request();
+      //     // if (!await Permission.storage.request().isGranted) {
+      //     //   debugPrint('Permission denied');
+      //     //   return;
+      //     // }
+      //     final path = await FilePicker.platform.getDirectoryPath();
+      //     if (path == null) {
+      //       return;
+      //     }
+      //     FFMpegUtils.openlib();
+      //     FFMpegUtils.combineTsToMp4([
+      //       "$path/s1.ts",
+      //       "$path/s2.ts",
+      //       "$path/s3.ts",
+      //     ], "$path/out.mp4");
+      //     return;
+      //   }
+      //   FFMpegUtils.openlib();
+      //   FFMpegUtils.combineTsToMp4([
+      //     "/home/noonecare/Documents/GitHub/miru_new/s1.ts",
+      //     "/home/noonecare/Documents/GitHub/miru_new/s2.ts",
+      //     "/home/noonecare/Documents/GitHub/miru_new/s3.ts",
+      //   ], "/home/noonecare/Documents/GitHub/miru_new/out.mp4");
+      // },
     );
-  }
-}
-
-typedef StartNative = Int32 Function(Int32 num, Pointer<Pointer<Utf8>> files);
-typedef Start = int Function(int num, Pointer<Pointer<Utf8>> files);
-
-class FFMpegUtils {
-  static late Start start;
-  static late DynamicLibrary _lib;
-
-  static void openlib() {
-    _lib = DynamicLibrary.open('libffmpeg_merge.so');
-    start = _lib.lookupFunction<StartNative, Start>('start');
-  }
-
-  static void combineTsToMp4(List<String> inputFiles) {
-    final inputFilesUtf8 = inputFiles.map((f) => f.toNativeUtf8()).toList();
-    final array = calloc<Pointer<Utf8>>(inputFiles.length);
-
-    for (var i = 0; i < inputFiles.length; i++) {
-      array[i] = inputFilesUtf8[i];
-    }
-
-    try {
-      final inputFileNum = inputFiles.length;
-      final result = start(inputFileNum, array);
-      if (result != 0) {
-        throw Exception('Failed to combine videos: error code $result');
-      }
-    } finally {
-      for (var ptr in inputFilesUtf8) {
-        calloc.free(ptr);
-      }
-      calloc.free(array);
-    }
   }
 }

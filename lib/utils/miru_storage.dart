@@ -138,7 +138,7 @@ class MiruStorage {
     SettingKey.subtitleBackgroundOpacity: 0.5,
     SettingKey.subtitleTextAlign: TextAlign.center.index,
     SettingKey.accentColor: "krillin",
-    SettingKey.mobiletitleIsonTop: false,
+    SettingKey.mobiletitleIsonTop: "false",
     SettingKey.btServerLink: "https://github.com/miru-project/bt-server",
     SettingKey.maxConnection: "3",
   };

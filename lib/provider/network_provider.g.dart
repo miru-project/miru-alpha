@@ -6,7 +6,7 @@ part of 'network_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$videoLoadHash() => r'2f620cace94a9192b653aebcc527cc5dd33fb754';
+String _$videoLoadHash() => r'7e384ac04433473ea54e7adcad9b7c4a106d44e8';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -176,7 +176,7 @@ class _VideoLoadProviderElement
 }
 
 String _$fetchExtensionRepoHash() =>
-    r'605ba07f48d523f12b0d711c146f4f5b0f792e06';
+    r'8c31498b560f369a262a6646c77bfc623d47e7d5';
 
 /// See also [fetchExtensionRepo].
 @ProviderFor(fetchExtensionRepo)
@@ -196,7 +196,7 @@ final fetchExtensionRepoProvider =
 typedef FetchExtensionRepoRef
     = AutoDisposeFutureProviderRef<List<GithubExtension>>;
 String _$fetchExtensionDetailHash() =>
-    r'e1b51696b69103a5e3b975a06c1d185623fa36d8';
+    r'46dbbf8553da0bcc1e84b346f3472a80df609ff7';
 
 /// See also [fetchExtensionDetail].
 @ProviderFor(fetchExtensionDetail)
@@ -347,7 +347,7 @@ class _FetchExtensionDetailProviderElement
 }
 
 String _$fetchExtensionLatestHash() =>
-    r'7b24f188442a096ddc6e2d3a661f2ee029b04be8';
+    r'688262122f7a4404c57729eb70f47ec7900387ba';
 
 /// See also [fetchExtensionLatest].
 @ProviderFor(fetchExtensionLatest)
@@ -501,7 +501,7 @@ class _FetchExtensionLatestProviderElement
 }
 
 String _$fetchExtensionSearchHash() =>
-    r'dedd10d2eb600acedc83cfe95f3dbbca2d514edd';
+    r'e34f2739043e3a7f966951cd9ad403a60cdf1e64';
 
 /// See also [fetchExtensionSearch].
 @ProviderFor(fetchExtensionSearch)
@@ -687,7 +687,7 @@ class _FetchExtensionSearchProviderElement
       (origin as FetchExtensionSearchProvider).filter;
 }
 
-String _$mangaLoadHash() => r'504dd9abbfeb48124e2deba15f0f193b1f19980f';
+String _$mangaLoadHash() => r'922b86688b8803eaa40283f850e7c6a43c55daa1';
 
 /// See also [mangaLoad].
 @ProviderFor(mangaLoad)
@@ -834,7 +834,7 @@ class _MangaLoadProviderElement
   ExtensionApiV1 get service => (origin as MangaLoadProvider).service;
 }
 
-String _$fikushonLoadHash() => r'8271bce34dd2a932698e486d2ebe8b80df96afdb';
+String _$fikushonLoadHash() => r'90bf0411a89ff487ee83934123a1735ba4967dfb';
 
 /// See also [fikushonLoad].
 @ProviderFor(fikushonLoad)

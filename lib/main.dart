@@ -14,6 +14,7 @@ import 'package:miru_app_new/utils/download/download_utils.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/i18n.dart';
 import 'package:miru_app_new/utils/index.dart';
+import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:window_manager/window_manager.dart';
@@ -64,6 +65,7 @@ void main() async {
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
+  MiruLog.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const ProviderScope(child: App()));

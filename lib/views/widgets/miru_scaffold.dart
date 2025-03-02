@@ -5,14 +5,15 @@ import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
 
 class MiruScaffold extends StatefulHookWidget {
-  const MiruScaffold(
-      {super.key,
-      this.appBar,
-      required this.body,
-      this.sidebar,
-      this.snappingSheetController,
-      this.mobileHeader,
-      this.scrollController});
+  const MiruScaffold({
+    super.key,
+    this.appBar,
+    required this.body,
+    this.sidebar,
+    this.snappingSheetController,
+    this.mobileHeader,
+    this.scrollController,
+  });
   final PreferredSizeWidget? appBar;
   final Widget body;
   final List<Widget>? sidebar;
@@ -66,13 +67,11 @@ class _MiruScaffoldState extends State<MiruScaffold> {
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor.withAlpha(220),
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(30),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
             boxShadow: [
               BoxShadow(
                 blurRadius: 25,
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: .2),
               ),
             ],
           ),
@@ -85,7 +84,9 @@ class _MiruScaffoldState extends State<MiruScaffold> {
                 _GrabbingWidget(),
                 if (widget.mobileHeader != null &&
                     !MiruStorage.getSettingSync(
-                        SettingKey.mobiletitleIsonTop, bool))
+                      SettingKey.mobiletitleIsonTop,
+                      bool,
+                    ))
                   widget.mobileHeader!,
                 ...widget.sidebar!,
               ],
@@ -93,11 +94,13 @@ class _MiruScaffoldState extends State<MiruScaffold> {
           ),
         ),
       ),
-      child: Column(children: [
-        if (MiruStorage.getSettingSync(SettingKey.mobiletitleIsonTop, bool))
-          const SizedBox(height: 50),
-        Expanded(child: widget.body)
-      ]),
+      child: Column(
+        children: [
+          if (MiruStorage.getSettingSync(SettingKey.mobiletitleIsonTop, bool))
+            const SizedBox(height: 50),
+          Expanded(child: widget.body),
+        ],
+      ),
     );
   }
 
@@ -106,12 +109,13 @@ class _MiruScaffoldState extends State<MiruScaffold> {
     return PlatformWidget(
       mobileWidget: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: MiruStorage.getSettingSync(SettingKey.mobiletitleIsonTop, bool)
-            ? AppBar(
-                automaticallyImplyLeading: false,
-                title: widget.mobileHeader,
-              )
-            : null,
+        appBar:
+            MiruStorage.getSettingSync(SettingKey.mobiletitleIsonTop, bool)
+                ? AppBar(
+                  automaticallyImplyLeading: false,
+                  title: widget.mobileHeader,
+                )
+                : null,
         body: widget.sidebar == null ? widget.body : sheet(),
       ),
       desktopWidget: Scaffold(
@@ -124,9 +128,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
                   children: widget.sidebar!,
                 ),
               ),
-            Expanded(
-              child: widget.body,
-            )
+            Expanded(child: widget.body),
           ],
         ),
       ),

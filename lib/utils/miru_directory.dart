@@ -6,15 +6,18 @@ import 'package:path/path.dart' as path;
 class MiruDirectory {
   static late final Directory _appDocDir;
   static late final Directory _cacheDir;
-
+  static late final Directory _mirDonwloadDir;
   static ensureInitialized() async {
     _appDocDir = await getApplicationDocumentsDirectory();
     _cacheDir = await getTemporaryDirectory();
+    _mirDonwloadDir = await getDownloadsDirectory() ?? _cacheDir;
   }
 
   static String get getDirectory => _miruDir(_appDocDir);
 
   static String get getCacheDirectory => _miruDir(_cacheDir);
+
+  static String get getDownloadDirectory => _miruDir(_mirDonwloadDir);
 
   static String _miruDir(Directory directory) {
     final dir = path.join(directory.path, 'miru');

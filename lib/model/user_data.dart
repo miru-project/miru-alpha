@@ -42,8 +42,9 @@ class History {
 
 extension HistoryExtension on History {
   ExtensionType get extensionType => ExtensionType.values.firstWhere(
-      (e) => e.toString().split('.').last == type,
-      orElse: () => ExtensionType.manga);
+    (e) => e.toString().split('.').last == type,
+    orElse: () => ExtensionType.manga,
+  );
 
   set extensionType(ExtensionType value) {
     type = value.toString().split('.').last;
@@ -59,17 +60,14 @@ class MangaSetting {
   String url;
   String readMode;
 
-  MangaSetting({
-    this.id = 0,
-    required this.url,
-    required this.readMode,
-  });
+  MangaSetting({this.id = 0, required this.url, required this.readMode});
 }
 
 extension MangaSettingExtension on MangaSetting {
   MangaReadMode get mangaReadMode => MangaReadMode.values.firstWhere(
-      (e) => e.toString().split('.').last == readMode,
-      orElse: () => MangaReadMode.standard);
+    (e) => e.toString().split('.').last == readMode,
+    orElse: () => MangaReadMode.standard,
+  );
 
   set mangaReadMode(MangaReadMode value) {
     readMode = value.toString().split('.').last;
@@ -134,8 +132,11 @@ class EnumToString {
   static T convertToEnum<T extends Enum>(String input, Iterable<T> values) {
     return values.firstWhere(
       (v) => v.toString().split('.').last == input,
-      orElse: () => throw ArgumentError(
-          'No enum value for input "$input" in ${T.toString()}'),
+      orElse:
+          () =>
+              throw ArgumentError(
+                'No enum value for input "$input" in ${T.toString()}',
+              ),
     );
   }
 }
@@ -151,9 +152,26 @@ class FavoriateGroup {
   @Property(type: PropertyType.date)
   DateTime date;
 
-  FavoriateGroup({
+  FavoriateGroup({this.id = 0, required this.name, required this.date});
+}
+
+// Recored download for saving downlading progress
+@Entity()
+class DownloadRecord {
+  @Id()
+  int id;
+
+  @Unique(onConflict: ConflictStrategy.replace)
+  String saveDir;
+  String url;
+  int currentSegment;
+  int totalSegment;
+
+  DownloadRecord({
     this.id = 0,
-    required this.name,
-    required this.date,
+    required this.saveDir,
+    required this.url,
+    required this.currentSegment,
+    required this.totalSegment,
   });
 }

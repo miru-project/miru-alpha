@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hls_parser/flutter_hls_parser.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/index.dart';
 import 'package:miru_app_new/utils/network/request.dart';
@@ -15,7 +16,7 @@ part 'network_provider.g.dart';
 
 @riverpod
 Future<ExtensionBangumiWatch> videoLoad(
-  VideoLoadRef ref,
+  Ref ref,
   String url,
   ExtensionApiV1 service,
 ) async {
@@ -24,16 +25,14 @@ Future<ExtensionBangumiWatch> videoLoad(
 }
 
 @riverpod
-Future<List<GithubExtension>> fetchExtensionRepo(
-  FetchExtensionRepoRef ref,
-) async {
+Future<List<GithubExtension>> fetchExtensionRepo(Ref ref) async {
   final result = await GithubNetwork.fetchRepo();
   return result;
 }
 
 @riverpod
 Future<ExtensionDetail> fetchExtensionDetail(
-  FetchExtensionDetailRef ref,
+  Ref ref,
   ExtensionApiV1 extensionService,
   String url,
 ) async {
@@ -43,7 +42,7 @@ Future<ExtensionDetail> fetchExtensionDetail(
 
 @riverpod
 Future<List<ExtensionListItem>> fetchExtensionLatest(
-  FetchExtensionLatestRef ref,
+  Ref ref,
   ExtensionApiV1 extensionService,
   int page,
 ) async {
@@ -54,7 +53,7 @@ Future<List<ExtensionListItem>> fetchExtensionLatest(
 
 @riverpod
 Future<List<ExtensionListItem>> fetchExtensionSearch(
-  FetchExtensionSearchRef ref,
+  Ref ref,
   ExtensionApiV1 extensionService,
   String query,
   int page, {
@@ -66,7 +65,7 @@ Future<List<ExtensionListItem>> fetchExtensionSearch(
 
 @riverpod
 Future<ExtensionMangaWatch> mangaLoad(
-  MangaLoadRef ref,
+  Ref ref,
   String url,
   ExtensionApiV1 service,
 ) async {
@@ -76,7 +75,7 @@ Future<ExtensionMangaWatch> mangaLoad(
 
 @riverpod
 Future<ExtensionFikushonWatch> fikushonLoad(
-  FikushonLoadRef ref,
+  Ref ref,
   String url,
   ExtensionApiV1 service,
 ) async {

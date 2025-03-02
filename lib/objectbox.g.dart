@@ -344,6 +344,41 @@ final _entities = <obx_int.ModelEntity>[
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(10, 6428831893210716971),
+      name: 'DownloadRecord',
+      lastPropertyId: const obx_int.IdUid(5, 228082095699691301),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 82205819777661288),
+            name: 'id',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 3714488703173983156),
+            name: 'saveDir',
+            type: 9,
+            flags: 34848,
+            indexId: const obx_int.IdUid(8, 5047224365622605909)),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 7218879448102637492),
+            name: 'url',
+            type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 1169560337227185070),
+            name: 'currentSegment',
+            type: 6,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(5, 228082095699691301),
+            name: 'totalSegment',
+            type: 6,
+            flags: 0)
+      ],
+      relations: <obx_int.ModelRelation>[],
       backlinks: <obx_int.ModelBacklink>[])
 ];
 
@@ -382,8 +417,8 @@ Future<obx.Store> openStore(
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
       entities: _entities,
-      lastEntityId: const obx_int.IdUid(9, 6830163541747943357),
-      lastIndexId: const obx_int.IdUid(7, 4704967599161924607),
+      lastEntityId: const obx_int.IdUid(10, 6428831893210716971),
+      lastIndexId: const obx_int.IdUid(8, 5047224365622605909),
       lastRelationId: const obx_int.IdUid(3, 4323399748270565105),
       lastSequenceId: const obx_int.IdUid(0, 0),
       retiredEntityUids: const [6350995733986966947],
@@ -795,6 +830,48 @@ obx_int.ModelDefinition getObjectBoxModel() {
             ..id = const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
 
           return object;
+        }),
+    DownloadRecord: obx_int.EntityDefinition<DownloadRecord>(
+        model: _entities[8],
+        toOneRelations: (DownloadRecord object) => [],
+        toManyRelations: (DownloadRecord object) => {},
+        getId: (DownloadRecord object) => object.id,
+        setId: (DownloadRecord object, int id) {
+          object.id = id;
+        },
+        objectToFB: (DownloadRecord object, fb.Builder fbb) {
+          final saveDirOffset = fbb.writeString(object.saveDir);
+          final urlOffset = fbb.writeString(object.url);
+          fbb.startTable(6);
+          fbb.addInt64(0, object.id);
+          fbb.addOffset(1, saveDirOffset);
+          fbb.addOffset(2, urlOffset);
+          fbb.addInt64(3, object.currentSegment);
+          fbb.addInt64(4, object.totalSegment);
+          fbb.finish(fbb.endTable());
+          return object.id;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final idParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          final saveDirParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '');
+          final urlParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 8, '');
+          final currentSegmentParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0);
+          final totalSegmentParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 12, 0);
+          final object = DownloadRecord(
+              id: idParam,
+              saveDir: saveDirParam,
+              url: urlParam,
+              currentSegment: currentSegmentParam,
+              totalSegment: totalSegmentParam);
+
+          return object;
         })
   };
 
@@ -1017,4 +1094,27 @@ class AppSetting_ {
   /// See [AppSetting.value].
   static final value =
       obx.QueryStringProperty<AppSetting>(_entities[7].properties[2]);
+}
+
+/// [DownloadRecord] entity fields to define ObjectBox queries.
+class DownloadRecord_ {
+  /// See [DownloadRecord.id].
+  static final id =
+      obx.QueryIntegerProperty<DownloadRecord>(_entities[8].properties[0]);
+
+  /// See [DownloadRecord.saveDir].
+  static final saveDir =
+      obx.QueryStringProperty<DownloadRecord>(_entities[8].properties[1]);
+
+  /// See [DownloadRecord.url].
+  static final url =
+      obx.QueryStringProperty<DownloadRecord>(_entities[8].properties[2]);
+
+  /// See [DownloadRecord.currentSegment].
+  static final currentSegment =
+      obx.QueryIntegerProperty<DownloadRecord>(_entities[8].properties[3]);
+
+  /// See [DownloadRecord.totalSegment].
+  static final totalSegment =
+      obx.QueryIntegerProperty<DownloadRecord>(_entities[8].properties[4]);
 }
