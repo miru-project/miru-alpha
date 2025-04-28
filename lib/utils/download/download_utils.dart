@@ -451,55 +451,6 @@ class VideoDownlodTasks extends DownloadTask {
         }
         sendPort.send(IsolateMessage(100.0, DownloadStatus.error, taskId: id));
         throw Exception('failed to prepare manifest');
-        // else {
-        //   // Fall back to doing everything in the isolate if preparation failed
-        //   late final List<String> m3u8Lines;
-        //   final parser = HlsPlaylistParser.create();
-
-        //   if (await File("$downloadDir/master.m3u8").exists()) {
-        //     m3u8Lines = await File("$downloadDir/master.m3u8").readAsLines();
-        //     sendPort.send(
-        //       IsolateMessage(
-        //         0.0,
-        //         DownloadStatus.downloading,
-        //         message: "Using cached m3u8",
-        //         taskId: id,
-        //       ),
-        //     );
-        //   } else {
-        //     // Download m3u8
-        //     sendPort.send(
-        //       IsolateMessage(
-        //         0.0,
-        //         DownloadStatus.downloading,
-        //         message: "Downloading m3u8",
-        //         taskId: id,
-        //       ),
-        //     );
-        //     await dio.download(videoUrl, "$downloadDir/master.m3u8");
-        //     m3u8Lines = await File("$downloadDir/master.m3u8").readAsLines();
-        //     sendPort.send(
-        //       IsolateMessage(
-        //         0.0,
-        //         DownloadStatus.downloading,
-        //         message: "m3u8 downloaded",
-        //         taskId: id,
-        //       ),
-        //     );
-        //   }
-
-        //   final playlist = await parser.parse(Uri.parse(videoUrl), m3u8Lines);
-        //   if (playlist is HlsMasterPlaylist) {
-        //     await handleHlsMasterPlaylist(playlist, sendPort);
-        //   } else if (playlist is HlsMediaPlaylist) {
-        //     await downloadHlsSegments(playlist, sendPort);
-        //   }
-        // }
-
-        // sendPort.send(
-        //   IsolateMessage(100.0, DownloadStatus.complete, taskId: id),
-        // );
-        // return;
       } else if (watchType.name == 'mp4') {
         // Handle MP4 download
         await handleMp4Download(sendPort);
@@ -746,63 +697,6 @@ class VideoDownlodTasks extends DownloadTask {
     final output = '$containFolder/output.mp4';
     FFMpegUtils.combineTsToMp4(input, output);
   }
-
-  // Future<void> handleHlsMasterPlaylist(
-  //   HlsMasterPlaylist playlist,
-  //   SendPort sendPort,
-  // ) async {
-  //   if (playlist.variants.isEmpty) {
-  //     sendPort.send(
-  //       IsolateMessage(
-  //         0.0,
-  //         DownloadStatus.error,
-  //         message: "Master playlist has no variants",
-  //         taskId: id,
-  //       ),
-  //     );
-  //     return;
-  //   }
-
-  //   final variant = playlist.variants.first;
-  //   final uri = variant.url;
-
-  //   sendPort.send(
-  //     IsolateMessage(
-  //       12.0,
-  //       DownloadStatus.downloading,
-  //       message: "Processing master playlist variant",
-  //       taskId: id,
-  //     ),
-  //   );
-
-  //   try {
-  //     final m3u8Lines = await DownloadUtils.readLinesAndFetch(uri);
-  //     final playlistNew = await HlsPlaylistParser.create().parse(
-  //       uri,
-  //       m3u8Lines,
-  //     );
-
-  //     if (playlistNew is HlsMediaPlaylist) {
-  //       await downloadHlsSegments(playlistNew, sendPort);
-  //       return;
-  //     }
-  //     if (playlistNew is HlsMasterPlaylist) {
-  //       await handleHlsMasterPlaylist(playlistNew, sendPort);
-  //       return;
-  //     }
-
-  //     throw Exception('Unknown playlist type');
-  //   } catch (e) {
-  //     sendPort.send(
-  //       IsolateMessage(
-  //         0.0,
-  //         DownloadStatus.error,
-  //         message: "Error processing master playlist: $e",
-  //         taskId: id,
-  //       ),
-  //     );
-  //   }
-  // }
 }
 
 class IsolateMessage {
@@ -834,4 +728,17 @@ enum DownloadStatus {
 
   //Video converting
   converting,
+}
+
+class MiruCoreDownload {
+  static final tasks = <String, MiruDownloadTask>{};
+  static void addTask(MiruDownloadTask task) {
+    tasks[task.id] = task;
+  }
+}
+
+class MiruDownloadTask {
+  final String id;
+  final String name;
+  MiruDownloadTask({required this.id, required this.name});
 }

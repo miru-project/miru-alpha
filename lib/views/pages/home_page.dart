@@ -1,8 +1,5 @@
 import 'dart:developer';
-import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:encrypt/encrypt.dart' as enc;
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -15,6 +12,7 @@ import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/tracking/anilist_provider.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
+import 'package:miru_app_new/views/pages/download_page.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:go_router/go_router.dart';
@@ -1367,64 +1365,6 @@ class _AnilistHomePageState extends ConsumerState<_AnilistHomePage>
           ),
         );
       },
-    );
-  }
-}
-
-class DownloadPage extends StatefulHookWidget {
-  const DownloadPage({super.key});
-  @override
-  createState() => _DownloadPageState();
-}
-
-class _DownloadPageState extends State<DownloadPage> {
-  @override
-  Widget build(BuildContext context) {
-    return MoonButton(
-      label: Text('Test'),
-      onTap: () async {
-        final keyFile =
-            await File('/home/noonecare/Videos/mon.key').readAsBytes();
-        final key = enc.Key(keyFile);
-        final iv = enc.IV(Uint8List(16));
-        final encrypter = enc.Encrypter(
-          enc.AES(key, mode: enc.AESMode.cbc, padding: null),
-        );
-        final encrypted = enc.Encrypted(
-          await File(
-            '/home/noonecare/Videos/segment-1-v1-a1.jpg',
-          ).readAsBytes(),
-        );
-
-        final decrpted = encrypter.decryptBytes(encrypted, iv: iv);
-        File('/home/noonecare/Videos/1.ts').writeAsBytes(decrpted);
-      },
-      // () async {
-      //   if (Platform.isAndroid) {
-      //     await Permission.manageExternalStorage.request();
-      //     // if (!await Permission.storage.request().isGranted) {
-      //     //   debugPrint('Permission denied');
-      //     //   return;
-      //     // }
-      //     final path = await FilePicker.platform.getDirectoryPath();
-      //     if (path == null) {
-      //       return;
-      //     }
-      //     FFMpegUtils.openlib();
-      //     FFMpegUtils.combineTsToMp4([
-      //       "$path/s1.ts",
-      //       "$path/s2.ts",
-      //       "$path/s3.ts",
-      //     ], "$path/out.mp4");
-      //     return;
-      //   }
-      //   FFMpegUtils.openlib();
-      //   FFMpegUtils.combineTsToMp4([
-      //     "/home/noonecare/Documents/GitHub/miru_new/s1.ts",
-      //     "/home/noonecare/Documents/GitHub/miru_new/s2.ts",
-      //     "/home/noonecare/Documents/GitHub/miru_new/s3.ts",
-      //   ], "/home/noonecare/Documents/GitHub/miru_new/out.mp4");
-      // },
     );
   }
 }

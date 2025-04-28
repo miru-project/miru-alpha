@@ -8,6 +8,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/model/miru_core.dart';
 import 'package:miru_app_new/objectbox.g.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
@@ -15,6 +16,9 @@ import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/download/download_utils.dart';
 
 import 'package:miru_app_new/utils/extension/extension_service.dart';
+import 'package:miru_app_new/utils/index.dart';
+import 'package:miru_app_new/utils/log.dart';
+import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/views/widgets/dialog/favorite_add_group_dialog.dart';
@@ -1063,6 +1067,11 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                             },
                           ),
                     ),
+                    DownloadButton(
+                      isIcon: true,
+                      detail: detail!,
+                      extensionService: extensionService,
+                    ),
                   ],
                 ),
               ],
@@ -1774,17 +1783,30 @@ class _DownloadDialogState extends State<_DownloadDialog>
                               as ExtensionBangumiWatch?;
 
                       if (videoWatch == null) return;
-                      DownloadUtils.addTask(
-                        VideoDownlodTasks(
-                          episodeName: epGroup[value].urls[index].name,
-                          episodeGroupName: epGroup[value].title,
-                          videoName: widget.detail.title,
-                          watchType: videoWatch.type,
-                          videoUrl: videoWatch.url,
-                          packageName: service.extension.package,
-                        ),
-                        context,
+                      await MiruDirectory.createMoviesFolder(
+                        widget.detail.title,
                       );
+                      final res = await dio.post(
+                        "http://127.127.127.127:12777/download/bangumi",
+                        data: {
+                          "url": videoWatch.url,
+                          "download_path":
+                              '/storage/emulated/0/Movies/${widget.detail.title}',
+                          "is_hls": true,
+                        },
+                      );
+                      logger.info(res);
+                      final jsonRes = MiruCoreResponse.fromJson(res.data);
+                      MiruCoreDownload.addTask(
+                        MiruDownloadTask(
+                          id: jsonRes.data['task_id'].toString(),
+                          name: widget.detail.title,
+                        ),
+                      );
+                      if (!context.mounted) {
+                        return;
+                      }
+                      context.pop();
                     },
                     label: Text(epGroup[value].urls[index].name),
                   );
@@ -1817,9 +1839,8 @@ class _DownloadDialogState extends State<_DownloadDialog>
         color: Colors.transparent,
         child: LayoutBuilder(
           builder:
-              (context, constraints) => SizedBox(
-                width: constraints.maxWidth * .4,
-                height: constraints.maxHeight * .5,
+              (context, constraints) => DeviceUtil.deviceWidget(
+                context: context,
                 child: MoonModal(
                   child:
                       (epGroup == null)
@@ -1835,6 +1856,18 @@ class _DownloadDialogState extends State<_DownloadDialog>
                             ),
                           ),
                 ),
+                desktop:
+                    (buildchild) => SizedBox(
+                      width: constraints.maxWidth * .4,
+                      height: constraints.maxHeight * .5,
+                      child: buildchild,
+                    ),
+                mobile:
+                    (buildchild) => SizedBox(
+                      width: constraints.maxWidth * .8,
+                      height: constraints.maxHeight * .8,
+                      child: buildchild,
+                    ),
               ),
         ),
       ),

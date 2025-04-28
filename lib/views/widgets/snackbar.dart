@@ -7,7 +7,9 @@ showTextSnackBar({required BuildContext context, required String text}) {
 }
 
 showSnackBar({required BuildContext context, required Widget content}) {
-  MoonToast.show(context, label: content);
+  if (context.mounted) {
+    MoonToast.show(context, label: content);
+  }
 }
 
 showErrorSnackBar({

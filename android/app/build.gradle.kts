@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.miru_new"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -28,9 +28,20 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-
-        
     }
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "x86_64", "armeabi-v7a")
+            isUniversalApk = true
+        }
+    }
+
+    // Native libs for miru-core 
+    // sourceSets.all {
+    //     jniLibs.srcDirs("${project.rootDir}/../src/miru_core/android")
+    // }
 
     buildTypes {
         release {
@@ -42,11 +53,15 @@ android {
     
     externalNativeBuild {
         cmake {
-            path = File("../../src/ffmpeg_merge/CMakeLists.txt")
+            path("../../android/CMakeLists.txt")
+            version = "3.22.1"
         }
     }
 }
 
 flutter {
     source = "../.."
+}
+dependencies{
+    implementation(files("../../src/miru_core/android/libmiru-core.aar"))
 }

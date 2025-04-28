@@ -1,0 +1,13 @@
+{
+  "database": {
+    "driver": "sqlite3",
+    "host": "localhost",
+    "port": 5432,
+    "user": "miru",
+    "password": "",
+    "dbname": "miru",
+    "sslmode": "disable"
+  },
+  "extensionPath": "/home/noonecare/Documents/miru",
+  "debug": false
+}

@@ -8,6 +8,7 @@ class GithubNetwork {
     final List repo = req.data;
     final cast = repo.cast<Map<String, dynamic>>().toList();
     return List<GithubExtension>.from(
-        cast.map((x) => GithubExtension.fromJson(x)));
+      cast.map((x) => GithubExtension.fromJson(x)),
+    );
   }
 }

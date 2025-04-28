@@ -14,6 +14,10 @@ class FFMpegUtils {
     start = _lib.lookupFunction<StartNative, Start>('start');
   }
 
+  static void ensureInitialized() {
+    openlib();
+  }
+
   static void combineTsToMp4(List<String> inputFile, String outputName) {
     final processFile = [outputName, ...inputFile];
     final inputFilesUtf8 = processFile.map((f) => f.toNativeUtf8()).toList();
