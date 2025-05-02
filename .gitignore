@@ -45,7 +45,7 @@ app.*.map.json
 
 Output/
 /android/app/.cxx
-/src/miru_core
+/src/miru_core/**/
 /android/app/build
 *.aar
 *.jar
