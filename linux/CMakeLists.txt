@@ -151,5 +151,5 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
     COMPONENT Runtime)
 endif()
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/ffmpeg_merge ${CMAKE_BINARY_DIR}/lib)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/ffmpeg_merge/linux_64 ${CMAKE_BINARY_DIR}/lib)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/miru_core ${CMAKE_BINARY_DIR}/miru_core)

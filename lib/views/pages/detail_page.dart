@@ -26,6 +26,7 @@ import 'package:miru_app_new/views/widgets/dialog/favorite_warning_dialog.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:path/path.dart' as p;
 
 class DetailItemBox extends HookWidget {
   const DetailItemBox({
@@ -1790,8 +1791,11 @@ class _DownloadDialogState extends State<_DownloadDialog>
                         "http://127.127.127.127:12777/download/bangumi",
                         data: {
                           "url": videoWatch.url,
-                          "download_path":
-                              '/storage/emulated/0/Movies/${widget.detail.title}',
+                          "download_path": p.join(
+                            MiruDirectory.getMoviesDirectory,
+                            widget.detail.title,
+                          ),
+
                           "is_hls": true,
                         },
                       );

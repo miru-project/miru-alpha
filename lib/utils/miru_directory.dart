@@ -10,7 +10,7 @@ class MiruDirectory {
   static late final Directory _appDocDir;
   static late final Directory _cacheDir;
   static late final Directory _mirDonwloadDir;
-  static late final Directory? _moviesDir;
+  static late final Directory _moviesDir;
 
   static ensureInitialized() async {
     _appDocDir = await getApplicationDocumentsDirectory();
@@ -21,7 +21,11 @@ class MiruDirectory {
       if (await requestMediaAccess(MediaType.videos)) {
         await createMoviesFolder('Miru');
       }
+      _moviesDir = Directory(path.join('/storage/emulated/0/Movies', 'Miru'));
+      return;
     }
+
+    _moviesDir = _mirDonwloadDir;
   }
 
   static Future<bool> _requestMediaPermissions() async {
@@ -65,6 +69,8 @@ class MiruDirectory {
 
   static String get getDownloadDirectory => _miruDir(_mirDonwloadDir);
 
+  static String get getMoviesDirectory => _miruDir(_moviesDir);
+
   static String _miruDir(Directory directory) {
     final dir = path.join(directory.path, 'miru');
     Directory(dir).createSync(recursive: true);
@@ -82,8 +88,6 @@ class MiruDirectory {
     }
 
     try {
-      Directory? moviesDir;
-
       // Create the Movies/folderName directory
       final targetDir = Directory(
         path.join('/storage/emulated/0/Movies', folderName),

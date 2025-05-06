@@ -5,63 +5,53 @@ project(miru_core)
 if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/miru_core)
     message(STATUS "miru_core found")
 else()
-    message(STATUS "miru_core not found")
+    message(STATUS "miru_core not found git clone miru_core")
     execute_process(
         COMMAND git clone  https://github.com/miru-project/miru-core.git ${CMAKE_CURRENT_SOURCE_DIR}/miru_core
     )
     
 endif()
 
-# # Reference: https://cmake.org/cmake/help/v3.10/manual/cmake-variables.7.html
-# # Make Script for Android 
-# if(ANDROID)
-    
-#     set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android/${CMAKE_ANDROID_ARCH_ABI})
-#     set(GO_OUTPUT ${OUTPUT_DIR}/libmiru_core.so)
-#     message(STATUS "CMAKE_ANDROID_NDK: ${CMAKE_ANDROID_NDK}")
-
-
-#     # For Debugging
-#     message(STATUS "NDK_CLANG_PATH: ${NDK_CLANG_PATH}")
-#     message(STATUS "CMAKE_ANDROID_API: ${CMAKE_ANDROID_API}")
-#     message(STATUS "OUTPUT_DIR: ${OUTPUT_DIR}")
-#     message(STATUS "GOARCH: ${GOARCH}")
-#     message(STATUS "GO_OUTPUT: ${GO_OUTPUT}")
-#     message(STATUS "Using compiler: ${CC_COMPILER}")
-#     message(STATUS "CMAKE_CURRENT_SOURCE_DIR : ${CMAKE_CURRENT_SOURCE_DIR}")
-
-#     add_library(miru_core SHARED ${GO_OUTPUT})
-#     set_target_properties(miru_core PROPERTIES LINKER_LANGUAGE CXX) 
-
-# Make Script for Linux
-if (LINUX)
-    set(GO_OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/linux_x64/libmiru_core.so)
-
-    # build the shared library
-    add_custom_command(
-    OUTPUT ${GO_OUTPUT}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/linux_x64
-    COMMAND GOOS=linux GOARCH=amd64 go build -o ${GO_OUTPUT} -ldflags=${LD_FLAG} -trimpath -buildmode=c-shared main.go
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/miru_core
-    COMMENT "Building Go shared library"
-    VERBATIM
-    )
-    add_custom_target(
-        miru_core_build ALL
-        DEPENDS ${GO_OUTPUT}
-    )
-
-    # Install the library
-    set (LIB_PATH ${CMAKE_SOURCE_DIR}/../src/miru_core/linux_x64)
-    set (MIRU_CORE ${LIB_PATH}/libmiru_core.so)
-    add_library(MIRU_CORE SHARED IMPORTED)
-    set_target_properties(MIRU_CORE PROPERTIES
-        IMPORTED_LOCATION "${LIB_PATH}/libmiru_core.so"
-        IMPORTED_SONAME "libmiru_core.so"
-    )
-    install(FILES "${LIB_PATH}/libmiru_core.so" DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
-
+if (WIN32)
+    set(OUT "miru_core.dll")
+    set(GOOS "windows")
+    set(FOLDER_NAME "windows_x64")
+    set(INSTALL_PREFIX "")
+elseif (LINUX)
+    set(OUT "libmiru_core.so")
+    set(GOOS "linux")
+    set(FOLDER_NAME "linux_x64")
+    set(INSTALL_PREFIX "/lib")
 endif()
+# Make Script for Linux
+set(GO_OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${FOLDER_NAME}/${OUT})
+
+# build the shared library
+add_custom_command(
+OUTPUT ${GO_OUTPUT}
+COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/${FOLDER_NAME}
+COMMAND go build -o ${GO_OUTPUT} -ldflags=${LD_FLAG} -trimpath -buildmode=c-shared main.go
+WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/miru_core
+COMMENT "Building Go shared library"
+VERBATIM
+)
+message(STATUS  "go build -o ${GO_OUTPUT} -ldflags=${LD_FLAG} -trimpath -buildmode=c-shared main.go")
+add_custom_target(
+    miru_core_build ALL
+    DEPENDS ${GO_OUTPUT}
+)
+
+# Install the library
+set (LIB_PATH ${CMAKE_SOURCE_DIR}/../src/miru_core/${FOLDER_NAME})
+set (MIRU_CORE ${LIB_PATH}/${OUT})
+add_library(MIRU_CORE SHARED IMPORTED)
+set_target_properties(MIRU_CORE PROPERTIES
+    IMPORTED_LOCATION "${LIB_PATH}/${OUT}"
+    IMPORTED_SONAME "${OUT}"
+)
+
+
+install(FILES "${LIB_PATH}/${OUT}" DESTINATION "${CMAKE_INSTALL_PREFIX}${INSTALL_PREFIX}")
 
 
 

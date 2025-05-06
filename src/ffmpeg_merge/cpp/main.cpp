@@ -5,7 +5,12 @@ extern "C" {
     #include "libavformat/avformat.h"
     #include "libavutil/avutil.h"
 }
-#define EXPORT extern "C" __attribute__((visibility("default"))) __attribute__((used))
+// Cross-platform export definition
+#ifdef _WIN32
+    #define EXPORT extern "C" __declspec(dllexport)
+#else
+    #define EXPORT extern "C" __attribute__((visibility("default"))) __attribute__((used))
+#endif
 EXPORT int start(int input_file_num, char *files[]);
 // Global contexts and streams
 static AVFormatContext *input_ctx = nullptr;
@@ -197,7 +202,7 @@ void process_packets(int64_t &last_pts_video, int64_t &last_dts_video, int64_t &
 int main(int argc, char *argv[]) {
     std::cout<< "output" << argv[1] << std::endl;
 
-    for (unsigned int  i = 2; i < argc; i++) {
+    for (int  i = 2; i < argc; i++) {
         std::cout<< "input" << argv[i] << std::endl;
     }
     if (argc < 3) {
@@ -255,7 +260,7 @@ int main(int argc, char *argv[]) {
     int64_t last_pts_video = 0, last_dts_video = 0;
     int64_t last_pts_audio = 0, last_dts_audio = 0;
 
-    for (unsigned int  i = 2; i < argc; i++) {
+    for ( int  i = 2; i < argc; i++) {
         if (i > 2) {
             avformat_close_input(&input_ctx);
             ret = avformat_open_input(&input_ctx, argv[i], nullptr, nullptr);

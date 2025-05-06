@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:ffi/ffi.dart';
 
@@ -10,11 +11,18 @@ class FFMpegUtils {
   static late DynamicLibrary _lib;
 
   static void openlib() {
-    _lib = DynamicLibrary.open('libffmpeg_merge.so');
+    if (Platform.isAndroid || Platform.isLinux) {
+      _lib = DynamicLibrary.open('libffmpeg_merge.so');
+    } else {
+      _lib = DynamicLibrary.open('ffmpeg_merge.dll');
+    }
     start = _lib.lookupFunction<StartNative, Start>('start');
   }
 
   static void ensureInitialized() {
+    if (Platform.isMacOS || Platform.isFuchsia) {
+      return;
+    }
     openlib();
   }
 

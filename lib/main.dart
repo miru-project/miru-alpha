@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ffi' as ffi;
 import 'dart:io';
 import 'dart:isolate';
@@ -23,6 +24,7 @@ import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:path/path.dart' as p;
 
 // Miru Core ffi definitions
 typedef InitDyLibNative = ffi.Void Function(ffi.Pointer<ffi.Char>);
@@ -43,9 +45,7 @@ void main() async {
       await windowManager.focus();
     });
   }
-  if (Platform.isAndroid || Platform.isLinux) {
-    FFMpegUtils.ensureInitialized();
-  }
+  FFMpegUtils.ensureInitialized();
   if (Platform.isMacOS) {
     await WindowManipulator.initialize(enableWindowDelegate: true);
     await WindowManipulator.addToolbar();
@@ -114,7 +114,15 @@ class _App extends ConsumerState<App> {
 }
 
 void startNativeMiruCore(String configPath) async {
-  final lib = ffi.DynamicLibrary.open("libmiru_core.so");
+  late final ffi.DynamicLibrary lib;
+
+  if (Platform.isWindows) {
+    lib = ffi.DynamicLibrary.open('miru_core.dll');
+  } else if (Platform.isLinux) {
+    lib = ffi.DynamicLibrary.open('libmiru_core.so');
+  } else {
+    throw UnsupportedError('Unsupported platform: ${Platform.operatingSystem}');
+  }
 
   using((Arena arena) {
     final configPathPointer =
@@ -126,7 +134,7 @@ void startNativeMiruCore(String configPath) async {
 
 Future<void> loadMiruCore() async {
   final appSupportDir = MiruDirectory.getDirectory;
-  final configPath = '$appSupportDir/config.json';
+  final configPath = p.join(appSupportDir, 'config.json');
   if (File(configPath).existsSync()) {
     logger.info('Config file exists: $configPath');
   } else {
@@ -142,10 +150,10 @@ Future<void> loadMiruCore() async {
           "port": 5432,
           "user": "miru",
           "password": "",
-          "dbname": "$appSupportDir/miru.db",
+          "dbname": ${jsonEncode(p.join(appSupportDir, 'miru.db'))},
           "sslmode": "disable"
         },
-        "extensionPath": "$appSupportDir/extensions",
+        "extensionPath": ${jsonEncode(p.join(appSupportDir, 'extensions'))},
         "debug": false
       }''';
 
