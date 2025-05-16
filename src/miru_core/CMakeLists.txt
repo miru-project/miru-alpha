@@ -2,16 +2,6 @@ cmake_minimum_required(VERSION 3.10)
 project(miru_core)
 
 
-if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/miru_core)
-    message(STATUS "miru_core found")
-else()
-    message(STATUS "miru_core not found git clone miru_core")
-    execute_process(
-        COMMAND git clone  https://github.com/miru-project/miru-core.git ${CMAKE_CURRENT_SOURCE_DIR}/miru_core
-    )
-    
-endif()
-
 if (WIN32)
     set(OUT "miru_core.dll")
     set(GOOS "windows")
@@ -31,7 +21,7 @@ add_custom_command(
 OUTPUT ${GO_OUTPUT}
 COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/${FOLDER_NAME}
 COMMAND go build -o ${GO_OUTPUT} -ldflags=${LD_FLAG} -trimpath -buildmode=c-shared main.go
-WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/miru_core
+WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/miru-core
 COMMENT "Building Go shared library"
 VERBATIM
 )
@@ -42,7 +32,7 @@ add_custom_target(
 )
 
 # Install the library
-set (LIB_PATH ${CMAKE_SOURCE_DIR}/../src/miru_core/${FOLDER_NAME})
+set (LIB_PATH ${CMAKE_SOURCE_DIR}/../src/miru-core/${FOLDER_NAME})
 set (MIRU_CORE ${LIB_PATH}/${OUT})
 add_library(MIRU_CORE SHARED IMPORTED)
 set_target_properties(MIRU_CORE PROPERTIES

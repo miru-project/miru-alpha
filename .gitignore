@@ -50,7 +50,7 @@ Output/
 *.aar
 *.jar
 
-/src/miru_core/**/
+/src/miru_core/linux_x64/*
 
 # Ignore ffmpeg libraries donwloaded from github
 /src/ffmpeg_merge/windows_x64/ffmpeg-n7.1.1-6-g48c0f071d4-win64-lgpl-shared-7.1

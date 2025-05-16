@@ -1,0 +1,3 @@
+[submodule "src/miru_core/miru-core"]
+	path = src/miru_core/miru-core
+	url = https://github.com/miru-project/miru-core.git
