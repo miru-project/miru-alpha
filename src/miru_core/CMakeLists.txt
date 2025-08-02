@@ -32,7 +32,12 @@ add_custom_target(
 )
 
 # Install the library
-set (LIB_PATH ${CMAKE_SOURCE_DIR}/../src/miru-core/${FOLDER_NAME})
+if (LINUX)
+    set (LIB_PATH ${CMAKE_SOURCE_DIR}/../src/miru_core/${FOLDER_NAME})
+else()
+    set (LIB_PATH ${CMAKE_SOURCE_DIR}/../src/miru-core/${FOLDER_NAME})
+endif()
+
 set (MIRU_CORE ${LIB_PATH}/${OUT})
 add_library(MIRU_CORE SHARED IMPORTED)
 set_target_properties(MIRU_CORE PROPERTIES
