@@ -15,7 +15,7 @@ class ScaleWidget extends StatefulWidget {
 class _ScaleWidgetState extends State<ScaleWidget> {
   bool _tapDown = false;
 
-  _onTapDown(_) {
+  void _onTapDown(_) {
     setState(() {
       _tapDown = true;
     });

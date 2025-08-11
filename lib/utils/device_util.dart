@@ -22,17 +22,31 @@ class DeviceUtil {
     return MediaQuery.of(context).size.width < 800;
   }
 
-  static T device<T>(
-      {required BuildContext context, required T mobile, required T desktop}) {
+  static T device<T>({required BuildContext context, required T mobile, required T desktop}) {
     return isMobileLayout(context) ? mobile : desktop;
   }
 
-  static Y deviceWidget<T, Y>(
-      {required Y Function(T buildchild) mobile,
-      required Y Function(T buildchild) desktop,
-      required T child,
-      required BuildContext context}) {
+  // Widget function for device specific
+  static Y deviceWidgetFunction<T, Y>({
+    required Y Function(T buildchild) mobile,
+    required Y Function(T buildchild) desktop,
+    required T child,
+    required BuildContext context,
+  }) {
     if (isMobileLayout(context)) {
+      return mobile(child);
+    }
+    return desktop(child);
+  }
+
+  // widget function  for platform specific
+  static Y platformWidgetFunction<T, Y>({
+    required Y Function(T buildchild) mobile,
+    required Y Function(T buildchild) desktop,
+    required T child,
+    required BuildContext context,
+  }) {
+    if (Platform.isAndroid || Platform.isIOS) {
       return mobile(child);
     }
     return desktop(child);

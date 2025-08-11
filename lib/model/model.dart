@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'model.g.dart';
 
-enum ExtensionType { manga, bangumi, fikushon }
+enum ExtensionType { manga, bangumi, fikushon, unknown }
 
 enum ExtensionWatchBangumiType { hls, mp4, torrent }
 
@@ -47,21 +47,14 @@ class Extension {
   String? url;
   String? description;
 
-  factory Extension.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionFromJson(json);
+  factory Extension.fromJson(Map<String, dynamic> json) => _$ExtensionFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionToJson(this);
 }
 
 @JsonSerializable()
 class ExtensionFilter {
-  ExtensionFilter({
-    required this.title,
-    required this.min,
-    required this.max,
-    required this.defaultOption,
-    required this.options,
-  });
+  ExtensionFilter({required this.title, required this.min, required this.max, required this.defaultOption, required this.options});
   final String title;
   final int min;
   final int max;
@@ -69,21 +62,14 @@ class ExtensionFilter {
   final String defaultOption;
   final Map<String, String> options;
 
-  factory ExtensionFilter.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionFilterFromJson(json);
+  factory ExtensionFilter.fromJson(Map<String, dynamic> json) => _$ExtensionFilterFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionFilterToJson(this);
 }
 
 @JsonSerializable()
 class ExtensionListItem {
-  ExtensionListItem({
-    required this.title,
-    required this.url,
-    this.cover,
-    this.update,
-    this.headers,
-  });
+  ExtensionListItem({required this.title, required this.url, this.cover, this.update, this.headers});
 
   final String title;
   final String url;
@@ -91,21 +77,14 @@ class ExtensionListItem {
   final String? update;
   late Map<String, String>? headers;
 
-  factory ExtensionListItem.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionListItemFromJson(json);
+  factory ExtensionListItem.fromJson(Map<String, dynamic> json) => _$ExtensionListItemFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionListItemToJson(this);
 }
 
 @JsonSerializable()
 class ExtensionDetail {
-  ExtensionDetail({
-    required this.title,
-    this.cover,
-    this.desc,
-    this.episodes,
-    this.headers,
-  });
+  ExtensionDetail({required this.title, this.cover, this.desc, this.episodes, this.headers});
 
   final String title;
   final String? cover;
@@ -113,8 +92,7 @@ class ExtensionDetail {
   final List<ExtensionEpisodeGroup>? episodes;
   late Map<String, String>? headers;
 
-  factory ExtensionDetail.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionDetailFromJson(json);
+  factory ExtensionDetail.fromJson(Map<String, dynamic> json) => _$ExtensionDetailFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionDetailToJson(this);
 }
@@ -125,8 +103,7 @@ class ExtensionEpisodeGroup {
   final String title;
   final List<ExtensionEpisode> urls;
 
-  factory ExtensionEpisodeGroup.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionEpisodeGroupFromJson(json);
+  factory ExtensionEpisodeGroup.fromJson(Map<String, dynamic> json) => _$ExtensionEpisodeGroupFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionEpisodeGroupToJson(this);
 }
@@ -137,29 +114,21 @@ class ExtensionEpisode {
   final String name;
   final String url;
 
-  factory ExtensionEpisode.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionEpisodeFromJson(json);
+  factory ExtensionEpisode.fromJson(Map<String, dynamic> json) => _$ExtensionEpisodeFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionEpisodeToJson(this);
 }
 
 @JsonSerializable()
 class ExtensionBangumiWatch extends BaseWatch {
-  ExtensionBangumiWatch({
-    required this.type,
-    required this.url,
-    this.subtitles,
-    this.headers,
-    this.audioTrack,
-  });
+  ExtensionBangumiWatch({required this.type, required this.url, this.subtitles, this.headers, this.audioTrack});
   final ExtensionWatchBangumiType type;
   final String url;
   final List<ExtensionBangumiWatchSubtitle>? subtitles;
   late Map<String, String>? headers;
   late String? audioTrack;
 
-  factory ExtensionBangumiWatch.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionBangumiWatchFromJson(json);
+  factory ExtensionBangumiWatch.fromJson(Map<String, dynamic> json) => _$ExtensionBangumiWatchFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionBangumiWatchToJson(this);
 }
@@ -169,14 +138,9 @@ class ExtensionBangumiWatchSubtitle {
   final String? language;
   final String title;
   final String url;
-  ExtensionBangumiWatchSubtitle({
-    required this.title,
-    required this.url,
-    this.language,
-  });
+  ExtensionBangumiWatchSubtitle({required this.title, required this.url, this.language});
 
-  factory ExtensionBangumiWatchSubtitle.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionBangumiWatchSubtitleFromJson(json);
+  factory ExtensionBangumiWatchSubtitle.fromJson(Map<String, dynamic> json) => _$ExtensionBangumiWatchSubtitleFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionBangumiWatchSubtitleToJson(this);
 }
@@ -190,8 +154,7 @@ class ExtensionMangaWatch extends BaseWatch {
   final List<String> urls;
   late Map<String, String>? headers;
 
-  factory ExtensionMangaWatch.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionMangaWatchFromJson(json);
+  factory ExtensionMangaWatch.fromJson(Map<String, dynamic> json) => _$ExtensionMangaWatchFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionMangaWatchToJson(this);
 }
@@ -201,34 +164,23 @@ class ExtensionFikushonWatch extends BaseWatch {
   final List<String> content;
   final String title;
   final String? subtitle;
-  ExtensionFikushonWatch({
-    required this.content,
-    required this.title,
-    this.subtitle,
-  });
+  ExtensionFikushonWatch({required this.content, required this.title, this.subtitle});
 
-  factory ExtensionFikushonWatch.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionFikushonWatchFromJson(json);
+  factory ExtensionFikushonWatch.fromJson(Map<String, dynamic> json) => _$ExtensionFikushonWatchFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionFikushonWatchToJson(this);
 }
 
 @JsonSerializable()
 class ExtensionLog {
-  ExtensionLog({
-    required this.extension,
-    required this.content,
-    required this.time,
-    required this.level,
-  });
+  ExtensionLog({required this.extension, required this.content, required this.time, required this.level});
 
   final DateTime time;
   final Extension extension;
   final String content;
   final ExtensionLogLevel level;
 
-  factory ExtensionLog.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionLogFromJson(json);
+  factory ExtensionLog.fromJson(Map<String, dynamic> json) => _$ExtensionLogFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionLogToJson(this);
 }
@@ -255,8 +207,7 @@ class ExtensionNetworkLog {
     this.responseHeaders,
   });
 
-  factory ExtensionNetworkLog.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionNetworkLogFromJson(json);
+  factory ExtensionNetworkLog.fromJson(Map<String, dynamic> json) => _$ExtensionNetworkLogFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionNetworkLogToJson(this);
 }

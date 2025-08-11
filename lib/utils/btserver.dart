@@ -18,7 +18,7 @@ class BTServerUtils {
   static Process? _process;
 
   // 下载 bt-server
-  static downloadLatestBTServer({Function(int, int)? onReceiveProgress}) async {
+  static Future<void> downloadLatestBTServer({Function(int, int)? onReceiveProgress}) async {
     debugPrint("检测最新版本");
     // 获取最新版本
     final url =
@@ -75,7 +75,7 @@ class BTServerUtils {
   }
 
   // 启动服务器
-  static startServer() async {
+  static Future<void> startServer() async {
     // final mainController = Get.find<MainController>();
     final isRunner = btServerNotifier.btServerisRunning.value;
 
@@ -112,7 +112,7 @@ class BTServerUtils {
     checkServer();
   }
 
-  static stopServer() async {
+  static Future<void> stopServer() async {
     _process?.kill();
   }
 

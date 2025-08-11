@@ -1,7 +1,7 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 import 'package:miru_app_new/views/widgets/button.dart';
-import 'package:moon_design/moon_design.dart';
 
 class ExtensionListTile extends StatefulWidget {
   const ExtensionListTile({
@@ -35,39 +35,20 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
             flex: 2,
             child: Row(
               children: [
-                if (widget.icon != null)
-                  ExtendedImage.network(
-                    widget.icon!,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                  ),
+                if (widget.icon != null) ExtendedImage.network(widget.icon!, width: 50, height: 50, fit: BoxFit.cover),
                 const SizedBox(width: 8),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(widget.name, style: const TextStyle(fontSize: 18)),
-                    Text(
-                      widget.author,
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
+                    Text(widget.author, style: const TextStyle(fontSize: 14, color: Colors.grey)),
                   ],
                 ),
               ],
             ),
           ),
-          Expanded(
-            child: Text(
-              widget.version,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              widget.type,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-          ),
+          Expanded(child: Text(widget.version, style: const TextStyle(fontSize: 14, color: Colors.grey))),
+          Expanded(child: Text(widget.type, style: const TextStyle(fontSize: 14, color: Colors.grey))),
           Button(onPressed: widget.onUninstall, child: const Text('Uninstall')),
         ],
       ),
@@ -99,90 +80,91 @@ class ExtensionGridTile extends StatelessWidget {
   final bool isInstalled;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(10),
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color:
-              context.moonTheme?.tabBarTheme.colors.selectedPillTabColor
-                  .withAlpha(100) ??
-              Colors.black12,
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      if (icon != null)
-                        ExtendedImage.network(
-                          icon!,
-                          cache: true,
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                        ),
-                      const SizedBox(width: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(name),
-                          Text(
-                            author,
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(description ?? 'No description'),
-                ],
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            color: context.moonTheme?.tabBarTheme.colors.selectedPillTabColor
-                .withValues(alpha: .5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  version,
-                  style: TextStyle(
-                    color: context.moonTheme?.textInputTheme.colors.textColor,
-                  ),
-                ),
-                Row(
-                  children: [
-                    if (isInstalled)
-                      MoonButton(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        onTap: onUninstall,
-                        label: const Text('Uninstall'),
-                      ),
-                    MoonButton(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      onTap: onInstall,
-                      label: const Text('Install'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    return FCard.raw(child: Placeholder());
+    // Container(
+    //   margin: const EdgeInsets.all(10),
+    //   clipBehavior: Clip.antiAlias,
+    //   decoration: BoxDecoration(
+    //     borderRadius: BorderRadius.circular(8),
+    //     border: Border.all(
+    //       color:
+    //           context.moonTheme?.tabBarTheme.colors.selectedPillTabColor
+    //               .withAlpha(100) ??
+    //           Colors.black12,
+    //       width: 1,
+    //     ),
+    //   ),
+    //   child: Column(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: [
+    //       Expanded(
+    //         child: Container(
+    //           padding: const EdgeInsets.all(16),
+    //           child: Column(
+    //             crossAxisAlignment: CrossAxisAlignment.start,
+    //             children: [
+    //               Row(
+    //                 children: [
+    //                   if (icon != null)
+    //                     ExtendedImage.network(
+    //                       icon!,
+    //                       cache: true,
+    //                       width: 50,
+    //                       height: 50,
+    //                       fit: BoxFit.cover,
+    //                     ),
+    //                   const SizedBox(width: 8),
+    //                   Column(
+    //                     crossAxisAlignment: CrossAxisAlignment.start,
+    //                     children: [
+    //                       Text(name),
+    //                       Text(
+    //                         author,
+    //                         style: const TextStyle(color: Colors.grey),
+    //                       ),
+    //                     ],
+    //                   ),
+    //                 ],
+    //               ),
+    //               const SizedBox(height: 8),
+    //               Text(description ?? 'No description'),
+    //             ],
+    //           ),
+    //         ),
+    //       ),
+    //       Container(
+    //         padding: const EdgeInsets.all(8),
+    //         color: context.moonTheme?.tabBarTheme.colors.selectedPillTabColor
+    //             .withValues(alpha: .5),
+    //         child: Row(
+    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //           children: [
+    //             Text(
+    //               version,
+    //               style: TextStyle(
+    //                 color: context.moonTheme?.textInputTheme.colors.textColor,
+    //               ),
+    //             ),
+    //             Row(
+    //               children: [
+    //                 if (isInstalled)
+    //                   MoonButton(
+    //                     padding: const EdgeInsets.symmetric(horizontal: 8),
+    //                     onTap: onUninstall,
+    //                     label: const Text('Uninstall'),
+    //                   ),
+    //                 MoonButton(
+    //                   padding: const EdgeInsets.symmetric(horizontal: 8),
+    //                   onTap: onInstall,
+    //                   label: const Text('Install'),
+    //                 ),
+    //               ],
+    //             ),
+    //           ],
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 }

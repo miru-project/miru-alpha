@@ -76,7 +76,7 @@ class ApplicationController extends StateNotifier<ApplicationState> {
     );
   }
 
-  currentThemeData(String themeText, AccentColors accentColor) {
+  ThemeData currentThemeData(String themeText, AccentColors accentColor) {
     late MoonTokens token;
     late final Color color;
     late final Color textColor;

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:moon_design/moon_design.dart';
 import 'package:flutter/material.dart';
 
-showPaltformDialog(BuildContext context,
+Future showPaltformDialog(BuildContext context,
     {required Widget mobile, required Widget desktop}) {
   return showMoonModal(
       context: context,

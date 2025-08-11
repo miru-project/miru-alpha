@@ -2,59 +2,45 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_hls_parser/flutter_hls_parser.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/index.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:miru_app_new/utils/extension/extension_service.dart';
+import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 import 'package:miru_app_new/model/index.dart';
 
 part 'network_provider.g.dart';
 
 @riverpod
-Future<ExtensionBangumiWatch> videoLoad(
-  Ref ref,
-  String url,
-  ExtensionApiV1 service,
-) async {
+Future<ExtensionBangumiWatch> videoLoad(Ref ref, String url, ExtensionApi service) async {
   final result = await service.watch(url) as ExtensionBangumiWatch;
   return result;
 }
 
 @riverpod
-Future<List<GithubExtension>> fetchExtensionRepo(Ref ref) async {
+Future<List<ExtensionRepo>> fetchExtensionRepo(Ref ref) async {
   final result = await GithubNetwork.fetchRepo();
   return result;
 }
 
 @riverpod
-Future<ExtensionDetail> fetchExtensionDetail(
-  Ref ref,
-  ExtensionApiV1 extensionService,
-  String url,
-) async {
+Future<ExtensionDetail> fetchExtensionDetail(Ref ref, ExtensionApi extensionService, String url) async {
   final result = await extensionService.detail(url);
   return result;
 }
 
 @riverpod
-Future<List<ExtensionListItem>> fetchExtensionLatest(
-  Ref ref,
-  ExtensionApiV1 extensionService,
-  int page,
-) async {
+Future<List<ExtensionListItem>> fetchExtensionLatest(Ref ref, ExtensionApi extensionService, int page) async {
   final result = await extensionService.latest(page);
-  debugPrint('fetchExtensionLatest: ${extensionService.extension.name}');
   return result;
 }
 
 @riverpod
 Future<List<ExtensionListItem>> fetchExtensionSearch(
   Ref ref,
-  ExtensionApiV1 extensionService,
+  ExtensionApi extensionService,
   String query,
   int page, {
   Map<String, List<String>>? filter,
@@ -64,39 +50,22 @@ Future<List<ExtensionListItem>> fetchExtensionSearch(
 }
 
 @riverpod
-Future<ExtensionMangaWatch> mangaLoad(
-  Ref ref,
-  String url,
-  ExtensionApiV1 service,
-) async {
+Future<ExtensionMangaWatch> mangaLoad(Ref ref, String url, ExtensionApi service) async {
   final result = await service.watch(url) as ExtensionMangaWatch;
   return result;
 }
 
 @riverpod
-Future<ExtensionFikushonWatch> fikushonLoad(
-  Ref ref,
-  String url,
-  ExtensionApiV1 service,
-) async {
+Future<ExtensionFikushonWatch> fikushonLoad(Ref ref, String url, ExtensionApi service) async {
   final result = await service.watch(url) as ExtensionFikushonWatch;
   return result;
 }
 
-Future<Map<String, String>> getQuality(
-  String url,
-  Map<String, dynamic> headers,
-) async {
+Future<Map<String, String>> getQuality(String url, Map<String, dynamic> headers) async {
   final defaultRes = <String, String>{"": url};
-  final response = await dio.get(
-    url,
-    options: Options(headers: headers, responseType: ResponseType.stream),
-  );
+  final response = await dio.get(url, options: Options(headers: headers, responseType: ResponseType.stream));
   final contentType = response.headers.value('content-type')?.toLowerCase();
-  if (contentType == null ||
-      !contentType.contains('mpegurl') &&
-          !contentType.contains('m3u8') &&
-          !contentType.contains('mp2t')) {
+  if (contentType == null || !contentType.contains('mpegurl') && !contentType.contains('m3u8') && !contentType.contains('mp2t')) {
     return defaultRes;
   }
   final completer = Completer<String>();
@@ -122,21 +91,15 @@ Future<Map<String, String>> getQuality(
   }
   late HlsPlaylist playlist;
   try {
-    playlist = await HlsPlaylistParser.create().parseString(
-      response.realUri,
-      m3u8Content,
-    );
+    playlist = await HlsPlaylistParser.create().parseString(response.realUri, m3u8Content);
   } on ParserException catch (e) {
     logger.severe(e);
     return defaultRes;
   }
 
   if (playlist is HlsMasterPlaylist) {
-    final urlList =
-        playlist.mediaPlaylistUrls.map((e) => e.toString()).toList();
-    final resolution = playlist.variants.map(
-      (it) => "${it.format.width}x${it.format.height}",
-    );
+    final urlList = playlist.mediaPlaylistUrls.map((e) => e.toString()).toList();
+    final resolution = playlist.variants.map((it) => "${it.format.width}x${it.format.height}");
     final qualityMap = <String, String>{};
     qualityMap.addAll(Map.fromIterables(resolution, urlList));
     return qualityMap;

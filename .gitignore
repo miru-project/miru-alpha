@@ -53,7 +53,9 @@ Output/
 /src/miru_core/linux_x64/*
 
 # Ignore ffmpeg libraries donwloaded from github
-/src/ffmpeg_merge/windows_x64/ffmpeg-n7.1.1-6-g48c0f071d4-win64-lgpl-shared-7.1
-/src/ffmpeg_merge/linux_x64/ffmpeg-n7.1.1-6-g48c0f071d4-linux64-lgpl-shared-7.1
+/src/ffmpeg_merge/windows_x64/ffmpeg-n7.1-latest-win64-lgpl-shared-7.1
+/src/ffmpeg_merge/linux_x64/ffmpeg-n7.1-latest-linux64-lgpl-shared-7.1
 /src/ffmpeg_merge/**/*.zip
 /src/ffmpeg_merge/**/*.tar.xz
+miru
+src/miru_core/miru-core

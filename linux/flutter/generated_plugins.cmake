@@ -4,10 +4,10 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_webview_window
-  flutter_js
   fvp
   objectbox_flutter_libs
   screen_retriever_linux
+  volume_controller
   window_manager
 )
 

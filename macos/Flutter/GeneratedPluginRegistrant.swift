@@ -9,7 +9,6 @@ import desktop_webview_window
 import device_info_plus
 import file_picker
 import flutter_inappwebview_macos
-import flutter_js
 import fvp
 import macos_window_utils
 import objectbox_flutter_libs
@@ -26,7 +25,6 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
   FilePickerPlugin.register(with: registry.registrar(forPlugin: "FilePickerPlugin"))
   InAppWebViewFlutterPlugin.register(with: registry.registrar(forPlugin: "InAppWebViewFlutterPlugin"))
-  FlutterJsPlugin.register(with: registry.registrar(forPlugin: "FlutterJsPlugin"))
   FvpPlugin.register(with: registry.registrar(forPlugin: "FvpPlugin"))
   MacOSWindowUtilsPlugin.register(with: registry.registrar(forPlugin: "MacOSWindowUtilsPlugin"))
   ObjectboxFlutterLibsPlugin.register(with: registry.registrar(forPlugin: "ObjectboxFlutterLibsPlugin"))

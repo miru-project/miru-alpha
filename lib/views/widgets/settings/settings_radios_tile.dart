@@ -26,7 +26,7 @@ class SettingsRadiosTile extends StatefulWidget {
 class _SettingsRadiosTileState extends State<SettingsRadiosTile> {
   bool _isToggle = false;
   late String _selected;
-  _showDropdown() {
+  void _showDropdown() {
     setState(() {
       _isToggle = !_isToggle;
     });

@@ -11,7 +11,7 @@ import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
-import 'package:miru_app_new/utils/extension/extension_service.dart';
+import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 
 import 'package:moon_design/moon_design.dart';
@@ -22,12 +22,9 @@ import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
 bool _hasOriented = false;
-final _episodeNotifierProvider =
-    AutoDisposeStateNotifierProvider<EpisodeNotifier, EpisodeNotifierState>((
-      ref,
-    ) {
-      return EpisodeNotifier();
-    });
+final _episodeNotifierProvider = AutoDisposeStateNotifierProvider<EpisodeNotifier, EpisodeNotifierState>((ref) {
+  return EpisodeNotifier();
+});
 
 //Changing epsisode will make this reload
 class MiruVideoPlayer extends StatefulHookConsumerWidget {
@@ -41,7 +38,7 @@ class MiruVideoPlayer extends StatefulHookConsumerWidget {
     required this.detailUrl,
     required this.epGroup,
   });
-  final ExtensionApiV1 service;
+  final ExtensionApi service;
   final String detailImageUrl;
   final String detailUrl;
   final List<ExtensionEpisodeGroup>? epGroup;
@@ -62,13 +59,7 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
     // init episodes
     Future.microtask(() {
       final epcontroller = ref.read(_episodeNotifierProvider.notifier);
-      epcontroller.initEpisodes(
-        widget.selectedGroupIndex,
-        widget.selectedEpisodeIndex,
-        widget.epGroup ?? [],
-        widget.name,
-        false,
-      );
+      epcontroller.initEpisodes(widget.selectedGroupIndex, widget.selectedEpisodeIndex, widget.epGroup ?? [], widget.name, false);
     });
   }
 
@@ -106,29 +97,14 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
         ),
       );
     }
-    final url =
-        epNotifier
-            .epGroup[epNotifier.selectedGroupIndex]
-            .urls[epNotifier.selectedEpisodeIndex]
-            .url;
+    final url = epNotifier.epGroup[epNotifier.selectedGroupIndex].urls[epNotifier.selectedEpisodeIndex].url;
     final snapshot = ref.watch(VideoLoadProvider(url, widget.service));
-    epcontroller.putinformation(
-      widget.service.extension.type,
-      widget.service.extension.package,
-      widget.detailImageUrl,
-      widget.detailUrl,
-    );
+    epcontroller.putinformation(widget.service.meta.type, widget.service.meta.packageName, widget.detailImageUrl, widget.detailUrl);
     return snapshot.when(
       data: (value) {
         // _resolutionNotifer =
         //     FetchResolutionProvider(value.url, value.headers ?? {});
-        return PlayerResolution(
-          ratio: MediaQuery.of(context).size,
-          name: widget.name,
-          value: value,
-          url: url,
-          service: widget.service,
-        );
+        return PlayerResolution(ratio: MediaQuery.of(context).size, name: widget.name, value: value, url: url, service: widget.service);
       },
       error:
           (error, trace) => Center(
@@ -137,17 +113,8 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
                 Text('Error: $error'),
                 Row(
                   children: [
-                    MoonButton.icon(
-                      icon: const Text('reload'),
-                      onTap:
-                          () => ref.refresh(
-                            VideoLoadProvider(url, widget.service),
-                          ),
-                    ),
-                    MoonButton.icon(
-                      icon: const Text('back'),
-                      onTap: () => context.pop(),
-                    ),
+                    MoonButton.icon(icon: const Text('reload'), onTap: () => ref.refresh(VideoLoadProvider(url, widget.service))),
+                    MoonButton.icon(icon: const Text('back'), onTap: () => context.pop()),
                   ],
                 ),
               ],
@@ -160,17 +127,10 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
 
 //changing video quality will make this reload
 class PlayerResolution extends StatefulHookConsumerWidget {
-  const PlayerResolution({
-    super.key,
-    required this.name,
-    required this.value,
-    required this.url,
-    required this.ratio,
-    required this.service,
-  });
+  const PlayerResolution({super.key, required this.name, required this.value, required this.url, required this.ratio, required this.service});
   final ExtensionBangumiWatch value;
   final String name;
-  final ExtensionApiV1 service;
+  final ExtensionApi service;
   final String url;
   final Size ratio;
   @override
@@ -180,12 +140,7 @@ class PlayerResolution extends StatefulHookConsumerWidget {
 class _PlayerResoltionState extends ConsumerState<PlayerResolution> {
   @override
   void initState() {
-    VideoPlayerProvider.initProvider(
-      widget.value.url,
-      widget.value.subtitles ?? [],
-      widget.value.headers ?? {},
-      widget.ratio,
-    );
+    VideoPlayerProvider.initProvider(widget.value.url, widget.value.subtitles ?? [], widget.value.headers ?? {}, widget.ratio);
 
     super.initState();
   }
@@ -207,10 +162,7 @@ class _PlayerResoltionState extends ConsumerState<PlayerResolution> {
         //video player
         Center(
           child: AspectRatio(
-            aspectRatio:
-                controller.ratio == 0
-                    ? widget.ratio.width / widget.ratio.height
-                    : controller.ratio,
+            aspectRatio: controller.ratio == 0 ? widget.ratio.width / widget.ratio.height : controller.ratio,
             child: VideoPlayer(controller.controller!),
           ),
         ),
@@ -224,10 +176,7 @@ class _PlayerResoltionState extends ConsumerState<PlayerResolution> {
               child: Container(
                 padding: const EdgeInsets.all(10.0),
                 margin: const EdgeInsets.symmetric(horizontal: 20.0),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
+                decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(10.0)),
                 child: RichText(
                   text: TextSpan(
                     text: controller.currentSubtitle,
@@ -269,7 +218,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
   bool _isSeeking = false;
   // 是否长按加速
   bool _isLongPress = false;
-  _updateTimer() {
+  void _updateTimer() {
     _timer?.cancel();
     _timer = null;
     _showControls.value = true;
@@ -294,25 +243,14 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
           DefaultTextStyle(
             // color: Colors.transparent,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            child:
-                _hasOriented
-                    ? _Header(
-                      titleSize: 20,
-                      subTitleSize: 12,
-                      iconSize: 20,
-                      onClose: close,
-                    )
-                    : _Header(onClose: close),
+            child: _hasOriented ? _Header(titleSize: 20, subTitleSize: 12, iconSize: 20, onClose: close) : _Header(onClose: close),
           ),
           Expanded(
             child:
                 (!controller.isPlaying)
                     ? Center(
                       child: MoonButton.icon(
-                        icon: const Icon(
-                          size: 60,
-                          MoonIcons.media_play_24_regular,
-                        ),
+                        icon: const Icon(size: 60, MoonIcons.media_play_24_regular),
                         buttonSize: MoonButtonSize.lg,
                         onTap: () {
                           c.play();
@@ -321,10 +259,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                     )
                     : Container(color: Colors.transparent),
           ),
-          Material(
-            color: Colors.transparent,
-            child: Blur(child: _DesktopFooter()),
-          ),
+          Material(color: Colors.transparent, child: Blur(child: _DesktopFooter())),
         ],
       );
     }
@@ -349,10 +284,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
             right: 0,
             child: Center(
               child: Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                  color: Colors.black45,
-                ),
+                decoration: const BoxDecoration(borderRadius: BorderRadius.all(Radius.circular(5)), color: Colors.black45),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -362,21 +294,13 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              '${_position.inMinutes}:${(_position.inSeconds % 60).toString().padLeft(2, '0')}',
-                            ),
+                            Text('${_position.inMinutes}:${(_position.inSeconds % 60).toString().padLeft(2, '0')}'),
                             const Text('/'),
-                            Text(
-                              '${controller.duration.inMinutes}:${(controller.duration.inSeconds % 60).toString().padLeft(2, '0')}',
-                            ),
+                            Text('${controller.duration.inMinutes}:${(controller.duration.inSeconds % 60).toString().padLeft(2, '0')}'),
                           ],
                         ),
                       ),
-                    if (_isLongPress)
-                      const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text('Playing at 3x speed'),
-                      ),
+                    if (_isLongPress) const Padding(padding: EdgeInsets.all(8.0), child: Text('Playing at 3x speed')),
                     if (_isAdjusting)
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -386,11 +310,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                             if (_isBrightness) ...[
                               const Icon(Icons.brightness_5),
                               const SizedBox(width: 5),
-                              Text(
-                                (currentBrightness.value * 100).toStringAsFixed(
-                                  0,
-                                ),
-                              ),
+                              Text((currentBrightness.value * 100).toStringAsFixed(0)),
                             ],
                             if (!_isBrightness) ...[
                               const Icon(Icons.volume_up),
@@ -429,22 +349,15 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
               }
             },
             onVerticalDragStart: (details) {
-              _isBrightness =
-                  details.localPosition.dx <
-                  MediaQuery.of(context).size.width / 2;
+              _isBrightness = details.localPosition.dx < MediaQuery.of(context).size.width / 2;
             },
             // 左右两边上下滑动
             onVerticalDragUpdate: (details) {
               final add = details.delta.dy / 500;
               // 如果是左边调节亮度
               if (_isBrightness) {
-                currentBrightness.value = (currentBrightness.value - add).clamp(
-                  0,
-                  1,
-                );
-                ScreenBrightness().setApplicationScreenBrightness(
-                  currentBrightness.value,
-                );
+                currentBrightness.value = (currentBrightness.value - add).clamp(0, 1);
+                ScreenBrightness().setApplicationScreenBrightness(currentBrightness.value);
               }
               // 如果是右边调节音量
               else {
@@ -465,15 +378,8 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
             // 左右滑动
             onHorizontalDragUpdate: (details) {
               double scale = 200000 / MediaQuery.of(context).size.width;
-              Duration pos =
-                  _position +
-                  Duration(milliseconds: (details.delta.dx * scale).round());
-              _position = Duration(
-                milliseconds: pos.inMilliseconds.clamp(
-                  0,
-                  controller.duration.inMilliseconds,
-                ),
-              );
+              Duration pos = _position + Duration(milliseconds: (details.delta.dx * scale).round());
+              _position = Duration(milliseconds: pos.inMilliseconds.clamp(0, controller.duration.inMilliseconds));
               _isSeeking = true;
               setState(() {});
             },
@@ -507,12 +413,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
 }
 
 class _Header extends ConsumerStatefulWidget {
-  const _Header({
-    required this.onClose,
-    this.titleSize = 20,
-    this.subTitleSize = 18,
-    this.iconSize = 24,
-  });
+  const _Header({required this.onClose, this.titleSize = 20, this.subTitleSize = 18, this.iconSize = 24});
   final VoidCallback onClose;
   final double titleSize;
   final double subTitleSize;
@@ -538,21 +439,10 @@ class _HeaderState extends ConsumerState<_Header> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          epNotifier.name,
-          style: TextStyle(
-            fontSize: widget.titleSize,
-            fontWeight: FontWeight.bold,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
+        Text(epNotifier.name, style: TextStyle(fontSize: widget.titleSize, fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis)),
         Text(
           '${epNotifier.epGroup[epNotifier.selectedGroupIndex].title}-${epNotifier.epGroup[epNotifier.selectedGroupIndex].urls[epNotifier.selectedEpisodeIndex].name}',
-          style: TextStyle(
-            fontSize: widget.subTitleSize,
-            fontWeight: FontWeight.w300,
-            overflow: TextOverflow.ellipsis,
-          ),
+          style: TextStyle(fontSize: widget.subTitleSize, fontWeight: FontWeight.w300, overflow: TextOverflow.ellipsis),
         ),
       ],
     );
@@ -565,27 +455,18 @@ class _HeaderState extends ConsumerState<_Header> {
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(blurRadius: 25, color: Colors.black.withValues(alpha: 0.2)),
-        ],
+        boxShadow: [BoxShadow(blurRadius: 25, color: Colors.black.withValues(alpha: 0.2))],
       ),
       child: Blur(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
           child: Row(
             children: [
-              Expanded(
-                child:
-                    DeviceUtil.isMobile
-                        ? buildcontent(epNotifier)
-                        : DragToMoveArea(child: buildcontent(epNotifier)),
-              ),
+              Expanded(child: DeviceUtil.isMobile ? buildcontent(epNotifier) : DragToMoveArea(child: buildcontent(epNotifier))),
               // 置顶
               if (!DeviceUtil.isMobile) ...[
                 IconButton(
-                  icon: Icon(
-                    _isAlwaysOnTop ? Icons.push_pin_outlined : Icons.push_pin,
-                  ),
+                  icon: Icon(_isAlwaysOnTop ? Icons.push_pin_outlined : Icons.push_pin),
                   onPressed: () async {
                     WindowManager.instance.setAlwaysOnTop(!_isAlwaysOnTop);
                     setState(() {
@@ -602,11 +483,7 @@ class _HeaderState extends ConsumerState<_Header> {
                 ),
               ],
               const SizedBox(width: 10),
-              IconButton(
-                onPressed: widget.onClose,
-                iconSize: widget.iconSize,
-                icon: const Icon(MoonIcons.controls_chevron_down_24_regular),
-              ),
+              IconButton(onPressed: widget.onClose, iconSize: widget.iconSize, icon: const Icon(MoonIcons.controls_chevron_down_24_regular)),
             ],
           ),
         ),
@@ -639,9 +516,7 @@ class _DesktopFooter extends HookConsumerWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-        boxShadow: [
-          BoxShadow(blurRadius: 25, color: Colors.black.withAlpha(30)),
-        ],
+        boxShadow: [BoxShadow(blurRadius: 25, color: Colors.black.withAlpha(30))],
       ),
       // decoration: const BoxDecoration(
 
@@ -662,37 +537,22 @@ class _DesktopFooter extends HookConsumerWidget {
           if (!_hasOriented) const SizedBox(height: 10),
           Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.skip_previous),
-                onPressed: () {},
-              ),
+              IconButton(icon: const Icon(Icons.skip_previous), onPressed: () {}),
               if (controller.isPlaying)
-                IconButton(
-                  onPressed: c.pause,
-                  icon: Icon(Icons.pause, size: buttonSize),
-                )
+                IconButton(onPressed: c.pause, icon: Icon(Icons.pause, size: buttonSize))
               else
-                IconButton(
-                  onPressed: c.play,
-                  icon: Icon(Icons.play_arrow, size: buttonSize),
-                ),
+                IconButton(onPressed: c.play, icon: Icon(Icons.play_arrow, size: buttonSize)),
               IconButton(icon: const Icon(Icons.skip_next), onPressed: () {}),
               const SizedBox(width: 10),
               // 播放进度
               Text(
                 '${controller.position.inMinutes}:${(controller.position.inSeconds % 60).toString().padLeft(2, '0')}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w300,
-                ),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
               ),
               const Text('/'),
               Text(
                 '${controller.duration.inMinutes}:${(controller.duration.inSeconds % 60).toString().padLeft(2, '0')}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w300,
-                ),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
               ),
               const Spacer(),
               // Obx(() {
@@ -751,13 +611,7 @@ class _DesktopFooter extends HookConsumerWidget {
                   onTap: () {
                     isspeedToggled.value = !isspeedToggled.value;
                   },
-                  icon: Text(
-                    '${controller.speed}x',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
+                  icon: Text('${controller.speed}x', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w300)),
                 ),
               ),
               const SizedBox(width: 10),
@@ -803,16 +657,8 @@ class _DialogButton extends HookWidget {
   static const _navItems = [
     NavItem(text: 'Episode', icon: Icons.tv_outlined, selectIcon: Icons.tv),
     NavItem(text: 'Resolution', icon: Icons.hd_outlined, selectIcon: Icons.hd),
-    NavItem(
-      text: 'Subtitle',
-      icon: Icons.subtitles_outlined,
-      selectIcon: Icons.subtitles_rounded,
-    ),
-    NavItem(
-      text: 'Settings',
-      icon: Icons.settings_outlined,
-      selectIcon: Icons.settings,
-    ),
+    NavItem(text: 'Subtitle', icon: Icons.subtitles_outlined, selectIcon: Icons.subtitles_rounded),
+    NavItem(text: 'Settings', icon: Icons.settings_outlined, selectIcon: Icons.settings),
   ];
 
   @override
@@ -845,14 +691,8 @@ class _DialogButton extends HookWidget {
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                 color:
-                    selectedIndex.value == index ||
-                            (hover.value == index && ishover.value)
-                        ? context
-                            .moonTheme
-                            ?.tabBarTheme
-                            .colors
-                            .selectedPillTextColor
-                            .withAlpha(20)
+                    selectedIndex.value == index || (hover.value == index && ishover.value)
+                        ? context.moonTheme?.tabBarTheme.colors.selectedPillTextColor.withAlpha(20)
                         : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -860,14 +700,9 @@ class _DialogButton extends HookWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    selectedIndex.value == index ||
-                            (hover.value == index && ishover.value)
-                        ? _navItems[index].selectIcon
-                        : _navItems[index].icon,
+                    selectedIndex.value == index || (hover.value == index && ishover.value) ? _navItems[index].selectIcon : _navItems[index].icon,
                     color:
-                        selectedIndex.value == index || hover.value == index
-                            ? context.moonColors?.bulma
-                            : context.moonColors?.bulma.withAlpha(150),
+                        selectedIndex.value == index || hover.value == index ? context.moonColors?.bulma : context.moonColors?.bulma.withAlpha(150),
                   ),
                 ],
               ),
@@ -904,9 +739,7 @@ class _DesktopSettingDialog extends HookConsumerWidget {
               backgroundColor: Theme.of(context).colorScheme.surface,
               childrenPadding: const EdgeInsets.all(10),
               label: Text(epController.epGroup[index].title),
-              trailing: Text(
-                '${epController.epGroup[index].urls.length} episodes',
-              ),
+              trailing: Text('${epController.epGroup[index].urls.length} episodes'),
               children: List.generate(
                 epController.epGroup[index].urls.length,
                 (i) => MoonMenuItem(
@@ -914,24 +747,14 @@ class _DesktopSettingDialog extends HookConsumerWidget {
                     epController.epGroup[index].urls[i].name,
                     style: TextStyle(
                       color:
-                          index == epController.selectedGroupIndex &&
-                                  i == epController.selectedEpisodeIndex
-                              ? context
-                                  .moonTheme
-                                  ?.segmentedControlTheme
-                                  .colors
-                                  .textColor
+                          index == epController.selectedGroupIndex && i == epController.selectedEpisodeIndex
+                              ? context.moonTheme?.segmentedControlTheme.colors.textColor
                               : null,
                     ),
                   ),
                   backgroundColor:
-                      index == epController.selectedGroupIndex &&
-                              i == epController.selectedEpisodeIndex
-                          ? context
-                              .moonTheme
-                              ?.segmentedControlTheme
-                              .colors
-                              .backgroundColor
+                      index == epController.selectedGroupIndex && i == epController.selectedEpisodeIndex
+                          ? context.moonTheme?.segmentedControlTheme.colors.backgroundColor
                           : null,
                   onTap: () {
                     epNotifier.selectEpisode(index, i);
@@ -961,13 +784,8 @@ class _DesktopSettingDialog extends HookConsumerWidget {
         itemBuilder:
             (context, int index) => MoonMenuItem(
               backgroundColor:
-                  (index == controller.selectedSubtitleIndex &&
-                          controller.isShowSubtitle)
-                      ? context
-                          .moonTheme
-                          ?.segmentedControlTheme
-                          .colors
-                          .backgroundColor
+                  (index == controller.selectedSubtitleIndex && controller.isShowSubtitle)
+                      ? context.moonTheme?.segmentedControlTheme.colors.backgroundColor
                       : null,
               onTap: () {
                 notifer.setSelectedIndex(index);
@@ -991,9 +809,7 @@ class _DesktopSettingDialog extends HookConsumerWidget {
               width: _buttonGap,
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(10),
-                ),
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(10)),
               ),
               child: (SizedBox(
                 child: _DialogButton(
@@ -1009,9 +825,7 @@ class _DesktopSettingDialog extends HookConsumerWidget {
                 height: height * dialogFactor,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,
-                  borderRadius: const BorderRadius.horizontal(
-                    right: Radius.circular(10),
-                  ),
+                  borderRadius: const BorderRadius.horizontal(right: Radius.circular(10)),
                 ),
                 child: dialogContent[selectedIndex.value],
               ),
@@ -1037,20 +851,9 @@ class _SeekBar extends ConsumerWidget {
         data: SliderThemeData(
           overlayColor: Colors.transparent,
           trackHeight: 2,
-          activeTrackColor: context
-              .moonTheme
-              ?.segmentedControlTheme
-              .colors
-              .backgroundColor
-              .withAlpha(200),
-          thumbColor:
-              context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
-          secondaryActiveTrackColor: context
-              .moonTheme
-              ?.segmentedControlTheme
-              .colors
-              .backgroundColor
-              .withAlpha(100),
+          activeTrackColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor.withAlpha(200),
+          thumbColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
+          secondaryActiveTrackColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor.withAlpha(100),
           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
           overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
         ),
@@ -1059,13 +862,7 @@ class _SeekBar extends ConsumerWidget {
           max: duration.toDouble(),
           value: clampDouble(position.toDouble(), 0, duration.toDouble()),
           secondaryTrackValue:
-              controller.buffered.isNotEmpty
-                  ? clampDouble(
-                    controller.buffered.last.end.inMilliseconds.toDouble(),
-                    0,
-                    duration.toDouble(),
-                  )
-                  : 0,
+              controller.buffered.isNotEmpty ? clampDouble(controller.buffered.last.end.inMilliseconds.toDouble(), 0, duration.toDouble()) : 0,
           onChanged: (value) {
             if (isSliderDraging) {}
           },
@@ -1091,13 +888,7 @@ class EpisodeNotifierState {
   final int selectedEpisodeIndex;
   final String name;
   final bool flag;
-  EpisodeNotifierState({
-    this.epGroup = const [],
-    this.selectedGroupIndex = 0,
-    this.name = '',
-    this.flag = false,
-    this.selectedEpisodeIndex = 0,
-  });
+  EpisodeNotifierState({this.epGroup = const [], this.selectedGroupIndex = 0, this.name = '', this.flag = false, this.selectedEpisodeIndex = 0});
   EpisodeNotifierState copyWith({
     List<ExtensionEpisodeGroup>? epGroup,
     String? name,
@@ -1118,38 +909,18 @@ class EpisodeNotifierState {
 class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
   EpisodeNotifier() : super(EpisodeNotifierState());
   void selectEpisode(int groupIndex, int episodeIndex) {
-    state = state.copyWith(
-      selectedGroupIndex: groupIndex,
-      selectedEpisodeIndex: episodeIndex,
-    );
+    state = state.copyWith(selectedGroupIndex: groupIndex, selectedEpisodeIndex: episodeIndex);
   }
 
-  void initEpisodes(
-    int groupIndex,
-    int episodeIndex,
-    List<ExtensionEpisodeGroup> epGroup,
-    String name,
-    bool flag,
-  ) {
-    state = state.copyWith(
-      epGroup: epGroup,
-      flag: flag,
-      name: name,
-      selectedGroupIndex: groupIndex,
-      selectedEpisodeIndex: episodeIndex,
-    );
+  void initEpisodes(int groupIndex, int episodeIndex, List<ExtensionEpisodeGroup> epGroup, String name, bool flag) {
+    state = state.copyWith(epGroup: epGroup, flag: flag, name: name, selectedGroupIndex: groupIndex, selectedEpisodeIndex: episodeIndex);
   }
 
   late String imageUrl;
   late String package;
   late ExtensionType type;
   late String detailUrl;
-  void putinformation(
-    ExtensionType type,
-    String package,
-    String imageUrl,
-    String detailUrl,
-  ) {
+  void putinformation(ExtensionType type, String package, String imageUrl, String detailUrl) {
     this.package = package;
     this.type = type;
     this.imageUrl = imageUrl;
@@ -1167,13 +938,8 @@ class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
         episodeId: state.selectedEpisodeIndex,
         progress: state.selectedEpisodeIndex.toString(),
         cover: imageUrl,
-        totalProgress:
-            state.epGroup[state.selectedGroupIndex].urls.length.toString(),
-        episodeTitle:
-            state
-                .epGroup[state.selectedGroupIndex]
-                .urls[state.selectedEpisodeIndex]
-                .name,
+        totalProgress: state.epGroup[state.selectedGroupIndex].urls.length.toString(),
+        episodeTitle: state.epGroup[state.selectedGroupIndex].urls[state.selectedEpisodeIndex].name,
         url: detailUrl,
         date: DateTime.now(),
       ),

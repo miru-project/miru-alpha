@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:miru_app_new/utils/extension/extension_service.dart';
+import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 import 'package:miru_app_new/utils/index.dart';
 // import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 
 class WebViewPage extends StatefulWidget {
-  const WebViewPage({
-    super.key,
-    required this.extensionRuntime,
-    required this.url,
-  });
-  final ExtensionApiV1 extensionRuntime;
+  const WebViewPage({super.key, required this.extensionRuntime, required this.url});
+  final ExtensionApi extensionRuntime;
   final String url;
 
   @override
@@ -18,11 +14,11 @@ class WebViewPage extends StatefulWidget {
 }
 
 class _WebViewPageState extends State<WebViewPage> {
-  late String url = widget.extensionRuntime.extension.webSite + widget.url;
+  late String url = widget.extensionRuntime.meta.webSite + widget.url;
   // final cookieManager = WebviewCookieManager();
   late Uri loadUrl = Uri.parse(url);
 
-  _setCookie() async {
+  Future<void> _setCookie() async {
     if (loadUrl.host != Uri.parse(url).host) {
       return;
     }
@@ -44,16 +40,10 @@ class _WebViewPageState extends State<WebViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(loadUrl.toString()),
-      ),
+      appBar: AppBar(title: Text(loadUrl.toString())),
       body: InAppWebView(
-        initialUrlRequest: URLRequest(
-          url: WebUri(url),
-        ),
-        initialSettings: InAppWebViewSettings(
-          userAgent: MiruStorage.getUASetting(),
-        ),
+        initialUrlRequest: URLRequest(url: WebUri(url)),
+        initialSettings: InAppWebViewSettings(userAgent: MiruStorage.getUASetting()),
         onLoadStart: (controller, url) {
           setState(() {
             loadUrl = url!;

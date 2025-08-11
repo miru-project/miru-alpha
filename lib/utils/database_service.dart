@@ -47,12 +47,12 @@ class DatabaseService {
   //     }
   //   });
   // }
-  static deleteFavoriteGroup(List<String> name) {
+  static void deleteFavoriteGroup(List<String> name) {
     final query = favGroup.query(FavoriateGroup_.name.oneOf(name)).build();
     query.remove();
   }
 
-  static renameFavoriteGroup(String oldName, String newName) {
+  static void renameFavoriteGroup(String oldName, String newName) {
     final query = favGroup.query(FavoriateGroup_.name.equals(oldName)).build();
     final group = query.findFirst();
     if (group != null) {
@@ -91,7 +91,7 @@ class DatabaseService {
     return favGroup.getAll();
   }
 
-  static putFavoriteByIndex(List<FavoriateGroup> result) {
+  static void putFavoriteByIndex(List<FavoriateGroup> result) {
     // return DatabaseService.db.writeTxnSync(() {
     //   DatabaseService.db.favoriateGroups.putAllByIndexSync("name", result);
     // });
@@ -144,7 +144,7 @@ class DatabaseService {
   }
 
   // delete favorite
-  static deleteFavorite(String detailUrl, String package) {
+  static void deleteFavorite(String detailUrl, String package) {
     final query = fav
         .query(
             Favorite_.url.equals(detailUrl) & Favorite_.package.equals(package))

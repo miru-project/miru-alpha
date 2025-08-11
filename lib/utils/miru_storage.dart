@@ -22,7 +22,7 @@ class MiruStorage {
   static late final Box<TMDB> tmdb;
   // static final _settingidCache = <String, int>{};
   static final _settingCache = <String, dynamic>{};
-  static ensureInitialized() async {
+  static Future<void> ensureInitialized() async {
     _path = MiruDirectory.getDirectory;
 
     // 初始化数据库
@@ -142,7 +142,7 @@ class MiruStorage {
     SettingKey.btServerLink: "https://github.com/miru-project/bt-server",
     SettingKey.maxConnection: "3",
   };
-  static _initSettings() async {
+  static Future<void> _initSettings() async {
     //init from default settings
     final dataFromDB = await _settings.getAllAsync();
     final saveData = <AppSetting>[];
@@ -180,7 +180,7 @@ class MiruStorage {
     throw Exception('Setting $key not found');
   }
 
-  static T getSettingSync<T>(String key, Type type) {
+  static dynamic getSettingSync(String key, Type type) {
     return convertStringToObj(_settingCache[key], type);
   }
 
@@ -196,7 +196,7 @@ class MiruStorage {
     return getSettingSync(SettingKey.windowsWebviewUA, String);
   }
 
-  static setUASetting(String value) async {
+  static Future<void> setUASetting(String value) async {
     if (Platform.isAndroid) {
       setSettingSync(SettingKey.androidWebviewUA, value);
     } else {
@@ -204,7 +204,7 @@ class MiruStorage {
     }
   }
 
-  static convertStringToObj(String value, Type type) {
+  static Object convertStringToObj(String value, Type type) {
     switch (type) {
       case const (bool):
         return value == 'true';

@@ -1,5 +1,5 @@
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/extension/extension_service.dart';
+import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 
 // class WatchEntry {
 //   static handlePageRoute(ExtensionApiV1 extension, BuildContext context) {
@@ -18,17 +18,18 @@ import 'package:miru_app_new/utils/extension/extension_service.dart';
 // }
 
 class WatchParams {
-  const WatchParams(
-      {required this.service,
-      required this.type,
-      required this.url,
-      required this.selectedGroupIndex,
-      required this.selectedEpisodeIndex,
-      required this.name,
-      required this.detailImageUrl,
-      required this.detailUrl,
-      required this.epGroup});
-  final ExtensionApiV1 service;
+  const WatchParams({
+    required this.service,
+    required this.type,
+    required this.url,
+    required this.selectedGroupIndex,
+    required this.selectedEpisodeIndex,
+    required this.name,
+    required this.detailImageUrl,
+    required this.detailUrl,
+    required this.epGroup,
+  });
+  final ExtensionApi service;
   final String url;
   final List<ExtensionEpisodeGroup>? epGroup;
   final int selectedGroupIndex;
@@ -40,10 +41,7 @@ class WatchParams {
 }
 
 class DetailParam {
-  const DetailParam({
-    required this.service,
-    required this.url,
-  });
-  final ExtensionApiV1 service;
+  const DetailParam({required this.service, required this.url});
+  final ExtensionApi service;
   final String url;
 }

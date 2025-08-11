@@ -19,7 +19,7 @@ class MangaProvider {
       get provider => _mangaReaderProvider;
   static AutoDisposeStateNotifierProvider<MangaEpisodeNotifier,
       MangaEpisodeNotifierState> get epProvider => _episodeNotifier;
-  static initEpisode(List<ExtensionEpisodeGroup> epGroup, String name,
+  static void initEpisode(List<ExtensionEpisodeGroup> epGroup, String name,
       int selectedGroupIndex, int selectedEpisodeIndex) {
     _episodeNotifier = StateNotifierProvider.autoDispose<MangaEpisodeNotifier,
         MangaEpisodeNotifierState>((ref) {

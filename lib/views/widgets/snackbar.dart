@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:moon_design/moon_design.dart';
 
-showTextSnackBar({required BuildContext context, required String text}) {
+void showTextSnackBar({required BuildContext context, required String text}) {
   MoonToast.show(context, label: Text(text));
 }
 
-showSnackBar({required BuildContext context, required Widget content}) {
+void showSnackBar({required BuildContext context, required Widget content}) {
   if (context.mounted) {
     MoonToast.show(context, label: content);
   }
 }
 
-showErrorSnackBar({
+void showErrorSnackBar({
   required BuildContext context,
   required String errorText,
   required String detailErrortext,

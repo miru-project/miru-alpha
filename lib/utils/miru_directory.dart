@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
@@ -12,7 +11,7 @@ class MiruDirectory {
   static late final Directory _mirDonwloadDir;
   static late final Directory _moviesDir;
 
-  static ensureInitialized() async {
+  static Future<void> ensureInitialized() async {
     _appDocDir = await getApplicationDocumentsDirectory();
     _cacheDir = await getTemporaryDirectory();
     _mirDonwloadDir = await getDownloadsDirectory() ?? _cacheDir;

@@ -8,14 +8,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
 import 'package:fvp/fvp.dart';
 
 import 'package:macos_window_utils/macos/ns_window_button_type.dart';
 import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_app_new/controllers/application_controller.dart';
 import 'package:miru_app_new/generated_bindings.dart';
+import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/utils/device_util.dart';
-import 'package:miru_app_new/utils/download/download_utils.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/i18n.dart';
@@ -49,24 +50,15 @@ void main() async {
   if (Platform.isMacOS) {
     await WindowManipulator.initialize(enableWindowDelegate: true);
     await WindowManipulator.addToolbar();
-    await WindowManipulator.overrideStandardWindowButtonPosition(
-      buttonType: NSWindowButtonType.closeButton,
-      offset: const Offset(15, 18),
-    );
-    await WindowManipulator.overrideStandardWindowButtonPosition(
-      buttonType: NSWindowButtonType.miniaturizeButton,
-      offset: const Offset(35, 18),
-    );
-    await WindowManipulator.overrideStandardWindowButtonPosition(
-      buttonType: NSWindowButtonType.zoomButton,
-      offset: const Offset(55, 18),
-    );
+    await WindowManipulator.overrideStandardWindowButtonPosition(buttonType: NSWindowButtonType.closeButton, offset: const Offset(15, 18));
+    await WindowManipulator.overrideStandardWindowButtonPosition(buttonType: NSWindowButtonType.miniaturizeButton, offset: const Offset(35, 18));
+    await WindowManipulator.overrideStandardWindowButtonPosition(buttonType: NSWindowButtonType.zoomButton, offset: const Offset(55, 18));
   }
   await DeviceUtil.ensureInitialized();
   await MiruDirectory.ensureInitialized();
   await MiruStorage.ensureInitialized();
   await MiruRequest.ensureInitialized();
-  await DownloadUtils.ensureInitialized();
+  // await DownloadUtils.ensureInitialized();
   await ExtensionUtils.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -76,9 +68,9 @@ void main() async {
   ]);
   MiruLog.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  WidgetsFlutterBinding.ensureInitialized();
   // Init config for miru_core
   await loadMiruCore();
+  CoreNetwork.ensureInitialized();
   runApp(const ProviderScope(child: App()));
 }
 
@@ -104,11 +96,15 @@ class _App extends ConsumerState<App> {
   @override
   Widget build(BuildContext context) {
     final c = ref.watch(applicationControllerProvider);
-    return MaterialApp.router(
-      key: navigatorKey,
-      title: 'Miru',
-      routerConfig: RouterUtil.appRouter,
-      theme: c.themeData,
+    return FTheme(
+      data: FThemes.zinc.dark,
+      child: MaterialApp.router(
+        key: navigatorKey,
+        title: 'Miru',
+        routerConfig: RouterUtil.appRouter,
+        theme: c.themeData, // Add null safety
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }
@@ -125,8 +121,7 @@ void startNativeMiruCore(String configPath) async {
   }
 
   using((Arena arena) {
-    final configPathPointer =
-        configPath.toNativeUtf8(allocator: arena).cast<ffi.Char>();
+    final configPathPointer = configPath.toNativeUtf8(allocator: arena).cast<ffi.Char>();
     final core = MiruCore(lib);
     core.initDyLib(configPathPointer);
   });

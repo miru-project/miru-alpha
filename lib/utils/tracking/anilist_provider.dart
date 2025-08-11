@@ -96,7 +96,7 @@ class AniListProvider {
     }
   }
 
-  static postRequest({
+  static Future postRequest({
     Map<String, dynamic>? varibale,
     required String queryString,
   }) async {

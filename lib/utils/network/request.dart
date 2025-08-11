@@ -25,7 +25,7 @@ class MiruRequest {
     _isInitialized = true;
   }
 
-  static refreshProxy() {
+  static void refreshProxy() {
     String proxy = "";
     final type = MiruStorage.getSettingSync(SettingKey.proxyType, String);
     if (type == "DIRECT") {
