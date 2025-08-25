@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/views/pages/home/extension_page.dart';
+import 'package:miru_app_new/views/pages/extension/extension_page.dart';
 import 'package:miru_app_new/views/pages/home/home_page.dart';
 import 'package:miru_app_new/views/pages/search_page.dart';
-import 'package:miru_app_new/views/pages/settings_page.dart';
+import 'package:miru_app_new/views/pages/setting/settings_page.dart';
 
 final mainControllerProvider = StateNotifierProvider<MainController, MainState>((ref) => MainController());
 

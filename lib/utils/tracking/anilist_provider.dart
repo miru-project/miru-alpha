@@ -103,21 +103,22 @@ class AniListProvider {
     try {
       final response = await dio.post(
         apiUrl,
-        options: Options(headers: {
-          "Authorization": "Bearer $anilistToken",
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        }),
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $anilistToken",
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        ),
         data: {"query": queryString},
       );
       return response.data;
     } on DioException catch (e) {
       if (e.response != null) {
         if (e.response!.statusCode == 400 &&
-            e.response!.data
-                .toString()
-                .toLowerCase()
-                .contains("invalid token")) {
+            e.response!.data.toString().toLowerCase().contains(
+              "invalid token",
+            )) {
           // showSnackBar(
           //   context: navigatorKey.currentContext!,
           //   text: "Anilist not login",
@@ -141,7 +142,8 @@ class AniListProvider {
       "User": data["name"],
       "AnimeEpWatched":
           data["statistics"]["anime"]["episodesWatched"].toString(),
-      "MangaChapterRead": data["statistics"]["manga"]["chaptersRead"].toString()
+      "MangaChapterRead":
+          data["statistics"]["manga"]["chaptersRead"].toString(),
     };
   }
 

@@ -43,7 +43,10 @@ class AnilistPageNotifier with ChangeNotifier {
     final animeData = await AniListProvider.getCollection(AnilistType.anime);
     final mangaData = await AniListProvider.getCollection(AnilistType.manga);
     final result = AnilistUserData(
-        userData: userData, animeData: animeData, mangaData: mangaData);
+      userData: userData,
+      animeData: animeData,
+      mangaData: mangaData,
+    );
     _anilistUserData = result;
     isLoading = false;
     notifyListeners();
@@ -59,7 +62,8 @@ class AnilistPageNotifier with ChangeNotifier {
       return;
     }
     final webview = await WebviewWindow.create(
-        configuration: const CreateConfiguration(title: "Anilist Login"))
+        configuration: const CreateConfiguration(title: "Anilist Login"),
+      )
       ..launch(loginUrl);
 
     Timer.periodic(const Duration(seconds: 1), (timer) async {

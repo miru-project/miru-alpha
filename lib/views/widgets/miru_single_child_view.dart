@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 
 class MiruSingleChildView extends StatelessWidget {
-  const MiruSingleChildView(
-      {super.key,
-      required this.child,
-      this.padding,
-      this.maxWidth,
-      this.scrollDirection = Axis.vertical,
-      this.controller});
+  const MiruSingleChildView({
+    super.key,
+    required this.child,
+    this.padding,
+    this.maxWidth,
+    this.scrollDirection = Axis.vertical,
+    this.controller,
+  });
 
   final Axis scrollDirection;
   final Widget child;
@@ -39,16 +40,22 @@ class MiruSingleChildView extends StatelessWidget {
     return PlatformWidget(
       mobileWidget: SingleChildScrollView(
         scrollDirection: scrollDirection,
-        padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 190)
-            .add(padding ?? EdgeInsets.zero)
-            .add(widthPadding),
+        padding: EdgeInsets.fromLTRB(
+          8,
+          (8 + viewPadding.top),
+          8,
+          190,
+        ).add(padding ?? EdgeInsets.zero).add(widthPadding),
         child: child,
       ),
       desktopWidget: SingleChildScrollView(
         scrollDirection: scrollDirection,
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20)
-            .add(padding ?? EdgeInsets.zero)
-            .add(widthPadding),
+        padding: const EdgeInsets.fromLTRB(
+          20,
+          0,
+          20,
+          20,
+        ).add(padding ?? EdgeInsets.zero).add(widthPadding),
         child: child,
       ),
     );

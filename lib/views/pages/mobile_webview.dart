@@ -5,7 +5,11 @@ import 'package:miru_app_new/utils/index.dart';
 // import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 
 class WebViewPage extends StatefulWidget {
-  const WebViewPage({super.key, required this.extensionRuntime, required this.url});
+  const WebViewPage({
+    super.key,
+    required this.extensionRuntime,
+    required this.url,
+  });
   final ExtensionApi extensionRuntime;
   final String url;
 
@@ -43,7 +47,9 @@ class _WebViewPageState extends State<WebViewPage> {
       appBar: AppBar(title: Text(loadUrl.toString())),
       body: InAppWebView(
         initialUrlRequest: URLRequest(url: WebUri(url)),
-        initialSettings: InAppWebViewSettings(userAgent: MiruStorage.getUASetting()),
+        initialSettings: InAppWebViewSettings(
+          userAgent: MiruStorage.getUASetting(),
+        ),
         onLoadStart: (controller, url) {
           setState(() {
             loadUrl = url!;

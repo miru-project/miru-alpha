@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SidebarBox extends StatelessWidget {
-  const SidebarBox({
-    super.key,
-    required this.child,
-  });
+  const SidebarBox({super.key, required this.child});
 
   final Widget child;
 

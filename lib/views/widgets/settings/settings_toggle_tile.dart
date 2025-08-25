@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:moon_design/moon_design.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/forui.dart';
+import 'package:miru_app_new/views/widgets/settings/setting_base_tile.dart';
 
-class SettingsToggleTile extends StatefulWidget {
+class SettingsToggleTile extends HookWidget {
   const SettingsToggleTile({
     super.key,
     required this.title,
@@ -19,42 +21,18 @@ class SettingsToggleTile extends StatefulWidget {
   final Function(bool) onChanged;
   final void Function()? onTap;
   final IconData? icon;
-
-  @override
-  createState() => _SettingsToggleTileState();
-}
-
-class _SettingsToggleTileState extends State<SettingsToggleTile> {
-  late bool value;
-
-  @override
-  void initState() {
-    super.initState();
-    value = widget.value;
-  }
-
-  void _changeFunc(bool newValue) {
-    setState(() {
-      value = newValue;
-    });
-    widget.onChanged(newValue);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return MoonMenuItem(
-      onTap: widget.onTap ?? () {},
-      content: Text(widget.subtitle),
-      label: Text(widget.title),
-      leading: (widget.icon == null)
-          ? null
-          : Icon(
-              widget.icon!,
-              size: 20,
-            ),
-      trailing: MoonSwitch(
-        value: value,
-        onChanged: _changeFunc,
+    final val = useState(value);
+    return SettingBaseTile(
+      title: title,
+      subtitle: subtitle,
+      child: FSwitch(
+        value: val.value,
+        onChange: (value) {
+          val.value = value;
+          onChanged(value);
+        },
       ),
     );
   }

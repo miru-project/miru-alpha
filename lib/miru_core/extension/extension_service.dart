@@ -18,12 +18,18 @@ class ExtensionApi {
     throw UnimplementedError('detail method not implemented');
   }
 
-  Future<List<ExtensionListItem>> search(String kw, int page, {Map<String, List<String>>? filter}) async {
+  Future<List<ExtensionListItem>> search(
+    String kw,
+    int page, {
+    Map<String, List<String>>? filter,
+  }) async {
     // This method should be implemented in subclasses
     throw UnimplementedError('search method not implemented');
   }
 
-  Future<Map<String, ExtensionFilter>> createFilter({Map<String, List<String>>? filter}) async {
+  Future<Map<String, ExtensionFilter>> createFilter({
+    Map<String, List<String>>? filter,
+  }) async {
     // This method should be implemented in subclasses
     throw UnimplementedError('createFilter method not implemented');
   }

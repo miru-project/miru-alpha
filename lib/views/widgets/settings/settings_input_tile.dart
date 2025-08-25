@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:moon_design/moon_design.dart';
+import 'package:forui/forui.dart';
+import 'package:miru_app_new/views/widgets/settings/setting_base_tile.dart';
 
 class SettingsInputTile extends StatelessWidget {
   const SettingsInputTile({
@@ -21,45 +22,6 @@ class SettingsInputTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MoonMenuItem(
-      onTap: onTap ?? () {},
-      content: Text(subtitle),
-      label: Text(title),
-      leading: (icon == null)
-          ? null
-          : Icon(
-              icon!,
-              size: 20,
-            ),
-      trailing: Container(
-          constraints: const BoxConstraints(maxWidth: 200),
-          child: MoonFormTextInput(
-            onChanged: onChanged,
-            initialValue: initialValue,
-          )),
-    );
-    // return Row(
-    //   children: [
-    //     Expanded(
-    //       child: Column(
-    //         crossAxisAlignment: CrossAxisAlignment.start,
-    //         children: [
-    //           Text(title),
-    //           Text(
-    //             subtitle,
-    //             style: Theme.of(context).textTheme.bodySmall,
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //     Container(
-    //       constraints: const BoxConstraints(maxWidth: 200),
-    //       child: CupertinoTextField(
-    //         controller: TextEditingController(text: initialValue),
-    //         onChanged: onChanged,
-    //       ),
-    //     ),
-    //   ],
-    // );
+    return SettingBaseTile(title: title, subtitle: subtitle, child: FTextField(onChange: onChanged, initialText: initialValue));
   }
 }

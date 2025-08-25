@@ -11,7 +11,12 @@ import 'package:miru_app_new/views/widgets/miru_grid_tile_loading_box.dart';
 import 'package:moon_design/moon_design.dart';
 
 class Latest extends ConsumerStatefulWidget {
-  const Latest({super.key, required this.extensionService, required this.needrefresh, required this.searchValue});
+  const Latest({
+    super.key,
+    required this.extensionService,
+    required this.needrefresh,
+    required this.searchValue,
+  });
   final ExtensionApi extensionService;
   // a trigger to refresh the latest
   final ValueNotifier<bool> needrefresh;
@@ -43,17 +48,38 @@ class _LatestState extends ConsumerState<Latest> {
           return;
         }
         isRefreshing = true;
-        ref.invalidate(fetchExtensionLatestProvider(widget.extensionService, 1));
-        ref.read(fetchExtensionLatestProvider(widget.extensionService, 1)).whenData((_) => isRefreshing = false);
+        ref.invalidate(
+          fetchExtensionLatestProvider(widget.extensionService, 1),
+        );
+        ref
+            .read(fetchExtensionLatestProvider(widget.extensionService, 1))
+            .whenData((_) => isRefreshing = false);
         return;
       }
-      ref.invalidate(fetchExtensionSearchProvider(widget.extensionService, widget.searchValue.value, 1));
-      ref.read(fetchExtensionSearchProvider(widget.extensionService, widget.searchValue.value, 1)).whenData((_) => isRefreshing = false);
+      ref.invalidate(
+        fetchExtensionSearchProvider(
+          widget.extensionService,
+          widget.searchValue.value,
+          1,
+        ),
+      );
+      ref
+          .read(
+            fetchExtensionSearchProvider(
+              widget.extensionService,
+              widget.searchValue.value,
+              1,
+            ),
+          )
+          .whenData((_) => isRefreshing = false);
     });
   }
 
   void onTap() {
-    context.push('/search/single', extra: SearchPageParam(service: widget.extensionService, query: null));
+    context.push(
+      '/search/single',
+      extra: SearchPageParam(service: widget.extensionService, query: null),
+    );
   }
 
   AsyncValue<List<ExtensionListItem>> snapShot = const AsyncValue.loading();
@@ -61,9 +87,17 @@ class _LatestState extends ConsumerState<Latest> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     if (widget.searchValue.value.isEmpty) {
-      snapShot = ref.watch(fetchExtensionLatestProvider(widget.extensionService, 1));
+      snapShot = ref.watch(
+        fetchExtensionLatestProvider(widget.extensionService, 1),
+      );
     } else {
-      snapShot = ref.watch(fetchExtensionSearchProvider(widget.extensionService, widget.searchValue.value, 1));
+      snapShot = ref.watch(
+        fetchExtensionSearchProvider(
+          widget.extensionService,
+          widget.searchValue.value,
+          1,
+        ),
+      );
     }
     if (width > 800) {
       //desktop
@@ -76,10 +110,22 @@ class _LatestState extends ConsumerState<Latest> {
               MoonButton(
                 onTap: onTap,
                 padding: const EdgeInsets.only(left: 10),
-                trailing: const Icon(MoonIcons.controls_chevron_right_24_regular),
-                label: Text(widget.extensionService.meta.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                trailing: const Icon(
+                  MoonIcons.controls_chevron_right_24_regular,
+                ),
+                label: Text(
+                  widget.extensionService.meta.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
               ),
-              MoonButton(padding: const EdgeInsets.only(right: 20), label: Text('More', style: TextStyle(color: Colors.grey[600])), onTap: onTap),
+              MoonButton(
+                padding: const EdgeInsets.only(right: 20),
+                label: Text('More', style: TextStyle(color: Colors.grey[600])),
+                onTap: onTap,
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -102,7 +148,13 @@ class _LatestState extends ConsumerState<Latest> {
                                     subtitle: data[index].update ?? "",
                                     imageUrl: data[index].cover,
                                     onTap: () {
-                                      context.push('/search/detail', extra: DetailParam(service: widget.extensionService, url: data[index].url));
+                                      context.push(
+                                        '/search/detail',
+                                        extra: DetailParam(
+                                          service: widget.extensionService,
+                                          url: data[index].url,
+                                        ),
+                                      );
                                     },
                                     width: 160,
                                   ),
@@ -111,7 +163,11 @@ class _LatestState extends ConsumerState<Latest> {
                             ),
                             GestureDetector(
                               onTapDown: (_) {
-                                _scrollController.animateTo(_scrollController.offset - 100, duration: Durations.short1, curve: Curves.ease);
+                                _scrollController.animateTo(
+                                  _scrollController.offset - 100,
+                                  duration: Durations.short1,
+                                  curve: Curves.ease,
+                                );
                               },
                               child: MouseRegion(
                                 onHover: (event) {
@@ -124,23 +180,40 @@ class _LatestState extends ConsumerState<Latest> {
                                 child: ValueListenableBuilder(
                                   valueListenable: rightIsHover,
                                   builder:
-                                      (context, lvalue, child) => AnimatedContainer(
+                                      (
+                                        context,
+                                        lvalue,
+                                        child,
+                                      ) => AnimatedContainer(
                                         width: width / 20,
                                         height: double.infinity,
                                         decoration:
                                             lvalue
                                                 ? BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(10),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
                                                   gradient: LinearGradient(
                                                     colors: _colorgradient,
                                                     begin: Alignment.centerLeft,
                                                     end: Alignment.centerRight,
                                                   ),
-                                                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 10, spreadRadius: 2)],
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withValues(
+                                                            alpha: 0.2,
+                                                          ),
+                                                      blurRadius: 10,
+                                                      spreadRadius: 2,
+                                                    ),
+                                                  ],
                                                 )
                                                 : null,
                                         duration: Durations.short1,
-                                        child: const Icon(color: Colors.white, MoonIcons.arrows_left_32_regular),
+                                        child: const Icon(
+                                          color: Colors.white,
+                                          MoonIcons.arrows_left_32_regular,
+                                        ),
                                       ),
                                 ),
                               ),
@@ -149,7 +222,11 @@ class _LatestState extends ConsumerState<Latest> {
                               alignment: Alignment.centerRight,
                               child: GestureDetector(
                                 onTapDown: (_) {
-                                  _scrollController.animateTo(_scrollController.offset + 100, duration: Durations.short1, curve: Curves.ease);
+                                  _scrollController.animateTo(
+                                    _scrollController.offset + 100,
+                                    duration: Durations.short1,
+                                    curve: Curves.ease,
+                                  );
                                 },
                                 child: MouseRegion(
                                   onHover: (event) {
@@ -162,25 +239,43 @@ class _LatestState extends ConsumerState<Latest> {
                                   child: ValueListenableBuilder(
                                     valueListenable: rightIsHover,
                                     builder:
-                                        (context, rvalue, child) => AnimatedContainer(
+                                        (
+                                          context,
+                                          rvalue,
+                                          child,
+                                        ) => AnimatedContainer(
                                           width: width / 20,
                                           height: double.infinity,
                                           decoration:
                                               rvalue
                                                   ? BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(10),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
                                                     gradient: LinearGradient(
                                                       colors: _colorgradient,
                                                       end: Alignment.centerLeft,
-                                                      begin: Alignment.centerRight,
+                                                      begin:
+                                                          Alignment.centerRight,
                                                     ),
                                                     boxShadow: [
-                                                      BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 10, spreadRadius: 2),
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withValues(
+                                                              alpha: 0.2,
+                                                            ),
+                                                        blurRadius: 10,
+                                                        spreadRadius: 2,
+                                                      ),
                                                     ],
                                                   )
                                                   : null,
                                           duration: Durations.short1,
-                                          child: const Icon(color: Colors.white, MoonIcons.arrows_right_32_regular),
+                                          child: const Icon(
+                                            color: Colors.white,
+                                            MoonIcons.arrows_right_32_regular,
+                                          ),
                                         ),
                                   ),
                                 ),
@@ -200,7 +295,10 @@ class _LatestState extends ConsumerState<Latest> {
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
-                      return const MiruGridTileLoadingBox(width: 160, height: 200);
+                      return const MiruGridTileLoadingBox(
+                        width: 160,
+                        height: 200,
+                      );
                     },
                   ),
                 ),
@@ -219,9 +317,19 @@ class _LatestState extends ConsumerState<Latest> {
               onTap: onTap,
               padding: const EdgeInsets.only(left: 10),
               trailing: const Icon(MoonIcons.controls_chevron_right_24_regular),
-              label: Text(widget.extensionService.meta.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              label: Text(
+                widget.extensionService.meta.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
             ),
-            MoonButton(padding: const EdgeInsets.only(right: 20), label: Text('More', style: TextStyle(color: Colors.grey[600])), onTap: onTap),
+            MoonButton(
+              padding: const EdgeInsets.only(right: 20),
+              label: Text('More', style: TextStyle(color: Colors.grey[600])),
+              onTap: onTap,
+            ),
           ],
         ),
         const SizedBox(height: 10),
@@ -235,7 +343,14 @@ class _LatestState extends ConsumerState<Latest> {
                 data: (data) {
                   if (data.isEmpty) {
                     return const Center(
-                      child: Text("No Results Found  :( ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: "HarmonyOS_Sans")),
+                      child: Text(
+                        "No Results Found  :( ",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          fontFamily: "HarmonyOS_Sans",
+                        ),
+                      ),
                     );
                   }
                   return ListView.builder(
@@ -246,7 +361,13 @@ class _LatestState extends ConsumerState<Latest> {
                           subtitle: data[index].update ?? "",
                           imageUrl: data[index].cover,
                           onTap: () {
-                            context.push('/search/detail', extra: DetailParam(service: widget.extensionService, url: data[index].url));
+                            context.push(
+                              '/search/detail',
+                              extra: DetailParam(
+                                service: widget.extensionService,
+                                url: data[index].url,
+                              ),
+                            );
                           },
                           width: 100,
                           // height: 200,

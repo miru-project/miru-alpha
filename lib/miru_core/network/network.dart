@@ -5,6 +5,7 @@ import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'dart:async';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:convert';
 
 class CoreNetwork {
@@ -14,14 +15,15 @@ class CoreNetwork {
     return await dio.get('$baseUrl/$path').then((response) => response.data["data"]);
   }
 
-  static Future<dynamic> requestFormData(String path, Map<String, dynamic> data) async {
+  static Future<dynamic> requestFormData(String path, Map<String, dynamic> data, {String method = 'POST'}) async {
     final formData = FormData.fromMap(data);
-    final response = await dio.post('$baseUrl/$path', data: formData);
+    final response = await dio.request('$baseUrl/$path', data: formData, options: Options(method: method, contentType: 'multipart/form-data'));
     return response.data["data"];
   }
 
   static void ensureInitialized() {
     logger.info('Miru_core initialized with base URL: $baseUrl');
+    MetaDataController.registerContainer(ProviderContainer());
     startPollRootInIsolate(interval: const Duration(milliseconds: 200));
   }
 
@@ -64,33 +66,44 @@ class CoreNetwork {
     _pollRootIsolateEntry([receivePort.sendPort, interval]);
 
     receivePort.listen((data) {
-      switch (data.runtimeType) {
-        case const (List<ExtensionMeta>):
-          MetaDataController._extensionMetaController.add(data as List<ExtensionMeta>);
-          break;
-        case const (String):
-          logger.info('Error received: $data');
-          break;
-        default:
-          logger.info('Unknown data type received: $data');
+      if (data is List<ExtensionMeta>) {
+        MetaDataController.update(data);
+      } else if (data is String) {
+        logger.info('Error received: $data');
+      } else {
+        logger.info('Unknown data type received: $data');
       }
       logger.info(data.runtimeType);
     });
   }
 }
 
-class MetaDataController {
-  static final StreamController<List<ExtensionMeta>?> _extensionMetaController = StreamController<List<ExtensionMeta>?>.broadcast();
+final metaDataNotifierProvider = StateNotifierProvider<MetaDataNotifier, List<ExtensionMeta>?>((ref) => MetaDataNotifier());
 
-  static Stream<List<ExtensionMeta>?> get extensionMetaStream => _extensionMetaController.stream;
+class MetaDataNotifier extends StateNotifier<List<ExtensionMeta>?> {
+  MetaDataNotifier() : super(null);
+
+  void set(List<ExtensionMeta>? data) => state = data;
+}
+
+class MetaDataController {
+  static ProviderContainer? _container;
+
+  static void registerContainer(ProviderContainer container) {
+    _container = container;
+  }
+
+  static void update(List<ExtensionMeta>? data) {
+    _container!.read(metaDataNotifierProvider.notifier).set(data);
+  }
 }
 
 class ExtensionEndpoint {
-  static String get extension => '/extension';
-  static String get search => '$extension/search';
+  static String get extensionPath => '/extension';
+  static String get search => '$extensionPath/search';
   // static String get latest => '$extension/latest';
-  static String get detail => '$extension/detail';
-  static String get watch => '$extension/watch';
+  static String get detail => '$extensionPath/detail';
+  static String get watch => '$extensionPath/watch';
 
   static Future<String> latest(String pkg, int page) async {
     return dio.get('${CoreNetwork.baseUrl}/ext/latest/$pkg/$page').toString();

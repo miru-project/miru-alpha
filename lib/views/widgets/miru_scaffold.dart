@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:miru_app_new/controllers/main_controller.dart';
+import 'package:miru_app_new/provider/main_controller_provider.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
@@ -108,22 +108,6 @@ class _MiruScaffoldState extends State<MiruScaffold> {
         body: widget.sidebar == null ? widget.body : sheet(),
       ),
       desktopWidget: widget.body,
-      // FScaffold(
-      //   child: FSidebar(
-      //     header:
-      //     Row(
-      //     children: [
-      //       if (widget.sidebar != null)
-      //         SidebarBox(
-      //           child: ListView(
-      //             padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-      //             children: widget.sidebar!,
-      //           ),
-      //         ),
-      //       Expanded(child: widget.body),
-      //     ],
-      //   )),
-      // ),
     );
   }
 }

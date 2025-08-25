@@ -1,16 +1,19 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/controllers/main_controller.dart';
+import 'package:miru_app_new/provider/application_controller_provider.dart';
+import 'package:miru_app_new/provider/main_controller_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
+
+import 'package:miru_app_new/views/pages/setting/setting_items.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -25,9 +28,10 @@ class MainPage extends StatefulHookConsumerWidget {
 class FIconNavItem {
   final String text;
   final IconData icon;
-  final String page;
+  final String? page;
+  final bool expaned;
   final List<FIconNavItem>? subItems;
-  const FIconNavItem({required this.text, required this.icon, required this.page, this.subItems});
+  const FIconNavItem({required this.text, required this.icon, this.page, this.subItems, this.expaned = false});
 }
 
 class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderStateMixin {
@@ -50,11 +54,36 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
     FIconNavItem(text: 'Home', icon: FIcons.house, page: "/home", subItems: _subNavItem),
     FIconNavItem(text: 'Search', icon: FIcons.search, page: "/search"),
     FIconNavItem(text: 'Extension', icon: FIcons.blocks, page: "/extension"),
-    FIconNavItem(text: 'Settings', icon: FIcons.settings, page: "/settings"),
+    FIconNavItem(text: 'Settings', icon: FIcons.settings, subItems: _fIconSettingSubItem),
+  ];
+
+  static const sideBarIconMap = <SideBarName, IconData>{
+    SideBarName.general: FIcons.menu,
+    SideBarName.extension: FIcons.blocks,
+    SideBarName.player: FIcons.youtube,
+    SideBarName.miruCore: FIcons.server,
+    SideBarName.reader: FIcons.bookOpen,
+    SideBarName.advanced: FIcons.cog,
+    SideBarName.download: FIcons.download,
+    SideBarName.about: FIcons.inbox,
+    SideBarName.tracking: FIcons.arrowUpDown,
+  };
+
+  static final List<FIconNavItem> _fIconSettingSubItem = [
+    for (var item in SideBarName.values)
+      FIconNavItem(text: item.name[0].toUpperCase() + item.name.substring(1), icon: sideBarIconMap[item]!, page: "/settings/${item.name}"),
   ];
 
   @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.properties.removeWhere((p) => p.name == 'autofocus');
+    properties.add(FlagProperty('autofocus', value: true, ifTrue: 'true', ifFalse: 'false'));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final ac = ref.watch(applicationControllerProvider);
     final c = ref.read(mainControllerProvider.notifier);
     final controller = ref.watch(mainControllerProvider);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
@@ -91,9 +120,10 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
         ),
       ),
       desktopWidget: FTheme(
-        data: FThemes.yellow.dark,
+        data: ac.themeData,
         child: FScaffold(
-          sidebar: FSidebar(
+          sidebar: SafeFSidebar(
+            autofocus: true,
             header: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
@@ -157,10 +187,13 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
                       icon: Icon(_fIconNavItem[i].icon),
                       onPress: () {
                         // widget.child.goBranch(i);
-                        context.go(_fIconNavItem[i].page);
+                        if (_fIconNavItem[i].page != null) {
+                          context.go(_fIconNavItem[i].page!);
+                        }
+
                         c.selectIndex(i);
                       },
-                      initiallyExpanded: true,
+                      initiallyExpanded: _fIconNavItem[i].expaned,
                       selected: controller.selectedIndex == i,
                       children:
                           _fIconNavItem[i].subItems != null
@@ -171,7 +204,9 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
                                       label: Text(e.text),
                                       icon: Icon(e.icon),
                                       onPress: () {
-                                        context.go(e.page);
+                                        if (e.page != null) {
+                                          context.go(e.page!);
+                                        }
                                         c.selectIndex(i);
                                       },
                                     ),
@@ -180,19 +215,6 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
                               : [],
                     ),
                   ],
-                  // FSidebarItem(icon: const Icon(FIcons.search), label: const Text('Search'), onPress: () {}),
-                  // FSidebarItem(icon: const Icon(FIcons.blocks), label: const Text('Extension'), onPress: () {}),
-                  // FSidebarItem(icon: const Icon(FIcons.settings), label: const Text('Settings'), onPress: () {}),
-                ],
-              ),
-              FSidebarGroup(
-                action: const Icon(FIcons.plus),
-                onActionPress: () {},
-                label: const Text('Widgets'),
-                children: [
-                  FSidebarItem(icon: const Icon(FIcons.circleSlash), label: const Text('Divider'), onPress: () {}),
-                  FSidebarItem(icon: const Icon(FIcons.scaling), label: const Text('Resizable'), onPress: () {}),
-                  FSidebarItem(icon: const Icon(FIcons.layoutDashboard), label: const Text('Scaffold'), onPress: () {}),
                 ],
               ),
             ],
@@ -203,41 +225,6 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
               crossAxisAlignment: CrossAxisAlignment.start,
               // spacing: 12, // This might be causing issues
               children: [
-                // ConstrainedBox(
-                //   constraints: BoxConstraints.loose(const Size(double.infinity, 35)),
-                //   child: Row(
-                //     children: [
-                //       Expanded(
-                //         child: Row(
-                //           mainAxisAlignment: MainAxisAlignment.center,
-                //           children: [
-                //             for (var i = 0; i < _navItems.length; i++) ...[
-                //               NavButton(
-                //                 selectIcon: _navItems[i].selectIcon,
-                //                 text: _navItems[i].text,
-                //                 icon: _navItems[i].icon,
-                //                 onPressed: () {
-                //                   widget.child.goBranch(i);
-                //                   c.selectIndex(i);
-                //                 },
-                //                 selected: controller.selectedIndex == i,
-                //               ),
-                //               const SizedBox(width: 8),
-                //             ],
-                //           ],
-                //         ),
-                //       ),
-                //       ConstrainedBox(
-                //         constraints: BoxConstraints(maxWidth: 200),
-                //         child:
-                //             Platform.isWindows || Platform.isLinux
-                //                 ? WindowCaption(brightness: Brightness.dark, backgroundColor: context.moonTheme?.textAreaTheme.colors.backgroundColor)
-                //                 : const Spacer(),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                // FDivider(),
                 DeviceUtil.platformWidgetFunction(
                   context: context,
                   mobile: (buildchild) => buildchild,
@@ -261,9 +248,8 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
                       //   constraints: BoxConstraints(minWidth: 50, maxWidth: 90),
                       //   child: FTextField(
                       //     clearable: (value) => value.text.isNotEmpty,
-                      //     enabled: true,
-                      //     hint: 'john@doe.com',
-                      //     keyboardType: TextInputType.emailAddress,
+                      //     hint: 'Search ...',
+                      //     keyboardType: TextInputType.webSearch,
                       //     textCapitalization: TextCapitalization.none,
                       //     maxLines: 1,
                       //   ),
@@ -289,6 +275,37 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
   }
 }
 
+/// A lightweight replacement for the `forui` package `FSidebar` widget.
+class SafeFSidebar extends StatelessWidget {
+  final bool? autofocus;
+  final Widget? header;
+  final Widget? footer;
+  final List<Widget>? children;
+  final double? width;
+
+  const SafeFSidebar({super.key, this.autofocus, this.header, this.footer, this.children, this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(minWidth: width ?? 180, maxWidth: width ?? 220),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (header != null) header!,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ListView(padding: EdgeInsets.zero, children: children ?? const []),
+            ),
+          ),
+          if (footer != null) footer!,
+        ],
+      ),
+    );
+  }
+}
+
 class BreadCrumb extends StatefulHookWidget {
   const BreadCrumb({super.key});
 
@@ -297,7 +314,6 @@ class BreadCrumb extends StatefulHookWidget {
 }
 
 class _BreadCrumbState extends State<BreadCrumb> {
-  late final GoRouter _router;
   @override
   void initState() {
     super.initState();
@@ -309,20 +325,17 @@ class _BreadCrumbState extends State<BreadCrumb> {
 
   @override
   Widget build(BuildContext context) {
-    return FTheme(
-      data: FThemes.yellow.dark,
-      child: FBreadcrumb(
-        children: [
-          FBreadcrumbItem(onPress: () {}, child: const Text('Forui')),
-          FBreadcrumbItem.collapsed(
-            menu: [
-              FItemGroup(children: [FItem(title: const Text('Documentation'), onPress: () {})]),
-            ],
-          ),
-          FBreadcrumbItem(onPress: () {}, child: const Text('Overview')),
-          const FBreadcrumbItem(current: true, child: Text('Installation')),
-        ],
-      ),
+    return FBreadcrumb(
+      children: [
+        FBreadcrumbItem(onPress: () {}, child: const Text('Forui')),
+        FBreadcrumbItem.collapsed(
+          menu: [
+            FItemGroup(children: [FItem(title: const Text('Documentation'), onPress: () {})]),
+          ],
+        ),
+        FBreadcrumbItem(onPress: () {}, child: const Text('Overview')),
+        const FBreadcrumbItem(current: true, child: Text('Installation')),
+      ],
     );
   }
 }

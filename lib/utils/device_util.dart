@@ -22,7 +22,11 @@ class DeviceUtil {
     return MediaQuery.of(context).size.width < 800;
   }
 
-  static T device<T>({required BuildContext context, required T mobile, required T desktop}) {
+  static T device<T>({
+    required BuildContext context,
+    required T mobile,
+    required T desktop,
+  }) {
     return isMobileLayout(context) ? mobile : desktop;
   }
 

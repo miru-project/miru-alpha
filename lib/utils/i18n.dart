@@ -11,17 +11,18 @@ class I18nUtils {
       useCountryCode: false,
       fallbackFile: 'en',
       basePath: 'assets/i18n',
-      forcedLocale:
-          Locale(MiruStorage.getSettingSync(SettingKey.language, String)),
+      forcedLocale: Locale(
+        MiruStorage.getSettingSync(SettingKey.language, String),
+      ),
       decodeStrategies: [JsonDecodeStrategy()],
     ),
   );
 
-// 获取当前语言
+  // 获取当前语言
   static Locale? get currentLanguage =>
       FlutterI18n.currentLocale(navigatorKey.currentContext!);
 
-// 切换语言
+  // 切换语言
   static Future changeLanguage(String locale) async {
     await FlutterI18n.refresh(navigatorKey.currentContext!, Locale(locale));
   }

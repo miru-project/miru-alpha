@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/views/widgets/index.dart';
-import 'package:moon_design/moon_design.dart';
 
 class MiruListView extends StatelessWidget {
-  const MiruListView(
-      {super.key,
-      required this.children,
-      this.padding,
-      this.maxWidth,
-      this.scrollDirection = Axis.vertical,
-      this.controller})
-      : assert(children != null, 'children must not be null'),
-        itemBuilder = null,
-        itemCount = 0;
+  const MiruListView({
+    super.key,
+    required this.children,
+    this.padding,
+    this.maxWidth,
+    this.scrollDirection = Axis.vertical,
+    this.controller,
+  }) : assert(children != null, 'children must not be null'),
+       itemBuilder = null,
+       itemCount = 0;
   final Axis scrollDirection;
   final IndexedWidgetBuilder? itemBuilder;
   final int itemCount;
@@ -20,15 +19,15 @@ class MiruListView extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final double? maxWidth;
   final ScrollController? controller;
-  const MiruListView.builder(
-      {super.key,
-      required this.itemBuilder,
-      required this.itemCount,
-      this.scrollDirection = Axis.vertical,
-      this.padding,
-      this.maxWidth,
-      this.controller})
-      : children = null;
+  const MiruListView.builder({
+    super.key,
+    required this.itemBuilder,
+    required this.itemCount,
+    this.scrollDirection = Axis.vertical,
+    this.padding,
+    this.maxWidth,
+    this.controller,
+  }) : children = null;
 
   @override
   Widget build(BuildContext context) {
@@ -51,40 +50,52 @@ class MiruListView extends StatelessWidget {
     }
 
     if (itemBuilder == null) {
-      return Container(
-          color: context.moonTheme?.textInputTheme.colors.backgroundColor,
-          child: PlatformWidget(
-            mobileWidget: ListView(
-              padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 190)
-                  .add(padding ?? EdgeInsets.zero)
-                  .add(widthPadding),
-              children: children!,
-            ),
-            desktopWidget: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 70, 20, 20)
-                  .add(padding ?? EdgeInsets.zero)
-                  .add(widthPadding),
-              children: children!,
-            ),
-          ));
+      return PlatformWidget(
+        mobileWidget: ListView(
+          padding: EdgeInsets.fromLTRB(
+            8,
+            (8 + viewPadding.top),
+            8,
+            190,
+          ).add(padding ?? EdgeInsets.zero).add(widthPadding),
+          children: children!,
+        ),
+        desktopWidget: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            20,
+            70,
+            20,
+            20,
+          ).add(padding ?? EdgeInsets.zero).add(widthPadding),
+          children: children!,
+        ),
+      );
     }
 
-    return PlatformWidget(
-      mobileWidget: ListView.builder(
-        scrollDirection: scrollDirection,
-        padding: EdgeInsets.fromLTRB(8, (8 + viewPadding.top), 8, 190)
-            .add(padding ?? EdgeInsets.zero)
-            .add(widthPadding),
-        itemBuilder: itemBuilder!,
-        itemCount: itemCount,
-      ),
-      desktopWidget: ListView.builder(
-        scrollDirection: scrollDirection,
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20)
-            .add(padding ?? EdgeInsets.zero)
-            .add(widthPadding),
-        itemBuilder: itemBuilder!,
-        itemCount: itemCount,
+    return SizedBox(
+      child: PlatformWidget(
+        mobileWidget: ListView.builder(
+          scrollDirection: scrollDirection,
+          padding: EdgeInsets.fromLTRB(
+            8,
+            (8 + viewPadding.top),
+            8,
+            190,
+          ).add(padding ?? EdgeInsets.zero).add(widthPadding),
+          itemBuilder: itemBuilder!,
+          itemCount: itemCount,
+        ),
+        desktopWidget: ListView.builder(
+          scrollDirection: scrollDirection,
+          padding: const EdgeInsets.fromLTRB(
+            20,
+            0,
+            20,
+            20,
+          ).add(padding ?? EdgeInsets.zero).add(widthPadding),
+          itemBuilder: itemBuilder!,
+          itemCount: itemCount,
+        ),
       ),
     );
   }

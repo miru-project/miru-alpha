@@ -16,19 +16,18 @@ class SearchPage extends HookWidget {
     final selected = useState(0);
     return Column(
       children: [
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 10),
         ...List.generate(
           items.length,
           (index) => SideBarListTile(
-              title: items[index],
-              selected: selected.value == index,
-              onPressed: () {
-                selected.value = index;
-                onpress(index);
-              }),
-        )
+            title: items[index],
+            selected: selected.value == index,
+            onPressed: () {
+              selected.value = index;
+              onpress(index);
+            },
+          ),
+        ),
       ],
     );
   }
@@ -36,119 +35,147 @@ class SearchPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final needRefresh = useState(false);
-    final controller =
-        useTabController(initialIndex: 0, initialLength: _categories.length);
+    final controller = useTabController(
+      initialIndex: 0,
+      initialLength: _categories.length,
+    );
     final editController = useTextEditingController();
     final scrollController = useScrollController();
     final searchValue = useState(search ?? '');
     return MiruScaffold(
       mobileHeader: const SideBarListTitle(title: 'Seach'),
-      sidebar: DeviceUtil.device(mobile: <Widget>[
-        //mobile
-
-        SideBarSearchBar(
-          controller: editController,
-          onsubmitted: (val) {
-            searchValue.value = val;
-            needRefresh.value = !needRefresh.value;
-          },
-          trailing: MoonButton.icon(
-            icon: const Icon(MoonIcons.controls_close_24_regular),
-            onTap: () {
-              editController.clear();
-              searchValue.value = '';
+      sidebar: DeviceUtil.device(
+        mobile: <Widget>[
+          //mobile
+          SideBarSearchBar(
+            controller: editController,
+            onsubmitted: (val) {
+              searchValue.value = val;
               needRefresh.value = !needRefresh.value;
             },
+            trailing: MoonButton.icon(
+              icon: const Icon(MoonIcons.controls_close_24_regular),
+              onTap: () {
+                editController.clear();
+                searchValue.value = '';
+                needRefresh.value = !needRefresh.value;
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: 10),
-        MoonTabBar(
+          const SizedBox(height: 10),
+          MoonTabBar(
             tabController: controller,
             tabs: List.generate(
-                _categories.length,
-                (index) => MoonTab(
-                    tabStyle: MoonTabStyle(
-                        selectedTextColor: context.moonTheme
-                            ?.segmentedControlTheme.colors.backgroundColor),
-                    label: Text(_categories[index])))),
-        SizedBox(
+              _categories.length,
+              (index) => MoonTab(
+                tabStyle: MoonTabStyle(
+                  selectedTextColor:
+                      context
+                          .moonTheme
+                          ?.segmentedControlTheme
+                          .colors
+                          .backgroundColor,
+                ),
+                label: Text(_categories[index]),
+              ),
+            ),
+          ),
+          SizedBox(
             height: 200,
             child: TabBarView(
               controller: controller,
               children: [
                 CategoryGroup(
-                    items: const ['ALL', 'Video', 'Manga', 'Novel'],
-                    onpress: (val) {}),
+                  items: const ['ALL', 'Video', 'Manga', 'Novel'],
+                  onpress: (val) {},
+                ),
                 CategoryGroup(items: const ['ALL'], onpress: (val) {}),
                 CategoryGroup(items: const ['ALL'], onpress: (val) {}),
               ],
-            ))
-      ], desktop: [
-        //desktop
-        const SideBarListTitle(title: 'Search'),
-        SideBarSearchBar(
-          controller: editController,
-          onsubmitted: (val) {
-            searchValue.value = val;
-            needRefresh.value = !needRefresh.value;
-          },
-          trailing: MoonButton.icon(
-            icon: const Icon(MoonIcons.controls_close_24_regular),
-            onTap: () {
-              editController.clear();
-              searchValue.value = '';
+            ),
+          ),
+        ],
+        desktop: [
+          //desktop
+          const SideBarListTitle(title: 'Search'),
+          SideBarSearchBar(
+            controller: editController,
+            onsubmitted: (val) {
+              searchValue.value = val;
               needRefresh.value = !needRefresh.value;
             },
+            trailing: MoonButton.icon(
+              icon: const Icon(MoonIcons.controls_close_24_regular),
+              onTap: () {
+                editController.clear();
+                searchValue.value = '';
+                needRefresh.value = !needRefresh.value;
+              },
+            ),
           ),
-        ),
-        const SizedBox(height: 10),
-        SidebarExpander(
-          title: "Type",
-          expanded: true,
-          child: CategoryGroup(
+          const SizedBox(height: 10),
+          SidebarExpander(
+            title: "Type",
+            expanded: true,
+            child: CategoryGroup(
               needSpacer: false,
               items: const ['ALL', 'Video', 'Manga', 'Novel'],
-              onpress: (val) {}),
-        ),
-        const SizedBox(height: 15),
-        SidebarExpander(
+              onpress: (val) {},
+            ),
+          ),
+          const SizedBox(height: 15),
+          SidebarExpander(
             title: 'Language',
             child: CategoryGroup(
-                needSpacer: false, items: const ['ALL'], onpress: (val) {})),
-        const SizedBox(height: 15),
-        SidebarExpander(
+              needSpacer: false,
+              items: const ['ALL'],
+              onpress: (val) {},
+            ),
+          ),
+          const SizedBox(height: 15),
+          SidebarExpander(
             title: 'Extension',
             child: CategoryGroup(
-                needSpacer: false, items: const ['ALL'], onpress: (val) {})),
-        // MoonButton(
-        //   onTap: () {
-        //     needRefresh.value = !needRefresh.value;
-        //   },
-        //   label: const Text('刷新'),
-        // )
-      ], context: context),
+              needSpacer: false,
+              items: const ['ALL'],
+              onpress: (val) {},
+            ),
+          ),
+          // MoonButton(
+          //   onTap: () {
+          //     needRefresh.value = !needRefresh.value;
+          //   },
+          //   label: const Text('刷新'),
+          // )
+        ],
+        context: context,
+      ),
       body: EasyRefresh(
-          onRefresh: () {
-            debugPrint('refresh');
-            needRefresh.value = !needRefresh.value;
-          },
-          scrollController: scrollController,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final service = ExtensionUtils.runtimes.entries.toList();
+        onRefresh: () {
+          debugPrint('refresh');
+          needRefresh.value = !needRefresh.value;
+        },
+        scrollController: scrollController,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final service = ExtensionUtils.runtimes.entries.toList();
 
-              return MiruSingleChildView(
-                  controller: scrollController,
-                  child: Column(
-                    children: List.generate(
-                        service.length,
-                        (index) => Latest(
-                            searchValue: searchValue,
-                            needrefresh: needRefresh,
-                            extensionService: service[index].value)),
-                  ));
-            },
-          )),
+            return MiruSingleChildView(
+              controller: scrollController,
+              child: Column(
+                children: List.generate(
+                  service.length,
+                  (index) => Latest(
+                    searchValue: searchValue,
+                    needrefresh: needRefresh,
+                    extensionService: service[index].value,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

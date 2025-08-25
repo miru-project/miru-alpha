@@ -29,7 +29,14 @@ import 'package:shimmer/shimmer.dart';
 import 'package:path/path.dart' as p;
 
 class DetailItemBox extends HookWidget {
-  const DetailItemBox({required this.padding, required this.child, required this.title, this.isMobile = false, this.needExpand = true, super.key});
+  const DetailItemBox({
+    required this.padding,
+    required this.child,
+    required this.title,
+    this.isMobile = false,
+    this.needExpand = true,
+    super.key,
+  });
 
   final Widget child;
   final double padding;
@@ -52,8 +59,15 @@ class DetailItemBox extends HookWidget {
                 ? null
                 : minHeight, // Expand or restrict height
         decoration: BoxDecoration(
-          boxShadow: [BoxShadow(blurRadius: 25, color: Colors.black.withValues(alpha: .2))],
-          color: context.moonTheme?.textInputTheme.colors.textColor.withAlpha(20),
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 25,
+              color: Colors.black.withValues(alpha: .2),
+            ),
+          ],
+          color: context.moonTheme?.textInputTheme.colors.textColor.withAlpha(
+            20,
+          ),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Padding(
@@ -65,7 +79,14 @@ class DetailItemBox extends HookWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(title, style: TextStyle(fontSize: isMobile ? 18 : 20, fontWeight: FontWeight.bold, fontFamily: "HarmonyOS_Sans")),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: isMobile ? 18 : 20,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "HarmonyOS_Sans",
+                    ),
+                  ),
                   if (needExpand)
                     MoonButton.icon(
                       onTap: () {
@@ -79,7 +100,13 @@ class DetailItemBox extends HookWidget {
               const Divider(),
               const SizedBox(height: 10),
               // Wrap the content with SingleChildScrollView
-              if (!isExpanded.value) SizedBox(height: minHeight - 100, child: SingleChildScrollView(child: child)) else child,
+              if (!isExpanded.value)
+                SizedBox(
+                  height: minHeight - 100,
+                  child: SingleChildScrollView(child: child),
+                )
+              else
+                child,
             ],
           ),
         ),
@@ -119,22 +146,58 @@ class DetailEpButton extends HookWidget {
                           spacing: spacing,
                           runSpacing: runSpacing,
                           children: [
-                            ...List.generate(detail.episodes![selectedValue].urls.length, (index) {
-                              return MoonButton(
-                                borderColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
-                                backgroundColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor.withAlpha(150),
-                                hoverEffectColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
-                                hoverTextColor: context.moonTheme?.segmentedControlTheme.colors.textColor,
-                                onTap: () => onTap(index),
-                                label: PlatformWidget(
-                                  mobileWidget: ConstrainedBox(
-                                    constraints: BoxConstraints(maxWidth: constraint.maxWidth - 50),
-                                    child: Text(overflow: TextOverflow.ellipsis, detail.episodes![selectedValue].urls[index].name),
+                            ...List.generate(
+                              detail.episodes![selectedValue].urls.length,
+                              (index) {
+                                return MoonButton(
+                                  borderColor:
+                                      context
+                                          .moonTheme
+                                          ?.segmentedControlTheme
+                                          .colors
+                                          .backgroundColor,
+                                  backgroundColor: context
+                                      .moonTheme
+                                      ?.segmentedControlTheme
+                                      .colors
+                                      .backgroundColor
+                                      .withAlpha(150),
+                                  hoverEffectColor:
+                                      context
+                                          .moonTheme
+                                          ?.segmentedControlTheme
+                                          .colors
+                                          .backgroundColor,
+                                  hoverTextColor:
+                                      context
+                                          .moonTheme
+                                          ?.segmentedControlTheme
+                                          .colors
+                                          .textColor,
+                                  onTap: () => onTap(index),
+                                  label: PlatformWidget(
+                                    mobileWidget: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: constraint.maxWidth - 50,
+                                      ),
+                                      child: Text(
+                                        overflow: TextOverflow.ellipsis,
+                                        detail
+                                            .episodes![selectedValue]
+                                            .urls[index]
+                                            .name,
+                                      ),
+                                    ),
+                                    desktopWidget: Text(
+                                      detail
+                                          .episodes![selectedValue]
+                                          .urls[index]
+                                          .name,
+                                    ),
                                   ),
-                                  desktopWidget: Text(detail.episodes![selectedValue].urls[index].name),
-                                ),
-                              );
-                            }),
+                                );
+                              },
+                            ),
                           ],
                         ),
           ),
@@ -197,9 +260,18 @@ class DesktopDetail extends StatelessWidget {
                       flex: 2,
                       child: Column(
                         children: [
-                          DetailItemBox(title: 'Season', padding: _gloablDesktopPadding, child: season),
+                          DetailItemBox(
+                            title: 'Season',
+                            padding: _gloablDesktopPadding,
+                            child: season,
+                          ),
                           const SizedBox(height: 20),
-                          DetailItemBox(needExpand: false, title: 'Description', padding: _gloablDesktopPadding, child: desc),
+                          DetailItemBox(
+                            needExpand: false,
+                            title: 'Description',
+                            padding: _gloablDesktopPadding,
+                            child: desc,
+                          ),
                         ],
                       ),
                     ),
@@ -208,9 +280,17 @@ class DesktopDetail extends StatelessWidget {
                       flex: 6,
                       child: Column(
                         children: [
-                          DetailItemBox(title: 'Episode', padding: _gloablDesktopPadding, child: ep),
+                          DetailItemBox(
+                            title: 'Episode',
+                            padding: _gloablDesktopPadding,
+                            child: ep,
+                          ),
                           const SizedBox(height: 20),
-                          DetailItemBox(padding: _gloablDesktopPadding, title: 'Cast & Rating', child: cast),
+                          DetailItemBox(
+                            padding: _gloablDesktopPadding,
+                            title: 'Cast & Rating',
+                            child: cast,
+                          ),
                         ],
                       ),
                     ),
@@ -272,9 +352,20 @@ class MobileDetail extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DetailItemBox(title: 'Description', isMobile: true, needExpand: false, padding: _globalMobilePadding, child: desc),
+                    DetailItemBox(
+                      title: 'Description',
+                      isMobile: true,
+                      needExpand: false,
+                      padding: _globalMobilePadding,
+                      child: desc,
+                    ),
                     const SizedBox(height: 20),
-                    DetailItemBox(title: 'Episode', isMobile: true, padding: _globalMobilePadding, child: ep),
+                    DetailItemBox(
+                      title: 'Episode',
+                      isMobile: true,
+                      padding: _globalMobilePadding,
+                      child: ep,
+                    ),
                     const SizedBox(height: 150),
                   ],
                 ),
@@ -288,7 +379,11 @@ class MobileDetail extends StatelessWidget {
 }
 
 class DetailPage extends StatefulHookConsumerWidget {
-  const DetailPage({super.key, required this.extensionService, required this.url});
+  const DetailPage({
+    super.key,
+    required this.extensionService,
+    required this.url,
+  });
   final ExtensionApi extensionService;
   final String url;
 
@@ -322,13 +417,21 @@ class _DetailPageState extends ConsumerState<DetailPage> {
 
   @override
   void initState() {
-    final watchedQuery = DatabaseService.historys.query(History_.package.equals(widget.extensionService.meta.packageName));
+    final watchedQuery = DatabaseService.historys.query(
+      History_.package.equals(widget.extensionService.meta.packageName),
+    );
     watchedQuery.watch().listen((query) {
       final value = query.findFirst();
       ref.read(_history.notifier).putHistory(value);
     });
     final favQuery =
-        DatabaseService.fav.query(Favorite_.package.equals(widget.extensionService.meta.packageName).and(Favorite_.url.equals(widget.url))).build();
+        DatabaseService.fav
+            .query(
+              Favorite_.package
+                  .equals(widget.extensionService.meta.packageName)
+                  .and(Favorite_.url.equals(widget.url)),
+            )
+            .build();
 
     _favoriteNotifer.putFavorite(favQuery.findFirst());
     // DatabaseService.historys
@@ -347,7 +450,14 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     //         widget.extensionService.extension.package, widget.url)
     //     .findFirstSync());
     Future.microtask(
-      () => ref.read(_history.notifier).putHistory(DatabaseService.getHistoryByPackageAndUrl(widget.extensionService.meta.packageName, widget.url)),
+      () => ref
+          .read(_history.notifier)
+          .putHistory(
+            DatabaseService.getHistoryByPackageAndUrl(
+              widget.extensionService.meta.packageName,
+              widget.url,
+            ),
+          ),
     );
     super.initState();
   }
@@ -355,14 +465,19 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   @override
   Widget build(BuildContext context) {
     final tancontroller = useTabController(initialLength: _trackingTab.length);
-    final snapShot = ref.watch(fetchExtensionDetailProvider(widget.extensionService, widget.url));
+    final snapShot = ref.watch(
+      fetchExtensionDetailProvider(widget.extensionService, widget.url),
+    );
     final isdropDown = useState(false);
     final epGroup = useState(<ExtensionEpisodeGroup>[]);
     return MiruScaffold(
       mobileHeader: Align(
         alignment: Alignment.centerLeft,
         child: MoonButton(
-          label: const Text('Detail', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+          label: const Text(
+            'Detail',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          ),
           onTap: () {
             context.pop();
           },
@@ -380,9 +495,15 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                           ref.watch(_history) == null
                               ? null
                               : () {
-                                final snapshot = ref.watch(fetchExtensionDetailProvider(widget.extensionService, widget.url));
+                                final snapshot = ref.watch(
+                                  fetchExtensionDetailProvider(
+                                    widget.extensionService,
+                                    widget.url,
+                                  ),
+                                );
                                 snapshot.whenData((data) {
-                                  if (data.episodes == null || data.episodes!.isEmpty) {
+                                  if (data.episodes == null ||
+                                      data.episodes!.isEmpty) {
                                     return;
                                   }
                                   context.push(
@@ -390,11 +511,21 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                                     extra: WatchParams(
                                       name: ref.watch(_history)!.title,
                                       detailImageUrl: data.cover ?? '',
-                                      selectedEpisodeIndex: ref.watch(_history)!.episodeId,
-                                      selectedGroupIndex: ref.watch(_history)!.episodeGroupId,
+                                      selectedEpisodeIndex:
+                                          ref.watch(_history)!.episodeId,
+                                      selectedGroupIndex:
+                                          ref.watch(_history)!.episodeGroupId,
                                       epGroup: data.episodes,
                                       detailUrl: widget.url,
-                                      url: data.episodes![ref.watch(_history)!.episodeGroupId].urls[ref.watch(_history)!.episodeId].url,
+                                      url:
+                                          data
+                                              .episodes![ref
+                                                  .watch(_history)!
+                                                  .episodeGroupId]
+                                              .urls[ref
+                                                  .watch(_history)!
+                                                  .episodeId]
+                                              .url,
                                       service: widget.extensionService,
                                       type: widget.extensionService.meta.type,
                                     ),
@@ -413,12 +544,26 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                           children: List.generate(
                             epGroup.value.length,
                             (index) => MoonMenuItem(
-                              backgroundColor: index == _selectedGroup.value ? context.moonTheme?.segmentedControlTheme.colors.backgroundColor : null,
+                              backgroundColor:
+                                  index == _selectedGroup.value
+                                      ? context
+                                          .moonTheme
+                                          ?.segmentedControlTheme
+                                          .colors
+                                          .backgroundColor
+                                      : null,
                               label: Text(
                                 overflow: TextOverflow.ellipsis,
                                 epGroup.value[index].title,
                                 style: TextStyle(
-                                  color: index == _selectedGroup.value ? context.moonTheme?.segmentedControlTheme.colors.textColor : null,
+                                  color:
+                                      index == _selectedGroup.value
+                                          ? context
+                                              .moonTheme
+                                              ?.segmentedControlTheme
+                                              .colors
+                                              .textColor
+                                          : null,
                                 ),
                               ),
                               onTap: () {
@@ -431,7 +576,9 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                         child: MoonButton(
                           label: Text(
                             overflow: TextOverflow.ellipsis,
-                            epGroup.value.isEmpty ? 'No Season' : epGroup.value[_selectedGroup.value].title,
+                            epGroup.value.isEmpty
+                                ? 'No Season'
+                                : epGroup.value[_selectedGroup.value].title,
                           ),
                           onTap: () {
                             isdropDown.value = !isdropDown.value;
@@ -442,7 +589,13 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                     MoonButton(
                       label: const Text('WebView'),
                       onTap: () {
-                        context.push('/mobileWebView', extra: WebviewParam(url: widget.url, service: widget.extensionService));
+                        context.push(
+                          '/mobileWebView',
+                          extra: WebviewParam(
+                            url: widget.url,
+                            service: widget.extensionService,
+                          ),
+                        );
                       },
                       leading: const Icon(MoonIcons.generic_globe_24_regular),
                     ),
@@ -451,10 +604,19 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                 const SizedBox(height: 10),
                 MoonTabBar(
                   tabController: tancontroller,
-                  tabs: List.generate(_trackingTab.length, (index) => MoonTab(label: Text(_trackingTab[index]))),
+                  tabs: List.generate(
+                    _trackingTab.length,
+                    (index) => MoonTab(label: Text(_trackingTab[index])),
+                  ),
                 ),
                 const SizedBox(height: 10),
-                SizedBox(height: 200, child: TabBarView(controller: tancontroller, children: [Container(), Container()])),
+                SizedBox(
+                  height: 200,
+                  child: TabBarView(
+                    controller: tancontroller,
+                    children: [Container(), Container()],
+                  ),
+                ),
               ]
               : null,
       body: snapShot.when(
@@ -481,7 +643,11 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                         selectedEpisodeIndex: value,
                         selectedGroupIndex: _selectedGroup.value,
                         epGroup: data.episodes,
-                        url: data.episodes![_selectedGroup.value].urls[value].url,
+                        url:
+                            data
+                                .episodes![_selectedGroup.value]
+                                .urls[value]
+                                .url,
                         service: widget.extensionService,
                         type: widget.extensionService.meta.type,
                       ),
@@ -490,7 +656,12 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                   spacing: 8,
                   runSpacing: 10,
                 ),
-                desc: Text(maxLines: 3, overflow: TextOverflow.ellipsis, data.desc ?? 'No Description', style: const TextStyle(fontSize: 12)),
+                desc: Text(
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  data.desc ?? 'No Description',
+                  style: const TextStyle(fontSize: 12),
+                ),
               ),
               desktopWidget: DesktopDetail(
                 isLoading: false,
@@ -510,7 +681,11 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                         selectedGroupIndex: _selectedGroup.value,
                         epGroup: data.episodes,
                         detailUrl: widget.url,
-                        url: data.episodes![_selectedGroup.value].urls[value].url,
+                        url:
+                            data
+                                .episodes![_selectedGroup.value]
+                                .urls[value]
+                                .url,
                         service: widget.extensionService,
                         type: widget.extensionService.meta.type,
                       ),
@@ -527,7 +702,12 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                       width: double.infinity,
                       height: 30,
                       isActive: false,
-                      activeBackgroundColor: context.moonTheme?.tabBarTheme.colors.selectedPillTabColor.withAlpha(150),
+                      activeBackgroundColor: context
+                          .moonTheme
+                          ?.tabBarTheme
+                          .colors
+                          .selectedPillTabColor
+                          .withAlpha(150),
                       backgroundColor: Colors.transparent,
 
                       // activeColor: context.moonTheme?.tabBarTheme
@@ -540,7 +720,10 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                     ),
                   ),
                 ),
-                desc: Text(data.desc ?? 'No Description', style: const TextStyle(fontSize: 16)),
+                desc: Text(
+                  data.desc ?? 'No Description',
+                  style: const TextStyle(fontSize: 16),
+                ),
                 cast: _DetailCast(),
               ),
             ),
@@ -551,8 +734,18 @@ class _DetailPageState extends ConsumerState<DetailPage> {
               mobileWidget: MobileDetail(
                 isLoading: true,
                 extensionService: widget.extensionService,
-                desc: const LoadingWidget(lineCount: 3, lineheight: 8, lineSeperate: 8, padding: EdgeInsets.all(5)),
-                ep: const LoadingWidget(lineCount: 3, lineheight: 20, lineSeperate: 15, padding: EdgeInsets.all(5)),
+                desc: const LoadingWidget(
+                  lineCount: 3,
+                  lineheight: 8,
+                  lineSeperate: 8,
+                  padding: EdgeInsets.all(5),
+                ),
+                ep: const LoadingWidget(
+                  lineCount: 3,
+                  lineheight: 20,
+                  lineSeperate: 15,
+                  padding: EdgeInsets.all(5),
+                ),
               ),
               desktopWidget: DesktopDetail(
                 isLoading: true,
@@ -563,7 +756,12 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                 extensionService: widget.extensionService,
               ),
             ),
-        error: (error, stackTrace) => Center(child: Column(children: [Text('Error: $error'), Text('Stack: $stackTrace')])),
+        error:
+            (error, stackTrace) => Center(
+              child: Column(
+                children: [Text('Error: $error'), Text('Stack: $stackTrace')],
+              ),
+            ),
       ),
     );
   }
@@ -583,21 +781,44 @@ class _DetailCast extends HookWidget {
             2,
             (index) => MoonTab(
               tabStyle: MoonTabStyle(
-                indicatorColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
-                selectedTextColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
+                indicatorColor:
+                    context
+                        .moonTheme
+                        ?.segmentedControlTheme
+                        .colors
+                        .backgroundColor,
+                selectedTextColor:
+                    context
+                        .moonTheme
+                        ?.segmentedControlTheme
+                        .colors
+                        .backgroundColor,
               ),
               label: Text(_tabs[index]),
             ),
           ),
         ),
-        SizedBox(height: 100, child: TabBarView(controller: tabController, children: const [Text('TMDB'), Text('AniList')])),
+        SizedBox(
+          height: 100,
+          child: TabBarView(
+            controller: tabController,
+            children: const [Text('TMDB'), Text('AniList')],
+          ),
+        ),
       ],
     );
   }
 }
 
 class LoadingWidget extends StatelessWidget {
-  const LoadingWidget({super.key, this.header, required this.lineCount, this.lineSeperate, this.lineheight, this.padding});
+  const LoadingWidget({
+    super.key,
+    this.header,
+    required this.lineCount,
+    this.lineSeperate,
+    this.lineheight,
+    this.padding,
+  });
   final Widget? header;
   final int lineCount;
   final double? lineheight;
@@ -613,15 +834,31 @@ class LoadingWidget extends StatelessWidget {
         children: [
           if (header != null) header!,
           Shimmer.fromColors(
-            baseColor: context.moonTheme!.segmentedControlTheme.colors.backgroundColor.withAlpha(50),
-            highlightColor: context.moonTheme!.segmentedControlTheme.colors.backgroundColor.withAlpha(100),
+            baseColor: context
+                .moonTheme!
+                .segmentedControlTheme
+                .colors
+                .backgroundColor
+                .withAlpha(50),
+            highlightColor: context
+                .moonTheme!
+                .segmentedControlTheme
+                .colors
+                .backgroundColor
+                .withAlpha(100),
             child: Column(
               children: List.generate(
                 lineCount,
                 (index) => Column(
                   children: [
                     SizedBox(height: lineSeperate ?? 20),
-                    Container(height: lineheight ?? 10, decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(90))),
+                    Container(
+                      height: lineheight ?? 10,
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(90),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -634,7 +871,12 @@ class LoadingWidget extends StatelessWidget {
 }
 
 class _DetailSideWidgetMobile extends ConsumerWidget {
-  const _DetailSideWidgetMobile({required this.constraint, this.detail, this.detailUrl, required this.extensionService});
+  const _DetailSideWidgetMobile({
+    required this.constraint,
+    this.detail,
+    this.detailUrl,
+    required this.extensionService,
+  });
   final ExtensionDetail? detail;
   final String? detailUrl;
   final ExtensionApi extensionService;
@@ -647,15 +889,25 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
         const SizedBox(width: 30),
         Container(
           width: 100,
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
           clipBehavior: Clip.antiAlias,
-          child: ExtendedImage.network(detail?.cover ?? '', width: 100, height: 160, fit: BoxFit.cover),
+          child: ExtendedImage.network(
+            detail?.cover ?? '',
+            width: 100,
+            height: 160,
+            fit: BoxFit.cover,
+          ),
         ),
         const SizedBox(width: 15),
         SizedBox(
           width: constraint.maxWidth - 145,
           child: DefaultTextStyle(
-            style: TextStyle(color: context.moonTheme?.textInputTheme.colors.textColor),
+            style: TextStyle(
+              color: context.moonTheme?.textInputTheme.colors.textColor,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -664,7 +916,11 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                   softWrap: true,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontFamily: "HarmonyOS_Sans", fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontFamily: "HarmonyOS_Sans",
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
@@ -676,7 +932,8 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                         height: 20,
                         extensionService.meta.icon ?? '',
                         loadStateChanged: (state) {
-                          if (state.extendedImageLoadState == LoadState.failed) {
+                          if (state.extendedImageLoadState ==
+                              LoadState.failed) {
                             return const Icon(Icons.error);
                           }
                           return null;
@@ -686,7 +943,10 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       const SizedBox(width: 10),
-                      Text(extensionService.meta.name, style: const TextStyle(fontSize: 12)),
+                      Text(
+                        extensionService.meta.name,
+                        style: const TextStyle(fontSize: 12),
+                      ),
                     ],
                   ),
                 ),
@@ -694,9 +954,24 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                 Row(
                   children: [
                     MoonButton(
-                      borderColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
-                      textColor: context.moonTheme?.segmentedControlTheme.colors.textColor,
-                      backgroundColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
+                      borderColor:
+                          context
+                              .moonTheme
+                              ?.segmentedControlTheme
+                              .colors
+                              .backgroundColor,
+                      textColor:
+                          context
+                              .moonTheme
+                              ?.segmentedControlTheme
+                              .colors
+                              .textColor,
+                      backgroundColor:
+                          context
+                              .moonTheme
+                              ?.segmentedControlTheme
+                              .colors
+                              .backgroundColor,
                       label: const Text('Play'),
                       onTap:
                           ref.watch(_history) == null
@@ -710,11 +985,21 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                                   extra: WatchParams(
                                     name: ref.watch(_history)!.title,
                                     detailImageUrl: detail!.cover ?? '',
-                                    selectedEpisodeIndex: ref.watch(_history)!.episodeId,
-                                    selectedGroupIndex: ref.watch(_history)!.episodeGroupId,
+                                    selectedEpisodeIndex:
+                                        ref.watch(_history)!.episodeId,
+                                    selectedGroupIndex:
+                                        ref.watch(_history)!.episodeGroupId,
                                     epGroup: detail!.episodes,
                                     detailUrl: detailUrl!,
-                                    url: detail!.episodes![ref.watch(_history)!.episodeGroupId].urls[ref.watch(_history)!.episodeId].url,
+                                    url:
+                                        detail!
+                                            .episodes![ref
+                                                .watch(_history)!
+                                                .episodeGroupId]
+                                            .urls[ref
+                                                .watch(_history)!
+                                                .episodeId]
+                                            .url,
                                     service: extensionService,
                                     type: extensionService.meta.type,
                                   ),
@@ -727,27 +1012,63 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                       builder:
                           (context, _) => MoonChip(
                             isActive: _favoriteNotifer.favorite != null,
-                            activeColor: context.moonTheme?.segmentedControlTheme.colors.textColor,
-                            borderColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
-                            textColor: context.moonTheme?.textInputTheme.colors.textColor,
-                            backgroundColor: context.moonTheme?.textInputTheme.colors.backgroundColor,
+                            activeColor:
+                                context
+                                    .moonTheme
+                                    ?.segmentedControlTheme
+                                    .colors
+                                    .textColor,
+                            borderColor:
+                                context
+                                    .moonTheme
+                                    ?.segmentedControlTheme
+                                    .colors
+                                    .backgroundColor,
+                            textColor:
+                                context
+                                    .moonTheme
+                                    ?.textInputTheme
+                                    .colors
+                                    .textColor,
+                            backgroundColor:
+                                context
+                                    .moonTheme
+                                    ?.textInputTheme
+                                    .colors
+                                    .backgroundColor,
                             label: Text(
-                              _favoriteNotifer.favorite != null ? 'Favorited' : 'Favorite',
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: "HarmonyOS_Sans"),
+                              _favoriteNotifer.favorite != null
+                                  ? 'Favorited'
+                                  : 'Favorite',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontFamily: "HarmonyOS_Sans",
+                              ),
                             ),
-                            leading: const Icon(MoonIcons.generic_star_24_regular),
+                            leading: const Icon(
+                              MoonIcons.generic_star_24_regular,
+                            ),
                             onTap: () {
                               if (detail == null || detailUrl == null) {
                                 return;
                               }
                               showMoonModal(
                                 context: context,
-                                builder: (context) => _FavoriteDialog(extensionService: extensionService, detail: detail!, detailUrl: detailUrl!),
+                                builder:
+                                    (context) => _FavoriteDialog(
+                                      extensionService: extensionService,
+                                      detail: detail!,
+                                      detailUrl: detailUrl!,
+                                    ),
                               );
                             },
                           ),
                     ),
-                    DownloadButton(isIcon: true, detail: detail!, extensionService: extensionService),
+                    DownloadButton(
+                      isIcon: true,
+                      detail: detail!,
+                      extensionService: extensionService,
+                    ),
                   ],
                 ),
               ],
@@ -760,7 +1081,11 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
 }
 
 class _FavoriteDialog extends StatefulWidget {
-  const _FavoriteDialog({required this.extensionService, required this.detailUrl, required this.detail});
+  const _FavoriteDialog({
+    required this.extensionService,
+    required this.detailUrl,
+    required this.detail,
+  });
   final String detailUrl;
   final ExtensionDetail detail;
   final ExtensionApi extensionService;
@@ -787,7 +1112,9 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
     //   // debugger();
     // });
     if (_favoriteNotifer.favorite != null) {
-      final result = DatabaseService.getFavoriteGroupsById(_favoriteNotifer.favorite!.id);
+      final result = DatabaseService.getFavoriteGroupsById(
+        _favoriteNotifer.favorite!.id,
+      );
       final nameList = group.value.map((e) => e.name).toList();
       for (final item in result) {
         initSelected.add(nameList.indexOf(item.name));
@@ -827,7 +1154,10 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
               child: Padding(
                 padding: const EdgeInsets.all(30),
                 child: DefaultTextStyle(
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: "HarmonyOS_Sans"),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "HarmonyOS_Sans",
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -836,7 +1166,10 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Selected Group', style: TextStyle(fontSize: 15)),
+                          const Text(
+                            'Selected Group',
+                            style: TextStyle(fontSize: 15),
+                          ),
                           ValueListenableBuilder(
                             valueListenable: selectedToDelete,
                             builder:
@@ -844,22 +1177,33 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                                     delete.isEmpty
                                         ? Text(
                                           DeviceUtil.device(
-                                            mobile: 'Long Press To Delete Group',
-                                            desktop: 'Right Click To Delete Group',
+                                            mobile:
+                                                'Long Press To Delete Group',
+                                            desktop:
+                                                'Right Click To Delete Group',
                                             context: context,
                                           ),
-                                          style: TextStyle(color: Colors.grey[500], fontWeight: FontWeight.normal, fontSize: 10),
+                                          style: TextStyle(
+                                            color: Colors.grey[500],
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 10,
+                                          ),
                                         )
                                         : MoonButton(
-                                          label: const Icon(MoonIcons.generic_delete_24_regular),
+                                          label: const Icon(
+                                            MoonIcons.generic_delete_24_regular,
+                                          ),
                                           onTap: () {
                                             showMoonModal(
                                               context: context,
                                               builder:
-                                                  (context) => FavoriteWarningDialog(
+                                                  (
+                                                    context,
+                                                  ) => FavoriteWarningDialog(
                                                     setLongPress: setLongPress,
                                                     setSelected: setSelected,
-                                                    selectedToDelete: selectedToDelete,
+                                                    selectedToDelete:
+                                                        selectedToDelete,
                                                     selected: selected,
                                                     group: group,
                                                   ),
@@ -880,9 +1224,16 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                             },
                             minSelected: 0,
                             trailing: MoonButton(
-                              leading: const Icon(MoonIcons.controls_plus_24_regular),
+                              leading: const Icon(
+                                MoonIcons.controls_plus_24_regular,
+                              ),
                               width: width * factor - 100,
-                              backgroundColor: context.moonTheme?.textInputTheme.colors.backgroundColor,
+                              backgroundColor:
+                                  context
+                                      .moonTheme
+                                      ?.textInputTheme
+                                      .colors
+                                      .backgroundColor,
                               onTap: () {
                                 showMoonModal(
                                   context: context,
@@ -894,7 +1245,13 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                                       ),
                                 );
                               },
-                              label: const Text('Add Group', style: TextStyle(fontWeight: FontWeight.bold, fontFamily: "HarmonyOS_Sans")),
+                              label: const Text(
+                                'Add Group',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: "HarmonyOS_Sans",
+                                ),
+                              ),
                             ),
                             items: group.value.map((val) => val.name).toList(),
                             onpress: (val) {
@@ -924,14 +1281,30 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                                         ? null
                                         : () {
                                           //remove from favorite
-                                          DatabaseService.deleteFavorite(widget.detailUrl, widget.extensionService.meta.packageName);
+                                          DatabaseService.deleteFavorite(
+                                            widget.detailUrl,
+                                            widget
+                                                .extensionService
+                                                .meta
+                                                .packageName,
+                                          );
                                           _favoriteNotifer.putFavorite(null);
                                           context.pop();
                                         },
                               ),
                               MoonButton(
                                 buttonSize: MoonButtonSize.lg,
-                                label: Text('Confirm', style: TextStyle(color: context.moonTheme?.segmentedControlTheme.colors.backgroundColor)),
+                                label: Text(
+                                  'Confirm',
+                                  style: TextStyle(
+                                    color:
+                                        context
+                                            .moonTheme
+                                            ?.segmentedControlTheme
+                                            .colors
+                                            .backgroundColor,
+                                  ),
+                                ),
                                 onTap: () {
                                   final fav = DatabaseService.putFavorite(
                                     widget.detailUrl,
@@ -943,11 +1316,16 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
 
                                   final result =
                                       group.value.map((e) {
-                                        final List<Favorite> item = e.favorite.toList(growable: true);
+                                        final List<Favorite> item = e.favorite
+                                            .toList(growable: true);
                                         // remove every fav id from the group
-                                        item.removeWhere((element) => element.id == fav.id);
+                                        item.removeWhere(
+                                          (element) => element.id == fav.id,
+                                        );
                                         // add the fav id to the group if selected
-                                        if (selected.value.contains(group.value.indexOf(e))) {
+                                        if (selected.value.contains(
+                                          group.value.indexOf(e),
+                                        )) {
                                           item.add(fav);
                                         }
                                         e.favorite.addAll(item);
@@ -974,7 +1352,13 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
 }
 
 class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
-  double _mapRange(double value, double inMin, double inMax, double outMin, double outMax) {
+  double _mapRange(
+    double value,
+    double inMin,
+    double inMax,
+    double outMin,
+    double outMax,
+  ) {
     return (value - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
   }
 
@@ -996,9 +1380,20 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
   final String? detailUrl;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     debugPrint('shrinkOffset: $shrinkOffset');
-    int alpha = _mapRange(shrinkOffset, minExt, maxExt, 0, 255).clamp(0, clampMax).toInt();
+    int alpha =
+        _mapRange(
+          shrinkOffset,
+          minExt,
+          maxExt,
+          0,
+          255,
+        ).clamp(0, clampMax).toInt();
 
     return (Container(
       decoration: BoxDecoration(
@@ -1006,7 +1401,10 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
         image:
             (isLoading || detail?.cover == null)
                 ? null
-                : DecorationImage(image: ExtendedNetworkImageProvider(detail?.cover ?? ''), fit: BoxFit.cover),
+                : DecorationImage(
+                  image: ExtendedNetworkImageProvider(detail?.cover ?? ''),
+                  fit: BoxFit.cover,
+                ),
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -1016,11 +1414,17 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
             colors:
                 Theme.of(context).brightness == Brightness.dark
                     ? [
-                      MoonColors.dark.gohan.withAlpha(alpha), // Dark theme gradient colors
+                      MoonColors.dark.gohan.withAlpha(
+                        alpha,
+                      ), // Dark theme gradient colors
                       MoonColors.dark.gohan.withAlpha(128 + (alpha ~/ 2)),
                       MoonColors.dark.gohan,
                     ]
-                    : [MoonColors.light.gohan.withAlpha(alpha), MoonColors.light.gohan.withAlpha(128 + (alpha ~/ 2)), MoonColors.light.gohan],
+                    : [
+                      MoonColors.light.gohan.withAlpha(alpha),
+                      MoonColors.light.gohan.withAlpha(128 + (alpha ~/ 2)),
+                      MoonColors.light.gohan,
+                    ],
           ),
         ),
         child: PlatformWidget(
@@ -1040,10 +1444,22 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                             children: [
                               MoonChip(
                                 chipSize: MoonChipSize.sm,
-                                activeBackgroundColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
+                                activeBackgroundColor:
+                                    context
+                                        .moonTheme
+                                        ?.segmentedControlTheme
+                                        .colors
+                                        .backgroundColor,
                                 backgroundColor: Colors.transparent,
-                                textColor: context.moonTheme?.textInputTheme.colors.textColor,
-                                label: const Icon(MoonIcons.sport_featured_24_regular),
+                                textColor:
+                                    context
+                                        .moonTheme
+                                        ?.textInputTheme
+                                        .colors
+                                        .textColor,
+                                label: const Icon(
+                                  MoonIcons.sport_featured_24_regular,
+                                ),
                               ),
                               SizedBox(
                                 width: constraint.maxWidth * .6,
@@ -1058,7 +1474,10 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                 ),
                               ),
                               const SizedBox(width: 10),
-                              Text(extensionService.meta.name, style: const TextStyle()),
+                              Text(
+                                extensionService.meta.name,
+                                style: const TextStyle(),
+                              ),
                             ],
                           ),
                         ],
@@ -1080,31 +1499,53 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                 const SizedBox(width: 20),
                                 Container(
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).brightness == Brightness.dark ? MoonColors.dark.gohan : MoonColors.light.gohan,
+                                    color:
+                                        Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? MoonColors.dark.gohan
+                                            : MoonColors.light.gohan,
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Shimmer.fromColors(
-                                    baseColor: context.moonTheme!.segmentedControlTheme.colors.backgroundColor.withAlpha(50),
-                                    highlightColor: context.moonTheme!.segmentedControlTheme.colors.backgroundColor.withAlpha(100),
+                                    baseColor: context
+                                        .moonTheme!
+                                        .segmentedControlTheme
+                                        .colors
+                                        .backgroundColor
+                                        .withAlpha(50),
+                                    highlightColor: context
+                                        .moonTheme!
+                                        .segmentedControlTheme
+                                        .colors
+                                        .backgroundColor
+                                        .withAlpha(100),
                                     child: Container(
                                       width: 150,
                                       height: 200,
-                                      decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(10)),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 20),
-                                const LoadingWidget(padding: EdgeInsets.all(0), lineCount: 2, lineheight: 20),
+                                const LoadingWidget(
+                                  padding: EdgeInsets.all(0),
+                                  lineCount: 2,
+                                  lineheight: 20,
+                                ),
                               ],
                             )
                             : LayoutBuilder(
                               builder:
-                                  (context, contraint) => _DetailSideWidgetMobile(
-                                    constraint: constraint,
-                                    detail: detail,
-                                    detailUrl: detailUrl,
-                                    extensionService: extensionService,
-                                  ),
+                                  (context, contraint) =>
+                                      _DetailSideWidgetMobile(
+                                        constraint: constraint,
+                                        detail: detail,
+                                        detailUrl: detailUrl,
+                                        extensionService: extensionService,
+                                      ),
                             ),
                   ),
                   const SizedBox(height: 20),
@@ -1123,7 +1564,8 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                         LayoutBuilder(
                           builder:
                               (context, constraint) => Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Row(
                                     children: [
@@ -1136,28 +1578,52 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                         ),
                                       const SizedBox(width: 10),
                                       ConstrainedBox(
-                                        constraints: BoxConstraints(maxWidth: constraint.maxWidth * .5),
+                                        constraints: BoxConstraints(
+                                          maxWidth: constraint.maxWidth * .5,
+                                        ),
                                         child: Text(
                                           overflow: TextOverflow.ellipsis,
                                           detail?.title ?? 'Title Not Found',
-                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 25,
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(width: 10),
-                                      Text(extensionService.meta.name, style: const TextStyle()),
+                                      Text(
+                                        extensionService.meta.name,
+                                        style: const TextStyle(),
+                                      ),
                                     ],
                                   ),
                                   Row(
                                     children: [
                                       MoonButton(
-                                        leading: const Icon(MoonIcons.media_play_24_regular),
-                                        backgroundColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
-                                        textColor: context.moonTheme?.segmentedControlTheme.colors.textColor,
+                                        leading: const Icon(
+                                          MoonIcons.media_play_24_regular,
+                                        ),
+                                        backgroundColor:
+                                            context
+                                                .moonTheme
+                                                ?.segmentedControlTheme
+                                                .colors
+                                                .backgroundColor,
+                                        textColor:
+                                            context
+                                                .moonTheme
+                                                ?.segmentedControlTheme
+                                                .colors
+                                                .textColor,
                                         onTap: isLoading ? null : () {},
                                         label: const Text('Play'),
                                       ),
                                       const SizedBox(width: 10),
-                                      _FavButton(extensionService: extensionService, detailUrl: detailUrl, detail: detail),
+                                      _FavButton(
+                                        extensionService: extensionService,
+                                        detailUrl: detailUrl,
+                                        detail: detail,
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -1174,7 +1640,11 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                         child:
                             (isLoading)
                                 ? _DesktopLoadingWidgetExtended()
-                                : _DesktopWidgetExtended(extensionService: extensionService, detailUrl: detailUrl, detail: detail),
+                                : _DesktopWidgetExtended(
+                                  extensionService: extensionService,
+                                  detailUrl: detailUrl,
+                                  detail: detail,
+                                ),
                       ),
                       const SizedBox(height: 20),
                     ],
@@ -1191,7 +1661,8 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => minExt;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) => true;
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
+      true;
 }
 
 class DownloadButton extends StatelessWidget {
@@ -1211,13 +1682,23 @@ class DownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isIcon) {
-      return MoonButton.icon(icon: Icon(MoonIcons.generic_download_24_regular), onTap: () => onTap(context));
+      return MoonButton.icon(
+        icon: Icon(MoonIcons.generic_download_24_regular),
+        onTap: () => onTap(context),
+      );
     }
-    return MoonButton(label: const Text('Download'), onTap: () => onTap(context), leading: Icon(MoonIcons.generic_download_24_regular));
+    return MoonButton(
+      label: const Text('Download'),
+      onTap: () => onTap(context),
+      leading: Icon(MoonIcons.generic_download_24_regular),
+    );
   }
 
   void onTap(BuildContext context) {
-    showMoonModal(context: context, builder: (context) => _DownloadDialog(detail, extensionService));
+    showMoonModal(
+      context: context,
+      builder: (context) => _DownloadDialog(detail, extensionService),
+    );
   }
 }
 
@@ -1229,14 +1710,18 @@ class _DownloadDialog extends StatefulHookWidget {
   createState() => _DownloadDialogState();
 }
 
-class _DownloadDialogState extends State<_DownloadDialog> with TickerProviderStateMixin {
+class _DownloadDialogState extends State<_DownloadDialog>
+    with TickerProviderStateMixin {
   late final TabController tabController;
   late final ValueNotifier<int> isSelected;
 
   @override
   void initState() {
     isSelected = ValueNotifier(0);
-    tabController = TabController(length: widget.detail.episodes?.length ?? 0, vsync: this);
+    tabController = TabController(
+      length: widget.detail.episodes?.length ?? 0,
+      vsync: this,
+    );
     super.initState();
   }
 
@@ -1253,7 +1738,10 @@ class _DownloadDialogState extends State<_DownloadDialog> with TickerProviderSta
         tabController.animateTo(value);
         isSelected.value = value;
       },
-      tabs: List.generate(widget.detail.episodes?.length ?? 0, (index) => MoonTab(label: Text(widget.detail.episodes![index].title))),
+      tabs: List.generate(
+        widget.detail.episodes?.length ?? 0,
+        (index) => MoonTab(label: Text(widget.detail.episodes![index].title)),
+      ),
     );
   }
 
@@ -1285,17 +1773,35 @@ class _DownloadDialogState extends State<_DownloadDialog> with TickerProviderSta
                     //   );
                     // },
                     onTap: () async {
-                      final videoWatch = await widget.extensionService.watch(epGroup[value].urls[index].url) as ExtensionBangumiWatch?;
+                      final videoWatch =
+                          await widget.extensionService.watch(
+                                epGroup[value].urls[index].url,
+                              )
+                              as ExtensionBangumiWatch?;
 
                       if (videoWatch == null) return;
-                      await MiruDirectory.createMoviesFolder(widget.detail.title);
+                      await MiruDirectory.createMoviesFolder(
+                        widget.detail.title,
+                      );
                       final res = await dio.post(
                         "http://127.127.127.127:12777/download/bangumi",
-                        data: {"url": videoWatch.url, "download_path": p.join(MiruDirectory.getMoviesDirectory, widget.detail.title), "is_hls": true},
+                        data: {
+                          "url": videoWatch.url,
+                          "download_path": p.join(
+                            MiruDirectory.getMoviesDirectory,
+                            widget.detail.title,
+                          ),
+                          "is_hls": true,
+                        },
                       );
                       logger.info(res);
                       final jsonRes = MiruCoreResponse.fromJson(res.data);
-                      MiruCoreDownload.addTask(MiruDownloadTask(id: jsonRes.data['task_id'].toString(), name: widget.detail.title));
+                      MiruCoreDownload.addTask(
+                        MiruDownloadTask(
+                          id: jsonRes.data['task_id'].toString(),
+                          name: widget.detail.title,
+                        ),
+                      );
                       if (!context.mounted) {
                         return;
                       }
@@ -1340,11 +1846,27 @@ class _DownloadDialogState extends State<_DownloadDialog> with TickerProviderSta
                           ? Center(child: Text("No Episodes found"))
                           : Padding(
                             padding: EdgeInsets.all(10),
-                            child: Column(children: [tabBar(), const SizedBox(height: 10), Expanded(child: tabView(epGroup, context))]),
+                            child: Column(
+                              children: [
+                                tabBar(),
+                                const SizedBox(height: 10),
+                                Expanded(child: tabView(epGroup, context)),
+                              ],
+                            ),
                           ),
                 ),
-                desktop: (buildchild) => SizedBox(width: constraints.maxWidth * .4, height: constraints.maxHeight * .5, child: buildchild),
-                mobile: (buildchild) => SizedBox(width: constraints.maxWidth * .8, height: constraints.maxHeight * .8, child: buildchild),
+                desktop:
+                    (buildchild) => SizedBox(
+                      width: constraints.maxWidth * .4,
+                      height: constraints.maxHeight * .5,
+                      child: buildchild,
+                    ),
+                mobile:
+                    (buildchild) => SizedBox(
+                      width: constraints.maxWidth * .8,
+                      height: constraints.maxHeight * .8,
+                      child: buildchild,
+                    ),
               ),
         ),
       ),
@@ -1353,7 +1875,11 @@ class _DownloadDialogState extends State<_DownloadDialog> with TickerProviderSta
 }
 
 class _DesktopWidgetExtended extends StatelessWidget {
-  const _DesktopWidgetExtended({required this.extensionService, this.detailUrl, this.detail});
+  const _DesktopWidgetExtended({
+    required this.extensionService,
+    this.detailUrl,
+    this.detail,
+  });
   final String? detailUrl;
   final ExtensionDetail? detail;
   final ExtensionApi extensionService;
@@ -1377,7 +1903,10 @@ class _DesktopWidgetExtended extends StatelessWidget {
           debugPrint('⚠️ no cookies found');
         }
 
-        final cookieString = cookies.map((e) => '${e.name}=${e.value}').toList().join(';');
+        final cookieString = cookies
+            .map((e) => '${e.name}=${e.value}')
+            .toList()
+            .join(';');
         // extensionService.setcookie(cookieString);
       } catch (e, stack) {
         debugPrint('getAllCookies error: $e');
@@ -1400,32 +1929,73 @@ class _DesktopWidgetExtended extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 clipBehavior: Clip.antiAlias,
                 child: PlatformWidget(
-                  mobileWidget: ExtendedImage.network(detail?.cover ?? '', width: 150, height: 200, fit: BoxFit.cover),
-                  desktopWidget: ExtendedImage.network(detail?.cover ?? '', width: 200, height: 300, fit: BoxFit.cover),
+                  mobileWidget: ExtendedImage.network(
+                    detail?.cover ?? '',
+                    width: 150,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                  desktopWidget: ExtendedImage.network(
+                    detail?.cover ?? '',
+                    width: 200,
+                    height: 300,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               const SizedBox(width: 40),
               DefaultTextStyle(
-                style: TextStyle(color: context.moonTheme?.textInputTheme.colors.textColor),
+                style: TextStyle(
+                  color: context.moonTheme?.textInputTheme.colors.textColor,
+                ),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: constraint.maxWidth * .8),
+                  constraints: BoxConstraints(
+                    maxWidth: constraint.maxWidth * .8,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(detail?.title ?? '', style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                      Text(
+                        detail?.title ?? '',
+                        style: const TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 10),
-                      Text(extensionService.meta.name, style: const TextStyle(fontSize: 16)),
+                      Text(
+                        extensionService.meta.name,
+                        style: const TextStyle(fontSize: 16),
+                      ),
                       const SizedBox(height: 60),
                       Row(
                         children: [
-                          _FavButton(extensionService: extensionService, detailUrl: detailUrl, detail: detail),
+                          _FavButton(
+                            extensionService: extensionService,
+                            detailUrl: detailUrl,
+                            detail: detail,
+                          ),
                           const SizedBox(width: 10),
-                          MoonButton(leading: const Icon(MoonIcons.generic_globe_24_regular), label: const Text('Webview'), onTap: onTap),
+                          MoonButton(
+                            leading: const Icon(
+                              MoonIcons.generic_globe_24_regular,
+                            ),
+                            label: const Text('Webview'),
+                            onTap: onTap,
+                          ),
                           const SizedBox(width: 10),
-                          if (detail != null) DownloadButton(extensionService: extensionService, detail: detail!, isIcon: false),
+                          if (detail != null)
+                            DownloadButton(
+                              extensionService: extensionService,
+                              detail: detail!,
+                              isIcon: false,
+                            ),
                         ],
                       ),
                     ],
@@ -1447,24 +2017,52 @@ class _DesktopLoadingWidgetExtended extends StatelessWidget {
         const SizedBox(width: 20),
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.dark ? MoonColors.dark.gohan : MoonColors.light.gohan,
+            color:
+                Theme.of(context).brightness == Brightness.dark
+                    ? MoonColors.dark.gohan
+                    : MoonColors.light.gohan,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Shimmer.fromColors(
-            baseColor: context.moonTheme!.segmentedControlTheme.colors.backgroundColor.withAlpha(50),
-            highlightColor: context.moonTheme!.segmentedControlTheme.colors.backgroundColor.withAlpha(100),
-            child: Container(width: 200, height: 300, decoration: BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.circular(10))),
+            baseColor: context
+                .moonTheme!
+                .segmentedControlTheme
+                .colors
+                .backgroundColor
+                .withAlpha(50),
+            highlightColor: context
+                .moonTheme!
+                .segmentedControlTheme
+                .colors
+                .backgroundColor
+                .withAlpha(100),
+            child: Container(
+              width: 200,
+              height: 300,
+              decoration: BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 20),
-        const LoadingWidget(padding: EdgeInsets.all(0), lineCount: 2, lineheight: 20),
+        const LoadingWidget(
+          padding: EdgeInsets.all(0),
+          lineCount: 2,
+          lineheight: 20,
+        ),
       ],
     );
   }
 }
 
 class _FavButton extends StatelessWidget {
-  const _FavButton({required this.extensionService, this.detailUrl, this.detail});
+  const _FavButton({
+    required this.extensionService,
+    this.detailUrl,
+    this.detail,
+  });
   final String? detailUrl;
   final ExtensionDetail? detail;
   final ExtensionApi extensionService;
@@ -1473,12 +2071,16 @@ class _FavButton extends StatelessWidget {
     return MoonChip(
       isActive: _favoriteNotifer.favorite != null,
       activeColor: context.moonTheme?.segmentedControlTheme.colors.textColor,
-      borderColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
+      borderColor:
+          context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
       textColor: context.moonTheme?.textInputTheme.colors.textColor,
       backgroundColor: context.moonTheme?.textInputTheme.colors.backgroundColor,
       label: Text(
         _favoriteNotifer.favorite != null ? 'Favorited' : 'Favorite',
-        style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: "HarmonyOS_Sans"),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontFamily: "HarmonyOS_Sans",
+        ),
       ),
       leading: const Icon(MoonIcons.generic_star_24_regular),
       onTap: () {
@@ -1487,7 +2089,12 @@ class _FavButton extends StatelessWidget {
         }
         showMoonModal(
           context: context,
-          builder: (context) => _FavoriteDialog(extensionService: extensionService, detail: detail!, detailUrl: detailUrl!),
+          builder:
+              (context) => _FavoriteDialog(
+                extensionService: extensionService,
+                detail: detail!,
+                detailUrl: detailUrl!,
+              ),
         );
       },
     );

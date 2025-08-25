@@ -3,11 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class MiruAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const MiruAppBar({
-    super.key,
-    required this.title,
-    this.actions,
-  });
+  const MiruAppBar({super.key, required this.title, this.actions});
 
   final Widget title;
   final List<Widget>? actions;
@@ -19,8 +15,8 @@ class MiruAppBar extends StatelessWidget implements PreferredSizeWidget {
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           decoration: const BoxDecoration(
-              // color: Colors.white.withAlpha(200),
-              ),
+            // color: Colors.white.withAlpha(200),
+          ),
           child: AppBar(
             title: title,
             // backgroundColor: Colors.transparent,

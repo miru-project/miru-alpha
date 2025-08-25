@@ -68,6 +68,7 @@ class ExtensionGridTile extends StatelessWidget {
     required this.onInstall,
     required this.onUninstall,
     required this.isInstalled,
+    this.tags = const [],
   });
   final String name;
   final String? icon;
@@ -75,12 +76,74 @@ class ExtensionGridTile extends StatelessWidget {
   final String author;
   final String type;
   final String? description;
+  final List<String> tags;
   final void Function() onInstall;
   final void Function() onUninstall;
   final bool isInstalled;
   @override
   Widget build(BuildContext context) {
-    return FCard.raw(child: Placeholder());
+    return Center(
+      child: SizedBox(
+        width: 400,
+        height: 240,
+        child: FCard.raw(
+          child: Padding(
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsGeometry.only(right: 15),
+                      child: SizedBox(
+                        width: 70,
+                        height: 70,
+                        child: FCard.raw(
+                          child:
+                              icon == null
+                                  ? Placeholder()
+                                  : ExtendedImage.network(
+                                    icon!,
+                                    cache: true,
+                                    loadStateChanged: (state) {
+                                      if (state.extendedImageLoadState == LoadState.failed) {
+                                        return Placeholder();
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                        ),
+                      ),
+                    ),
+                    FLabel(
+                      label: Row(
+                        children: [FBadge(style: FBadgeStyle.secondary(), child: Text(version)), SizedBox(width: 5), FBadge(child: Text(type))],
+                      ),
+                      axis: Axis.vertical,
+                      child: Text(name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                SizedBox(
+                  height: 55,
+                  child: FLabel(
+                    axis: Axis.vertical,
+                    description: Text(description ?? 'No description'),
+                    child: Wrap(spacing: 5, runSpacing: 5, children: tags.map((e) => FBadge(style: FBadgeStyle.outline(), child: Text(e))).toList()),
+                  ),
+                ),
+                if (isInstalled)
+                  FButton(onPress: onInstall, prefix: Icon(FIcons.trash2), child: Text('Install'))
+                else
+                  FButton(onPress: onUninstall, prefix: Icon(FIcons.download), child: Text('Install')),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
     // Container(
     //   margin: const EdgeInsets.all(10),
     //   clipBehavior: Clip.antiAlias,

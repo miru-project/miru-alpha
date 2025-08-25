@@ -4,13 +4,14 @@ import 'package:miru_app_new/views/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 
 class CategoryGroup extends HookWidget {
-  const CategoryGroup(
-      {required this.items,
-      required this.onpress,
-      this.needSpacer = true,
-      this.maxSelected,
-      this.minSelected,
-      super.key});
+  const CategoryGroup({
+    required this.items,
+    required this.onpress,
+    this.needSpacer = true,
+    this.maxSelected,
+    this.minSelected,
+    super.key,
+  });
   final List<String> items;
   final bool needSpacer;
   final void Function(int) onpress;
@@ -21,41 +22,40 @@ class CategoryGroup extends HookWidget {
     final selected = useState(0);
     return Column(
       children: [
-        if (needSpacer)
-          const SizedBox(
-            height: 10,
-          ),
+        if (needSpacer) const SizedBox(height: 10),
         ...List.generate(
           items.length,
           (index) => SideBarListTile(
-              title: items[index],
-              selected: selected.value == index,
-              onPressed: () {
-                selected.value = index;
-                onpress(index);
-              }),
-        )
+            title: items[index],
+            selected: selected.value == index,
+            onPressed: () {
+              selected.value = index;
+              onpress(index);
+            },
+          ),
+        ),
       ],
     );
   }
 }
 
 class CatergoryGroupChip extends StatefulHookWidget {
-  const CatergoryGroupChip(
-      {required this.items,
-      required this.onpress,
-      this.needSpacer = true,
-      required this.initSelected,
-      this.onLongPress,
-      this.trailing,
-      this.setSelected,
-      this.leading,
-      this.setLongPress,
-      this.maxSelected,
-      this.minSelected,
-      this.customOnTap = defaultCallBack,
-      this.customOnLongPress = defaultCallBack,
-      super.key});
+  const CatergoryGroupChip({
+    required this.items,
+    required this.onpress,
+    this.needSpacer = true,
+    required this.initSelected,
+    this.onLongPress,
+    this.trailing,
+    this.setSelected,
+    this.leading,
+    this.setLongPress,
+    this.maxSelected,
+    this.minSelected,
+    this.customOnTap = defaultCallBack,
+    this.customOnLongPress = defaultCallBack,
+    super.key,
+  });
   final List<String> items;
   final List<int> initSelected;
   final bool needSpacer;
@@ -114,10 +114,7 @@ class _CatergoryGroupChipState extends State<CatergoryGroupChip>
     super.build(context);
     return Column(
       children: [
-        if (widget.needSpacer)
-          const SizedBox(
-            height: 10,
-          ),
+        if (widget.needSpacer) const SizedBox(height: 10),
         Wrap(
           // crossAxisAlignment: WrapCrossAlignment.start,
           spacing: 5,
@@ -125,27 +122,32 @@ class _CatergoryGroupChipState extends State<CatergoryGroupChip>
           children: [
             if (widget.leading != null) widget.leading!,
             ...(List.generate(
-                widget.items.length,
-                (index) => ValueListenableBuilder(
-                    valueListenable: selected,
-                    builder: (context, val, _) => ValueListenableBuilder(
-                        valueListenable: longPress,
-                        builder: (context, press, _) => Container(
+              widget.items.length,
+              (index) => ValueListenableBuilder(
+                valueListenable: selected,
+                builder:
+                    (context, val, _) => ValueListenableBuilder(
+                      valueListenable: longPress,
+                      builder:
+                          (context, press, _) => Container(
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: press.contains(index)
-                                    ? Colors.white
-                                    : Colors.transparent,
+                                color:
+                                    press.contains(index)
+                                        ? Colors.white
+                                        : Colors.transparent,
                                 width: 2,
                               ),
                               borderRadius: BorderRadius.circular(11),
                             ),
                             child: GestureDetector(
-                                onSecondaryTap: widget.onLongPress == null
-                                    ? null
-                                    : () {
-                                        final newlongPress =
-                                            List<int>.from(longPress.value);
+                              onSecondaryTap:
+                                  widget.onLongPress == null
+                                      ? null
+                                      : () {
+                                        final newlongPress = List<int>.from(
+                                          longPress.value,
+                                        );
                                         if (newlongPress.contains(index)) {
                                           newlongPress.remove(index);
                                         } else {
@@ -155,13 +157,15 @@ class _CatergoryGroupChipState extends State<CatergoryGroupChip>
                                             .customOnLongPress(newlongPress);
                                         widget.onLongPress!(newlongPress);
                                       },
-                                child: MoonChip(
-                                  borderWidth: 2,
-                                  onLongPress: widget.onLongPress == null
-                                      ? null
-                                      : () {
-                                          final newlongPress =
-                                              List<int>.from(longPress.value);
+                              child: MoonChip(
+                                borderWidth: 2,
+                                onLongPress:
+                                    widget.onLongPress == null
+                                        ? null
+                                        : () {
+                                          final newlongPress = List<int>.from(
+                                            longPress.value,
+                                          );
                                           if (newlongPress.contains(index)) {
                                             newlongPress.remove(index);
                                           } else {
@@ -171,36 +175,44 @@ class _CatergoryGroupChipState extends State<CatergoryGroupChip>
                                               .customOnLongPress(newlongPress);
                                           widget.onLongPress!(newlongPress);
                                         },
-                                  isActive: selected.value.contains(index),
-                                  label: Text(
-                                    widget.items[index],
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: "HarmonyOS_Sans"),
+                                isActive: selected.value.contains(index),
+                                label: Text(
+                                  widget.items[index],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: "HarmonyOS_Sans",
                                   ),
-                                  onTap: () {
-                                    final newSelected =
-                                        List<int>.from(selected.value);
-                                    if (newSelected.contains(index) &&
-                                        newSelected.length >
-                                            (widget.minSelected ?? 0)) {
-                                      newSelected.remove(index);
-                                    } else {
-                                      if (newSelected.length >=
-                                          (widget.maxSelected ??
-                                              widget.items.length)) {
-                                        newSelected.removeAt(0);
-                                      }
-                                      newSelected.add(index);
+                                ),
+                                onTap: () {
+                                  final newSelected = List<int>.from(
+                                    selected.value,
+                                  );
+                                  if (newSelected.contains(index) &&
+                                      newSelected.length >
+                                          (widget.minSelected ?? 0)) {
+                                    newSelected.remove(index);
+                                  } else {
+                                    if (newSelected.length >=
+                                        (widget.maxSelected ??
+                                            widget.items.length)) {
+                                      newSelected.removeAt(0);
                                     }
-                                    selected.value =
-                                        widget.customOnTap(newSelected);
-                                    widget.onpress(selected.value);
-                                  },
-                                ))))))),
-            if (widget.trailing != null) widget.trailing!
+                                    newSelected.add(index);
+                                  }
+                                  selected.value = widget.customOnTap(
+                                    newSelected,
+                                  );
+                                  widget.onpress(selected.value);
+                                },
+                              ),
+                            ),
+                          ),
+                    ),
+              ),
+            )),
+            if (widget.trailing != null) widget.trailing!,
           ],
-        )
+        ),
       ],
     );
   }

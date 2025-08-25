@@ -14,56 +14,70 @@ class FavoriteAddGroupDialog extends HookWidget {
     final height = DeviceUtil.getHeight(context);
     final textcontorller = useTextEditingController();
     return Material(
-        color: Colors.transparent,
-        child: MoonModal(
-          decoration: BoxDecoration(
-            color: MoonColors.dark.goku,
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
+      color: Colors.transparent,
+      child: MoonModal(
+        decoration: BoxDecoration(
+          color: MoonColors.dark.goku,
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+        ),
+        child: DefaultTextStyle(
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: "HarmonyOS_Sans",
           ),
-          child: DefaultTextStyle(
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, fontFamily: "HarmonyOS_Sans"),
-              child: SizedBox(
-                  width: width * factor,
-                  height: DeviceUtil.device(
-                      mobile: height * factor / 4,
-                      desktop: height * factor / 3,
-                      context: context),
-                  child: (Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: SingleChildScrollView(
-                          child: Column(children: [
-                        const Text('Add Group', style: TextStyle(fontSize: 25)),
-                        const SizedBox(height: 30),
-                        MoonFormTextInput(
-                          hintText: 'Group Name',
-                          textInputSize: MoonTextInputSize.xl,
-                          onTapOutside: (event) {
-                            FocusScope.of(context).unfocus();
-                          },
-                          onEditingComplete: () {
-                            onComplete(textcontorller.text);
-                            context.pop();
-                          },
-                          trailing: MoonButton.icon(
-                            icon: const Icon(
-                                MoonIcons.generic_check_alternative_24_light),
-                            onTap: () {
-                              onComplete(textcontorller.text);
-                              context.pop();
-                            },
-                          ),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: "HarmonyOS_Sans"),
-                          activeBorderColor: context.moonTheme
-                              ?.segmentedControlTheme.colors.backgroundColor,
-                          controller: textcontorller,
+          child: SizedBox(
+            width: width * factor,
+            height: DeviceUtil.device(
+              mobile: height * factor / 4,
+              desktop: height * factor / 3,
+              context: context,
+            ),
+            child: (Padding(
+              padding: const EdgeInsets.all(20),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const Text('Add Group', style: TextStyle(fontSize: 25)),
+                    const SizedBox(height: 30),
+                    MoonFormTextInput(
+                      hintText: 'Group Name',
+                      textInputSize: MoonTextInputSize.xl,
+                      onTapOutside: (event) {
+                        FocusScope.of(context).unfocus();
+                      },
+                      onEditingComplete: () {
+                        onComplete(textcontorller.text);
+                        context.pop();
+                      },
+                      trailing: MoonButton.icon(
+                        icon: const Icon(
+                          MoonIcons.generic_check_alternative_24_light,
                         ),
-                        const SizedBox(
-                          height: 10,
-                        )
-                      ])))))),
-        ));
+                        onTap: () {
+                          onComplete(textcontorller.text);
+                          context.pop();
+                        },
+                      ),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: "HarmonyOS_Sans",
+                      ),
+                      activeBorderColor:
+                          context
+                              .moonTheme
+                              ?.segmentedControlTheme
+                              .colors
+                              .backgroundColor,
+                      controller: textcontorller,
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            )),
+          ),
+        ),
+      ),
+    );
   }
 }

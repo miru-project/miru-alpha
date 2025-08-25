@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:moon_design/moon_design.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/forui.dart';
+import 'package:miru_app_new/views/widgets/settings/setting_base_tile.dart';
 
-class SettingsRadiosTile extends StatefulWidget {
+class SettingsRadiosTile extends HookWidget {
   const SettingsRadiosTile({
     super.key,
     required this.title,
@@ -10,67 +12,67 @@ class SettingsRadiosTile extends StatefulWidget {
     required this.value,
     required this.onChanged,
     this.icon,
-  });
+    this.color,
+  }) : entry = null;
+
+  const SettingsRadiosTile.detailed({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+    required this.entry,
+    this.icon,
+    this.color,
+  }) : radios = const [];
 
   final String title;
+  final Map<String, Color>? color;
   final String subtitle;
   final List<String> radios;
   final String value;
   final void Function(String) onChanged;
   final IconData? icon;
-
-  @override
-  createState() => _SettingsRadiosTileState();
-}
-
-class _SettingsRadiosTileState extends State<SettingsRadiosTile> {
-  bool _isToggle = false;
-  late String _selected;
-  void _showDropdown() {
-    setState(() {
-      _isToggle = !_isToggle;
-    });
-  }
-
-  @override
-  void initState() {
-    _selected = widget.value;
-    super.initState();
-  }
+  final List<RadioTileEntry>? entry;
 
   @override
   Widget build(BuildContext context) {
-    return MoonMenuItem(
-        onTap: () {},
-        content: Text(widget.title),
-        label: Text(widget.subtitle),
-        leading: (widget.icon == null)
-            ? null
-            : Icon(
-                widget.icon!,
-                size: 20,
-              ),
-        trailing: MoonDropdown(
-            constrainWidthToChild: true,
-            onTapOutside: _showDropdown,
-            show: _isToggle,
-            content: Column(
-                children: List<Widget>.generate(widget.radios.length, (index) {
-              return MoonMenuItem(
-                onTap: () {
-                  widget.onChanged(widget.radios[index]);
-                  _showDropdown();
-                  setState(() {
-                    _selected = widget.radios[index];
-                  });
-                },
-                label: Text(widget.radios[index]),
-              );
-            })),
-            child: MoonChip(
-              leading: Text(_selected),
-              label: const Icon(MoonIcons.controls_chevron_down_32_regular),
-              onTap: _showDropdown,
-            )));
+    final selected = useState(value);
+
+    return SettingBaseTile(
+      title: title,
+      subtitle: subtitle,
+      child: FSelect<String>(
+        initialValue: selected.value,
+        onChange: (value) {
+          if (value == null) return;
+          selected.value = value;
+          onChanged(value);
+        },
+        items: (entry == null) ? {for (final item in radios) item: item} : {for (final e in entry!) e.value: e.title},
+        // children:
+        //     (entry == null)
+        //         ? radios.map((e) => FSelectItem.from(value: e, title: Text(e))).toList()
+        //         : entry!
+        //             .map(
+        //               (e) => FSelectItem.from(
+        //                 value: e.value,
+        //                 title: Text(e.title, style: TextStyle(color: color?[e.title])),
+        //                 subtitle: e.subtitle,
+        //                 prefix: e.icon != null ? Icon(e.icon) : null,
+        //               ),
+        //             )
+        //             .toList(),
+      ),
+    );
   }
+}
+
+class RadioTileEntry {
+  const RadioTileEntry({required this.value, required this.title, this.subtitle, this.icon});
+
+  final String value;
+  final String title;
+  final Widget? subtitle;
+  final IconData? icon;
 }

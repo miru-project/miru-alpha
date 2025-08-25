@@ -16,6 +16,7 @@ import 'package:miru_app_new/views/pages/mobile_webview.dart';
 import 'package:miru_app_new/views/pages/novel_reader.dart';
 import 'package:miru_app_new/views/pages/search_page_single_view.dart';
 import 'package:miru_app_new/views/pages/video_player.dart';
+import 'package:miru_app_new/views/pages/setting/setting_items.dart';
 
 class ParamCache {
   static DetailParam? detailParam;
@@ -136,7 +137,10 @@ class RouterUtil {
             routes: [GoRoute(path: '/extension', pageBuilder: (context, state) => getPage(state: state, child: const ExtensionPage()))],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: '/settings', pageBuilder: (context, state) => getPage(state: state, child: const SettingsPage()))],
+            routes: [
+              for (final item in SideBarName.values)
+                GoRoute(path: "/settings/${item.name}", pageBuilder: (context, state) => getPage(state: state, child: SettingPage(selected: item))),
+            ],
           ),
         ],
         pageBuilder: (context, state, navigationShell) => getPage(state: state, child: MainPage(child: navigationShell)),

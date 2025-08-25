@@ -17,7 +17,8 @@ class HistoryPage extends StatefulHookConsumerWidget {
   createState() => _HistoryPageState();
 }
 
-class _HistoryPageState extends ConsumerState<HistoryPage> with AutomaticKeepAliveClientMixin {
+class _HistoryPageState extends ConsumerState<HistoryPage>
+    with AutomaticKeepAliveClientMixin {
   @override
   get wantKeepAlive => true;
 
@@ -25,7 +26,12 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with AutomaticKeepAli
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final history = DatabaseService.historys.query().order(History_.date, flags: Order.descending).build().find();
+      final history =
+          DatabaseService.historys
+              .query()
+              .order(History_.date, flags: Order.descending)
+              .build()
+              .find();
       ref.read(mainPageProvider.notifier).updateHistory(history);
     });
   }
@@ -41,21 +47,40 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with AutomaticKeepAli
         const SliverToBoxAdapter(child: SizedBox(height: 10)),
         SliverToBoxAdapter(
           child: SizedBox(
-            height: DeviceUtil.device(mobile: 200, desktop: 300, context: context),
+            height: DeviceUtil.device(
+              mobile: 200,
+              desktop: 300,
+              context: context,
+            ),
             child: OverflowBox(
-              maxWidth: DeviceUtil.device(mobile: width, desktop: width * .9, context: context),
+              maxWidth: DeviceUtil.device(
+                mobile: width,
+                desktop: width * .9,
+                context: context,
+              ),
               child: MoonCarousel(
                 loop: true,
                 autoPlay: true,
                 autoPlayDelay: const Duration(seconds: 5),
                 gap: 12,
                 itemCount: 10,
-                itemExtent: DeviceUtil.device(mobile: width - 32, desktop: width * .4, context: context),
+                itemExtent: DeviceUtil.device(
+                  mobile: width - 32,
+                  desktop: width * .4,
+                  context: context,
+                ),
                 onIndexChanged: (int index) => selectedDot.value = index,
                 itemBuilder: (BuildContext context, int itemIndex, int _) {
                   if (history.length <= itemIndex) {
                     return const Center(
-                      child: Text('No history', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: "HarmonyOS_Sans")),
+                      child: Text(
+                        'No history',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          fontFamily: "HarmonyOS_Sans",
+                        ),
+                      ),
                     );
                   }
                   final item = history[itemIndex];
@@ -67,14 +92,25 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with AutomaticKeepAli
         ),
         SliverPadding(
           padding: const EdgeInsets.symmetric(vertical: 10),
-          sliver: SliverToBoxAdapter(child: MoonDotIndicator(selectedDot: selectedDot.value, dotCount: 10)),
+          sliver: SliverToBoxAdapter(
+            child: MoonDotIndicator(
+              selectedDot: selectedDot.value,
+              dotCount: 10,
+            ),
+          ),
         ),
         SliverPadding(
           padding: const EdgeInsets.all(15.0),
           sliver: SliverGrid(
             gridDelegate: DeviceUtil.device(
-              mobile: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: DeviceUtil.getWidth(context) ~/ 110, childAspectRatio: 0.6),
-              desktop: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 180, childAspectRatio: 0.65),
+              mobile: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: DeviceUtil.getWidth(context) ~/ 110,
+                childAspectRatio: 0.6,
+              ),
+              desktop: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 180,
+                childAspectRatio: 0.65,
+              ),
               context: context,
             ),
             delegate: SliverChildBuilderDelegate((context, index) {
@@ -84,9 +120,17 @@ class _HistoryPageState extends ConsumerState<HistoryPage> with AutomaticKeepAli
                 subtitle: item.episodeTitle,
                 imageUrl: item.cover,
                 onTap: () {
-                  final extensionIsExist = ExtensionUtils.runtimes.containsKey(item.package);
+                  final extensionIsExist = ExtensionUtils.runtimes.containsKey(
+                    item.package,
+                  );
                   if (extensionIsExist) {
-                    context.push('/search/detail', extra: DetailParam(service: ExtensionUtils.runtimes[item.package]!, url: item.url));
+                    context.push(
+                      '/search/detail',
+                      extra: DetailParam(
+                        service: ExtensionUtils.runtimes[item.package]!,
+                        url: item.url,
+                      ),
+                    );
                   }
                 },
               );

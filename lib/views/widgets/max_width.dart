@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MaxWidth extends StatelessWidget {
-  const MaxWidth({
-    super.key,
-    required this.child,
-    required this.maxWidth,
-  });
+  const MaxWidth({super.key, required this.child, required this.maxWidth});
   final Widget child;
   final double maxWidth;
 
@@ -23,9 +19,6 @@ class MaxWidth extends StatelessWidget {
     } else {
       widthPadding = EdgeInsets.zero;
     }
-    return Padding(
-      padding: widthPadding,
-      child: child,
-    );
+    return Padding(padding: widthPadding, child: child);
   }
 }

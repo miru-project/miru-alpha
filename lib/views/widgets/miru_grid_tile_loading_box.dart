@@ -12,20 +12,25 @@ class MiruGridTileLoadingBox extends StatelessWidget {
       baseColor: context.moonTheme!.segmentedControlTheme.colors.backgroundColor
           .withAlpha(50),
       highlightColor: context
-          .moonTheme!.segmentedControlTheme.colors.backgroundColor
+          .moonTheme!
+          .segmentedControlTheme
+          .colors
+          .backgroundColor
           .withAlpha(100),
       child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(children: [
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
             Expanded(
-                child: Container(
-              width: width,
-              height: height,
-              decoration: BoxDecoration(
-                color: Colors.grey,
-                borderRadius: BorderRadius.circular(10),
+              child: Container(
+                width: width,
+                height: height,
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-            )),
+            ),
             const SizedBox(height: 8),
             Container(
               width: width,
@@ -43,8 +48,10 @@ class MiruGridTileLoadingBox extends StatelessWidget {
                 color: Colors.grey,
                 borderRadius: BorderRadius.circular(10),
               ),
-            )
-          ])),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

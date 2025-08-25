@@ -52,7 +52,11 @@ import 'package:forui/forui.dart';
 /// ```
 ///
 /// See https://forui.dev/docs/themes#customize-themes for more information.
-FSelectGroupStyle selectGroupStyle({required FColors colors, required FTypography typography, required FStyle style}) {
+FSelectGroupStyle selectGroupStyle({
+  required FColors colors,
+  required FTypography typography,
+  required FStyle style,
+}) {
   final vertical = _labelStyles(style: style).verticalStyle;
   final labelTextStyle = FWidgetStateMap({
     WidgetState.disabled: typography.sm.copyWith(
@@ -65,19 +69,26 @@ FSelectGroupStyle selectGroupStyle({required FColors colors, required FTypograph
     ),
   });
   final descriptionTextStyle = FWidgetStateMap({
-    WidgetState.disabled: typography.sm.copyWith(color: colors.disable(colors.mutedForeground)),
+    WidgetState.disabled: typography.sm.copyWith(
+      color: colors.disable(colors.mutedForeground),
+    ),
     WidgetState.any: typography.sm.copyWith(color: colors.mutedForeground),
   });
-  final errorTextStyle = typography.sm.copyWith(color: colors.error, fontWeight: FontWeight.w500);
+  final errorTextStyle = typography.sm.copyWith(
+    color: colors.error,
+    fontWeight: FontWeight.w500,
+  );
   return FSelectGroupStyle(
-    checkboxStyle: _checkboxStyle(
-      colors: colors,
-      style: style,
-    ).copyWith(labelTextStyle: labelTextStyle, descriptionTextStyle: descriptionTextStyle, errorTextStyle: errorTextStyle),
-    radioStyle: _radioStyle(
-      colors: colors,
-      style: style,
-    ).copyWith(labelTextStyle: labelTextStyle, descriptionTextStyle: descriptionTextStyle, errorTextStyle: errorTextStyle),
+    checkboxStyle: _checkboxStyle(colors: colors, style: style).copyWith(
+      labelTextStyle: labelTextStyle,
+      descriptionTextStyle: descriptionTextStyle,
+      errorTextStyle: errorTextStyle,
+    ),
+    radioStyle: _radioStyle(colors: colors, style: style).copyWith(
+      labelTextStyle: labelTextStyle,
+      descriptionTextStyle: descriptionTextStyle,
+      errorTextStyle: errorTextStyle,
+    ),
     labelTextStyle: style.formFieldStyle.labelTextStyle,
     descriptionTextStyle: style.formFieldStyle.descriptionTextStyle,
     errorTextStyle: style.formFieldStyle.errorTextStyle,
@@ -88,30 +99,55 @@ FSelectGroupStyle selectGroupStyle({required FColors colors, required FTypograph
   );
 }
 
-FCheckboxStyle _checkboxStyle({required FColors colors, required FStyle style}) {
+FCheckboxStyle _checkboxStyle({
+  required FColors colors,
+  required FStyle style,
+}) {
   final label = _labelStyles(style: style).horizontalStyle;
   return FCheckboxStyle(
-    tappableStyle: style.tappableStyle.copyWith(bounceTween: FTappableStyle.noBounceTween),
-    focusedOutlineStyle: style.focusedOutlineStyle.copyWith(borderRadius: BorderRadius.circular(4)),
+    tappableStyle: style.tappableStyle.copyWith(
+      bounceTween: FTappableStyle.noBounceTween,
+    ),
+    focusedOutlineStyle: style.focusedOutlineStyle.copyWith(
+      borderRadius: BorderRadius.circular(4),
+    ),
     iconStyle: FWidgetStateMap({
-      WidgetState.selected & WidgetState.error: IconThemeData(color: colors.error, size: 14),
-      WidgetState.selected & ~WidgetState.disabled: IconThemeData(color: colors.primaryForeground, size: 14),
-      WidgetState.selected & WidgetState.disabled: IconThemeData(color: colors.disable(colors.primaryForeground), size: 14),
+      WidgetState.selected & WidgetState.error: IconThemeData(
+        color: colors.error,
+        size: 14,
+      ),
+      WidgetState.selected & ~WidgetState.disabled: IconThemeData(
+        color: colors.primaryForeground,
+        size: 14,
+      ),
+      WidgetState.selected & WidgetState.disabled: IconThemeData(
+        color: colors.disable(colors.primaryForeground),
+        size: 14,
+      ),
     }),
     decoration: FWidgetStateMap({
-      WidgetState.error & WidgetState.selected: BoxDecoration(borderRadius: style.borderRadius, color: colors.error),
+      WidgetState.error & WidgetState.selected: BoxDecoration(
+        borderRadius: style.borderRadius,
+        color: colors.error,
+      ),
       WidgetState.error: BoxDecoration(
         borderRadius: style.borderRadius,
         border: Border.all(color: colors.error, width: 0.6),
         color: colors.background,
       ),
-      WidgetState.disabled & WidgetState.selected: BoxDecoration(borderRadius: style.borderRadius, color: colors.disable(colors.primary)),
+      WidgetState.disabled & WidgetState.selected: BoxDecoration(
+        borderRadius: style.borderRadius,
+        color: colors.disable(colors.primary),
+      ),
       WidgetState.disabled: BoxDecoration(
         borderRadius: style.borderRadius,
         border: Border.all(color: colors.disable(colors.primary), width: 0.6),
         color: colors.disable(colors.background),
       ),
-      WidgetState.selected: BoxDecoration(borderRadius: style.borderRadius, color: colors.primary),
+      WidgetState.selected: BoxDecoration(
+        borderRadius: style.borderRadius,
+        color: colors.primary,
+      ),
       WidgetState.any: BoxDecoration(
         borderRadius: style.borderRadius,
         border: Border.all(color: colors.primary, width: 0.6),
@@ -134,8 +170,13 @@ FCheckboxStyle _checkboxStyle({required FColors colors, required FStyle style}) 
 FRadioStyle _radioStyle({required FColors colors, required FStyle style}) {
   final label = _labelStyles(style: style).horizontalStyle;
   return FRadioStyle(
-    tappableStyle: style.tappableStyle.copyWith(bounceTween: FTappableStyle.noBounceTween),
-    focusedOutlineStyle: FFocusedOutlineStyle(color: colors.primary, borderRadius: BorderRadius.circular(100)),
+    tappableStyle: style.tappableStyle.copyWith(
+      bounceTween: FTappableStyle.noBounceTween,
+    ),
+    focusedOutlineStyle: FFocusedOutlineStyle(
+      color: colors.primary,
+      borderRadius: BorderRadius.circular(100),
+    ),
     borderColor: FWidgetStateMap({
       WidgetState.error: colors.error,
       WidgetState.disabled: colors.disable(colors.primary),

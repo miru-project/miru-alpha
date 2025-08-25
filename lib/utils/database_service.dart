@@ -98,8 +98,10 @@ class DatabaseService {
     favGroup.putMany(result);
   }
 
-  static FavoriateGroup putFavoriteGroup(String name,
-      [List<int> items = const []]) {
+  static FavoriateGroup putFavoriteGroup(
+    String name, [
+    List<int> items = const [],
+  ]) {
     //fetch ids from favorite
     final fetchFav = fav.getMany(items);
     final group = FavoriateGroup(date: DateTime.now(), name: name);
@@ -119,15 +121,20 @@ class DatabaseService {
   }
 
   // put favorite use, use at detail page
-  static Favorite putFavorite(String detailUrl, ExtensionDetail? detail,
-      String package, ExtensionType type) {
+  static Favorite putFavorite(
+    String detailUrl,
+    ExtensionDetail? detail,
+    String package,
+    ExtensionType type,
+  ) {
     final favorite = Favorite(
-        cover: detail!.cover,
-        package: package,
-        type: type.toString().split('.').last,
-        date: DateTime.now(),
-        title: detail.title,
-        url: detailUrl);
+      cover: detail!.cover,
+      package: package,
+      type: type.toString().split('.').last,
+      date: DateTime.now(),
+      title: detail.title,
+      url: detailUrl,
+    );
     fav.put(favorite);
     return favorite;
     // final fav = Favorite()
@@ -145,10 +152,13 @@ class DatabaseService {
 
   // delete favorite
   static void deleteFavorite(String detailUrl, String package) {
-    final query = fav
-        .query(
-            Favorite_.url.equals(detailUrl) & Favorite_.package.equals(package))
-        .build();
+    final query =
+        fav
+            .query(
+              Favorite_.url.equals(detailUrl) &
+                  Favorite_.package.equals(package),
+            )
+            .build();
     query.remove();
     // DatabaseService.db.writeTxnSync(() {
     //   DatabaseService.db.favorites
@@ -190,10 +200,11 @@ class DatabaseService {
       // }
       // return query.findAll();
     }
-    final query = fav
-        .query(Favorite_.type.equals(EnumToString.convertToString(type)))
-        .order(Favorite_.date, flags: Order.descending)
-        .build();
+    final query =
+        fav
+            .query(Favorite_.type.equals(EnumToString.convertToString(type)))
+            .order(Favorite_.date, flags: Order.descending)
+            .build();
     if (limit != null) {
       query.limit = limit;
     }
@@ -208,16 +219,18 @@ class DatabaseService {
   // 历史记录
   static Future<List<History>> getHistorysByType({ExtensionType? type}) async {
     if (type == null) {
-      final query = historys
-          .query()
-          .order(History_.date, flags: Order.descending)
-          .build();
+      final query =
+          historys
+              .query()
+              .order(History_.date, flags: Order.descending)
+              .build();
       return query.findAsync();
     }
-    final query = historys
-        .query(History_.type.equals(EnumToString.convertToString(type)))
-        .order(History_.date, flags: Order.descending)
-        .build();
+    final query =
+        historys
+            .query(History_.type.equals(EnumToString.convertToString(type)))
+            .order(History_.date, flags: Order.descending)
+            .build();
     return query.findAsync();
     // if (type == null) {
     //   return db.historys.where().sortByDateDesc().findAll();
@@ -226,9 +239,10 @@ class DatabaseService {
   }
 
   static History? getHistoryByPackageAndUrl(String package, String url) {
-    final query = historys
-        .query(History_.package.equals(package) & History_.url.equals(url))
-        .build();
+    final query =
+        historys
+            .query(History_.package.equals(package) & History_.url.equals(url))
+            .build();
     return query.findFirst();
     // return db.historys
     //     .filter()
@@ -247,7 +261,9 @@ class DatabaseService {
 
   // 删除历史
   static Future<void> deleteHistoryByPackageAndUrl(
-      String package, String url) async {
+    String package,
+    String url,
+  ) async {
     historys
         .query(History_.package.equals(package) & History_.url.equals(url))
         .build()
@@ -270,9 +286,10 @@ class DatabaseService {
   // 扩展设置
   // 获取扩展设置
   static Future<List<ExtensionSetting>> getExtensionSettings(String package) {
-    final query = extensionSettings
-        .query(ExtensionSetting_.package.equals(package))
-        .build();
+    final query =
+        extensionSettings
+            .query(ExtensionSetting_.package.equals(package))
+            .build();
     return query.findAsync();
     // return db.extensionSettings.filter().packageEqualTo(package).findAll();
   }
@@ -293,25 +310,29 @@ class DatabaseService {
   static ExtensionSetting? getExtensionSetting(String package, String key) {
     // db.extensionSettings.getByPackageKeySync(package, key);
     return extensionSettings
-        .query(ExtensionSetting_.package.equals(package) &
-            ExtensionSetting_.key.equals(key))
+        .query(
+          ExtensionSetting_.package.equals(package) &
+              ExtensionSetting_.key.equals(key),
+        )
         .build()
         .findFirst();
   }
 
   // 添加扩展设置
-  static int registerExtensionSetting(
-    ExtensionSetting extensionSetting,
-  ) {
+  static int registerExtensionSetting(ExtensionSetting extensionSetting) {
     if (EnumToString.convertToEnum(
-                extensionSetting.dbType, ExtensionSettingType.values) ==
+              extensionSetting.dbType,
+              ExtensionSettingType.values,
+            ) ==
             ExtensionSettingType.radio &&
         extensionSetting.options == null) {
       throw Exception('options is null');
     }
 
-    final extSetting =
-        getExtensionSetting(extensionSetting.package, extensionSetting.key);
+    final extSetting = getExtensionSetting(
+      extensionSetting.package,
+      extensionSetting.key,
+    );
     // 如果不存在相同设置，则添加
     if (extSetting == null) {
       return extensionSettings.put(extensionSetting);
@@ -357,10 +378,11 @@ class DatabaseService {
 
     // final extSettings =
     //     await db.extensionSettings.filter().packageEqualTo(package).findAll();
-    final extSettings = await extensionSettings
-        .query(ExtensionSetting_.package.equals(package))
-        .build()
-        .findAsync();
+    final extSettings =
+        await extensionSettings
+            .query(ExtensionSetting_.package.equals(package))
+            .build()
+            .findAsync();
 
     for (final extSetting in extSettings) {
       if (!keys.contains(extSetting.key)) {
@@ -374,25 +396,26 @@ class DatabaseService {
 
   // 获取漫画阅读模式
   static Future<MangaReadMode> getMnagaReaderType(
-      String url, MangaReadMode defaultMode) async {
+    String url,
+    MangaReadMode defaultMode,
+  ) async {
     // return db.mangaSettings.filter().urlEqualTo(url).findFirst().then(
     //       (value) => value?.readMode ?? defaultMode,
     //     );
-    final setting = await mangaSettings
-        .query(MangaSetting_.url.equals(url))
-        .build()
-        .findFirstAsync();
+    final setting =
+        await mangaSettings
+            .query(MangaSetting_.url.equals(url))
+            .build()
+            .findFirstAsync();
 
     return setting?.mangaReadMode ?? defaultMode;
   }
 
   // 设置漫画阅读模式
-  static Future<int> setMangaReaderType(
-    String url,
-    MangaReadMode readMode,
-  ) {
-    return mangaSettings.putAsync(MangaSetting(
-        url: url, readMode: EnumToString.convertToString(readMode)));
+  static Future<int> setMangaReaderType(String url, MangaReadMode readMode) {
+    return mangaSettings.putAsync(
+      MangaSetting(url: url, readMode: EnumToString.convertToString(readMode)),
+    );
     // return db.writeTxn(
     //   () => db.mangaSettings.putByUrl(
     //     MangaSetting()
@@ -410,13 +433,16 @@ class DatabaseService {
     int? tmdbID,
     String? anilistID,
   }) {
-    return miruDetails.putAsync(MiruDetail(
+    return miruDetails.putAsync(
+      MiruDetail(
         package: package,
         url: url,
         data: jsonEncode(extensionDetail.toJson()),
         updateTime: DateTime.now(),
         tmdbID: tmdbID,
-        aniListID: anilistID));
+        aniListID: anilistID,
+      ),
+    );
     // return db.writeTxn(
     //   () => db.miruDetails.putByIndex(
     //     r'package&url',
@@ -431,13 +457,11 @@ class DatabaseService {
   }
 
   // 获取 MiruDetail
-  static Future<MiruDetail?> getMiruDetail(
-    String package,
-    String url,
-  ) async {
+  static Future<MiruDetail?> getMiruDetail(String package, String url) async {
     return await miruDetails
         .query(
-            MiruDetail_.package.equals(package) & MiruDetail_.url.equals(url))
+          MiruDetail_.package.equals(package) & MiruDetail_.url.equals(url),
+        )
         .build()
         .findFirstAsync();
     // return await db.miruDetails
@@ -480,9 +504,7 @@ class DatabaseService {
     }
     try {
       return TMDBDetail.fromJson(
-        Map<String, dynamic>.from(
-          jsonDecode(tmdbData.data),
-        ),
+        Map<String, dynamic>.from(jsonDecode(tmdbData.data)),
       );
     } catch (e) {
       return null;

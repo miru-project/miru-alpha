@@ -20,17 +20,15 @@ class SideBarListTitle extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
-          if (leading != null) ...[
-            ...leading!,
-            const SizedBox(width: 8),
-          ],
+          if (leading != null) ...[...leading!, const SizedBox(width: 8)],
           Text(
             title,
             style: TextStyle(
-                color: context.moonTheme?.chipTheme.colors.textColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                fontFamily: "HarmonyOS_Sans"),
+              color: context.moonTheme?.chipTheme.colors.textColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+              fontFamily: "HarmonyOS_Sans",
+            ),
           ),
           const Spacer(),
           if (trailings != null) ...trailings!,

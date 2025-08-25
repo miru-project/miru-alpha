@@ -8,6 +8,7 @@ class MiruGridView extends StatelessWidget {
     required this.desktopGridDelegate,
     required this.itemBuilder,
     required this.itemCount,
+    this.paddingHeightOffest = 0,
     this.scrollController,
   });
 
@@ -16,20 +17,20 @@ class MiruGridView extends StatelessWidget {
   final IndexedWidgetBuilder itemBuilder;
   final int itemCount;
   final ScrollController? scrollController;
-
+  final int paddingHeightOffest;
   @override
   Widget build(BuildContext context) {
     final EdgeInsets padding = MediaQuery.paddingOf(context);
 
     return PlatformWidget(
       mobileWidget: GridView.builder(
-        padding: EdgeInsets.fromLTRB(8, (8 + padding.top), 8, 190),
+        padding: EdgeInsets.fromLTRB(8, (8 + padding.top + paddingHeightOffest), 8, 190),
         gridDelegate: mobileGridDelegate,
         itemBuilder: itemBuilder,
         itemCount: itemCount,
       ),
       desktopWidget: GridView.builder(
-        padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
+        padding: EdgeInsets.fromLTRB(20, 70.0 + paddingHeightOffest, 20, 20),
         gridDelegate: desktopGridDelegate,
         itemBuilder: itemBuilder,
         itemCount: itemCount,

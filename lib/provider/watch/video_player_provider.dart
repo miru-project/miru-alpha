@@ -7,14 +7,27 @@ import 'package:video_player/video_player.dart';
 import 'package:flutter/material.dart';
 
 class VideoPlayerProvider {
-  static late AutoDisposeStateNotifierProvider<VideoPlayerNotifier, VideoPlayerState> _videoPlayerNotifier;
-  static void initProvider(String url, List<ExtensionBangumiWatchSubtitle> subtitle, Map<String, String> headers, Size ratio) {
-    _videoPlayerNotifier = StateNotifierProvider.autoDispose<VideoPlayerNotifier, VideoPlayerState>((ref) {
+  static late AutoDisposeStateNotifierProvider<
+    VideoPlayerNotifier,
+    VideoPlayerState
+  >
+  _videoPlayerNotifier;
+  static void initProvider(
+    String url,
+    List<ExtensionBangumiWatchSubtitle> subtitle,
+    Map<String, String> headers,
+    Size ratio,
+  ) {
+    _videoPlayerNotifier = StateNotifierProvider.autoDispose<
+      VideoPlayerNotifier,
+      VideoPlayerState
+    >((ref) {
       return VideoPlayerNotifier(url, subtitle, headers, ratio);
     });
   }
 
-  static AutoDisposeStateNotifierProvider<VideoPlayerNotifier, VideoPlayerState> get provider => _videoPlayerNotifier;
+  static AutoDisposeStateNotifierProvider<VideoPlayerNotifier, VideoPlayerState>
+  get provider => _videoPlayerNotifier;
 }
 
 class VideoPlayerState {
@@ -91,7 +104,8 @@ class VideoPlayerState {
       speed: speed ?? this.speed,
       buffered: buffered ?? this.buffered,
       size: size ?? this.size,
-      selectedSubtitleIndex: selectedSubtitleIndex ?? this.selectedSubtitleIndex,
+      selectedSubtitleIndex:
+          selectedSubtitleIndex ?? this.selectedSubtitleIndex,
       isOpenSideBar: isOpenSideBar ?? this.isOpenSideBar,
       isShowSideBar: isShowSideBar ?? this.isShowSideBar,
       subtitlesRaw: subtitlesRaw ?? this.subtitlesRaw,
@@ -109,8 +123,17 @@ class VideoPlayerState {
 }
 
 class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
-  VideoPlayerNotifier(String url, List<ExtensionBangumiWatchSubtitle> subtitle, Map<String, String> headers, Size ratio)
-    : super(VideoPlayerState(subtitlesRaw: subtitle, controller: VideoPlayerController.networkUrl(Uri.parse(url)))) {
+  VideoPlayerNotifier(
+    String url,
+    List<ExtensionBangumiWatchSubtitle> subtitle,
+    Map<String, String> headers,
+    Size ratio,
+  ) : super(
+        VideoPlayerState(
+          subtitlesRaw: subtitle,
+          controller: VideoPlayerController.networkUrl(Uri.parse(url)),
+        ),
+      ) {
     defaultSize = ratio;
     _init(url, headers);
   }
@@ -120,7 +143,11 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
       state.controller?.addListener(_updatePosition);
       state.controller?.play();
 
-      state = state.copyWith(isPlaying: true, duration: state.controller?.value.duration, buffered: state.controller?.value.buffered);
+      state = state.copyWith(
+        isPlaying: true,
+        duration: state.controller?.value.duration,
+        buffered: state.controller?.value.buffered,
+      );
     });
     getQuality(url, headers).then((val) {
       state = state.copyWith(qualityMap: val);
@@ -128,7 +155,16 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
   }
 
   // player management
-  List<double> get speedList => const [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0];
+  List<double> get speedList => const [
+    0.25,
+    0.5,
+    0.75,
+    1.0,
+    1.25,
+    1.5,
+    2.0,
+    3.0,
+  ];
   // void initVideoPlayer(String url, Map<String, String> headers) {
   //   final controller = VideoPlayerController.networkUrl(Uri.parse(url));
 
@@ -154,12 +190,20 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
     state.controller?.pause();
     state.controller?.dispose();
     final controller = VideoPlayerController.networkUrl(Uri.parse(url));
-    state = state.copyWith(controller: controller, duration: controller.value.duration, buffered: controller.value.buffered);
+    state = state.copyWith(
+      controller: controller,
+      duration: controller.value.duration,
+      buffered: controller.value.buffered,
+    );
     state.controller?.initialize().then((_) {
       state.controller?.addListener(_updatePosition);
       state.controller?.play();
 
-      state = state.copyWith(isPlaying: true, duration: state.controller?.value.duration, buffered: state.controller?.value.buffered);
+      state = state.copyWith(
+        isPlaying: true,
+        duration: state.controller?.value.duration,
+        buffered: state.controller?.value.buffered,
+      );
     });
   }
 
@@ -170,7 +214,9 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
       duration: state.controller?.value.duration,
       buffered: state.controller?.value.buffered,
       currentSubtitle: getCurrentSubtitle(),
-      ratio: state.controller?.value.aspectRatio ?? defaultSize.width / defaultSize.height,
+      ratio:
+          state.controller?.value.aspectRatio ??
+          defaultSize.width / defaultSize.height,
     );
   }
 
@@ -217,8 +263,10 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
 
   String getCurrentSubtitle() {
     final subtitle = state.subtitles.firstWhere(
-      (subtitle) => state.position >= subtitle.start && state.position <= subtitle.end,
-      orElse: () => Subtitle(start: Duration.zero, end: Duration.zero, text: ''),
+      (subtitle) =>
+          state.position >= subtitle.start && state.position <= subtitle.end,
+      orElse:
+          () => Subtitle(start: Duration.zero, end: Duration.zero, text: ''),
     );
     return subtitle.text;
   }
@@ -235,7 +283,12 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
   }
 
   void initSubtitle(List<ExtensionBangumiWatchSubtitle>? subtitles) {
-    state = state.copyWith(subtitlesRaw: subtitles, isShowSubtitle: false, selectedSubtitleIndex: 0, subtitles: const []);
+    state = state.copyWith(
+      subtitlesRaw: subtitles,
+      isShowSubtitle: false,
+      selectedSubtitleIndex: 0,
+      subtitles: const [],
+    );
   }
 
   late final Size defaultSize;

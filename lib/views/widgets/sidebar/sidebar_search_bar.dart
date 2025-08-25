@@ -6,12 +6,13 @@ class SideBarSearchBar extends StatelessWidget {
   final void Function(String)? onsubmitted;
   final TextEditingController? controller;
   final Widget? trailing;
-  const SideBarSearchBar(
-      {super.key,
-      this.onChanged,
-      this.onsubmitted,
-      this.controller,
-      this.trailing});
+  const SideBarSearchBar({
+    super.key,
+    this.onChanged,
+    this.onsubmitted,
+    this.controller,
+    this.trailing,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,15 +27,11 @@ class SideBarSearchBar extends StatelessWidget {
         leading: const Icon(MoonIcons.generic_search_16_regular),
         trailing: trailing,
         textInputSize: MoonTextInputSize.sm,
-        decoration: const BoxDecoration(
-          color: Colors.transparent,
-        ),
+        decoration: const BoxDecoration(color: Colors.transparent),
         onSubmitted: onsubmitted,
         onChanged: onChanged,
         hintText: 'Search',
-        style: const TextStyle(
-          fontSize: 14,
-        ),
+        style: const TextStyle(fontSize: 14),
       ),
 
       // Row(

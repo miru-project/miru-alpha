@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ScaleWidget extends StatefulWidget {
-  const ScaleWidget({
-    super.key,
-    required this.child,
-  });
+  const ScaleWidget({super.key, required this.child});
 
   final Widget child;
 
@@ -33,9 +30,7 @@ class _ScaleWidgetState extends State<ScaleWidget> {
       onTapDown: _onTapDown,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
-        transform: Transform.scale(
-          scale: _tapDown ? 0.95 : 1,
-        ).transform,
+        transform: Transform.scale(scale: _tapDown ? 0.95 : 1).transform,
         child: widget.child,
       ),
     );

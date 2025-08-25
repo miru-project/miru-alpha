@@ -59,9 +59,5 @@ class Subtitle {
   final Duration end;
   final String text;
 
-  Subtitle({
-    required this.start,
-    required this.end,
-    required this.text,
-  });
+  Subtitle({required this.start, required this.end, required this.text});
 }

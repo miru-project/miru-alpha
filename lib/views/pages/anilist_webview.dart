@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class AnilistWebViewPage extends StatefulWidget {
-  const AnilistWebViewPage({
-    super.key,
-    required this.url,
-  });
+  const AnilistWebViewPage({super.key, required this.url});
   final String url;
 
   @override
@@ -24,13 +21,9 @@ class _AnilistWebViewPageState extends State<AnilistWebViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Anilist Login"),
-      ),
+      appBar: AppBar(title: const Text("Anilist Login")),
       body: InAppWebView(
-        initialUrlRequest: URLRequest(
-          url: WebUri(widget.url),
-        ),
+        initialUrlRequest: URLRequest(url: WebUri(widget.url)),
         onLoadStart: (controller, url) async {
           if (url != null && url.toString().contains("access_token")) {
             debugPrint(url.host);

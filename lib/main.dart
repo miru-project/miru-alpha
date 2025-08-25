@@ -13,7 +13,7 @@ import 'package:fvp/fvp.dart';
 
 import 'package:macos_window_utils/macos/ns_window_button_type.dart';
 import 'package:macos_window_utils/window_manipulator.dart';
-import 'package:miru_app_new/controllers/application_controller.dart';
+import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/generated_bindings.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/utils/device_util.dart';
@@ -97,12 +97,12 @@ class _App extends ConsumerState<App> {
   Widget build(BuildContext context) {
     final c = ref.watch(applicationControllerProvider);
     return FTheme(
-      data: FThemes.zinc.dark,
+      data: c.themeData,
       child: MaterialApp.router(
+        themeMode: c.themeMode,
         key: navigatorKey,
         title: 'Miru',
         routerConfig: RouterUtil.appRouter,
-        theme: c.themeData, // Add null safety
         debugShowCheckedModeBanner: false,
       ),
     );

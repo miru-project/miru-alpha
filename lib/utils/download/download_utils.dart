@@ -5,8 +5,12 @@ import 'package:flutter_hls_parser/flutter_hls_parser.dart';
 
 extension FormatToString on Format {
   String showString() {
-    final bitrateInfo = bitrate != null ? "${bitrate! ~/ 1000} kbps" : "unknown bitrate";
-    final resolutionInfo = width != null && height != null ? "$width x $height" : "unknown resolution";
+    final bitrateInfo =
+        bitrate != null ? "${bitrate! ~/ 1000} kbps" : "unknown bitrate";
+    final resolutionInfo =
+        width != null && height != null
+            ? "$width x $height"
+            : "unknown resolution";
 
     return '$containerMimeType, $codecs, $bitrateInfo, $resolutionInfo';
   }
@@ -325,7 +329,11 @@ class HlsManifestResult {
   final String masterPlaylistPath;
   final String mediaPlaylistPath;
 
-  HlsManifestResult({required this.mediaPlaylist, required this.masterPlaylistPath, required this.mediaPlaylistPath});
+  HlsManifestResult({
+    required this.mediaPlaylist,
+    required this.masterPlaylistPath,
+    required this.mediaPlaylistPath,
+  });
 }
 
 abstract class DownloadTask {
@@ -687,7 +695,12 @@ class IsolateMessage {
   final String? message;
   final String taskId;
 
-  IsolateMessage(this.progress, this.status, {this.message, required this.taskId});
+  IsolateMessage(
+    this.progress,
+    this.status, {
+    this.message,
+    required this.taskId,
+  });
 }
 
 enum DownloadStatus {
