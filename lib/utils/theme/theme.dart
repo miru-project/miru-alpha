@@ -2,6 +2,8 @@ import 'package:forui/forui.dart';
 
 enum AccentColors { zinc, slate, red, rose, orange, green, blue, yellow, violet }
 
+final overrideTheme = FThemes.zinc.dark;
+
 class ThemeUtils {
   static const settingToAccentColor = <String, AccentColors>{
     'zinc': AccentColors.zinc,

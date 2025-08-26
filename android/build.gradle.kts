@@ -24,7 +24,7 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
-val defaultApiLevel = "21"
+val defaultApiLevel = "24"
 // Task to check if Go is installed
 val checkGoInstallation = tasks.register("checkGoInstallation") {
     doLast {
@@ -52,12 +52,12 @@ abstract class BuildAarTask : DefaultTask() {
         val outputDir = project.file("../src/miru_core/android")
         outputDir.mkdirs()
         val aarFile = File(outputDir, "libmiru-core.aar")
-        val defaultApiLevel = "21" // fallback, or get from project if needed
+        val defaultApiLevel = "24" // fallback, or get from project if needed
 
         try {
             execOperations.exec {
                 workingDir = miruCoreDir
-                commandLine("${System.getenv("HOME")}/go/bin/gomobile", "bind", "-o", aarFile.absolutePath, "-target=android", "-androidapi", defaultApiLevel)
+                commandLine("${System.getenv("HOME")}/go/bin/gomobile", "bind","-ldflags=-s -w", "-o", aarFile.absolutePath, "-target=android", "-androidapi", defaultApiLevel)
             }
         } catch (e: Exception) {
             println("Failed to execute gomobile: ${e.message}")

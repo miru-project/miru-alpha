@@ -5,8 +5,8 @@ import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'dart:async';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:convert';
+import 'package:miru_app_new/provider/extension_page_provider.dart';
 
 class CoreNetwork {
   static String get baseUrl => 'http://127.127.127.127:12777';
@@ -23,7 +23,6 @@ class CoreNetwork {
 
   static void ensureInitialized() {
     logger.info('Miru_core initialized with base URL: $baseUrl');
-    MetaDataController.registerContainer(ProviderContainer());
     startPollRootInIsolate(interval: const Duration(milliseconds: 200));
   }
 
@@ -68,6 +67,8 @@ class CoreNetwork {
     receivePort.listen((data) {
       if (data is List<ExtensionMeta>) {
         MetaDataController.update(data);
+
+        _extensionNotifier?.setMetaData(data);
       } else if (data is String) {
         logger.info('Error received: $data');
       } else {
@@ -76,25 +77,29 @@ class CoreNetwork {
       logger.info(data.runtimeType);
     });
   }
-}
 
-final metaDataNotifierProvider = StateNotifierProvider<MetaDataNotifier, List<ExtensionMeta>?>((ref) => MetaDataNotifier());
+  static ExtensionPageNotifier? _extensionNotifier;
 
-class MetaDataNotifier extends StateNotifier<List<ExtensionMeta>?> {
-  MetaDataNotifier() : super(null);
-
-  void set(List<ExtensionMeta>? data) => state = data;
+  static void setExtensionNotifier(ExtensionPageNotifier notifier) {
+    _extensionNotifier = notifier;
+  }
 }
 
 class MetaDataController {
-  static ProviderContainer? _container;
+  // single updater callback registered by the UI/provider layer
+  static void Function(List<ExtensionMeta>? data)? _updater;
 
-  static void registerContainer(ProviderContainer container) {
-    _container = container;
+  static void registerUpdater(void Function(List<ExtensionMeta>? data) updater) {
+    _updater = updater;
   }
 
   static void update(List<ExtensionMeta>? data) {
-    _container!.read(metaDataNotifierProvider.notifier).set(data);
+    if (_updater == null) return;
+    try {
+      _updater!(data);
+    } catch (e) {
+      logger.info('Failed to call MetaDataController updater: $e');
+    }
   }
 }
 

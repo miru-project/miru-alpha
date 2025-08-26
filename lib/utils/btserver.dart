@@ -8,7 +8,7 @@ import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/request.dart';
-import 'package:miru_app_new/views/widgets/snackbar.dart';
+import 'package:miru_app_new/widgets/snackbar.dart';
 import 'package:path/path.dart' as path;
 
 final btServerNotifier = BTDialogController();
@@ -18,13 +18,10 @@ class BTServerUtils {
   static Process? _process;
 
   // 下载 bt-server
-  static Future<void> downloadLatestBTServer({
-    Function(int, int)? onReceiveProgress,
-  }) async {
+  static Future<void> downloadLatestBTServer({Function(int, int)? onReceiveProgress}) async {
     debugPrint("检测最新版本");
     // 获取最新版本
-    final url =
-        "${MiruStorage.getSettingSync(SettingKey.btServerLink, String)}/releases/latest";
+    final url = "${MiruStorage.getSettingSync(SettingKey.btServerLink, String)}/releases/latest";
 
     final res = await dio.get(url);
     final result = RegExp(r'app-argument=.+tag\/(.+?)"').firstMatch(res.data);
@@ -59,8 +56,7 @@ class BTServerUtils {
       if (architecture.stdout.toString().contains("x86_64")) {
         arch = "amd64";
       }
-      if (architecture.stdout.toString().contains("arm64") ||
-          architecture.stdout.toString().contains("aarch64")) {
+      if (architecture.stdout.toString().contains("arm64") || architecture.stdout.toString().contains("aarch64")) {
         arch = "arm64";
       }
     }
@@ -69,11 +65,7 @@ class BTServerUtils {
     final downloadUrl =
         "${MiruStorage.getSettingSync(SettingKey.btServerLink, String)}/releases/download/$remoteVersion/bt-server-$remoteVersion-$platform-$arch";
     final savePath = MiruDirectory.getDirectory;
-    await dio.download(
-      downloadUrl,
-      path.join(savePath, _getBTServerFilename()),
-      onReceiveProgress: onReceiveProgress,
-    );
+    await dio.download(downloadUrl, path.join(savePath, _getBTServerFilename()), onReceiveProgress: onReceiveProgress);
   }
 
   // 启动服务器
@@ -90,23 +82,16 @@ class BTServerUtils {
 
     try {
       if (Platform.isWindows) {
-        _process = await Process.start(
-          btServerPath,
-          [],
-          workingDirectory: savePath,
-        );
+        _process = await Process.start(btServerPath, [], workingDirectory: savePath);
       } else {
         // 添加运行权限
         await Process.run("chmod", ["+x", btServerPath]);
-        _process = await Process.start(btServerPath, [
-          "&",
-        ], workingDirectory: savePath);
+        _process = await Process.start(btServerPath, ["&"], workingDirectory: savePath);
         logger.info("bt-server started");
       }
     } catch (e) {
       final error = e.toString();
-      if (error.contains("cannot find the file") ||
-          error.contains("No such file or directory")) {
+      if (error.contains("cannot find the file") || error.contains("No such file or directory")) {
         btServerNotifier._isInstalled = false;
       }
       throw StartServerException('Start bt-server failed');
@@ -189,12 +174,7 @@ class BTServerApi {
     return (await dio.post<Map<String, dynamic>>(
       "/torrent",
       data: torrent,
-      options: Options(
-        headers: {
-          "Content-Type": "application/x-bittorrent",
-          "Content-Length": torrent.length,
-        },
-      ),
+      options: Options(headers: {"Content-Type": "application/x-bittorrent", "Content-Length": torrent.length}),
     )).data!["infoHash"];
   }
 
@@ -203,10 +183,7 @@ class BTServerApi {
   }
 
   static Future<List<String>> getFileList(String infoHash) async {
-    final fileList =
-        (await dio.get<Map<String, dynamic>>(
-          "/torrent/$infoHash",
-        )).data!['files'];
+    final fileList = (await dio.get<Map<String, dynamic>>("/torrent/$infoHash")).data!['files'];
     return List<String>.from(fileList);
   }
 }
@@ -285,11 +262,7 @@ class BTDialogController with ChangeNotifier {
       );
     } catch (e) {
       if (context.mounted) {
-        showErrorSnackBar(
-          context: context,
-          errorText: "Failed to Download Bt-server",
-          detailErrortext: e.toString(),
-        );
+        showErrorSnackBar(context: context, errorText: "Failed to Download Bt-server", detailErrortext: e.toString());
       }
     } finally {
       _isDownloading = false;
