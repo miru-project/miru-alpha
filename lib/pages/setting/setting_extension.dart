@@ -72,7 +72,7 @@ class RepoDialog extends HookConsumerWidget {
 }
 
 class SettingExtension extends HookConsumerWidget {
-  SettingExtension({super.key});
+  const SettingExtension({super.key});
 
   List<Widget> buildRepoSetting(ValueNotifier<bool> selectAll, ValueNotifier<Set<String>> selected, List<dynamic> repos) {
     return repos.map((repo) {

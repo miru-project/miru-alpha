@@ -33,8 +33,7 @@ android {
         abi {
             isEnable = true
             reset()
-            include("arm64-v8a", "x86_64", "armeabi-v7a")
-            // Produce per-ABI APKs (smaller) by disabling the universal APK.
+            // include("arm64-v8a", "x86_64", "armeabi-v7a")
             isUniversalApk = false
         }
     }
@@ -46,16 +45,10 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
             // Enable code shrinking, resource shrinking and R8/ProGuard rules to reduce APK/AAB size.
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
         }
     }
     
