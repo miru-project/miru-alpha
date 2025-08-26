@@ -11,9 +11,9 @@ add_library(ffmpeg_merge SHARED ${CMAKE_CURRENT_SOURCE_DIR}/../cpp/main.cpp)
 
 # Setting FFmpeg library
 set(LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-set(FFMPEG_URL "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2025-05-05-12-59/ffmpeg-n7.1.1-6-g48c0f071d4-win64-lgpl-shared-7.1.zip")
+set(FFMPEG_URL "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n7.1-latest-win64-lgpl-shared-7.1.zip")
 set(FFMPEG_ZIP "${LIB_PATH}/ffmpeg.zip")
-set(FFMPEG_ROOT "${LIB_PATH}/ffmpeg-n7.1.1-6-g48c0f071d4-win64-lgpl-shared-7.1")
+set(FFMPEG_ROOT "${LIB_PATH}/ffmpeg-n7.1-latest-win64-lgpl-shared-7.1")
 
 # Create directory if it doesn't exist
 if(NOT EXISTS "${LIB_PATH}")

@@ -57,10 +57,18 @@ abstract class BuildAarTask : DefaultTask() {
         try {
             execOperations.exec {
                 workingDir = miruCoreDir
-                commandLine("${System.getenv("HOME")}/go/bin/gomobile", "bind","-ldflags=-s -w", "-o", aarFile.absolutePath, "-target=android", "-androidapi", defaultApiLevel)
+                // Determine platform-specific gomobile path
+                val isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+                val goPath = if (isWindows) {
+                    "${System.getenv("USERPROFILE")}\\go\\bin\\gomobile.exe"
+                } else {
+                    "${System.getenv("HOME")}/go/bin/gomobile"
+                }
+                commandLine(goPath, "bind","-ldflags=-s -w", "-o", aarFile.absolutePath, "-target=android", "-androidapi", defaultApiLevel)
             }
         } catch (e: Exception) {
             println("Failed to execute gomobile: ${e.message}")
+            println("# Note: Ensure that gomobile is installed and available in your PATH or install gomobile")
             throw e
         }
         println("Built AAR file at ${aarFile.absolutePath}")
