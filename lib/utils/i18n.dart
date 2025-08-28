@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_i18n/loaders/decoders/json_decode_strategy.dart';
 import 'package:miru_app_new/utils/index.dart';
+import 'package:miru_app_new/utils/router/router_util.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<ScaffoldMessengerState> messengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 class I18nUtils {
   static final flutterI18nDelegate = FlutterI18nDelegate(
@@ -12,7 +14,7 @@ class I18nUtils {
       fallbackFile: 'en',
       basePath: 'assets/i18n',
       forcedLocale: Locale(
-        MiruStorage.getSettingSync(SettingKey.language, String),
+        MiruStorage.getSettingSync<String>(SettingKey.language),
       ),
       decodeStrategies: [JsonDecodeStrategy()],
     ),
@@ -20,14 +22,18 @@ class I18nUtils {
 
   // 获取当前语言
   static Locale? get currentLanguage =>
-      FlutterI18n.currentLocale(navigatorKey.currentContext!);
+      FlutterI18n.currentLocale(RouterUtil.rootNavigatorKey.currentContext!);
 
   // 切换语言
   static Future changeLanguage(String locale) async {
-    await FlutterI18n.refresh(navigatorKey.currentContext!, Locale(locale));
+    await FlutterI18n.refresh(
+      RouterUtil.rootNavigatorKey.currentContext!,
+      Locale(locale),
+    );
   }
 }
 
 extension I18nString on String {
-  String get i18n => FlutterI18n.translate(navigatorKey.currentContext!, this);
+  String get i18n =>
+      FlutterI18n.translate(RouterUtil.rootNavigatorKey.currentContext!, this);
 }

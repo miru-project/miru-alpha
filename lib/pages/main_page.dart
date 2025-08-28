@@ -11,6 +11,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/provider/main_controller_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
+import 'package:miru_app_new/utils/i18n.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'setting/setting_items.dart';
@@ -31,30 +32,70 @@ class FIconNavItem {
   final String? page;
   final bool expaned;
   final List<FIconNavItem>? subItems;
-  const FIconNavItem({required this.text, required this.icon, this.page, this.subItems, this.expaned = false});
+  const FIconNavItem({
+    required this.text,
+    required this.icon,
+    this.page,
+    this.subItems,
+    this.expaned = false,
+  });
 }
 
-class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderStateMixin {
+class _MainPageState extends ConsumerState<MainPage>
+    with SingleTickerProviderStateMixin {
   // late TabController _tabController;
   late final MainController c;
   static const List<NavItem> _navItems = [
-    NavItem(text: 'Home', icon: Icons.home_outlined, selectIcon: Icons.home_filled),
-    NavItem(text: 'Search', icon: Icons.explore_outlined, selectIcon: Icons.explore),
-    NavItem(text: 'Extension', icon: Icons.extension_outlined, selectIcon: Icons.extension),
-    NavItem(text: 'Settings', icon: Icons.settings_outlined, selectIcon: Icons.settings),
+    NavItem(
+      text: 'Home',
+      icon: Icons.home_outlined,
+      selectIcon: Icons.home_filled,
+    ),
+    NavItem(
+      text: 'Search',
+      icon: Icons.explore_outlined,
+      selectIcon: Icons.explore,
+    ),
+    NavItem(
+      text: 'Extension',
+      icon: Icons.extension_outlined,
+      selectIcon: Icons.extension,
+    ),
+    NavItem(
+      text: 'Settings',
+      icon: Icons.settings_outlined,
+      selectIcon: Icons.settings,
+    ),
   ];
   static final List<FIconNavItem> _subNavItem = [
     FIconNavItem(text: 'History', icon: FIcons.history, page: "/home/history"),
-    FIconNavItem(text: 'Favorite', icon: FIcons.bookHeart, page: "/home/favorite"),
+    FIconNavItem(
+      text: 'Favorite',
+      icon: FIcons.bookHeart,
+      page: "/home/favorite",
+    ),
     // FIconNavItem(text: 'Tracking', icon: Icons.extension_outlined, selectIcon: Icons.extension),
     // FIconNavItem(text: 'Settings', icon: FIcons.settings, selectIcon: Icons.settings),
-    FIconNavItem(text: 'Download', icon: FIcons.download, page: "/home/download"),
+    FIconNavItem(
+      text: 'Download',
+      icon: FIcons.download,
+      page: "/home/download",
+    ),
   ];
   static final List<FIconNavItem> _fIconNavItem = [
-    FIconNavItem(text: 'Home', icon: FIcons.house, page: "/home", subItems: _subNavItem),
+    FIconNavItem(
+      text: 'Home',
+      icon: FIcons.house,
+      page: "/home",
+      subItems: _subNavItem,
+    ),
     FIconNavItem(text: 'Search', icon: FIcons.search, page: "/search"),
     FIconNavItem(text: 'Extension', icon: FIcons.blocks, page: "/extension"),
-    FIconNavItem(text: 'Settings', icon: FIcons.settings, subItems: _fIconSettingSubItem),
+    FIconNavItem(
+      text: 'Settings',
+      icon: FIcons.settings,
+      subItems: _fIconSettingSubItem,
+    ),
   ];
 
   static const sideBarIconMap = <SideBarName, IconData>{
@@ -71,14 +112,20 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
 
   static final List<FIconNavItem> _fIconSettingSubItem = [
     for (var item in SideBarName.values)
-      FIconNavItem(text: item.name[0].toUpperCase() + item.name.substring(1), icon: sideBarIconMap[item]!, page: "/settings/${item.name}"),
+      FIconNavItem(
+        text: item.name[0].toUpperCase() + item.name.substring(1),
+        icon: sideBarIconMap[item]!,
+        page: "/settings/${item.name}",
+      ),
   ];
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.properties.removeWhere((p) => p.name == 'autofocus');
-    properties.add(FlagProperty('autofocus', value: true, ifTrue: 'true', ifFalse: 'false'));
+    properties.add(
+      FlagProperty('autofocus', value: true, ifTrue: 'true', ifFalse: 'false'),
+    );
   }
 
   @override
@@ -122,6 +169,7 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
       desktopWidget: FTheme(
         data: ac.themeData,
         child: FScaffold(
+          key: messengerKey,
           sidebar: SafeFSidebar(
             autofocus: true,
             header: Padding(
@@ -133,10 +181,27 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
                     padding: EdgeInsetsGeometry.directional(start: 10),
                     child: Row(
                       children: [
-                        Text("Miru", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
+                        Text(
+                          "Miru",
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.none,
+                          ),
+                        ),
                         Padding(
-                          padding: EdgeInsetsGeometry.directional(start: 10, top: 15),
-                          child: Text("Alpha", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, decoration: TextDecoration.none)),
+                          padding: EdgeInsetsGeometry.directional(
+                            start: 10,
+                            top: 15,
+                          ),
+                          child: Text(
+                            "Alpha",
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.none,
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -146,14 +211,23 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
               ),
             ),
             footer: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: FCard.raw(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
                   child: Row(
                     spacing: 10,
                     children: [
-                      FAvatar.raw(child: Icon(FIcons.userRound, size: 18, color: context.theme.colors.mutedForeground)),
+                      FAvatar.raw(
+                        child: Icon(
+                          FIcons.userRound,
+                          size: 18,
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                      ),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,12 +235,17 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
                           children: [
                             Text(
                               'WebDav(WIP)',
-                              style: context.theme.typography.sm.copyWith(fontWeight: FontWeight.bold, color: context.theme.colors.foreground),
+                              style: context.theme.typography.sm.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: context.theme.colors.foreground,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
                               'Signin',
-                              style: context.theme.typography.xs.copyWith(color: context.theme.colors.mutedForeground),
+                              style: context.theme.typography.xs.copyWith(
+                                color: context.theme.colors.mutedForeground,
+                              ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],
@@ -234,14 +313,30 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
                     children: [
                       FBreadcrumb(
                         children: [
-                          FBreadcrumbItem(onPress: () {}, child: const Text('Forui')),
+                          FBreadcrumbItem(
+                            onPress: () {},
+                            child: const Text('Forui'),
+                          ),
                           FBreadcrumbItem.collapsed(
                             menu: [
-                              FItemGroup(children: [FItem(title: const Text('Documentation'), onPress: () {})]),
+                              FItemGroup(
+                                children: [
+                                  FItem(
+                                    title: const Text('Documentation'),
+                                    onPress: () {},
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
-                          FBreadcrumbItem(onPress: () {}, child: const Text('Overview')),
-                          const FBreadcrumbItem(current: true, child: Text('Installation')),
+                          FBreadcrumbItem(
+                            onPress: () {},
+                            child: const Text('Overview'),
+                          ),
+                          const FBreadcrumbItem(
+                            current: true,
+                            child: Text('Installation'),
+                          ),
                         ],
                       ),
                       // ConstrainedBox(
@@ -255,10 +350,17 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
                       //   ),
                       // ),
                       ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: 200, maxHeight: 35),
+                        constraints: BoxConstraints(
+                          maxWidth: 200,
+                          maxHeight: 35,
+                        ),
                         child:
                             Platform.isWindows || Platform.isLinux
-                                ? WindowCaption(brightness: Brightness.dark, backgroundColor: context.theme.colors.background)
+                                ? WindowCaption(
+                                  brightness: Brightness.dark,
+                                  backgroundColor:
+                                      context.theme.colors.background,
+                                )
                                 : const Spacer(),
                       ),
                     ],
@@ -275,7 +377,6 @@ class _MainPageState extends ConsumerState<MainPage> with SingleTickerProviderSt
   }
 }
 
-/// A lightweight replacement for the `forui` package `FSidebar` widget.
 class SafeFSidebar extends StatelessWidget {
   final bool? autofocus;
   final Widget? header;
@@ -283,12 +384,22 @@ class SafeFSidebar extends StatelessWidget {
   final List<Widget>? children;
   final double? width;
 
-  const SafeFSidebar({super.key, this.autofocus, this.header, this.footer, this.children, this.width});
+  const SafeFSidebar({
+    super.key,
+    this.autofocus,
+    this.header,
+    this.footer,
+    this.children,
+    this.width,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(minWidth: width ?? 180, maxWidth: width ?? 220),
+      constraints: BoxConstraints(
+        minWidth: width ?? 160,
+        maxWidth: width ?? 200,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -296,7 +407,10 @@ class SafeFSidebar extends StatelessWidget {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ListView(padding: EdgeInsets.zero, children: children ?? const []),
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: children ?? const [],
+              ),
             ),
           ),
           if (footer != null) footer!,
@@ -330,7 +444,11 @@ class _BreadCrumbState extends State<BreadCrumb> {
         FBreadcrumbItem(onPress: () {}, child: const Text('Forui')),
         FBreadcrumbItem.collapsed(
           menu: [
-            FItemGroup(children: [FItem(title: const Text('Documentation'), onPress: () {})]),
+            FItemGroup(
+              children: [
+                FItem(title: const Text('Documentation'), onPress: () {}),
+              ],
+            ),
           ],
         ),
         FBreadcrumbItem(onPress: () {}, child: const Text('Overview')),
@@ -341,7 +459,14 @@ class _BreadCrumbState extends State<BreadCrumb> {
 }
 
 class NavButton extends StatefulWidget {
-  const NavButton({super.key, required this.text, required this.icon, required this.selectIcon, required this.onPressed, required this.selected});
+  const NavButton({
+    super.key,
+    required this.text,
+    required this.icon,
+    required this.selectIcon,
+    required this.onPressed,
+    required this.selected,
+  });
 
   final String text;
   final IconData icon;
@@ -366,7 +491,14 @@ class _NavButtonState extends State<NavButton> {
           children: [
             Container(color: Theme.of(context).scaffoldBackgroundColor),
             (Container(
-              decoration: BoxDecoration(color: context.moonTheme?.tabBarTheme.colors.selectedPillTabColor.withAlpha(50)),
+              decoration: BoxDecoration(
+                color: context
+                    .moonTheme
+                    ?.tabBarTheme
+                    .colors
+                    .selectedPillTabColor
+                    .withAlpha(50),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -379,17 +511,33 @@ class _NavButtonState extends State<NavButton> {
                         decoration: BoxDecoration(
                           color:
                               widget.selected || _hover
-                                  ? context.moonTheme?.tabBarTheme.colors.selectedPillTabColor.withAlpha(100)
+                                  ? context
+                                      .moonTheme
+                                      ?.tabBarTheme
+                                      .colors
+                                      .selectedPillTabColor
+                                      .withAlpha(100)
                                   : Colors.transparent,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
                           child: Icon(
-                            widget.selected || _hover ? widget.selectIcon : widget.icon,
+                            widget.selected || _hover
+                                ? widget.selectIcon
+                                : widget.icon,
                             color:
                                 widget.selected || _hover
-                                    ? context.moonTheme?.tabBarTheme.colors.textColor
-                                    : context.moonTheme?.tabBarTheme.colors.textColor.withAlpha(150),
+                                    ? context
+                                        .moonTheme
+                                        ?.tabBarTheme
+                                        .colors
+                                        .textColor
+                                    : context
+                                        .moonTheme
+                                        ?.tabBarTheme
+                                        .colors
+                                        .textColor
+                                        .withAlpha(150),
                           ),
                         ),
                       ),
@@ -416,7 +564,15 @@ class _NavButtonState extends State<NavButton> {
             height: 40,
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
-              color: widget.selected || _hover ? context.moonTheme?.tabBarTheme.colors.selectedPillTextColor.withAlpha(20) : Colors.transparent,
+              color:
+                  widget.selected || _hover
+                      ? context
+                          .moonTheme
+                          ?.tabBarTheme
+                          .colors
+                          .selectedPillTextColor
+                          .withAlpha(20)
+                      : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
@@ -424,7 +580,10 @@ class _NavButtonState extends State<NavButton> {
               children: [
                 Icon(
                   widget.selected || _hover ? widget.selectIcon : widget.icon,
-                  color: widget.selected || _hover ? context.moonColors?.bulma : context.moonColors?.bulma.withAlpha(150),
+                  color:
+                      widget.selected || _hover
+                          ? context.moonColors?.bulma
+                          : context.moonColors?.bulma.withAlpha(150),
                 ),
               ],
             ),

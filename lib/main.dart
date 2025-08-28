@@ -20,7 +20,6 @@ import 'package:miru_app_new/provider/extension_page_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
-import 'package:miru_app_new/utils/i18n.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/request.dart';
@@ -51,9 +50,18 @@ void main() async {
   if (Platform.isMacOS) {
     await WindowManipulator.initialize(enableWindowDelegate: true);
     await WindowManipulator.addToolbar();
-    await WindowManipulator.overrideStandardWindowButtonPosition(buttonType: NSWindowButtonType.closeButton, offset: const Offset(15, 18));
-    await WindowManipulator.overrideStandardWindowButtonPosition(buttonType: NSWindowButtonType.miniaturizeButton, offset: const Offset(35, 18));
-    await WindowManipulator.overrideStandardWindowButtonPosition(buttonType: NSWindowButtonType.zoomButton, offset: const Offset(55, 18));
+    await WindowManipulator.overrideStandardWindowButtonPosition(
+      buttonType: NSWindowButtonType.closeButton,
+      offset: const Offset(15, 18),
+    );
+    await WindowManipulator.overrideStandardWindowButtonPosition(
+      buttonType: NSWindowButtonType.miniaturizeButton,
+      offset: const Offset(35, 18),
+    );
+    await WindowManipulator.overrideStandardWindowButtonPosition(
+      buttonType: NSWindowButtonType.zoomButton,
+      offset: const Offset(55, 18),
+    );
   }
   await DeviceUtil.ensureInitialized();
   await MiruDirectory.ensureInitialized();
@@ -94,7 +102,9 @@ class _App extends ConsumerState<App> {
     );
     // Pass the ExtensionPageNotifier instance to CoreNetwork so non-widget
     // network code can optionally update provider state directly.
-    CoreNetwork.setExtensionNotifier(ref.read(extensionPageControllerProvider.notifier));
+    CoreNetwork.setExtensionNotifier(
+      ref.read(extensionPageControllerProvider.notifier),
+    );
   }
 
   @override
@@ -104,7 +114,6 @@ class _App extends ConsumerState<App> {
       data: c.themeData,
       child: MaterialApp.router(
         themeMode: c.themeMode,
-        key: navigatorKey,
         title: 'Miru',
         routerConfig: RouterUtil.appRouter,
         // debugShowCheckedModeBanner: false,
@@ -125,7 +134,8 @@ void startNativeMiruCore(String configPath) async {
   }
 
   using((Arena arena) {
-    final configPathPointer = configPath.toNativeUtf8(allocator: arena).cast<ffi.Char>();
+    final configPathPointer =
+        configPath.toNativeUtf8(allocator: arena).cast<ffi.Char>();
     final core = MiruCore(lib);
     core.initDyLib(configPathPointer);
   });

@@ -27,11 +27,11 @@ class MiruRequest {
 
   static void refreshProxy() {
     String proxy = "";
-    final type = MiruStorage.getSettingSync(SettingKey.proxyType, String);
+    final type = MiruStorage.getSettingSync<String>(SettingKey.proxyType);
     if (type == "DIRECT") {
       proxy = type;
     } else {
-      proxy = '$type ${MiruStorage.getSettingSync(SettingKey.proxy, String)}';
+      proxy = '$type ${MiruStorage.getSettingSync<String>(SettingKey.proxy)}';
     }
 
     if (!_isInitialized) {

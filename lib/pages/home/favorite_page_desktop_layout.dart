@@ -5,8 +5,8 @@ import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
+import 'package:miru_app_new/widgets/gridView/index.dart';
 import 'home_page.dart';
-import 'package:miru_app_new/widgets/index.dart';
 import 'package:go_router/go_router.dart';
 
 class FavoritePage extends ConsumerStatefulWidget {
@@ -15,7 +15,8 @@ class FavoritePage extends ConsumerStatefulWidget {
   createState() => _FavoritePageState();
 }
 
-class _FavoritePageState extends ConsumerState<FavoritePage> with AutomaticKeepAliveClientMixin {
+class _FavoritePageState extends ConsumerState<FavoritePage>
+    with AutomaticKeepAliveClientMixin {
   final ValueNotifier<List<FavoriateGroup>> _favGroup = ValueNotifier([]);
   List<Favorite> filterFav = [];
   final ValueNotifier<List<Favorite>> _fav = ValueNotifier([]);
@@ -48,17 +49,23 @@ class _FavoritePageState extends ConsumerState<FavoritePage> with AutomaticKeepA
     if (search.isEmpty) {
       return fav;
     }
-    return filterFav.where((element) => element.title.toLowerCase().contains(search)).toList();
+    return filterFav
+        .where((element) => element.title.toLowerCase().contains(search))
+        .toList();
   }
 
   List<Favorite> filterFavoriteByGroup(List<Favorite> fav) {
     final selected = ref.read(mainPageProvider).selectedGroups;
-    final List<FavoriateGroup> selectedFavGroup = selected.map((e) => _favGroup.value[e]).toList();
+    final List<FavoriateGroup> selectedFavGroup =
+        selected.map((e) => _favGroup.value[e]).toList();
     final Set<int> favId = {};
     for (final group in selectedFavGroup) {
       favId.addAll(group.favorite.map((e) => e.id).toList());
     }
-    final List<Favorite?> result = List.from(DatabaseService.fav.getMany(favId.toList()), growable: true);
+    final List<Favorite?> result = List.from(
+      DatabaseService.fav.getMany(favId.toList()),
+      growable: true,
+    );
     filterFav = result.whereType<Favorite>().toList();
     final search = ref.read(mainPageProvider).searchText;
     if (search.isNotEmpty) {
@@ -88,9 +95,17 @@ class _FavoritePageState extends ConsumerState<FavoritePage> with AutomaticKeepA
                 subtitle: fav[index].package,
                 imageUrl: fav[index].cover,
                 onTap: () {
-                  final extensionIsExist = ExtensionUtils.runtimes.containsKey(fav[index].package);
+                  final extensionIsExist = ExtensionUtils.runtimes.containsKey(
+                    fav[index].package,
+                  );
                   if (extensionIsExist) {
-                    context.push('/search/detail', extra: DetailParam(service: ExtensionUtils.runtimes[fav[index].package]!, url: fav[index].url));
+                    context.push(
+                      '/search/detail',
+                      extra: DetailParam(
+                        service: ExtensionUtils.runtimes[fav[index].package]!,
+                        url: fav[index].url,
+                      ),
+                    );
                   }
                 },
               );

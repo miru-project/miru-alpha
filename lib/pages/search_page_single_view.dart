@@ -7,8 +7,8 @@ import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
+import 'package:miru_app_new/widgets/gridView/index.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'package:miru_app_new/widgets/miru_grid_tile_loading_box.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,7 +20,8 @@ class SearchPageSingleView extends StatefulHookConsumerWidget {
   createState() => _SearchPageSingleViewState();
 }
 
-class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView> with TickerProviderStateMixin {
+class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
+    with TickerProviderStateMixin {
   late final ValueNotifier<String> _query;
   late final ValueNotifier<int> _page;
   final ValueNotifier<List<ExtensionListItem>> _result = ValueNotifier([]);
@@ -73,14 +74,25 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView> wit
                     label: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.service.meta.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                        ValueListenableBuilder(valueListenable: _page, builder: (context, value, _) => Text('page: $value')),
+                        Text(
+                          widget.service.meta.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                        ValueListenableBuilder(
+                          valueListenable: _page,
+                          builder: (context, value, _) => Text('page: $value'),
+                        ),
                       ],
                     ),
                     onTap: () {
                       context.pop();
                     },
-                    leading: const Icon(MoonIcons.controls_chevron_left_16_regular),
+                    leading: const Icon(
+                      MoonIcons.controls_chevron_left_16_regular,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -93,8 +105,18 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView> wit
                         onTap: () {
                           _query.value = '';
                           _page.value = 1;
-                          ref.invalidate(FetchExtensionLatestProvider(widget.service, _page.value));
-                          ref.read(FetchExtensionLatestProvider(widget.service, _page.value));
+                          ref.invalidate(
+                            FetchExtensionLatestProvider(
+                              widget.service,
+                              _page.value,
+                            ),
+                          );
+                          ref.read(
+                            FetchExtensionLatestProvider(
+                              widget.service,
+                              _page.value,
+                            ),
+                          );
                           _result.value = [];
                           _isLoading.value = true;
                         },
@@ -105,7 +127,15 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView> wit
                         },
                         icon:
                             isFilterActivate.value
-                                ? Icon(Icons.filter_alt, color: context.moonTheme?.segmentedControlTheme.colors.backgroundColor)
+                                ? Icon(
+                                  Icons.filter_alt,
+                                  color:
+                                      context
+                                          .moonTheme
+                                          ?.segmentedControlTheme
+                                          .colors
+                                          .backgroundColor,
+                                )
                                 : const Icon(Icons.filter_alt_off_outlined),
                       ),
                     ],
@@ -115,8 +145,20 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView> wit
 
                     _query.value = val;
                     _page.value = 1;
-                    ref.invalidate(fetchExtensionSearchProvider(widget.service, _query.value, _page.value));
-                    ref.read(fetchExtensionSearchProvider(widget.service, _query.value, _page.value));
+                    ref.invalidate(
+                      fetchExtensionSearchProvider(
+                        widget.service,
+                        _query.value,
+                        _page.value,
+                      ),
+                    );
+                    ref.read(
+                      fetchExtensionSearchProvider(
+                        widget.service,
+                        _query.value,
+                        _page.value,
+                      ),
+                    );
                     _result.value = [];
                     _isLoading.value = true;
                   },
@@ -127,19 +169,31 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView> wit
                     scrollDirection: Axis.horizontal,
                     child: MoonTabBar(
                       tabController: tabController,
-                      tabs: List.generate(_fileNotifier.value.length, (index) => MoonTab(label: Text(_fileNotifier.value.keys.toList()[index]))),
+                      tabs: List.generate(
+                        _fileNotifier.value.length,
+                        (index) => MoonTab(
+                          label: Text(_fileNotifier.value.keys.toList()[index]),
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(
                     height: 1000,
                     child: TabBarView(
                       controller: tabController,
-                      children: List.generate(_fileNotifier.value.length, (index) {
+                      children: List.generate(_fileNotifier.value.length, (
+                        index,
+                      ) {
                         final keys = _fileNotifier.value.keys.toList();
-                        final defaultOpt = _fileNotifier.value[keys[index]]?.defaultOption ?? '';
+                        final defaultOpt =
+                            _fileNotifier.value[keys[index]]?.defaultOption ??
+                            '';
 
                         final map = _fileNotifier.value;
-                        final selectOptions = _fileNotifier.value[keys[index]]?.options.values.toList() ?? [];
+                        final selectOptions =
+                            _fileNotifier.value[keys[index]]?.options.values
+                                .toList() ??
+                            [];
                         {
                           if (selectOptions.contains(defaultOpt)) {
                             final initIndex = selectOptions.indexOf(defaultOpt);
@@ -152,7 +206,9 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView> wit
                           initSelected: _selected.value[index],
                           items: map[keys[index]]!.options.values.toList(),
                           onpress: (val) {
-                            final newSelected = List<List<int>>.from(_selected.value);
+                            final newSelected = List<List<int>>.from(
+                              _selected.value,
+                            );
                             newSelected[index] = val;
                             _selected.value = newSelected;
                           },
@@ -204,18 +260,39 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView> wit
                   },
                 ),
                 const SizedBox(height: 10),
-                SidebarExpander(title: "歷史", expanded: true, child: CategoryGroup(needSpacer: false, items: const ['全部'], onpress: (val) {})),
+                SidebarExpander(
+                  title: "歷史",
+                  expanded: true,
+                  child: CategoryGroup(
+                    needSpacer: false,
+                    items: const ['全部'],
+                    onpress: (val) {},
+                  ),
+                ),
                 SidebarExpander(
                   title: "分类",
                   expanded: true,
-                  child: CategoryGroup(needSpacer: false, items: const ['全部', '影視', '漫畫', '小說'], onpress: (val) {}),
+                  child: CategoryGroup(
+                    needSpacer: false,
+                    items: const ['全部', '影視', '漫畫', '小說'],
+                    onpress: (val) {},
+                  ),
                 ),
                 const SizedBox(height: 10),
                 SidebarExpander(
                   title: '收藏夹',
-                  actions: [Button(onPressed: () {}, child: const Icon(Icons.add, size: 15))],
+                  actions: [
+                    Button(
+                      onPressed: () {},
+                      child: const Icon(Icons.add, size: 15),
+                    ),
+                  ],
                   expanded: true,
-                  child: CategoryGroup(needSpacer: false, items: const ['全部'], onpress: (val) {}),
+                  child: CategoryGroup(
+                    needSpacer: false,
+                    items: const ['全部'],
+                    onpress: (val) {},
+                  ),
                 ),
               ],
       body: LayoutBuilder(builder: (context, cons) => content(context, cons)),
@@ -224,7 +301,9 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView> wit
 
   Widget content(BuildContext context, BoxConstraints cons) {
     if (_query.value.isEmpty) {
-      final snapshot = ref.watch(fetchExtensionLatestProvider(widget.service, _page.value));
+      final snapshot = ref.watch(
+        fetchExtensionLatestProvider(widget.service, _page.value),
+      );
       return EasyRefresh(
         scrollController: _scrollController,
         onLoad: () async {
@@ -253,12 +332,20 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView> wit
               isLoading: _isLoading,
             );
           },
-          error: (e, stack) => Center(child: Row(children: [Text(e.toString()), Text(stack.toString())])),
-          loading: () => _GridLoadingWidget(scrollController: _scrollController),
+          error:
+              (e, stack) => Center(
+                child: Row(
+                  children: [Text(e.toString()), Text(stack.toString())],
+                ),
+              ),
+          loading:
+              () => _GridLoadingWidget(scrollController: _scrollController),
         ),
       );
     }
-    final snapshot = ref.watch(fetchExtensionSearchProvider(widget.service, _query.value, _page.value));
+    final snapshot = ref.watch(
+      fetchExtensionSearchProvider(widget.service, _query.value, _page.value),
+    );
     return EasyRefresh(
       scrollController: _scrollController,
       onLoad: () async {
@@ -287,7 +374,12 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView> wit
             isLoading: _isLoading,
           );
         },
-        error: (e, stack) => Center(child: Row(children: [Text(e.toString()), Text(stack.toString())])),
+        error:
+            (e, stack) => Center(
+              child: Row(
+                children: [Text(e.toString()), Text(stack.toString())],
+              ),
+            ),
         loading: () => _GridLoadingWidget(scrollController: _scrollController),
       ),
     );
@@ -304,9 +396,16 @@ class _GridLoadingWidget extends StatelessWidget {
       builder:
           (context, cons) => MiruGridView(
             scrollController: scrollController,
-            mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cons.maxWidth ~/ 110, childAspectRatio: 0.6),
-            desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cons.maxWidth ~/ 110, childAspectRatio: 0.6),
-            itemBuilder: (context, index) => const MiruGridTileLoadingBox(width: 110),
+            mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: cons.maxWidth ~/ 110,
+              childAspectRatio: 0.6,
+            ),
+            desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: cons.maxWidth ~/ 110,
+              childAspectRatio: 0.6,
+            ),
+            itemBuilder:
+                (context, index) => const MiruGridTileLoadingBox(width: 110),
             itemCount: 20,
           ),
     );
@@ -346,29 +445,52 @@ class _GridView extends StatelessWidget {
           builder: (conetxt, isLoading, _) {
             if (isLoading) {
               final truncateDivison = cons.maxWidth ~/ 110;
-              final loadingWidgetCount = truncateDivison * 2 - value.length % truncateDivison;
+              final loadingWidgetCount =
+                  truncateDivison * 2 - value.length % truncateDivison;
               debugPrint(loadingWidgetCount.toString());
               return MiruGridView(
                 scrollController: scrollController,
-                mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cons.maxWidth ~/ 110, childAspectRatio: 0.6),
-                desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cons.maxWidth ~/ 110, childAspectRatio: 0.6),
+                mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: cons.maxWidth ~/ 110,
+                  childAspectRatio: 0.6,
+                ),
+                desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: cons.maxWidth ~/ 110,
+                  childAspectRatio: 0.6,
+                ),
                 itemBuilder: (context, index) {
                   if (index >= value.length) {
                     return const MiruGridTileLoadingBox(width: 110);
                   }
-                  return MiruGridTile(title: value[index].title, imageUrl: value[index].cover, subtitle: value[index].update ?? '');
+                  return MiruGridTile(
+                    title: value[index].title,
+                    imageUrl: value[index].cover,
+                    subtitle: value[index].update ?? '',
+                  );
                 },
                 itemCount: value.length + loadingWidgetCount,
               );
             }
             return MiruGridView(
               scrollController: scrollController,
-              mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cons.maxWidth ~/ 110, childAspectRatio: 0.6),
-              desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: cons.maxWidth ~/ 180, childAspectRatio: 0.65),
+              mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: cons.maxWidth ~/ 110,
+                childAspectRatio: 0.6,
+              ),
+              desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: cons.maxWidth ~/ 180,
+                childAspectRatio: 0.65,
+              ),
               itemBuilder:
                   (context, index) => MiruGridTile(
                     onTap: () {
-                      context.push('/search/detail', extra: DetailParam(service: service, url: value[index].url));
+                      context.push(
+                        '/search/detail',
+                        extra: DetailParam(
+                          service: service,
+                          url: value[index].url,
+                        ),
+                      );
                     },
                     title: value[index].title,
                     imageUrl: value[index].cover,

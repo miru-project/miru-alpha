@@ -11,14 +11,14 @@ class ExtensionPageModel {
   final List<ExtensionRepo> extensionList;
   final bool loading;
   final List<String> installedPackages;
-  final List<ExtensionMeta>? metaData;
+  final List<ExtensionMeta> metaData;
   final DateTime? update;
 
   const ExtensionPageModel({
     required this.fetchedRepo,
     required this.extensionList,
     required this.installedPackages,
-    this.metaData,
+    required this.metaData,
     this.update,
     this.loading = false,
   });
@@ -48,7 +48,14 @@ class ExtensionPageState {
   late ExtensionPageModel state;
 
   ExtensionPageState._internal() {
-    state = const ExtensionPageModel(fetchedRepo: [], extensionList: [], installedPackages: [], metaData: null, update: null, loading: false);
+    state = const ExtensionPageModel(
+      fetchedRepo: [],
+      extensionList: [],
+      installedPackages: [],
+      metaData: [],
+      update: null,
+      loading: false,
+    );
   }
 
   void update(ExtensionPageModel newState) {
@@ -61,9 +68,18 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
   String _selectedRepoUrl = '';
   ExtensionPageNotifier()
     : snappingController = SnappingSheetController(),
-      super(ExtensionPageModel(fetchedRepo: const [], extensionList: const [], installedPackages: const [], metaData: null)) {
+      super(
+        ExtensionPageModel(
+          fetchedRepo: const [],
+          extensionList: const [],
+          installedPackages: const [],
+          metaData: [],
+        ),
+      ) {
     // initialize installedPackages from ExtensionUtils.runtimes
-    state = state.copyWith(installedPackages: ExtensionUtils.runtimes.keys.toList());
+    state = state.copyWith(
+      installedPackages: ExtensionUtils.runtimes.keys.toList(),
+    );
     ExtensionPageState.instance.update(state);
   }
 
@@ -77,7 +93,12 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
     try {
       final list = await GithubNetwork.fetchRepo();
       // set fetched repos and default extension list (all repos)
-      state = state.copyWith(fetchedRepo: list, extensionList: List.from(list), loading: false, update: DateTime.now());
+      state = state.copyWith(
+        fetchedRepo: list,
+        extensionList: List.from(list),
+        loading: false,
+        update: DateTime.now(),
+      );
       ExtensionPageState.instance.update(state);
     } catch (e) {
       logger.info('failed to load repos: $e');
@@ -91,7 +112,11 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
   }
 
   void setFetchedRepo(List<ExtensionRepo> list) {
-    state = state.copyWith(fetchedRepo: list, extensionList: List.from(list), loading: false);
+    state = state.copyWith(
+      fetchedRepo: list,
+      extensionList: List.from(list),
+      loading: false,
+    );
     ExtensionPageState.instance.update(state);
   }
 
@@ -120,8 +145,19 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
     // filter repos by name or any extension name
     for (final repo in state.fetchedRepo) {
       if (repo.url == _selectedRepoUrl || _selectedRepoUrl.isEmpty) {
-        final filteredExtensions = repo.extensions.where((ext) => ext.name.toLowerCase().contains(lower)).toList();
-        state = state.copyWith(extensionList: [ExtensionRepo(extensions: filteredExtensions, name: repo.name, url: repo.url)]);
+        final filteredExtensions =
+            repo.extensions
+                .where((ext) => ext.name.toLowerCase().contains(lower))
+                .toList();
+        state = state.copyWith(
+          extensionList: [
+            ExtensionRepo(
+              extensions: filteredExtensions,
+              name: repo.name,
+              url: repo.url,
+            ),
+          ],
+        );
         ExtensionPageState.instance.update(state);
         return;
       }
@@ -136,7 +172,8 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
       ExtensionPageState.instance.update(state);
       return;
     }
-    final filtered = state.fetchedRepo.where((repo) => repo.name == repoName).toList();
+    final filtered =
+        state.fetchedRepo.where((repo) => repo.name == repoName).toList();
     _selectedRepoUrl = filtered.isNotEmpty ? filtered.first.url : '';
     state = state.copyWith(extensionList: filtered);
     ExtensionPageState.instance.update(state);
@@ -147,10 +184,20 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
         state.fetchedRepo
             .expand((repo) => repo.extensions)
             .where(
-              (ext) => (val == 0 && state.installedPackages.contains(ext.package)) || (val == 1 && !state.installedPackages.contains(ext.package)),
+              (ext) =>
+                  (val == 0 && state.installedPackages.contains(ext.package)) ||
+                  (val == 1 && !state.installedPackages.contains(ext.package)),
             )
             .toList();
-    state = state.copyWith(extensionList: [ExtensionRepo(extensions: filteredExtensions, name: 'filtered', url: '')]);
+    state = state.copyWith(
+      extensionList: [
+        ExtensionRepo(
+          extensions: filteredExtensions,
+          name: 'filtered',
+          url: '',
+        ),
+      ],
+    );
     ExtensionPageState.instance.update(state);
   }
 
@@ -160,8 +207,20 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
       ExtensionPageState.instance.update(state);
       return;
     }
-    final filteredExtensions = state.fetchedRepo.expand((repo) => repo.extensions).where((ext) => ext.type == type.toLowerCase()).toList();
-    state = state.copyWith(extensionList: [ExtensionRepo(extensions: filteredExtensions, name: 'filtered', url: '')]);
+    final filteredExtensions =
+        state.fetchedRepo
+            .expand((repo) => repo.extensions)
+            .where((ext) => ext.type == type.toLowerCase())
+            .toList();
+    state = state.copyWith(
+      extensionList: [
+        ExtensionRepo(
+          extensions: filteredExtensions,
+          name: 'filtered',
+          url: '',
+        ),
+      ],
+    );
     ExtensionPageState.instance.update(state);
   }
 
@@ -169,9 +228,13 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
 
   Future<void> installPackage(String package, String repourl) async {
     try {
-      await CoreNetwork.requestFormData("download/extension", {'repoUrl': repourl, 'pkg': package});
+      await CoreNetwork.requestFormData("download/extension", {
+        'repoUrl': repourl,
+        'pkg': package,
+      });
       logger.info('install package $package from $repourl');
-      final newInstalled = List<String>.from(state.installedPackages)..add(package);
+      final newInstalled = List<String>.from(state.installedPackages)
+        ..add(package);
       state = state.copyWith(installedPackages: newInstalled);
       ExtensionPageState.instance.update(state);
     } catch (e) {
@@ -181,9 +244,12 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
 
   Future<void> uninstallPackage(String package) async {
     try {
-      await CoreNetwork.requestFormData("rm/extension", {'pkg': package}, method: 'DELETE');
+      await CoreNetwork.requestFormData("rm/extension", {
+        'pkg': package,
+      }, method: 'DELETE');
       logger.info('remove package $package ');
-      final newInstalled = List<String>.from(state.installedPackages)..remove(package);
+      final newInstalled = List<String>.from(state.installedPackages)
+        ..remove(package);
       state = state.copyWith(installedPackages: newInstalled);
       ExtensionPageState.instance.update(state);
     } catch (e) {
@@ -199,12 +265,22 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
       return;
     }
 
-    final pkgs = data.map((e) => e.packageName).where((p) => p.isNotEmpty).toSet().toList();
-    state = state.copyWith(metaData: data, installedPackages: pkgs, update: DateTime.now());
+    final pkgs =
+        data
+            .map((e) => e.packageName)
+            .where((p) => p.isNotEmpty)
+            .toSet()
+            .toList();
+    state = state.copyWith(
+      metaData: data,
+      installedPackages: pkgs,
+      update: DateTime.now(),
+    );
     ExtensionPageState.instance.update(state);
   }
 }
 
-final extensionPageControllerProvider = StateNotifierProvider<ExtensionPageNotifier, ExtensionPageModel>((ref) {
-  return ExtensionPageNotifier();
-});
+final extensionPageControllerProvider =
+    StateNotifierProvider<ExtensionPageNotifier, ExtensionPageModel>((ref) {
+      return ExtensionPageNotifier();
+    });

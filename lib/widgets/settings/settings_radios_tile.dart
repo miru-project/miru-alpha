@@ -49,27 +49,22 @@ class SettingsRadiosTile extends HookWidget {
           selected.value = value;
           onChanged(value);
         },
-        items: (entry == null) ? {for (final item in radios) item: item} : {for (final e in entry!) e.value: e.title},
-        // children:
-        //     (entry == null)
-        //         ? radios.map((e) => FSelectItem.from(value: e, title: Text(e))).toList()
-        //         : entry!
-        //             .map(
-        //               (e) => FSelectItem.from(
-        //                 value: e.value,
-        //                 title: Text(e.title, style: TextStyle(color: color?[e.title])),
-        //                 subtitle: e.subtitle,
-        //                 prefix: e.icon != null ? Icon(e.icon) : null,
-        //               ),
-        //             )
-        //             .toList(),
+        items:
+            (entry == null)
+                ? {for (final item in radios) item: item}
+                : {for (final e in entry!) e.value: e.title},
       ),
     );
   }
 }
 
 class RadioTileEntry {
-  const RadioTileEntry({required this.value, required this.title, this.subtitle, this.icon});
+  const RadioTileEntry({
+    required this.value,
+    required this.title,
+    this.subtitle,
+    this.icon,
+  });
 
   final String value;
   final String title;

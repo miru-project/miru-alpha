@@ -80,7 +80,7 @@ class AnilistPageNotifier with ChangeNotifier {
   }
 
   void init() {
-    final token = MiruStorage.getSettingSync(SettingKey.aniListToken, String);
+    final token = MiruStorage.getSettingSync<String>(SettingKey.aniListToken);
     if (token != "") {
       _anilistIsLogin = true;
       notifyListeners();

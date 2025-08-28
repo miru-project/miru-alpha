@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:miru_app_new/pages/setting/setting_general.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'setting_extension.dart';
 import 'package:miru_app_new/widgets/index.dart';
@@ -91,6 +92,9 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return PlatformWidget(desktopWidget: selected(widget.selected, context), mobileWidget: Center());
+    return PlatformWidget(
+      desktopWidget: selected(widget.selected, context),
+      mobileWidget: Center(),
+    );
   }
 }

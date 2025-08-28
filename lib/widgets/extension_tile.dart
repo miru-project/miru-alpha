@@ -35,20 +35,39 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
             flex: 2,
             child: Row(
               children: [
-                if (widget.icon != null) ExtendedImage.network(widget.icon!, width: 50, height: 50, fit: BoxFit.cover),
+                if (widget.icon != null)
+                  ExtendedImage.network(
+                    widget.icon!,
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
                 const SizedBox(width: 8),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(widget.name, style: const TextStyle(fontSize: 18)),
-                    Text(widget.author, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                    Text(
+                      widget.author,
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
-          Expanded(child: Text(widget.version, style: const TextStyle(fontSize: 14, color: Colors.grey))),
-          Expanded(child: Text(widget.type, style: const TextStyle(fontSize: 14, color: Colors.grey))),
+          Expanded(
+            child: Text(
+              widget.version,
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              widget.type,
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ),
           Button(onPressed: widget.onUninstall, child: const Text('Uninstall')),
         ],
       ),
@@ -60,6 +79,7 @@ class ExtensionGridTile extends StatelessWidget {
   const ExtensionGridTile({
     super.key,
     required this.name,
+    required this.isNSFW,
     this.icon,
     required this.version,
     required this.author,
@@ -70,6 +90,7 @@ class ExtensionGridTile extends StatelessWidget {
     required this.isInstalled,
     this.tags = const [],
   });
+  final bool isNSFW;
   final String name;
   final String? icon;
   final String version;
@@ -82,6 +103,13 @@ class ExtensionGridTile extends StatelessWidget {
   final bool isInstalled;
   @override
   Widget build(BuildContext context) {
+    final badges =
+        tags
+            .map((e) => FBadge(style: FBadgeStyle.outline(), child: Text(e)))
+            .toList();
+    if (isNSFW) {
+      badges.add(FBadge(style: FBadgeStyle.destructive(), child: Text('NSFW')));
+    }
     return Center(
       child: SizedBox(
         width: 400,
@@ -107,9 +135,11 @@ class ExtensionGridTile extends StatelessWidget {
                                     icon!,
                                     cache: true,
                                     loadStateChanged: (state) {
-                                      if (state.extendedImageLoadState == LoadState.failed) {
+                                      if (state.extendedImageLoadState ==
+                                          LoadState.failed) {
                                         return Placeholder();
                                       }
+
                                       return null;
                                     },
                                   ),
@@ -118,26 +148,43 @@ class ExtensionGridTile extends StatelessWidget {
                     ),
                     FLabel(
                       label: Row(
-                        children: [FBadge(style: FBadgeStyle.secondary(), child: Text(version)), SizedBox(width: 5), FBadge(child: Text(type))],
+                        children: [
+                          FBadge(
+                            style: FBadgeStyle.secondary(),
+                            child: Text(version),
+                          ),
+                          SizedBox(width: 5),
+                          FBadge(child: Text(type)),
+                        ],
                       ),
                       axis: Axis.vertical,
-                      child: Text(name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                      child: Text(
+                        name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
                     ),
                   ],
                 ),
                 SizedBox(height: 10),
                 SizedBox(
                   height: 55,
-                  child: FLabel(
-                    axis: Axis.vertical,
-                    description: Text(description ?? 'No description'),
-                    child: Wrap(spacing: 5, runSpacing: 5, children: tags.map((e) => FBadge(style: FBadgeStyle.outline(), child: Text(e))).toList()),
-                  ),
+                  child: Wrap(spacing: 5, runSpacing: 5, children: badges),
                 ),
                 if (isInstalled)
-                  FButton(onPress: onUninstall, prefix: Icon(FIcons.trash2), child: Text('Uninstall'))
+                  FButton(
+                    onPress: onUninstall,
+                    prefix: Icon(FIcons.trash2),
+                    child: Text('Uninstall'),
+                  )
                 else
-                  FButton(onPress: onInstall, prefix: Icon(FIcons.download), child: Text('Install')),
+                  FButton(
+                    onPress: onInstall,
+                    prefix: Icon(FIcons.download),
+                    child: Text('Install'),
+                  ),
               ],
             ),
           ),

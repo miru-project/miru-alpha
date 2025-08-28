@@ -11,11 +11,11 @@ import '../../../pages/home/history_page.dart';
 import '../../../pages/home/home_page.dart';
 import '../../../pages/index.dart';
 import '../../../pages/main_page.dart';
-import '../../../pages/manga_reader.dart';
+import '../../pages/watch/manga_reader.dart';
 import '../../../pages/mobile_webview.dart';
-import '../../../pages/novel_reader.dart';
+import '../../pages/watch/novel_reader.dart';
 import '../../../pages/search_page_single_view.dart';
-import '../../../pages/video_player.dart';
+import '../../pages/watch/video_player.dart';
 import '../../../pages/setting/setting_items.dart';
 
 class ParamCache {
@@ -99,12 +99,29 @@ class RouterUtil {
             routes: [
               GoRoute(
                 routes: [
-                  GoRoute(path: 'history', pageBuilder: (context, state) => getPage(state: state, child: const HistoryPage())),
-                  GoRoute(path: 'favorite', pageBuilder: (context, state) => getPage(state: state, child: const FavoritePage())),
-                  GoRoute(path: 'download', pageBuilder: (context, state) => getPage(state: state, child: DownloadPage())),
+                  GoRoute(
+                    path: 'history',
+                    pageBuilder:
+                        (context, state) =>
+                            getPage(state: state, child: const HistoryPage()),
+                  ),
+                  GoRoute(
+                    path: 'favorite',
+                    pageBuilder:
+                        (context, state) =>
+                            getPage(state: state, child: const FavoritePage()),
+                  ),
+                  GoRoute(
+                    path: 'download',
+                    pageBuilder:
+                        (context, state) =>
+                            getPage(state: state, child: DownloadPage()),
+                  ),
                 ],
                 path: '/home',
-                pageBuilder: (context, state) => getPage(state: state, child: const HomePage()),
+                pageBuilder:
+                    (context, state) =>
+                        getPage(state: state, child: const HomePage()),
               ),
             ],
           ),
@@ -112,12 +129,18 @@ class RouterUtil {
             routes: [
               GoRoute(
                 path: '/search',
-                pageBuilder: (context, state) => getPage(state: state, child: SearchPage(search: state.extra as String?)),
+                pageBuilder:
+                    (context, state) => getPage(
+                      state: state,
+                      child: SearchPage(search: state.extra as String?),
+                    ),
                 routes: [
                   GoRoute(
                     path: 'detail',
                     builder: (context, state) {
-                      final extra = ParamCache.getDetailParam(state.extra as DetailParam?);
+                      final extra = ParamCache.getDetailParam(
+                        state.extra as DetailParam?,
+                      );
                       throw Exception('DetailParam is null');
                       // return DetailPage(extensionService: extra.service, url: extra.url);
                     },
@@ -126,7 +149,10 @@ class RouterUtil {
                     path: 'single',
                     builder: (context, state) {
                       final extra = state.extra as SearchPageParam;
-                      return SearchPageSingleView(query: extra.query, service: extra.service);
+                      return SearchPageSingleView(
+                        query: extra.query,
+                        service: extra.service,
+                      );
                     },
                   ),
                 ],
@@ -134,16 +160,32 @@ class RouterUtil {
             ],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: '/extension', pageBuilder: (context, state) => getPage(state: state, child: const ExtensionPage()))],
+            routes: [
+              GoRoute(
+                path: '/extension',
+                pageBuilder:
+                    (context, state) =>
+                        getPage(state: state, child: const ExtensionPage()),
+              ),
+            ],
           ),
           StatefulShellBranch(
             routes: [
               for (final item in SideBarName.values)
-                GoRoute(path: "/settings/${item.name}", pageBuilder: (context, state) => getPage(state: state, child: SettingPage(selected: item))),
+                GoRoute(
+                  path: "/settings/${item.name}",
+                  pageBuilder:
+                      (context, state) => getPage(
+                        state: state,
+                        child: SettingPage(selected: item),
+                      ),
+                ),
             ],
           ),
         ],
-        pageBuilder: (context, state, navigationShell) => getPage(state: state, child: MainPage(child: navigationShell)),
+        pageBuilder:
+            (context, state, navigationShell) =>
+                getPage(state: state, child: MainPage(child: navigationShell)),
       ),
     ],
   );

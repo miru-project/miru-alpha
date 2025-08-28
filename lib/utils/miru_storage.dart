@@ -137,10 +137,11 @@ class MiruStorage {
     SettingKey.subtitleBackgroundColor: Colors.black.toARGB32(),
     SettingKey.subtitleBackgroundOpacity: 0.5,
     SettingKey.subtitleTextAlign: TextAlign.center.index,
-    SettingKey.accentColor: "Zinc",
+    SettingKey.accentColor: "zinc",
     SettingKey.mobiletitleIsonTop: "false",
     SettingKey.btServerLink: "https://github.com/miru-project/bt-server",
     SettingKey.maxConnection: "3",
+    SettingKey.pinnedExtension: [].toString(),
   };
   static Future<void> _initSettings() async {
     //init from default settings
@@ -153,15 +154,6 @@ class MiruStorage {
       if (_settingCache[entry.key] == null) {
         saveData.add(AppSetting(key: entry.key, value: entry.value.toString()));
         _settingCache[entry.key] = entry.value;
-        // final result =
-        //     _settings
-        //         .query(AppSetting_.key.equals(entry.key.toString()))
-        //         .build()
-        //         .findFirst();
-        // if (result == null) {
-        //   await _settings.putAsync(
-        //     AppSetting(key: entry.key, value: entry.value.toString()),
-        //   );
       }
     }
     if (saveData.isNotEmpty) {
@@ -180,20 +172,15 @@ class MiruStorage {
     throw Exception('Setting $key not found');
   }
 
-  static dynamic getSettingSync(String key, Type type) {
-    return convertStringToObj(_settingCache[key], type);
-  }
-
-  static ValueNotifier<T> getSettingNotifier<T>(String key, Type type) {
-    final notifier = ValueNotifier<T>(getSettingSync(key, type));
-    return notifier;
+  static T getSettingSync<T>(String key) {
+    return convertStringToObj<T>(_settingCache[key]);
   }
 
   static String getUASetting() {
     if (Platform.isAndroid) {
-      return getSettingSync(SettingKey.androidWebviewUA, String);
+      return getSettingSync<String>(SettingKey.androidWebviewUA);
     }
-    return getSettingSync(SettingKey.windowsWebviewUA, String);
+    return getSettingSync<String>(SettingKey.windowsWebviewUA);
   }
 
   static Future<void> setUASetting(String value) async {
@@ -204,21 +191,24 @@ class MiruStorage {
     }
   }
 
-  static Object convertStringToObj(String value, Type type) {
+  static T convertStringToObj<T>(String value) {
+    final type = T;
+
     switch (type) {
       case const (bool):
-        return value == 'true';
+        return (value == 'true') as T;
       case const (double):
-        return double.parse(value);
+        return double.parse(value) as T;
       case const (int):
-        return int.parse(value);
+        return int.parse(value) as T;
       case const (String):
-        return value;
+        return value as T;
       case const (Color):
-        return Color(int.parse(value));
-
+        return Color(int.parse(value)) as T;
+      case const (List<String>):
+        return value.split(',').map((e) => e.trim()).toList() as T;
       default:
-        throw Exception('Unknown $type');
+        throw Exception('Unknown $T');
     }
   }
 }
@@ -261,4 +251,5 @@ class SettingKey {
   static const mobiletitleIsonTop = "MobileTitleIsOnTop";
   static const btServerLink = "BtServerLink";
   static const maxConnection = "MaxConnection";
+  static const pinnedExtension = "PinnedExtension";
 }

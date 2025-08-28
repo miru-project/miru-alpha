@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 
 class SettingCard extends StatelessWidget {
-  const SettingCard({super.key, required this.title, required this.child, this.trailing});
+  const SettingCard({
+    super.key,
+    required this.title,
+    required this.child,
+    this.trailing,
+  });
   final Widget child;
   final String title;
   final Widget? trailing;
@@ -16,10 +21,22 @@ class SettingCard extends StatelessWidget {
           padding: EdgeInsetsGeometry.symmetric(horizontal: 10, vertical: 10),
           child:
               trailing == null
-                  ? Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23))
+                  ? Text(
+                    title,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
+                  )
                   : Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)), trailing!],
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      trailing!,
+                    ],
                   ),
         ),
         SizedBox(
@@ -27,7 +44,7 @@ class SettingCard extends StatelessWidget {
           child: FCard(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              child: LayoutBuilder(builder: (context, constraints) => SizedBox(width: constraints.maxWidth, child: child)),
+              child: LayoutBuilder(builder: (context, constraints) => child),
             ),
           ),
         ),

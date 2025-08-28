@@ -10,6 +10,8 @@ import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 // notifier handles network calls; removed direct network import
 import 'package:miru_app_new/utils/theme/theme.dart';
+import 'package:miru_app_new/widgets/core/search_filter_card.dart';
+import 'package:miru_app_new/widgets/gridView/index.dart';
 import 'package:miru_app_new/widgets/homepage/extension/clearable_select.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
@@ -47,7 +49,8 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
       return null;
     }, const []);
 
-    void filterExtensionListWithName(String query) => extNotifier.filterByName(query);
+    void filterExtensionListWithName(String query) =>
+        extNotifier.filterByName(query);
 
     return MiruScaffold(
       scrollController: scrollController,
@@ -61,14 +64,21 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                 Listener(
                   behavior: HitTestBehavior.translucent,
                   onPointerDown: (_) {
-                    debugPrint(extNotifier.snappingController.currentPosition.toString());
+                    debugPrint(
+                      extNotifier.snappingController.currentPosition.toString(),
+                    );
                     if (extNotifier.snappingController.currentPosition < 200) {
-                      extNotifier.snappingController.setSnappingSheetPosition(400);
+                      extNotifier.snappingController.setSnappingSheetPosition(
+                        400,
+                      );
                     }
                   },
                   child: MoonTabBar(
                     tabController: controller,
-                    tabs: List.generate(_categories.length, (index) => MoonTab(label: Text(_categories[index]))),
+                    tabs: List.generate(
+                      _categories.length,
+                      (index) => MoonTab(label: Text(_categories[index])),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -77,8 +87,15 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                   child: TabBarView(
                     controller: controller,
                     children: [
-                      CategoryGroup(items: const ['Installed', 'Not installed'], onpress: (val) => extNotifier.filterByInstalledIndex(val)),
-                      CategoryGroup(items: const ['ALL', 'Video', 'Manga', 'Novel'], onpress: (val) {}),
+                      CategoryGroup(
+                        items: const ['Installed', 'Not installed'],
+                        onpress:
+                            (val) => extNotifier.filterByInstalledIndex(val),
+                      ),
+                      CategoryGroup(
+                        items: const ['ALL', 'Video', 'Manga', 'Novel'],
+                        onpress: (val) {},
+                      ),
                       CategoryGroup(items: const ['ALL'], onpress: (val) {}),
                       CategoryGroup(items: const ['ALL'], onpress: (val) {}),
                     ],
@@ -96,7 +113,11 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
           final extensionsWithRepo = <Map<String, dynamic>>[];
           for (final repoItem in extState.extensionList) {
             for (final e in repoItem.extensions) {
-              extensionsWithRepo.add({'ext': e, 'repoUrl': repoItem.url, 'repoName': repoItem.name});
+              extensionsWithRepo.add({
+                'ext': e,
+                'repoUrl': repoItem.url,
+                'repoName': repoItem.name,
+              });
             }
           }
 
@@ -110,18 +131,20 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                       Expanded(
                         child: MiruGridView(
                           paddingHeightOffest: 60,
-                          desktopGridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 400,
-                            mainAxisExtent: 210,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                          ),
-                          mobileGridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 200,
-                            mainAxisExtent: 150,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
+                          desktopGridDelegate:
+                              SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 400,
+                                mainAxisExtent: 210,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                              ),
+                          mobileGridDelegate:
+                              SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 200,
+                                mainAxisExtent: 150,
+                                crossAxisSpacing: 8,
+                                mainAxisSpacing: 8,
+                              ),
                           itemBuilder: (context, index) {
                             final pair = extensionsWithRepo[index];
                             final data = pair['ext'] as GithubExtension;
@@ -136,111 +159,139 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                   SizedBox(
                     height: 110,
                     width: constraints.maxWidth - 30,
-                    child: Blur(
-                      child: FCard(
-                        style:
-                            FCardStyle.inherit(
-                              colors: context.theme.colors.copyWith(background: context.theme.colors.background.withAlpha(200)),
-                              typography: overrideTheme.typography,
-                              style: context.theme.style,
-                            ).call,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Column(
-                            children: [
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                    child: SearchFilterCard(
+                      child: Column(
+                        children: [
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
                                   children: [
+                                    ClearableSelect(
+                                      hintText: 'ALL',
+                                      title: "Type",
+                                      items: ['Video', 'Manga', 'Novel'],
+                                      onChange: (val) {
+                                        switch (val) {
+                                          case 'Video':
+                                            val = 'bangumi';
+                                            break;
+                                          case 'Manga':
+                                            val = 'manga';
+                                            break;
+                                          case 'Novel':
+                                            val = 'fikushon';
+                                            break;
+                                          default:
+                                            val = 'ALL';
+                                        }
+                                        extNotifier.filterByMediaType(val);
+                                      },
+                                    ),
+                                    ClearableSelect(
+                                      initialValue: 'Yes',
+                                      hintText: 'ALL',
+                                      title: "Installed",
+                                      items: ['Yes', 'No'],
+                                      onChange: (val) {
+                                        selectedInstall.value = val ?? '';
+                                      },
+                                    ),
                                     Row(
                                       children: [
                                         ClearableSelect(
                                           hintText: 'ALL',
-                                          title: "Type",
-                                          items: ['Video', 'Manga', 'Novel'],
+                                          title: "Repository",
+                                          items: extNotifier.repoNames(),
                                           onChange: (val) {
-                                            switch (val) {
-                                              case 'Video':
-                                                val = 'bangumi';
-                                                break;
-                                              case 'Manga':
-                                                val = 'manga';
-                                                break;
-                                              case 'Novel':
-                                                val = 'fikushon';
-                                                break;
-                                              default:
-                                                val = 'ALL';
-                                            }
-                                            extNotifier.filterByMediaType(val);
+                                            extNotifier.selectRepoByName(
+                                              val ?? '',
+                                            );
                                           },
                                         ),
-                                        ClearableSelect(
-                                          initialValue: 'Yes',
-                                          hintText: 'ALL',
-                                          title: "Installed",
-                                          items: ['Yes', 'No'],
-                                          onChange: (val) {
-                                            selectedInstall.value = val ?? '';
-                                          },
-                                        ),
-                                        Row(
-                                          children: [
-                                            ClearableSelect(
-                                              hintText: 'ALL',
-                                              title: "Repository",
-                                              items: extNotifier.repoNames(),
-                                              onChange: (val) {
-                                                extNotifier.selectRepoByName(val ?? '');
-                                              },
-                                            ),
-                                            const SizedBox(width: 8),
-                                            MoonButton(
-                                              onTap: () async {
-                                                await extNotifier.reloadRepos();
-                                              },
-                                              leading: const Icon(Icons.refresh),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(width: 10),
-                                        SizedBox(
-                                          width: 280,
-                                          height: 63,
-                                          child: FTextField(
-                                            style:
-                                                FTextFieldStyle.inherit(
-                                                  colors: context.theme.colors,
-                                                  typography: overrideTheme.typography,
-                                                  style: overrideTheme.style,
-                                                ).call,
-                                            label: Text('Search extensions ', style: TextStyle(fontSize: 14)),
-                                            suffixBuilder: (context, style, states) {
-                                              return Padding(
-                                                padding: EdgeInsets.only(right: 2),
-                                                child: FButton.icon(style: FButtonStyle.ghost(), onPress: () {}, child: Icon(FIcons.x)),
+                                        const SizedBox(width: 8),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 20,
+                                          ),
+                                          child: FTooltip(
+                                            tipBuilder: (context, controller) {
+                                              return const Text(
+                                                'Reload Repositories',
                                               );
                                             },
-                                            prefixBuilder: (context, style, states) {
-                                              return Padding(padding: EdgeInsets.only(left: 10, right: 5), child: Icon(FIcons.search, size: 16));
-                                            },
-                                            hint: "Search by Name or Tags ...",
-                                            controller: textController,
-                                            onChange: (val) {
-                                              extNotifier.filterByName(val);
-                                            },
+                                            child: FButton.icon(
+                                              onPress: () async {
+                                                await extNotifier.reloadRepos();
+                                              },
+                                              child: const Icon(Icons.refresh),
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                      width: 280,
+                                      height: 63,
+                                      child: FTextField(
+                                        style:
+                                            FTextFieldStyle.inherit(
+                                              colors: context.theme.colors,
+                                              typography:
+                                                  overrideTheme.typography,
+                                              style: overrideTheme.style,
+                                            ).call,
+                                        label: Text(
+                                          'Search extensions ',
+                                          style: TextStyle(fontSize: 14),
+                                        ),
+                                        suffixBuilder: (
+                                          context,
+                                          style,
+                                          states,
+                                        ) {
+                                          return Padding(
+                                            padding: EdgeInsets.only(right: 2),
+                                            child: FButton.icon(
+                                              style: FButtonStyle.ghost(),
+                                              onPress: () {},
+                                              child: Icon(FIcons.x),
+                                            ),
+                                          );
+                                        },
+                                        prefixBuilder: (
+                                          context,
+                                          style,
+                                          states,
+                                        ) {
+                                          return Padding(
+                                            padding: EdgeInsets.only(
+                                              left: 10,
+                                              right: 5,
+                                            ),
+                                            child: Icon(
+                                              FIcons.search,
+                                              size: 16,
+                                            ),
+                                          );
+                                        },
+                                        hint: "Search by Name or Tags ...",
+                                        controller: textController,
+                                        onChange: (val) {
+                                          extNotifier.filterByName(val);
+                                        },
+                                      ),
+                                    ),
                                   ],
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ),
@@ -316,7 +367,9 @@ class _ExtensionTile extends HookConsumerWidget {
                     data.icon!,
                     loadStateChanged: (ExtendedImageState state) {
                       if (state.extendedImageLoadState == LoadState.failed) {
-                        return const Icon(MoonIcons.notifications_error_16_regular);
+                        return const Icon(
+                          MoonIcons.notifications_error_16_regular,
+                        );
                       }
                       return null;
                     },
@@ -325,6 +378,7 @@ class _ExtensionTile extends HookConsumerWidget {
         label: Text(data.name),
       ),
       desktopWidget: ExtensionGridTile(
+        isNSFW: data.isNsfw,
         isInstalled: isInstalled,
         name: data.name,
         version: data.version,
@@ -384,12 +438,17 @@ class _ExtensionContentState extends ConsumerState<_ExtensionContent> {
                 data.icon == null
                     ? null
                     : Container(
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: ExtendedImage.network(
                         data.icon!,
                         loadStateChanged: (ExtendedImageState state) {
-                          if (state.extendedImageLoadState == LoadState.failed) {
-                            return const Icon(MoonIcons.notifications_error_16_regular); // Fallback widget
+                          if (state.extendedImageLoadState ==
+                              LoadState.failed) {
+                            return const Icon(
+                              MoonIcons.notifications_error_16_regular,
+                            ); // Fallback widget
                           }
                           return null; // Use the default widget
                         },

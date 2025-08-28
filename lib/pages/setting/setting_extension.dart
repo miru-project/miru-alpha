@@ -34,7 +34,9 @@ class RepoDialog extends HookConsumerWidget {
                 autovalidateMode: AutovalidateMode.always,
                 hint: 'Official Repo',
                 onChange: (value) => name.value = value,
-                validator: (val) => (val?.isEmpty ?? false) ? 'Name cannot be empty' : null,
+                validator:
+                    (val) =>
+                        (val?.isEmpty ?? false) ? 'Name cannot be empty' : null,
               ),
               const SizedBox(height: 10),
               FTextFormField(
@@ -43,7 +45,11 @@ class RepoDialog extends HookConsumerWidget {
                 label: Text('Repo URL'),
                 hint: 'https://miru-repo.0n0.dev/index.json',
                 autovalidateMode: AutovalidateMode.always,
-                validator: (value) => (value?.contains('.json') ?? false) ? null : 'Repo url must contain .json extension.',
+                validator:
+                    (value) =>
+                        (value?.contains('.json') ?? false)
+                            ? null
+                            : 'Repo url must contain .json extension.',
               ),
             ],
           ),
@@ -55,7 +61,10 @@ class RepoDialog extends HookConsumerWidget {
               (name.value.isEmpty && !url.value.contains('.json'))
                   ? null
                   : () async {
-                    await CoreNetwork.requestFormData('ext/repo', {'repoUrl': url.value, 'name': name.value});
+                    await CoreNetwork.requestFormData('ext/repo', {
+                      'repoUrl': url.value,
+                      'name': name.value,
+                    });
                     ref.invalidate(extensionRepoProvider);
                     ref.read(extensionRepoProvider.future);
                     if (!context.mounted) {
@@ -65,7 +74,11 @@ class RepoDialog extends HookConsumerWidget {
                   },
           child: const Text('Save'),
         ),
-        FButton(style: FButtonStyle.outline(), onPress: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+        FButton(
+          style: FButtonStyle.outline(),
+          onPress: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
       ],
     );
   }
@@ -74,10 +87,18 @@ class RepoDialog extends HookConsumerWidget {
 class SettingExtension extends HookConsumerWidget {
   const SettingExtension({super.key});
 
-  List<Widget> buildRepoSetting(ValueNotifier<bool> selectAll, ValueNotifier<Set<String>> selected, List<dynamic> repos) {
+  List<Widget> buildRepoSetting(
+    ValueNotifier<bool> selectAll,
+    ValueNotifier<Set<String>> selected,
+    List<dynamic> repos,
+  ) {
     return repos.map((repo) {
-      final name = (repo is Map && (repo['name'] ?? repo['title']) != null) ? (repo['name'] ?? repo['title']).toString() : repo.toString();
-      final url = (repo is Map && repo['url'] != null) ? repo['url'].toString() : '';
+      final name =
+          (repo is Map && (repo['name'] ?? repo['title']) != null)
+              ? (repo['name'] ?? repo['title']).toString()
+              : repo.toString();
+      final url =
+          (repo is Map && repo['url'] != null) ? repo['url'].toString() : '';
       return Column(
         children: [
           Row(
@@ -98,9 +119,15 @@ class SettingExtension extends HookConsumerWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(flex: 2, child: Text(name, overflow: TextOverflow.ellipsis)),
+              Expanded(
+                flex: 2,
+                child: Text(name, overflow: TextOverflow.ellipsis),
+              ),
               const SizedBox(width: 12),
-              Expanded(flex: 3, child: Text(url, overflow: TextOverflow.ellipsis)),
+              Expanded(
+                flex: 3,
+                child: Text(url, overflow: TextOverflow.ellipsis),
+              ),
             ],
           ),
         ],
@@ -128,8 +155,14 @@ class SettingExtension extends HookConsumerWidget {
                                 .copyWith(
                                   barrierFilter:
                                       (animation) => ImageFilter.compose(
-                                        outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
-                                        inner: ColorFilter.mode(context.theme.colors.barrier, BlendMode.srcOver),
+                                        outer: ImageFilter.blur(
+                                          sigmaX: animation * 5,
+                                          sigmaY: animation * 5,
+                                        ),
+                                        inner: ColorFilter.mode(
+                                          context.theme.colors.barrier,
+                                          BlendMode.srcOver,
+                                        ),
                                       ),
                                 )
                                 .call,
@@ -139,12 +172,18 @@ class SettingExtension extends HookConsumerWidget {
                             style: style.call,
                             animation: animation,
                             title: const Text('Are you absolutely sure?'),
-                            body: const Text('This action cannot be undone. This will permanently delete the selected extension repositories.'),
+                            body: const Text(
+                              'This action cannot be undone. This will permanently delete the selected extension repositories.',
+                            ),
                             actions: [
                               FButton(
                                 onPress: () async {
                                   for (var url in selected.value) {
-                                    await CoreNetwork.requestFormData('ext/repo', {'repoUrl': url}, method: 'DELETE');
+                                    await CoreNetwork.requestFormData(
+                                      'ext/repo',
+                                      {'repoUrl': url},
+                                      method: 'DELETE',
+                                    );
                                   }
                                   if (!context.mounted) {
                                     return;
@@ -155,7 +194,11 @@ class SettingExtension extends HookConsumerWidget {
                                 },
                                 child: const Text('Continue'),
                               ),
-                              FButton(style: FButtonStyle.outline(), onPress: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+                              FButton(
+                                style: FButtonStyle.outline(),
+                                onPress: () => Navigator.of(context).pop(),
+                                child: const Text('Cancel'),
+                              ),
                             ],
                           );
                         },
@@ -172,14 +215,23 @@ class SettingExtension extends HookConsumerWidget {
                               .copyWith(
                                 barrierFilter:
                                     (animation) => ImageFilter.compose(
-                                      outer: ImageFilter.blur(sigmaX: animation * 5, sigmaY: animation * 5),
-                                      inner: ColorFilter.mode(context.theme.colors.barrier, BlendMode.srcOver),
+                                      outer: ImageFilter.blur(
+                                        sigmaX: animation * 5,
+                                        sigmaY: animation * 5,
+                                      ),
+                                      inner: ColorFilter.mode(
+                                        context.theme.colors.barrier,
+                                        BlendMode.srcOver,
+                                      ),
                                     ),
                               )
                               .call,
                       context: context,
                       builder: (context, style, animation) {
-                        return RepoDialog(animation: animation, style: style.call);
+                        return RepoDialog(
+                          animation: animation,
+                          style: style.call,
+                        );
                       },
                     ),
                 child: const Text('add-repo'),
@@ -204,8 +256,12 @@ class SettingExtension extends HookConsumerWidget {
                               selectAll.value = value;
                               if (value) {
                                 for (var repo in repos) {
-                                  final url = (repo is Map && repo['url'] != null) ? repo['url'].toString() : '';
-                                  selected.value = Set.from(selected.value)..add(url);
+                                  final url =
+                                      (repo is Map && repo['url'] != null)
+                                          ? repo['url'].toString()
+                                          : '';
+                                  selected.value = Set.from(selected.value)
+                                    ..add(url);
                                 }
                               } else {
                                 selected.value = {};
@@ -216,20 +272,37 @@ class SettingExtension extends HookConsumerWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           flex: 2,
-                          child: Text("name", overflow: TextOverflow.ellipsis, style: TextStyle(color: context.theme.colors.mutedForeground)),
+                          child: Text(
+                            "name",
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: context.theme.colors.mutedForeground,
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           flex: 3,
-                          child: Text("url", overflow: TextOverflow.ellipsis, style: TextStyle(color: context.theme.colors.mutedForeground)),
+                          child: Text(
+                            "url",
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: context.theme.colors.mutedForeground,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                     FDivider(),
                     if (repos.isEmpty)
-                      const Padding(padding: EdgeInsets.symmetric(vertical: 8.0), child: Text('No extension repositories found.'))
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text('No extension repositories found.'),
+                      )
                     else
-                      ...buildSeparators(buildRepoSetting(selectAll, selected, repos)),
+                      ...buildSeparators(
+                        buildRepoSetting(selectAll, selected, repos),
+                      ),
                   ],
                 ),
           ),

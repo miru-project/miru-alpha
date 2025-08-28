@@ -28,7 +28,7 @@ class MiruLog {
 
   // 写入日志到文件
   static void writeLogToFile(String log) {
-    if (!MiruStorage.getSettingSync(SettingKey.saveLog, String)) {
+    if (!MiruStorage.getSettingSync<bool>(SettingKey.saveLog)) {
       return;
     }
     final file = File(logFilePath);

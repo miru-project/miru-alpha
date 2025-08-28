@@ -4,16 +4,29 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/utils/theme/theme.dart';
 import '../utils/index.dart';
 
-final applicationControllerProvider = StateNotifierProvider<ApplicationController, ApplicationState>((ref) => ApplicationController());
+final applicationControllerProvider =
+    StateNotifierProvider<ApplicationController, ApplicationState>(
+      (ref) => ApplicationController(),
+    );
 
 class ApplicationState {
   final String themeText;
   final AccentColors accentColor;
   final FThemeData themeData;
   final ThemeMode themeMode;
-  ApplicationState({required this.themeText, required this.accentColor, required this.themeData, required this.themeMode});
+  ApplicationState({
+    required this.themeText,
+    required this.accentColor,
+    required this.themeData,
+    required this.themeMode,
+  });
 
-  ApplicationState copyWith({String? themeText, AccentColors? accentColor, FThemeData? themeData, ThemeMode? themeMode}) {
+  ApplicationState copyWith({
+    String? themeText,
+    AccentColors? accentColor,
+    FThemeData? themeData,
+    ThemeMode? themeMode,
+  }) {
     return ApplicationState(
       themeData: themeData ?? this.themeData,
       themeText: themeText ?? this.themeText,
@@ -29,15 +42,22 @@ class ApplicationController extends StateNotifier<ApplicationState> {
         ApplicationState(
           themeMode: ThemeMode.system,
           themeData: FThemes.zinc.dark,
-          themeText: MiruStorage.getSettingSync(SettingKey.theme, String),
-          accentColor: ThemeUtils.settingToAccentColor[MiruStorage.getSettingSync(SettingKey.accentColor, String)] ?? AccentColors.zinc,
+          themeText: MiruStorage.getSettingSync<String>(SettingKey.theme),
+          accentColor:
+              ThemeUtils
+                  .settingToAccentColor[MiruStorage.getSettingSync<String>(
+                SettingKey.accentColor,
+              )] ??
+              AccentColors.zinc,
         ),
       ) {
     _init();
   }
 
   void _init() {
-    state = state.copyWith(themeData: currentThemeData(state.themeText, state.accentColor));
+    state = state.copyWith(
+      themeData: currentThemeData(state.themeText, state.accentColor),
+    );
   }
 
   FThemeData currentThemeData(String themeText, AccentColors accentColor) {
@@ -78,8 +98,12 @@ class ApplicationController extends StateNotifier<ApplicationState> {
 
   void changeAccentColor(String color) {
     MiruStorage.setSettingSync(SettingKey.accentColor, color);
-    final accentColor = ThemeUtils.settingToAccentColor[color] ?? AccentColors.zinc;
-    state = state.copyWith(accentColor: accentColor, themeData: currentThemeData(state.themeText, accentColor));
+    final accentColor =
+        ThemeUtils.settingToAccentColor[color] ?? AccentColors.zinc;
+    state = state.copyWith(
+      accentColor: accentColor,
+      themeData: currentThemeData(state.themeText, accentColor),
+    );
   }
 
   void changeTheme(String mode) {
@@ -90,6 +114,10 @@ class ApplicationController extends StateNotifier<ApplicationState> {
             : (mode == 'light')
             ? ThemeMode.light
             : ThemeMode.dark;
-    state = state.copyWith(themeMode: themeMode, themeText: mode, themeData: currentThemeData(mode, state.accentColor));
+    state = state.copyWith(
+      themeMode: themeMode,
+      themeText: mode,
+      themeData: currentThemeData(mode, state.accentColor),
+    );
   }
 }

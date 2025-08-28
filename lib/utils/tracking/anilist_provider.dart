@@ -17,10 +17,10 @@ enum AnilistMediaListStatus {
 
 class AniListProvider {
   static String get anilistToken =>
-      MiruStorage.getSettingSync(SettingKey.aniListToken, String);
+      MiruStorage.getSettingSync<String>(SettingKey.aniListToken);
 
   static String get userid =>
-      MiruStorage.getSettingSync(SettingKey.aniListUserId, String);
+      MiruStorage.getSettingSync<String>(SettingKey.aniListUserId);
 
   static const headers = <String, String>{
     'Content-Type': 'application/json',

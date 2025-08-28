@@ -1,6 +1,7 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:miru_app_new/pages/search/search_new.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/widgets/homepage/latest.dart';
@@ -35,7 +36,10 @@ class SearchPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final needRefresh = useState(false);
-    final controller = useTabController(initialIndex: 0, initialLength: _categories.length);
+    final controller = useTabController(
+      initialIndex: 0,
+      initialLength: _categories.length,
+    );
     final editController = useTextEditingController();
     final scrollController = useScrollController();
     final searchValue = useState(search ?? '');
@@ -65,7 +69,14 @@ class SearchPage extends HookWidget {
             tabs: List.generate(
               _categories.length,
               (index) => MoonTab(
-                tabStyle: MoonTabStyle(selectedTextColor: context.moonTheme?.segmentedControlTheme.colors.backgroundColor),
+                tabStyle: MoonTabStyle(
+                  selectedTextColor:
+                      context
+                          .moonTheme
+                          ?.segmentedControlTheme
+                          .colors
+                          .backgroundColor,
+                ),
                 label: Text(_categories[index]),
               ),
             ),
@@ -75,7 +86,10 @@ class SearchPage extends HookWidget {
             child: TabBarView(
               controller: controller,
               children: [
-                CategoryGroup(items: const ['ALL', 'Video', 'Manga', 'Novel'], onpress: (val) {}),
+                CategoryGroup(
+                  items: const ['ALL', 'Video', 'Manga', 'Novel'],
+                  onpress: (val) {},
+                ),
                 CategoryGroup(items: const ['ALL'], onpress: (val) {}),
                 CategoryGroup(items: const ['ALL'], onpress: (val) {}),
               ],
@@ -104,12 +118,30 @@ class SearchPage extends HookWidget {
           SidebarExpander(
             title: "Type",
             expanded: true,
-            child: CategoryGroup(needSpacer: false, items: const ['ALL', 'Video', 'Manga', 'Novel'], onpress: (val) {}),
+            child: CategoryGroup(
+              needSpacer: false,
+              items: const ['ALL', 'Video', 'Manga', 'Novel'],
+              onpress: (val) {},
+            ),
           ),
           const SizedBox(height: 15),
-          SidebarExpander(title: 'Language', child: CategoryGroup(needSpacer: false, items: const ['ALL'], onpress: (val) {})),
+          SidebarExpander(
+            title: 'Language',
+            child: CategoryGroup(
+              needSpacer: false,
+              items: const ['ALL'],
+              onpress: (val) {},
+            ),
+          ),
           const SizedBox(height: 15),
-          SidebarExpander(title: 'Extension', child: CategoryGroup(needSpacer: false, items: const ['ALL'], onpress: (val) {})),
+          SidebarExpander(
+            title: 'Extension',
+            child: CategoryGroup(
+              needSpacer: false,
+              items: const ['ALL'],
+              onpress: (val) {},
+            ),
+          ),
           // MoonButton(
           //   onTap: () {
           //     needRefresh.value = !needRefresh.value;
@@ -129,15 +161,21 @@ class SearchPage extends HookWidget {
           builder: (context, constraints) {
             final service = ExtensionUtils.runtimes.entries.toList();
 
-            return MiruSingleChildView(
-              controller: scrollController,
-              child: Column(
-                children: List.generate(
-                  service.length,
-                  (index) => Latest(searchValue: searchValue, needrefresh: needRefresh, extensionService: service[index].value),
-                ),
-              ),
-            );
+            return NewSearchPage();
+
+            //  MiruSingleChildView(
+            //   controller: scrollController,
+            //   child: Column(
+            //     children: List.generate(
+            //       service.length,
+            //       (index) => Latest(
+            //         searchValue: searchValue,
+            //         needrefresh: needRefresh,
+            //         extensionService: service[index].value,
+            //       ),
+            //     ),
+            //   ),
+            // );
           },
         ),
       ),
