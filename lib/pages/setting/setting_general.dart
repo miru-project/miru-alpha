@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/theme/theme.dart';
-import 'package:miru_app_new/widgets/core/setting_card.dart';
+import 'package:miru_app_new/widgets/core/outter_card.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:miru_app_new/utils/index.dart';
 
@@ -16,7 +16,7 @@ class SettingGeneral extends HookConsumerWidget {
     final c = ref.read(applicationControllerProvider.notifier);
     return MiruListView(
       children: [
-        SettingCard(
+        OutterCard(
           title: 'content',
           child: Column(
             children: [
@@ -46,7 +46,7 @@ class SettingGeneral extends HookConsumerWidget {
           ),
         ),
 
-        SettingCard(
+        OutterCard(
           title: 'appearance',
           child: Column(
             children: [
@@ -93,7 +93,7 @@ class SettingGeneral extends HookConsumerWidget {
             ],
           ),
         ),
-        SettingCard(
+        OutterCard(
           title: 'others',
           child: Column(
             children: [

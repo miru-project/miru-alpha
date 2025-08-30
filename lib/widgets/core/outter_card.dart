@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 
-class SettingCard extends StatelessWidget {
-  const SettingCard({
+class OutterCard extends StatelessWidget {
+  const OutterCard({
     super.key,
     required this.title,
     required this.child,

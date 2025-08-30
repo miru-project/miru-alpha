@@ -13,6 +13,7 @@ import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/widgets/core/search_filter_card.dart';
 import 'package:miru_app_new/widgets/gridView/index.dart';
 import 'package:miru_app_new/widgets/homepage/extension/clearable_select.dart';
+import 'package:miru_app_new/widgets/image_widget.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'package:moon_design/moon_design.dart';
@@ -357,23 +358,7 @@ class _ExtensionTile extends HookConsumerWidget {
         leading: SizedBox(
           width: 40,
           height: 40,
-          child:
-              data.icon == null
-                  ? null
-                  : ExtendedImage.network(
-                    borderRadius: BorderRadius.circular(10),
-                    shape: BoxShape.rectangle,
-                    cache: true,
-                    data.icon!,
-                    loadStateChanged: (ExtendedImageState state) {
-                      if (state.extendedImageLoadState == LoadState.failed) {
-                        return const Icon(
-                          MoonIcons.notifications_error_16_regular,
-                        );
-                      }
-                      return null;
-                    },
-                  ),
+          child: data.icon == null ? null : ImageWidget(imageUrl: data.icon!),
         ),
         label: Text(data.name),
       ),

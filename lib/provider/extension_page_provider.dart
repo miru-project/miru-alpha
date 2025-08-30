@@ -226,13 +226,10 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
 
   bool isInstalled(String package) => state.installedPackages.contains(package);
 
-  Future<void> installPackage(String package, String repourl) async {
+  Future<void> installPackage(String package, String repoUrl) async {
     try {
-      await CoreNetwork.requestFormData("download/extension", {
-        'repoUrl': repourl,
-        'pkg': package,
-      });
-      logger.info('install package $package from $repourl');
+      await ExtensionEndpoint.downloadExtension(repoUrl, package);
+      logger.info('install package $package from $repoUrl');
       final newInstalled = List<String>.from(state.installedPackages)
         ..add(package);
       state = state.copyWith(installedPackages: newInstalled);
@@ -244,9 +241,7 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
 
   Future<void> uninstallPackage(String package) async {
     try {
-      await CoreNetwork.requestFormData("rm/extension", {
-        'pkg': package,
-      }, method: 'DELETE');
+      await ExtensionEndpoint.removeExtension(package);
       logger.info('remove package $package ');
       final newInstalled = List<String>.from(state.installedPackages)
         ..remove(package);

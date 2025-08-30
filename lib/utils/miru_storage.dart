@@ -108,11 +108,11 @@ class MiruStorage {
   static final Map<String, dynamic> _defaultSettings = {
     SettingKey.miruRepoUrl: "https://miru-repo.0n0.dev",
     SettingKey.tmdbKey: "",
-    SettingKey.autoCheckUpdate: true,
+    SettingKey.autoCheckUpdate: 'true',
     SettingKey.language: 'en',
     SettingKey.novelFontSize: 18.0,
     SettingKey.theme: 'system',
-    SettingKey.enableNSFW: false,
+    SettingKey.enableNSFW: 'false',
     SettingKey.videoPlayer: 'built-in',
     SettingKey.listMode: "grid",
     SettingKey.keyI: 10.0,
@@ -122,7 +122,7 @@ class MiruStorage {
     SettingKey.readingMode: "standard",
     SettingKey.aniListToken: '',
     SettingKey.aniListUserId: '',
-    SettingKey.autoTracking: true,
+    SettingKey.autoTracking: 'true',
     SettingKey.windowSize: "1280,720",
     SettingKey.androidWebviewUA:
         "Mozilla/5.0 (Linux; Android 13; Android) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.43 Mobile Safari/537.36",
@@ -130,7 +130,7 @@ class MiruStorage {
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
     SettingKey.proxy: '',
     SettingKey.proxyType: 'DIRECT',
-    SettingKey.saveLog: true,
+    SettingKey.saveLog: 'true',
     SettingKey.subtitleFontSize: 46.0,
     SettingKey.subtitleFontColor: Colors.white.toARGB32(),
     SettingKey.subtitleFontWeight: 'bold',
@@ -141,7 +141,7 @@ class MiruStorage {
     SettingKey.mobiletitleIsonTop: "false",
     SettingKey.btServerLink: "https://github.com/miru-project/bt-server",
     SettingKey.maxConnection: "3",
-    SettingKey.pinnedExtension: [].toString(),
+    SettingKey.pinnedExtension: {}.toString(),
   };
   static Future<void> _initSettings() async {
     //init from default settings
@@ -207,6 +207,12 @@ class MiruStorage {
         return Color(int.parse(value)) as T;
       case const (List<String>):
         return value.split(',').map((e) => e.trim()).toList() as T;
+      case const (Set<String>):
+        final val = value.substring(1, value.length - 1);
+        if (val.isEmpty) {
+          return <String>{} as T;
+        }
+        return val.split(',').map((e) => e.trim()).toSet() as T;
       default:
         throw Exception('Unknown $T');
     }

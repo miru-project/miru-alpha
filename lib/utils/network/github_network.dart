@@ -4,8 +4,7 @@ import '../../model/index.dart';
 class GithubNetwork {
   static Future<List<ExtensionRepo>> fetchRepo() async {
     final List<ExtensionRepo> resList = [];
-    // Fetch repo metadata (name/url) so we can map repo urls to human readable names
-    final repoInfo = await CoreNetwork.requestJSON('ext/repo');
+    final repoInfo = await ExtensionEndpoint.getRepo();
     final Map<String, String> urlToName = {};
     if (repoInfo is List) {
       for (final item in repoInfo) {
@@ -17,14 +16,16 @@ class GithubNetwork {
       }
     }
 
-    final Map<String, dynamic> req = await CoreNetwork.requestJSON("ext/repolist");
+    final Map<String, dynamic> req = await ExtensionEndpoint.fetchRepo();
     req.forEach((repoUrl, rawList) {
       final List<GithubExtension> repoList = [];
       for (final ext in rawList) {
         repoList.add(GithubExtension.fromJson(ext));
       }
       final name = urlToName[repoUrl] ?? repoUrl;
-      resList.add(ExtensionRepo(extensions: repoList, name: name, url: repoUrl));
+      resList.add(
+        ExtensionRepo(extensions: repoList, name: name, url: repoUrl),
+      );
     });
 
     return resList;
@@ -36,5 +37,9 @@ class ExtensionRepo {
   final String name;
   final String url;
 
-  ExtensionRepo({required this.extensions, required this.name, required this.url});
+  ExtensionRepo({
+    required this.extensions,
+    required this.name,
+    required this.url,
+  });
 }

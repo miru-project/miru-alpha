@@ -217,39 +217,6 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                     ),
                   ),
                 ],
-                // ValueListenableBuilder(
-                //     valueListenable: _fileNotifier,
-                //     builder: (context, value, child) {
-                //       debugger();
-                //       if (value.isEmpty) {
-                //         return Container();
-                //       }
-
-                //       final keys = value.keys.toList();
-                //       return MoonTabBar(
-                //         tabs: List.generate(value.length,
-                //             (index) => MoonTab(label: Text(keys[index]))),
-                //       );
-                //     })
-                // MoonTabBar(
-                //   tabController: controler,
-                //   tabs: List.generate(
-                //     _categories.length,
-                //     (index) => MoonTab(
-                //       label: Text(_categories[index]),
-                //     ),
-                //   ),
-                // ),
-                // const SizedBox(height: 10),
-                // SizedBox(
-                //     height: 300,
-                //     child: TabBarView(controller: controler, children: [
-                //       CategoryGroup(items: const ['全部'], onpress: (val) {}),
-                //       CategoryGroup(
-                //           items: const ['全部', '影視', '漫畫', '小說'],
-                //           onpress: (val) {}),
-                //       CategoryGroup(items: const ['全部'], onpress: (val) {}),
-                //     ])),
               ]
               : <Widget>[
                 const SideBarListTitle(title: '主页'),
@@ -410,10 +377,6 @@ class _GridLoadingWidget extends StatelessWidget {
           ),
     );
   }
-
-  // const MiruGridTileLoadingBox(
-  //                           width: 110,
-  //                         )
 }
 
 class _GridView extends StatelessWidget {
@@ -504,9 +467,3 @@ class _GridView extends StatelessWidget {
     );
   }
 }
-// class CustomFooter extends Footer{
-//   const CustomFooter({});
-//   @override Widget build(BuildContext context, IndicatorState state){
-
-//   }
-// }

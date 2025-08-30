@@ -6,7 +6,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/provider/settingpage_provider.dart';
-import 'package:miru_app_new/widgets/core/setting_card.dart';
+import 'package:miru_app_new/widgets/core/outter_card.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:miru_app_new/widgets/core/seperator.dart';
 
@@ -61,10 +61,7 @@ class RepoDialog extends HookConsumerWidget {
               (name.value.isEmpty && !url.value.contains('.json'))
                   ? null
                   : () async {
-                    await CoreNetwork.requestFormData('ext/repo', {
-                      'repoUrl': url.value,
-                      'name': name.value,
-                    });
+                    await ExtensionEndpoint.setRepo(url.value, name.value);
                     ref.invalidate(extensionRepoProvider);
                     ref.read(extensionRepoProvider.future);
                     if (!context.mounted) {
@@ -142,7 +139,7 @@ class SettingExtension extends HookConsumerWidget {
     final reposAsync = ref.watch(extensionRepoProvider);
     return MiruListView(
       children: [
-        SettingCard(
+        OutterCard(
           title: 'repo-setting',
           trailing: Row(
             children: [
@@ -179,11 +176,7 @@ class SettingExtension extends HookConsumerWidget {
                               FButton(
                                 onPress: () async {
                                   for (var url in selected.value) {
-                                    await CoreNetwork.requestFormData(
-                                      'ext/repo',
-                                      {'repoUrl': url},
-                                      method: 'DELETE',
-                                    );
+                                    await ExtensionEndpoint.deleteRepo(url);
                                   }
                                   if (!context.mounted) {
                                     return;
