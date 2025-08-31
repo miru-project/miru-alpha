@@ -78,7 +78,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
-                          fontFamily: "HarmonyOS_Sans",
+                          // fontFamily: "HarmonyOS_Sans",
                         ),
                       ),
                     );

@@ -13,40 +13,6 @@ class DatabaseService {
   static final mangaSettings = MiruStorage.mangaSetting;
   static final miruDetails = MiruStorage.miruDetail;
   static final tmdb = MiruStorage.tmdb;
-  // static toggleFavorite({
-  //   required String package,
-  //   required String url,
-  //   required String name,
-  //   String? cover,
-  // }) async {
-  //   return db.writeTxn(() async {
-  //     if (await isFavorite(
-  //       package: package,
-  //       url: url,
-  //     )) {
-  //       return db.favorites
-  //           .filter()
-  //           .packageEqualTo(package)
-  //           .and()
-  //           .urlEqualTo(url)
-  //           .deleteAll();
-  //     } else {
-  //       final runtime = ExtensionUtils.runtimes[package];
-  //       if (runtime == null) {
-  //         throw Exception('extension not found');
-  //       }
-  //       final extension = runtime.extension;
-  //       return db.favorites.put(
-  //         Favorite()
-  //           ..cover = cover
-  //           ..title = name
-  //           ..package = extension.package
-  //           ..type = extension.type
-  //           ..url = url,
-  //       );
-  //     }
-  //   });
-  // }
   static void deleteFavoriteGroup(List<String> name) {
     final query = favGroup.query(FavoriateGroup_.name.oneOf(name)).build();
     query.remove();

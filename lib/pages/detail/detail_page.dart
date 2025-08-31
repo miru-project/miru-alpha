@@ -24,6 +24,7 @@ import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/widgets/dialog/favorite_add_group_dialog.dart';
 import 'package:miru_app_new/widgets/dialog/favorite_warning_dialog.dart';
+import 'package:miru_app_new/widgets/error.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:shimmer/shimmer.dart';
@@ -85,7 +86,7 @@ class DetailItemBox extends HookWidget {
                     style: TextStyle(
                       fontSize: isMobile ? 18 : 20,
                       fontWeight: FontWeight.bold,
-                      fontFamily: "HarmonyOS_Sans",
+                      // fontFamily: "HarmonyOS_Sans",
                     ),
                   ),
                   if (needExpand)
@@ -315,12 +316,12 @@ class MobileDetail extends StatelessWidget {
     required this.desc,
     required this.isLoading,
     required this.ep,
-    required this.extensionService,
+    required this.meta,
   });
   final Widget desc;
   final bool isLoading;
   final Widget ep;
-  final ExtensionMeta extensionService;
+  final ExtensionMeta meta;
   final ExtensionDetail? data;
   final Widget Function(Widget child) addition;
   final String? detailUrl;
@@ -340,7 +341,7 @@ class MobileDetail extends StatelessWidget {
             minExt: _minExtMobile,
             clampMax: _clampMaxMobile,
             detailUrl: detailUrl,
-            meta: extensionService,
+            meta: meta,
             isLoading: false,
             detail: data,
           ),
@@ -523,7 +524,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                                                   .watch(_history)!
                                                   .episodeId]
                                               .url,
-                                      service: widget.meta,
+                                      meta: widget.meta,
                                       type: widget.meta.type,
                                     ),
                                   );
@@ -590,7 +591,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                           '/mobileWebView',
                           extra: WebviewParam(
                             url: widget.url,
-                            service: widget.meta,
+                            meta: widget.meta,
                           ),
                         );
                       },
@@ -626,7 +627,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                 detailUrl: widget.url,
                 isLoading: false,
                 data: data,
-                extensionService: widget.meta,
+                meta: widget.meta,
                 ep: DetailEpButton(
                   detail: data,
                   notifier: _selectedGroup,
@@ -645,7 +646,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                                 .episodes![_selectedGroup.value]
                                 .urls[value]
                                 .url,
-                        service: widget.meta,
+                        meta: widget.meta,
                         type: widget.meta.type,
                       ),
                     );
@@ -683,7 +684,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                                 .episodes![_selectedGroup.value]
                                 .urls[value]
                                 .url,
-                        service: widget.meta,
+                        meta: widget.meta,
                         type: widget.meta.type,
                       ),
                     );
@@ -730,7 +731,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
             () => PlatformWidget(
               mobileWidget: MobileDetail(
                 isLoading: true,
-                extensionService: widget.meta,
+                meta: widget.meta,
                 desc: const LoadingWidget(
                   lineCount: 3,
                   lineheight: 8,
@@ -753,12 +754,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                 extensionMeta: widget.meta,
               ),
             ),
-        error:
-            (error, stackTrace) => Center(
-              child: Column(
-                children: [Text('Error: $error'), Text('Stack: $stackTrace')],
-              ),
-            ),
+        error: (err, stack) => ErrorDisplay(err: err, stack: stack),
       ),
     );
   }
@@ -914,7 +910,7 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontFamily: "HarmonyOS_Sans",
+                    // fontFamily: "HarmonyOS_Sans",
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -994,7 +990,7 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                                                 .watch(_history)!
                                                 .episodeId]
                                             .url,
-                                    service: meta,
+                                    meta: meta,
                                     type: meta.type,
                                   ),
                                 );
@@ -1036,7 +1032,7 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                                   : 'Favorite',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontFamily: "HarmonyOS_Sans",
+                                // fontFamily: "HarmonyOS_Sans",
                               ),
                             ),
                             leading: const Icon(
@@ -1146,7 +1142,7 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                 child: DefaultTextStyle(
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontFamily: "HarmonyOS_Sans",
+                    // fontFamily: "HarmonyOS_Sans",
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1239,7 +1235,7 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                                 'Add Group',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: "HarmonyOS_Sans",
+                                  // fontFamily: "HarmonyOS_Sans",
                                 ),
                               ),
                             ),
@@ -1453,7 +1449,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                 child: Text(
                                   detail?.title ?? 'Title Not Found',
                                   style: const TextStyle(
-                                    fontFamily: "HarmonyOS_Sans",
+                                    // fontFamily: "HarmonyOS_Sans",
                                     overflow: TextOverflow.ellipsis,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
@@ -1601,7 +1597,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                                       ),
                                       const SizedBox(width: 10),
                                       _FavButton(
-                                        extensionService: meta,
+                                        meta: meta,
                                         detailUrl: detailUrl,
                                         detail: detail,
                                       ),
@@ -1957,7 +1953,7 @@ class _DesktopWidgetExtended extends StatelessWidget {
                       Row(
                         children: [
                           _FavButton(
-                            extensionService: meta,
+                            meta: meta,
                             detailUrl: detailUrl,
                             detail: detail,
                           ),
@@ -2038,14 +2034,10 @@ class _DesktopLoadingWidgetExtended extends StatelessWidget {
 }
 
 class _FavButton extends StatelessWidget {
-  const _FavButton({
-    required this.extensionService,
-    this.detailUrl,
-    this.detail,
-  });
+  const _FavButton({required this.meta, this.detailUrl, this.detail});
   final String? detailUrl;
   final ExtensionDetail? detail;
-  final ExtensionMeta extensionService;
+  final ExtensionMeta meta;
   @override
   Widget build(BuildContext context) {
     return MoonChip(
@@ -2059,7 +2051,7 @@ class _FavButton extends StatelessWidget {
         _favoriteNotifer.favorite != null ? 'Favorited' : 'Favorite',
         style: const TextStyle(
           fontWeight: FontWeight.bold,
-          fontFamily: "HarmonyOS_Sans",
+          // fontFamily: "HarmonyOS_Sans",
         ),
       ),
       leading: const Icon(MoonIcons.generic_star_24_regular),
@@ -2071,7 +2063,7 @@ class _FavButton extends StatelessWidget {
           context: context,
           builder:
               (context) => _FavoriteDialog(
-                meta: extensionService,
+                meta: meta,
                 detail: detail!,
                 detailUrl: detailUrl!,
               ),

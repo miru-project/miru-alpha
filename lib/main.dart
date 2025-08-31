@@ -46,6 +46,7 @@ void main() async {
     });
   }
   FFMpegUtils.ensureInitialized();
+
   if (Platform.isMacOS) {
     await WindowManipulator.initialize(enableWindowDelegate: true);
     await WindowManipulator.addToolbar();

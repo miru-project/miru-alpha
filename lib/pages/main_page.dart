@@ -12,6 +12,7 @@ import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/provider/main_controller_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/i18n.dart';
+import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'setting/setting_items.dart';
@@ -311,34 +312,7 @@ class _MainPageState extends ConsumerState<MainPage>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      FBreadcrumb(
-                        children: [
-                          FBreadcrumbItem(
-                            onPress: () {},
-                            child: const Text('Forui'),
-                          ),
-                          FBreadcrumbItem.collapsed(
-                            menu: [
-                              FItemGroup(
-                                children: [
-                                  FItem(
-                                    title: const Text('Documentation'),
-                                    onPress: () {},
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          FBreadcrumbItem(
-                            onPress: () {},
-                            child: const Text('Overview'),
-                          ),
-                          const FBreadcrumbItem(
-                            current: true,
-                            child: Text('Installation'),
-                          ),
-                        ],
-                      ),
+                      BreadCrumb(),
                       // ConstrainedBox(
                       //   constraints: BoxConstraints(minWidth: 50, maxWidth: 90),
                       //   child: FTextField(
@@ -375,6 +349,53 @@ class _MainPageState extends ConsumerState<MainPage>
       ),
     );
   }
+}
+
+class BreadCrumb extends StatelessWidget {
+  const BreadCrumb({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final currentLocation =
+        GoRouter.of(context).routerDelegate.state.fullPath ??
+        GoRouter.of(context).routerDelegate.currentConfiguration.fullPath;
+    final segments =
+        currentLocation.split('/').where((s) => s.isNotEmpty).toList();
+
+    // logger.info("loc", segments);
+
+    return FBreadcrumb(
+      children: [
+        for (final seg in segments)
+          FBreadcrumbItem(
+            onPress: () {
+              if (seg == segments.last) return;
+              // context.go('/${segments.takeWhile((s) => s != seg).join('/')}');
+
+              // if (seg == segments.first) {
+              //   context.go('/$seg');
+              //   return;
+              // }
+              if (!context.canPop()) return;
+              if (seg == 'search' && segments.last == 'detail') {
+                context.pop();
+                context.pop();
+                return;
+              }
+              if ((seg == 'single' && segments.last == 'detail') ||
+                  (seg == 'search' && segments.last == 'single')) {
+                context.pop();
+                return;
+              }
+            },
+            child: Text(seg.capitalize()),
+          ),
+      ],
+    );
+  }
+}
+
+extension StringExtension on String {
+  String capitalize() => '${this[0].toUpperCase()}${substring(1)}';
 }
 
 class SafeFSidebar extends StatelessWidget {
@@ -416,44 +437,6 @@ class SafeFSidebar extends StatelessWidget {
           if (footer != null) footer!,
         ],
       ),
-    );
-  }
-}
-
-class BreadCrumb extends StatefulHookWidget {
-  const BreadCrumb({super.key});
-
-  @override
-  State<BreadCrumb> createState() => _BreadCrumbState();
-}
-
-class _BreadCrumbState extends State<BreadCrumb> {
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Perform any additional initialization after the first frame is rendered
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FBreadcrumb(
-      children: [
-        FBreadcrumbItem(onPress: () {}, child: const Text('Forui')),
-        FBreadcrumbItem.collapsed(
-          menu: [
-            FItemGroup(
-              children: [
-                FItem(title: const Text('Documentation'), onPress: () {}),
-              ],
-            ),
-          ],
-        ),
-        FBreadcrumbItem(onPress: () {}, child: const Text('Overview')),
-        const FBreadcrumbItem(current: true, child: Text('Installation')),
-      ],
     );
   }
 }

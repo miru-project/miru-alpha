@@ -23,7 +23,7 @@ class FavoriteAddGroupDialog extends HookWidget {
         child: DefaultTextStyle(
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontFamily: "HarmonyOS_Sans",
+            // fontFamily: "HarmonyOS_Sans",
           ),
           child: SizedBox(
             width: width * factor,
@@ -60,7 +60,7 @@ class FavoriteAddGroupDialog extends HookWidget {
                       ),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontFamily: "HarmonyOS_Sans",
+                        // fontFamily: "HarmonyOS_Sans",
                       ),
                       activeBorderColor:
                           context

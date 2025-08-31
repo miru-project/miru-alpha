@@ -4,7 +4,14 @@ import 'package:miru_app_new/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 
 class CategoryGroup extends HookWidget {
-  const CategoryGroup({required this.items, required this.onpress, this.needSpacer = true, this.maxSelected, this.minSelected, super.key});
+  const CategoryGroup({
+    required this.items,
+    required this.onpress,
+    this.needSpacer = true,
+    this.maxSelected,
+    this.minSelected,
+    super.key,
+  });
   final List<String> items;
   final bool needSpacer;
   final void Function(int) onpress;
@@ -70,7 +77,8 @@ class CatergoryGroupChip extends StatefulHookWidget {
   }
 }
 
-class _CatergoryGroupChipState extends State<CatergoryGroupChip> with AutomaticKeepAliveClientMixin {
+class _CatergoryGroupChipState extends State<CatergoryGroupChip>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
   late ValueNotifier<List<int>> selected;
@@ -123,7 +131,13 @@ class _CatergoryGroupChipState extends State<CatergoryGroupChip> with AutomaticK
                       builder:
                           (context, press, _) => Container(
                             decoration: BoxDecoration(
-                              border: Border.all(color: press.contains(index) ? Colors.white : Colors.transparent, width: 2),
+                              border: Border.all(
+                                color:
+                                    press.contains(index)
+                                        ? Colors.white
+                                        : Colors.transparent,
+                                width: 2,
+                              ),
                               borderRadius: BorderRadius.circular(11),
                             ),
                             child: GestureDetector(
@@ -131,13 +145,16 @@ class _CatergoryGroupChipState extends State<CatergoryGroupChip> with AutomaticK
                                   widget.onLongPress == null
                                       ? null
                                       : () {
-                                        final newlongPress = List<int>.from(longPress.value);
+                                        final newlongPress = List<int>.from(
+                                          longPress.value,
+                                        );
                                         if (newlongPress.contains(index)) {
                                           newlongPress.remove(index);
                                         } else {
                                           newlongPress.add(index);
                                         }
-                                        longPress.value = widget.customOnLongPress(newlongPress);
+                                        longPress.value = widget
+                                            .customOnLongPress(newlongPress);
                                         widget.onLongPress!(newlongPress);
                                       },
                               child: MoonChip(
@@ -146,28 +163,44 @@ class _CatergoryGroupChipState extends State<CatergoryGroupChip> with AutomaticK
                                     widget.onLongPress == null
                                         ? null
                                         : () {
-                                          final newlongPress = List<int>.from(longPress.value);
+                                          final newlongPress = List<int>.from(
+                                            longPress.value,
+                                          );
                                           if (newlongPress.contains(index)) {
                                             newlongPress.remove(index);
                                           } else {
                                             newlongPress.add(index);
                                           }
-                                          longPress.value = widget.customOnLongPress(newlongPress);
+                                          longPress.value = widget
+                                              .customOnLongPress(newlongPress);
                                           widget.onLongPress!(newlongPress);
                                         },
                                 isActive: selected.value.contains(index),
-                                label: Text(widget.items[index], style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: "HarmonyOS_Sans")),
+                                label: Text(
+                                  widget.items[index],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 onTap: () {
-                                  final newSelected = List<int>.from(selected.value);
-                                  if (newSelected.contains(index) && newSelected.length > (widget.minSelected ?? 0)) {
+                                  final newSelected = List<int>.from(
+                                    selected.value,
+                                  );
+                                  if (newSelected.contains(index) &&
+                                      newSelected.length >
+                                          (widget.minSelected ?? 0)) {
                                     newSelected.remove(index);
                                   } else {
-                                    if (newSelected.length >= (widget.maxSelected ?? widget.items.length)) {
+                                    if (newSelected.length >=
+                                        (widget.maxSelected ??
+                                            widget.items.length)) {
                                       newSelected.removeAt(0);
                                     }
                                     newSelected.add(index);
                                   }
-                                  selected.value = widget.customOnTap(newSelected);
+                                  selected.value = widget.customOnTap(
+                                    newSelected,
+                                  );
                                   widget.onpress(selected.value);
                                 },
                               ),

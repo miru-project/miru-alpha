@@ -24,7 +24,7 @@ subprojects {
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
-val defaultApiLevel = "24"
+val defaultApiLevel = "21"
 // Task to check if Go is installed
 val checkGoInstallation = tasks.register("checkGoInstallation") {
     doLast {
@@ -52,7 +52,7 @@ abstract class BuildAarTask : DefaultTask() {
         val outputDir = project.file("../src/miru_core/android")
         outputDir.mkdirs()
         val aarFile = File(outputDir, "libmiru-core.aar")
-        val defaultApiLevel = "24" // fallback, or get from project if needed
+        val defaultApiLevel = "21" // fallback, or get from project if needed
 
         try {
             execOperations.exec {

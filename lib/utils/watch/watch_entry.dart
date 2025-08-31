@@ -19,7 +19,7 @@ import 'package:miru_app_new/model/index.dart';
 
 class WatchParams {
   const WatchParams({
-    required this.service,
+    required this.meta,
     required this.type,
     required this.url,
     required this.selectedGroupIndex,
@@ -29,7 +29,7 @@ class WatchParams {
     required this.detailUrl,
     required this.epGroup,
   });
-  final ExtensionMeta service;
+  final ExtensionMeta meta;
   final String url;
   final List<ExtensionEpisodeGroup>? epGroup;
   final int selectedGroupIndex;

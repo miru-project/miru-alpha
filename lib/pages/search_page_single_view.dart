@@ -295,7 +295,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
               _isLoading.value = false;
             }
             return _GridView(
-              service: widget.meta,
+              meta: widget.meta,
               scrollController: _scrollController,
               cons: cons,
               query: _query,
@@ -340,7 +340,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
             _isLoading.value = false;
           }
           return _GridView(
-            service: widget.meta,
+            meta: widget.meta,
             scrollController: _scrollController,
             cons: cons,
             query: _query,
@@ -379,8 +379,7 @@ class _GridLoadingWidget extends StatelessWidget {
               crossAxisCount: cons.maxWidth ~/ 110,
               childAspectRatio: 0.6,
             ),
-            itemBuilder:
-                (context, index) => const MiruGridTileLoadingBox(width: 110),
+            itemBuilder: (context, index) => const MiruGridTileLoadingBox(),
             itemCount: 20,
           ),
     );
@@ -396,13 +395,13 @@ class _GridView extends StatelessWidget {
   // late final scrollController = ScrollController();
   // final ValueNotifier<bool> isLoading = ValueNotifier(false);
   final ValueNotifier<bool> isLoading;
-  final ExtensionMeta service;
+  final ExtensionMeta meta;
   const _GridView({
     required this.scrollController,
     required this.cons,
     required this.query,
     required this.page,
-    required this.service,
+    required this.meta,
     required this.result,
     required this.isLoading,
   });
@@ -426,12 +425,12 @@ class _GridView extends StatelessWidget {
                   childAspectRatio: 0.6,
                 ),
                 desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: cons.maxWidth ~/ 110,
+                  crossAxisCount: cons.maxWidth ~/ 180,
                   childAspectRatio: 0.6,
                 ),
                 itemBuilder: (context, index) {
                   if (index >= value.length) {
-                    return const MiruGridTileLoadingBox(width: 110);
+                    return const MiruGridTileLoadingBox();
                   }
                   return MiruGridTile(
                     title: value[index].title,
@@ -456,11 +455,8 @@ class _GridView extends StatelessWidget {
                   (context, index) => MiruGridTile(
                     onTap: () {
                       context.push(
-                        '/search/detail',
-                        extra: DetailParam(
-                          meta: service,
-                          url: value[index].url,
-                        ),
+                        '/search/single/detail',
+                        extra: DetailParam(meta: meta, url: value[index].url),
                       );
                     },
                     title: value[index].title,

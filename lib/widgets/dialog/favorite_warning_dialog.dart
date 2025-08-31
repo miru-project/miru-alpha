@@ -39,7 +39,7 @@ class FavoriteWarningDialog extends StatelessWidget {
         child: DefaultTextStyle(
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontFamily: "HarmonyOS_Sans",
+            // fontFamily: "HarmonyOS_Sans",
           ),
           child: Padding(
             padding: const EdgeInsets.all(20),

@@ -159,7 +159,7 @@ class HomePageCarousel extends ConsumerWidget {
                           maxLines: 2,
                           style: const TextStyle(
                             fontSize: 20,
-                            fontFamily: "HarmonyOS_Sans",
+                            // fontFamily: "HarmonyOS_Sans",
                           ),
                         ),
                       ),
@@ -169,7 +169,7 @@ class HomePageCarousel extends ConsumerWidget {
                         maxLines: 2,
                         style: const TextStyle(
                           fontSize: 17,
-                          fontFamily: "HarmonyOS_Sans",
+                          // fontFamily: "HarmonyOS_Sans",
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -201,7 +201,7 @@ class HomePageCarousel extends ConsumerWidget {
                                   ? ExtensionUtils.runtimes[item.package]!.name
                                   : 'Unknown',
                               style: const TextStyle(
-                                fontFamily: "HarmonyOS_Sans",
+                                // fontFamily: "HarmonyOS_Sans",
                               ),
                             ),
                           ],
@@ -388,7 +388,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                                   context.moonTheme?.chipTheme.colors.textColor,
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
-                              fontFamily: "HarmonyOS_Sans",
+                              // fontFamily: "HarmonyOS_Sans",
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -411,7 +411,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                                 style: const TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
-                                  fontFamily: "HarmonyOS_Sans",
+                                  // fontFamily: "HarmonyOS_Sans",
                                 ),
                                 controller: textController,
                               ),
@@ -502,7 +502,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            fontFamily: "HarmonyOS_Sans",
+                            // fontFamily: "HarmonyOS_Sans",
                           ),
                         ),
                       ),
@@ -530,7 +530,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                           color: context.moonTheme?.chipTheme.colors.textColor,
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
-                          fontFamily: "HarmonyOS_Sans",
+                          // fontFamily: "HarmonyOS_Sans",
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -553,7 +553,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              fontFamily: "HarmonyOS_Sans",
+                              // fontFamily: "HarmonyOS_Sans",
                             ),
                             // textInputSize:
                             //     MoonTextInputSize.sm,
@@ -764,7 +764,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          fontFamily: "HarmonyOS_Sans",
+                          // fontFamily: "HarmonyOS_Sans",
                         ),
                       ),
                     ],
@@ -793,7 +793,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    fontFamily: "HarmonyOS_Sans",
+                    // fontFamily: "HarmonyOS_Sans",
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -849,7 +849,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      fontFamily: "HarmonyOS_Sans",
+                      // fontFamily: "HarmonyOS_Sans",
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1086,7 +1086,7 @@ class _AnilistHomePageState extends ConsumerState<_AnilistHomePage>
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                fontFamily: "HarmonyOS_Sans",
+                                // fontFamily: "HarmonyOS_Sans",
                               ),
                             ),
                           );

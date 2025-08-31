@@ -40,13 +40,11 @@ class RouterUtil {
 
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final shellNavigatorKey = GlobalKey<NavigatorState>();
-  static final appRouter = GoRouter(
-    observers: [GoRouterObserver()],
-    navigatorKey: rootNavigatorKey,
+  static final GoRoute _buildWatchDetail = GoRoute(
+    path: 'detail',
     routes: [
-      GoRoute(path: '/', redirect: (context, state) => '/home'),
       GoRoute(
-        path: '/watch',
+        path: 'watch',
         builder: (context, state) {
           final extra = state.extra! as WatchParams;
           switch (extra.type) {
@@ -56,7 +54,7 @@ class RouterUtil {
                 detailImageUrl: extra.detailImageUrl,
                 selectedEpisodeIndex: extra.selectedEpisodeIndex,
                 selectedGroupIndex: extra.selectedGroupIndex,
-                meta: extra.service,
+                meta: extra.meta,
                 detailUrl: extra.detailUrl,
                 epGroup: extra.epGroup,
               );
@@ -66,7 +64,7 @@ class RouterUtil {
                 detailImageUrl: extra.detailImageUrl,
                 selectedEpisodeIndex: extra.selectedEpisodeIndex,
                 selectedGroupIndex: extra.selectedGroupIndex,
-                meta: extra.service,
+                meta: extra.meta,
                 detailUrl: extra.detailUrl,
                 epGroup: extra.epGroup,
               );
@@ -76,13 +74,26 @@ class RouterUtil {
                 detailImageUrl: extra.detailImageUrl,
                 selectedEpisodeIndex: extra.selectedEpisodeIndex,
                 selectedGroupIndex: extra.selectedGroupIndex,
-                meta: extra.service,
+                meta: extra.meta,
                 detailUrl: extra.detailUrl,
                 epGroup: extra.epGroup,
               );
           }
         },
       ),
+    ],
+    builder: (context, state) {
+      final extra = ParamCache.getDetailParam(state.extra as DetailParam);
+      // throw Exception('DetailParam is null');
+      return DetailPage(meta: extra.meta, url: extra.url);
+    },
+  );
+  static final appRouter = GoRouter(
+    // observers: [GoRouterObserver()],
+    navigatorKey: rootNavigatorKey,
+    routes: [
+      GoRoute(path: '/', redirect: (context, state) => '/home'),
+
       GoRoute(
         path: '/anilist',
         builder: (context, state) {
@@ -93,7 +104,7 @@ class RouterUtil {
         path: '/mobileWebView',
         builder: (context, state) {
           final extra = state.extra as WebviewParam;
-          return WebViewPage(extensionRuntime: extra.service, url: extra.url);
+          return WebViewPage(extensionRuntime: extra.meta, url: extra.url);
         },
       ),
       StatefulShellRoute.indexedStack(
@@ -139,17 +150,19 @@ class RouterUtil {
                     ),
                 routes: [
                   GoRoute(
-                    path: 'detail',
+                    path: 'single',
                     builder: (context, state) {
-                      final extra = ParamCache.getDetailParam(
-                        state.extra as DetailParam,
+                      final extra = state.extra as SearchPageParam;
+                      return SearchPageSingleView(
+                        query: extra.query,
+                        meta: extra.meta,
                       );
-                      // throw Exception('DetailParam is null');
-                      return DetailPage(meta: extra.meta, url: extra.url);
                     },
+                    routes: [_buildWatchDetail],
                   ),
                   GoRoute(
-                    path: 'single',
+                    path: 'globalSearch',
+                    routes: [_buildWatchDetail],
                     builder: (context, state) {
                       final extra = state.extra as SearchPageParam;
                       return SearchPageSingleView(
@@ -201,29 +214,7 @@ class SearchPageParam {
 }
 
 class WebviewParam {
-  final ExtensionMeta service;
+  final ExtensionMeta meta;
   final String url;
-  const WebviewParam({required this.service, required this.url});
-}
-
-class GoRouterObserver extends RouteObserver {
-  @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    logger.info('MyTest didPush: $route');
-  }
-
-  @override
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    logger.info('MyTest didPop: $route');
-  }
-
-  @override
-  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    logger.info('MyTest didRemove: $route');
-  }
-
-  @override
-  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
-    logger.info('MyTest didReplace: $newRoute');
-  }
+  const WebviewParam({required this.meta, required this.url});
 }

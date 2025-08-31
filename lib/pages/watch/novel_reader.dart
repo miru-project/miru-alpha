@@ -113,7 +113,7 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
         data: (data) {
           return _MiruNovelReadView(
             detailUrl: widget.detailUrl,
-            service: widget.meta,
+            meta: widget.meta,
             imgUrl: widget.detailImageUrl,
             data: data,
           );
@@ -132,12 +132,12 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
 class _MiruNovelReadView extends StatefulHookConsumerWidget {
   const _MiruNovelReadView({
     required this.data,
-    required this.service,
+    required this.meta,
     required this.imgUrl,
     required this.detailUrl,
   });
   final ExtensionFikushonWatch data;
-  final ExtensionMeta service;
+  final ExtensionMeta meta;
   final String imgUrl;
   final String detailUrl;
 
@@ -158,8 +158,8 @@ class _MiruNovelReadViewState extends ConsumerState<_MiruNovelReadView> {
       ref
           .read(NovelProvider.epProvider.notifier)
           .putinformation(
-            widget.service.type,
-            widget.service.packageName,
+            widget.meta.type,
+            widget.meta.packageName,
             widget.imgUrl,
             widget.detailUrl,
           );
