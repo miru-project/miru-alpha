@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:miru_app_new/miru_core/extension/extension_service.dart';
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/utils/index.dart';
 // import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 
@@ -10,7 +10,7 @@ class WebViewPage extends StatefulWidget {
     required this.extensionRuntime,
     required this.url,
   });
-  final ExtensionApi extensionRuntime;
+  final ExtensionMeta extensionRuntime;
   final String url;
 
   @override
@@ -18,7 +18,7 @@ class WebViewPage extends StatefulWidget {
 }
 
 class _WebViewPageState extends State<WebViewPage> {
-  late String url = widget.extensionRuntime.meta.webSite + widget.url;
+  late String url = widget.extensionRuntime.webSite + widget.url;
   // final cookieManager = WebviewCookieManager();
   late Uri loadUrl = Uri.parse(url);
 

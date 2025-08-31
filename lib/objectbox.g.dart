@@ -516,15 +516,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final packageOffset = fbb.writeString(object.package);
         final titleOffset = fbb.writeString(object.title);
         final keyOffset = fbb.writeString(object.key);
-        final valueOffset =
-            object.value == null ? null : fbb.writeString(object.value!);
+        final valueOffset = object.value == null
+            ? null
+            : fbb.writeString(object.value!);
         final defaultValueOffset = fbb.writeString(object.defaultValue);
-        final descriptionOffset =
-            object.description == null
-                ? null
-                : fbb.writeString(object.description!);
-        final optionsOffset =
-            object.options == null ? null : fbb.writeString(object.options!);
+        final descriptionOffset = object.description == null
+            ? null
+            : fbb.writeString(object.description!);
+        final optionsOffset = object.options == null
+            ? null
+            : fbb.writeString(object.options!);
         final dbTypeOffset = fbb.writeString(object.dbType);
         fbb.startTable(11);
         fbb.addInt64(0, object.id);
@@ -640,11 +641,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
     FavoriateGroup: obx_int.EntityDefinition<FavoriateGroup>(
       model: _entities[2],
       toOneRelations: (FavoriateGroup object) => [],
-      toManyRelations:
-          (FavoriateGroup object) => {
-            obx_int.RelInfo<FavoriateGroup>.toMany(3, object.id):
-                object.favorite,
-          },
+      toManyRelations: (FavoriateGroup object) => {
+        obx_int.RelInfo<FavoriateGroup>.toMany(3, object.id): object.favorite,
+      },
       getId: (FavoriateGroup object) => object.id,
       setId: (FavoriateGroup object, int id) {
         object.id = id;
@@ -699,8 +698,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final urlOffset = fbb.writeString(object.url);
         final typeOffset = fbb.writeString(object.type);
         final titleOffset = fbb.writeString(object.title);
-        final coverOffset =
-            object.cover == null ? null : fbb.writeString(object.cover!);
+        final coverOffset = object.cover == null
+            ? null
+            : fbb.writeString(object.cover!);
         fbb.startTable(8);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, packageOffset);
@@ -763,8 +763,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
       objectToFB: (History object, fb.Builder fbb) {
         final packageOffset = fbb.writeString(object.package);
         final urlOffset = fbb.writeString(object.url);
-        final coverOffset =
-            object.cover == null ? null : fbb.writeString(object.cover!);
+        final coverOffset = object.cover == null
+            ? null
+            : fbb.writeString(object.cover!);
         final typeOffset = fbb.writeString(object.type);
         final titleOffset = fbb.writeString(object.title);
         final episodeTitleOffset = fbb.writeString(object.episodeTitle);
@@ -906,10 +907,9 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final packageOffset = fbb.writeString(object.package);
         final urlOffset = fbb.writeString(object.url);
         final dataOffset = fbb.writeString(object.data);
-        final aniListIDOffset =
-            object.aniListID == null
-                ? null
-                : fbb.writeString(object.aniListID!);
+        final aniListIDOffset = object.aniListID == null
+            ? null
+            : fbb.writeString(object.aniListID!);
         fbb.startTable(8);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, packageOffset);

@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
+import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'dart:async';
@@ -17,8 +18,14 @@ class CoreNetwork {
         .then((response) => response.data["data"]);
   }
 
-  static Future<dynamic> requestRaw(String path) async {
-    return await dio.get('$baseUrl/$path');
+  static Future<dynamic> requestRaw(
+    String path, {
+    Object? data,
+    String method = 'GET',
+  }) async {
+    return await dio
+        .request('$baseUrl/$path', data: data, options: Options(method: method))
+        .then((response) => response.data);
   }
 
   static Future<dynamic> requestFormData(
@@ -138,11 +145,83 @@ class ExtensionEndpoint {
   static String get downloadUrl => '$extensionPathUrl/download';
   static String get setRepoUrl => 'ext/repo';
   static String get repoListUrl => 'ext/repolist';
+  static Future<Object?> watch(
+    String url,
+    String pkg,
+    ExtensionType type,
+  ) async {
+    final jsResult = await CoreNetwork.requestFormData(watchUrl, {
+      'url': url,
+      'pkg': pkg,
+    });
+    final data = jsonDecode(jsResult.stringResult);
 
-  static Future<String> latest(String pkg, int page) async {
-    return await CoreNetwork.requestRaw(
-      '$latestBaseUrl/$pkg/$page',
-    ).then((response) => response.data);
+    switch (type) {
+      case ExtensionType.bangumi:
+        final result = ExtensionBangumiWatch.fromJson(data);
+        // result.headers ??= await _defaultHeaders;
+        return result;
+      case ExtensionType.manga:
+        final result = ExtensionMangaWatch.fromJson(data);
+        // result.headers ??= await _defaultHeaders;
+        return result;
+      default:
+        return ExtensionFikushonWatch.fromJson(data);
+    }
+  }
+
+  static Future<Map<String, ExtensionFilter>> createFilter(
+    String pkg, {
+    Map<String, List<String>>? filter,
+  }) async {
+    throw UnimplementedError('createFilter method not implemented');
+    // final jsResult = await CoreNetwork.requestRaw(
+    //   '$searchUrl/filter/$pkg',
+    //   data: filter,
+    //   method: 'GET',
+    // );
+    // Map<String, ExtensionFilter> result = {};
+    // jsResult.forEach((key, value) {
+    //   result[key] = ExtensionFilter.fromJson(value);
+    // });
+    // return result;
+  }
+
+  static Future<ExtensionDetail> detail(String pkg, String url) async {
+    final jsResult = await CoreNetwork.requestFormData('$detailUrl/$pkg', {
+      'url': url,
+    }, method: 'POST');
+    return ExtensionDetail.fromJson(jsResult);
+  }
+
+  static Future<List<ExtensionListItem>> search(
+    String pkg,
+    String kw,
+    int page, {
+    Map<String, List<String>>? filter,
+  }) async {
+    final jsResult = await CoreNetwork.requestRaw(
+      '$searchUrl/$pkg/$page/$kw',
+      data: filter,
+      method: 'GET',
+    );
+    List<ExtensionListItem> result =
+        jsonDecode(jsResult.stringResult).map<ExtensionListItem>((e) {
+          return ExtensionListItem.fromJson(e);
+        }).toList();
+    return result;
+  }
+
+  static Future<List<ExtensionListItem>> latest(String pkg, int page) async {
+    final jsResult = await CoreNetwork.requestFormData(latestBaseUrl, {
+      'pkg': pkg,
+      'page': page,
+    }, method: 'GET');
+    List<ExtensionListItem> result =
+        jsResult.map<ExtensionListItem>((e) {
+          return ExtensionListItem.fromJson(e);
+        }).toList();
+    return result;
   }
 
   static Future<void> setRepo(String repoUrl, String name) async {

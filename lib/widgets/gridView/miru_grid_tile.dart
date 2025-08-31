@@ -1,7 +1,32 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/forui.dart';
+import 'package:forui/widgets/card.dart';
+import 'package:miru_app_new/widgets/amination/animated_box.dart';
 
-class MiruGridTile extends StatefulWidget {
+class _TextTile extends StatelessWidget {
+  const _TextTile({required this.title, required this.subtitle});
+  final String title;
+  final String subtitle;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+        Text(
+          subtitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Colors.grey, fontSize: 12),
+        ),
+      ],
+    );
+  }
+}
+
+class MiruGridTile extends HookWidget {
   const MiruGridTile({
     super.key,
     this.imageUrl,
@@ -20,85 +45,69 @@ class MiruGridTile extends StatefulWidget {
   final double? width;
   final Widget? stackLabel;
   @override
-  State<MiruGridTile> createState() => _MiruGridTileState();
-}
-
-class _MiruGridTileState extends State<MiruGridTile> {
-  bool _hover = false;
-
-  @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) {
-        setState(() {
-          _hover = true;
-        });
-      },
-      onExit: (_) {
-        setState(() {
-          _hover = false;
-        });
-      },
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: Stack(
-          children: [
-            Container(
-              width: widget.width ?? 200,
-              height: widget.height,
-              margin: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      decoration: BoxDecoration(
-                        boxShadow:
-                            _hover
-                                ? [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: .2),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  ),
-                                ]
-                                : null,
-                        borderRadius: BorderRadius.circular(8),
-                        image: DecorationImage(
-                          image: ExtendedNetworkImageProvider(
-                            cache: true,
-                            widget.imageUrl ?? '',
-                          ),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+    // no local hover state required for this simplified tile
+    return AnimatedBox(
+      onTap: onTap,
+      child: SizedBox(
+        width: width ?? 200,
+        height: height,
+        child: FCard.raw(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Constrain the image's height so it cannot overflow the tile.
+              if (imageUrl == null)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: _TextTile(title: title, subtitle: subtitle),
+                )
+              else
+                // Use AspectRatio to keep consistent image size and avoid overflow
+                AspectRatio(
+                  aspectRatio: 9 / 11.5,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(8),
+                    ),
+                    child: ExtendedImage.network(
+                      imageUrl!,
+
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                      cache: true,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.title,
+                ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: FLabel(
+                  description: Text(
+                    subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text(
-                    widget.subtitle,
+                  axis: Axis.vertical,
+                  child: Text(
+                    title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
                   ),
-                ],
+                ),
               ),
-            ),
-            if (widget.stackLabel != null)
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: widget.stackLabel!,
-              ),
-          ],
+              if (stackLabel != null) ...[
+                const SizedBox(height: 8),
+                // Place the optional stackLabel below the content but inside card bounds
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: stackLabel!,
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );

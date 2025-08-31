@@ -102,7 +102,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
                     context.push(
                       '/search/detail',
                       extra: DetailParam(
-                        service: ExtensionUtils.runtimes[fav[index].package]!,
+                        meta: ExtensionUtils.runtimes[fav[index].package]!,
                         url: fav[index].url,
                       ),
                     );

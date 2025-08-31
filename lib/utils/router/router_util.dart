@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import '../../../pages/anilist_webview.dart';
@@ -21,12 +21,15 @@ import '../../../pages/setting/setting_items.dart';
 class ParamCache {
   static DetailParam? detailParam;
 
-  static DetailParam? getDetailParam(DetailParam? param) {
+  static DetailParam getDetailParam(DetailParam? param) {
     if (param != null) {
       detailParam = param;
       return param;
     }
-    return detailParam;
+    if (detailParam == null) {
+      throw Exception('DetailParam is null');
+    }
+    return detailParam!;
   }
 }
 
@@ -53,7 +56,7 @@ class RouterUtil {
                 detailImageUrl: extra.detailImageUrl,
                 selectedEpisodeIndex: extra.selectedEpisodeIndex,
                 selectedGroupIndex: extra.selectedGroupIndex,
-                service: extra.service,
+                meta: extra.service,
                 detailUrl: extra.detailUrl,
                 epGroup: extra.epGroup,
               );
@@ -63,7 +66,7 @@ class RouterUtil {
                 detailImageUrl: extra.detailImageUrl,
                 selectedEpisodeIndex: extra.selectedEpisodeIndex,
                 selectedGroupIndex: extra.selectedGroupIndex,
-                service: extra.service,
+                meta: extra.service,
                 detailUrl: extra.detailUrl,
                 epGroup: extra.epGroup,
               );
@@ -73,7 +76,7 @@ class RouterUtil {
                 detailImageUrl: extra.detailImageUrl,
                 selectedEpisodeIndex: extra.selectedEpisodeIndex,
                 selectedGroupIndex: extra.selectedGroupIndex,
-                service: extra.service,
+                meta: extra.service,
                 detailUrl: extra.detailUrl,
                 epGroup: extra.epGroup,
               );
@@ -139,10 +142,10 @@ class RouterUtil {
                     path: 'detail',
                     builder: (context, state) {
                       final extra = ParamCache.getDetailParam(
-                        state.extra as DetailParam?,
+                        state.extra as DetailParam,
                       );
-                      throw Exception('DetailParam is null');
-                      // return DetailPage(extensionService: extra.service, url: extra.url);
+                      // throw Exception('DetailParam is null');
+                      return DetailPage(meta: extra.meta, url: extra.url);
                     },
                   ),
                   GoRoute(
@@ -151,7 +154,7 @@ class RouterUtil {
                       final extra = state.extra as SearchPageParam;
                       return SearchPageSingleView(
                         query: extra.query,
-                        service: extra.service,
+                        meta: extra.meta,
                       );
                     },
                   ),
@@ -193,12 +196,12 @@ class RouterUtil {
 
 class SearchPageParam {
   final String? query;
-  final ExtensionApi service;
-  const SearchPageParam({this.query, required this.service});
+  final ExtensionMeta meta;
+  const SearchPageParam({this.query, required this.meta});
 }
 
 class WebviewParam {
-  final ExtensionApi service;
+  final ExtensionMeta service;
   final String url;
   const WebviewParam({required this.service, required this.url});
 }

@@ -2,20 +2,23 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/miru_core/network/network.dart';
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
-import 'package:miru_app_new/miru_core/extension/extension_service.dart';
+import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
+import 'package:miru_app_new/widgets/error.dart';
 import 'package:miru_app_new/widgets/gridView/index.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:go_router/go_router.dart';
 
 class SearchPageSingleView extends StatefulHookConsumerWidget {
-  const SearchPageSingleView({super.key, this.query, required this.service});
+  const SearchPageSingleView({super.key, this.query, required this.meta});
   final String? query;
-  final ExtensionApi service;
+  final ExtensionMeta meta;
   @override
   createState() => _SearchPageSingleViewState();
 }
@@ -39,7 +42,9 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
     _isLoading.value = true;
     _page = ValueNotifier(1);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final filter = await widget.service.createFilter();
+      final filter = await ExtensionEndpoint.createFilter(
+        widget.meta.packageName,
+      );
       tabController = TabController(length: filter.length, vsync: this);
       _fileNotifier.value.addAll(filter);
       _selected = ValueNotifier(List.generate(filter.length, (index) => []));
@@ -75,7 +80,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.service.meta.name,
+                          widget.meta.name,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
@@ -107,13 +112,13 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                           _page.value = 1;
                           ref.invalidate(
                             FetchExtensionLatestProvider(
-                              widget.service,
+                              widget.meta.packageName,
                               _page.value,
                             ),
                           );
                           ref.read(
                             FetchExtensionLatestProvider(
-                              widget.service,
+                              widget.meta.packageName,
                               _page.value,
                             ),
                           );
@@ -147,14 +152,14 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                     _page.value = 1;
                     ref.invalidate(
                       fetchExtensionSearchProvider(
-                        widget.service,
+                        widget.meta.packageName,
                         _query.value,
                         _page.value,
                       ),
                     );
                     ref.read(
                       fetchExtensionSearchProvider(
-                        widget.service,
+                        widget.meta.packageName,
                         _query.value,
                         _page.value,
                       ),
@@ -269,18 +274,18 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
   Widget content(BuildContext context, BoxConstraints cons) {
     if (_query.value.isEmpty) {
       final snapshot = ref.watch(
-        fetchExtensionLatestProvider(widget.service, _page.value),
+        fetchExtensionLatestProvider(widget.meta.packageName, _page.value),
       );
       return EasyRefresh(
         scrollController: _scrollController,
         onLoad: () async {
           debugPrint('load');
-          if (_isLoading.value) return;
-          _isLoading.value = true;
-          final data = await widget.service.latest(_page.value);
-          _result.value.addAll(data);
-          _isLoading.value = false;
-          _page.value++;
+          // if (_isLoading.value) return;
+          // _isLoading.value = true;
+          // final data = await widget.service.latest(_page.value);
+          // _result.value.addAll(data);
+          // _isLoading.value = false;
+          // _page.value++;
         },
         footer: const ClassicFooter(),
         child: snapshot.when(
@@ -290,7 +295,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
               _isLoading.value = false;
             }
             return _GridView(
-              service: widget.service,
+              service: widget.meta,
               scrollController: _scrollController,
               cons: cons,
               query: _query,
@@ -299,27 +304,30 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
               isLoading: _isLoading,
             );
           },
-          error:
-              (e, stack) => Center(
-                child: Row(
-                  children: [Text(e.toString()), Text(stack.toString())],
-                ),
-              ),
+          error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
           loading:
               () => _GridLoadingWidget(scrollController: _scrollController),
         ),
       );
     }
     final snapshot = ref.watch(
-      fetchExtensionSearchProvider(widget.service, _query.value, _page.value),
+      fetchExtensionSearchProvider(
+        widget.meta.packageName,
+        _query.value,
+        _page.value,
+      ),
     );
     return EasyRefresh(
       scrollController: _scrollController,
       onLoad: () async {
-        debugPrint('load');
+        logger.info('load');
         if (_isLoading.value) return;
         _isLoading.value = true;
-        final data = await widget.service.search(_query.value, _page.value);
+        final data = await ExtensionEndpoint.search(
+          widget.meta.packageName,
+          _query.value,
+          _page.value,
+        );
         _result.value.addAll(data);
         _isLoading.value = false;
         _page.value++;
@@ -332,7 +340,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
             _isLoading.value = false;
           }
           return _GridView(
-            service: widget.service,
+            service: widget.meta,
             scrollController: _scrollController,
             cons: cons,
             query: _query,
@@ -388,7 +396,7 @@ class _GridView extends StatelessWidget {
   // late final scrollController = ScrollController();
   // final ValueNotifier<bool> isLoading = ValueNotifier(false);
   final ValueNotifier<bool> isLoading;
-  final ExtensionApi service;
+  final ExtensionMeta service;
   const _GridView({
     required this.scrollController,
     required this.cons,
@@ -450,7 +458,7 @@ class _GridView extends StatelessWidget {
                       context.push(
                         '/search/detail',
                         extra: DetailParam(
-                          service: service,
+                          meta: service,
                           url: value[index].url,
                         ),
                       );

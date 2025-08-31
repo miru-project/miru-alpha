@@ -2,11 +2,11 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/provider/watch/manga_reader_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
-import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -16,7 +16,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 class MiruMangaReader extends StatefulHookConsumerWidget {
   const MiruMangaReader({
     super.key,
-    required this.service,
+    required this.meta,
     required this.selectedGroupIndex,
     required this.selectedEpisodeIndex,
     required this.name,
@@ -24,7 +24,7 @@ class MiruMangaReader extends StatefulHookConsumerWidget {
     required this.detailImageUrl,
     required this.epGroup,
   });
-  final ExtensionApi service;
+  final ExtensionMeta meta;
   final String detailUrl;
   final String detailImageUrl;
   final List<ExtensionEpisodeGroup>? epGroup;
@@ -38,18 +38,30 @@ class MiruMangaReader extends StatefulHookConsumerWidget {
 class _MiruMangaReaderState extends ConsumerState<MiruMangaReader> {
   @override
   void initState() {
-    MangaProvider.initEpisode(widget.epGroup ?? [], widget.name, widget.selectedGroupIndex, widget.selectedEpisodeIndex);
+    MangaProvider.initEpisode(
+      widget.epGroup ?? [],
+      widget.name,
+      widget.selectedGroupIndex,
+      widget.selectedEpisodeIndex,
+    );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final epcontroller = ref.watch(MangaProvider.epProvider);
-    final url = widget.epGroup![epcontroller.selectedGroupIndex].urls[epcontroller.selectedEpisodeIndex].url;
-    final snapShot = ref.watch(MangaLoadProvider(url, widget.service));
+    final url =
+        widget
+            .epGroup![epcontroller.selectedGroupIndex]
+            .urls[epcontroller.selectedEpisodeIndex]
+            .url;
+    final snapShot = ref.watch(
+      MangaLoadProvider(url, widget.meta.packageName, widget.meta.type),
+    );
 
     return MiruScaffold(
-      scrollController: ref.read(MangaProvider.epProvider.notifier).scrollController,
+      scrollController:
+          ref.read(MangaProvider.epProvider.notifier).scrollController,
       sidebar: <Widget>[
         if (DeviceUtil.getWidth(context) < 800)
           //mobile
@@ -65,10 +77,15 @@ class _MiruMangaReaderState extends ConsumerState<MiruMangaReader> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     epcontroller.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
-                Text(epcontroller.epGroup[epcontroller.selectedGroupIndex].title),
+                Text(
+                  epcontroller.epGroup[epcontroller.selectedGroupIndex].title,
+                ),
               ],
             ),
             onTap: () {
@@ -88,7 +105,12 @@ class _MiruMangaReaderState extends ConsumerState<MiruMangaReader> {
       ],
       body: snapShot.when(
         data: (data) {
-          return _MiruMangaReadView(detailUrl: widget.detailUrl, service: widget.service, detailImageUrl: widget.detailImageUrl, data: data);
+          return _MiruMangaReadView(
+            detailUrl: widget.detailUrl,
+            meta: widget.meta,
+            detailImageUrl: widget.detailImageUrl,
+            data: data,
+          );
         },
         loading: () {
           return const Center(child: MoonCircularLoader());
@@ -102,9 +124,14 @@ class _MiruMangaReaderState extends ConsumerState<MiruMangaReader> {
 }
 
 class _MiruMangaReadView extends StatefulHookConsumerWidget {
-  const _MiruMangaReadView({required this.data, required this.service, required this.detailImageUrl, required this.detailUrl});
+  const _MiruMangaReadView({
+    required this.data,
+    required this.meta,
+    required this.detailImageUrl,
+    required this.detailUrl,
+  });
   final ExtensionMangaWatch data;
-  final ExtensionApi service;
+  final ExtensionMeta meta;
   final String detailImageUrl;
   final String detailUrl;
   @override
@@ -116,7 +143,12 @@ class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
   void initState() {
     ref
         .read(MangaProvider.epProvider.notifier)
-        .putinformation(widget.service.meta.type, widget.service.meta.packageName, widget.detailImageUrl, widget.detailUrl);
+        .putinformation(
+          widget.meta.type,
+          widget.meta.packageName,
+          widget.detailImageUrl,
+          widget.detailUrl,
+        );
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       ref.read(MangaProvider.provider.notifier)
         ..setContent(widget.data.urls)
@@ -217,7 +249,11 @@ class _MobileSilderState extends ConsumerState<_MobileSilder> {
                   : null,
         ),
         const SizedBox(width: 10),
-        Text(isSliding.value ? sliderValue.value.toInt().toString() : controller.itemPosition.toString()),
+        Text(
+          isSliding.value
+              ? sliderValue.value.toInt().toString()
+              : controller.itemPosition.toString(),
+        ),
         Expanded(
           child:
               (c.itemScrollController.isAttached && controller.totalPage >= 0)
@@ -225,12 +261,18 @@ class _MobileSilderState extends ConsumerState<_MobileSilder> {
                     divisions: controller.totalPage,
                     min: 0,
                     max: controller.totalPage.toDouble(),
-                    value: isSliding.value ? sliderValue.value : controller.itemPosition.toDouble(),
+                    value:
+                        isSliding.value
+                            ? sliderValue.value
+                            : controller.itemPosition.toDouble(),
                     onChanged: (val) {
                       sliderValue.value = val;
                       c.itemScrollController.jumpTo(index: val.toInt());
                     },
-                    label: isSliding.value ? '${sliderValue.value.toInt()}' : '${controller.itemPosition}',
+                    label:
+                        isSliding.value
+                            ? '${sliderValue.value.toInt()}'
+                            : '${controller.itemPosition}',
                     onChangeStart: (value) {
                       isSliding.value = true;
                     },
@@ -245,7 +287,11 @@ class _MobileSilderState extends ConsumerState<_MobileSilder> {
         MoonButton.icon(
           icon: const Icon(Icons.skip_next_rounded),
           onTap:
-              epcontroller.selectedEpisodeIndex < epcontroller.epGroup[epcontroller.selectedGroupIndex].urls.length
+              epcontroller.selectedEpisodeIndex <
+                      epcontroller
+                          .epGroup[epcontroller.selectedGroupIndex]
+                          .urls
+                          .length
                   ? () {
                     epNotifier.nextChapter();
                   }
@@ -274,9 +320,19 @@ class _ImageWidget extends StatelessWidget {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
             if (totalSize != null && currentSize != null) {
-              return SizedBox(width: screenWidth, height: screenHeight, child: Center(child: MoonCircularProgress(value: currentSize / totalSize)));
+              return SizedBox(
+                width: screenWidth,
+                height: screenHeight,
+                child: Center(
+                  child: MoonCircularProgress(value: currentSize / totalSize),
+                ),
+              );
             }
-            return SizedBox(width: screenWidth, height: screenHeight, child: const Center(child: MoonCircularLoader()));
+            return SizedBox(
+              width: screenWidth,
+              height: screenHeight,
+              child: const Center(child: MoonCircularLoader()),
+            );
           case LoadState.completed:
             return state.completedWidget;
           case LoadState.failed:

@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 
@@ -34,16 +32,14 @@ class ExtensionApi {
     throw UnimplementedError('createFilter method not implemented');
   }
 
-  Future<List<ExtensionListItem>> latest(int page) async {
-    final jsResult = await ExtensionEndpoint.latest(meta.packageName, page);
+  // Future<List<ExtensionListItem>> latest(int page) async {
+  //   final jsResult = await ExtensionEndpoint.latest(meta.packageName, page);
 
-    List<ExtensionListItem> result =
-        jsonDecode(jsResult).map<ExtensionListItem>((e) {
-          return ExtensionListItem.fromJson(e);
-        }).toList();
-    // for (var element in result) {
-    //   element.headers ??= await _defaultHeaders;
-    // }
-    return result;
-  }
+  //   List<ExtensionListItem> result =
+  //       jsonDecode(jsResult).map<ExtensionListItem>((e) {
+  //         return ExtensionListItem.fromJson(e);
+  //       }).toList();
+
+  //   return result;
+  // }
 }

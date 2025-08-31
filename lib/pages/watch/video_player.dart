@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/main_controller_provider.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
-import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'package:moon_design/moon_design.dart';
@@ -33,7 +33,7 @@ final _episodeNotifierProvider =
 class MiruVideoPlayer extends StatefulHookConsumerWidget {
   const MiruVideoPlayer({
     super.key,
-    required this.service,
+    required this.meta,
     required this.selectedGroupIndex,
     required this.selectedEpisodeIndex,
     required this.name,
@@ -41,7 +41,7 @@ class MiruVideoPlayer extends StatefulHookConsumerWidget {
     required this.detailUrl,
     required this.epGroup,
   });
-  final ExtensionApi service;
+  final ExtensionMeta meta;
   final String detailImageUrl;
   final String detailUrl;
   final List<ExtensionEpisodeGroup>? epGroup;
@@ -111,10 +111,12 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
             .epGroup[epNotifier.selectedGroupIndex]
             .urls[epNotifier.selectedEpisodeIndex]
             .url;
-    final snapshot = ref.watch(VideoLoadProvider(url, widget.service));
+    final snapshot = ref.watch(
+      VideoLoadProvider(url, widget.meta.packageName, widget.meta.type),
+    );
     epcontroller.putinformation(
-      widget.service.meta.type,
-      widget.service.meta.packageName,
+      widget.meta.type,
+      widget.meta.packageName,
       widget.detailImageUrl,
       widget.detailUrl,
     );
@@ -127,7 +129,7 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
           name: widget.name,
           value: value,
           url: url,
-          service: widget.service,
+          meta: widget.meta,
         );
       },
       error:
@@ -141,7 +143,11 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
                       icon: const Text('reload'),
                       onTap:
                           () => ref.refresh(
-                            VideoLoadProvider(url, widget.service),
+                            VideoLoadProvider(
+                              url,
+                              widget.meta.packageName,
+                              widget.meta.type,
+                            ),
                           ),
                     ),
                     MoonButton.icon(
@@ -166,11 +172,11 @@ class PlayerResolution extends StatefulHookConsumerWidget {
     required this.value,
     required this.url,
     required this.ratio,
-    required this.service,
+    required this.meta,
   });
   final ExtensionBangumiWatch value;
   final String name;
-  final ExtensionApi service;
+  final ExtensionMeta meta;
   final String url;
   final Size ratio;
   @override

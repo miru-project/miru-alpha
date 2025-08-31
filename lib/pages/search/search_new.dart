@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/extension_page_provider.dart';
+import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/utils/storage_index.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 import 'package:miru_app_new/widgets/core/inner_card.dart';
@@ -20,7 +21,7 @@ class _ExtensionListTile extends HookWidget {
   Widget build(BuildContext context) {
     return AnimatedBox(
       onTap: () {
-        // context.pushNamed();
+        context.push('/search/single', extra: SearchPageParam(meta: ext));
       },
       child: FCard(
         child: Padding(

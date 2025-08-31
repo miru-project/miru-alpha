@@ -110,7 +110,7 @@ class HomePageCarousel extends ConsumerWidget {
           context.push(
             '/search/detail',
             extra: DetailParam(
-              service: ExtensionUtils.runtimes[item.package]!,
+              meta: ExtensionUtils.runtimes[item.package]!,
               url: item.url,
             ),
           );
@@ -189,7 +189,6 @@ class HomePageCarousel extends ConsumerWidget {
                               extensionIsExist
                                   ? ExtensionUtils
                                           .runtimes[item.package]!
-                                          .meta
                                           .icon ??
                                       ''
                                   : '',
@@ -199,10 +198,7 @@ class HomePageCarousel extends ConsumerWidget {
                             const SizedBox(width: 10),
                             Text(
                               extensionIsExist
-                                  ? ExtensionUtils
-                                      .runtimes[item.package]!
-                                      .meta
-                                      .name
+                                  ? ExtensionUtils.runtimes[item.package]!.name
                                   : 'Unknown',
                               style: const TextStyle(
                                 fontFamily: "HarmonyOS_Sans",

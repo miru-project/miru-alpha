@@ -6,7 +6,7 @@ part of 'network_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$videoLoadHash() => r'8b6dba3d9c6df004c66fb2bf82233ca7752fb517';
+String _$videoLoadHash() => r'd3b80c97cee04de9e67780c0a0408b9559e68e49';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -39,13 +39,13 @@ class VideoLoadFamily extends Family<AsyncValue<ExtensionBangumiWatch>> {
   const VideoLoadFamily();
 
   /// See also [videoLoad].
-  VideoLoadProvider call(String url, ExtensionApi service) {
-    return VideoLoadProvider(url, service);
+  VideoLoadProvider call(String url, String pkg, ExtensionType type) {
+    return VideoLoadProvider(url, pkg, type);
   }
 
   @override
   VideoLoadProvider getProviderOverride(covariant VideoLoadProvider provider) {
-    return call(provider.url, provider.service);
+    return call(provider.url, provider.pkg, provider.type);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -67,9 +67,9 @@ class VideoLoadFamily extends Family<AsyncValue<ExtensionBangumiWatch>> {
 class VideoLoadProvider
     extends AutoDisposeFutureProvider<ExtensionBangumiWatch> {
   /// See also [videoLoad].
-  VideoLoadProvider(String url, ExtensionApi service)
+  VideoLoadProvider(String url, String pkg, ExtensionType type)
     : this._internal(
-        (ref) => videoLoad(ref as VideoLoadRef, url, service),
+        (ref) => videoLoad(ref as VideoLoadRef, url, pkg, type),
         from: videoLoadProvider,
         name: r'videoLoadProvider',
         debugGetCreateSourceHash:
@@ -79,7 +79,8 @@ class VideoLoadProvider
         dependencies: VideoLoadFamily._dependencies,
         allTransitiveDependencies: VideoLoadFamily._allTransitiveDependencies,
         url: url,
-        service: service,
+        pkg: pkg,
+        type: type,
       );
 
   VideoLoadProvider._internal(
@@ -90,11 +91,13 @@ class VideoLoadProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.url,
-    required this.service,
+    required this.pkg,
+    required this.type,
   }) : super.internal();
 
   final String url;
-  final ExtensionApi service;
+  final String pkg;
+  final ExtensionType type;
 
   @override
   Override overrideWith(
@@ -110,7 +113,8 @@ class VideoLoadProvider
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         url: url,
-        service: service,
+        pkg: pkg,
+        type: type,
       ),
     );
   }
@@ -124,14 +128,16 @@ class VideoLoadProvider
   bool operator ==(Object other) {
     return other is VideoLoadProvider &&
         other.url == url &&
-        other.service == service;
+        other.pkg == pkg &&
+        other.type == type;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, url.hashCode);
-    hash = _SystemHash.combine(hash, service.hashCode);
+    hash = _SystemHash.combine(hash, pkg.hashCode);
+    hash = _SystemHash.combine(hash, type.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -143,8 +149,11 @@ mixin VideoLoadRef on AutoDisposeFutureProviderRef<ExtensionBangumiWatch> {
   /// The parameter `url` of this provider.
   String get url;
 
-  /// The parameter `service` of this provider.
-  ExtensionApi get service;
+  /// The parameter `pkg` of this provider.
+  String get pkg;
+
+  /// The parameter `type` of this provider.
+  ExtensionType get type;
 }
 
 class _VideoLoadProviderElement
@@ -155,7 +164,9 @@ class _VideoLoadProviderElement
   @override
   String get url => (origin as VideoLoadProvider).url;
   @override
-  ExtensionApi get service => (origin as VideoLoadProvider).service;
+  String get pkg => (origin as VideoLoadProvider).pkg;
+  @override
+  ExtensionType get type => (origin as VideoLoadProvider).type;
 }
 
 String _$fetchExtensionRepoHash() =>
@@ -180,7 +191,7 @@ final fetchExtensionRepoProvider =
 typedef FetchExtensionRepoRef =
     AutoDisposeFutureProviderRef<List<ExtensionRepo>>;
 String _$fetchExtensionDetailHash() =>
-    r'a3a6e53163b4524871bb8ece6b66e59e66fca73b';
+    r'28d77e1f1c617e9f01ac46656430f8869c43e523';
 
 /// See also [fetchExtensionDetail].
 @ProviderFor(fetchExtensionDetail)
@@ -192,15 +203,15 @@ class FetchExtensionDetailFamily extends Family<AsyncValue<ExtensionDetail>> {
   const FetchExtensionDetailFamily();
 
   /// See also [fetchExtensionDetail].
-  FetchExtensionDetailProvider call(ExtensionApi extensionService, String url) {
-    return FetchExtensionDetailProvider(extensionService, url);
+  FetchExtensionDetailProvider call(String pkg, String url) {
+    return FetchExtensionDetailProvider(pkg, url);
   }
 
   @override
   FetchExtensionDetailProvider getProviderOverride(
     covariant FetchExtensionDetailProvider provider,
   ) {
-    return call(provider.extensionService, provider.url);
+    return call(provider.pkg, provider.url);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -222,13 +233,9 @@ class FetchExtensionDetailFamily extends Family<AsyncValue<ExtensionDetail>> {
 class FetchExtensionDetailProvider
     extends AutoDisposeFutureProvider<ExtensionDetail> {
   /// See also [fetchExtensionDetail].
-  FetchExtensionDetailProvider(ExtensionApi extensionService, String url)
+  FetchExtensionDetailProvider(String pkg, String url)
     : this._internal(
-        (ref) => fetchExtensionDetail(
-          ref as FetchExtensionDetailRef,
-          extensionService,
-          url,
-        ),
+        (ref) => fetchExtensionDetail(ref as FetchExtensionDetailRef, pkg, url),
         from: fetchExtensionDetailProvider,
         name: r'fetchExtensionDetailProvider',
         debugGetCreateSourceHash:
@@ -238,7 +245,7 @@ class FetchExtensionDetailProvider
         dependencies: FetchExtensionDetailFamily._dependencies,
         allTransitiveDependencies:
             FetchExtensionDetailFamily._allTransitiveDependencies,
-        extensionService: extensionService,
+        pkg: pkg,
         url: url,
       );
 
@@ -249,11 +256,11 @@ class FetchExtensionDetailProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.extensionService,
+    required this.pkg,
     required this.url,
   }) : super.internal();
 
-  final ExtensionApi extensionService;
+  final String pkg;
   final String url;
 
   @override
@@ -269,7 +276,7 @@ class FetchExtensionDetailProvider
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        extensionService: extensionService,
+        pkg: pkg,
         url: url,
       ),
     );
@@ -283,14 +290,14 @@ class FetchExtensionDetailProvider
   @override
   bool operator ==(Object other) {
     return other is FetchExtensionDetailProvider &&
-        other.extensionService == extensionService &&
+        other.pkg == pkg &&
         other.url == url;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, extensionService.hashCode);
+    hash = _SystemHash.combine(hash, pkg.hashCode);
     hash = _SystemHash.combine(hash, url.hashCode);
 
     return _SystemHash.finish(hash);
@@ -300,8 +307,8 @@ class FetchExtensionDetailProvider
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin FetchExtensionDetailRef on AutoDisposeFutureProviderRef<ExtensionDetail> {
-  /// The parameter `extensionService` of this provider.
-  ExtensionApi get extensionService;
+  /// The parameter `pkg` of this provider.
+  String get pkg;
 
   /// The parameter `url` of this provider.
   String get url;
@@ -313,14 +320,13 @@ class _FetchExtensionDetailProviderElement
   _FetchExtensionDetailProviderElement(super.provider);
 
   @override
-  ExtensionApi get extensionService =>
-      (origin as FetchExtensionDetailProvider).extensionService;
+  String get pkg => (origin as FetchExtensionDetailProvider).pkg;
   @override
   String get url => (origin as FetchExtensionDetailProvider).url;
 }
 
 String _$fetchExtensionLatestHash() =>
-    r'af90f8dc1e4a24f0f4eadfce153a36ae22d412ee';
+    r'e7f0f2e557ba88c4d5b5b637830ba43a26a6fdfb';
 
 /// See also [fetchExtensionLatest].
 @ProviderFor(fetchExtensionLatest)
@@ -333,15 +339,15 @@ class FetchExtensionLatestFamily
   const FetchExtensionLatestFamily();
 
   /// See also [fetchExtensionLatest].
-  FetchExtensionLatestProvider call(ExtensionApi extensionService, int page) {
-    return FetchExtensionLatestProvider(extensionService, page);
+  FetchExtensionLatestProvider call(String pkg, int page) {
+    return FetchExtensionLatestProvider(pkg, page);
   }
 
   @override
   FetchExtensionLatestProvider getProviderOverride(
     covariant FetchExtensionLatestProvider provider,
   ) {
-    return call(provider.extensionService, provider.page);
+    return call(provider.pkg, provider.page);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -363,13 +369,10 @@ class FetchExtensionLatestFamily
 class FetchExtensionLatestProvider
     extends AutoDisposeFutureProvider<List<ExtensionListItem>> {
   /// See also [fetchExtensionLatest].
-  FetchExtensionLatestProvider(ExtensionApi extensionService, int page)
+  FetchExtensionLatestProvider(String pkg, int page)
     : this._internal(
-        (ref) => fetchExtensionLatest(
-          ref as FetchExtensionLatestRef,
-          extensionService,
-          page,
-        ),
+        (ref) =>
+            fetchExtensionLatest(ref as FetchExtensionLatestRef, pkg, page),
         from: fetchExtensionLatestProvider,
         name: r'fetchExtensionLatestProvider',
         debugGetCreateSourceHash:
@@ -379,7 +382,7 @@ class FetchExtensionLatestProvider
         dependencies: FetchExtensionLatestFamily._dependencies,
         allTransitiveDependencies:
             FetchExtensionLatestFamily._allTransitiveDependencies,
-        extensionService: extensionService,
+        pkg: pkg,
         page: page,
       );
 
@@ -390,11 +393,11 @@ class FetchExtensionLatestProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.extensionService,
+    required this.pkg,
     required this.page,
   }) : super.internal();
 
-  final ExtensionApi extensionService;
+  final String pkg;
   final int page;
 
   @override
@@ -411,7 +414,7 @@ class FetchExtensionLatestProvider
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        extensionService: extensionService,
+        pkg: pkg,
         page: page,
       ),
     );
@@ -425,14 +428,14 @@ class FetchExtensionLatestProvider
   @override
   bool operator ==(Object other) {
     return other is FetchExtensionLatestProvider &&
-        other.extensionService == extensionService &&
+        other.pkg == pkg &&
         other.page == page;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, extensionService.hashCode);
+    hash = _SystemHash.combine(hash, pkg.hashCode);
     hash = _SystemHash.combine(hash, page.hashCode);
 
     return _SystemHash.finish(hash);
@@ -443,8 +446,8 @@ class FetchExtensionLatestProvider
 // ignore: unused_element
 mixin FetchExtensionLatestRef
     on AutoDisposeFutureProviderRef<List<ExtensionListItem>> {
-  /// The parameter `extensionService` of this provider.
-  ExtensionApi get extensionService;
+  /// The parameter `pkg` of this provider.
+  String get pkg;
 
   /// The parameter `page` of this provider.
   int get page;
@@ -456,14 +459,13 @@ class _FetchExtensionLatestProviderElement
   _FetchExtensionLatestProviderElement(super.provider);
 
   @override
-  ExtensionApi get extensionService =>
-      (origin as FetchExtensionLatestProvider).extensionService;
+  String get pkg => (origin as FetchExtensionLatestProvider).pkg;
   @override
   int get page => (origin as FetchExtensionLatestProvider).page;
 }
 
 String _$fetchExtensionSearchHash() =>
-    r'f177b416060ecd64424b13a06aeafd51163bee93';
+    r'b2fd204c1ee2d381805b1ddb168f0a4aca3647c0';
 
 /// See also [fetchExtensionSearch].
 @ProviderFor(fetchExtensionSearch)
@@ -477,17 +479,12 @@ class FetchExtensionSearchFamily
 
   /// See also [fetchExtensionSearch].
   FetchExtensionSearchProvider call(
-    ExtensionApi extensionService,
+    String package,
     String query,
     int page, {
     Map<String, List<String>>? filter,
   }) {
-    return FetchExtensionSearchProvider(
-      extensionService,
-      query,
-      page,
-      filter: filter,
-    );
+    return FetchExtensionSearchProvider(package, query, page, filter: filter);
   }
 
   @override
@@ -495,7 +492,7 @@ class FetchExtensionSearchFamily
     covariant FetchExtensionSearchProvider provider,
   ) {
     return call(
-      provider.extensionService,
+      provider.package,
       provider.query,
       provider.page,
       filter: provider.filter,
@@ -522,14 +519,14 @@ class FetchExtensionSearchProvider
     extends AutoDisposeFutureProvider<List<ExtensionListItem>> {
   /// See also [fetchExtensionSearch].
   FetchExtensionSearchProvider(
-    ExtensionApi extensionService,
+    String package,
     String query,
     int page, {
     Map<String, List<String>>? filter,
   }) : this._internal(
          (ref) => fetchExtensionSearch(
            ref as FetchExtensionSearchRef,
-           extensionService,
+           package,
            query,
            page,
            filter: filter,
@@ -543,7 +540,7 @@ class FetchExtensionSearchProvider
          dependencies: FetchExtensionSearchFamily._dependencies,
          allTransitiveDependencies:
              FetchExtensionSearchFamily._allTransitiveDependencies,
-         extensionService: extensionService,
+         package: package,
          query: query,
          page: page,
          filter: filter,
@@ -556,13 +553,13 @@ class FetchExtensionSearchProvider
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.extensionService,
+    required this.package,
     required this.query,
     required this.page,
     required this.filter,
   }) : super.internal();
 
-  final ExtensionApi extensionService;
+  final String package;
   final String query;
   final int page;
   final Map<String, List<String>>? filter;
@@ -581,7 +578,7 @@ class FetchExtensionSearchProvider
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        extensionService: extensionService,
+        package: package,
         query: query,
         page: page,
         filter: filter,
@@ -597,7 +594,7 @@ class FetchExtensionSearchProvider
   @override
   bool operator ==(Object other) {
     return other is FetchExtensionSearchProvider &&
-        other.extensionService == extensionService &&
+        other.package == package &&
         other.query == query &&
         other.page == page &&
         other.filter == filter;
@@ -606,7 +603,7 @@ class FetchExtensionSearchProvider
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, extensionService.hashCode);
+    hash = _SystemHash.combine(hash, package.hashCode);
     hash = _SystemHash.combine(hash, query.hashCode);
     hash = _SystemHash.combine(hash, page.hashCode);
     hash = _SystemHash.combine(hash, filter.hashCode);
@@ -619,8 +616,8 @@ class FetchExtensionSearchProvider
 // ignore: unused_element
 mixin FetchExtensionSearchRef
     on AutoDisposeFutureProviderRef<List<ExtensionListItem>> {
-  /// The parameter `extensionService` of this provider.
-  ExtensionApi get extensionService;
+  /// The parameter `package` of this provider.
+  String get package;
 
   /// The parameter `query` of this provider.
   String get query;
@@ -638,8 +635,7 @@ class _FetchExtensionSearchProviderElement
   _FetchExtensionSearchProviderElement(super.provider);
 
   @override
-  ExtensionApi get extensionService =>
-      (origin as FetchExtensionSearchProvider).extensionService;
+  String get package => (origin as FetchExtensionSearchProvider).package;
   @override
   String get query => (origin as FetchExtensionSearchProvider).query;
   @override
@@ -649,7 +645,7 @@ class _FetchExtensionSearchProviderElement
       (origin as FetchExtensionSearchProvider).filter;
 }
 
-String _$mangaLoadHash() => r'6add08c700cc4edca1f40646b74bc5e39aff08d1';
+String _$mangaLoadHash() => r'e1fc06f1fd04e6c7cbc3caf43d69f78df34b3bbf';
 
 /// See also [mangaLoad].
 @ProviderFor(mangaLoad)
@@ -661,13 +657,13 @@ class MangaLoadFamily extends Family<AsyncValue<ExtensionMangaWatch>> {
   const MangaLoadFamily();
 
   /// See also [mangaLoad].
-  MangaLoadProvider call(String url, ExtensionApi service) {
-    return MangaLoadProvider(url, service);
+  MangaLoadProvider call(String url, String pkg, ExtensionType type) {
+    return MangaLoadProvider(url, pkg, type);
   }
 
   @override
   MangaLoadProvider getProviderOverride(covariant MangaLoadProvider provider) {
-    return call(provider.url, provider.service);
+    return call(provider.url, provider.pkg, provider.type);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -688,9 +684,9 @@ class MangaLoadFamily extends Family<AsyncValue<ExtensionMangaWatch>> {
 /// See also [mangaLoad].
 class MangaLoadProvider extends AutoDisposeFutureProvider<ExtensionMangaWatch> {
   /// See also [mangaLoad].
-  MangaLoadProvider(String url, ExtensionApi service)
+  MangaLoadProvider(String url, String pkg, ExtensionType type)
     : this._internal(
-        (ref) => mangaLoad(ref as MangaLoadRef, url, service),
+        (ref) => mangaLoad(ref as MangaLoadRef, url, pkg, type),
         from: mangaLoadProvider,
         name: r'mangaLoadProvider',
         debugGetCreateSourceHash:
@@ -700,7 +696,8 @@ class MangaLoadProvider extends AutoDisposeFutureProvider<ExtensionMangaWatch> {
         dependencies: MangaLoadFamily._dependencies,
         allTransitiveDependencies: MangaLoadFamily._allTransitiveDependencies,
         url: url,
-        service: service,
+        pkg: pkg,
+        type: type,
       );
 
   MangaLoadProvider._internal(
@@ -711,11 +708,13 @@ class MangaLoadProvider extends AutoDisposeFutureProvider<ExtensionMangaWatch> {
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.url,
-    required this.service,
+    required this.pkg,
+    required this.type,
   }) : super.internal();
 
   final String url;
-  final ExtensionApi service;
+  final String pkg;
+  final ExtensionType type;
 
   @override
   Override overrideWith(
@@ -731,7 +730,8 @@ class MangaLoadProvider extends AutoDisposeFutureProvider<ExtensionMangaWatch> {
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         url: url,
-        service: service,
+        pkg: pkg,
+        type: type,
       ),
     );
   }
@@ -745,14 +745,16 @@ class MangaLoadProvider extends AutoDisposeFutureProvider<ExtensionMangaWatch> {
   bool operator ==(Object other) {
     return other is MangaLoadProvider &&
         other.url == url &&
-        other.service == service;
+        other.pkg == pkg &&
+        other.type == type;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, url.hashCode);
-    hash = _SystemHash.combine(hash, service.hashCode);
+    hash = _SystemHash.combine(hash, pkg.hashCode);
+    hash = _SystemHash.combine(hash, type.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -764,8 +766,11 @@ mixin MangaLoadRef on AutoDisposeFutureProviderRef<ExtensionMangaWatch> {
   /// The parameter `url` of this provider.
   String get url;
 
-  /// The parameter `service` of this provider.
-  ExtensionApi get service;
+  /// The parameter `pkg` of this provider.
+  String get pkg;
+
+  /// The parameter `type` of this provider.
+  ExtensionType get type;
 }
 
 class _MangaLoadProviderElement
@@ -776,10 +781,12 @@ class _MangaLoadProviderElement
   @override
   String get url => (origin as MangaLoadProvider).url;
   @override
-  ExtensionApi get service => (origin as MangaLoadProvider).service;
+  String get pkg => (origin as MangaLoadProvider).pkg;
+  @override
+  ExtensionType get type => (origin as MangaLoadProvider).type;
 }
 
-String _$fikushonLoadHash() => r'bf19fec2c44c1bc0450e23436873ddad36aaf8e3';
+String _$fikushonLoadHash() => r'915bdb903473a61cdad32d68453d23efa3060b6d';
 
 /// See also [fikushonLoad].
 @ProviderFor(fikushonLoad)
@@ -791,15 +798,15 @@ class FikushonLoadFamily extends Family<AsyncValue<ExtensionFikushonWatch>> {
   const FikushonLoadFamily();
 
   /// See also [fikushonLoad].
-  FikushonLoadProvider call(String url, ExtensionApi service) {
-    return FikushonLoadProvider(url, service);
+  FikushonLoadProvider call(String url, String pkg, ExtensionType type) {
+    return FikushonLoadProvider(url, pkg, type);
   }
 
   @override
   FikushonLoadProvider getProviderOverride(
     covariant FikushonLoadProvider provider,
   ) {
-    return call(provider.url, provider.service);
+    return call(provider.url, provider.pkg, provider.type);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -821,9 +828,9 @@ class FikushonLoadFamily extends Family<AsyncValue<ExtensionFikushonWatch>> {
 class FikushonLoadProvider
     extends AutoDisposeFutureProvider<ExtensionFikushonWatch> {
   /// See also [fikushonLoad].
-  FikushonLoadProvider(String url, ExtensionApi service)
+  FikushonLoadProvider(String url, String pkg, ExtensionType type)
     : this._internal(
-        (ref) => fikushonLoad(ref as FikushonLoadRef, url, service),
+        (ref) => fikushonLoad(ref as FikushonLoadRef, url, pkg, type),
         from: fikushonLoadProvider,
         name: r'fikushonLoadProvider',
         debugGetCreateSourceHash:
@@ -834,7 +841,8 @@ class FikushonLoadProvider
         allTransitiveDependencies:
             FikushonLoadFamily._allTransitiveDependencies,
         url: url,
-        service: service,
+        pkg: pkg,
+        type: type,
       );
 
   FikushonLoadProvider._internal(
@@ -845,11 +853,13 @@ class FikushonLoadProvider
     required super.debugGetCreateSourceHash,
     required super.from,
     required this.url,
-    required this.service,
+    required this.pkg,
+    required this.type,
   }) : super.internal();
 
   final String url;
-  final ExtensionApi service;
+  final String pkg;
+  final ExtensionType type;
 
   @override
   Override overrideWith(
@@ -865,7 +875,8 @@ class FikushonLoadProvider
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
         url: url,
-        service: service,
+        pkg: pkg,
+        type: type,
       ),
     );
   }
@@ -879,14 +890,16 @@ class FikushonLoadProvider
   bool operator ==(Object other) {
     return other is FikushonLoadProvider &&
         other.url == url &&
-        other.service == service;
+        other.pkg == pkg &&
+        other.type == type;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
     hash = _SystemHash.combine(hash, url.hashCode);
-    hash = _SystemHash.combine(hash, service.hashCode);
+    hash = _SystemHash.combine(hash, pkg.hashCode);
+    hash = _SystemHash.combine(hash, type.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -898,8 +911,11 @@ mixin FikushonLoadRef on AutoDisposeFutureProviderRef<ExtensionFikushonWatch> {
   /// The parameter `url` of this provider.
   String get url;
 
-  /// The parameter `service` of this provider.
-  ExtensionApi get service;
+  /// The parameter `pkg` of this provider.
+  String get pkg;
+
+  /// The parameter `type` of this provider.
+  ExtensionType get type;
 }
 
 class _FikushonLoadProviderElement
@@ -910,7 +926,9 @@ class _FikushonLoadProviderElement
   @override
   String get url => (origin as FikushonLoadProvider).url;
   @override
-  ExtensionApi get service => (origin as FikushonLoadProvider).service;
+  String get pkg => (origin as FikushonLoadProvider).pkg;
+  @override
+  ExtensionType get type => (origin as FikushonLoadProvider).type;
 }
 
 // ignore_for_file: type=lint

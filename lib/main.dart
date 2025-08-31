@@ -19,7 +19,6 @@ import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/provider/extension_page_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
-import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/request.dart';
@@ -67,8 +66,6 @@ void main() async {
   await MiruDirectory.ensureInitialized();
   await MiruStorage.ensureInitialized();
   await MiruRequest.ensureInitialized();
-  // await DownloadUtils.ensureInitialized();
-  await ExtensionUtils.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,

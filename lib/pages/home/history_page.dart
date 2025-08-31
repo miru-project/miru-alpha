@@ -127,7 +127,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
                     context.push(
                       '/search/detail',
                       extra: DetailParam(
-                        service: ExtensionUtils.runtimes[item.package]!,
+                        meta: ExtensionUtils.runtimes[item.package]!,
                         url: item.url,
                       ),
                     );

@@ -4,11 +4,11 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_hls_parser/flutter_hls_parser.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/index.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 import 'package:miru_app_new/model/index.dart';
 
 part 'network_provider.g.dart';
@@ -17,9 +17,11 @@ part 'network_provider.g.dart';
 Future<ExtensionBangumiWatch> videoLoad(
   Ref ref,
   String url,
-  ExtensionApi service,
+  String pkg,
+  ExtensionType type,
 ) async {
-  final result = await service.watch(url) as ExtensionBangumiWatch;
+  final result =
+      await ExtensionEndpoint.watch(url, pkg, type) as ExtensionBangumiWatch;
   return result;
 }
 
@@ -32,32 +34,36 @@ Future<List<ExtensionRepo>> fetchExtensionRepo(Ref ref) async {
 @riverpod
 Future<ExtensionDetail> fetchExtensionDetail(
   Ref ref,
-  ExtensionApi extensionService,
+  String pkg,
   String url,
 ) async {
-  final result = await extensionService.detail(url);
+  final result = await ExtensionEndpoint.detail(pkg, url);
   return result;
 }
 
 @riverpod
 Future<List<ExtensionListItem>> fetchExtensionLatest(
   Ref ref,
-  ExtensionApi extensionService,
+  String pkg,
   int page,
 ) async {
-  final result = await extensionService.latest(page);
-  return result;
+  return await ExtensionEndpoint.latest(pkg, page);
 }
 
 @riverpod
 Future<List<ExtensionListItem>> fetchExtensionSearch(
   Ref ref,
-  ExtensionApi extensionService,
+  String package,
   String query,
   int page, {
   Map<String, List<String>>? filter,
 }) async {
-  final result = await extensionService.search(query, page, filter: filter);
+  final result = await ExtensionEndpoint.search(
+    package,
+    query,
+    page,
+    filter: filter,
+  );
   return result;
 }
 
@@ -65,9 +71,11 @@ Future<List<ExtensionListItem>> fetchExtensionSearch(
 Future<ExtensionMangaWatch> mangaLoad(
   Ref ref,
   String url,
-  ExtensionApi service,
+  String pkg,
+  ExtensionType type,
 ) async {
-  final result = await service.watch(url) as ExtensionMangaWatch;
+  final result =
+      await ExtensionEndpoint.watch(url, pkg, type) as ExtensionMangaWatch;
   return result;
 }
 
@@ -75,9 +83,11 @@ Future<ExtensionMangaWatch> mangaLoad(
 Future<ExtensionFikushonWatch> fikushonLoad(
   Ref ref,
   String url,
-  ExtensionApi service,
+  String pkg,
+  ExtensionType type,
 ) async {
-  final result = await service.watch(url) as ExtensionFikushonWatch;
+  final result =
+      await ExtensionEndpoint.watch(url, pkg, type) as ExtensionFikushonWatch;
   return result;
 }
 

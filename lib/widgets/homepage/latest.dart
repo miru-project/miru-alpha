@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
-import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/widgets/gridView/index.dart';
@@ -12,11 +12,11 @@ import 'package:moon_design/moon_design.dart';
 class Latest extends ConsumerStatefulWidget {
   const Latest({
     super.key,
-    required this.extensionService,
+    required this.meta,
     required this.needrefresh,
     required this.searchValue,
   });
-  final ExtensionApi extensionService;
+  final ExtensionMeta meta;
   // a trigger to refresh the latest
   final ValueNotifier<bool> needrefresh;
   final ValueNotifier<String> searchValue;
@@ -48,16 +48,16 @@ class _LatestState extends ConsumerState<Latest> {
         }
         isRefreshing = true;
         ref.invalidate(
-          fetchExtensionLatestProvider(widget.extensionService, 1),
+          fetchExtensionLatestProvider(widget.meta.packageName, 1),
         );
         ref
-            .read(fetchExtensionLatestProvider(widget.extensionService, 1))
+            .read(fetchExtensionLatestProvider(widget.meta.packageName, 1))
             .whenData((_) => isRefreshing = false);
         return;
       }
       ref.invalidate(
         fetchExtensionSearchProvider(
-          widget.extensionService,
+          widget.meta.packageName,
           widget.searchValue.value,
           1,
         ),
@@ -65,7 +65,7 @@ class _LatestState extends ConsumerState<Latest> {
       ref
           .read(
             fetchExtensionSearchProvider(
-              widget.extensionService,
+              widget.meta.packageName,
               widget.searchValue.value,
               1,
             ),
@@ -77,7 +77,7 @@ class _LatestState extends ConsumerState<Latest> {
   void onTap() {
     context.push(
       '/search/single',
-      extra: SearchPageParam(service: widget.extensionService, query: null),
+      extra: SearchPageParam(meta: widget.meta, query: null),
     );
   }
 
@@ -87,12 +87,12 @@ class _LatestState extends ConsumerState<Latest> {
     final width = MediaQuery.of(context).size.width;
     if (widget.searchValue.value.isEmpty) {
       snapShot = ref.watch(
-        fetchExtensionLatestProvider(widget.extensionService, 1),
+        fetchExtensionLatestProvider(widget.meta.packageName, 1),
       );
     } else {
       snapShot = ref.watch(
         fetchExtensionSearchProvider(
-          widget.extensionService,
+          widget.meta.packageName,
           widget.searchValue.value,
           1,
         ),
@@ -113,7 +113,7 @@ class _LatestState extends ConsumerState<Latest> {
                   MoonIcons.controls_chevron_right_24_regular,
                 ),
                 label: Text(
-                  widget.extensionService.meta.name,
+                  widget.meta.name,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -150,7 +150,7 @@ class _LatestState extends ConsumerState<Latest> {
                                       context.push(
                                         '/search/detail',
                                         extra: DetailParam(
-                                          service: widget.extensionService,
+                                          meta: widget.meta,
                                           url: data[index].url,
                                         ),
                                       );
@@ -317,7 +317,7 @@ class _LatestState extends ConsumerState<Latest> {
               padding: const EdgeInsets.only(left: 10),
               trailing: const Icon(MoonIcons.controls_chevron_right_24_regular),
               label: Text(
-                widget.extensionService.meta.name,
+                widget.meta.name,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -363,7 +363,7 @@ class _LatestState extends ConsumerState<Latest> {
                             context.push(
                               '/search/detail',
                               extra: DetailParam(
-                                service: widget.extensionService,
+                                meta: widget.meta,
                                 url: data[index].url,
                               ),
                             );

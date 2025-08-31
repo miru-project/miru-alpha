@@ -4,7 +4,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:miru_app_new/pages/search/search_new.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
-import 'package:miru_app_new/widgets/homepage/latest.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 

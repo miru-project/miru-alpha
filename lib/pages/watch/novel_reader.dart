@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/provider/watch/novel_reader_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
-import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -15,7 +15,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 class MiruNovelReader extends StatefulHookConsumerWidget {
   const MiruNovelReader({
     super.key,
-    required this.service,
+    required this.meta,
     required this.selectedGroupIndex,
     required this.selectedEpisodeIndex,
     required this.name,
@@ -23,7 +23,7 @@ class MiruNovelReader extends StatefulHookConsumerWidget {
     required this.detailUrl,
     required this.epGroup,
   });
-  final ExtensionApi service;
+  final ExtensionMeta meta;
   final String detailImageUrl;
   final String detailUrl;
   final List<ExtensionEpisodeGroup>? epGroup;
@@ -37,18 +37,30 @@ class MiruNovelReader extends StatefulHookConsumerWidget {
 class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
   @override
   void initState() {
-    NovelProvider.initEpisode(widget.epGroup ?? [], widget.name, widget.selectedGroupIndex, widget.selectedEpisodeIndex);
+    NovelProvider.initEpisode(
+      widget.epGroup ?? [],
+      widget.name,
+      widget.selectedGroupIndex,
+      widget.selectedEpisodeIndex,
+    );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final epcontroller = ref.watch(NovelProvider.epProvider);
-    final url = widget.epGroup![epcontroller.selectedGroupIndex].urls[epcontroller.selectedEpisodeIndex].url;
-    final snapShot = ref.watch(FikushonLoadProvider(url, widget.service));
+    final url =
+        widget
+            .epGroup![epcontroller.selectedGroupIndex]
+            .urls[epcontroller.selectedEpisodeIndex]
+            .url;
+    final snapShot = ref.watch(
+      FikushonLoadProvider(url, widget.meta.packageName, widget.meta.type),
+    );
 
     return MiruScaffold(
-      scrollController: ref.read(NovelProvider.epProvider.notifier).scrollController,
+      scrollController:
+          ref.read(NovelProvider.epProvider.notifier).scrollController,
       sidebar: <Widget>[
         if (DeviceUtil.getWidth(context) < 800)
           //mobile
@@ -67,10 +79,18 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       epcontroller.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
                     ),
                   ),
-                  Text(epcontroller.epGroup[epcontroller.selectedGroupIndex].urls[epcontroller.selectedEpisodeIndex].name),
+                  Text(
+                    epcontroller
+                        .epGroup[epcontroller.selectedGroupIndex]
+                        .urls[epcontroller.selectedEpisodeIndex]
+                        .name,
+                  ),
                 ],
               ),
             ),
@@ -91,7 +111,12 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
       ],
       body: snapShot.when(
         data: (data) {
-          return _MiruNovelReadView(detailUrl: widget.detailUrl, service: widget.service, imgUrl: widget.detailImageUrl, data: data);
+          return _MiruNovelReadView(
+            detailUrl: widget.detailUrl,
+            service: widget.meta,
+            imgUrl: widget.detailImageUrl,
+            data: data,
+          );
         },
         loading: () {
           return const Center(child: MoonCircularLoader());
@@ -105,9 +130,14 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
 }
 
 class _MiruNovelReadView extends StatefulHookConsumerWidget {
-  const _MiruNovelReadView({required this.data, required this.service, required this.imgUrl, required this.detailUrl});
+  const _MiruNovelReadView({
+    required this.data,
+    required this.service,
+    required this.imgUrl,
+    required this.detailUrl,
+  });
   final ExtensionFikushonWatch data;
-  final ExtensionApi service;
+  final ExtensionMeta service;
   final String imgUrl;
   final String detailUrl;
 
@@ -127,7 +157,12 @@ class _MiruNovelReadViewState extends ConsumerState<_MiruNovelReadView> {
       // controller.initListener();
       ref
           .read(NovelProvider.epProvider.notifier)
-          .putinformation(widget.service.meta.type, widget.service.meta.packageName, widget.imgUrl, widget.detailUrl);
+          .putinformation(
+            widget.service.type,
+            widget.service.packageName,
+            widget.imgUrl,
+            widget.detailUrl,
+          );
     });
     super.initState();
   }
@@ -143,7 +178,12 @@ class _MiruNovelReadViewState extends ConsumerState<_MiruNovelReadView> {
       scrollOffsetListener: c.scrollOffsetListener,
       itemCount: item.length,
       itemBuilder: (context, index) {
-        return SelectableText.rich(TextSpan(text: item[index], style: const TextStyle(fontSize: 20, height: 1.5)));
+        return SelectableText.rich(
+          TextSpan(
+            text: item[index],
+            style: const TextStyle(fontSize: 20, height: 1.5),
+          ),
+        );
       },
     );
     // Listener(
@@ -226,7 +266,11 @@ class _MobileSilderState extends ConsumerState<_MobileSilder> {
                   : null,
         ),
         const SizedBox(width: 10),
-        Text(isSliding.value ? sliderValue.value.toInt().toString() : controller.itemPosition.toString()),
+        Text(
+          isSliding.value
+              ? sliderValue.value.toInt().toString()
+              : controller.itemPosition.toString(),
+        ),
         Expanded(
           child:
               (c.itemScrollController.isAttached && controller.totalPage >= 0)
@@ -234,12 +278,18 @@ class _MobileSilderState extends ConsumerState<_MobileSilder> {
                     divisions: controller.totalPage,
                     min: 0,
                     max: controller.totalPage.toDouble(),
-                    value: isSliding.value ? sliderValue.value : controller.itemPosition.toDouble(),
+                    value:
+                        isSliding.value
+                            ? sliderValue.value
+                            : controller.itemPosition.toDouble(),
                     onChanged: (val) {
                       sliderValue.value = val;
                       c.itemScrollController.jumpTo(index: val.toInt());
                     },
-                    label: isSliding.value ? '${sliderValue.value.toInt()}' : '${controller.itemPosition}',
+                    label:
+                        isSliding.value
+                            ? '${sliderValue.value.toInt()}'
+                            : '${controller.itemPosition}',
                     onChangeStart: (value) {
                       isSliding.value = true;
                     },
@@ -254,7 +304,11 @@ class _MobileSilderState extends ConsumerState<_MobileSilder> {
         MoonButton.icon(
           icon: const Icon(Icons.skip_next_rounded),
           onTap:
-              epcontroller.selectedEpisodeIndex < epcontroller.epGroup[epcontroller.selectedGroupIndex].urls.length
+              epcontroller.selectedEpisodeIndex <
+                      epcontroller
+                          .epGroup[epcontroller.selectedGroupIndex]
+                          .urls
+                          .length
                   ? () {
                     epNotifier.nextChapter();
                   }

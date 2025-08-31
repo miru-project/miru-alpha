@@ -1,5 +1,5 @@
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/miru_core/extension/extension_service.dart';
 
 // class WatchEntry {
 //   static handlePageRoute(ExtensionApiV1 extension, BuildContext context) {
@@ -29,7 +29,7 @@ class WatchParams {
     required this.detailUrl,
     required this.epGroup,
   });
-  final ExtensionApi service;
+  final ExtensionMeta service;
   final String url;
   final List<ExtensionEpisodeGroup>? epGroup;
   final int selectedGroupIndex;
@@ -41,7 +41,7 @@ class WatchParams {
 }
 
 class DetailParam {
-  const DetailParam({required this.service, required this.url});
-  final ExtensionApi service;
+  const DetailParam({required this.meta, required this.url});
+  final ExtensionMeta meta;
   final String url;
 }
