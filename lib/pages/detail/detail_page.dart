@@ -754,7 +754,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
                 extensionMeta: widget.meta,
               ),
             ),
-        error: (err, stack) => ErrorDisplay(err: err, stack: stack),
+        error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
       ),
     );
   }

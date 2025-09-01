@@ -9,6 +9,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:miru_app_new/provider/extension_page_provider.dart';
 
+class CoreMessage {
+  final String? msg;
+  final dynamic data;
+
+  CoreMessage(this.msg, this.data);
+}
+
 class CoreNetwork {
   static String get baseUrl => 'http://127.127.127.127:12777';
   static String get port => '12777';
@@ -28,7 +35,7 @@ class CoreNetwork {
         .then((response) => response.data);
   }
 
-  static Future<dynamic> requestFormData(
+  static Future<CoreMessage> requestFormData(
     String path,
     Map<String, dynamic> data, {
     String method = 'POST',
@@ -39,7 +46,10 @@ class CoreNetwork {
       data: formData,
       options: Options(method: method, contentType: 'multipart/form-data'),
     );
-    return response.data["data"];
+    return CoreMessage(
+      response.data["message"]?.toString(),
+      response.data["data"],
+    );
   }
 
   static void ensureInitialized() {
@@ -154,7 +164,7 @@ class ExtensionEndpoint {
       'url': url,
       'pkg': pkg,
     });
-    final data = jsonDecode(jsResult.stringResult);
+    final data = jsonDecode(jsResult.data);
 
     switch (type) {
       case ExtensionType.bangumi:
@@ -188,10 +198,12 @@ class ExtensionEndpoint {
   }
 
   static Future<ExtensionDetail> detail(String pkg, String url) async {
-    final jsResult = await CoreNetwork.requestFormData('$detailUrl/$pkg', {
+    final jsResult = await CoreNetwork.requestFormData(detailUrl, {
       'url': url,
-    }, method: 'POST');
-    return ExtensionDetail.fromJson(jsResult);
+      'pkg': pkg,
+    }, method: 'GET');
+
+    return ExtensionDetail.fromJson(jsResult.data);
   }
 
   static Future<List<ExtensionListItem>> search(
@@ -218,7 +230,7 @@ class ExtensionEndpoint {
       'page': page,
     }, method: 'GET');
     List<ExtensionListItem> result =
-        jsResult.map<ExtensionListItem>((e) {
+        jsResult.data.map<ExtensionListItem>((e) {
           return ExtensionListItem.fromJson(e);
         }).toList();
     return result;
@@ -248,20 +260,20 @@ class ExtensionEndpoint {
   static Future<void> deleteRepo(String repoUrl) async {
     return await CoreNetwork.requestFormData('ext/repo', {
       'repoUrl': repoUrl,
-    }, method: 'DELETE');
+    }, method: 'DELETE').then((value) => value.msg);
   }
 
   static Future<void> downloadExtension(String repoUrl, String package) async {
-    return CoreNetwork.requestFormData("download/extension", {
+    return await CoreNetwork.requestFormData("download/extension", {
       'repoUrl': repoUrl,
       'pkg': package,
-    });
+    }).then((value) => value.msg);
   }
 
   static Future<void> removeExtension(String package) async {
     return CoreNetwork.requestFormData("rm/extension", {
       'pkg': package,
-    }, method: 'DELETE');
+    }, method: 'DELETE').then((value) => value.msg);
   }
 }
 

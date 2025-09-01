@@ -376,7 +376,7 @@ class _GridLoadingWidget extends StatelessWidget {
               childAspectRatio: 0.6,
             ),
             desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: cons.maxWidth ~/ 110,
+              crossAxisCount: cons.maxWidth ~/ 180,
               childAspectRatio: 0.6,
             ),
             itemBuilder: (context, index) => const MiruGridTileLoadingBox(),
