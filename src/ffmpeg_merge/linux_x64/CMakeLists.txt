@@ -37,43 +37,31 @@ endif()
 
 message(STATUS "FFmpeg root directory: ${FFMPEG_ROOT}")
 
-# Debug - list contents of the FFmpeg lib directory to verify library names
-file(GLOB FFMPEG_LIB_FILES "${FFMPEG_ROOT}/lib/*.so*")
-message(STATUS "Available FFmpeg libraries:")
-foreach(lib_file ${FFMPEG_LIB_FILES})
-    message(STATUS "Found library: ${lib_file}")
+
+# Set direct paths to each library file to ensure they are found during linkage
+set(AVCODEC_LIB "/lib/libavcodec.so")
+set(AVFORMAT_LIB "/lib/libavformat.so")
+set(AVFILTER_LIB "/lib/libavfilter.so")
+set(AVDEVICE_LIB "/lib/libavdevice.so")
+set(SWRESAMPLE_LIB "/lib/libswresample.so")
+set(SWSCALE_LIB "/lib/libswscale.so")
+set(AVUTIL_LIB "/lib/libavutil.so")
+
+
+foreach(lib ${AVCODEC_LIB} ${AVFORMAT_LIB} ${AVFILTER_LIB} ${AVDEVICE_LIB} ${SWRESAMPLE_LIB} ${SWSCALE_LIB} ${AVUTIL_LIB})
+    if(NOT EXISTS "${FFMPEG_ROOT}${lib}")
+        message(FATAL_ERROR "Required library does not exist: ${lib}")
+    endif()
+    message(STATUS "Found FFmpeg library: ${FFMPEG_ROOT}${lib}")
 endforeach()
+
 
 # Setup proper FFmpeg paths
 include_directories(${FFMPEG_ROOT}/include)
-link_directories(${FFMPEG_ROOT}/lib)
+link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
-# Set direct paths to each library file to ensure they are found during linkage
-set(AVCODEC_LIB "${FFMPEG_ROOT}/lib/libavcodec.so")
-set(AVFORMAT_LIB "${FFMPEG_ROOT}/lib/libavformat.so")
-set(AVFILTER_LIB "${FFMPEG_ROOT}/lib/libavfilter.so")
-set(AVDEVICE_LIB "${FFMPEG_ROOT}/lib/libavdevice.so")
-set(SWRESAMPLE_LIB "${FFMPEG_ROOT}/lib/libswresample.so")
-set(SWSCALE_LIB "${FFMPEG_ROOT}/lib/libswscale.so")
-set(AVUTIL_LIB "${FFMPEG_ROOT}/lib/libavutil.so")
 
-# Verify the libraries exist
-foreach(lib ${AVCODEC_LIB} ${AVFORMAT_LIB} ${AVFILTER_LIB} ${AVDEVICE_LIB} ${SWRESAMPLE_LIB} ${SWSCALE_LIB} ${AVUTIL_LIB})
-    if(NOT EXISTS "${lib}")
-        message(FATAL_ERROR "Required library does not exist: ${lib}")
-    endif()
-endforeach()
 
-# Link against FFmpeg libraries with full paths
-target_link_libraries(ffmpeg_merge PRIVATE 
-    ${AVCODEC_LIB}
-    ${AVFORMAT_LIB}
-    ${AVFILTER_LIB}
-    ${AVDEVICE_LIB}
-    ${SWRESAMPLE_LIB}
-    ${SWSCALE_LIB}
-    ${AVUTIL_LIB}
-)
 
 # Add compile definitions if needed (may help with some FFmpeg API issues)
 target_compile_definitions(ffmpeg_merge PRIVATE
@@ -82,26 +70,14 @@ target_compile_definitions(ffmpeg_merge PRIVATE
     __STDC_FORMAT_MACROS
 )
 
-# Copy FFmpeg shared libraries to the output directory
-file(GLOB FFMPEG_SHARED_LIBS "${FFMPEG_ROOT}/lib/*.so*")
-file(COPY ${FFMPEG_SHARED_LIBS} DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-
-# Add post-build command to copy shared libraries to binary directory if needed
-add_custom_command(TARGET ffmpeg_merge POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${FFMPEG_ROOT}/lib"
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
-    COMMENT "Copying FFmpeg shared libraries to output directory"
-)
-
 # Install rules for our library
 install(TARGETS ffmpeg_merge
     LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
     COMPONENT Runtime
 )
 
-# Install FFmpeg shared libraries alongside the target
-install(FILES ${FFMPEG_SHARED_LIBS} 
+install(DIRECTORY "${FFMPEG_ROOT}/lib/"
     DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
     COMPONENT Runtime
+    FILES_MATCHING PATTERN "*.so*"
 )

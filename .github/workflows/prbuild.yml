@@ -83,12 +83,6 @@ jobs:
   build-and-release-linux:
     runs-on: ubuntu-latest
     steps:
-      # - name: Add WebKit
-      #   run: |
-      #     sudo echo "deb http://gb.archive.ubuntu.com/ubuntu jammy main" >> /etc/apt/sources.list
-      #     sudo apt update
-      #     sudo apt install libwebkit2gtk-4.0-dev
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -105,9 +99,6 @@ jobs:
           flutter-version:  3.35.3
           channel: stable
 
-      # - name: Install project dependencies
-      #   run: flutter pub get
-
       - name: Build artifacts
         run: flutter build linux --release
       - name: Rename Release Directory Name to Miru-alpha # 为了解压缩后更好看一点
@@ -122,4 +113,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: "build/linux/x64/release/Miru-alpha"
-          name: Miru-${{ env.TIMESTAMP }}-linux.zip
+          name: Miru-${{ env.TIMESTAMP }}-linux
