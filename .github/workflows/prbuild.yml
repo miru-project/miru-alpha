@@ -81,7 +81,7 @@ jobs:
   #         name: Miru-pr-${{ github.event.pull_request.number }}-windows.zip
 
   build-and-release-linux:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       # - name: Add WebKit
       #   run: |
