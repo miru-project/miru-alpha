@@ -83,8 +83,13 @@ jobs:
   build-and-release-linux:
     runs-on: ubuntu-latest
     steps:
-      # - name: Install Dependencies
-      #   run: sudo apt-get install ninja-build build-essential libgtk-3-dev libmpv-dev mpv
+      - name: Add WebKit
+        run: |
+          sudo echo "deb http://gb.archive.ubuntu.com/ubuntu jammy main" >> /etc/apt/sources.list
+          sudo apt update
+          sudo apt install libwebkit2gtk-4.0-dev
+          sudo apt install libwebkit2gtk-4.0-dev
+
       - name: Checkout
         uses: actions/checkout@v4
 
