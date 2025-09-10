@@ -121,5 +121,5 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          path: "build/linux/x64/release/Miru-App"
+          path: "build/linux/x64/release/Miru-alpha"
           name: Miru-${{ env.TIMESTAMP }}-linux.zip
