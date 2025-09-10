@@ -86,6 +86,7 @@ dependencies:
   provider: ^6.1.5
   blur: ^4.0.2
   skeletonizer: ^2.1.0+1
+  forui_hooks: ^0.15.0
 
 dev_dependencies:
   flutter_test:

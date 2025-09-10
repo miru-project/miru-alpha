@@ -6,7 +6,7 @@ part of 'network_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$videoLoadHash() => r'd3b80c97cee04de9e67780c0a0408b9559e68e49';
+String _$videoLoadHash() => r'313b20d2538d9936b4835d2571512ad04c748dae';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -34,7 +34,7 @@ class _SystemHash {
 const videoLoadProvider = VideoLoadFamily();
 
 /// See also [videoLoad].
-class VideoLoadFamily extends Family<AsyncValue<ExtensionBangumiWatch>> {
+class VideoLoadFamily extends Family<AsyncValue<Object>> {
   /// See also [videoLoad].
   const VideoLoadFamily();
 
@@ -64,8 +64,7 @@ class VideoLoadFamily extends Family<AsyncValue<ExtensionBangumiWatch>> {
 }
 
 /// See also [videoLoad].
-class VideoLoadProvider
-    extends AutoDisposeFutureProvider<ExtensionBangumiWatch> {
+class VideoLoadProvider extends AutoDisposeFutureProvider<Object> {
   /// See also [videoLoad].
   VideoLoadProvider(String url, String pkg, ExtensionType type)
     : this._internal(
@@ -101,7 +100,7 @@ class VideoLoadProvider
 
   @override
   Override overrideWith(
-    FutureOr<ExtensionBangumiWatch> Function(VideoLoadRef provider) create,
+    FutureOr<Object> Function(VideoLoadRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -120,7 +119,7 @@ class VideoLoadProvider
   }
 
   @override
-  AutoDisposeFutureProviderElement<ExtensionBangumiWatch> createElement() {
+  AutoDisposeFutureProviderElement<Object> createElement() {
     return _VideoLoadProviderElement(this);
   }
 
@@ -145,7 +144,7 @@ class VideoLoadProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin VideoLoadRef on AutoDisposeFutureProviderRef<ExtensionBangumiWatch> {
+mixin VideoLoadRef on AutoDisposeFutureProviderRef<Object> {
   /// The parameter `url` of this provider.
   String get url;
 
@@ -156,8 +155,7 @@ mixin VideoLoadRef on AutoDisposeFutureProviderRef<ExtensionBangumiWatch> {
   ExtensionType get type;
 }
 
-class _VideoLoadProviderElement
-    extends AutoDisposeFutureProviderElement<ExtensionBangumiWatch>
+class _VideoLoadProviderElement extends AutoDisposeFutureProviderElement<Object>
     with VideoLoadRef {
   _VideoLoadProviderElement(super.provider);
 

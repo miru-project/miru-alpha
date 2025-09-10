@@ -2,7 +2,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
-import 'package:forui/widgets/card.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 
 class _TextTile extends StatelessWidget {

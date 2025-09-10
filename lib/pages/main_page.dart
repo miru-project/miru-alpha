@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -12,7 +11,6 @@ import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/provider/main_controller_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/i18n.dart';
-import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'setting/setting_items.dart';

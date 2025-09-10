@@ -6,6 +6,7 @@ class ErrorDisplay extends StatelessWidget {
   final Object err;
   final StackTrace stack;
   final VoidCallback? onRefresh;
+  final Widget? prefix;
   late final String errTitle;
   late final String errContent;
 
@@ -14,6 +15,7 @@ class ErrorDisplay extends StatelessWidget {
     required this.err,
     required this.stack,
     this.onRefresh,
+    this.prefix,
   }) {
     errTitle = "Error: $err";
     errContent = stack.toString();
@@ -24,6 +26,7 @@ class ErrorDisplay extends StatelessWidget {
     required this.err,
     required this.stack,
     this.onRefresh,
+    this.prefix,
   }) {
     if (err is! DioException) {
       errTitle = "Error: $err";
@@ -50,6 +53,8 @@ class ErrorDisplay extends StatelessWidget {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  prefix ?? const SizedBox.shrink(),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       errTitle,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
@@ -49,6 +51,7 @@ class VideoPlayerState {
   final int selectedEpisodeIndex;
   final String name;
   final String currentSubtitle;
+  final bool showControls;
   final Map<String, String> qualityMap;
   final double ratio;
   VideoPlayerState({
@@ -72,6 +75,7 @@ class VideoPlayerState {
     this.qualityMap = const {},
     this.ratio = 0.0,
     this.currentSubtitle = '',
+    this.showControls = false,
   });
 
   VideoPlayerState copyWith({
@@ -88,6 +92,7 @@ class VideoPlayerState {
     List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
     List<Subtitle>? subtitles,
     bool? isShowSubtitle,
+    bool? showControls,
     List<ExtensionEpisodeGroup>? epGroup,
     int? selectedGroupIndex,
     int? selectedEpisodeIndex,
@@ -118,6 +123,7 @@ class VideoPlayerState {
       currentSubtitle: currentSubtitle ?? this.currentSubtitle,
       ratio: ratio ?? this.ratio,
       qualityMap: qualityMap ?? this.qualityMap,
+      showControls: showControls ?? this.showControls,
     );
   }
 }
@@ -132,10 +138,36 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
         VideoPlayerState(
           subtitlesRaw: subtitle,
           controller: VideoPlayerController.networkUrl(Uri.parse(url)),
+          showControls: false,
         ),
       ) {
     defaultSize = ratio;
     _init(url, headers);
+  }
+
+  Timer? _hideTimer;
+
+  /// Shows controls and schedules hiding after 3 seconds.
+  void updateTimer() {
+    _hideTimer?.cancel();
+    // show controls immediately
+    state = state.copyWith(showControls: true);
+    // start periodic timer to hide after 3 seconds
+    _hideTimer = Timer(const Duration(seconds: 3), () {
+      state = state.copyWith(showControls: false);
+    });
+  }
+
+  /// Manually set showControls state and cancel existing timer if hiding.
+  void setShowControls(bool v) {
+    _hideTimer?.cancel();
+    state = state.copyWith(showControls: v);
+    if (v) {
+      // if showing, schedule auto-hide
+      _hideTimer = Timer(const Duration(seconds: 3), () {
+        state = state.copyWith(showControls: false);
+      });
+    }
   }
 
   void _init(String url, Map<String, String> headers) {
@@ -319,6 +351,7 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
 
   @override
   void dispose() {
+    _hideTimer?.cancel();
     state.controller?.removeListener(_updatePosition);
     state.controller?.dispose();
     super.dispose();

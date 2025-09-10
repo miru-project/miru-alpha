@@ -5,6 +5,7 @@ import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
@@ -12,7 +13,7 @@ import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/model/miru_core.dart';
 import 'package:miru_app_new/objectbox.g.dart';
-import 'package:miru_app_new/provider/network_provider.dart';
+import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/download/download_utils.dart';
@@ -20,8 +21,10 @@ import 'package:miru_app_new/utils/download/download_utils.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/request.dart';
-import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
+import 'package:miru_app_new/widgets/amination/animated_box.dart';
+import 'package:miru_app_new/widgets/core/inner_card.dart';
+import 'package:miru_app_new/widgets/core/outter_card.dart';
 import 'package:miru_app_new/widgets/dialog/favorite_add_group_dialog.dart';
 import 'package:miru_app_new/widgets/dialog/favorite_warning_dialog.dart';
 import 'package:miru_app_new/widgets/error.dart';
@@ -44,76 +47,11 @@ class DetailItemBox extends HookWidget {
   final double padding;
   final String title;
   final bool isMobile;
-  final minHeight = 300.0;
   final bool needExpand;
 
   @override
   Widget build(BuildContext context) {
-    final isExpanded = useState(true);
-
-    return ClipRect(
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 500),
-        height:
-            needExpand
-                ? null
-                : isExpanded.value
-                ? null
-                : minHeight, // Expand or restrict height
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 25,
-              color: Colors.black.withValues(alpha: .2),
-            ),
-          ],
-          color: context.moonTheme?.textInputTheme.colors.textColor.withAlpha(
-            20,
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(padding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title and Expand/Collapse Button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: isMobile ? 18 : 20,
-                      fontWeight: FontWeight.bold,
-                      // fontFamily: "HarmonyOS_Sans",
-                    ),
-                  ),
-                  if (needExpand)
-                    MoonButton.icon(
-                      onTap: () {
-                        isExpanded.value = !isExpanded.value;
-                      },
-                      iconColor: Colors.grey[500],
-                      icon: Text(isExpanded.value ? 'Collapse' : 'Expand'),
-                    ),
-                ],
-              ),
-              const Divider(),
-              const SizedBox(height: 10),
-              // Wrap the content with SingleChildScrollView
-              if (!isExpanded.value)
-                SizedBox(
-                  height: minHeight - 100,
-                  child: SingleChildScrollView(child: child),
-                )
-              else
-                child,
-            ],
-          ),
-        ),
-      ),
-    );
+    return AnimatedBox(child: InnerCard(title: title, child: child));
   }
 }
 
@@ -152,30 +90,6 @@ class DetailEpButton extends HookWidget {
                               detail.episodes![selectedValue].urls.length,
                               (index) {
                                 return MoonButton(
-                                  borderColor:
-                                      context
-                                          .moonTheme
-                                          ?.segmentedControlTheme
-                                          .colors
-                                          .backgroundColor,
-                                  backgroundColor: context
-                                      .moonTheme
-                                      ?.segmentedControlTheme
-                                      .colors
-                                      .backgroundColor
-                                      .withAlpha(150),
-                                  hoverEffectColor:
-                                      context
-                                          .moonTheme
-                                          ?.segmentedControlTheme
-                                          .colors
-                                          .backgroundColor,
-                                  hoverTextColor:
-                                      context
-                                          .moonTheme
-                                          ?.segmentedControlTheme
-                                          .colors
-                                          .textColor,
                                   onTap: () => onTap(index),
                                   label: PlatformWidget(
                                     mobileWidget: ConstrainedBox(
@@ -207,7 +121,7 @@ class DetailEpButton extends HookWidget {
   }
 }
 
-class DesktopDetail extends StatelessWidget {
+class DesktopDetail extends ConsumerWidget {
   const DesktopDetail({
     super.key,
     this.data,
@@ -217,13 +131,13 @@ class DesktopDetail extends StatelessWidget {
     required this.isLoading,
     required this.ep,
     required this.extensionMeta,
-    required this.cast,
+    // required this.cast,
   });
   final Widget desc;
   final bool isLoading;
   final Widget ep;
   final Widget season;
-  final Widget cast;
+  // final Widget cast;
   final ExtensionMeta extensionMeta;
   final String? detailUrl;
   final ExtensionDetail? data;
@@ -233,7 +147,9 @@ class DesktopDetail extends StatelessWidget {
   static const double _clampMaxDesktop = 200;
   static const _gloablDesktopPadding = 30.0;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final snapShot =
+        ref.watch(detialProvider).detailState ?? const AsyncValue.loading();
     return CustomScrollView(
       slivers: [
         SliverPersistentHeader(
@@ -282,17 +198,30 @@ class DesktopDetail extends StatelessWidget {
                       flex: 6,
                       child: Column(
                         children: [
-                          DetailItemBox(
-                            title: 'Episode',
-                            padding: _gloablDesktopPadding,
-                            child: ep,
-                          ),
+                          if (snapShot.hasValue &&
+                              snapShot.value?.episodes != null)
+                            FTabs(
+                              children:
+                                  snapShot.value!.episodes!
+                                      .map(
+                                        (e) => FTabEntry(
+                                          label: Text(e.title),
+                                          child: DetailItemBox(
+                                            title: 'Episode',
+                                            padding: _gloablDesktopPadding,
+                                            child: ep,
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                            ),
+
                           const SizedBox(height: 20),
-                          DetailItemBox(
-                            padding: _gloablDesktopPadding,
-                            title: 'Cast & Rating',
-                            child: cast,
-                          ),
+                          // DetailItemBox(
+                          //   padding: _gloablDesktopPadding,
+                          //   title: 'Cast & Rating',
+                          //   child: cast,
+                          // ),
                         ],
                       ),
                     ),
@@ -389,30 +318,234 @@ class DetailPage extends StatefulHookConsumerWidget {
   createState() => _DetailPageState();
 }
 
-class HistoryNotifier extends StateNotifier<History?> {
-  HistoryNotifier(super.state);
-  void putHistory(History? history) {
-    state = history;
+class LoadedContent extends HookWidget {
+  final ExtensionDetail detail;
+  final ExtensionMeta meta;
+  const LoadedContent({super.key, required this.detail, required this.meta});
+  @override
+  Widget build(BuildContext context) {
+    final url = detail.cover ?? '';
+    final selected = useState(0);
+    return MiruListView(
+      padding: EdgeInsets.all(20),
+      children: [
+        Flex(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          direction: Axis.horizontal,
+          children: [
+            Expanded(
+              flex: 7,
+              child: Column(
+                children: [
+                  AnimatedBox(
+                    child: FCard.raw(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                            fit: BoxFit.fitWidth,
+                            image: ExtendedNetworkImageProvider(detail.cover!),
+                            colorFilter: ColorFilter.mode(
+                              Colors.black.withAlpha(
+                                200,
+                              ), // optional dark overlay
+                              BlendMode.darken,
+                            ),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsetsGeometry.symmetric(
+                            horizontal: 25,
+                            vertical: 30,
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              FBadge(child: Text('Favorited')),
+                              const SizedBox(height: 10),
+                              Padding(
+                                padding: EdgeInsetsGeometry.symmetric(
+                                  horizontal: 10,
+                                ),
+                                child: Text(
+                                  detail.title,
+                                  maxLines: 2,
+                                  style: TextStyle(
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.bold,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 25),
+                              FAccordion(
+                                style: (style) {
+                                  return FAccordionStyle(
+                                    titleTextStyle: style.titleTextStyle,
+                                    childTextStyle: style.childTextStyle,
+                                    iconStyle: style.iconStyle,
+                                    focusedOutlineStyle:
+                                        style.focusedOutlineStyle,
+                                    dividerStyle: style.dividerStyle.copyWith(
+                                      color: Colors.transparent,
+                                    ),
+                                    tappableStyle: style.tappableStyle,
+                                  );
+                                },
+                                children: [
+                                  FAccordionItem(
+                                    initiallyExpanded: true,
+                                    title: Text("Description"),
+                                    child: Text(
+                                      detail.desc ??
+                                          "Currently no description ... ",
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color:
+                                            context
+                                                .theme
+                                                .colors
+                                                .mutedForeground,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                // direction: Axis.horizontal,
+                                children: [
+                                  FButton(
+                                    suffix: Icon(FIcons.play),
+                                    onPress: () {},
+                                    child: Text("Play"),
+                                  ),
+                                  SizedBox(width: 15),
+                                  FButton(
+                                    style: FButtonStyle.secondary(),
+                                    suffix: Icon(FIcons.globe),
+                                    onPress: () {},
+                                    child: Text("WebView"),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  if (detail.episodes == null)
+                    DetailItemBox(
+                      title: 'No Episode',
+                      padding: 20,
+                      child: SizedBox.expand(),
+                    )
+                  else
+                    OutterCard(
+                      title: 'Episodes',
+                      trailing: Row(
+                        children: [
+                          SizedBox(
+                            width: 100,
+                            child: FSelect<int>(
+                              initialValue: selected.value,
+                              onChange: (value) {
+                                if (value == null) {
+                                  return;
+                                }
+                                selected.value = value;
+                              },
+                              items: {
+                                for (
+                                  int i = 0;
+                                  i < detail.episodes!.length;
+                                  i++
+                                )
+                                  detail.episodes![i].title: i,
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final item
+                              in detail.episodes![selected.value].urls)
+                            FButton.icon(
+                              onPress: () {
+                                context.push(
+                                  '/watch',
+                                  extra: WatchParams(
+                                    name: detail.title,
+                                    detailImageUrl: detail.cover ?? '',
+                                    selectedEpisodeIndex: detail
+                                        .episodes![selected.value]
+                                        .urls
+                                        .indexOf(item),
+                                    selectedGroupIndex: selected.value,
+                                    epGroup: detail.episodes,
+                                    detailUrl: item.url,
+                                    url: item.url,
+                                    meta: meta,
+                                    type: meta.type,
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: EdgeInsetsGeometry.symmetric(
+                                  horizontal: 10,
+                                ),
+                                child: Text(item.name),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            Spacer(),
+            Expanded(
+              flex: 3,
+              child: Column(
+                children: [
+                  AnimatedBox(
+                    child: FCard.raw(
+                      child: ClipRRect(
+                        // borderRadius: BorderRadius.circular(),
+                        child: ExtendedImage.network(
+                          url,
+                          borderRadius: BorderRadius.circular(10),
+                          shape: BoxShape.rectangle,
+                          fit: BoxFit.fitHeight,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  AnimatedBox(
+                    child: InnerCard(
+                      title: 'Tracking',
+                      child: Center(child: Text("anilist")),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 40),
+      ],
+    );
   }
 }
-
-class FavoriteNotifier with ChangeNotifier {
-  Favorite? favorite;
-  void putFavorite(Favorite? favorite) {
-    this.favorite = favorite;
-    notifyListeners();
-  }
-}
-
-final _history = StateNotifierProvider<HistoryNotifier, History?>((ref) {
-  return HistoryNotifier(null);
-});
-final _favoriteNotifer = FavoriteNotifier();
 
 class _DetailPageState extends ConsumerState<DetailPage> {
-  final ValueNotifier<int> _selectedGroup = ValueNotifier(0);
-  static const _trackingTab = ['TMDB', 'AniList'];
-
   @override
   void initState() {
     final watchedQuery = DatabaseService.historys.query(
@@ -420,7 +553,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     );
     watchedQuery.watch().listen((query) {
       final value = query.findFirst();
-      ref.read(_history.notifier).putHistory(value);
+      ref.read(detialProvider).putHistory(value);
     });
     final favQuery =
         DatabaseService.fav
@@ -431,7 +564,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
             )
             .build();
 
-    _favoriteNotifer.putFavorite(favQuery.findFirst());
+    ref.read(detialProvider).putFavorite(favQuery.findFirst());
     // DatabaseService.historys
     //     .filter()
     //     .packageEqualTo(widget.extensionService.extension.package)
@@ -449,7 +582,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     //     .findFirstSync());
     Future.microtask(
       () => ref
-          .read(_history.notifier)
+          .read(detialProvider)
           .putHistory(
             DatabaseService.getHistoryByPackageAndUrl(
               widget.meta.packageName,
@@ -457,307 +590,313 @@ class _DetailPageState extends ConsumerState<DetailPage> {
             ),
           ),
     );
+    // Trigger detail fetch via DetialProvider so UI doesn't depend directly on the fetch provider
+    Future.microtask(
+      () => ref
+          .read(detialProvider)
+          .fetchDetail(widget.meta.packageName, widget.url),
+    );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final tancontroller = useTabController(initialLength: _trackingTab.length);
-    final snapShot = ref.watch(
-      fetchExtensionDetailProvider(widget.meta.packageName, widget.url),
-    );
-    final isdropDown = useState(false);
-    final epGroup = useState(<ExtensionEpisodeGroup>[]);
+    final detial =
+        ref.watch(detialProvider).detailState ?? const AsyncValue.loading();
     return MiruScaffold(
-      mobileHeader: Align(
-        alignment: Alignment.centerLeft,
-        child: MoonButton(
-          label: const Text(
-            'Detail',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-          ),
-          onTap: () {
-            context.pop();
-          },
-          leading: const Icon(MoonIcons.controls_chevron_left_16_regular),
+      body: PlatformWidget(
+        desktopWidget: detial.when(
+          data: (detial) => LoadedContent(detail: detial, meta: widget.meta),
+          error: (err, stack) => ErrorDisplay(err: err, stack: stack),
+          loading: () => Center(child: FProgress.circularIcon()),
         ),
-      ),
-      sidebar:
-          DeviceUtil.isMobileLayout(context)
-              ? <Widget>[
-                const SizedBox(height: 10),
-                Row(
-                  children: <Widget>[
-                    MoonButton(
-                      onTap:
-                          ref.watch(_history) == null
-                              ? null
-                              : () {
-                                final snapshot = ref.watch(
-                                  fetchExtensionDetailProvider(
-                                    widget.meta.packageName,
-                                    widget.url,
-                                  ),
-                                );
-                                snapshot.whenData((data) {
-                                  if (data.episodes == null ||
-                                      data.episodes!.isEmpty) {
-                                    return;
-                                  }
-                                  context.push(
-                                    '/watch',
-                                    extra: WatchParams(
-                                      name: ref.watch(_history)!.title,
-                                      detailImageUrl: data.cover ?? '',
-                                      selectedEpisodeIndex:
-                                          ref.watch(_history)!.episodeId,
-                                      selectedGroupIndex:
-                                          ref.watch(_history)!.episodeGroupId,
-                                      epGroup: data.episodes,
-                                      detailUrl: widget.url,
-                                      url:
-                                          data
-                                              .episodes![ref
-                                                  .watch(_history)!
-                                                  .episodeGroupId]
-                                              .urls[ref
-                                                  .watch(_history)!
-                                                  .episodeId]
-                                              .url,
-                                      meta: widget.meta,
-                                      type: widget.meta.type,
-                                    ),
-                                  );
-                                });
-                              },
-                      label: const Text('play'),
-                      leading: const Icon(MoonIcons.media_play_24_regular),
-                    ),
-                    SizedBox(
-                      width: DeviceUtil.getWidth(context) / 3,
-                      child: MoonDropdown(
-                        dropdownAnchorPosition: MoonDropdownAnchorPosition.top,
-                        show: isdropDown.value,
-                        content: Column(
-                          children: List.generate(
-                            epGroup.value.length,
-                            (index) => MoonMenuItem(
-                              backgroundColor:
-                                  index == _selectedGroup.value
-                                      ? context
-                                          .moonTheme
-                                          ?.segmentedControlTheme
-                                          .colors
-                                          .backgroundColor
-                                      : null,
-                              label: Text(
-                                overflow: TextOverflow.ellipsis,
-                                epGroup.value[index].title,
-                                style: TextStyle(
-                                  color:
-                                      index == _selectedGroup.value
-                                          ? context
-                                              .moonTheme
-                                              ?.segmentedControlTheme
-                                              .colors
-                                              .textColor
-                                          : null,
-                                ),
-                              ),
-                              onTap: () {
-                                _selectedGroup.value = index;
-                                isdropDown.value = false;
-                              },
-                            ),
-                          ),
-                        ),
-                        child: MoonButton(
-                          label: Text(
-                            overflow: TextOverflow.ellipsis,
-                            epGroup.value.isEmpty
-                                ? 'No Season'
-                                : epGroup.value[_selectedGroup.value].title,
-                          ),
-                          onTap: () {
-                            isdropDown.value = !isdropDown.value;
-                          },
-                        ),
-                      ),
-                    ),
-                    MoonButton(
-                      label: const Text('WebView'),
-                      onTap: () {
-                        context.push(
-                          '/mobileWebView',
-                          extra: WebviewParam(
-                            url: widget.url,
-                            meta: widget.meta,
-                          ),
-                        );
-                      },
-                      leading: const Icon(MoonIcons.generic_globe_24_regular),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                MoonTabBar(
-                  tabController: tancontroller,
-                  tabs: List.generate(
-                    _trackingTab.length,
-                    (index) => MoonTab(label: Text(_trackingTab[index])),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: 200,
-                  child: TabBarView(
-                    controller: tancontroller,
-                    children: [Container(), Container()],
-                  ),
-                ),
-              ]
-              : null,
-      body: snapShot.when(
-        data: (data) {
-          epGroup.value = data.episodes ?? [];
-          return MediaQuery.removePadding(
-            context: context,
-            child: PlatformWidget(
-              mobileWidget: MobileDetail(
-                detailUrl: widget.url,
-                isLoading: false,
-                data: data,
-                meta: widget.meta,
-                ep: DetailEpButton(
-                  detail: data,
-                  notifier: _selectedGroup,
-                  onTap: (value) {
-                    context.push(
-                      '/watch',
-                      extra: WatchParams(
-                        detailUrl: widget.url,
-                        detailImageUrl: data.cover ?? '',
-                        name: data.title,
-                        selectedEpisodeIndex: value,
-                        selectedGroupIndex: _selectedGroup.value,
-                        epGroup: data.episodes,
-                        url:
-                            data
-                                .episodes![_selectedGroup.value]
-                                .urls[value]
-                                .url,
-                        meta: widget.meta,
-                        type: widget.meta.type,
-                      ),
-                    );
-                  },
-                  spacing: 8,
-                  runSpacing: 10,
-                ),
-                desc: Text(
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  data.desc ?? 'No Description',
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ),
-              desktopWidget: DesktopDetail(
-                isLoading: false,
-                detailUrl: widget.url,
-                data: data,
-                extensionMeta: widget.meta,
-                ep: DetailEpButton(
-                  notifier: _selectedGroup,
-                  detail: data,
-                  onTap: (value) {
-                    context.push(
-                      '/watch',
-                      extra: WatchParams(
-                        name: data.title,
-                        detailImageUrl: data.cover ?? '',
-                        selectedEpisodeIndex: value,
-                        selectedGroupIndex: _selectedGroup.value,
-                        epGroup: data.episodes,
-                        detailUrl: widget.url,
-                        url:
-                            data
-                                .episodes![_selectedGroup.value]
-                                .urls[value]
-                                .url,
-                        meta: widget.meta,
-                        type: widget.meta.type,
-                      ),
-                    );
-                  },
-                  spacing: 20,
-                  runSpacing: 10,
-                ),
-                season: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(
-                    (data.episodes ?? []).length,
-                    (index) => MoonChip(
-                      width: double.infinity,
-                      height: 30,
-                      isActive: false,
-                      activeBackgroundColor: context
-                          .moonTheme
-                          ?.tabBarTheme
-                          .colors
-                          .selectedPillTabColor
-                          .withAlpha(150),
-                      backgroundColor: Colors.transparent,
-
-                      // activeColor: context.moonTheme?.tabBarTheme
-                      //     .colors.selectedTextColor,
-                      label: Expanded(child: Text(data.episodes![index].title)),
-                      onTap: () {
-                        _selectedGroup.value = index;
-                      },
-                      // backgroundColor: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-                desc: Text(
-                  data.desc ?? 'No Description',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                cast: _DetailCast(),
-              ),
-            ),
-          );
-        },
-        loading:
-            () => PlatformWidget(
-              mobileWidget: MobileDetail(
-                isLoading: true,
-                meta: widget.meta,
-                desc: const LoadingWidget(
-                  lineCount: 3,
-                  lineheight: 8,
-                  lineSeperate: 8,
-                  padding: EdgeInsets.all(5),
-                ),
-                ep: const LoadingWidget(
-                  lineCount: 3,
-                  lineheight: 20,
-                  lineSeperate: 15,
-                  padding: EdgeInsets.all(5),
-                ),
-              ),
-              desktopWidget: DesktopDetail(
-                isLoading: true,
-                cast: const LoadingWidget(lineCount: 8, lineheight: 20),
-                ep: const LoadingWidget(lineCount: 8, lineheight: 20),
-                season: const LoadingWidget(lineCount: 4, lineheight: 20),
-                desc: const LoadingWidget(lineCount: 8, lineheight: 20),
-                extensionMeta: widget.meta,
-              ),
-            ),
-        error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
+        mobileWidget: Text(""),
       ),
     );
   }
+  // {
+  //   final tancontroller = useTabController(initialLength: _trackingTab.length);
+  //   final snapShot =
+  //       ref.watch(detialProvider).detailState ?? const AsyncValue.loading();
+  //   final isdropDown = useState(false);
+  //   final epGroup = useState(<ExtensionEpisodeGroup>[]);
+  //   return MiruScaffold(
+  //     mobileHeader: Align(
+  //       alignment: Alignment.centerLeft,
+  //       child: MoonButton(
+  //         label: const Text(
+  //           'Detail',
+  //           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+  //         ),
+  //         onTap: () {
+  //           context.pop();
+  //         },
+  //         leading: const Icon(MoonIcons.controls_chevron_left_16_regular),
+  //       ),
+  //     ),
+  //     sidebar:
+  //         DeviceUtil.isMobileLayout(context)
+  //             ? <Widget>[
+  //               const SizedBox(height: 10),
+  //               Row(
+  //                 children: <Widget>[
+  //                   Consumer(
+  //                     builder: (context, ref, _) {
+  //                       final hist = ref.watch(detialProvider).history;
+  //                       return MoonButton(
+  //                         onTap:
+  //                             hist == null
+  //                                 ? null
+  //                                 : () {
+  //                                   final state =
+  //                                       ref.watch(detialProvider).detailState;
+  //                                   state?.whenData((data) {
+  //                                     if (data.episodes == null ||
+  //                                         data.episodes!.isEmpty) {
+  //                                       return;
+  //                                     }
+  //                                     context.push(
+  //                                       '/watch',
+  //                                       extra: WatchParams(
+  //                                         name: hist.title,
+  //                                         detailImageUrl: data.cover ?? '',
+  //                                         selectedEpisodeIndex: hist.episodeId,
+  //                                         selectedGroupIndex:
+  //                                             hist.episodeGroupId,
+  //                                         epGroup: data.episodes,
+  //                                         detailUrl: widget.url,
+  //                                         url:
+  //                                             data
+  //                                                 .episodes![hist
+  //                                                     .episodeGroupId]
+  //                                                 .urls[hist.episodeId]
+  //                                                 .url,
+  //                                         meta: widget.meta,
+  //                                         type: widget.meta.type,
+  //                                       ),
+  //                                     );
+  //                                   });
+  //                                 },
+  //                         label: const Text('play'),
+  //                         leading: const Icon(MoonIcons.media_play_24_regular),
+  //                       );
+  //                     },
+  //                   ),
+  //                   SizedBox(
+  //                     width: DeviceUtil.getWidth(context) / 3,
+  //                     child: MoonDropdown(
+  //                       dropdownAnchorPosition: MoonDropdownAnchorPosition.top,
+  //                       show: isdropDown.value,
+  //                       content: Column(
+  //                         children: List.generate(
+  //                           epGroup.value.length,
+  //                           (index) => MoonMenuItem(
+  //                             label: Text(
+  //                               overflow: TextOverflow.ellipsis,
+  //                               epGroup.value[index].title,
+  //                               style: TextStyle(),
+  //                             ),
+  //                             onTap: () {
+  //                               ref
+  //                                   .read(detialProvider)
+  //                                   .setSelectedGroup(index);
+  //                               isdropDown.value = false;
+  //                             },
+  //                           ),
+  //                         ),
+  //                       ),
+  //                       child: Consumer(
+  //                         builder: (context, ref, _) {
+  //                           final sel =
+  //                               ref.watch(detialProvider).selectedGroup.value;
+  //                           return MoonButton(
+  //                             label: Text(
+  //                               overflow: TextOverflow.ellipsis,
+  //                               epGroup.value.isEmpty
+  //                                   ? 'No Season'
+  //                                   : epGroup.value[sel].title,
+  //                             ),
+  //                             onTap: () {
+  //                               isdropDown.value = !isdropDown.value;
+  //                             },
+  //                           );
+  //                         },
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   MoonButton(
+  //                     label: const Text('WebView'),
+  //                     onTap: () {
+  //                       context.push(
+  //                         '/mobileWebView',
+  //                         extra: WebviewParam(
+  //                           url: widget.url,
+  //                           meta: widget.meta,
+  //                         ),
+  //                       );
+  //                     },
+  //                     leading: const Icon(MoonIcons.generic_globe_24_regular),
+  //                   ),
+  //                 ],
+  //               ),
+  //               const SizedBox(height: 10),
+  //               MoonTabBar(
+  //                 tabController: tancontroller,
+  //                 tabs: List.generate(
+  //                   _trackingTab.length,
+  //                   (index) => MoonTab(label: Text(_trackingTab[index])),
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 10),
+  //               SizedBox(
+  //                 height: 200,
+  //                 child: TabBarView(
+  //                   controller: tancontroller,
+  //                   children: [Container(), Container()],
+  //                 ),
+  //               ),
+  //             ]
+  //             : null,
+  //     body: snapShot.when(
+  //       data: (data) {
+  //         epGroup.value = data.episodes ?? [];
+  //         return MediaQuery.removePadding(
+  //           context: context,
+  //           child: PlatformWidget(
+  //             mobileWidget: MobileDetail(
+  //               detailUrl: widget.url,
+  //               isLoading: false,
+  //               data: data,
+  //               meta: widget.meta,
+  //               ep: DetailEpButton(
+  //                 detail: data,
+  //                 notifier: ref.watch(detialProvider).selectedGroup,
+  //                 onTap: (value) {
+  //                   context.push(
+  //                     '/watch',
+  //                     extra: WatchParams(
+  //                       detailUrl: widget.url,
+  //                       detailImageUrl: data.cover ?? '',
+  //                       name: data.title,
+  //                       selectedEpisodeIndex: value,
+  //                       selectedGroupIndex:
+  //                           ref.watch(detialProvider).selectedGroup.value,
+  //                       epGroup: data.episodes,
+  //                       url:
+  //                           data
+  //                               .episodes![ref
+  //                                   .watch(detialProvider)
+  //                                   .selectedGroup
+  //                                   .value]
+  //                               .urls[value]
+  //                               .url,
+  //                       meta: widget.meta,
+  //                       type: widget.meta.type,
+  //                     ),
+  //                   );
+  //                 },
+  //                 spacing: 8,
+  //                 runSpacing: 10,
+  //               ),
+  //               desc: Text(
+  //                 maxLines: 3,
+  //                 overflow: TextOverflow.ellipsis,
+  //                 data.desc ?? 'No Description',
+  //                 style: const TextStyle(fontSize: 12),
+  //               ),
+  //             ),
+  //             desktopWidget: DesktopDetail(
+  //               isLoading: false,
+  //               detailUrl: widget.url,
+  //               data: data,
+  //               extensionMeta: widget.meta,
+  //               ep: DetailEpButton(
+  //                 notifier: ref.watch(detialProvider).selectedGroup,
+  //                 detail: data,
+  //                 onTap: (value) {
+  //                   context.push(
+  //                     '/watch',
+  //                     extra: WatchParams(
+  //                       name: data.title,
+  //                       detailImageUrl: data.cover ?? '',
+  //                       selectedEpisodeIndex: value,
+  //                       selectedGroupIndex:
+  //                           ref.watch(detialProvider).selectedGroup.value,
+  //                       epGroup: data.episodes,
+  //                       detailUrl: widget.url,
+  //                       url:
+  //                           data
+  //                               .episodes![ref
+  //                                   .watch(detialProvider)
+  //                                   .selectedGroup
+  //                                   .value]
+  //                               .urls[value]
+  //                               .url,
+  //                       meta: widget.meta,
+  //                       type: widget.meta.type,
+  //                     ),
+  //                   );
+  //                 },
+  //                 spacing: 20,
+  //                 runSpacing: 10,
+  //               ),
+  //               season: Column(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: List.generate(
+  //                   (data.episodes ?? []).length,
+  //                   (index) => MoonChip(
+  //                     width: double.infinity,
+  //                     height: 30,
+  //                     isActive: false,
+
+  //                     label: Expanded(child: Text(data.episodes![index].title)),
+  //                     onTap: () {
+  //                       ref.read(detialProvider).setSelectedGroup(index);
+  //                     },
+  //                     // backgroundColor: Theme.of(context).primaryColor,
+  //                   ),
+  //                 ),
+  //               ),
+  //               desc: Text(
+  //                 data.desc ?? 'No Description',
+  //                 style: const TextStyle(fontSize: 16),
+  //               ),
+  //               // cast: _DetailCast(),
+  //             ),
+  //           ),
+  //         );
+  //       },
+  //       loading:
+  //           () => PlatformWidget(
+  //             mobileWidget: MobileDetail(
+  //               isLoading: true,
+  //               meta: widget.meta,
+  //               desc: const LoadingWidget(
+  //                 lineCount: 3,
+  //                 lineheight: 8,
+  //                 lineSeperate: 8,
+  //                 padding: EdgeInsets.all(5),
+  //               ),
+  //               ep: const LoadingWidget(
+  //                 lineCount: 3,
+  //                 lineheight: 20,
+  //                 lineSeperate: 15,
+  //                 padding: EdgeInsets.all(5),
+  //               ),
+  //             ),
+  //             desktopWidget: DesktopDetail(
+  //               isLoading: true,
+  //               // cast: const LoadingWidget(lineCount: 8, lineheight: 20),
+  //               ep: const LoadingWidget(lineCount: 8, lineheight: 20),
+  //               season: const LoadingWidget(lineCount: 4, lineheight: 20),
+  //               desc: const LoadingWidget(lineCount: 8, lineheight: 20),
+  //               extensionMeta: widget.meta,
+  //             ),
+  //           ),
+  //       error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
+  //     ),
+  //   );
+  // }
 }
 
 class _DetailCast extends HookWidget {
@@ -770,26 +909,7 @@ class _DetailCast extends HookWidget {
         MoonTabBar(
           isExpanded: true,
           tabController: tabController,
-          tabs: List.generate(
-            2,
-            (index) => MoonTab(
-              tabStyle: MoonTabStyle(
-                indicatorColor:
-                    context
-                        .moonTheme
-                        ?.segmentedControlTheme
-                        .colors
-                        .backgroundColor,
-                selectedTextColor:
-                    context
-                        .moonTheme
-                        ?.segmentedControlTheme
-                        .colors
-                        .backgroundColor,
-              ),
-              label: Text(_tabs[index]),
-            ),
-          ),
+          tabs: List.generate(2, (index) => MoonTab(label: Text(_tabs[index]))),
         ),
         SizedBox(
           height: 100,
@@ -897,168 +1017,121 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
         const SizedBox(width: 15),
         SizedBox(
           width: constraint.maxWidth - 145,
-          child: DefaultTextStyle(
-            style: TextStyle(
-              color: context.moonTheme?.textInputTheme.colors.textColor,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  detail?.title ?? '',
-                  softWrap: true,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    // fontFamily: "HarmonyOS_Sans",
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                detail?.title ?? '',
+                softWrap: true,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  // fontFamily: "HarmonyOS_Sans",
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: 20,
-                  child: Row(
-                    children: [
-                      ExtendedImage.network(
-                        width: 20,
-                        height: 20,
-                        meta.icon ?? '',
-                        loadStateChanged: (state) {
-                          if (state.extendedImageLoadState ==
-                              LoadState.failed) {
-                            return const Icon(Icons.error);
-                          }
-                          return null;
-                        },
-                        cache: true,
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(meta.name, style: const TextStyle(fontSize: 12)),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 40),
-                Row(
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 20,
+                child: Row(
                   children: [
-                    MoonButton(
-                      borderColor:
-                          context
-                              .moonTheme
-                              ?.segmentedControlTheme
-                              .colors
-                              .backgroundColor,
-                      textColor:
-                          context
-                              .moonTheme
-                              ?.segmentedControlTheme
-                              .colors
-                              .textColor,
-                      backgroundColor:
-                          context
-                              .moonTheme
-                              ?.segmentedControlTheme
-                              .colors
-                              .backgroundColor,
-                      label: const Text('Play'),
-                      onTap:
-                          ref.watch(_history) == null
-                              ? null
-                              : () {
-                                if (detail == null || detailUrl == null) {
-                                  return;
-                                }
-                                context.push(
-                                  '/watch',
-                                  extra: WatchParams(
-                                    name: ref.watch(_history)!.title,
-                                    detailImageUrl: detail!.cover ?? '',
-                                    selectedEpisodeIndex:
-                                        ref.watch(_history)!.episodeId,
-                                    selectedGroupIndex:
-                                        ref.watch(_history)!.episodeGroupId,
-                                    epGroup: detail!.episodes,
-                                    detailUrl: detailUrl!,
-                                    url:
-                                        detail!
-                                            .episodes![ref
-                                                .watch(_history)!
-                                                .episodeGroupId]
-                                            .urls[ref
-                                                .watch(_history)!
-                                                .episodeId]
-                                            .url,
-                                    meta: meta,
-                                    type: meta.type,
-                                  ),
-                                );
-                              },
+                    ExtendedImage.network(
+                      width: 20,
+                      height: 20,
+                      meta.icon ?? '',
+                      loadStateChanged: (state) {
+                        if (state.extendedImageLoadState == LoadState.failed) {
+                          return const Icon(Icons.error);
+                        }
+                        return null;
+                      },
+                      cache: true,
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     const SizedBox(width: 10),
-                    ListenableBuilder(
-                      listenable: _favoriteNotifer,
-                      builder:
-                          (context, _) => MoonChip(
-                            isActive: _favoriteNotifer.favorite != null,
-                            activeColor:
-                                context
-                                    .moonTheme
-                                    ?.segmentedControlTheme
-                                    .colors
-                                    .textColor,
-                            borderColor:
-                                context
-                                    .moonTheme
-                                    ?.segmentedControlTheme
-                                    .colors
-                                    .backgroundColor,
-                            textColor:
-                                context
-                                    .moonTheme
-                                    ?.textInputTheme
-                                    .colors
-                                    .textColor,
-                            backgroundColor:
-                                context
-                                    .moonTheme
-                                    ?.textInputTheme
-                                    .colors
-                                    .backgroundColor,
-                            label: Text(
-                              _favoriteNotifer.favorite != null
-                                  ? 'Favorited'
-                                  : 'Favorite',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                // fontFamily: "HarmonyOS_Sans",
-                              ),
-                            ),
-                            leading: const Icon(
-                              MoonIcons.generic_star_24_regular,
-                            ),
-                            onTap: () {
-                              if (detail == null || detailUrl == null) {
-                                return;
-                              }
-                              showMoonModal(
-                                context: context,
-                                builder:
-                                    (context) => _FavoriteDialog(
-                                      meta: meta,
-                                      detail: detail!,
-                                      detailUrl: detailUrl!,
-                                    ),
-                              );
-                            },
-                          ),
-                    ),
-                    DownloadButton(isIcon: true, detail: detail!, meta: meta),
+                    Text(meta.name, style: const TextStyle(fontSize: 12)),
                   ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 40),
+              Row(
+                children: [
+                  MoonButton(
+                    borderColor:
+                        context
+                            .moonTheme
+                            ?.segmentedControlTheme
+                            .colors
+                            .backgroundColor,
+                    textColor:
+                        context
+                            .moonTheme
+                            ?.segmentedControlTheme
+                            .colors
+                            .textColor,
+                    backgroundColor:
+                        context
+                            .moonTheme
+                            ?.segmentedControlTheme
+                            .colors
+                            .backgroundColor,
+                    label: const Text('Play'),
+                    onTap: null,
+                  ),
+                  const SizedBox(width: 10),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final fav = ref.watch(detialProvider).favorite;
+                      return MoonChip(
+                        isActive: fav != null,
+                        activeColor:
+                            context
+                                .moonTheme
+                                ?.segmentedControlTheme
+                                .colors
+                                .textColor,
+                        borderColor:
+                            context
+                                .moonTheme
+                                ?.segmentedControlTheme
+                                .colors
+                                .backgroundColor,
+                        textColor:
+                            context.moonTheme?.textInputTheme.colors.textColor,
+                        backgroundColor:
+                            context
+                                .moonTheme
+                                ?.textInputTheme
+                                .colors
+                                .backgroundColor,
+                        label: Text(
+                          fav != null ? 'Favorited' : 'Favorite',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        leading: const Icon(MoonIcons.generic_star_24_regular),
+                        onTap: () {
+                          if (detail == null || detailUrl == null) {
+                            return;
+                          }
+                          showMoonModal(
+                            context: context,
+                            builder:
+                                (context) => _FavoriteDialog(
+                                  meta: meta,
+                                  detail: detail!,
+                                  detailUrl: detailUrl!,
+                                ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  DownloadButton(isIcon: true, detail: detail!, meta: meta),
+                ],
+              ),
+            ],
           ),
         ),
       ],
@@ -1066,7 +1139,7 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
   }
 }
 
-class _FavoriteDialog extends StatefulWidget {
+class _FavoriteDialog extends ConsumerStatefulWidget {
   const _FavoriteDialog({
     required this.meta,
     required this.detailUrl,
@@ -1080,7 +1153,7 @@ class _FavoriteDialog extends StatefulWidget {
   createState() => _FavoriteDialogState();
 }
 
-class _FavoriteDialogState extends State<_FavoriteDialog> {
+class _FavoriteDialogState extends ConsumerState<_FavoriteDialog> {
   final ValueNotifier<List<FavoriateGroup>> group = ValueNotifier([]);
   final ValueNotifier<List<int>> selected = ValueNotifier([]);
   final ValueNotifier<List<int>> selectedToDelete = ValueNotifier([]);
@@ -1097,10 +1170,9 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
     //   group.value = DatabaseService.db.favoriateGroups.where().findAllSync();
     //   // debugger();
     // });
-    if (_favoriteNotifer.favorite != null) {
-      final result = DatabaseService.getFavoriteGroupsById(
-        _favoriteNotifer.favorite!.id,
-      );
+    final fav = ref.read(detialProvider).favorite;
+    if (fav != null) {
+      final result = DatabaseService.getFavoriteGroupsById(fav.id);
       final nameList = group.value.map((e) => e.name).toList();
       for (final item in result) {
         initSelected.add(nameList.indexOf(item.name));
@@ -1214,12 +1286,6 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                                 MoonIcons.controls_plus_24_regular,
                               ),
                               width: width * factor - 100,
-                              backgroundColor:
-                                  context
-                                      .moonTheme
-                                      ?.textInputTheme
-                                      .colors
-                                      .backgroundColor,
                               onTap: () {
                                 showMoonModal(
                                   context: context,
@@ -1263,7 +1329,7 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                                 buttonSize: MoonButtonSize.lg,
                                 label: const Text('Delete'),
                                 onTap:
-                                    _favoriteNotifer.favorite == null
+                                    ref.read(detialProvider).favorite == null
                                         ? null
                                         : () {
                                           //remove from favorite
@@ -1271,23 +1337,15 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                                             widget.detailUrl,
                                             widget.meta.packageName,
                                           );
-                                          _favoriteNotifer.putFavorite(null);
+                                          ref
+                                              .read(detialProvider)
+                                              .putFavorite(null);
                                           context.pop();
                                         },
                               ),
                               MoonButton(
                                 buttonSize: MoonButtonSize.lg,
-                                label: Text(
-                                  'Confirm',
-                                  style: TextStyle(
-                                    color:
-                                        context
-                                            .moonTheme
-                                            ?.segmentedControlTheme
-                                            .colors
-                                            .backgroundColor,
-                                  ),
-                                ),
+                                label: Text('Confirm'),
                                 onTap: () {
                                   final fav = DatabaseService.putFavorite(
                                     widget.detailUrl,
@@ -1295,7 +1353,7 @@ class _FavoriteDialogState extends State<_FavoriteDialog> {
                                     widget.meta.packageName,
                                     widget.meta.type,
                                   );
-                                  _favoriteNotifer.putFavorite(fav);
+                                  ref.read(detialProvider).putFavorite(fav);
 
                                   final result =
                                       group.value.map((e) {
@@ -1427,19 +1485,6 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                             children: [
                               MoonChip(
                                 chipSize: MoonChipSize.sm,
-                                activeBackgroundColor:
-                                    context
-                                        .moonTheme
-                                        ?.segmentedControlTheme
-                                        .colors
-                                        .backgroundColor,
-                                backgroundColor: Colors.transparent,
-                                textColor:
-                                    context
-                                        .moonTheme
-                                        ?.textInputTheme
-                                        .colors
-                                        .textColor,
                                 label: const Icon(
                                   MoonIcons.sport_featured_24_regular,
                                 ),
@@ -1882,10 +1927,7 @@ class _DesktopWidgetExtended extends StatelessWidget {
           debugPrint('⚠️ no cookies found');
         }
 
-        final cookieString = cookies
-            .map((e) => '${e.name}=${e.value}')
-            .toList()
-            .join(';');
+        // final cookieString = cookies.map((e) => '${e.name}=${e.value}').toList().join(';');
         // extensionService.setcookie(cookieString);
       } catch (e, stack) {
         debugPrint('getAllCookies error: $e');
@@ -1929,55 +1971,6 @@ class _DesktopWidgetExtended extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 40),
-              DefaultTextStyle(
-                style: TextStyle(
-                  color: context.moonTheme?.textInputTheme.colors.textColor,
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: constraint.maxWidth * .8,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        detail?.title ?? '',
-                        style: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(meta.name, style: const TextStyle(fontSize: 16)),
-                      const SizedBox(height: 60),
-                      Row(
-                        children: [
-                          _FavButton(
-                            meta: meta,
-                            detailUrl: detailUrl,
-                            detail: detail,
-                          ),
-                          const SizedBox(width: 10),
-                          MoonButton(
-                            leading: const Icon(
-                              MoonIcons.generic_globe_24_regular,
-                            ),
-                            label: const Text('Webview'),
-                            onTap: onTap,
-                          ),
-                          const SizedBox(width: 10),
-                          if (detail != null)
-                            DownloadButton(
-                              meta: meta,
-                              detail: detail!,
-                              isIcon: false,
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
     );
@@ -2040,33 +2033,30 @@ class _FavButton extends StatelessWidget {
   final ExtensionMeta meta;
   @override
   Widget build(BuildContext context) {
-    return MoonChip(
-      isActive: _favoriteNotifer.favorite != null,
-      activeColor: context.moonTheme?.segmentedControlTheme.colors.textColor,
-      borderColor:
-          context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
-      textColor: context.moonTheme?.textInputTheme.colors.textColor,
-      backgroundColor: context.moonTheme?.textInputTheme.colors.backgroundColor,
-      label: Text(
-        _favoriteNotifer.favorite != null ? 'Favorited' : 'Favorite',
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          // fontFamily: "HarmonyOS_Sans",
-        ),
-      ),
-      leading: const Icon(MoonIcons.generic_star_24_regular),
-      onTap: () {
-        if (detail == null || detailUrl == null) {
-          return;
-        }
-        showMoonModal(
-          context: context,
-          builder:
-              (context) => _FavoriteDialog(
-                meta: meta,
-                detail: detail!,
-                detailUrl: detailUrl!,
-              ),
+    return Consumer(
+      builder: (context, ref, _) {
+        final fav = ref.watch(detialProvider).favorite;
+        return MoonChip(
+          isActive: fav != null,
+          label: Text(
+            fav != null ? 'Favorited' : 'Favorite',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          leading: const Icon(MoonIcons.generic_star_24_regular),
+          onTap: () {
+            if (detail == null || detailUrl == null) {
+              return;
+            }
+            showMoonModal(
+              context: context,
+              builder:
+                  (context) => _FavoriteDialog(
+                    meta: meta,
+                    detail: detail!,
+                    detailUrl: detailUrl!,
+                  ),
+            );
+          },
         );
       },
     );

@@ -6,12 +6,14 @@ class InnerCard extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
+    this.trailing,
     required this.child,
   });
 
   final String title;
   final String? subtitle;
   final Widget child;
+  final Widget? trailing;
   @override
   Widget build(BuildContext context) {
     return FCard.raw(
@@ -22,10 +24,15 @@ class InnerCard extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 15.0),
-              child: FLabel(
-                description: subtitle == null ? null : Text(subtitle!),
-                axis: Axis.vertical,
-                child: Text(title),
+              child: Row(
+                children: [
+                  FLabel(
+                    description: subtitle == null ? null : Text(subtitle!),
+                    axis: Axis.vertical,
+                    child: Text(title),
+                  ),
+                  if (trailing != null) ...[Spacer(), trailing!],
+                ],
               ),
             ),
             SizedBox(height: 10),

@@ -14,15 +14,13 @@ import 'package:miru_app_new/model/index.dart';
 part 'network_provider.g.dart';
 
 @riverpod
-Future<ExtensionBangumiWatch> videoLoad(
+Future<Object> videoLoad(
   Ref ref,
   String url,
   String pkg,
   ExtensionType type,
 ) async {
-  final result =
-      await ExtensionEndpoint.watch(url, pkg, type) as ExtensionBangumiWatch;
-  return result;
+  return await ExtensionEndpoint.watch(url, pkg, type);
 }
 
 @riverpod

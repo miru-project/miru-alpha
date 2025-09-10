@@ -155,7 +155,7 @@ class ExtensionEndpoint {
   static String get downloadUrl => '$extensionPathUrl/download';
   static String get setRepoUrl => 'ext/repo';
   static String get repoListUrl => 'ext/repolist';
-  static Future<Object?> watch(
+  static Future<Object> watch(
     String url,
     String pkg,
     ExtensionType type,
@@ -163,8 +163,8 @@ class ExtensionEndpoint {
     final jsResult = await CoreNetwork.requestFormData(watchUrl, {
       'url': url,
       'pkg': pkg,
-    });
-    final data = jsonDecode(jsResult.data);
+    }, method: "GET");
+    final data = jsResult.data;
 
     switch (type) {
       case ExtensionType.bangumi:
@@ -176,7 +176,7 @@ class ExtensionEndpoint {
         // result.headers ??= await _defaultHeaders;
         return result;
       default:
-        return ExtensionFikushonWatch.fromJson(data);
+        throw (Exception('Unknown media type'));
     }
   }
 

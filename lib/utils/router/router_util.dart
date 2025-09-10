@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import '../../../pages/anilist_webview.dart';
 import '../../../pages/download_page.dart';
@@ -40,11 +39,22 @@ class RouterUtil {
 
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final shellNavigatorKey = GlobalKey<NavigatorState>();
-  static final GoRoute _buildWatchDetail = GoRoute(
+  static final GoRoute _buildDetail = GoRoute(
     path: 'detail',
+
+    builder: (context, state) {
+      final extra = ParamCache.getDetailParam(state.extra as DetailParam);
+      // throw Exception('DetailParam is null');
+      return DetailPage(meta: extra.meta, url: extra.url);
+    },
+  );
+  static final appRouter = GoRouter(
+    // observers: [GoRouterObserver()],
+    navigatorKey: rootNavigatorKey,
     routes: [
+      GoRoute(path: '/', redirect: (context, state) => '/home'),
       GoRoute(
-        path: 'watch',
+        path: '/watch',
         builder: (context, state) {
           final extra = state.extra! as WatchParams;
           switch (extra.type) {
@@ -81,19 +91,6 @@ class RouterUtil {
           }
         },
       ),
-    ],
-    builder: (context, state) {
-      final extra = ParamCache.getDetailParam(state.extra as DetailParam);
-      // throw Exception('DetailParam is null');
-      return DetailPage(meta: extra.meta, url: extra.url);
-    },
-  );
-  static final appRouter = GoRouter(
-    // observers: [GoRouterObserver()],
-    navigatorKey: rootNavigatorKey,
-    routes: [
-      GoRoute(path: '/', redirect: (context, state) => '/home'),
-
       GoRoute(
         path: '/anilist',
         builder: (context, state) {
@@ -158,11 +155,11 @@ class RouterUtil {
                         meta: extra.meta,
                       );
                     },
-                    routes: [_buildWatchDetail],
+                    routes: [_buildDetail],
                   ),
                   GoRoute(
                     path: 'globalSearch',
-                    routes: [_buildWatchDetail],
+                    routes: [_buildDetail],
                     builder: (context, state) {
                       final extra = state.extra as SearchPageParam;
                       return SearchPageSingleView(

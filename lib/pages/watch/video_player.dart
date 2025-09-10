@@ -1,17 +1,21 @@
 import 'dart:async';
-import 'dart:ui';
-import 'package:flutter/foundation.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:forui/forui.dart';
+import 'package:forui_hooks/forui_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
+import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/provider/main_controller_provider.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
+import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
-import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
+import 'package:miru_app_new/utils/log.dart';
+import 'package:miru_app_new/widgets/error.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'package:moon_design/moon_design.dart';
@@ -120,46 +124,37 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
       widget.detailImageUrl,
       widget.detailUrl,
     );
-    return snapshot.when(
-      data: (value) {
-        // _resolutionNotifer =
-        //     FetchResolutionProvider(value.url, value.headers ?? {});
-        return PlayerResolution(
-          ratio: MediaQuery.of(context).size,
-          name: widget.name,
-          value: value,
-          url: url,
-          meta: widget.meta,
-        );
-      },
-      error:
-          (error, trace) => Center(
-            child: Column(
-              children: [
-                Text('Error: $error'),
-                Row(
-                  children: [
-                    MoonButton.icon(
-                      icon: const Text('reload'),
-                      onTap:
-                          () => ref.refresh(
-                            VideoLoadProvider(
-                              url,
-                              widget.meta.packageName,
-                              widget.meta.type,
-                            ),
-                          ),
-                    ),
-                    MoonButton.icon(
-                      icon: const Text('back'),
-                      onTap: () => context.pop(),
-                    ),
-                  ],
+    return FTheme(
+      data: ref.watch(applicationControllerProvider).themeData,
+      child: snapshot.when(
+        data: (value) {
+          // _resolutionNotifer =
+          //     FetchResolutionProvider(value.url, value.headers ?? {});
+          return PlayerResolution(
+            ratio: MediaQuery.of(context).size,
+            name: widget.name,
+            value: value as ExtensionBangumiWatch,
+            url: url,
+            meta: widget.meta,
+          );
+        },
+        error:
+            (error, trace) => Center(
+              child: ErrorDisplay(
+                err: error,
+                stack: trace,
+                prefix: FButton(
+                  style: FButtonStyle.ghost(),
+                  prefix: Icon(FIcons.undo2),
+                  onPress: () {
+                    context.pop();
+                  },
+                  child: Text('Return'),
                 ),
-              ],
+              ),
             ),
-          ),
-      loading: () => const Center(child: MoonCircularLoader()),
+        loading: () => const Center(child: FProgress.circularIcon()),
+      ),
     );
   }
 }
@@ -261,8 +256,7 @@ class _VideoPlayer extends StatefulHookConsumerWidget {
 }
 
 class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
-  Timer? _timer;
-  late ValueNotifier<bool> _showControls;
+  // legacy local timer removed; timer is now managed by VideoPlayerProvider
 
   double _currentVolume = 0;
   // 是否是调整亮度
@@ -276,14 +270,8 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
   // 是否长按加速
   bool _isLongPress = false;
   void _updateTimer() {
-    _timer?.cancel();
-    _timer = null;
-    _showControls.value = true;
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) {
-      if (mounted) {
-        _showControls.value = false;
-      }
-    });
+    // delegate to provider
+    ref.read(VideoPlayerProvider.provider.notifier).updateTimer();
   }
 
   Widget buildcontent(VideoPlayerState controller, VideoPlayerNotifier c) {
@@ -294,7 +282,10 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
       context.pop();
     }
 
-    if (_showControls.value) {
+    final showControls = ref.watch(
+      VideoPlayerProvider.provider.select((s) => s.showControls),
+    );
+    if (showControls) {
       return Column(
         children: [
           DefaultTextStyle(
@@ -314,23 +305,17 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
             child:
                 (!controller.isPlaying)
                     ? Center(
-                      child: MoonButton.icon(
-                        icon: const Icon(
-                          size: 60,
-                          MoonIcons.media_play_24_regular,
-                        ),
-                        buttonSize: MoonButtonSize.lg,
-                        onTap: () {
+                      child: FButton.icon(
+                        style: FButtonStyle.ghost(),
+                        onPress: () {
                           c.play();
                         },
+                        child: const Icon(size: 60, FIcons.play),
                       ),
                     )
                     : Container(color: Colors.transparent),
           ),
-          Material(
-            color: Colors.transparent,
-            child: Blur(child: _DesktopFooter()),
-          ),
+          Blur(child: _DesktopFooter()),
         ],
       );
     }
@@ -341,7 +326,6 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
   @override
   Widget build(BuildContext context) {
     final currentBrightness = useState(0.0);
-    _showControls = useState(false);
     final controller = ref.watch(VideoPlayerProvider.provider);
     final c = ref.watch(VideoPlayerProvider.provider.notifier);
     // final epNotifier = ref.watch(_episodeNotifierProvider);
@@ -416,8 +400,10 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
-              if (_showControls.value) {
-                _showControls.value = false;
+              if (ref.read(VideoPlayerProvider.provider).showControls) {
+                ref
+                    .read(VideoPlayerProvider.provider.notifier)
+                    .setShowControls(false);
                 return;
               }
               _updateTimer();
@@ -601,7 +587,7 @@ class _HeaderState extends ConsumerState<_Header> {
                 ),
                 const SizedBox(width: 10),
                 IconButton(
-                  icon: const Icon(MoonIcons.controls_minus_24_regular),
+                  icon: const Icon(FIcons.minus),
                   onPressed: () {
                     WindowManager.instance.minimize();
                   },
@@ -611,7 +597,7 @@ class _HeaderState extends ConsumerState<_Header> {
               IconButton(
                 onPressed: widget.onClose,
                 iconSize: widget.iconSize,
-                icon: const Icon(MoonIcons.controls_chevron_down_24_regular),
+                icon: const Icon(FIcons.x),
               ),
             ],
           ),
@@ -639,163 +625,140 @@ class _DesktopFooter extends HookConsumerWidget {
 
     final controller = ref.watch(VideoPlayerProvider.provider);
     final c = ref.watch(VideoPlayerProvider.provider.notifier);
-    final buttonSize = _hasOriented ? null : 30.0;
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-        boxShadow: [
-          BoxShadow(blurRadius: 25, color: Colors.black.withAlpha(30)),
-        ],
-      ),
-      // decoration: const BoxDecoration(
-
-      //   gradient: LinearGradient(
-      //     begin: Alignment.bottomCenter,
-      //     end: Alignment.topCenter,
-      //     colors: [
-      //       Colors.black54,
-      //       Colors.transparent,
-      //     ],
-      //   ),
-      // ),
+    // buttonSize removed; not used
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: (Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _SeekBar(),
-          if (!_hasOriented) const SizedBox(height: 10),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.skip_previous),
-                onPressed: () {},
-              ),
-              if (controller.isPlaying)
+      child: (FCard.raw(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _SeekBar(),
+            if (!_hasOriented) const SizedBox(height: 10),
+            Row(
+              children: [
+                IconButton(icon: const Icon(FIcons.skipBack), onPressed: () {}),
+                if (controller.isPlaying)
+                  FButton.icon(onPress: c.pause, child: Icon(FIcons.pause))
+                else
+                  IconButton(onPressed: c.play, icon: Icon(FIcons.play)),
                 IconButton(
-                  onPressed: c.pause,
-                  icon: Icon(Icons.pause, size: buttonSize),
-                )
-              else
-                IconButton(
-                  onPressed: c.play,
-                  icon: Icon(Icons.play_arrow, size: buttonSize),
+                  icon: const Icon(FIcons.skipForward),
+                  onPressed: () {},
                 ),
-              IconButton(icon: const Icon(Icons.skip_next), onPressed: () {}),
-              const SizedBox(width: 10),
-              // 播放进度
-              Text(
-                '${controller.position.inMinutes}:${(controller.position.inSeconds % 60).toString().padLeft(2, '0')}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w300,
-                ),
-              ),
-              const Text('/'),
-              Text(
-                '${controller.duration.inMinutes}:${(controller.duration.inSeconds % 60).toString().padLeft(2, '0')}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w300,
-                ),
-              ),
-              const Spacer(),
-              // Obx(() {
-              //   if (controller.currentQuality.value.isEmpty) {
-              //     return const SizedBox.shrink();
-              //   }
-              //   return FilledButton.tonal(
-              //     onPressed: () {
-              //       if (controller.qualityMap.isEmpty) {
-              //         controller.sendMessage(
-              //           Message(
-              //             Text(
-              //               'video.no-qualities'.i18n,
-              //             ),
-              //           ),
-              //         );
-              //         return;
-              //       }
-              //       controller.toggleSideBar(SidebarTab.qualitys);
-              //     },
-              //     style: ButtonStyle(
-              //       padding: MaterialStateProperty.all(
-              //         const EdgeInsets.symmetric(
-              //           horizontal: 10,
-              //           vertical: 5,
-              //         ),
-              //       ),
-              //     ),
-              //     child: Text(
-              //       controller.currentQuality.value,
-              //       style: const TextStyle(
-              //         fontSize: 14,
-              //         fontWeight: FontWeight.w300,
-              //       ),
-              //     ),
-              //   );
-              // }),
-              // 倍速
-              MoonPopover(
-                onTapOutside: () {
-                  isspeedToggled.value = false;
-                },
-                show: isspeedToggled.value,
-                content: Column(
-                  children: List.generate(
-                    c.speedList.length,
-                    (index) => MoonMenuItem(
-                      label: Text('${c.speedList[index]}x'),
-                      onTap: () {
-                        c.setSpeed(c.speedList[index]);
-                      },
-                    ),
+                const SizedBox(width: 10),
+                // 播放进度
+                Text(
+                  '${controller.position.inMinutes}:${(controller.position.inSeconds % 60).toString().padLeft(2, '0')}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
                   ),
                 ),
-                child: MoonButton.icon(
-                  onTap: () {
-                    isspeedToggled.value = !isspeedToggled.value;
+                const Text('/'),
+                Text(
+                  '${controller.duration.inMinutes}:${(controller.duration.inSeconds % 60).toString().padLeft(2, '0')}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+                const Spacer(),
+                // Obx(() {
+                //   if (controller.currentQuality.value.isEmpty) {
+                //     return const SizedBox.shrink();
+                //   }
+                //   return FilledButton.tonal(
+                //     onPressed: () {
+                //       if (controller.qualityMap.isEmpty) {
+                //         controller.sendMessage(
+                //           Message(
+                //             Text(
+                //               'video.no-qualities'.i18n,
+                //             ),
+                //           ),
+                //         );
+                //         return;
+                //       }
+                //       controller.toggleSideBar(SidebarTab.qualitys);
+                //     },
+                //     style: ButtonStyle(
+                //       padding: MaterialStateProperty.all(
+                //         const EdgeInsets.symmetric(
+                //           horizontal: 10,
+                //           vertical: 5,
+                //         ),
+                //       ),
+                //     ),
+                //     child: Text(
+                //       controller.currentQuality.value,
+                //       style: const TextStyle(
+                //         fontSize: 14,
+                //         fontWeight: FontWeight.w300,
+                //       ),
+                //     ),
+                //   );
+                // }),
+                // 倍速
+                MoonPopover(
+                  onTapOutside: () {
+                    isspeedToggled.value = false;
                   },
-                  icon: Text(
-                    '${controller.speed}x',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w300,
+                  show: isspeedToggled.value,
+                  content: Column(
+                    children: List.generate(
+                      c.speedList.length,
+                      (index) => MoonMenuItem(
+                        label: Text('${c.speedList[index]}x'),
+                        onTap: () {
+                          c.setSpeed(c.speedList[index]);
+                        },
+                      ),
+                    ),
+                  ),
+                  child: FButton.icon(
+                    onPress: () {
+                      isspeedToggled.value = !isspeedToggled.value;
+                    },
+                    child: Text(
+                      '${controller.speed}x',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w300,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              // Obx(() {
-              //   if (controller.torrentMediaFileList.isEmpty) {
-              //     return const SizedBox.shrink();
-              //   }
-              //   return IconButton(
-              //     onPressed: () {
-              //       // controller.toggleSideBar(SidebarTab.torrentFiles);
-              //     },
-              //     icon: const Icon(Icons.video_file),
-              //   );
-              // }),
-              MoonButton.icon(
-                onTap: () {
-                  showDialog(context, 1);
-                },
-                icon: const Icon(Icons.subtitles),
-              ),
-              // 播放列表
-              IconButton(
-                icon: const Icon(Icons.playlist_play),
-                onPressed: () {
-                  showDialog(context, 0);
+                const SizedBox(width: 10),
+                // Obx(() {
+                //   if (controller.torrentMediaFileList.isEmpty) {
+                //     return const SizedBox.shrink();
+                //   }
+                //   return IconButton(
+                //     onPressed: () {
+                //       // controller.toggleSideBar(SidebarTab.torrentFiles);
+                //     },
+                //     icon: const Icon(Icons.video_file),
+                //   );
+                // }),
+                MoonButton.icon(
+                  onTap: () {
+                    showDialog(context, 1);
+                  },
+                  icon: const Icon(Icons.subtitles),
+                ),
+                // 播放列表
+                IconButton(
+                  icon: const Icon(Icons.playlist_play),
+                  onPressed: () {
+                    showDialog(context, 0);
 
-                  // controller.toggleSideBar(SidebarTab.episodes);
-                },
-              ),
-            ],
-          ),
-        ],
+                    // controller.toggleSideBar(SidebarTab.episodes);
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       )),
     );
   }
@@ -849,19 +812,19 @@ class _DialogButton extends HookWidget {
               width: 40,
               height: 40,
               padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color:
-                    selectedIndex.value == index ||
-                            (hover.value == index && ishover.value)
-                        ? context
-                            .moonTheme
-                            ?.tabBarTheme
-                            .colors
-                            .selectedPillTextColor
-                            .withAlpha(20)
-                        : Colors.transparent,
-                borderRadius: BorderRadius.circular(10),
-              ),
+              // decoration: BoxDecoration(
+              //   color:
+              //       selectedIndex.value == index ||
+              //               (hover.value == index && ishover.value)
+              //           ? context
+              //               .moonTheme
+              //               ?.tabBarTheme
+              //               .colors
+              //               .selectedPillTextColor
+              //               .withAlpha(20)
+              //           : Colors.transparent,
+              //   borderRadius: BorderRadius.circular(10),
+              // ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -1029,175 +992,68 @@ class _DesktopSettingDialog extends HookConsumerWidget {
   }
 }
 
-class _SeekBar extends ConsumerWidget {
+class _SeekBar extends HookConsumerWidget {
+  Timer? _timer;
+  void updateSliderTimer(VoidFunction callback) {
+    _timer?.cancel();
+    _timer = Timer(const Duration(seconds: 1), () {
+      callback();
+    });
+  }
+
+  int prevTime = 0;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    bool isSliderDraging = false;
-    final controller = ref.watch(VideoPlayerProvider.provider);
-    final c = ref.watch(VideoPlayerProvider.provider.notifier);
-    final duration = controller.duration.inMilliseconds;
-    final position = controller.position.inMilliseconds;
-    return SizedBox(
-      height: 13,
-      child: SliderTheme(
-        data: SliderThemeData(
-          overlayColor: Colors.transparent,
-          trackHeight: 2,
-          activeTrackColor: context
-              .moonTheme
-              ?.segmentedControlTheme
-              .colors
-              .backgroundColor
-              .withAlpha(200),
-          thumbColor:
-              context.moonTheme?.segmentedControlTheme.colors.backgroundColor,
-          secondaryActiveTrackColor: context
-              .moonTheme
-              ?.segmentedControlTheme
-              .colors
-              .backgroundColor
-              .withAlpha(100),
-          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-          overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
-        ),
-        child: Slider(
-          min: 0,
-          max: duration.toDouble(),
-          value: clampDouble(position.toDouble(), 0, duration.toDouble()),
-          secondaryTrackValue:
-              controller.buffered.isNotEmpty
-                  ? clampDouble(
-                    controller.buffered.last.end.inMilliseconds.toDouble(),
-                    0,
-                    duration.toDouble(),
-                  )
-                  : 0,
-          onChanged: (value) {
-            if (isSliderDraging) {}
-          },
-          onChangeStart: (value) {
-            isSliderDraging = true;
-          },
-          onChangeEnd: (value) {
-            if (isSliderDraging) {
-              c.seek(Duration(milliseconds: value.toInt()));
-
-              isSliderDraging = false;
-            }
-          },
-        ),
-      ),
+    // need configure the side ot tap mpde
+    final fcontroller = useFContinuousSliderController(
+      stepPercentage: .00001,
+      selection: FSliderSelection(max: 1),
     );
-  }
-}
+    return FSlider(
+      tooltipBuilder: (tip, val) {
+        return Text('${(val * 100).toStringAsFixed(1)}%');
+      },
+      controller: fcontroller,
+      onChange: (value) {
+        // isSliderDraging = true;
+        // value.
+        ref.read(VideoPlayerProvider.provider.notifier).updateTimer();
+        if (DateTime.now().millisecond - prevTime > 100) {
+          logger.info(value.rawOffset, value.rawExtent);
+          // ref.read(VideoPlayerProvider.provider.notifier).seek(
+          //       Duration(
+          //         milliseconds:
+          //             (value * ref.read(VideoPlayerProvider.provider).duration.inMilliseconds)
+          //                 .toInt(),
+          //       ),
+          //     );
+          prevTime = DateTime.now().millisecond;
+        }
+      },
+      // min: 0,
+      // max: duration.toDouble(),
+      // value: clampDouble(position.toDouble(), 0, duration.toDouble()),
+      // secondaryTrackValue:
+      //     controller.buffered.isNotEmpty
+      //         ? clampDouble(
+      //           controller.buffered.last.end.inMilliseconds.toDouble(),
+      //           0,
+      //           duration.toDouble(),
+      //         )
+      //         : 0,
+      // onChanged: (value) {
+      //   if (isSliderDraging) {}
+      // },
+      // onChangeStart: (value) {
+      //   isSliderDraging = true;
+      // },
+      // onChangeEnd: (value) {
+      //   if (isSliderDraging) {
+      //     c.seek(Duration(milliseconds: value.toInt()));
 
-class EpisodeNotifierState {
-  final List<ExtensionEpisodeGroup> epGroup;
-  final int selectedGroupIndex;
-  final int selectedEpisodeIndex;
-  final String name;
-  final bool flag;
-  EpisodeNotifierState({
-    this.epGroup = const [],
-    this.selectedGroupIndex = 0,
-    this.name = '',
-    this.flag = false,
-    this.selectedEpisodeIndex = 0,
-  });
-  EpisodeNotifierState copyWith({
-    List<ExtensionEpisodeGroup>? epGroup,
-    String? name,
-    bool? flag,
-    int? selectedGroupIndex,
-    int? selectedEpisodeIndex,
-  }) {
-    return EpisodeNotifierState(
-      epGroup: epGroup ?? this.epGroup,
-      flag: flag ?? this.flag,
-      name: name ?? this.name,
-      selectedGroupIndex: selectedGroupIndex ?? this.selectedGroupIndex,
-      selectedEpisodeIndex: selectedEpisodeIndex ?? this.selectedEpisodeIndex,
+      //     isSliderDraging = false;
+      //   }
+      // },
     );
-  }
-}
-
-class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
-  EpisodeNotifier() : super(EpisodeNotifierState());
-  void selectEpisode(int groupIndex, int episodeIndex) {
-    state = state.copyWith(
-      selectedGroupIndex: groupIndex,
-      selectedEpisodeIndex: episodeIndex,
-    );
-  }
-
-  void initEpisodes(
-    int groupIndex,
-    int episodeIndex,
-    List<ExtensionEpisodeGroup> epGroup,
-    String name,
-    bool flag,
-  ) {
-    state = state.copyWith(
-      epGroup: epGroup,
-      flag: flag,
-      name: name,
-      selectedGroupIndex: groupIndex,
-      selectedEpisodeIndex: episodeIndex,
-    );
-  }
-
-  late String imageUrl;
-  late String package;
-  late ExtensionType type;
-  late String detailUrl;
-  void putinformation(
-    ExtensionType type,
-    String package,
-    String imageUrl,
-    String detailUrl,
-  ) {
-    this.package = package;
-    this.type = type;
-    this.imageUrl = imageUrl;
-    this.detailUrl = detailUrl;
-  }
-
-  @override
-  void dispose() {
-    DatabaseService.putHistory(
-      History(
-        title: state.name,
-        package: package,
-        type: EnumToString.convertToString(type),
-        episodeGroupId: state.selectedGroupIndex,
-        episodeId: state.selectedEpisodeIndex,
-        progress: state.selectedEpisodeIndex.toString(),
-        cover: imageUrl,
-        totalProgress:
-            state.epGroup[state.selectedGroupIndex].urls.length.toString(),
-        episodeTitle:
-            state
-                .epGroup[state.selectedGroupIndex]
-                .urls[state.selectedEpisodeIndex]
-                .name,
-        url: detailUrl,
-        date: DateTime.now(),
-      ),
-    );
-    // ..title = state.name
-    // ..package = package
-    // ..type = type
-    // ..episodeGroupId = state.selectedGroupIndex
-    // ..episodeId = state.selectedEpisodeIndex
-    // ..progress = state.selectedEpisodeIndex.toString()
-    // ..cover = imageUrl
-    // ..totalProgress =
-    //     state.epGroup[state.selectedGroupIndex].urls.length.toString()
-    // ..episodeTitle = state.epGroup[state.selectedGroupIndex]
-    //     .urls[state.selectedEpisodeIndex].name
-    // ..url = detailUrl
-    // ..date = DateTime.now());
-
-    super.dispose();
   }
 }
