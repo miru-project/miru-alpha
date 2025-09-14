@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;
 import 'dart:io';
@@ -23,6 +24,7 @@ import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
+import 'package:miru_app_new/widgets/error.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:path/path.dart' as p;
 
@@ -78,7 +80,27 @@ void main() async {
   // Init config for miru_core
   await loadMiruCore();
   CoreNetwork.ensureInitialized();
-  runApp(const ProviderScope(child: App()));
+  _bindErrorWidget();
+  runZonedGuarded(
+    () {
+      runApp(const ProviderScope(child: App()));
+    },
+    (error, stack) {
+      logger.severe('Uncaught error: $error', error, stack);
+    },
+  );
+}
+
+Widget _func(FlutterErrorDetails details) {
+  return ErrorDisplay(
+    err: details.exception,
+    stack: details.stack ?? StackTrace.current,
+  );
+}
+
+void _bindErrorWidget() {
+  ErrorWidget.builder = _func;
+  FlutterError.onError = _func;
 }
 
 class App extends ConsumerStatefulWidget {

@@ -527,40 +527,38 @@ class _HeaderState extends ConsumerState<_Header> {
   }
 
   Widget buildcontent(EpisodeNotifierState epNotifier) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          epNotifier.name,
-          style: TextStyle(
-            fontSize: widget.titleSize,
-            fontWeight: FontWeight.bold,
-            overflow: TextOverflow.ellipsis,
-          ),
+    return FLabel(
+      axis: Axis.vertical,
+      description: Text(
+        '${epNotifier.epGroup[epNotifier.selectedGroupIndex].title}-${epNotifier.epGroup[epNotifier.selectedGroupIndex].urls[epNotifier.selectedEpisodeIndex].name}',
+        style: TextStyle(
+          fontSize: widget.subTitleSize,
+          fontWeight: FontWeight.w300,
+          overflow: TextOverflow.ellipsis,
         ),
-        Text(
-          '${epNotifier.epGroup[epNotifier.selectedGroupIndex].title}-${epNotifier.epGroup[epNotifier.selectedGroupIndex].urls[epNotifier.selectedEpisodeIndex].name}',
-          style: TextStyle(
-            fontSize: widget.subTitleSize,
-            fontWeight: FontWeight.w300,
-            overflow: TextOverflow.ellipsis,
-          ),
+      ),
+      child: Text(
+        epNotifier.name,
+        style: TextStyle(
+          fontSize: widget.titleSize,
+          fontWeight: FontWeight.bold,
+          overflow: TextOverflow.ellipsis,
         ),
-      ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final epNotifier = ref.watch(_episodeNotifierProvider);
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(blurRadius: 25, color: Colors.black.withValues(alpha: 0.2)),
-        ],
-      ),
+    return FCard.raw(
+      // decoration:s BoxDecoration(
+      //   color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
+      //   borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+      //   boxShadow: [
+      //     BoxShadow(blurRadius: 25, color: Colors.black.withValues(alpha: 0.2)),
+      //   ],
+      // ),
       child: Blur(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
@@ -574,11 +572,11 @@ class _HeaderState extends ConsumerState<_Header> {
               ),
               // 置顶
               if (!DeviceUtil.isMobile) ...[
-                IconButton(
-                  icon: Icon(
+                FButton.icon(
+                  child: Icon(
                     _isAlwaysOnTop ? Icons.push_pin_outlined : Icons.push_pin,
                   ),
-                  onPressed: () async {
+                  onPress: () async {
                     WindowManager.instance.setAlwaysOnTop(!_isAlwaysOnTop);
                     setState(() {
                       _isAlwaysOnTop = !_isAlwaysOnTop;
@@ -586,18 +584,17 @@ class _HeaderState extends ConsumerState<_Header> {
                   },
                 ),
                 const SizedBox(width: 10),
-                IconButton(
-                  icon: const Icon(FIcons.minus),
-                  onPressed: () {
+                FButton.icon(
+                  child: const Icon(FIcons.minus),
+                  onPress: () {
                     WindowManager.instance.minimize();
                   },
                 ),
               ],
               const SizedBox(width: 10),
-              IconButton(
-                onPressed: widget.onClose,
-                iconSize: widget.iconSize,
-                icon: const Icon(FIcons.x),
+              FButton.icon(
+                onPress: widget.onClose,
+                child: const Icon(FIcons.x),
               ),
             ],
           ),
@@ -1028,6 +1025,9 @@ class _SeekBar extends HookConsumerWidget {
           //       ),
           //     );
           prevTime = DateTime.now().millisecond;
+          updateSliderTimer(() {
+            logger.info('update slider');
+          });
         }
       },
       // min: 0,
