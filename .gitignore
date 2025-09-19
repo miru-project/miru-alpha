@@ -57,6 +57,7 @@ Output/
 # Ignore ffmpeg libraries donwloaded from github
 /src/ffmpeg_merge/windows_x64/ffmpeg-n7.1-latest-win64-lgpl-shared-7.1
 /src/ffmpeg_merge/linux_x64/ffmpeg-8.0-linux-clang-lite-lto
+/src/ffmpeg_merge/android/ffmpeg-8.0-android-clang-lite-lto
 /src/ffmpeg_merge/**/*.zip
 /src/ffmpeg_merge/**/*.tar.xz
 miru

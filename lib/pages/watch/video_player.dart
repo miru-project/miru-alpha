@@ -989,10 +989,16 @@ class _DesktopSettingDialog extends HookConsumerWidget {
   }
 }
 
-class _SeekBar extends HookConsumerWidget {
+class _SeekBar extends StatefulHookConsumerWidget {
+  @override
+  ConsumerState<ConsumerStatefulWidget> createState() => _SeekBarState();
+}
+
+class _SeekBarState extends ConsumerState<_SeekBar> {
   Timer? _timer;
   void updateSliderTimer(VoidFunction callback) {
     _timer?.cancel();
+    logger.info(_timer);
     _timer = Timer(const Duration(seconds: 1), () {
       callback();
     });
@@ -1000,7 +1006,7 @@ class _SeekBar extends HookConsumerWidget {
 
   int prevTime = 0;
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     // need configure the side ot tap mpde
     final fcontroller = useFContinuousSliderController(
       stepPercentage: .00001,
@@ -1016,7 +1022,7 @@ class _SeekBar extends HookConsumerWidget {
         // value.
         ref.read(VideoPlayerProvider.provider.notifier).updateTimer();
         if (DateTime.now().millisecond - prevTime > 100) {
-          logger.info(value.rawOffset, value.rawExtent);
+          // logger.info(value.rawOffset, value.rawExtent);
           // ref.read(VideoPlayerProvider.provider.notifier).seek(
           //       Duration(
           //         milliseconds:

@@ -28,18 +28,20 @@ class ErrorDisplay extends StatelessWidget {
     this.onRefresh,
     this.prefix,
   }) {
-    if (err is! DioException) {
-      errTitle = "Error: $err";
-      errContent = stack.toString();
+    if (err is DioException) {
+      final e = err as DioException;
+      errTitle = "Extension Runtime Error ";
+      final String? res = e.response?.data["message"];
+      if (res != null) {
+        errContent = res;
+      } else {
+        errContent = e.message ?? e.stackTrace.toString();
+      }
       return;
     }
-    final e = err as DioException;
-    errTitle = "Extension Network Error ";
-    if (e.response != null) {
-      errContent = e.response?.data;
-    } else {
-      errContent = e.message ?? e.stackTrace.toString();
-    }
+    errTitle = "Error: $err";
+    errContent = stack.toString();
+    return;
   }
 
   @override
