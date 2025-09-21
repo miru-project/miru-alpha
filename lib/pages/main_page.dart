@@ -1,9 +1,9 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -14,7 +14,6 @@ import 'package:miru_app_new/utils/i18n.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'setting/setting_items.dart';
-import 'package:moon_design/moon_design.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainPage extends StatefulHookConsumerWidget {
@@ -45,26 +44,10 @@ class _MainPageState extends ConsumerState<MainPage>
   // late TabController _tabController;
   late final MainController c;
   static const List<NavItem> _navItems = [
-    NavItem(
-      text: 'Home',
-      icon: Icons.home_outlined,
-      selectIcon: Icons.home_filled,
-    ),
-    NavItem(
-      text: 'Search',
-      icon: Icons.explore_outlined,
-      selectIcon: Icons.explore,
-    ),
-    NavItem(
-      text: 'Extension',
-      icon: Icons.extension_outlined,
-      selectIcon: Icons.extension,
-    ),
-    NavItem(
-      text: 'Settings',
-      icon: Icons.settings_outlined,
-      selectIcon: Icons.settings,
-    ),
+    NavItem(text: 'Home', icon: Icons.home_outlined),
+    NavItem(text: 'Search', icon: Icons.explore_outlined),
+    NavItem(text: 'Extension', icon: Icons.extension_outlined),
+    NavItem(text: 'Settings', icon: Icons.settings_outlined),
   ];
   static final List<FIconNavItem> _subNavItem = [
     FIconNavItem(text: 'History', icon: FIcons.history, page: "/home/history"),
@@ -132,36 +115,32 @@ class _MainPageState extends ConsumerState<MainPage>
     final ac = ref.watch(applicationControllerProvider);
     final c = ref.read(mainControllerProvider.notifier);
     final controller = ref.watch(mainControllerProvider);
+    final selected = useState(controller.selectedIndex);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     return PlatformWidget(
-      mobileWidget: Scaffold(
-        extendBody: true,
-        body: SafeArea(child: widget.child),
-        bottomNavigationBar: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: SizedBox(
-              height: 60,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  for (var i = 0; i < _navItems.length; i++) ...[
-                    Expanded(
-                      child: NavButton(
-                        selectIcon: _navItems[i].selectIcon,
-                        text: _navItems[i].text,
-                        icon: _navItems[i].icon,
-                        onPressed: () {
-                          widget.child.goBranch(i);
-                          c.selectIndex(i);
-                        },
-                        selected: controller.selectedIndex == i,
-                      ),
-                    ),
-                  ],
-                ],
+      mobileWidget: FTheme(
+        data: ac.themeData,
+        child: FScaffold(
+          footer: FBottomNavigationBar(
+            index: controller.selectedIndex,
+            onChange: (value) {
+              widget.child.goBranch(value);
+              c.selectIndex(value);
+              selected.value = value;
+            },
+            children: List.generate(
+              _navItems.length,
+              (i) => FBottomNavigationBarItem(
+                label: Text(_navItems[i].text),
+                icon: Icon(_navItems[i].icon),
               ),
             ),
+          ),
+          child: Column(
+            children: [
+              DragWindows(),
+              Expanded(child: SafeArea(child: widget.child)),
+            ],
           ),
         ),
       ),
@@ -303,47 +282,42 @@ class _MainPageState extends ConsumerState<MainPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               // spacing: 12, // This might be causing issues
               children: [
-                DeviceUtil.platformWidgetFunction(
-                  context: context,
-                  mobile: (buildchild) => buildchild,
-                  desktop: (buildchild) => DragToMoveArea(child: buildchild),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      BreadCrumb(),
-                      // ConstrainedBox(
-                      //   constraints: BoxConstraints(minWidth: 50, maxWidth: 90),
-                      //   child: FTextField(
-                      //     clearable: (value) => value.text.isNotEmpty,
-                      //     hint: 'Search ...',
-                      //     keyboardType: TextInputType.webSearch,
-                      //     textCapitalization: TextCapitalization.none,
-                      //     maxLines: 1,
-                      //   ),
-                      // ),
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: 200,
-                          maxHeight: 35,
-                        ),
-                        child:
-                            Platform.isWindows || Platform.isLinux
-                                ? WindowCaption(
-                                  brightness: Brightness.dark,
-                                  backgroundColor:
-                                      context.theme.colors.background,
-                                )
-                                : const Spacer(),
-                      ),
-                    ],
-                  ),
-                ),
-                FDivider(),
+                const DragWindows(),
+                const FDivider(),
                 Expanded(child: widget.child),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class DragWindows extends StatelessWidget {
+  const DragWindows({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DeviceUtil.platformWidgetFunction(
+      context: context,
+      mobile: (buildchild) => buildchild,
+      desktop: (buildchild) => DragToMoveArea(child: buildchild),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          BreadCrumb(),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 200, maxHeight: 35),
+            child:
+                Platform.isWindows || Platform.isLinux || Platform.isMacOS
+                    ? WindowCaption(
+                      brightness: context.theme.colors.brightness,
+                      backgroundColor: context.theme.colors.background,
+                    )
+                    : const Spacer(),
+          ),
+        ],
       ),
     );
   }
@@ -434,142 +408,6 @@ class SafeFSidebar extends StatelessWidget {
           ),
           if (footer != null) footer!,
         ],
-      ),
-    );
-  }
-}
-
-class NavButton extends StatefulWidget {
-  const NavButton({
-    super.key,
-    required this.text,
-    required this.icon,
-    required this.selectIcon,
-    required this.onPressed,
-    required this.selected,
-  });
-
-  final String text;
-  final IconData icon;
-  final IconData selectIcon;
-  final void Function() onPressed;
-  final bool selected;
-
-  @override
-  State<NavButton> createState() => _NavButtonState();
-}
-
-class _NavButtonState extends State<NavButton> {
-  bool _hover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return PlatformWidget(
-      mobileWidget: GestureDetector(
-        onTap: widget.onPressed,
-        behavior: HitTestBehavior.translucent,
-        child: Stack(
-          children: [
-            Container(color: Theme.of(context).scaffoldBackgroundColor),
-            (Container(
-              decoration: BoxDecoration(
-                color: context
-                    .moonTheme
-                    ?.tabBarTheme
-                    .colors
-                    .selectedPillTabColor
-                    .withAlpha(50),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column(
-                    children: [
-                      const SizedBox(height: 5),
-                      Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color:
-                              widget.selected || _hover
-                                  ? context
-                                      .moonTheme
-                                      ?.tabBarTheme
-                                      .colors
-                                      .selectedPillTabColor
-                                      .withAlpha(100)
-                                  : Colors.transparent,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            widget.selected || _hover
-                                ? widget.selectIcon
-                                : widget.icon,
-                            color:
-                                widget.selected || _hover
-                                    ? context
-                                        .moonTheme
-                                        ?.tabBarTheme
-                                        .colors
-                                        .textColor
-                                    : context
-                                        .moonTheme
-                                        ?.tabBarTheme
-                                        .colors
-                                        .textColor
-                                        .withAlpha(150),
-                          ),
-                        ),
-                      ),
-                      // Text(
-                      //   widget.text,
-                      //   style: const TextStyle(fontSize: 11),
-                      // )
-                    ],
-                  ),
-                ],
-              ),
-            )),
-          ],
-        ),
-      ),
-      desktopWidget: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _hover = true),
-        onExit: (_) => setState(() => _hover = false),
-        child: GestureDetector(
-          onTap: widget.onPressed,
-          child: Container(
-            width: 40,
-            height: 40,
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              color:
-                  widget.selected || _hover
-                      ? context
-                          .moonTheme
-                          ?.tabBarTheme
-                          .colors
-                          .selectedPillTextColor
-                          .withAlpha(20)
-                      : Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  widget.selected || _hover ? widget.selectIcon : widget.icon,
-                  color:
-                      widget.selected || _hover
-                          ? context.moonColors?.bulma
-                          : context.moonColors?.bulma.withAlpha(150),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

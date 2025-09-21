@@ -111,13 +111,13 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                           _query.value = '';
                           _page.value = 1;
                           ref.invalidate(
-                            FetchExtensionLatestProvider(
+                            fetchExtensionLatestProvider(
                               widget.meta.packageName,
                               _page.value,
                             ),
                           );
                           ref.read(
-                            FetchExtensionLatestProvider(
+                            fetchExtensionLatestProvider(
                               widget.meta.packageName,
                               _page.value,
                             ),

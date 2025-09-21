@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,10 +16,12 @@ import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/log.dart';
+import 'package:miru_app_new/utils/theme/theme.dart';
+import 'package:miru_app_new/widgets/core/inner_card.dart';
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
-import 'package:moon_design/moon_design.dart';
+// import 'package:moon_design/moon_design.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -27,11 +30,9 @@ import 'package:window_manager/window_manager.dart';
 
 bool _hasOriented = false;
 final _episodeNotifierProvider =
-    AutoDisposeStateNotifierProvider<EpisodeNotifier, EpisodeNotifierState>((
-      ref,
-    ) {
-      return EpisodeNotifier();
-    });
+    NotifierProvider.autoDispose<EpisodeNotifier, EpisodeNotifierState>(
+      EpisodeNotifier.new,
+    );
 
 //Changing epsisode will make this reload
 class MiruVideoPlayer extends StatefulHookConsumerWidget {
@@ -100,9 +101,9 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
         child: Column(
           children: [
             const Text('Error: No episodes found'),
-            MoonButton.icon(
-              icon: const Text('back'),
-              onTap: () {
+            FButton.icon(
+              child: const Text('back'),
+              onPress: () {
                 context.pop();
               },
             ),
@@ -116,7 +117,7 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
             .urls[epNotifier.selectedEpisodeIndex]
             .url;
     final snapshot = ref.watch(
-      VideoLoadProvider(url, widget.meta.packageName, widget.meta.type),
+      videoLoadProvider(url, widget.meta.packageName, widget.meta.type),
     );
     epcontroller.putinformation(
       widget.meta.type,
@@ -176,6 +177,26 @@ class PlayerResolution extends StatefulHookConsumerWidget {
   final Size ratio;
   @override
   createState() => _PlayerResoltionState();
+}
+
+class PlayerButton extends StatelessWidget {
+  const PlayerButton({
+    super.key,
+    required this.onPressed,
+    required this.icon,
+    this.size,
+  });
+  final VoidCallback onPressed;
+  final IconData icon;
+  final double? size;
+  @override
+  Widget build(BuildContext context) {
+    return FButton.icon(
+      style: FButtonStyle.ghost(),
+      onPress: onPressed,
+      child: Icon(icon, size: size),
+    );
+  }
 }
 
 class _PlayerResoltionState extends ConsumerState<PlayerResolution> {
@@ -305,17 +326,16 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
             child:
                 (!controller.isPlaying)
                     ? Center(
-                      child: FButton.icon(
-                        style: FButtonStyle.ghost(),
-                        onPress: () {
+                      child: PlayerButton(
+                        onPressed: () {
                           c.play();
                         },
-                        child: const Icon(size: 60, FIcons.play),
+                        icon: FIcons.play,
                       ),
                     )
                     : Container(color: Colors.transparent),
           ),
-          Blur(child: _DesktopFooter()),
+          _DesktopFooter(),
         ],
       );
     }
@@ -456,18 +476,18 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
             },
             // 左右滑动
             onHorizontalDragUpdate: (details) {
-              double scale = 200000 / MediaQuery.of(context).size.width;
-              Duration pos =
-                  _position +
-                  Duration(milliseconds: (details.delta.dx * scale).round());
-              _position = Duration(
-                milliseconds: pos.inMilliseconds.clamp(
-                  0,
-                  controller.duration.inMilliseconds,
-                ),
-              );
-              _isSeeking = true;
-              setState(() {});
+              // double scale = 200000 / MediaQuery.of(context).size.width;
+              // Duration pos =
+              //     _position +
+              //     Duration(milliseconds: (details.delta.dx * scale).round());
+              // _position = Duration(
+              //   milliseconds: pos.inMilliseconds.clamp(
+              //     0,
+              //     controller.duration.inMilliseconds,
+              //   ),
+              // );
+              // _isSeeking = true;
+              // setState(() {});
             },
             onHorizontalDragEnd: (details) {
               c.seek(_position);
@@ -572,30 +592,26 @@ class _HeaderState extends ConsumerState<_Header> {
               ),
               // 置顶
               if (!DeviceUtil.isMobile) ...[
-                FButton.icon(
-                  child: Icon(
-                    _isAlwaysOnTop ? Icons.push_pin_outlined : Icons.push_pin,
-                  ),
-                  onPress: () async {
+                PlayerButton(
+                  onPressed: () async {
                     WindowManager.instance.setAlwaysOnTop(!_isAlwaysOnTop);
                     setState(() {
                       _isAlwaysOnTop = !_isAlwaysOnTop;
                     });
                   },
+                  icon:
+                      _isAlwaysOnTop ? Icons.push_pin_outlined : Icons.push_pin,
                 ),
                 const SizedBox(width: 10),
-                FButton.icon(
-                  child: const Icon(FIcons.minus),
-                  onPress: () {
+                PlayerButton(
+                  onPressed: () {
                     WindowManager.instance.minimize();
                   },
+                  icon: FIcons.minus,
                 ),
               ],
               const SizedBox(width: 10),
-              FButton.icon(
-                onPress: widget.onClose,
-                child: const Icon(FIcons.x),
-              ),
+              PlayerButton(onPressed: widget.onClose, icon: FIcons.x),
             ],
           ),
         ),
@@ -606,10 +622,26 @@ class _HeaderState extends ConsumerState<_Header> {
 
 class _DesktopFooter extends HookConsumerWidget {
   void showDialog(BuildContext context, int index) {
-    showMoonModal(
+    showFDialog(
       useRootNavigator: false,
+      style:
+          context.theme.dialogStyle
+              .copyWith(
+                barrierFilter:
+                    (animation) => ImageFilter.compose(
+                      outer: ImageFilter.blur(
+                        sigmaX: animation * 5,
+                        sigmaY: animation * 5,
+                      ),
+                      inner: ColorFilter.mode(
+                        context.theme.colors.barrier,
+                        BlendMode.srcOver,
+                      ),
+                    ),
+              )
+              .call,
       context: context,
-      builder: (context) {
+      builder: (context, style, animation) {
         return _DesktopSettingDialog(initialIndex: index);
       },
     );
@@ -617,6 +649,7 @@ class _DesktopFooter extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final speedPopOverController = useFPopoverController();
     final isspeedToggled = useState(false);
     // final isSubtitlesToggled = useState(false);
 
@@ -626,228 +659,266 @@ class _DesktopFooter extends HookConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: (FCard.raw(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _SeekBar(),
-            if (!_hasOriented) const SizedBox(height: 10),
-            Row(
+        style:
+            FCardStyle.inherit(
+              colors: context.theme.colors.copyWith(
+                background: context.theme.colors.background.withAlpha(230),
+              ),
+              typography: overrideTheme.typography,
+              style: context.theme.style,
+            ).call,
+        child: Blur(
+          child: Padding(
+            padding: EdgeInsetsGeometry.symmetric(vertical: 10, horizontal: 15),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                IconButton(icon: const Icon(FIcons.skipBack), onPressed: () {}),
-                if (controller.isPlaying)
-                  FButton.icon(onPress: c.pause, child: Icon(FIcons.pause))
-                else
-                  IconButton(onPressed: c.play, icon: Icon(FIcons.play)),
-                IconButton(
-                  icon: const Icon(FIcons.skipForward),
-                  onPressed: () {},
-                ),
-                const SizedBox(width: 10),
-                // 播放进度
-                Text(
-                  '${controller.position.inMinutes}:${(controller.position.inSeconds % 60).toString().padLeft(2, '0')}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-                const Text('/'),
-                Text(
-                  '${controller.duration.inMinutes}:${(controller.duration.inSeconds % 60).toString().padLeft(2, '0')}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-                const Spacer(),
-                // Obx(() {
-                //   if (controller.currentQuality.value.isEmpty) {
-                //     return const SizedBox.shrink();
-                //   }
-                //   return FilledButton.tonal(
-                //     onPressed: () {
-                //       if (controller.qualityMap.isEmpty) {
-                //         controller.sendMessage(
-                //           Message(
-                //             Text(
-                //               'video.no-qualities'.i18n,
-                //             ),
-                //           ),
-                //         );
-                //         return;
-                //       }
-                //       controller.toggleSideBar(SidebarTab.qualitys);
-                //     },
-                //     style: ButtonStyle(
-                //       padding: MaterialStateProperty.all(
-                //         const EdgeInsets.symmetric(
-                //           horizontal: 10,
-                //           vertical: 5,
-                //         ),
-                //       ),
-                //     ),
-                //     child: Text(
-                //       controller.currentQuality.value,
-                //       style: const TextStyle(
-                //         fontSize: 14,
-                //         fontWeight: FontWeight.w300,
-                //       ),
-                //     ),
-                //   );
-                // }),
-                // 倍速
-                MoonPopover(
-                  onTapOutside: () {
-                    isspeedToggled.value = false;
-                  },
-                  show: isspeedToggled.value,
-                  content: Column(
-                    children: List.generate(
-                      c.speedList.length,
-                      (index) => MoonMenuItem(
-                        label: Text('${c.speedList[index]}x'),
-                        onTap: () {
-                          c.setSpeed(c.speedList[index]);
-                        },
-                      ),
+                _SeekBar(),
+                // if (!_hasOriented) const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Row(
+                      children: [
+                        PlayerButton(onPressed: () {}, icon: FIcons.skipBack),
+                        if (controller.isPlaying)
+                          PlayerButton(onPressed: c.pause, icon: FIcons.pause)
+                        else
+                          PlayerButton(onPressed: c.play, icon: FIcons.play),
+                        PlayerButton(
+                          onPressed: () {},
+                          icon: FIcons.skipForward,
+                        ),
+                        const SizedBox(width: 10),
+                        // 播放进度
+                        Text(
+                          '${controller.position.inMinutes}:${(controller.position.inSeconds % 60).toString().padLeft(2, '0')}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Text('/'),
+                        const SizedBox(width: 10),
+                        Text(
+                          '${controller.duration.inMinutes}:${(controller.duration.inSeconds % 60).toString().padLeft(2, '0')}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  child: FButton.icon(
-                    onPress: () {
-                      isspeedToggled.value = !isspeedToggled.value;
-                    },
-                    child: Text(
-                      '${controller.speed}x',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300,
-                      ),
+                    Spacer(),
+                    // Obx(() {
+                    //   if (controller.currentQuality.value.isEmpty) {
+                    //     return const SizedBox.shrink();
+                    //   }
+                    //   return FilledButton.tonal(
+                    //     onPressed: () {
+                    //       if (controller.qualityMap.isEmpty) {
+                    //         controller.sendMessage(
+                    //           Message(
+                    //             Text(
+                    //               'video.no-qualities'.i18n,
+                    //             ),
+                    //           ),
+                    //         );
+                    //         return;
+                    //       }
+                    //       controller.toggleSideBar(SidebarTab.qualitys);
+                    //     },
+                    //     style: ButtonStyle(
+                    //       padding: MaterialStateProperty.all(
+                    //         const EdgeInsets.symmetric(
+                    //           horizontal: 10,
+                    //           vertical: 5,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     child: Text(
+                    //       controller.currentQuality.value,
+                    //       style: const TextStyle(
+                    //         fontSize: 14,
+                    //         fontWeight: FontWeight.w300,
+                    //       ),
+                    //     ),
+                    //   );
+                    // }),
+                    // 倍速
+                    Row(
+                      children: [
+                        const SizedBox(width: 10),
+                        FPopover(
+                          onTapHide: () => speedPopOverController.hide(),
+                          controller: speedPopOverController,
+                          // onTapOutside: () {
+                          //   isspeedToggled.value = false;
+                          // },
+                          // show: isspeedToggled.value,
+                          popoverBuilder:
+                              (context, ctrller) => InnerCard(
+                                title: "Adjust playback speed",
+                                child: SizedBox(
+                                  width: 200,
+                                  child: FItemGroup(
+                                    maxHeight: 150,
+                                    children: [
+                                      FItem(
+                                        prefix: Icon(FIcons.user),
+                                        title: const Text('Personalization'),
+                                        suffix: Icon(FIcons.chevronRight),
+                                        onPress: () {},
+                                      ),
+                                      FItem(
+                                        prefix: Icon(FIcons.mail),
+                                        title: const Text('Mail'),
+                                        suffix: Icon(FIcons.chevronRight),
+                                        onPress: () {},
+                                      ),
+                                      FItem(
+                                        prefix: Icon(FIcons.wifi),
+                                        title: const Text('WiFi'),
+                                        details: const Text('Forus Labs (5G)'),
+                                        suffix: Icon(FIcons.chevronRight),
+                                        onPress: () {},
+                                      ),
+                                      FItem(
+                                        prefix: Icon(FIcons.alarmClock),
+                                        title: const Text('Alarm Clock'),
+                                        suffix: Icon(FIcons.chevronRight),
+                                        onPress: () {},
+                                      ),
+                                      FItem(
+                                        prefix: Icon(FIcons.qrCode),
+                                        title: const Text('QR code'),
+                                        suffix: Icon(FIcons.chevronRight),
+                                        onPress: () {},
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          child: FButton.icon(
+                            onPress: () => speedPopOverController.toggle(),
+                            child: Text(
+                              '${controller.speed}x',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        // Obx(() {
+                        //   if (controller.torrentMediaFileList.isEmpty) {
+                        //     return const SizedBox.shrink();
+                        //   }
+                        //   return IconButton(
+                        //     onPressed: () {
+                        //       // controller.toggleSideBar(SidebarTab.torrentFiles);
+                        //     },
+                        //     icon: const Icon(Icons.video_file),
+                        //   );
+                        // }),
+                        PlayerButton(
+                          onPressed: () => showDialog(context, 1),
+                          icon: FIcons.captions,
+                        ),
+                        // 播放列表
+                        PlayerButton(
+                          icon: FIcons.listVideo,
+                          onPressed: () {
+                            showDialog(context, 0);
+                          },
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                // Obx(() {
-                //   if (controller.torrentMediaFileList.isEmpty) {
-                //     return const SizedBox.shrink();
-                //   }
-                //   return IconButton(
-                //     onPressed: () {
-                //       // controller.toggleSideBar(SidebarTab.torrentFiles);
-                //     },
-                //     icon: const Icon(Icons.video_file),
-                //   );
-                // }),
-                MoonButton.icon(
-                  onTap: () {
-                    showDialog(context, 1);
-                  },
-                  icon: const Icon(Icons.subtitles),
-                ),
-                // 播放列表
-                IconButton(
-                  icon: const Icon(Icons.playlist_play),
-                  onPressed: () {
-                    showDialog(context, 0);
-
-                    // controller.toggleSideBar(SidebarTab.episodes);
-                  },
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       )),
     );
   }
 }
 
-class _DialogButton extends HookWidget {
-  const _DialogButton({this.initIndex, required this.onPressed});
-  final int? initIndex;
-  final void Function(int) onPressed;
+// class _DialogButton extends HookWidget {
+//   const _DialogButton({this.initIndex, required this.onPressed});
+//   final int? initIndex;
+//   final void Function(int) onPressed;
 
-  static const _navItems = [
-    NavItem(text: 'Episode', icon: Icons.tv_outlined, selectIcon: Icons.tv),
-    NavItem(text: 'Resolution', icon: Icons.hd_outlined, selectIcon: Icons.hd),
-    NavItem(
-      text: 'Subtitle',
-      icon: Icons.subtitles_outlined,
-      selectIcon: Icons.subtitles_rounded,
-    ),
-    NavItem(
-      text: 'Settings',
-      icon: Icons.settings_outlined,
-      selectIcon: Icons.settings,
-    ),
-  ];
+//   static const _navItems = [
+//     NavItem(text: 'Episode', icon: Icons.tv_outlined, selectIcon: Icons.tv),
+//     NavItem(text: 'Resolution', icon: Icons.hd_outlined, selectIcon: Icons.hd),
+//     NavItem(
+//       text: 'Subtitle',
+//       icon: Icons.subtitles_outlined,
+//       selectIcon: Icons.subtitles_rounded,
+//     ),
+//     NavItem(
+//       text: 'Settings',
+//       icon: Icons.settings_outlined,
+//       selectIcon: Icons.settings,
+//     ),
+//   ];
 
-  @override
-  Widget build(context) {
-    final hover = useState(0);
-    final ishover = useState(false);
-    final selectedIndex = useState(initIndex ?? 0);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        _navItems.length,
-        (index) => MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onEnter: (_) {
-            ishover.value = true;
-            hover.value = index;
-          },
-          onExit: (_) {
-            ishover.value = false;
-            hover.value = index;
-          },
-          child: GestureDetector(
-            onTap: () {
-              onPressed(index);
-              selectedIndex.value = index;
-            },
-            child: Container(
-              width: 40,
-              height: 40,
-              padding: const EdgeInsets.all(5),
-              // decoration: BoxDecoration(
-              //   color:
-              //       selectedIndex.value == index ||
-              //               (hover.value == index && ishover.value)
-              //           ? context
-              //               .moonTheme
-              //               ?.tabBarTheme
-              //               .colors
-              //               .selectedPillTextColor
-              //               .withAlpha(20)
-              //           : Colors.transparent,
-              //   borderRadius: BorderRadius.circular(10),
-              // ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    selectedIndex.value == index ||
-                            (hover.value == index && ishover.value)
-                        ? _navItems[index].selectIcon
-                        : _navItems[index].icon,
-                    color:
-                        selectedIndex.value == index || hover.value == index
-                            ? context.moonColors?.bulma
-                            : context.moonColors?.bulma.withAlpha(150),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(context) {
+//     final hover = useState(0);
+//     final ishover = useState(false);
+//     final selectedIndex = useState(initIndex ?? 0);
+//     return Column(
+//       mainAxisAlignment: MainAxisAlignment.center,
+//       children: List.generate(
+//         _navItems.length,
+//         (index) => MouseRegion(
+//           cursor: SystemMouseCursors.click,
+//           onEnter: (_) {
+//             ishover.value = true;
+//             hover.value = index;
+//           },
+//           onExit: (_) {
+//             ishover.value = false;
+//             hover.value = index;
+//           },
+//           child: GestureDetector(
+//             onTap: () {
+//               onPressed(index);
+//               selectedIndex.value = index;
+//             },
+//             child: Container(
+//               width: 40,
+//               height: 40,
+//               padding: const EdgeInsets.all(5),
+//               child: Column(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [
+//                   Icon(
+//                     selectedIndex.value == index ||
+//                             (hover.value == index && ishover.value)
+//                         ? _navItems[index].selectIcon
+//                         : _navItems[index].icon,
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class _DesktopSettingDialog extends HookConsumerWidget {
   static const _buttonGap = 60.0;
   const _DesktopSettingDialog({this.initialIndex = 0});
+  static const _navItems = [
+    NavItem(text: 'Episode', icon: FIcons.tv),
+    NavItem(text: 'Resolution', icon: FIcons.ratio),
+    NavItem(text: 'Subtitle', icon: FIcons.captions),
+    NavItem(text: 'Settings', icon: FIcons.bolt),
+  ];
   final int initialIndex;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -865,58 +936,40 @@ class _DesktopSettingDialog extends HookConsumerWidget {
       // episodes
       ListView.builder(
         itemBuilder:
-            (context, index) => MoonAccordion(
-              accordionSize: MoonAccordionSize.md,
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              childrenPadding: const EdgeInsets.all(10),
-              label: Text(epController.epGroup[index].title),
-              trailing: Text(
-                '${epController.epGroup[index].urls.length} episodes',
-              ),
-              children: List.generate(
-                epController.epGroup[index].urls.length,
-                (i) => MoonMenuItem(
-                  label: Text(
-                    epController.epGroup[index].urls[i].name,
-                    style: TextStyle(
-                      color:
-                          index == epController.selectedGroupIndex &&
-                                  i == epController.selectedEpisodeIndex
-                              ? context
-                                  .moonTheme
-                                  ?.segmentedControlTheme
-                                  .colors
-                                  .textColor
-                              : null,
+            (context, index) => Column(
+              children: [
+                FAccordion(
+                  children: List.generate(
+                    epController.epGroup[index].urls.length,
+                    (i) => FButton(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      style: FButtonStyle.ghost(),
+                      child: Text(
+                        epController.epGroup[index].urls[i].name,
+                        style: TextStyle(),
+                      ),
+                      onPress: () {
+                        epNotifier.selectEpisode(index, i);
+                        context.pop();
+                      },
                     ),
                   ),
-                  backgroundColor:
-                      index == epController.selectedGroupIndex &&
-                              i == epController.selectedEpisodeIndex
-                          ? context
-                              .moonTheme
-                              ?.segmentedControlTheme
-                              .colors
-                              .backgroundColor
-                          : null,
-                  onTap: () {
-                    epNotifier.selectEpisode(index, i);
-                    context.pop();
-                  },
                 ),
-              ),
+              ],
             ),
         itemCount: epController.epGroup.length,
       ),
       ListView.builder(
         itemBuilder: (context, index) {
           final item = controller.qualityMap.keys.toList()[index];
-          return MoonMenuItem(
-            onTap: () {
+          return FButton(
+            style: FButtonStyle.ghost(),
+            mainAxisAlignment: MainAxisAlignment.start,
+            onPress: () {
               notifer.changeVideoQuality(controller.qualityMap[item]!);
               context.pop();
             },
-            label: Text(item),
+            child: Text(item),
           );
         },
         itemCount: controller.qualityMap.length,
@@ -925,22 +978,13 @@ class _DesktopSettingDialog extends HookConsumerWidget {
       ListView.builder(
         itemCount: controller.subtitlesRaw.length,
         itemBuilder:
-            (context, int index) => MoonMenuItem(
-              backgroundColor:
-                  (index == controller.selectedSubtitleIndex &&
-                          controller.isShowSubtitle)
-                      ? context
-                          .moonTheme
-                          ?.segmentedControlTheme
-                          .colors
-                          .backgroundColor
-                      : null,
-              onTap: () {
+            (context, int index) => FButton(
+              onPress: () {
                 notifer.setSelectedIndex(index);
                 context.pop();
               },
-              trailing: Text('${controller.subtitlesRaw[index].language}'),
-              label: Text(controller.subtitlesRaw[index].title),
+              suffix: Text('${controller.subtitlesRaw[index].language}'),
+              child: Text(controller.subtitlesRaw[index].title),
             ),
       ),
       // settings
@@ -951,30 +995,28 @@ class _DesktopSettingDialog extends HookConsumerWidget {
       child: SizedBox(
         height: height * dialogFactor,
         width: width * dialogFactor,
-        child: Row(
-          children: [
-            Container(
-              width: _buttonGap,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(10),
+        child: FCard.raw(
+          child: Padding(
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 5, vertical: 15),
+            child: FScaffold(
+              sidebar: SizedBox(
+                width: 160,
+                child: FSidebarGroup(
+                  children: List.generate(_navItems.length, (index) {
+                    return FSidebarItem(
+                      onPress: () {
+                        selectedIndex.value = index;
+                      },
+                      icon: Icon(_navItems[index].icon),
+                      label: Text(_navItems[index].text),
+                    );
+                  }),
                 ),
               ),
-              child: (SizedBox(
-                child: _DialogButton(
-                  initIndex: selectedIndex.value,
-                  onPressed: (index) {
-                    selectedIndex.value = index;
-                  },
-                ),
-              )),
-            ),
-            Expanded(
               child: Container(
                 height: height * dialogFactor,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
+                  // color: Theme.of(context).colorScheme.surface,
                   borderRadius: const BorderRadius.horizontal(
                     right: Radius.circular(10),
                   ),
@@ -982,7 +1024,7 @@ class _DesktopSettingDialog extends HookConsumerWidget {
                 child: dialogContent[selectedIndex.value],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -998,68 +1040,97 @@ class _SeekBarState extends ConsumerState<_SeekBar> {
   Timer? _timer;
   void updateSliderTimer(VoidFunction callback) {
     _timer?.cancel();
-    logger.info(_timer);
-    _timer = Timer(const Duration(seconds: 1), () {
+    _timer = Timer(const Duration(milliseconds: 300), () {
       callback();
     });
   }
 
   int prevTime = 0;
+  bool isSliderDraging = false;
+  double rawextent = 0;
+  final sliderPos = 0;
   @override
   Widget build(BuildContext context) {
-    // need configure the side ot tap mpde
+    final controller = ref.watch(VideoPlayerProvider.provider);
+    final vidLen = controller.duration.inMilliseconds;
+    final pos = controller.position.inMilliseconds;
+
+    final double playerPos = vidLen == 0 ? 0 : pos / vidLen;
+    final sliderSelection = FSliderSelection(max: 1);
     final fcontroller = useFContinuousSliderController(
       stepPercentage: .00001,
-      selection: FSliderSelection(max: 1),
+      selection: sliderSelection,
     );
-    return FSlider(
-      tooltipBuilder: (tip, val) {
-        return Text('${(val * 100).toStringAsFixed(1)}%');
-      },
-      controller: fcontroller,
-      onChange: (value) {
-        // isSliderDraging = true;
-        // value.
-        ref.read(VideoPlayerProvider.provider.notifier).updateTimer();
-        if (DateTime.now().millisecond - prevTime > 100) {
-          // logger.info(value.rawOffset, value.rawExtent);
-          // ref.read(VideoPlayerProvider.provider.notifier).seek(
-          //       Duration(
-          //         milliseconds:
-          //             (value * ref.read(VideoPlayerProvider.provider).duration.inMilliseconds)
-          //                 .toInt(),
-          //       ),
-          //     );
-          prevTime = DateTime.now().millisecond;
-          updateSliderTimer(() {
-            logger.info('update slider');
-          });
-        }
-      },
-      // min: 0,
-      // max: duration.toDouble(),
-      // value: clampDouble(position.toDouble(), 0, duration.toDouble()),
-      // secondaryTrackValue:
-      //     controller.buffered.isNotEmpty
-      //         ? clampDouble(
-      //           controller.buffered.last.end.inMilliseconds.toDouble(),
-      //           0,
-      //           duration.toDouble(),
-      //         )
-      //         : 0,
-      // onChanged: (value) {
-      //   if (isSliderDraging) {}
-      // },
-      // onChangeStart: (value) {
-      //   isSliderDraging = true;
-      // },
-      // onChangeEnd: (value) {
-      //   if (isSliderDraging) {
-      //     c.seek(Duration(milliseconds: value.toInt()));
 
-      //     isSliderDraging = false;
-      //   }
-      // },
-    );
+    // fcontroller.slide(pos / vidLen, min: fa);
+    {
+      if (!isSliderDraging) {
+        fcontroller.slide(playerPos * rawextent, min: false);
+      }
+      return SizedBox(
+        height: 50,
+        child: FSlider(
+          enabled: controller.duration.inMilliseconds > 0,
+          layout: FLayout.ltr,
+          tooltipBuilder: (tip, val) {
+            return Text(
+              Duration(
+                milliseconds: (vidLen * val).toInt(),
+              ).toString().split('.').first.substring(2),
+            );
+          },
+          controller: fcontroller,
+          semanticFormatterCallback: (val) {
+            rawextent = val.rawExtent.max;
+            isSliderDraging = false;
+            // logger.info("playerpos", playerPos);
+            return "";
+          },
+          onChange: (value) {
+            isSliderDraging = true;
+
+            ref.read(VideoPlayerProvider.provider.notifier).updateTimer();
+            final time = DateTime.now().millisecondsSinceEpoch;
+            logger.info("playerpos on change ");
+            if (time - prevTime > 300) {
+              logger.info(sliderSelection.rawExtent);
+              prevTime = time;
+              updateSliderTimer(() {
+                final seekVal = value.offset.max * vidLen;
+                // logger.info('seek to $seekVal');
+                ref
+                    .read(VideoPlayerProvider.provider.notifier)
+                    .seek(Duration(milliseconds: seekVal.toInt()));
+                isSliderDraging = false;
+              });
+            }
+          },
+          // min: 0,
+          // max: duration.toDouble(),
+          // value: clampDouble(position.toDouble(), 0, duration.toDouble()),
+          // secondaryTrackValue:
+          //     controller.buffered.isNotEmpty
+          //         ? clampDouble(
+          //           controller.buffered.last.end.inMilliseconds.toDouble(),
+          //           0,
+          //           duration.toDouble(),
+          //         )
+          //         : 0,
+          // onChanged: (value) {
+          //   if (isSliderDraging) {}
+          // },
+          // onChangeStart: (value) {
+          //   isSliderDraging = true;
+          // },
+          // onChangeEnd: (value) {
+          //   if (isSliderDraging) {
+          //     c.seek(Duration(milliseconds: value.toInt()));
+
+          //     isSliderDraging = false;
+          //   }
+          // },
+        ),
+      );
+    }
   }
 }

@@ -1,74 +1,88 @@
 import 'package:flutter/widgets.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 
-final detialProvider = ChangeNotifierProvider<DetialProvider>((ref) {
-  return DetialProvider(ref);
-});
+part 'detial_provider.g.dart';
 
-class DetialProvider with ChangeNotifier {
-  // Keep the ref so we can interact with other providers (refresh/invalidate)
-  final Ref _ref;
+class DetialState {
+  final ValueNotifier<int> selectedGroup;
+  final History? history;
+  final Favorite? favorite;
+  final AsyncValue<ExtensionDetail>? detailState;
 
-  // ValueNotifier kept for compatibility with widgets that expect a ValueListenable
-  final ValueNotifier<int> selectedGroup = ValueNotifier<int>(0);
+  DetialState({
+    required this.selectedGroup,
+    this.history,
+    this.favorite,
+    this.detailState,
+  });
 
-  History? history;
-  Favorite? favorite;
+  DetialState copyWith({
+    ValueNotifier<int>? selectedGroup,
+    History? history,
+    Favorite? favorite,
+    AsyncValue<ExtensionDetail>? detailState,
+  }) {
+    return DetialState(
+      selectedGroup: selectedGroup ?? this.selectedGroup,
+      history: history ?? this.history,
+      favorite: favorite ?? this.favorite,
+      detailState: detailState ?? this.detailState,
+    );
+  }
+}
 
-  DetialProvider(this._ref);
+@riverpod
+class Detial extends _$Detial {
+  @override
+  DetialState build() {
+    return DetialState(selectedGroup: ValueNotifier<int>(0));
+  }
 
   void putHistory(History? h) {
-    history = h;
-    notifyListeners();
+    state = state.copyWith(history: h);
   }
 
   void putFavorite(Favorite? f) {
-    favorite = f;
-    notifyListeners();
+    state = state.copyWith(favorite: f);
   }
 
   void setSelectedGroup(int v) {
-    selectedGroup.value = v;
-    // notifyListeners so other consumers rebuild when selection changes
-    notifyListeners();
+    state.selectedGroup.value = v;
+    // update state to notify listeners
+    state = state.copyWith();
   }
 
   /// Invalidate the fetchExtensionDetail provider so any watchers will refetch.
   void refreshDetail(String pkg, String url) {
-    _ref.invalidate(fetchExtensionDetailProvider(pkg, url));
-    // notify listeners so UI that depends on this provider object can react
-    notifyListeners();
+    ref.invalidate(fetchExtensionDetailProvider(pkg, url));
+    // update state to notify listeners
+    state = state.copyWith();
   }
 
   /// Force reload and return the fetched detail. This uses ref.refresh which
   /// re-evaluates and returns the new Future result.
   Future<ExtensionDetail> reloadDetail(String pkg, String url) async {
-    final res = await _ref.refresh(
+    final res = await ref.refresh(
       fetchExtensionDetailProvider(pkg, url).future,
     );
-    notifyListeners();
+    state = state.copyWith(detailState: AsyncValue.data(res));
     return res;
   }
 
-  // Holds the AsyncValue state of the currently fetched ExtensionDetail.
-  AsyncValue<ExtensionDetail>? detailState;
-
   /// Fetch detail (without invalidating). Updates `detailState` and notifies listeners.
   Future<void> fetchDetail(String pkg, String url) async {
-    // Set loading state
-    detailState = const AsyncValue.loading();
-    notifyListeners();
+    state = state.copyWith(detailState: const AsyncValue.loading());
     try {
-      final data = await _ref.read(
+      final data = await ref.read(
         fetchExtensionDetailProvider(pkg, url).future,
       );
-      detailState = AsyncValue.data(data);
-      notifyListeners();
+      state = state.copyWith(detailState: AsyncValue.data(data));
     } catch (e, st) {
-      detailState = AsyncValue<ExtensionDetail>.error(e, st);
-      notifyListeners();
+      state = state.copyWith(
+        detailState: AsyncValue<ExtensionDetail>.error(e, st),
+      );
     }
   }
 }

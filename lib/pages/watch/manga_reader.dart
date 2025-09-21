@@ -56,7 +56,7 @@ class _MiruMangaReaderState extends ConsumerState<MiruMangaReader> {
             .urls[epcontroller.selectedEpisodeIndex]
             .url;
     final snapShot = ref.watch(
-      MangaLoadProvider(url, widget.meta.packageName, widget.meta.type),
+      mangaLoadProvider(url, widget.meta.packageName, widget.meta.type),
     );
 
     return MiruScaffold(

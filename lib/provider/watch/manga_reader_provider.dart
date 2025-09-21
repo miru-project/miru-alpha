@@ -5,47 +5,26 @@ import 'package:miru_app_new/utils/database_service.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class MangaProvider {
-  static final AutoDisposeStateNotifierProvider<
-    MangaReaderProvider,
-    MangaReaderState
-  >
-  _mangaReaderProvider =
-      StateNotifierProvider.autoDispose<MangaReaderProvider, MangaReaderState>((
-        ref,
-      ) {
-        return MangaReaderProvider([]);
-      });
-
-  static late AutoDisposeStateNotifierProvider<
-    MangaEpisodeNotifier,
-    MangaEpisodeNotifierState
-  >
+  static final _mangaReaderProvider =
+      NotifierProvider.autoDispose<MangaReaderProvider, MangaReaderState>(
+        MangaReaderProvider.new,
+      );
+  static late NotifierProvider<MangaEpisodeNotifier, MangaEpisodeNotifierState>
   _episodeNotifier;
 
-  static AutoDisposeStateNotifierProvider<MangaReaderProvider, MangaReaderState>
-  get provider => _mangaReaderProvider;
-  static AutoDisposeStateNotifierProvider<
-    MangaEpisodeNotifier,
-    MangaEpisodeNotifierState
-  >
-  get epProvider => _episodeNotifier;
+  static NotifierProvider<MangaReaderProvider, MangaReaderState> get provider => _mangaReaderProvider;
+  static NotifierProvider<MangaEpisodeNotifier, MangaEpisodeNotifierState> get epProvider => _episodeNotifier;
+
   static void initEpisode(
     List<ExtensionEpisodeGroup> epGroup,
     String name,
     int selectedGroupIndex,
     int selectedEpisodeIndex,
   ) {
-    _episodeNotifier = StateNotifierProvider.autoDispose<
+    _episodeNotifier = NotifierProvider.autoDispose<
       MangaEpisodeNotifier,
       MangaEpisodeNotifierState
-    >((ref) {
-      return MangaEpisodeNotifier(
-        epGroup,
-        name,
-        selectedGroupIndex,
-        selectedEpisodeIndex,
-      );
-    });
+    >(MangaEpisodeNotifier.new);
   }
 }
 
@@ -88,16 +67,22 @@ class MangaReaderState {
   }
 }
 
-class MangaReaderProvider extends StateNotifier<MangaReaderState> {
-  MangaReaderProvider(List<String> content) : super(const MangaReaderState()) {
-    _init(content);
-  }
+class MangaReaderProvider extends Notifier<MangaReaderState> {
+  MangaReaderProvider() : _initialContent = const [];
+
+  final List<String> _initialContent;
   final itemPositionsListener = ItemPositionsListener.create();
   final scrollOffsetController = ScrollOffsetController();
   final scrollOffsetListener = ScrollOffsetListener.create();
   final itemScrollController = ItemScrollController();
-  void _init(List<String> content) {
-    state = state.copyWith(content: content, totalPage: content.length - 1);
+
+  @override
+  MangaReaderState build() {
+    final content = _initialContent;
+    return MangaReaderState(
+      content: content,
+      totalPage: content.isNotEmpty ? content.length - 1 : 0,
+    );
   }
 
   void putContent(List<String> content) {
@@ -151,27 +136,53 @@ class MangaEpisodeNotifierState {
   }
 }
 
-class MangaEpisodeNotifier extends StateNotifier<MangaEpisodeNotifierState> {
-  MangaEpisodeNotifier(
+class MangaEpisodeNotifier extends Notifier<MangaEpisodeNotifierState> {
+  MangaEpisodeNotifier() {
+    ref.onDispose(() {
+      try {
+        DatabaseService.putHistory(
+          History(
+            title: state.name,
+            package: package,
+            type: type.toString(),
+            episodeGroupId: state.selectedGroupIndex,
+            episodeId: state.selectedEpisodeIndex,
+            progress: state.selectedEpisodeIndex.toString(),
+            cover: imageUrl,
+            totalProgress:
+                state.epGroup[state.selectedGroupIndex].urls.length.toString(),
+            episodeTitle:
+                state
+                    .epGroup[state.selectedGroupIndex]
+                    .urls[state.selectedEpisodeIndex]
+                    .name,
+            url: detailUrl,
+            date: DateTime.now(),
+          ),
+        );
+      } catch (_) {}
+    });
+  }
+
+  void initEpisodes(
+    int groupIndex,
+    int episodeIndex,
     List<ExtensionEpisodeGroup> epGroup,
     String name,
-    int selectedGroupIndex,
-    int selectedEpisodeIndex,
-  ) : super(
-        MangaEpisodeNotifierState(
-          epGroup: epGroup,
-          name: name,
-          selectedEpisodeIndex: selectedEpisodeIndex,
-          selectedGroupIndex: selectedGroupIndex,
-        ),
-      ) {
-    state.copyWith(
+  ) {
+    state = state.copyWith(
       epGroup: epGroup,
       name: name,
-      selectedGroupIndex: selectedGroupIndex,
-      selectedEpisodeIndex: selectedEpisodeIndex,
+      selectedGroupIndex: groupIndex,
+      selectedEpisodeIndex: episodeIndex,
     );
   }
+
+  @override
+  MangaEpisodeNotifierState build() {
+    return MangaEpisodeNotifierState();
+  }
+
   final scrollController = ScrollController();
   void setSelectedGroupIndex(int index) {
     state = state.copyWith(selectedGroupIndex: index);
@@ -214,42 +225,5 @@ class MangaEpisodeNotifier extends StateNotifier<MangaEpisodeNotifierState> {
     this.detailUrl = detailUrl;
   }
 
-  @override
-  void dispose() {
-    DatabaseService.putHistory(
-      // History()
-      // ..title = state.name
-      // ..package = package
-      // ..type = type
-      // ..episodeGroupId = state.selectedGroupIndex
-      // ..episodeId = state.selectedEpisodeIndex
-      // ..progress = state.selectedEpisodeIndex.toString()
-      // ..cover = imageUrl
-      // ..totalProgress =
-      //     state.epGroup[state.selectedGroupIndex].urls.length.toString()
-      // ..episodeTitle = state.epGroup[state.selectedGroupIndex]
-      //     .urls[state.selectedEpisodeIndex].name
-      // ..url = detailUrl
-      // ..date = DateTime.now()
-      History(
-        title: state.name,
-        package: package,
-        type: type.toString(),
-        episodeGroupId: state.selectedGroupIndex,
-        episodeId: state.selectedEpisodeIndex,
-        progress: state.selectedEpisodeIndex.toString(),
-        cover: imageUrl,
-        totalProgress:
-            state.epGroup[state.selectedGroupIndex].urls.length.toString(),
-        episodeTitle:
-            state
-                .epGroup[state.selectedGroupIndex]
-                .urls[state.selectedEpisodeIndex]
-                .name,
-        url: detailUrl,
-        date: DateTime.now(),
-      ),
-    );
-    super.dispose();
-  }
+  // dispose behavior moved to ref.onDispose in build()
 }

@@ -5,8 +5,8 @@ import 'package:miru_app_new/utils/theme/theme.dart';
 import '../utils/index.dart';
 
 final applicationControllerProvider =
-    StateNotifierProvider<ApplicationController, ApplicationState>(
-      (ref) => ApplicationController(),
+    NotifierProvider<ApplicationController, ApplicationState>(
+      ApplicationController.new,
     );
 
 class ApplicationState {
@@ -36,27 +36,23 @@ class ApplicationState {
   }
 }
 
-class ApplicationController extends StateNotifier<ApplicationState> {
-  ApplicationController()
-    : super(
-        ApplicationState(
-          themeMode: ThemeMode.system,
-          themeData: FThemes.zinc.dark,
-          themeText: MiruStorage.getSettingSync<String>(SettingKey.theme),
-          accentColor:
-              ThemeUtils
-                  .settingToAccentColor[MiruStorage.getSettingSync<String>(
-                SettingKey.accentColor,
-              )] ??
-              AccentColors.zinc,
-        ),
-      ) {
-    _init();
-  }
+class ApplicationController extends Notifier<ApplicationState> {
+  @override
+  ApplicationState build() {
+    final themeText = MiruStorage.getSettingSync<String>(SettingKey.theme);
+    final accentColor =
+        ThemeUtils.settingToAccentColor[MiruStorage.getSettingSync<String>(
+          SettingKey.accentColor,
+        )] ??
+        AccentColors.zinc;
 
-  void _init() {
-    state = state.copyWith(
-      themeData: currentThemeData(state.themeText, state.accentColor),
+    final themeData = currentThemeData(themeText, accentColor);
+
+    return ApplicationState(
+      themeText: themeText,
+      accentColor: accentColor,
+      themeData: themeData,
+      themeMode: ThemeMode.system,
     );
   }
 

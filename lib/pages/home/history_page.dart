@@ -1,20 +1,37 @@
+import 'dart:async';
+import 'dart:ui';
+
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/widgets/card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/objectbox.g.dart';
+import 'package:miru_app_new/provider/extension_page_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/widgets/gridView/index.dart';
 import 'home_page.dart';
-import 'package:moon_design/moon_design.dart';
 import 'package:go_router/go_router.dart';
 
 class HistoryPage extends StatefulHookConsumerWidget {
   const HistoryPage({super.key});
   @override
   createState() => _HistoryPageState();
+}
+
+class CarsouelScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+    PointerDeviceKind.stylus,
+  };
 }
 
 class _HistoryPageState extends ConsumerState<HistoryPage>
@@ -39,7 +56,16 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final selectedDot = useState(0);
+    final controller = useCarouselController();
+    // final selectedDot = useState(0);
+    int index = 0;
+    useEffect(() {
+      Timer.periodic(const Duration(seconds: 5), (timer) {
+        controller.animateToItem(index);
+        index++;
+      });
+      return null;
+    }, [controller]);
     final width = DeviceUtil.getWidth(context);
     final history = ref.watch(mainPageProvider).history;
     return CustomScrollView(
@@ -48,57 +74,73 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
         SliverToBoxAdapter(
           child: SizedBox(
             height: DeviceUtil.device(
-              mobile: 200,
+              mobile: 250,
               desktop: 300,
               context: context,
             ),
-            child: OverflowBox(
-              maxWidth: DeviceUtil.device(
-                mobile: width,
-                desktop: width * .9,
-                context: context,
-              ),
-              child: MoonCarousel(
-                loop: true,
-                autoPlay: true,
-                autoPlayDelay: const Duration(seconds: 5),
-                gap: 12,
-                itemCount: 10,
+            width: 1000,
+            child: ScrollConfiguration(
+              behavior: CarsouelScrollBehavior(),
+              child: CarouselView(
+                itemSnapping: true,
+                controller: controller,
+                scrollDirection: Axis.horizontal,
+                onTap: (value) {
+                  final item = history[value];
+                  final meta =
+                      ref.read(extensionPageControllerProvider).metaData;
+                  final ExtensionMeta? ext = meta.firstWhereOrNull(
+                    (element) => element.packageName == item.package,
+                  );
+                  if (ext == null) return;
+                  context.push(
+                    '/search/single/detail',
+                    extra: DetailParam(meta: ext, url: item.url),
+                  );
+                },
                 itemExtent: DeviceUtil.device(
                   mobile: width - 32,
                   desktop: width * .4,
                   context: context,
                 ),
-                onIndexChanged: (int index) => selectedDot.value = index,
-                itemBuilder: (BuildContext context, int itemIndex, int _) {
-                  if (history.length <= itemIndex) {
-                    return const Center(
-                      child: Text(
-                        'No history',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          // fontFamily: "HarmonyOS_Sans",
+                shrinkExtent: 200.0,
+                children: List.generate(
+                  history.length > 10 ? 10 : history.length,
+                  (itemIndex) {
+                    if (history.length <= itemIndex) {
+                      return FCard.raw(
+                        child: Center(
+                          child: Text(
+                            'No history',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              // fontFamily: "HarmonyOS_Sans",
+                            ),
+                          ),
                         ),
-                      ),
+                      );
+                    }
+                    final item = history[itemIndex];
+                    return SizedBox(
+                      width: 100,
+                      child: HomePageCarousel(item: item),
                     );
-                  }
-                  final item = history[itemIndex];
-                  return HomePageCarousel(item: item);
-                },
+                  },
+                ),
               ),
             ),
           ),
         ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          sliver: SliverToBoxAdapter(
-            child: MoonDotIndicator(
-              selectedDot: selectedDot.value,
-              dotCount: 10,
-            ),
-          ),
-        ),
+        // SliverPadding(
+        //   padding: const EdgeInsets.symmetric(vertical: 10),
+        //   sliver: SliverToBoxAdapter(
+        //     child: MoonDotIndicator(
+        //       selectedDot: selectedDot.value,
+        //       dotCount: 10,
+        //     ),
+        //   ),
+        // ),
         SliverPadding(
           padding: const EdgeInsets.all(15.0),
           sliver: SliverGrid(

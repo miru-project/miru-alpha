@@ -80,7 +80,7 @@ void main() async {
   // Init config for miru_core
   await loadMiruCore();
   CoreNetwork.ensureInitialized();
-  _bindErrorWidget();
+  if (kReleaseMode) _bindErrorWidget();
   runZonedGuarded(
     () {
       runApp(const ProviderScope(child: App()));

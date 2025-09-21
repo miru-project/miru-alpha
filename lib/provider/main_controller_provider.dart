@@ -5,7 +5,9 @@ import '../../pages/home/home_page.dart';
 import '../../pages/search_page.dart';
 import '../../pages/setting/settings_page.dart';
 
-final mainControllerProvider = StateNotifierProvider<MainController, MainState>((ref) => MainController());
+final mainControllerProvider = NotifierProvider<MainController, MainState>(
+  MainController.new,
+);
 
 class MainState {
   final int selectedIndex;
@@ -14,14 +16,25 @@ class MainState {
   MainState({required this.selectedIndex, required this.isLoading});
 
   MainState copyWith({int? selectedIndex, bool? isLoading}) {
-    return MainState(selectedIndex: selectedIndex ?? this.selectedIndex, isLoading: isLoading ?? this.isLoading);
+    return MainState(
+      selectedIndex: selectedIndex ?? this.selectedIndex,
+      isLoading: isLoading ?? this.isLoading,
+    );
   }
 }
 
-class MainController extends StateNotifier<MainState> {
-  MainController() : super(MainState(selectedIndex: 0, isLoading: false));
+class MainController extends Notifier<MainState> {
+  @override
+  MainState build() {
+    return MainState(selectedIndex: 0, isLoading: false);
+  }
 
-  final List<Widget> pages = const [HomePage(), SearchPage(), ExtensionPage(), SettingsPage()];
+  final List<Widget> pages = const [
+    HomePage(),
+    SearchPage(),
+    ExtensionPage(),
+    SettingsPage(),
+  ];
 
   late final TabController rootPageTabController;
 
@@ -40,9 +53,13 @@ class MainController extends StateNotifier<MainState> {
 }
 
 class NavItem {
-  const NavItem({required this.text, required this.icon, required this.selectIcon});
+  const NavItem({
+    required this.text,
+    required this.icon,
+    // required this.selectIcon,
+  });
 
   final String text;
   final IconData icon;
-  final IconData selectIcon;
+  // final IconData selectIcon;
 }

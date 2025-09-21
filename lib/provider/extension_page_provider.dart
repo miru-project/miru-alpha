@@ -63,27 +63,26 @@ class ExtensionPageState {
   }
 }
 
-class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
+class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
+  List<ExtensionMeta> get extMeta => state.metaData;
   String get selectedRepoUrl => _selectedRepoUrl;
   String _selectedRepoUrl = '';
-  ExtensionPageNotifier()
-    : snappingController = SnappingSheetController(),
-      super(
-        ExtensionPageModel(
-          fetchedRepo: const [],
-          extensionList: const [],
-          installedPackages: const [],
-          metaData: [],
-        ),
-      ) {
-    // initialize installedPackages from ExtensionUtils.runtimes
-    state = state.copyWith(
-      installedPackages: ExtensionUtils.runtimes.keys.toList(),
-    );
-    ExtensionPageState.instance.update(state);
-  }
 
-  final SnappingSheetController snappingController;
+  final SnappingSheetController snappingController = SnappingSheetController();
+
+  @override
+  ExtensionPageModel build() {
+    final initial = ExtensionPageModel(
+      fetchedRepo: const [],
+      extensionList: const [],
+      installedPackages: ExtensionUtils.runtimes.keys.toList(),
+      metaData: const [],
+      update: null,
+      loading: false,
+    );
+    ExtensionPageState.instance.update(initial);
+    return initial;
+  }
 
   Future<void> loadRepos({bool force = false}) async {
     if (!force && state.fetchedRepo.isNotEmpty) return;
@@ -276,6 +275,6 @@ class ExtensionPageNotifier extends StateNotifier<ExtensionPageModel> {
 }
 
 final extensionPageControllerProvider =
-    StateNotifierProvider<ExtensionPageNotifier, ExtensionPageModel>((ref) {
-      return ExtensionPageNotifier();
-    });
+    NotifierProvider<ExtensionPageNotifier, ExtensionPageModel>(
+      ExtensionPageNotifier.new,
+    );

@@ -32,8 +32,37 @@ class EpisodeNotifierState {
   }
 }
 
-class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
-  EpisodeNotifier() : super(EpisodeNotifierState());
+class EpisodeNotifier extends Notifier<EpisodeNotifierState> {
+  @override
+  EpisodeNotifierState build() {
+    ref.onDispose(() {
+      try {
+        DatabaseService.putHistory(
+          History(
+            title: state.name,
+            package: package,
+            type: EnumToString.convertToString(type),
+            episodeGroupId: state.selectedGroupIndex,
+            episodeId: state.selectedEpisodeIndex,
+            progress: state.selectedEpisodeIndex.toString(),
+            cover: imageUrl,
+            totalProgress:
+                state.epGroup[state.selectedGroupIndex].urls.length.toString(),
+            episodeTitle:
+                state
+                    .epGroup[state.selectedGroupIndex]
+                    .urls[state.selectedEpisodeIndex]
+                    .name,
+            url: detailUrl,
+            date: DateTime.now(),
+          ),
+        );
+      } catch (_) {}
+    });
+
+    return EpisodeNotifierState();
+  }
+
   void selectEpisode(int groupIndex, int episodeIndex) {
     state = state.copyWith(
       selectedGroupIndex: groupIndex,
@@ -73,42 +102,5 @@ class EpisodeNotifier extends StateNotifier<EpisodeNotifierState> {
     this.detailUrl = detailUrl;
   }
 
-  @override
-  void dispose() {
-    DatabaseService.putHistory(
-      History(
-        title: state.name,
-        package: package,
-        type: EnumToString.convertToString(type),
-        episodeGroupId: state.selectedGroupIndex,
-        episodeId: state.selectedEpisodeIndex,
-        progress: state.selectedEpisodeIndex.toString(),
-        cover: imageUrl,
-        totalProgress:
-            state.epGroup[state.selectedGroupIndex].urls.length.toString(),
-        episodeTitle:
-            state
-                .epGroup[state.selectedGroupIndex]
-                .urls[state.selectedEpisodeIndex]
-                .name,
-        url: detailUrl,
-        date: DateTime.now(),
-      ),
-    );
-    // ..title = state.name
-    // ..package = package
-    // ..type = type
-    // ..episodeGroupId = state.selectedGroupIndex
-    // ..episodeId = state.selectedEpisodeIndex
-    // ..progress = state.selectedEpisodeIndex.toString()
-    // ..cover = imageUrl
-    // ..totalProgress =
-    //     state.epGroup[state.selectedGroupIndex].urls.length.toString()
-    // ..episodeTitle = state.epGroup[state.selectedGroupIndex]
-    //     .urls[state.selectedEpisodeIndex].name
-    // ..url = detailUrl
-    // ..date = DateTime.now());
-
-    super.dispose();
-  }
+  // dispose behavior moved to ref.onDispose in build()
 }

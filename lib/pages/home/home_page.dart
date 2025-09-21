@@ -1,21 +1,21 @@
+import 'package:collection/collection.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:forui/theme.dart';
+import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/objectbox.g.dart';
 import 'package:miru_app_new/provider/anilist_change_notifier.dart';
+import 'package:miru_app_new/provider/extension_page_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/device_util.dart';
-import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/tracking/anilist_provider.dart';
-import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/widgets/gridView/index.dart';
 import '../download_page.dart';
 import 'index.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'package:moon_design/moon_design.dart';
 import 'package:go_router/go_router.dart';
 
 class MainPageState {
@@ -103,43 +103,31 @@ class HomePageCarousel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final extensionIsExist = ExtensionUtils.runtimes.containsKey(item.package);
-    return GestureDetector(
-      onTap: () {
-        if (extensionIsExist) {
-          context.push(
-            '/search/detail',
-            extra: DetailParam(
-              meta: ExtensionUtils.runtimes[item.package]!,
-              url: item.url,
-            ),
-          );
-        }
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: context.theme.colors.muted,
-          borderRadius: BorderRadius.circular(20),
-        ),
+    final meta = ref.read(extensionPageControllerProvider).metaData;
+    final ExtensionMeta? ext = meta.firstWhereOrNull(
+      (element) => element.packageName == item.package,
+    );
+    return SizedBox(
+      width: 600,
+      child: FCard.raw(
         child: Row(
           children: [
-            ExtendedImage.network(
-              shape: BoxShape.rectangle,
-              fit: BoxFit.fitHeight,
-              item.cover ?? '',
-              borderRadius: const BorderRadius.horizontal(
-                left: Radius.circular(20),
-                right: Radius.circular(10),
+            Flexible(
+              child: ExtendedImage.network(
+                // shape: BoxShape.rectangle,
+                fit: BoxFit.fitHeight,
+                item.cover ?? '',
+                // borderRadius: const BorderRadius.horizontal(
+                //   left: Radius.circular(20),
+                //   right: Radius.circular(10),
+                // ),
               ),
             ),
             const SizedBox(width: 15),
             SizedBox(
-              width: DeviceUtil.getWidth(context) * .2,
+              // width: DeviceUtil.getWidth(context) * .2,
               child: DefaultTextStyle(
-                style: TextStyle(
-                  color: context.moonTheme?.chipTheme.colors.textColor,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
                 child: SizedBox(
                   width: DeviceUtil.device(
@@ -163,7 +151,7 @@ class HomePageCarousel extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      const Expanded(flex: 1, child: SizedBox(height: 10)),
+                      // const Expanded(flex: 1, child: SizedBox(height: 10)),
                       Text(
                         item.episodeTitle,
                         maxLines: 2,
@@ -186,20 +174,13 @@ class HomePageCarousel extends ConsumerWidget {
                                 return null;
                               },
                               cache: true,
-                              extensionIsExist
-                                  ? ExtensionUtils
-                                          .runtimes[item.package]!
-                                          .icon ??
-                                      ''
-                                  : '',
+                              ext == null ? ext!.icon ?? '' : '',
                               shape: BoxShape.rectangle,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              extensionIsExist
-                                  ? ExtensionUtils.runtimes[item.package]!.name
-                                  : 'Unknown',
+                              ext.name,
                               style: const TextStyle(
                                 // fontFamily: "HarmonyOS_Sans",
                               ),
@@ -208,7 +189,7 @@ class HomePageCarousel extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Expanded(flex: 1, child: Text(convertTime(item.date))),
+                      Text(convertTime(item.date)),
                     ],
                   ),
                 ),
@@ -331,7 +312,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
   Widget build(BuildContext context) {
     final textController = useTextEditingController();
     final errorText = useState<String?>(null);
-    final isShowAddPopUp = useState(false);
+    // final isShowAddPopUp = useState(false);
 
     textController.addListener(() {
       text = textController.text;
@@ -364,237 +345,235 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                   favGroupValue.length,
                   (index) => GestureDetector(
                     onSecondaryTap: () => showPopUp(favGroupValue, index),
-                    child: MoonPopover(
-                      onTapOutside: () {
-                        setLongPress.value = [];
-                      },
-                      maxWidth: 170,
-                      decoration: BoxDecoration(
-                        color:
-                            context.moonTheme?.chipTheme.colors.backgroundColor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
-                      popoverPosition: MoonPopoverPosition.bottom,
-                      content: Column(
-                        children: [
-                          Text(
-                            'Edit',
-                            style: TextStyle(
-                              color:
-                                  context.moonTheme?.chipTheme.colors.textColor,
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                              // fontFamily: "HarmonyOS_Sans",
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
-                            child: Material(
-                              child: MoonFormTextInput(
-                                errorText: errorText.value,
-                                inactiveBorderColor: Colors.transparent,
-                                hintText: 'Group Name',
-                                trailing: MoonButton.icon(
-                                  onTap: () {
-                                    textController.clear();
-                                  },
-                                  buttonSize: MoonButtonSize.sm,
-                                  icon: const Icon(
-                                    MoonIcons.controls_close_24_regular,
-                                  ),
-                                ),
-                                style: const TextStyle(
-                                  fontSize: 15,
+                    child: FPopover(
+                      // onTapOutside: () {
+                      //   setLongPress.value = [];
+                      // },
+                      // maxWidth: 170,
+                      // decoration: BoxDecoration(
+                      //   // color:
+                      //   //     context.moonTheme?.chipTheme.colors.backgroundColor,
+                      //   borderRadius: BorderRadius.circular(10),
+                      // ),
+                      // contentPadding: const EdgeInsets.symmetric(
+                      //   horizontal: 20,
+                      //   vertical: 10,
+                      // ),
+                      // popoverPosition: MoonPopoverPosition.bottom,
+                      popoverBuilder:
+                          (conetext, controller) => Column(
+                            children: [
+                              Text(
+                                'Edit',
+                                style: TextStyle(
+                                  // color:
+                                  //     context.moonTheme?.chipTheme.colors.textColor,
+                                  fontSize: 17,
                                   fontWeight: FontWeight.bold,
                                   // fontFamily: "HarmonyOS_Sans",
                                 ),
-                                controller: textController,
                               ),
-                            ),
-                          ),
-                          // const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              MoonButton.icon(
-                                onTap: () {
-                                  // delete group
-                                  DatabaseService.deleteFavoriteGroup([
-                                    favGroupValue[index].name,
-                                  ]);
-                                  if (selected.contains(index)) {
-                                    final update = List<int>.from(selected);
-                                    update.removeWhere(
-                                      (element) => element == index,
-                                    );
-                                    ref
-                                        .read(mainPageProvider.notifier)
-                                        .setSelectedGroups(update);
-                                    setLongPress.value = [];
-                                    return;
-                                  }
-                                  //shift the selected index after delete
-                                  for (int i = 0; i < selected.length; i++) {
-                                    if (selected[i] > index) {
-                                      selected[i]--;
-                                    }
-                                  }
-                                  setLongPress.value = [];
-                                },
-                                icon: const Icon(
-                                  MoonIcons.generic_delete_24_light,
+                              const SizedBox(height: 20),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
                                 ),
-                                // label: const Text('Remove'),
+                                child: FTextField(
+                                  error:
+                                      (errorText.value == null)
+                                          ? null
+                                          : Text(errorText.value!),
+                                  // inactiveBorderColor: Colors.transparent,
+                                  hint: 'Group Name',
+                                  suffixBuilder:
+                                      (context, _, _) => FButton.icon(
+                                        onPress: () {
+                                          textController.clear();
+                                        },
+
+                                        child: const Icon(FIcons.circleX),
+                                      ),
+                                  // style: const TextStyle(
+                                  //   fontSize: 15,
+                                  //   fontWeight: FontWeight.bold,
+                                  //   // fontFamily: "HarmonyOS_Sans",
+                                  // ),
+                                  controller: textController,
+                                ),
                               ),
-                              MoonButton.icon(
-                                iconColor:
-                                    context
-                                        .moonTheme
-                                        ?.segmentedControlTheme
-                                        .colors
-                                        .backgroundColor,
-                                icon: const Icon(
-                                  MoonIcons.generic_edit_24_regular,
-                                ),
-                                onTap:
-                                    errorText.value == null
-                                        ? () {
-                                          final oldname =
-                                              favGroupValue[index].name;
-                                          DatabaseService.renameFavoriteGroup(
-                                            oldname,
-                                            textController.text,
-                                          );
-                                          setLongPress.value = [];
+                              // const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  FButton.icon(
+                                    onPress: () {
+                                      // delete group
+                                      DatabaseService.deleteFavoriteGroup([
+                                        favGroupValue[index].name,
+                                      ]);
+                                      if (selected.contains(index)) {
+                                        final update = List<int>.from(selected);
+                                        update.removeWhere(
+                                          (element) => element == index,
+                                        );
+                                        ref
+                                            .read(mainPageProvider.notifier)
+                                            .setSelectedGroups(update);
+                                        setLongPress.value = [];
+                                        return;
+                                      }
+                                      //shift the selected index after delete
+                                      for (
+                                        int i = 0;
+                                        i < selected.length;
+                                        i++
+                                      ) {
+                                        if (selected[i] > index) {
+                                          selected[i]--;
                                         }
-                                        : null,
+                                      }
+                                      setLongPress.value = [];
+                                    },
+                                    child: const Icon(FIcons.trash),
+                                  ),
+                                  FButton.icon(
+                                    onPress:
+                                        errorText.value == null
+                                            ? () {
+                                              final oldname =
+                                                  favGroupValue[index].name;
+                                              DatabaseService.renameFavoriteGroup(
+                                                oldname,
+                                                textController.text,
+                                              );
+                                              setLongPress.value = [];
+                                            }
+                                            : null,
+                                    child: const Icon(FIcons.textCursor),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                      show: setLongPress.value.contains(index),
-                      child: MoonChip(
-                        onLongPress: () => showPopUp(favGroupValue, index),
-                        onTap: () {
-                          final update = List<int>.from(selected);
-                          if (selected.contains(index)) {
-                            update.remove(index);
-                            ref
-                                .read(mainPageProvider.notifier)
-                                .setSelectedGroups(update);
-                            return;
-                          }
-                          update.add(index);
-                          ref
-                              .read(mainPageProvider.notifier)
-                              .setSelectedGroups(update);
-                        },
-                        isActive: selected.contains(index),
-                        gap: 5,
-                        label: Text(
-                          favGroupValue[index].name,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            // fontFamily: "HarmonyOS_Sans",
-                          ),
-                        ),
-                      ),
+                      // show: setLongPress.value.contains(index),
+                      child: Text("WIP"),
+                      // MoonChip(
+                      //   onLongPress: () => showPopUp(favGroupValue, index),
+                      //   onTap: () {
+                      //     final update = List<int>.from(selected);
+                      //     if (selected.contains(index)) {
+                      //       update.remove(index);
+                      //       ref
+                      //           .read(mainPageProvider.notifier)
+                      //           .setSelectedGroups(update);
+                      //       return;
+                      //     }
+                      //     update.add(index);
+                      //     ref
+                      //         .read(mainPageProvider.notifier)
+                      //         .setSelectedGroups(update);
+                      //   },
+                      //   isActive: selected.contains(index),
+                      //   gap: 5,
+                      //   label: Text(
+                      //     favGroupValue[index].name,
+                      //     style: const TextStyle(
+                      //       fontSize: 15,
+                      //       fontWeight: FontWeight.bold,
+                      //       // fontFamily: "HarmonyOS_Sans",
+                      //     ),
+                      //   ),
+                      // ),
                     ),
                   ),
                 ),
-                MoonPopover(
-                  popoverPosition: MoonPopoverPosition.bottom,
-                  onTapOutside: () => isShowAddPopUp.value = false,
-                  show: isShowAddPopUp.value,
-                  decoration: BoxDecoration(
-                    color: context.moonTheme?.chipTheme.colors.backgroundColor,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  maxWidth: 170,
-                  content: Column(
-                    children: [
-                      Text(
-                        'Add',
-                        style: TextStyle(
-                          color: context.moonTheme?.chipTheme.colors.textColor,
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          // fontFamily: "HarmonyOS_Sans",
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: Material(
-                          child: MoonFormTextInput(
-                            errorText: errorText.value,
-                            inactiveBorderColor: Colors.transparent,
-                            hintText: 'Group Name',
-                            trailing: MoonButton.icon(
-                              onTap: () {
-                                textController.clear();
-                              },
-                              buttonSize: MoonButtonSize.sm,
-                              icon: const Icon(
-                                MoonIcons.controls_close_24_regular,
-                              ),
-                            ),
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              // fontFamily: "HarmonyOS_Sans",
-                            ),
-                            // textInputSize:
-                            //     MoonTextInputSize.sm,
-                            controller: textController,
-                          ),
-                        ),
-                      ),
-                      // const SizedBox(height: 10),
-                      MoonButton.icon(
-                        iconColor:
-                            context
-                                .moonTheme
-                                ?.segmentedControlTheme
-                                .colors
-                                .backgroundColor,
-                        icon: const Text('Confirm'),
-                        onTap:
-                            errorText.value == null
-                                ? () {
-                                  DatabaseService.putFavoriteGroup(
-                                    textController.text,
-                                  );
-                                  textController.clear();
-                                  isShowAddPopUp.value = false;
-                                  context.pop();
-                                }
-                                : null,
-                      ),
-                    ],
-                  ),
-                  child: MoonButton(
-                    backgroundColor:
-                        context.moonTheme?.chipTheme.colors.backgroundColor,
-                    leading: const Icon(MoonIcons.controls_plus_24_regular),
-                    onTap: () {
-                      textController.clear();
-                      isShowAddPopUp.value = !isShowAddPopUp.value;
-                    },
-                    label: const Text('ADD'),
-                  ),
-                ),
+                // MoonPopover(
+                //   popoverPosition: MoonPopoverPosition.bottom,
+                //   onTapOutside: () => isShowAddPopUp.value = false,
+                //   show: isShowAddPopUp.value,
+                //   decoration: BoxDecoration(
+                //     color: context.moonTheme?.chipTheme.colors.backgroundColor,
+                //     borderRadius: BorderRadius.circular(10),
+                //   ),
+                //   contentPadding: const EdgeInsets.symmetric(
+                //     horizontal: 20,
+                //     vertical: 10,
+                //   ),
+                //   maxWidth: 170,
+                //   content: Column(
+                //     children: [
+                //       Text(
+                //         'Add',
+                //         style: TextStyle(
+                //           color: context.moonTheme?.chipTheme.colors.textColor,
+                //           fontSize: 17,
+                //           fontWeight: FontWeight.bold,
+                //           // fontFamily: "HarmonyOS_Sans",
+                //         ),
+                //       ),
+                //       const SizedBox(height: 20),
+                //       Padding(
+                //         padding: const EdgeInsets.symmetric(horizontal: 5),
+                //         child: Material(
+                //           child: MoonFormTextInput(
+                //             errorText: errorText.value,
+                //             inactiveBorderColor: Colors.transparent,
+                //             hintText: 'Group Name',
+                //             trailing: MoonButton.icon(
+                //               onTap: () {
+                //                 textController.clear();
+                //               },
+                //               buttonSize: MoonButtonSize.sm,
+                //               icon: const Icon(
+                //                 MoonIcons.controls_close_24_regular,
+                //               ),
+                //             ),
+                //             style: const TextStyle(
+                //               fontSize: 15,
+                //               fontWeight: FontWeight.bold,
+                //               // fontFamily: "HarmonyOS_Sans",
+                //             ),
+                //             // textInputSize:
+                //             //     MoonTextInputSize.sm,
+                //             controller: textController,
+                //           ),
+                //         ),
+                //       ),
+                //       // const SizedBox(height: 10),
+                //       MoonButton.icon(
+                //         iconColor:
+                //             context
+                //                 .moonTheme
+                //                 ?.segmentedControlTheme
+                //                 .colors
+                //                 .backgroundColor,
+                //         icon: const Text('Confirm'),
+                //         onTap:
+                //             errorText.value == null
+                //                 ? () {
+                //                   DatabaseService.putFavoriteGroup(
+                //                     textController.text,
+                //                   );
+                //                   textController.clear();
+                //                   isShowAddPopUp.value = false;
+                //                   context.pop();
+                //                 }
+                //                 : null,
+                //       ),
+                //     ],
+                //   ),
+                //   child: MoonButton(
+                //     backgroundColor:
+                //         context.moonTheme?.chipTheme.colors.backgroundColor,
+                //     leading: const Icon(MoonIcons.controls_plus_24_regular),
+                //     onTap: () {
+                //       textController.clear();
+                //       isShowAddPopUp.value = !isShowAddPopUp.value;
+                //     },
+                //     label: const Text('ADD'),
+                //   ),
+                // ),
               ],
               mobile:
                   (children) =>
@@ -698,9 +677,9 @@ class _HomePageState extends ConsumerState<HomePage> {
   ) {
     return SideBarSearchBar(
       controller: textcontroller,
-      trailing: MoonButton.icon(
-        icon: const Icon(MoonIcons.controls_close_24_regular),
-        onTap: () {
+      trailing: FButton.icon(
+        child: const Icon(FIcons.x),
+        onPress: () {
           textcontroller.clear();
           search.value = '';
         },
@@ -776,113 +755,167 @@ class _HomePageState extends ConsumerState<HomePage> {
             buildHomeSearchBar(textcontroller, search),
 
           const SizedBox(height: 10),
-          MoonTabBar(
-            tabController: tabcontroller,
-            tabs: List.generate(
-              _categories.length,
-              (index) => MoonTab(label: Text(_categories[index])),
-            ),
-          ),
+          // MoonTabBar(
+          //   tabController: tabcontroller,
+          //   tabs: List.generate(
+          //     _categories.length,
+          //     (index) => MoonTab(label: Text(_categories[index])),
+          //   ),
+          // ),
           // const SizedBox(height: 10),
           SizedBox(
             height: 300,
-            child: TabBarView(
-              controller: tabcontroller,
-              children: <Widget>[
-                DefaultTextStyle(
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    // fontFamily: "HarmonyOS_Sans",
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 10),
-                        const Text('Time'),
-                        CatergoryGroupChip(
-                          maxSelected: 1,
-                          minSelected: 1,
-                          items: const ['All', '1 day', '1 week', '1 month'],
-                          onpress: (val) {
-                            _selectedTime = val[0];
-                            final history = filterByDateAndCategory(
-                              _times[_selectedTime],
-                              _types[_selectedType],
-                            );
-                            debugPrint(history.toString());
-                            ref
-                                .read(mainPageProvider.notifier)
-                                .updateHistory(history);
-                          },
-                          initSelected: const [0],
-                        ),
-                        const SizedBox(height: 10),
-                        const Text('Category'),
-                        CatergoryGroupChip(
-                          maxSelected: 1,
-                          minSelected: 1,
-                          items: const ['All', 'Video', 'Comic', 'Novel'],
-                          onpress: (val) {
-                            _selectedType = val[0];
-                            final history = filterByDateAndCategory(
-                              _times[_selectedTime],
-                              _types[_selectedType],
-                            );
-                            debugPrint(history.toString());
-                            ref
-                                .read(mainPageProvider.notifier)
-                                .updateHistory(history);
-                          },
-                          initSelected: const [0],
-                        ),
-                      ],
+            child: DefaultTextStyle(
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                // fontFamily: "HarmonyOS_Sans",
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    const Text('Time'),
+                    CatergoryGroupChip(
+                      maxSelected: 1,
+                      minSelected: 1,
+                      items: const ['All', '1 day', '1 week', '1 month'],
+                      onpress: (val) {
+                        _selectedTime = val[0];
+                        final history = filterByDateAndCategory(
+                          _times[_selectedTime],
+                          _types[_selectedType],
+                        );
+                        debugPrint(history.toString());
+                        ref
+                            .read(mainPageProvider.notifier)
+                            .updateHistory(history);
+                      },
+                      initSelected: const [0],
                     ),
-                  ),
+                    const SizedBox(height: 10),
+                    const Text('Category'),
+                    CatergoryGroupChip(
+                      maxSelected: 1,
+                      minSelected: 1,
+                      items: const ['All', 'Video', 'Comic', 'Novel'],
+                      onpress: (val) {
+                        _selectedType = val[0];
+                        final history = filterByDateAndCategory(
+                          _times[_selectedTime],
+                          _types[_selectedType],
+                        );
+                        debugPrint(history.toString());
+                        ref
+                            .read(mainPageProvider.notifier)
+                            .updateHistory(history);
+                      },
+                      initSelected: const [0],
+                    ),
+                  ],
                 ),
-                FavoriteTab(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: DefaultTextStyle(
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      // fontFamily: "HarmonyOS_Sans",
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 10),
-                        const Text('Anilist'),
-                        CatergoryGroupChip(
-                          maxSelected: 1,
-                          minSelected: 1,
-                          items: const ['Anime', 'Manga'],
-                          onpress: (val) {
-                            aniListisAnime.value = val[0] == 0;
-                          },
-                          initSelected: const [0],
-                        ),
-                        const SizedBox(height: 10),
-                        const Text('Anilist Status'),
-                        CatergoryGroupChip(
-                          maxSelected: 1,
-                          minSelected: 1,
-                          items: _anilistStatus,
-                          onpress: (val) {
-                            anilistCurrentStatus.value = _anilistStatus[val[0]];
-                          },
-                          initSelected: const [0],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                DownloadPage(),
-              ],
+              ),
             ),
+
+            //  TabBarView(
+            //   controller: tabcontroller,
+            //   children: <Widget>[
+            //     DefaultTextStyle(
+            //       style: const TextStyle(
+            //         fontSize: 15,
+            //         fontWeight: FontWeight.bold,
+            //         // fontFamily: "HarmonyOS_Sans",
+            //       ),
+            //       child: Padding(
+            //         padding: const EdgeInsets.symmetric(horizontal: 20),
+            //         child: Column(
+            //           crossAxisAlignment: CrossAxisAlignment.start,
+            //           children: [
+            //             const SizedBox(height: 10),
+            //             const Text('Time'),
+            //             CatergoryGroupChip(
+            //               maxSelected: 1,
+            //               minSelected: 1,
+            //               items: const ['All', '1 day', '1 week', '1 month'],
+            //               onpress: (val) {
+            //                 _selectedTime = val[0];
+            //                 final history = filterByDateAndCategory(
+            //                   _times[_selectedTime],
+            //                   _types[_selectedType],
+            //                 );
+            //                 debugPrint(history.toString());
+            //                 ref
+            //                     .read(mainPageProvider.notifier)
+            //                     .updateHistory(history);
+            //               },
+            //               initSelected: const [0],
+            //             ),
+            //             const SizedBox(height: 10),
+            //             const Text('Category'),
+            //             CatergoryGroupChip(
+            //               maxSelected: 1,
+            //               minSelected: 1,
+            //               items: const ['All', 'Video', 'Comic', 'Novel'],
+            //               onpress: (val) {
+            //                 _selectedType = val[0];
+            //                 final history = filterByDateAndCategory(
+            //                   _times[_selectedTime],
+            //                   _types[_selectedType],
+            //                 );
+            //                 debugPrint(history.toString());
+            //                 ref
+            //                     .read(mainPageProvider.notifier)
+            //                     .updateHistory(history);
+            //               },
+            //               initSelected: const [0],
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //     ),
+            //     FavoriteTab(),
+            //     Padding(
+            //       padding: const EdgeInsets.symmetric(horizontal: 20),
+            //       child: DefaultTextStyle(
+            //         style: const TextStyle(
+            //           fontSize: 15,
+            //           fontWeight: FontWeight.bold,
+            //           // fontFamily: "HarmonyOS_Sans",
+            //         ),
+            //         child: Column(
+            //           crossAxisAlignment: CrossAxisAlignment.start,
+            //           children: [
+            //             const SizedBox(height: 10),
+            //             const Text('Anilist'),
+            //             CatergoryGroupChip(
+            //               maxSelected: 1,
+            //               minSelected: 1,
+            //               items: const ['Anime', 'Manga'],
+            //               onpress: (val) {
+            //                 aniListisAnime.value = val[0] == 0;
+            //               },
+            //               initSelected: const [0],
+            //             ),
+            //             const SizedBox(height: 10),
+            //             const Text('Anilist Status'),
+            //             CatergoryGroupChip(
+            //               maxSelected: 1,
+            //               minSelected: 1,
+            //               items: _anilistStatus,
+            //               onpress: (val) {
+            //                 anilistCurrentStatus.value = _anilistStatus[val[0]];
+            //               },
+            //               initSelected: const [0],
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //     ),
+            //     DownloadPage(),
+            //   ],
+            // ),
           ),
         ],
         desktop: <Widget>[
@@ -932,9 +965,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                     actions:
                         _notifer.anilistIsLogin
                             ? [
-                              MoonButton.icon(
-                                icon: const Text('Logout'),
-                                onTap: () {
+                              FButton.icon(
+                                child: const Text('Logout'),
+                                onPress: () {
                                   _notifer.logoutAniList();
                                 },
                               ),
@@ -955,75 +988,20 @@ class _HomePageState extends ConsumerState<HomePage> {
         ],
       ),
       body: PlatformWidget(
-        mobileWidget: TabBarView(
-          controller: tabcontroller,
-          children: <Widget>[
-            HistoryPage(),
-            FavoritePage(),
-            _AnilistHomePage(
-              anilistStatus: anilistCurrentStatus,
-              anilistisAnime: aniListisAnime,
-            ),
-            DownloadPage(),
-          ],
-        ),
-        desktopWidget: HistoryPage(),
-        // LayoutBuilder(
-        //   builder:
-        //       (context, cons) => Column(
-        //         children: [
-        //           const SizedBox(height: 10),
-        //           Center(
-        //             child: Container(
-        //               decoration: BoxDecoration(color: context.theme.colors.muted, borderRadius: BorderRadius.circular(15)),
-        //               child: Padding(
-        //                 padding: const EdgeInsets.fromLTRB(12, 5, 12, 7),
-        //                 child: MoonTabBar(
-        //                   tabController: tabcontroller,
-        //                   tabs: List.generate(
-        //                     _categories.length,
-        //                     (index) => MoonTab(
-        //                       tabStyle: const MoonTabStyle(indicatorHeight: 3, textStyle: TextStyle(fontSize: 17)),
-        //                       label: Text(_categories[index]),
-        //                     ),
-        //                   ),
-        //                 ),
-        //               ),
-        //             ),
-        //           ),
-        //           if (currentTab.value == 1) FavoriteTab(),
-        //           if (currentTab.value == 2) ...[
-        //             const SizedBox(height: 20),
-        //             Row(
-        //               mainAxisAlignment: MainAxisAlignment.center,
-        //               children: List.generate(
-        //                 _anilistStatus.length,
-        //                 (index) => MoonChip(
-        //                   onTap: () {
-        //                     anilistCurrentStatus.value = _anilistStatus[index];
-        //                   },
-        //                   isActive: anilistCurrentStatus.value == _anilistStatus[index],
-        //                   chipSize: MoonChipSize.sm,
-        //                   label: Text(_anilistStatus[index], style: const TextStyle(fontFamily: 'HarmonyOS_Sans', fontWeight: FontWeight.bold)),
-        //                 ),
-        //               ),
-        //             ),
-        //           ],
-        //           const SizedBox(height: 10),
-        //           Expanded(
-        //             child: TabBarView(
-        //               controller: tabcontroller,
-        //               children: <Widget>[
-        //                 HistoryPage(),
-        //                 FavoritePage(),
-        //                 _AnilistHomePage(anilistisAnime: aniListisAnime, anilistStatus: anilistCurrentStatus),
-        //                 DownloadPage(),
-        //               ],
-        //             ),
-        //           ),
-        //         ],
-        //       ),
+        mobileWidget: HistoryPage(),
+        // TabBarView(
+        //   controller: tabcontroller,
+        //   children: <Widget>[
+        //     HistoryPage(),
+        //     FavoritePage(),
+        //     _AnilistHomePage(
+        //       anilistStatus: anilistCurrentStatus,
+        //       anilistisAnime: aniListisAnime,
+        //     ),
+        //     DownloadPage(),
+        //   ],
         // ),
+        desktopWidget: HistoryPage(),
       ),
     );
   }
@@ -1127,9 +1105,9 @@ class _AnilistHomePageState extends ConsumerState<_AnilistHomePage>
           );
         }
         return Center(
-          child: MoonButton(
-            label: const Text('Login to Anilist'),
-            onTap: () {
+          child: FButton(
+            child: const Text('Login to Anilist'),
+            onPress: () {
               _notifer.loginAniList(context);
             },
           ),

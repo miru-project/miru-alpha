@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 import 'package:moon_design/moon_design.dart';
 
 class SideBarSearchBar extends StatelessWidget {
@@ -22,16 +23,18 @@ class SideBarSearchBar extends StatelessWidget {
         color: Colors.black.withAlpha(20),
         borderRadius: BorderRadius.circular(10),
       ),
-      child: MoonTextInput(
+      child: FTextField(
         controller: controller,
-        leading: const Icon(MoonIcons.generic_search_16_regular),
-        trailing: trailing,
-        textInputSize: MoonTextInputSize.sm,
-        decoration: const BoxDecoration(color: Colors.transparent),
-        onSubmitted: onsubmitted,
-        onChanged: onChanged,
-        hintText: 'Search',
-        style: const TextStyle(fontSize: 14),
+        prefixBuilder:
+            (context, _, _) => const Icon(MoonIcons.generic_search_16_regular),
+        suffixBuilder:
+            (trailing == null) ? null : (conetext, _, _) => trailing!,
+        // // textInputSize: MoonTextInputSize.sm,
+        // decoration: const BoxDecoration(color: Colors.transparent),
+        onSubmit: onsubmitted,
+        onChange: onChanged,
+        hint: 'Search',
+        // style: const TextStyle(fontSize: 14),
       ),
 
       // Row(

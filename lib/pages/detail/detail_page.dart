@@ -553,18 +553,18 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     );
     watchedQuery.watch().listen((query) {
       final value = query.findFirst();
-      ref.read(detialProvider).putHistory(value);
+      ref.read(detialProvider.notifier).putHistory(value);
     });
-    final favQuery =
-        DatabaseService.fav
-            .query(
-              Favorite_.package
-                  .equals(widget.meta.packageName)
-                  .and(Favorite_.url.equals(widget.url)),
-            )
-            .build();
+    // final favQuery =
+    //     DatabaseService.fav
+    //         .query(
+    //           Favorite_.package
+    //               .equals(widget.meta.packageName)
+    //               .and(Favorite_.url.equals(widget.url)),
+    //         )
+    //         .build();
 
-    ref.read(detialProvider).putFavorite(favQuery.findFirst());
+    // ref.read(detialProvider.notifier).putFavorite(favQuery.findFirst());
     // DatabaseService.historys
     //     .filter()
     //     .packageEqualTo(widget.extensionService.extension.package)
@@ -582,7 +582,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     //     .findFirstSync());
     Future.microtask(
       () => ref
-          .read(detialProvider)
+          .read(detialProvider.notifier)
           .putHistory(
             DatabaseService.getHistoryByPackageAndUrl(
               widget.meta.packageName,
@@ -593,7 +593,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
     // Trigger detail fetch via DetialProvider so UI doesn't depend directly on the fetch provider
     Future.microtask(
       () => ref
-          .read(detialProvider)
+          .read(detialProvider.notifier)
           .fetchDetail(widget.meta.packageName, widget.url),
     );
     super.initState();
@@ -897,30 +897,6 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   //     ),
   //   );
   // }
-}
-
-class _DetailCast extends HookWidget {
-  static const _tabs = ['TMDB', 'AniList'];
-  @override
-  Widget build(BuildContext context) {
-    final tabController = useTabController(initialLength: 2);
-    return Column(
-      children: [
-        MoonTabBar(
-          isExpanded: true,
-          tabController: tabController,
-          tabs: List.generate(2, (index) => MoonTab(label: Text(_tabs[index]))),
-        ),
-        SizedBox(
-          height: 100,
-          child: TabBarView(
-            controller: tabController,
-            children: const [Text('TMDB'), Text('AniList')],
-          ),
-        ),
-      ],
-    );
-  }
 }
 
 class LoadingWidget extends StatelessWidget {
@@ -1338,7 +1314,7 @@ class _FavoriteDialogState extends ConsumerState<_FavoriteDialog> {
                                             widget.meta.packageName,
                                           );
                                           ref
-                                              .read(detialProvider)
+                                              .read(detialProvider.notifier)
                                               .putFavorite(null);
                                           context.pop();
                                         },
@@ -1353,7 +1329,9 @@ class _FavoriteDialogState extends ConsumerState<_FavoriteDialog> {
                                     widget.meta.packageName,
                                     widget.meta.type,
                                   );
-                                  ref.read(detialProvider).putFavorite(fav);
+                                  ref
+                                      .read(detialProvider.notifier)
+                                      .putFavorite(fav);
 
                                   final result =
                                       group.value.map((e) {

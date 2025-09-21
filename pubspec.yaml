@@ -58,8 +58,8 @@ dependencies:
   riverpod_annotation: any
   volume_controller: ^3.3.1
   screen_brightness: ^2.0.1
-  hooks_riverpod: ^2.6.1
-  fvp: ^0.33.1
+  hooks_riverpod: ^3.0.0
+  fvp: ^0.34.0
   video_player: ^2.9.1
   flutter_hooks: ^0.21.2
   easy_refresh: ^3.4.0
@@ -72,8 +72,8 @@ dependencies:
   # webview_cookie_manager: ^2.0.6
   flutter_i18n: ^0.36.0
   flutter_inappwebview: ^6.0.0
-  device_info_plus: ^11.2.0
-  package_info_plus: ^8.0.2
+  device_info_plus: ^12.1.0
+  package_info_plus: ^9.0.0
   objectbox: ^4.1.0
   objectbox_flutter_libs: any
   ffi: ^2.1.4
@@ -82,7 +82,7 @@ dependencies:
   logging: ^1.3.0
   # encrypt: any
   collection: ^1.19.1
-  forui: ^0.15.0
+  forui: ^0.15.1
   provider: ^6.1.5
   blur: ^4.0.2
   skeletonizer: ^2.1.0+1

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:moon_design/moon_design.dart';
 
 class SideBarListTitle extends StatelessWidget {
   const SideBarListTitle({
@@ -24,7 +23,7 @@ class SideBarListTitle extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              color: context.moonTheme?.chipTheme.colors.textColor,
+              // color: context.moonTheme?.chipTheme.colors.textColor,
               fontWeight: FontWeight.bold,
               fontSize: 20,
               // fontFamily: "HarmonyOS_Sans",

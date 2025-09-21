@@ -55,7 +55,7 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
             .urls[epcontroller.selectedEpisodeIndex]
             .url;
     final snapShot = ref.watch(
-      FikushonLoadProvider(url, widget.meta.packageName, widget.meta.type),
+      fikushonLoadProvider(url, widget.meta.packageName, widget.meta.type),
     );
 
     return MiruScaffold(

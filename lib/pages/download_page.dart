@@ -9,15 +9,26 @@ import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/widgets/snackbar.dart';
 import 'package:moon_design/moon_design.dart';
 
-final downloadsProvider = StateNotifierProvider<_DownloadsNotifier, AsyncValue<List<dynamic>>>((ref) {
-  return _DownloadsNotifier();
-});
+final downloadsProvider =
+    NotifierProvider<_DownloadsNotifier, AsyncValue<List<dynamic>>>(
+      _DownloadsNotifier.new,
+    );
 
-class _DownloadsNotifier extends StateNotifier<AsyncValue<List<dynamic>>> {
+class _DownloadsNotifier extends Notifier<AsyncValue<List<dynamic>>> {
   Timer? _timer;
-  _DownloadsNotifier() : super(const AsyncLoading()) {
+
+  @override
+  AsyncValue<List<dynamic>> build() {
+    // start in loading state and kick off periodic fetch
     _fetchStatus();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _fetchStatus());
+
+    // ensure timer is cancelled when the notifier is disposed
+    ref.onDispose(() {
+      _timer?.cancel();
+    });
+
+    return const AsyncLoading();
   }
 
   Future<void> _fetchStatus() async {
@@ -41,7 +52,11 @@ class _DownloadsNotifier extends StateNotifier<AsyncValue<List<dynamic>>> {
     }
   }
 
-  Future<void> sendAction(BuildContext context, String id, String action) async {
+  Future<void> sendAction(
+    BuildContext context,
+    String id,
+    String action,
+  ) async {
     String url;
     switch (action) {
       case 'pause':
@@ -63,24 +78,28 @@ class _DownloadsNotifier extends StateNotifier<AsyncValue<List<dynamic>>> {
       return;
     }
     if (res.statusCode != 200) {
-      showSnackBar(context: context, content: Text('Failed to $action download: ${res.data}'));
+      showSnackBar(
+        context: context,
+        content: Text('Failed to $action download: ${res.data}'),
+      );
     } else {
       await _fetchStatus();
     }
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
+  // dispose logic moved to ref.onDispose in build()
 }
 
 class DownloadPage extends ConsumerWidget {
   DownloadPage({super.key});
 
   final finishedList = <String>[];
-  void onComplete(List<String> list, bool isHls, String outputName, String taskId) {
+  void onComplete(
+    List<String> list,
+    bool isHls,
+    String outputName,
+    String taskId,
+  ) {
     if (isHls && !finishedList.contains(taskId)) {
       FFMpegUtils.combineTsToMp4(list, outputName);
       finishedList.add(taskId);
@@ -88,7 +107,12 @@ class DownloadPage extends ConsumerWidget {
     return;
   }
 
-  Widget _buildDownloadItem(BuildContext context, WidgetRef ref, dynamic item, bool loading) {
+  Widget _buildDownloadItem(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic item,
+    bool loading,
+  ) {
     final status = item['status'] ?? 'Unknown';
     final progressRaw = item['progress'];
     final totalRaw = item['total'];
@@ -151,7 +175,10 @@ class DownloadPage extends ConsumerWidget {
         trailing: MoonButton(
           label: Text(buttonLabel),
           backgroundColor: buttonColor,
-          onTap: () => ref.read(downloadsProvider.notifier).sendAction(context, id, action),
+          onTap:
+              () => ref
+                  .read(downloadsProvider.notifier)
+                  .sendAction(context, id, action),
         ),
       ),
     );
@@ -172,7 +199,13 @@ class DownloadPage extends ConsumerWidget {
               ? const Center(child: Text('No Download Task '))
               : ListView.builder(
                 itemCount: filtered.length,
-                itemBuilder: (context, index) => _buildDownloadItem(context, ref, filtered[index], loading),
+                itemBuilder:
+                    (context, index) => _buildDownloadItem(
+                      context,
+                      ref,
+                      filtered[index],
+                      loading,
+                    ),
               );
         },
       ),

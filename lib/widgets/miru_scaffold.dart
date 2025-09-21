@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/forui.dart';
 import 'package:miru_app_new/provider/main_controller_provider.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/widgets/index.dart';
@@ -41,13 +42,6 @@ class _MiruScaffoldState extends State<MiruScaffold> {
   }
 
   late final MainController c;
-  // static const List<NavItem> _navItems = [
-  //   NavItem(text: 'Home', icon: Icons.home_outlined, selectIcon: Icons.home_filled),
-  //   NavItem(text: 'Search', icon: Icons.explore_outlined, selectIcon: Icons.explore),
-  //   NavItem(text: 'Extension', icon: Icons.extension_outlined, selectIcon: Icons.extension),
-  //   NavItem(text: 'Settings', icon: Icons.settings_outlined, selectIcon: Icons.settings),
-  // ];
-
   Widget sheet() {
     return SnappingSheet(
       lockOverflowDrag: true,
@@ -76,7 +70,6 @@ class _MiruScaffoldState extends State<MiruScaffold> {
         draggable: (details) => true,
         child: Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor.withAlpha(220),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
             boxShadow: [
               BoxShadow(
@@ -116,16 +109,12 @@ class _MiruScaffoldState extends State<MiruScaffold> {
   @override
   Widget build(BuildContext context) {
     return PlatformWidget(
-      mobileWidget: Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar:
+      mobileWidget: FScaffold(
+        header:
             MiruStorage.getSettingSync<bool>(SettingKey.mobiletitleIsonTop)
-                ? AppBar(
-                  automaticallyImplyLeading: false,
-                  title: widget.mobileHeader,
-                )
+                ? FHeader(title: widget.mobileHeader ?? const SizedBox())
                 : null,
-        body: widget.sidebar == null ? widget.body : sheet(),
+        child: widget.sidebar == null ? widget.body : sheet(),
       ),
       desktopWidget: widget.body,
     );

@@ -9,27 +9,23 @@ import 'package:video_player/video_player.dart';
 import 'package:flutter/material.dart';
 
 class VideoPlayerProvider {
-  static late AutoDisposeStateNotifierProvider<
-    VideoPlayerNotifier,
-    VideoPlayerState
-  >
+  static late NotifierProvider<VideoPlayerNotifier, VideoPlayerState>
   _videoPlayerNotifier;
+
   static void initProvider(
     String url,
     List<ExtensionBangumiWatchSubtitle> subtitle,
     Map<String, String> headers,
     Size ratio,
   ) {
-    _videoPlayerNotifier = StateNotifierProvider.autoDispose<
-      VideoPlayerNotifier,
-      VideoPlayerState
-    >((ref) {
-      return VideoPlayerNotifier(url, subtitle, headers, ratio);
-    });
+    _videoPlayerNotifier =
+        NotifierProvider.autoDispose<VideoPlayerNotifier, VideoPlayerState>(
+          () => VideoPlayerNotifier._withParams(url, subtitle, headers, ratio),
+        );
   }
 
-  static AutoDisposeStateNotifierProvider<VideoPlayerNotifier, VideoPlayerState>
-  get provider => _videoPlayerNotifier;
+  static NotifierProvider<VideoPlayerNotifier, VideoPlayerState> get provider =>
+      _videoPlayerNotifier;
 }
 
 class VideoPlayerState {
@@ -128,21 +124,51 @@ class VideoPlayerState {
   }
 }
 
-class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
-  VideoPlayerNotifier(
-    String url,
-    List<ExtensionBangumiWatchSubtitle> subtitle,
-    Map<String, String> headers,
-    Size ratio,
-  ) : super(
-        VideoPlayerState(
-          subtitlesRaw: subtitle,
-          controller: VideoPlayerController.networkUrl(Uri.parse(url)),
-          showControls: false,
-        ),
-      ) {
-    defaultSize = ratio;
-    _init(url, headers);
+class VideoPlayerNotifier extends Notifier<VideoPlayerState> {
+  VideoPlayerNotifier();
+
+  VideoPlayerNotifier._withParams(
+    this._url,
+    this._subtitlesRaw,
+    this._headers,
+    this._initialRatio,
+  );
+
+  String? _url;
+  List<ExtensionBangumiWatchSubtitle>? _subtitlesRaw;
+  Map<String, String>? _headers;
+  Size? _initialRatio;
+
+  @override
+  VideoPlayerState build() {
+    defaultSize = _initialRatio ?? const Size(0, 0);
+    final controller =
+        _url != null
+            ? VideoPlayerController.networkUrl(Uri.parse(_url!))
+            : null;
+    final initialState = VideoPlayerState(
+      controller: controller,
+      subtitlesRaw: _subtitlesRaw ?? const [],
+      showControls: false,
+      ratio:
+          controller?.value.aspectRatio ??
+          (defaultSize.width /
+              (defaultSize.height == 0 ? 1 : defaultSize.height)),
+    );
+
+    // schedule initialization and cleanup
+    if (_url != null) {
+      // initialize async parts
+      Future.microtask(() => _init(_url!, _headers ?? {}));
+    }
+
+    ref.onDispose(() {
+      _hideTimer?.cancel();
+      initialState.controller?.removeListener(_updatePosition);
+      initialState.controller?.dispose();
+    });
+
+    return initialState;
   }
 
   Timer? _hideTimer;
@@ -153,7 +179,7 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
     // show controls immediately
     state = state.copyWith(showControls: true);
     // start periodic timer to hide after 3 seconds
-    _hideTimer = Timer(const Duration(seconds: 3), () {
+    _hideTimer = Timer(const Duration(seconds: 10000), () {
       state = state.copyWith(showControls: false);
     });
   }
@@ -264,9 +290,9 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
   void playOrPause() {
     if (state.isPlaying) {
       pause();
-    } else {
-      play();
+      return;
     }
+    play();
   }
 
   void toggleSideBar() {
@@ -349,11 +375,5 @@ class VideoPlayerNotifier extends StateNotifier<VideoPlayerState> {
   //       selectedEpisodeIndex: episodeIndex);
   // }
 
-  @override
-  void dispose() {
-    _hideTimer?.cancel();
-    state.controller?.removeListener(_updatePosition);
-    state.controller?.dispose();
-    super.dispose();
-  }
+  // cleanup moved to ref.onDispose inside build()
 }
