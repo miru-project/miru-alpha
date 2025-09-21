@@ -96,7 +96,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version:  3.35.3
+          flutter-version:  3.35.4
           channel: stable
 
       - name: Build artifacts
