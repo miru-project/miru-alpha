@@ -57,28 +57,41 @@ jobs:
   #         path: "build/app/outputs/flutter-apk/app-x86_64-release.apk"
   #         name: Miru-pr-${{ github.event.pull_request.number }}-x86_64.apk
 
-  # build-and-release-windows:
-  #   runs-on: windows-latest
+  build-and-release-windows:
+    runs-on: windows-latest
 
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: subosito/flutter-action@v2.12.0
-  #       with:
-  #         flutter-version:  3.16.8 
-  #         channel: stable
-  #     - name: Install project dependencies
-  #       run: flutter pub get
-  #     - name: Build artifacts
-  #       run: flutter build windows --release
-  #     - name: Rename Release Directory Name to Miru-App # 为了解压缩后更好看一点
-  #       run: |
-  #         mv build/windows/x64/runner/Release build/windows/x64/runner/Miru-App
-  #     # 发布安装包
-  #     - name: Upload Artifact
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         path: "build/windows/x64/runner/Miru-App"
-  #         name: Miru-pr-${{ github.event.pull_request.number }}-windows.zip
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.25.1'
+
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version:  3.35.4
+          channel: stable
+
+      - name: Build artifacts
+        run: flutter build windows --release
+
+      - name: Rename Release Directory Name to Miru-alpha # 为了解压缩后更好看一点
+        run: |
+          mv build/windows/x64/runner/Release build/windows/x64/runner/Miru-alpha
+            # set a timestamp based on the commit time and use that in artifact names
+            
+      - name: Set artifact timestamp
+        run: echo "TIMESTAMP=$(date -u +'%Y%m%dT%H%M%SZ')" >> $GITHUB_ENV
+
+      # 发布安装包
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: "build/windows/x64/runner/Miru-alpha"
+          name: Miru-Alpha-${{ env.TIMESTAMP }}-windows.zip
 
   build-and-release-linux:
     runs-on: ubuntu-latest
@@ -113,4 +126,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           path: "build/linux/x64/release/Miru-alpha"
-          name: Miru-${{ env.TIMESTAMP }}-linux
+          name: Miru-Alpha-${{ env.TIMESTAMP }}-linux
