@@ -49,14 +49,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.13.0"
-  blur:
-    dependency: "direct main"
-    description:
-      name: blur
-      sha256: "1318cf79c735784eda8dffc77b1085b757373d233c1c8d94dc0cfd81530a3574"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -314,14 +306,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.9.0"
-  dio_cookie_manager:
-    dependency: "direct main"
-    description:
-      name: dio_cookie_manager
-      sha256: d39c16abcc711c871b7b29bd51c6b5f3059ef39503916c6a9df7e22c4fc595e0
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.3.0"
   dio_web_adapter:
     dependency: transitive
     description:
@@ -338,14 +322,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.0"
-  expressions:
-    dependency: transitive
-    description:
-      name: expressions
-      sha256: f3b0e99563a9a1bde1138e728eb722f292cc7d2aec55d28136c49b1a370306c5
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.5+3"
   extended_image:
     dependency: "direct main"
     description:
@@ -663,7 +639,7 @@ packages:
     source: hosted
     version: "3.0.0"
   html:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: html
       sha256: "6d1264f2dffa1b1101c25a91dff0dc2daee4c18e87cd8538729773c073dbf602"
@@ -1303,14 +1279,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
-  skeletonizer:
-    dependency: "direct main"
-    description:
-      name: skeletonizer
-      sha256: eebc03dc86b298e2d7f61e0ebce5713e9dbbc3e786f825909b4591756f196eb6
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0+1"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -1668,22 +1636,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.2.7"
-  xpath_selector:
-    dependency: transitive
-    description:
-      name: xpath_selector
-      sha256: "6d8295565a34a6e2821a0721592e584c70421e52a0f54955e0c8e41963db7c90"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.2"
-  xpath_selector_html_parser:
-    dependency: "direct main"
-    description:
-      name: xpath_selector_html_parser
-      sha256: ebc562a07832a4062a2bc1c238fd59a81d31d841f15460caeed412ce078af9e0
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.1"
   yaml:
     dependency: transitive
     description:

@@ -1,6 +1,5 @@
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:flutter_socks_proxy/socks_proxy.dart';
 // import '../../utils/miru_directory.dart';
@@ -19,8 +18,6 @@ class MiruRequest {
 
   static Future<void> ensureInitialized() async {
     dio = Dio();
-    final cookieManager = CookieManager(_cookieJar);
-    dio.interceptors.add(cookieManager);
     refreshProxy();
     _isInitialized = true;
   }
