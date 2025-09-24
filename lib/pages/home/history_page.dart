@@ -7,7 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/widgets/card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/provider/extension_page_provider.dart';
+import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
@@ -84,8 +84,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
                 scrollDirection: Axis.horizontal,
                 onTap: (value) {
                   final item = history[value];
-                  final meta =
-                      ref.read(extensionPageControllerProvider).metaData;
+                  final meta = ref.read(extensionPageProvider).metaData;
                   final ExtensionMeta? ext = meta.firstWhereOrNull(
                     (element) => element.packageName == item.package,
                   );

@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:forui/theme.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/utils/theme/theme.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../utils/index.dart';
-
-final applicationControllerProvider =
-    NotifierProvider<ApplicationController, ApplicationState>(
-      ApplicationController.new,
-    );
+part 'application_controller_provider.g.dart';
 
 class ApplicationState {
   final String themeText;
@@ -36,7 +32,8 @@ class ApplicationState {
   }
 }
 
-class ApplicationController extends Notifier<ApplicationState> {
+@Riverpod(keepAlive: true)
+class ApplicationController extends _$ApplicationController {
   @override
   ApplicationState build() {
     final themeText = MiruSettings.getSettingSync<String>(SettingKey.theme);
@@ -104,12 +101,11 @@ class ApplicationController extends Notifier<ApplicationState> {
 
   void changeTheme(String mode) {
     MiruSettings.setSettingSync(SettingKey.theme, mode);
-    final themeMode =
-        (mode == 'system')
-            ? ThemeMode.system
-            : (mode == 'light')
-            ? ThemeMode.light
-            : ThemeMode.dark;
+    final themeMode = (mode == 'system')
+        ? ThemeMode.system
+        : (mode == 'light')
+        ? ThemeMode.light
+        : ThemeMode.dark;
     state = state.copyWith(
       themeMode: themeMode,
       themeText: mode,

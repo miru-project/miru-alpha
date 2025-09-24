@@ -17,7 +17,7 @@ import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/generated_bindings.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
-import 'package:miru_app_new/provider/extension_page_provider.dart';
+import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/index.dart';
@@ -124,9 +124,7 @@ class _App extends ConsumerState<App> {
     );
     // Pass the ExtensionPageNotifier instance to CoreNetwork so non-widget
     // network code can optionally update provider state directly.
-    CoreNetwork.setExtensionNotifier(
-      ref.read(extensionPageControllerProvider.notifier),
-    );
+    CoreNetwork.setExtensionNotifier(ref.read(extensionPageProvider.notifier));
   }
 
   @override
@@ -156,8 +154,9 @@ void startNativeMiruCore(String configPath) async {
   }
 
   using((Arena arena) {
-    final configPathPointer =
-        configPath.toNativeUtf8(allocator: arena).cast<ffi.Char>();
+    final configPathPointer = configPath
+        .toNativeUtf8(allocator: arena)
+        .cast<ffi.Char>();
     final core = MiruCore(lib);
     core.initDyLib(configPathPointer);
   });
@@ -174,7 +173,8 @@ Future<void> loadMiruCore() async {
     if (!configDir.existsSync()) {
       configDir.createSync(recursive: true);
     }
-    final configData = '''{
+    final configData =
+        '''{
         "database": {
           "driver": "sqlite3",
           "host": "localhost",

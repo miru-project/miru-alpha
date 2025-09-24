@@ -29,12 +29,12 @@ import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
 bool _hasOriented = false;
-final _episodeNotifierProvider = Provider<EpisodeNotifierState>(
-  isAutoDispose: true,
-  (ref) {
-    return EpisodeNotifierState();
-  },
-);
+// final _episodeNotifierProvider = Provider<EpisodeNotifierState>(
+//   isAutoDispose: true,
+//   (ref) {
+//     return EpisodeNotifierState();
+//   },
+// );
 
 //Changing epsisode will make this reload
 class MiruVideoPlayer extends StatefulHookConsumerWidget {
@@ -96,7 +96,7 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
       _hasOriented = true;
       SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
     }
-    final epNotifier = ref.watch(_episodeNotifierProvider);
+    final epNotifier = ref.watch(episodeProvider);
     final epcontroller = ref.read(episodeProvider.notifier);
     if (epNotifier.epGroup.isEmpty) {
       return Center(
@@ -565,7 +565,7 @@ class _HeaderState extends ConsumerState<_Header> {
 
   @override
   Widget build(BuildContext context) {
-    final epNotifier = ref.watch(_episodeNotifierProvider);
+    final epNotifier = ref.watch(episodeProvider);
     return FCard.raw(
       // decoration:s BoxDecoration(
       //   color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
@@ -914,7 +914,7 @@ class _DesktopSettingDialog extends HookConsumerWidget {
     final selectedIndex = useState(initialIndex);
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    final epController = ref.watch(_episodeNotifierProvider);
+    final epController = ref.watch(episodeProvider);
     final epNotifier = ref.read(episodeProvider.notifier);
     // final subController = ref.watch(subtitleProvider);
     // final subNotifier = ref.read(subtitleProvider.notifier);

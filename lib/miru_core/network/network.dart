@@ -6,7 +6,7 @@ import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:miru_app_new/provider/extension_page_provider.dart';
+import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 
 late final Dio dio;
 
@@ -60,7 +60,11 @@ class CoreNetwork {
     String method = 'GET',
   }) async {
     return await dio
-        .request('$baseUrl/$path', data: data, options: Options(method: method))
+        .request(
+          '$baseUrl/$path',
+          data: data,
+          options: Options(method: method),
+        )
         .then((response) => response.data);
   }
 
@@ -113,12 +117,14 @@ class CoreNetwork {
         // Handle  meta data
         final List<dynamic> extList = data['extensionMeta'] ?? [];
 
-        final extMetaList =
-            extList.map((e) => ExtensionMeta.fromJson(e)).toList();
+        final extMetaList = extList
+            .map((e) => ExtensionMeta.fromJson(e))
+            .toList();
 
         // Use the size of the data structure to determine if it has changed
-        final metaSize =
-            Uint8List.fromList(utf8.encode(extMetaList.toString())).length;
+        final metaSize = Uint8List.fromList(
+          utf8.encode(extMetaList.toString()),
+        ).length;
         if (metaSize != prevMetaSize) {
           prevMetaSize = metaSize;
           sendPort.send(extMetaList);
@@ -259,10 +265,11 @@ class ExtensionEndpoint {
       data: filter,
       method: 'GET',
     );
-    List<ExtensionListItem> result =
-        jsonDecode(jsResult.stringResult).map<ExtensionListItem>((e) {
+    List<ExtensionListItem> result = jsonDecode(jsResult.stringResult)
+        .map<ExtensionListItem>((e) {
           return ExtensionListItem.fromJson(e);
-        }).toList();
+        })
+        .toList();
     return result;
   }
 
@@ -271,10 +278,9 @@ class ExtensionEndpoint {
       'pkg': pkg,
       'page': page,
     }, method: 'GET');
-    List<ExtensionListItem> result =
-        jsResult.data.map<ExtensionListItem>((e) {
-          return ExtensionListItem.fromJson(e);
-        }).toList();
+    List<ExtensionListItem> result = jsResult.data.map<ExtensionListItem>((e) {
+      return ExtensionListItem.fromJson(e);
+    }).toList();
     return result;
   }
 

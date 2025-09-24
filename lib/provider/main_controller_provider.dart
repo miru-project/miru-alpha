@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../pages/extension/extension_page.dart';
 import '../../pages/search_page.dart';
 import '../../pages/setting/settings_page.dart';
-
-final mainControllerProvider = NotifierProvider<MainController, MainState>(
-  MainController.new,
-);
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+part 'main_controller_provider.g.dart';
 
 class MainState {
   final int selectedIndex;
@@ -22,7 +19,8 @@ class MainState {
   }
 }
 
-class MainController extends Notifier<MainState> {
+@Riverpod(keepAlive: true)
+class MainController extends _$MainController {
   @override
   MainState build() {
     return MainState(selectedIndex: 0, isLoading: false);

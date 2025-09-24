@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/provider/extension_page_provider.dart';
+import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 // removed direct network providers; notifier will fetch repos
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
@@ -17,7 +17,10 @@ import 'package:miru_app_new/widgets/image_widget.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'package:moon_design/moon_design.dart';
+import 'package:snapping_sheet_2/snapping_sheet.dart';
 import '../../model/index.dart';
+
+final SnappingSheetController _snappingController = SnappingSheetController();
 
 class ExtensionPage extends StatefulHookConsumerWidget {
   const ExtensionPage({super.key});
@@ -36,8 +39,8 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
   @override
   Widget build(BuildContext context) {
     final selectedInstall = useState('Yes');
-    final extState = ref.watch(extensionPageControllerProvider);
-    final extNotifier = ref.read(extensionPageControllerProvider.notifier);
+    final extState = ref.watch(extensionPageProvider);
+    final extNotifier = ref.read(extensionPageProvider.notifier);
 
     final scrollController = useScrollController();
     final controller = useTabController(initialLength: _categories.length);
@@ -52,55 +55,49 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
 
     return MiruScaffold(
       scrollController: scrollController,
-      snappingSheetController: extNotifier.snappingController,
+      snappingSheetController: _snappingController,
       mobileHeader: const SideBarListTitle(title: 'Extension'),
-      sidebar:
-          DeviceUtil.isMobileLayout(context)
-              ? <Widget>[
-                // SideBarSearchBar(onChanged: filterExtensionListWithName),
-                // const SizedBox(height: 10),
-                Listener(
-                  behavior: HitTestBehavior.translucent,
-                  onPointerDown: (_) {
-                    debugPrint(
-                      extNotifier.snappingController.currentPosition.toString(),
-                    );
-                    if (extNotifier.snappingController.currentPosition < 200) {
-                      extNotifier.snappingController.setSnappingSheetPosition(
-                        400,
-                      );
-                    }
-                  },
-                  child: MoonTabBar(
-                    tabController: controller,
-                    tabs: List.generate(
-                      _categories.length,
-                      (index) => MoonTab(label: Text(_categories[index])),
+      sidebar: DeviceUtil.isMobileLayout(context)
+          ? <Widget>[
+              // SideBarSearchBar(onChanged: filterExtensionListWithName),
+              // const SizedBox(height: 10),
+              Listener(
+                behavior: HitTestBehavior.translucent,
+                onPointerDown: (_) {
+                  debugPrint(_snappingController.currentPosition.toString());
+                  if (_snappingController.currentPosition < 200) {
+                    _snappingController.setSnappingSheetPosition(400);
+                  }
+                },
+                child: MoonTabBar(
+                  tabController: controller,
+                  tabs: List.generate(
+                    _categories.length,
+                    (index) => MoonTab(label: Text(_categories[index])),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 300,
+                child: TabBarView(
+                  controller: controller,
+                  children: [
+                    CategoryGroup(
+                      items: const ['Installed', 'Not installed'],
+                      onpress: (val) => extNotifier.filterByInstalledIndex(val),
                     ),
-                  ),
+                    CategoryGroup(
+                      items: const ['ALL', 'Video', 'Manga', 'Novel'],
+                      onpress: (val) {},
+                    ),
+                    CategoryGroup(items: const ['ALL'], onpress: (val) {}),
+                    CategoryGroup(items: const ['ALL'], onpress: (val) {}),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: 300,
-                  child: TabBarView(
-                    controller: controller,
-                    children: [
-                      CategoryGroup(
-                        items: const ['Installed', 'Not installed'],
-                        onpress:
-                            (val) => extNotifier.filterByInstalledIndex(val),
-                      ),
-                      CategoryGroup(
-                        items: const ['ALL', 'Video', 'Manga', 'Novel'],
-                        onpress: (val) {},
-                      ),
-                      CategoryGroup(items: const ['ALL'], onpress: (val) {}),
-                      CategoryGroup(items: const ['ALL'], onpress: (val) {}),
-                    ],
-                  ),
-                ),
-              ]
-              : <Widget>[],
+              ),
+            ]
+          : <Widget>[],
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (extState.loading) {
@@ -236,47 +233,41 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                                       width: 280,
                                       height: 63,
                                       child: FTextField(
-                                        style:
-                                            FTextFieldStyle.inherit(
-                                              colors: context.theme.colors,
-                                              typography:
-                                                  overrideTheme.typography,
-                                              style: overrideTheme.style,
-                                            ).call,
+                                        style: FTextFieldStyle.inherit(
+                                          colors: context.theme.colors,
+                                          typography: overrideTheme.typography,
+                                          style: overrideTheme.style,
+                                        ).call,
                                         label: Text(
                                           'Search extensions ',
                                           style: TextStyle(fontSize: 14),
                                         ),
-                                        suffixBuilder: (
-                                          context,
-                                          style,
-                                          states,
-                                        ) {
-                                          return Padding(
-                                            padding: EdgeInsets.only(right: 2),
-                                            child: FButton.icon(
-                                              style: FButtonStyle.ghost(),
-                                              onPress: () {},
-                                              child: Icon(FIcons.x),
-                                            ),
-                                          );
-                                        },
-                                        prefixBuilder: (
-                                          context,
-                                          style,
-                                          states,
-                                        ) {
-                                          return Padding(
-                                            padding: EdgeInsets.only(
-                                              left: 10,
-                                              right: 5,
-                                            ),
-                                            child: Icon(
-                                              FIcons.search,
-                                              size: 16,
-                                            ),
-                                          );
-                                        },
+                                        suffixBuilder:
+                                            (context, style, states) {
+                                              return Padding(
+                                                padding: EdgeInsets.only(
+                                                  right: 2,
+                                                ),
+                                                child: FButton.icon(
+                                                  style: FButtonStyle.ghost(),
+                                                  onPress: () {},
+                                                  child: Icon(FIcons.x),
+                                                ),
+                                              );
+                                            },
+                                        prefixBuilder:
+                                            (context, style, states) {
+                                              return Padding(
+                                                padding: EdgeInsets.only(
+                                                  left: 10,
+                                                  right: 5,
+                                                ),
+                                                child: Icon(
+                                                  FIcons.search,
+                                                  size: 16,
+                                                ),
+                                              );
+                                            },
                                         hint: "Search by Name or Tags ...",
                                         controller: textController,
                                         onChange: (val) {
@@ -326,8 +317,8 @@ class _ExtensionTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(extensionPageControllerProvider);
-    final notifier = ref.read(extensionPageControllerProvider.notifier);
+    final state = ref.watch(extensionPageProvider);
+    final notifier = ref.read(extensionPageProvider.notifier);
     final isInstalled = state.installedPackages.contains(data.package);
 
     return PlatformWidget(
@@ -416,26 +407,24 @@ class _ExtensionContentState extends ConsumerState<_ExtensionContent> {
           leading: SizedBox(
             width: 40,
             height: 40,
-            child:
-                data.icon == null
-                    ? null
-                    : Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ExtendedImage.network(
-                        data.icon!,
-                        loadStateChanged: (ExtendedImageState state) {
-                          if (state.extendedImageLoadState ==
-                              LoadState.failed) {
-                            return const Icon(
-                              MoonIcons.notifications_error_16_regular,
-                            ); // Fallback widget
-                          }
-                          return null; // Use the default widget
-                        },
-                      ),
+            child: data.icon == null
+                ? null
+                : Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
                     ),
+                    child: ExtendedImage.network(
+                      data.icon!,
+                      loadStateChanged: (ExtendedImageState state) {
+                        if (state.extendedImageLoadState == LoadState.failed) {
+                          return const Icon(
+                            MoonIcons.notifications_error_16_regular,
+                          ); // Fallback widget
+                        }
+                        return null; // Use the default widget
+                      },
+                    ),
+                  ),
           ),
           label: Text(data.name),
         );

@@ -4,7 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/provider/extension_page_provider.dart';
+import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/utils/storage_index.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
@@ -33,10 +33,9 @@ class _ExtensionListTile extends HookWidget {
                   FCard.raw(
                     child: SizedBox.square(
                       dimension: 40,
-                      child:
-                          ext.icon == null
-                              ? Icon(FIcons.toyBrick)
-                              : ImageWidget(imageUrl: ext.icon!),
+                      child: ext.icon == null
+                          ? Icon(FIcons.toyBrick)
+                          : ImageWidget(imageUrl: ext.icon!),
                     ),
                   ),
                   SizedBox(width: 20),
@@ -56,7 +55,7 @@ class NewSearchPage extends HookConsumerWidget {
   const NewSearchPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metaData = ref.watch(extensionPageControllerProvider).metaData;
+    final metaData = ref.watch(extensionPageProvider).metaData;
     final pinnedExtensions = useState(
       MiruSettings.getSettingSync<Set<String>>(SettingKey.pinnedExtension),
     );
@@ -75,10 +74,9 @@ class NewSearchPage extends HookConsumerWidget {
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
                       final pinnedPkg = pinnedExtensions.value.elementAt(index);
-                      final ext =
-                          metaData
-                              .where((ext) => ext.packageName == pinnedPkg)
-                              .first;
+                      final ext = metaData
+                          .where((ext) => ext.packageName == pinnedPkg)
+                          .first;
                       return _ExtensionListTile(
                         ext: ext,
                         trailing: FButton.icon(
@@ -98,8 +96,8 @@ class NewSearchPage extends HookConsumerWidget {
                           },
                           child:
                               pinnedExtensions.value.contains(ext.packageName)
-                                  ? Icon(FIcons.pinOff)
-                                  : Icon(FIcons.pin),
+                              ? Icon(FIcons.pinOff)
+                              : Icon(FIcons.pin),
                         ),
                       );
                     },
@@ -133,10 +131,9 @@ class NewSearchPage extends HookConsumerWidget {
                             newSet.toString(),
                           );
                         },
-                        child:
-                            pinnedExtensions.value.contains(ext.packageName)
-                                ? Icon(FIcons.pinOff)
-                                : Icon(FIcons.pin),
+                        child: pinnedExtensions.value.contains(ext.packageName)
+                            ? Icon(FIcons.pinOff)
+                            : Icon(FIcons.pin),
                       ),
                     );
                   },

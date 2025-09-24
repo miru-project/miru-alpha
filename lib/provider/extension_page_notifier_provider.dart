@@ -1,10 +1,10 @@
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/log.dart';
 import 'package:miru_app_new/utils/network/github_network.dart';
-import 'package:snapping_sheet_2/snapping_sheet.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+part 'extension_page_notifier_provider.g.dart';
 
 class ExtensionPageModel {
   final List<ExtensionRepo> fetchedRepo;
@@ -42,33 +42,11 @@ class ExtensionPageModel {
   }
 }
 
-class ExtensionPageState {
-  static final ExtensionPageState instance = ExtensionPageState._internal();
-
-  late ExtensionPageModel state;
-
-  ExtensionPageState._internal() {
-    state = const ExtensionPageModel(
-      fetchedRepo: [],
-      extensionList: [],
-      installedPackages: [],
-      metaData: [],
-      update: null,
-      loading: false,
-    );
-  }
-
-  void update(ExtensionPageModel newState) {
-    state = newState;
-  }
-}
-
-class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
+@Riverpod(keepAlive: true)
+class ExtensionPageNotifier extends _$ExtensionPageNotifier {
   List<ExtensionMeta> get extMeta => state.metaData;
   String get selectedRepoUrl => _selectedRepoUrl;
   String _selectedRepoUrl = '';
-
-  final SnappingSheetController snappingController = SnappingSheetController();
 
   @override
   ExtensionPageModel build() {
@@ -80,7 +58,6 @@ class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
       update: null,
       loading: false,
     );
-    ExtensionPageState.instance.update(initial);
     return initial;
   }
 
@@ -88,21 +65,17 @@ class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
     if (!force && state.fetchedRepo.isNotEmpty) return;
     // set loading
     state = state.copyWith(loading: true);
-    ExtensionPageState.instance.update(state);
     try {
       final list = await GithubNetwork.fetchRepo();
-      // set fetched repos and default extension list (all repos)
       state = state.copyWith(
         fetchedRepo: list,
         extensionList: List.from(list),
         loading: false,
         update: DateTime.now(),
       );
-      ExtensionPageState.instance.update(state);
     } catch (e) {
       logger.info('failed to load repos: $e');
       state = state.copyWith(loading: false);
-      ExtensionPageState.instance.update(state);
     }
   }
 
@@ -116,7 +89,6 @@ class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
       extensionList: List.from(list),
       loading: false,
     );
-    ExtensionPageState.instance.update(state);
   }
 
   /// Return available repo names for UI selects
@@ -126,28 +98,24 @@ class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
   void selectRepoByName(String repoName) {
     if (repoName.isEmpty) {
       state = state.copyWith(extensionList: List.from(state.fetchedRepo));
-      ExtensionPageState.instance.update(state);
       return;
     }
     final found = state.fetchedRepo.where((r) => r.name == repoName).toList();
     state = state.copyWith(extensionList: found);
-    ExtensionPageState.instance.update(state);
   }
 
   void filterByName(String query) {
     if (query.isEmpty) {
       state = state.copyWith(extensionList: List.from(state.fetchedRepo));
-      ExtensionPageState.instance.update(state);
       return;
     }
     final lower = query.toLowerCase();
     // filter repos by name or any extension name
     for (final repo in state.fetchedRepo) {
       if (repo.url == _selectedRepoUrl || _selectedRepoUrl.isEmpty) {
-        final filteredExtensions =
-            repo.extensions
-                .where((ext) => ext.name.toLowerCase().contains(lower))
-                .toList();
+        final filteredExtensions = repo.extensions
+            .where((ext) => ext.name.toLowerCase().contains(lower))
+            .toList();
         state = state.copyWith(
           extensionList: [
             ExtensionRepo(
@@ -157,7 +125,6 @@ class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
             ),
           ],
         );
-        ExtensionPageState.instance.update(state);
         return;
       }
     }
@@ -168,26 +135,24 @@ class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
   void filterByRepo(String repoName) {
     if (repoName.isEmpty) {
       state = state.copyWith(extensionList: List.from(state.fetchedRepo));
-      ExtensionPageState.instance.update(state);
       return;
     }
-    final filtered =
-        state.fetchedRepo.where((repo) => repo.name == repoName).toList();
+    final filtered = state.fetchedRepo
+        .where((repo) => repo.name == repoName)
+        .toList();
     _selectedRepoUrl = filtered.isNotEmpty ? filtered.first.url : '';
     state = state.copyWith(extensionList: filtered);
-    ExtensionPageState.instance.update(state);
   }
 
   void filterByInstalledIndex(int val) {
-    final filteredExtensions =
-        state.fetchedRepo
-            .expand((repo) => repo.extensions)
-            .where(
-              (ext) =>
-                  (val == 0 && state.installedPackages.contains(ext.package)) ||
-                  (val == 1 && !state.installedPackages.contains(ext.package)),
-            )
-            .toList();
+    final filteredExtensions = state.fetchedRepo
+        .expand((repo) => repo.extensions)
+        .where(
+          (ext) =>
+              (val == 0 && state.installedPackages.contains(ext.package)) ||
+              (val == 1 && !state.installedPackages.contains(ext.package)),
+        )
+        .toList();
     state = state.copyWith(
       extensionList: [
         ExtensionRepo(
@@ -197,20 +162,17 @@ class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
         ),
       ],
     );
-    ExtensionPageState.instance.update(state);
   }
 
   void filterByMediaType(String type) {
     if (type.isEmpty || type == 'ALL') {
       state = state.copyWith(extensionList: List.from(state.fetchedRepo));
-      ExtensionPageState.instance.update(state);
       return;
     }
-    final filteredExtensions =
-        state.fetchedRepo
-            .expand((repo) => repo.extensions)
-            .where((ext) => ext.type == type.toLowerCase())
-            .toList();
+    final filteredExtensions = state.fetchedRepo
+        .expand((repo) => repo.extensions)
+        .where((ext) => ext.type == type.toLowerCase())
+        .toList();
     state = state.copyWith(
       extensionList: [
         ExtensionRepo(
@@ -220,7 +182,6 @@ class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
         ),
       ],
     );
-    ExtensionPageState.instance.update(state);
   }
 
   bool isInstalled(String package) => state.installedPackages.contains(package);
@@ -232,7 +193,6 @@ class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
       final newInstalled = List<String>.from(state.installedPackages)
         ..add(package);
       state = state.copyWith(installedPackages: newInstalled);
-      ExtensionPageState.instance.update(state);
     } catch (e) {
       logger.info(e.toString());
     }
@@ -245,7 +205,6 @@ class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
       final newInstalled = List<String>.from(state.installedPackages)
         ..remove(package);
       state = state.copyWith(installedPackages: newInstalled);
-      ExtensionPageState.instance.update(state);
     } catch (e) {
       logger.info(e.toString());
     }
@@ -259,22 +218,15 @@ class ExtensionPageNotifier extends Notifier<ExtensionPageModel> {
       return;
     }
 
-    final pkgs =
-        data
-            .map((e) => e.packageName)
-            .where((p) => p.isNotEmpty)
-            .toSet()
-            .toList();
+    final pkgs = data
+        .map((e) => e.packageName)
+        .where((p) => p.isNotEmpty)
+        .toSet()
+        .toList();
     state = state.copyWith(
       metaData: data,
       installedPackages: pkgs,
       update: DateTime.now(),
     );
-    ExtensionPageState.instance.update(state);
   }
 }
-
-final extensionPageControllerProvider =
-    NotifierProvider<ExtensionPageNotifier, ExtensionPageModel>(
-      ExtensionPageNotifier.new,
-    );
