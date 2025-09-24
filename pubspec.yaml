@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.7.0
+  sdk: ^3.9.2
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -51,8 +51,8 @@ dependencies:
   json_annotation: ^4.9.0
   go_router: ^16.0.0
   shimmer: ^3.0.0
-  flutter_riverpod: any
-  riverpod_annotation: any
+  flutter_riverpod: ^3.0.0
+  riverpod_annotation: ^3.0.0
   volume_controller: ^3.3.1
   screen_brightness: ^2.0.1
   hooks_riverpod: ^3.0.0
@@ -71,13 +71,10 @@ dependencies:
   flutter_inappwebview: ^6.0.0
   device_info_plus: ^12.1.0
   package_info_plus: ^9.0.0
-  objectbox: ^4.1.0
-  objectbox_flutter_libs: any
   ffi: ^2.1.4
   file_picker: ^10.1.2
   permission_handler: ^12.0.0+1
   logging: ^1.3.0
-  # encrypt: any
   collection: ^1.19.1
   forui: ^0.15.1
   provider: ^6.1.5
@@ -86,7 +83,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  go_router_builder: any
+  # go_router_builder: any
   build_verify: any
   build_runner: ^2.4.15
   json_serializable: ^6.8.0
@@ -97,8 +94,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  riverpod_generator: any
-  objectbox_generator: ^4.3.0
+  riverpod_generator: ^3.0.0
   ffigen: ^19.1.0
 
 # The following section is specific to Flutter packages.

@@ -86,7 +86,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
               children: [
                 _GrabbingWidget(),
                 if (widget.mobileHeader != null &&
-                    !MiruStorage.getSettingSync<bool>(
+                    !MiruSettings.getSettingSync<bool>(
                       SettingKey.mobiletitleIsonTop,
                     ))
                   widget.mobileHeader!,
@@ -98,7 +98,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
       ),
       child: Column(
         children: [
-          if (MiruStorage.getSettingSync<bool>(SettingKey.mobiletitleIsonTop))
+          if (MiruSettings.getSettingSync<bool>(SettingKey.mobiletitleIsonTop))
             const SizedBox(height: 50),
           Expanded(child: widget.body),
         ],
@@ -111,7 +111,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
     return PlatformWidget(
       mobileWidget: FScaffold(
         header:
-            MiruStorage.getSettingSync<bool>(SettingKey.mobiletitleIsonTop)
+            MiruSettings.getSettingSync<bool>(SettingKey.mobiletitleIsonTop)
                 ? FHeader(title: widget.mobileHeader ?? const SizedBox())
                 : null,
         child: widget.sidebar == null ? widget.body : sheet(),

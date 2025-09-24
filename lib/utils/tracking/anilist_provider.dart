@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:miru_app_new/utils/network/request.dart';
+import 'package:miru_app_new/miru_core/network/network.dart';
+// import 'package:miru_app_new/utils/network/request.dart';
 import '../i18n.dart';
 import 'package:miru_app_new/utils/index.dart';
 
@@ -17,10 +18,10 @@ enum AnilistMediaListStatus {
 
 class AniListProvider {
   static String get anilistToken =>
-      MiruStorage.getSettingSync<String>(SettingKey.aniListToken);
+      MiruSettings.getSettingSync<String>(SettingKey.aniListToken);
 
   static String get userid =>
-      MiruStorage.getSettingSync<String>(SettingKey.aniListUserId);
+      MiruSettings.getSettingSync<String>(SettingKey.aniListUserId);
 
   static const headers = <String, String>{
     'Content-Type': 'application/json',
@@ -135,7 +136,7 @@ class AniListProvider {
 
     final response = await postRequest(queryString: userDataQuery);
     final userId = response["data"]["Viewer"]["id"].toString();
-    MiruStorage.setSettingSync(SettingKey.aniListUserId, userId);
+    MiruSettings.setSettingSync(SettingKey.aniListUserId, userId);
     final data = response["data"]["Viewer"];
     return {
       "UserAvatar": data["avatar"]["medium"],

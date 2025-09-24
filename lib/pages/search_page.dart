@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:miru_app_new/pages/search/search_new.dart';
 import 'package:miru_app_new/utils/device_util.dart';
-import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 
@@ -158,23 +157,7 @@ class SearchPage extends HookWidget {
         scrollController: scrollController,
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final service = ExtensionUtils.runtimes.entries.toList();
-
             return NewSearchPage();
-
-            //  MiruSingleChildView(
-            //   controller: scrollController,
-            //   child: Column(
-            //     children: List.generate(
-            //       service.length,
-            //       (index) => Latest(
-            //         searchValue: searchValue,
-            //         needrefresh: needRefresh,
-            //         extensionService: service[index].value,
-            //       ),
-            //     ),
-            //   ),
-            // );
           },
         ),
       ),

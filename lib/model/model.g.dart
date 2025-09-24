@@ -86,13 +86,11 @@ ExtensionDetail _$ExtensionDetailFromJson(Map<String, dynamic> json) =>
       title: json['title'] as String,
       cover: json['cover'] as String?,
       desc: json['desc'] as String?,
-      episodes:
-          (json['episodes'] as List<dynamic>?)
-              ?.map(
-                (e) =>
-                    ExtensionEpisodeGroup.fromJson(e as Map<String, dynamic>),
-              )
-              .toList(),
+      episodes: (json['episodes'] as List<dynamic>?)
+          ?.map(
+            (e) => ExtensionEpisodeGroup.fromJson(e as Map<String, dynamic>),
+          )
+          .toList(),
       headers: (json['headers'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as String),
       ),
@@ -111,10 +109,9 @@ ExtensionEpisodeGroup _$ExtensionEpisodeGroupFromJson(
   Map<String, dynamic> json,
 ) => ExtensionEpisodeGroup(
   title: json['title'] as String,
-  urls:
-      (json['urls'] as List<dynamic>)
-          .map((e) => ExtensionEpisode.fromJson(e as Map<String, dynamic>))
-          .toList(),
+  urls: (json['urls'] as List<dynamic>)
+      .map((e) => ExtensionEpisode.fromJson(e as Map<String, dynamic>))
+      .toList(),
 );
 
 Map<String, dynamic> _$ExtensionEpisodeGroupToJson(
@@ -132,14 +129,12 @@ ExtensionBangumiWatch _$ExtensionBangumiWatchFromJson(
 ) => ExtensionBangumiWatch(
   type: $enumDecode(_$ExtensionWatchBangumiTypeEnumMap, json['type']),
   url: json['url'] as String,
-  subtitles:
-      (json['subtitles'] as List<dynamic>?)
-          ?.map(
-            (e) => ExtensionBangumiWatchSubtitle.fromJson(
-              e as Map<String, dynamic>,
-            ),
-          )
-          .toList(),
+  subtitles: (json['subtitles'] as List<dynamic>?)
+      ?.map(
+        (e) =>
+            ExtensionBangumiWatchSubtitle.fromJson(e as Map<String, dynamic>),
+      )
+      .toList(),
   headers: (json['headers'] as Map<String, dynamic>?)?.map(
     (k, e) => MapEntry(k, e as String),
   ),

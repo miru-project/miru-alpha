@@ -1,124 +1,69 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/objectbox.g.dart';
+import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/utils/log.dart';
-// import 'package:path/path.dart' as p;
-import './miru_directory.dart';
-import '../model/index.dart';
 
-class MiruStorage {
-  static late final Store database;
-  // static late final Box settings;
-  // static const int _lastDatabaseVersion = 2;
-  static late final String _path;
-  static late final Box<AppSetting> _settings;
-  static late final Box<FavoriateGroup> favoriteGroup;
-  static late final Box<Favorite> favorite;
-  static late final Box<History> history;
-  static late final Box<ExtensionSetting> extensionSetting;
-  static late final Box<MiruDetail> miruDetail;
-  static late final Box<MangaSetting> mangaSetting;
-  static late final Box<TMDB> tmdb;
-  // static final _settingidCache = <String, int>{};
-  static final _settingCache = <String, dynamic>{};
-  static Future<void> ensureInitialized() async {
-    _path = MiruDirectory.getDirectory;
+class MiruSettings {
+  static Map<String, String> _settingsCache = {};
+  static Future<void> getAllSetting() async {
+    final jsResult = await CoreNetwork.requestJSON('appSetting');
 
-    // 初始化数据库
-    database = await openStore(directory: _path);
-
-    // 初始化设置
-    _settings = database.box<AppSetting>();
-    favoriteGroup = database.box<FavoriateGroup>();
-    favorite = database.box<Favorite>();
-    history = database.box<History>();
-    extensionSetting = database.box<ExtensionSetting>();
-    miruDetail = database.box<MiruDetail>();
-    mangaSetting = database.box<MangaSetting>();
-    tmdb = database.box<TMDB>();
-    await _initSettings();
+    final Map<String, String> result = {};
+    try {
+      if (jsResult is List) {
+        for (final item in jsResult) {
+          if (item is Map) {
+            final k = item['key']?.toString();
+            final v = item['value']?.toString();
+            if (k != null && v != null) {
+              result[k] = v;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      logger.info('Failed to parse app settings from /appSetting: $e');
+    }
+    _settingsCache = result;
+    return;
   }
 
-  // static performMigrationIfNeeded() async {
-  //   final currentVersion = getDatabaseVersion();
-  //   debugPrint(currentVersion.toString());
-  //   switch (currentVersion) {
-  //     case 1:
-  //       await migrateV1ToV2();
-  //       break;
-  //     case 2:
-  //       return;
-  //     default:
-  //       throw Exception('Unknown version: $currentVersion');
-  //   }
+  // Update key and value in miru core by HTTP
+  static Future<void> setSetting(String key, String value) async {
+    try {
+      await CoreNetwork.requestRaw(
+        'appSetting',
+        data: [
+          {"key": key, "value": value},
+        ],
+        method: 'PUT',
+      );
+    } catch (e) {
+      logger.info('Failed to set setting $key to $value: $e');
+    }
+  }
 
-  //   // 更新到最新版本
-  // }
-
-  // static migrateV1ToV2() async {
-  //   // 获取所有的 TMDB 数据
-  //   final tmdbList = await database.tMDBs.where().findAll();
-  //   database.writeTxn(() async {
-  //     // 给所有的 TMDB 数据添加 mediaType 字段
-  //     for (final tmdb in tmdbList) {
-  //       final tmdbdetail = TMDBDetail.fromJson(jsonDecode(tmdb.data));
-  //       tmdb.mediaType = tmdbdetail.mediaType;
-  //       await database.tMDBs.put(tmdb);
-  //     }
-  //   });
-
-  //   // 修改所有 miruDetail 的 tmdbId 字段为本地的 TMDB id
-  //   final miruList = await database.miruDetails.where().findAll();
-  //   database.writeTxn(() async {
-  //     for (final miru in miruList) {
-  //       final tmdb = await database.tMDBs
-  //           .where()
-  //           .filter()
-  //           .tmdbIDEqualTo(miru.tmdbID!)
-  //           .findFirst();
-  //       if (tmdb != null) {
-  //         miru.tmdbID = tmdb.id;
-  //         await database.miruDetails.put(miru);
-  //       }
-  //     }
-  //   });
-  // }
-
-  // 获取数据库版本
-  // static int getDatabaseVersion() {
-  //   // 先获取数据库版本
-  //   final version = getSettingSync(SettingKey.databaseVersion, int);
-  //   // 如果没有版本号，并且没有数据库文件说明是第一次使用，返回最新的数据库版本
-  //   if (version == null) {
-  //     final path = MiruDirectory.getDirectory;
-  //     final dbPath = p.join(path, 'default.isar');
-  //     if (File(dbPath).existsSync()) {
-  //       return 1;
-  //     }
-  //     // 设置数据库版本并返回最新版本
-  //     setSettingSync(
-  //         SettingKey.databaseVersion, _lastDatabaseVersion.toString());
-  //     return _lastDatabaseVersion;
-  //   }
-  //   // 如果有版本号，返回版本号
-  //   return version;
-  // }
+  static Future<void> ensureInitialized() async {
+    await getAllSetting();
+    await _initSettings();
+    logger.info('Settings initialized');
+  }
 
   static final Map<String, dynamic> _defaultSettings = {
     SettingKey.miruRepoUrl: "https://miru-repo.0n0.dev",
     SettingKey.tmdbKey: "",
     SettingKey.autoCheckUpdate: 'true',
     SettingKey.language: 'en',
-    SettingKey.novelFontSize: 18.0,
+    SettingKey.novelFontSize: "18.0",
     SettingKey.theme: 'system',
     SettingKey.enableNSFW: 'false',
     SettingKey.videoPlayer: 'built-in',
     SettingKey.listMode: "grid",
-    SettingKey.keyI: 10.0,
-    SettingKey.keyJ: -10.0,
-    SettingKey.arrowLeft: -2.0,
-    SettingKey.arrowRight: 2.0,
+    SettingKey.keyI: "10.0",
+    SettingKey.keyJ: "-10.0",
+    SettingKey.arrowLeft: "-2.0",
+    SettingKey.arrowRight: "2.0",
     SettingKey.readingMode: "standard",
     SettingKey.aniListToken: '',
     SettingKey.aniListUserId: '',
@@ -131,12 +76,12 @@ class MiruStorage {
     SettingKey.proxy: '',
     SettingKey.proxyType: 'DIRECT',
     SettingKey.saveLog: 'true',
-    SettingKey.subtitleFontSize: 46.0,
-    SettingKey.subtitleFontColor: Colors.white.toARGB32(),
+    SettingKey.subtitleFontSize: "46.0",
+    SettingKey.subtitleFontColor: Colors.white.toARGB32().toString(),
     SettingKey.subtitleFontWeight: 'bold',
-    SettingKey.subtitleBackgroundColor: Colors.black.toARGB32(),
-    SettingKey.subtitleBackgroundOpacity: 0.5,
-    SettingKey.subtitleTextAlign: TextAlign.center.index,
+    SettingKey.subtitleBackgroundColor: Colors.black.toARGB32().toString(),
+    SettingKey.subtitleBackgroundOpacity: "0.5",
+    SettingKey.subtitleTextAlign: TextAlign.center.index.toString(),
     SettingKey.accentColor: "zinc",
     SettingKey.mobiletitleIsonTop: "false",
     SettingKey.btServerLink: "https://github.com/miru-project/bt-server",
@@ -144,36 +89,25 @@ class MiruStorage {
     SettingKey.pinnedExtension: {}.toString(),
   };
   static Future<void> _initSettings() async {
-    //init from default settings
-    final dataFromDB = await _settings.getAllAsync();
-    final saveData = <AppSetting>[];
-    for (final i in dataFromDB) {
-      _settingCache[i.key] = i.value;
-    }
     for (final entry in _defaultSettings.entries) {
-      if (_settingCache[entry.key] == null) {
-        saveData.add(AppSetting(key: entry.key, value: entry.value.toString()));
-        _settingCache[entry.key] = entry.value;
+      if (_settingsCache[entry.key] == null) {
+        _settingsCache[entry.key] = entry.value;
       }
-    }
-    if (saveData.isNotEmpty) {
-      await _settings.putManyAsync(saveData);
     }
     logger.info('Settings initialized');
   }
 
   static void setSettingSync(String key, String value) {
-    if (_settingCache[key] != null) {
-      _settings.put(AppSetting(key: key, value: value));
-      _settingCache[key] = value;
-      return;
-    }
-
-    throw Exception('Setting $key not found');
+    _settingsCache[key] = value;
+    setSetting(key, value);
   }
 
   static T getSettingSync<T>(String key) {
-    return convertStringToObj<T>(_settingCache[key]);
+    final value = _settingsCache[key];
+    if (value == null) {
+      throw Exception('Setting $key not found');
+    }
+    return convertStringToObj<T>(value);
   }
 
   static String getUASetting() {

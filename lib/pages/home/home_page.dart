@@ -5,18 +5,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/objectbox.g.dart';
-import 'package:miru_app_new/provider/anilist_change_notifier.dart';
 import 'package:miru_app_new/provider/extension_page_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/device_util.dart';
-import 'package:miru_app_new/utils/tracking/anilist_provider.dart';
-import 'package:miru_app_new/widgets/gridView/index.dart';
-import '../download_page.dart';
-import 'index.dart';
-import 'package:miru_app_new/widgets/index.dart';
-import 'package:go_router/go_router.dart';
 
 class MainPageState {
   int selectedIndex;
@@ -49,14 +41,11 @@ class MainPageState {
 class MainPageNotifier extends Notifier<MainPageState> {
   @override
   MainPageState build() {
-    // Initial load of history
-    final history =
-        DatabaseService.historys
-            .query()
-            .order(History_.date, flags: Order.descending)
-            .build()
-            .find();
-    return MainPageState(history: history);
+    Future.microtask(() async {
+      final history = await DatabaseService.getHistorysByType();
+      state = state.copyWith(history: history);
+    });
+    return MainPageState();
   }
 
   void setSelectedIndex(int index) {
@@ -145,20 +134,13 @@ class HomePageCarousel extends ConsumerWidget {
                         child: Text(
                           item.title,
                           maxLines: 2,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            // fontFamily: "HarmonyOS_Sans",
-                          ),
+                          style: const TextStyle(fontSize: 20),
                         ),
                       ),
-                      // const Expanded(flex: 1, child: SizedBox(height: 10)),
                       Text(
                         item.episodeTitle,
                         maxLines: 2,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          // fontFamily: "HarmonyOS_Sans",
-                        ),
+                        style: const TextStyle(fontSize: 17),
                       ),
                       const SizedBox(height: 10),
                       SizedBox(
@@ -174,16 +156,14 @@ class HomePageCarousel extends ConsumerWidget {
                                 return null;
                               },
                               cache: true,
-                              ext == null ? ext!.icon ?? '' : '',
+                              ext?.icon ?? '',
                               shape: BoxShape.rectangle,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              ext.name,
-                              style: const TextStyle(
-                                // fontFamily: "HarmonyOS_Sans",
-                              ),
+                              ext?.name ?? "Name Not Found",
+                              style: const TextStyle(),
                             ),
                           ],
                         ),
@@ -300,11 +280,10 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
   final ValueNotifier<List<int>> setLongPress = ValueNotifier([]);
   @override
   void initState() {
-    favGroup.value = DatabaseService.getAllFavoriteGroup();
-    DatabaseService.favGroup.query().watch().listen((query) {
-      favGroup.value = DatabaseService.getAllFavoriteGroup();
-    });
     super.initState();
+    Future.microtask(() async {
+      favGroup.value = await DatabaseService.getAllFavoriteGroup();
+    });
   }
 
   String text = '';
@@ -361,7 +340,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                       // ),
                       // popoverPosition: MoonPopoverPosition.bottom,
                       popoverBuilder:
-                          (conetext, controller) => Column(
+                          (context, controller) => Column(
                             children: [
                               Text(
                                 'Edit',
@@ -407,11 +386,13 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   FButton.icon(
-                                    onPress: () {
+                                    onPress: () async {
                                       // delete group
-                                      DatabaseService.deleteFavoriteGroup([
-                                        favGroupValue[index].name,
-                                      ]);
+                                      await DatabaseService.deleteFavoriteGroup(
+                                        [favGroupValue[index].name],
+                                      );
+                                      favGroup.value =
+                                          await DatabaseService.getAllFavoriteGroup();
                                       if (selected.contains(index)) {
                                         final update = List<int>.from(selected);
                                         update.removeWhere(
@@ -440,13 +421,15 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                                   FButton.icon(
                                     onPress:
                                         errorText.value == null
-                                            ? () {
+                                            ? () async {
                                               final oldname =
                                                   favGroupValue[index].name;
-                                              DatabaseService.renameFavoriteGroup(
+                                              await DatabaseService.renameFavoriteGroup(
                                                 oldname,
                                                 textController.text,
                                               );
+                                              favGroup.value =
+                                                  await DatabaseService.getAllFavoriteGroup();
                                               setLongPress.value = [];
                                             }
                                             : null,
@@ -471,8 +454,8 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                       //     }
                       //     update.add(index);
                       //     ref
-                      //         .read(mainPageProvider.notifier)
-                      //         .setSelectedGroups(update);
+                      //           .read(mainPageProvider.notifier)
+                      //           .setSelectedGroups(update);
                       //   },
                       //   isActive: selected.contains(index),
                       //   gap: 5,
@@ -491,7 +474,6 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                 // MoonPopover(
                 //   popoverPosition: MoonPopoverPosition.bottom,
                 //   onTapOutside: () => isShowAddPopUp.value = false,
-                //   show: isShowAddPopUp.value,
                 //   decoration: BoxDecoration(
                 //     color: context.moonTheme?.chipTheme.colors.backgroundColor,
                 //     borderRadius: BorderRadius.circular(10),
@@ -569,7 +551,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                 //     leading: const Icon(MoonIcons.controls_plus_24_regular),
                 //     onTap: () {
                 //       textController.clear();
-                //       isShowAddPopUp.value = !isShowAddPopUp.value;
+                //       isShowAddPopUp.value = false;
                 //     },
                 //     label: const Text('ADD'),
                 //   ),
@@ -589,530 +571,6 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
               context: context,
             ),
       )),
-    );
-  }
-}
-
-final _notifer = AnilistPageNotifier();
-
-class HomePage extends StatefulHookConsumerWidget {
-  const HomePage({super.key});
-
-  @override
-  createState() => _HomePageState();
-}
-
-class _HomePageState extends ConsumerState<HomePage> {
-  static const _categories = ['History', 'Favorite', 'Tracking', 'Download'];
-  static final List<DateTime?> _times = [
-    null,
-    DateTime.now().subtract(const Duration(days: 1)),
-    DateTime.now().subtract(const Duration(days: 7)),
-    DateTime.now().subtract(const Duration(days: 30)),
-  ];
-  static const List<ExtensionType?> _types = [
-    null,
-    ExtensionType.bangumi,
-    ExtensionType.manga,
-    ExtensionType.fikushon,
-  ];
-  int _selectedTime = 0;
-  int _selectedType = 0;
-
-  List<History> filterByDateAndCategory(DateTime? date, ExtensionType? type) {
-    if (date == null && type == null) {
-      // return DatabaseService.db.historys
-      //     .where()
-      //     .sortByDateDesc()
-      //     .limit(40)
-      //     .findAllSync();
-      final query =
-          DatabaseService.historys
-              .query()
-              .order(History_.date, flags: Order.descending)
-              .build();
-      return query.find();
-    }
-    if (date != null && type != null) {
-      final query =
-          DatabaseService.historys
-              .query(
-                History_.date.lessThanDate(date) &
-                    History_.type.equals(EnumToString.convertToString(type)),
-              )
-              .order(History_.date, flags: Order.descending)
-              .build();
-      return query.find();
-      // return DatabaseService.db.historys
-      //     .filter()
-      //     .dateLessThan(date)
-      //     .typeEqualTo(type)
-      //     .findAllSync();
-    }
-    if (date == null) {
-      final query =
-          DatabaseService.historys
-              .query(History_.type.equals(EnumToString.convertToString(type!)))
-              .order(History_.date, flags: Order.descending)
-              .build();
-      return query.find();
-      // return DatabaseService.db.historys
-      //     .filter()
-      //     .typeEqualTo(type!)
-      //     .findAllSync();
-    }
-    return DatabaseService.historys
-        .query(History_.date.lessThanDate(date))
-        .build()
-        .find();
-    // return DatabaseService.db.historys
-    //     .filter()
-    //     .dateLessThan(date)
-    //     .findAllSync();
-  }
-
-  Widget buildHomeSearchBar(
-    TextEditingController textcontroller,
-    ValueNotifier<String> search,
-  ) {
-    return SideBarSearchBar(
-      controller: textcontroller,
-      trailing: FButton.icon(
-        child: const Icon(FIcons.x),
-        onPress: () {
-          textcontroller.clear();
-          search.value = '';
-        },
-      ),
-      onChanged: (p0) {
-        search.value = p0;
-      },
-    );
-  }
-
-  static const _anilistStatus = [
-    'CURRENT',
-    'PLANNING',
-    'COMPLETED',
-    'DROPPED',
-    'PAUSED',
-    'REPEATING',
-  ];
-  @override
-  Widget build(BuildContext context) {
-    //  final selected = useState(<int>[]);
-    final currentTab = useState(0);
-    final tabcontroller = useTabController(initialLength: _categories.length);
-    final search = useState('');
-    final anilistCurrentStatus = useState(_anilistStatus[0]);
-    final textcontroller = useTextEditingController();
-    final aniListisAnime = useState(true);
-    tabcontroller.addListener(() {
-      currentTab.value = tabcontroller.index;
-    });
-    // final setLongPress = useState(<int>[]);
-    return MiruScaffold(
-      mobileHeader: SideBarListTitle(
-        title: (tabcontroller.index == 2) ? 'Anilist' : 'Home',
-      ),
-      sidebar: DeviceUtil.device(
-        context: context,
-        mobile: <Widget>[
-          if (tabcontroller.index == 2)
-            ListenableBuilder(
-              listenable: _notifer,
-              builder: (context, _) {
-                if (!_notifer.anilistIsLogin) {
-                  return const SizedBox(height: 40);
-                }
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ExtendedImage.network(
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.circular(10),
-                        width: 40,
-                        height: 40,
-                        _notifer.anilistUserData.userData["UserAvatar"],
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        _notifer.anilistUserData.userData["User"],
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          // fontFamily: "HarmonyOS_Sans",
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            )
-          else
-            buildHomeSearchBar(textcontroller, search),
-
-          const SizedBox(height: 10),
-          // MoonTabBar(
-          //   tabController: tabcontroller,
-          //   tabs: List.generate(
-          //     _categories.length,
-          //     (index) => MoonTab(label: Text(_categories[index])),
-          //   ),
-          // ),
-          // const SizedBox(height: 10),
-          SizedBox(
-            height: 300,
-            child: DefaultTextStyle(
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                // fontFamily: "HarmonyOS_Sans",
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 10),
-                    const Text('Time'),
-                    CatergoryGroupChip(
-                      maxSelected: 1,
-                      minSelected: 1,
-                      items: const ['All', '1 day', '1 week', '1 month'],
-                      onpress: (val) {
-                        _selectedTime = val[0];
-                        final history = filterByDateAndCategory(
-                          _times[_selectedTime],
-                          _types[_selectedType],
-                        );
-                        debugPrint(history.toString());
-                        ref
-                            .read(mainPageProvider.notifier)
-                            .updateHistory(history);
-                      },
-                      initSelected: const [0],
-                    ),
-                    const SizedBox(height: 10),
-                    const Text('Category'),
-                    CatergoryGroupChip(
-                      maxSelected: 1,
-                      minSelected: 1,
-                      items: const ['All', 'Video', 'Comic', 'Novel'],
-                      onpress: (val) {
-                        _selectedType = val[0];
-                        final history = filterByDateAndCategory(
-                          _times[_selectedTime],
-                          _types[_selectedType],
-                        );
-                        debugPrint(history.toString());
-                        ref
-                            .read(mainPageProvider.notifier)
-                            .updateHistory(history);
-                      },
-                      initSelected: const [0],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            //  TabBarView(
-            //   controller: tabcontroller,
-            //   children: <Widget>[
-            //     DefaultTextStyle(
-            //       style: const TextStyle(
-            //         fontSize: 15,
-            //         fontWeight: FontWeight.bold,
-            //         // fontFamily: "HarmonyOS_Sans",
-            //       ),
-            //       child: Padding(
-            //         padding: const EdgeInsets.symmetric(horizontal: 20),
-            //         child: Column(
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //             const SizedBox(height: 10),
-            //             const Text('Time'),
-            //             CatergoryGroupChip(
-            //               maxSelected: 1,
-            //               minSelected: 1,
-            //               items: const ['All', '1 day', '1 week', '1 month'],
-            //               onpress: (val) {
-            //                 _selectedTime = val[0];
-            //                 final history = filterByDateAndCategory(
-            //                   _times[_selectedTime],
-            //                   _types[_selectedType],
-            //                 );
-            //                 debugPrint(history.toString());
-            //                 ref
-            //                     .read(mainPageProvider.notifier)
-            //                     .updateHistory(history);
-            //               },
-            //               initSelected: const [0],
-            //             ),
-            //             const SizedBox(height: 10),
-            //             const Text('Category'),
-            //             CatergoryGroupChip(
-            //               maxSelected: 1,
-            //               minSelected: 1,
-            //               items: const ['All', 'Video', 'Comic', 'Novel'],
-            //               onpress: (val) {
-            //                 _selectedType = val[0];
-            //                 final history = filterByDateAndCategory(
-            //                   _times[_selectedTime],
-            //                   _types[_selectedType],
-            //                 );
-            //                 debugPrint(history.toString());
-            //                 ref
-            //                     .read(mainPageProvider.notifier)
-            //                     .updateHistory(history);
-            //               },
-            //               initSelected: const [0],
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //     ),
-            //     FavoriteTab(),
-            //     Padding(
-            //       padding: const EdgeInsets.symmetric(horizontal: 20),
-            //       child: DefaultTextStyle(
-            //         style: const TextStyle(
-            //           fontSize: 15,
-            //           fontWeight: FontWeight.bold,
-            //           // fontFamily: "HarmonyOS_Sans",
-            //         ),
-            //         child: Column(
-            //           crossAxisAlignment: CrossAxisAlignment.start,
-            //           children: [
-            //             const SizedBox(height: 10),
-            //             const Text('Anilist'),
-            //             CatergoryGroupChip(
-            //               maxSelected: 1,
-            //               minSelected: 1,
-            //               items: const ['Anime', 'Manga'],
-            //               onpress: (val) {
-            //                 aniListisAnime.value = val[0] == 0;
-            //               },
-            //               initSelected: const [0],
-            //             ),
-            //             const SizedBox(height: 10),
-            //             const Text('Anilist Status'),
-            //             CatergoryGroupChip(
-            //               maxSelected: 1,
-            //               minSelected: 1,
-            //               items: _anilistStatus,
-            //               onpress: (val) {
-            //                 anilistCurrentStatus.value = _anilistStatus[val[0]];
-            //               },
-            //               initSelected: const [0],
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //     ),
-            //     DownloadPage(),
-            //   ],
-            // ),
-          ),
-        ],
-        desktop: <Widget>[
-          const SideBarListTitle(title: 'Home'),
-          buildHomeSearchBar(textcontroller, search),
-          const SizedBox(height: 10),
-          if (currentTab.value == 0) ...[
-            SidebarExpander(
-              title: 'Time',
-              expanded: true,
-              child: CategoryGroup(
-                needSpacer: false,
-                items: const ['All', '1 day', '1 week', '1 month'],
-                onpress: (val) {
-                  final history = filterByDateAndCategory(
-                    _times[val],
-                    _types[_selectedType],
-                  );
-                  debugPrint(history.toString());
-                  ref.read(mainPageProvider.notifier).updateHistory(history);
-                },
-              ),
-            ),
-            const SizedBox(height: 10),
-            SidebarExpander(
-              title: 'Type',
-              expanded: true,
-              child: CategoryGroup(
-                needSpacer: false,
-                items: const ['ALL', 'Video', 'Comic', 'Novel'],
-                onpress: (val) {
-                  final history = filterByDateAndCategory(
-                    _times[_selectedTime],
-                    _types[val],
-                  );
-                  debugPrint(history.toString());
-                  ref.read(mainPageProvider.notifier).updateHistory(history);
-                },
-              ),
-            ),
-          ] else if (currentTab.value == 2) ...[
-            ListenableBuilder(
-              listenable: _notifer,
-              builder:
-                  (context, _) => SidebarExpander(
-                    title: 'Anilist',
-                    actions:
-                        _notifer.anilistIsLogin
-                            ? [
-                              FButton.icon(
-                                child: const Text('Logout'),
-                                onPress: () {
-                                  _notifer.logoutAniList();
-                                },
-                              ),
-                            ]
-                            : null,
-                    expanded: true,
-                    child: CategoryGroup(
-                      needSpacer: false,
-                      items: const ['Anime', 'Manga'],
-                      onpress: (val) {
-                        aniListisAnime.value = val == 0;
-                      },
-                    ),
-                  ),
-            ),
-          ],
-          const SizedBox(height: 10),
-        ],
-      ),
-      body: PlatformWidget(
-        mobileWidget: HistoryPage(),
-        // TabBarView(
-        //   controller: tabcontroller,
-        //   children: <Widget>[
-        //     HistoryPage(),
-        //     FavoritePage(),
-        //     _AnilistHomePage(
-        //       anilistStatus: anilistCurrentStatus,
-        //       anilistisAnime: aniListisAnime,
-        //     ),
-        //     DownloadPage(),
-        //   ],
-        // ),
-        desktopWidget: HistoryPage(),
-      ),
-    );
-  }
-}
-
-class _AnilistHomePage extends ConsumerStatefulWidget {
-  @override
-  createState() => _AnilistHomePageState();
-  final ValueNotifier<String> anilistStatus;
-  final ValueNotifier<bool> anilistisAnime;
-  const _AnilistHomePage({
-    required this.anilistStatus,
-    required this.anilistisAnime,
-  });
-}
-
-class _AnilistHomePageState extends ConsumerState<_AnilistHomePage>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  get wantKeepAlive => true;
-  bool isLogin = false;
-
-  final type = ValueNotifier(AnilistType.anime);
-  @override
-  void initState() {
-    _notifer.init();
-    _notifer.anilistDataLoad();
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return ListenableBuilder(
-      listenable: _notifer,
-      builder: (context, child) {
-        if (_notifer.anilistIsLogin) {
-          if (_notifer.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          debugPrint(_notifer.anilistUserData.userData.toString());
-          // debugPrint(notifer.anilistUserData.animeData["CURRENT"].toString());
-          return ValueListenableBuilder(
-            valueListenable: widget.anilistisAnime,
-            builder: (context, isanime, child) {
-              return ValueListenableBuilder(
-                valueListenable: widget.anilistStatus,
-                builder:
-                    (context, value, child) => LayoutBuilder(
-                      builder: (context, cons) {
-                        final element =
-                            isanime
-                                ? _notifer.anilistUserData.animeData[value]
-                                : _notifer.anilistUserData.mangaData[value];
-
-                        if (element == null) {
-                          return const Center(
-                            child: Text(
-                              'No data',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                // fontFamily: "HarmonyOS_Sans",
-                              ),
-                            ),
-                          );
-                        }
-                        return MiruGridView(
-                          mobileGridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: cons.maxWidth ~/ 110,
-                                childAspectRatio: 0.6,
-                              ),
-                          desktopGridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: cons.maxWidth ~/ 180,
-                                childAspectRatio: 0.65,
-                              ),
-                          itemBuilder:
-                              (context, index) => MiruGridTile(
-                                onTap: () {
-                                  context.push(
-                                    '/search',
-                                    extra:
-                                        element[index]["media"]["title"]["userPreferred"],
-                                  );
-                                },
-                                imageUrl:
-                                    element[index]["media"]["coverImage"]["large"],
-                                title:
-                                    element[index]["media"]["title"]["userPreferred"],
-                                subtitle:
-                                    '${element[index]["progress"]} / ${element[index]["media"]["episodes"]} / ${element[index]["media"]["episodes"]}',
-                              ),
-                          itemCount: element.length,
-                        );
-                      },
-                    ),
-              );
-            },
-          );
-        }
-        return Center(
-          child: FButton(
-            child: const Text('Login to Anilist'),
-            onPress: () {
-              _notifer.loginAniList(context);
-            },
-          ),
-        );
-      },
     );
   }
 }

@@ -4,10 +4,10 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/log.dart';
-import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/widgets/snackbar.dart';
 import 'package:path/path.dart' as path;
 
@@ -24,7 +24,7 @@ class BTServerUtils {
     debugPrint("检测最新版本");
     // 获取最新版本
     final url =
-        "${MiruStorage.getSettingSync<String>(SettingKey.btServerLink)}/releases/latest";
+        "${MiruSettings.getSettingSync<String>(SettingKey.btServerLink)}/releases/latest";
 
     final res = await dio.get(url);
     final result = RegExp(r'app-argument=.+tag\/(.+?)"').firstMatch(res.data);
@@ -67,7 +67,7 @@ class BTServerUtils {
 
     debugPrint("下载 bt-server $remoteVersion $platform $arch");
     final downloadUrl =
-        "${MiruStorage.getSettingSync<String>(SettingKey.btServerLink)}/releases/download/$remoteVersion/bt-server-$remoteVersion-$platform-$arch";
+        "${MiruSettings.getSettingSync<String>(SettingKey.btServerLink)}/releases/download/$remoteVersion/bt-server-$remoteVersion-$platform-$arch";
     final savePath = MiruDirectory.getDirectory;
     await dio.download(
       downloadUrl,

@@ -26,11 +26,11 @@ class SettingPlayer extends HookWidget {
         SettingsInputTile(
           title: 'btserver-download-link',
           subtitle: 'btserver-download-link-sub',
-          initialValue: MiruStorage.getSettingSync<String>(
+          initialValue: MiruSettings.getSettingSync<String>(
             SettingKey.btServerLink,
           ),
           onChanged: (val) {
-            MiruStorage.setSettingSync(SettingKey.btServerLink, val);
+            MiruSettings.setSettingSync(SettingKey.btServerLink, val);
           },
         ),
         ListenableBuilder(
@@ -82,9 +82,9 @@ class SettingMiruCore extends HookWidget {
         SettingsInputTile(
           title: 'btserver-download-link',
           subtitle: 'btserver-download-link-sub',
-          initialValue: MiruStorage.getSettingSync(SettingKey.btServerLink),
+          initialValue: MiruSettings.getSettingSync(SettingKey.btServerLink),
           onChanged: (val) {
-            MiruStorage.setSettingSync(SettingKey.btServerLink, val);
+            MiruSettings.setSettingSync(SettingKey.btServerLink, val);
           },
         ),
         ListenableBuilder(
@@ -137,11 +137,11 @@ class SettingDownload extends HookWidget {
           subtitle: 'max-connection-subtitle',
           radios: List.generate(3, (i) => (i + 2).toString()),
           value:
-              MiruStorage.getSettingSync<int>(
+              MiruSettings.getSettingSync<int>(
                 SettingKey.maxConnection,
               ).toString(),
           onChanged: (val) {
-            MiruStorage.setSettingSync(SettingKey.maxConnection, val);
+            MiruSettings.setSettingSync(SettingKey.maxConnection, val);
           },
         ),
         MoonMenuItem(
@@ -164,10 +164,10 @@ class SettingReader extends HookWidget {
         SettingsRadiosTile(
           title: 'deafult-reader',
           subtitle: 'deafult-reader-subtitle',
-          value: MiruStorage.getSettingSync<String>(SettingKey.readingMode),
+          value: MiruSettings.getSettingSync<String>(SettingKey.readingMode),
           radios: const ['Standard', 'Right to Left', 'Webtoon'],
           onChanged: (value) {
-            MiruStorage.setSettingSync(SettingKey.readingMode, value);
+            MiruSettings.setSettingSync(SettingKey.readingMode, value);
           },
         ),
       ],

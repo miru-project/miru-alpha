@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../pages/extension/extension_page.dart';
-import '../../pages/home/home_page.dart';
 import '../../pages/search_page.dart';
 import '../../pages/setting/settings_page.dart';
 
@@ -29,11 +28,11 @@ class MainController extends Notifier<MainState> {
     return MainState(selectedIndex: 0, isLoading: false);
   }
 
-  final List<Widget> pages = const [
-    HomePage(),
-    SearchPage(),
-    ExtensionPage(),
-    SettingsPage(),
+  final List<Widget> pages = [
+    const Placeholder(),
+    const SearchPage(),
+    const ExtensionPage(),
+    const SettingsPage(),
   ];
 
   late final TabController rootPageTabController;

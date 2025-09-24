@@ -1,2 +1,2 @@
 export './miru_directory.dart';
-export './miru_storage.dart';
+export 'miru_settings.dart';

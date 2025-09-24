@@ -4,10 +4,39 @@ import 'package:dio/dio.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/utils/log.dart';
-import 'package:miru_app_new/utils/network/request.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:miru_app_new/provider/extension_page_provider.dart';
+
+late final Dio dio;
+
+/// Endpoint helpers for application settings
+class AppSettingEndpoint {
+  /// Fetch all application settings from /appSetting
+  /// The server returns an array of objects like {"key": "someKey", "value": "someValue"}
+  static Future<Map<String, String>> getAll() async {
+    final jsResult = await CoreNetwork.requestJSON('appSetting');
+
+    // jsResult is expected to be a List of maps with keys 'key' and 'value'
+    final Map<String, String> result = {};
+    try {
+      if (jsResult is List) {
+        for (final item in jsResult) {
+          if (item is Map) {
+            final k = item['key']?.toString();
+            final v = item['value']?.toString();
+            if (k != null && v != null) {
+              result[k] = v;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      logger.info('Failed to parse app settings from /appSetting: $e');
+    }
+    return result;
+  }
+}
 
 class CoreMessage {
   final String? msg;
@@ -52,7 +81,20 @@ class CoreNetwork {
     );
   }
 
-  static void ensureInitialized() {
+  static Future<void> waitForServerLoaded() async {
+    while (true) {
+      try {
+        await requestJSON("");
+        return;
+      } catch (e) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+    }
+  }
+
+  static Future<void> ensureInitialized() async {
+    dio = Dio();
+    await waitForServerLoaded();
     logger.info('Miru_core initialized with base URL: $baseUrl');
     startPollRootInIsolate(interval: const Duration(milliseconds: 200));
   }

@@ -39,9 +39,9 @@ class ApplicationState {
 class ApplicationController extends Notifier<ApplicationState> {
   @override
   ApplicationState build() {
-    final themeText = MiruStorage.getSettingSync<String>(SettingKey.theme);
+    final themeText = MiruSettings.getSettingSync<String>(SettingKey.theme);
     final accentColor =
-        ThemeUtils.settingToAccentColor[MiruStorage.getSettingSync<String>(
+        ThemeUtils.settingToAccentColor[MiruSettings.getSettingSync<String>(
           SettingKey.accentColor,
         )] ??
         AccentColors.zinc;
@@ -93,7 +93,7 @@ class ApplicationController extends Notifier<ApplicationState> {
   }
 
   void changeAccentColor(String color) {
-    MiruStorage.setSettingSync(SettingKey.accentColor, color);
+    MiruSettings.setSettingSync(SettingKey.accentColor, color);
     final accentColor =
         ThemeUtils.settingToAccentColor[color] ?? AccentColors.zinc;
     state = state.copyWith(
@@ -103,7 +103,7 @@ class ApplicationController extends Notifier<ApplicationState> {
   }
 
   void changeTheme(String mode) {
-    MiruStorage.setSettingSync(SettingKey.theme, mode);
+    MiruSettings.setSettingSync(SettingKey.theme, mode);
     final themeMode =
         (mode == 'system')
             ? ThemeMode.system

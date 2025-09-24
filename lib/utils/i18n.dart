@@ -14,7 +14,7 @@ class I18nUtils {
       fallbackFile: 'en',
       basePath: 'assets/i18n',
       forcedLocale: Locale(
-        MiruStorage.getSettingSync<String>(SettingKey.language),
+        MiruSettings.getSettingSync<String>(SettingKey.language),
       ),
       decodeStrategies: [JsonDecodeStrategy()],
     ),

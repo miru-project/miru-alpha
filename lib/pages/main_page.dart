@@ -17,8 +17,8 @@ import 'setting/setting_items.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MainPage extends StatefulHookConsumerWidget {
-  final StatefulNavigationShell child;
-  const MainPage({super.key, required this.child});
+  final StatefulNavigationShell? child;
+  const MainPage({super.key, this.child});
 
   @override
   createState() => _MainPageState();
@@ -112,19 +112,23 @@ class _MainPageState extends ConsumerState<MainPage>
 
   @override
   Widget build(BuildContext context) {
-    final ac = ref.watch(applicationControllerProvider);
+    final themeData = ref.watch(
+      applicationControllerProvider.select((s) => s.themeData),
+    );
     final c = ref.read(mainControllerProvider.notifier);
     final controller = ref.watch(mainControllerProvider);
     final selected = useState(controller.selectedIndex);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     return PlatformWidget(
       mobileWidget: FTheme(
-        data: ac.themeData,
+        data: themeData,
         child: FScaffold(
           footer: FBottomNavigationBar(
             index: controller.selectedIndex,
             onChange: (value) {
-              widget.child.goBranch(value);
+              if (widget.child != null) {
+                widget.child!.goBranch(value);
+              }
               c.selectIndex(value);
               selected.value = value;
             },
@@ -139,13 +143,15 @@ class _MainPageState extends ConsumerState<MainPage>
           child: Column(
             children: [
               DragWindows(),
-              Expanded(child: SafeArea(child: widget.child)),
+              Expanded(
+                child: SafeArea(child: widget.child ?? const SizedBox()),
+              ),
             ],
           ),
         ),
       ),
       desktopWidget: FTheme(
-        data: ac.themeData,
+        data: themeData,
         child: FScaffold(
           key: messengerKey,
           sidebar: SafeFSidebar(
@@ -284,7 +290,7 @@ class _MainPageState extends ConsumerState<MainPage>
               children: [
                 const DragWindows(),
                 const FDivider(),
-                Expanded(child: widget.child),
+                Expanded(child: widget.child ?? const SizedBox()),
               ],
             ),
           ),

@@ -1,6 +1,7 @@
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/database_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+part 'epidsode_provider.g.dart';
 
 class EpisodeNotifierState {
   final List<ExtensionEpisodeGroup> epGroup;
@@ -32,32 +33,34 @@ class EpisodeNotifierState {
   }
 }
 
-class EpisodeNotifier extends Notifier<EpisodeNotifierState> {
+@riverpod
+class EpisodeNotifier extends _$EpisodeNotifier {
+  late String imageUrl;
+  late String package;
+  late ExtensionType type;
+  late String detailUrl;
   @override
   EpisodeNotifierState build() {
     ref.onDispose(() {
-      try {
-        DatabaseService.putHistory(
-          History(
-            title: state.name,
-            package: package,
-            type: EnumToString.convertToString(type),
-            episodeGroupId: state.selectedGroupIndex,
-            episodeId: state.selectedEpisodeIndex,
-            progress: state.selectedEpisodeIndex.toString(),
-            cover: imageUrl,
-            totalProgress:
-                state.epGroup[state.selectedGroupIndex].urls.length.toString(),
-            episodeTitle:
-                state
-                    .epGroup[state.selectedGroupIndex]
-                    .urls[state.selectedEpisodeIndex]
-                    .name,
-            url: detailUrl,
-            date: DateTime.now(),
-          ),
-        );
-      } catch (_) {}
+      DatabaseService.putHistory(
+        History(
+          title: state.name,
+          package: package,
+          type: EnumToString.convertToString(type),
+          episodeGroupId: state.selectedGroupIndex,
+          episodeId: state.selectedEpisodeIndex,
+          progress: state.selectedEpisodeIndex.toString(),
+          cover: imageUrl,
+          totalProgress: state.epGroup[state.selectedGroupIndex].urls.length
+              .toString(),
+          episodeTitle: state
+              .epGroup[state.selectedGroupIndex]
+              .urls[state.selectedEpisodeIndex]
+              .name,
+          url: detailUrl,
+          date: DateTime.now(),
+        ),
+      );
     });
 
     return EpisodeNotifierState();
@@ -86,10 +89,6 @@ class EpisodeNotifier extends Notifier<EpisodeNotifierState> {
     );
   }
 
-  late String imageUrl;
-  late String package;
-  late ExtensionType type;
-  late String detailUrl;
   void putinformation(
     ExtensionType type,
     String package,

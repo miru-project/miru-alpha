@@ -22,7 +22,6 @@ import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/log.dart';
-import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:window_manager/window_manager.dart';
@@ -31,58 +30,61 @@ import 'package:path/path.dart' as p;
 // Miru Core ffi definitions
 typedef InitDyLibNative = ffi.Void Function(ffi.Pointer<ffi.Char>);
 typedef InitDyLib = void Function(ffi.Pointer<ffi.Char>);
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  if (!(Platform.isAndroid || Platform.isIOS) && !kIsWeb) {
-    await windowManager.ensureInitialized();
-    WindowOptions windowOptions = const WindowOptions(
-      size: Size(1300, 700),
-      center: true,
-      skipTaskbar: false,
-      backgroundColor: Colors.transparent,
-      titleBarStyle: TitleBarStyle.hidden,
-    );
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
-  }
-  FFMpegUtils.ensureInitialized();
-
-  if (Platform.isMacOS) {
-    await WindowManipulator.initialize(enableWindowDelegate: true);
-    await WindowManipulator.addToolbar();
-    await WindowManipulator.overrideStandardWindowButtonPosition(
-      buttonType: NSWindowButtonType.closeButton,
-      offset: const Offset(15, 18),
-    );
-    await WindowManipulator.overrideStandardWindowButtonPosition(
-      buttonType: NSWindowButtonType.miniaturizeButton,
-      offset: const Offset(35, 18),
-    );
-    await WindowManipulator.overrideStandardWindowButtonPosition(
-      buttonType: NSWindowButtonType.zoomButton,
-      offset: const Offset(55, 18),
-    );
-  }
-  await DeviceUtil.ensureInitialized();
-  await MiruDirectory.ensureInitialized();
-  await MiruStorage.ensureInitialized();
-  await MiruRequest.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]);
-  MiruLog.ensureInitialized();
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  // Init config for miru_core
-  await loadMiruCore();
-  CoreNetwork.ensureInitialized();
-  if (kReleaseMode) _bindErrorWidget();
+void main() {
   runZonedGuarded(
-    () {
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      MiruLog.ensureInitialized();
+
+      if (!(Platform.isAndroid || Platform.isIOS) && !kIsWeb) {
+        await windowManager.ensureInitialized();
+        WindowOptions windowOptions = const WindowOptions(
+          size: Size(1300, 700),
+          center: true,
+          skipTaskbar: false,
+          backgroundColor: Colors.transparent,
+          titleBarStyle: TitleBarStyle.hidden,
+        );
+        windowManager.waitUntilReadyToShow(windowOptions, () async {
+          await windowManager.show();
+          await windowManager.focus();
+        });
+      }
+
+      FFMpegUtils.ensureInitialized();
+
+      if (Platform.isMacOS) {
+        await WindowManipulator.initialize(enableWindowDelegate: true);
+        await WindowManipulator.addToolbar();
+        await WindowManipulator.overrideStandardWindowButtonPosition(
+          buttonType: NSWindowButtonType.closeButton,
+          offset: const Offset(15, 18),
+        );
+        await WindowManipulator.overrideStandardWindowButtonPosition(
+          buttonType: NSWindowButtonType.miniaturizeButton,
+          offset: const Offset(35, 18),
+        );
+        await WindowManipulator.overrideStandardWindowButtonPosition(
+          buttonType: NSWindowButtonType.zoomButton,
+          offset: const Offset(55, 18),
+        );
+      }
+
+      await MiruDirectory.ensureInitialized();
+      await loadMiruCore();
+      await CoreNetwork.ensureInitialized();
+      await DeviceUtil.ensureInitialized();
+      await MiruSettings.ensureInitialized();
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      // Init config for miru_core
+      if (kReleaseMode) _bindErrorWidget();
+
       runApp(const ProviderScope(child: App()));
     },
     (error, stack) {

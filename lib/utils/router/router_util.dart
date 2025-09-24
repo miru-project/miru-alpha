@@ -7,7 +7,6 @@ import '../../../pages/anilist_webview.dart';
 import '../../../pages/download_page.dart';
 import '../../../pages/home/favorite_page_desktop_layout.dart';
 import '../../../pages/home/history_page.dart';
-import '../../../pages/home/home_page.dart';
 import '../../../pages/index.dart';
 import '../../../pages/main_page.dart';
 import '../../pages/watch/manga_reader.dart';
@@ -132,7 +131,7 @@ class RouterUtil {
                 path: '/home',
                 pageBuilder:
                     (context, state) =>
-                        getPage(state: state, child: const HomePage()),
+                        getPage(state: state, child: FavoritePage()),
               ),
             ],
           ),

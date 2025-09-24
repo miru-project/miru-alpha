@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
-// import 'package:miru_app/utils/miru_directory.dart';
-// import 'package:miru_app/utils/miru_storage.dart';
 import 'package:path/path.dart' as path;
 import './storage_index.dart';
 
@@ -28,7 +26,7 @@ class MiruLog {
 
   // 写入日志到文件
   static void writeLogToFile(String log) {
-    if (!MiruStorage.getSettingSync<bool>(SettingKey.saveLog)) {
+    if (!MiruSettings.getSettingSync<bool>(SettingKey.saveLog)) {
       return;
     }
     final file = File(logFilePath);

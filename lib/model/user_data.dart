@@ -1,12 +1,8 @@
-import 'package:objectbox/objectbox.dart';
 import './model.dart';
 
-@Entity()
 class History {
-  @Id()
   int id;
 
-  @Unique(onConflict: ConflictStrategy.replace)
   String package;
   String url;
   String? cover;
@@ -19,7 +15,6 @@ class History {
   String episodeTitle;
   String progress;
   String totalProgress;
-  @Property(type: PropertyType.date)
   DateTime date;
 
   History({
@@ -37,7 +32,35 @@ class History {
     required this.date,
   });
 
-  // Convert enum to/from String
+  factory History.fromJson(Map<String, dynamic> json) => History(
+    id: json['id'] ?? 0,
+    package: json['package'],
+    url: json['url'],
+    cover: json['cover'],
+    type: json['type'],
+    episodeGroupId: json['episodeGroupId'],
+    episodeId: json['episodeId'],
+    title: json['title'],
+    episodeTitle: json['episodeTitle'],
+    progress: json['progress'],
+    totalProgress: json['totalProgress'],
+    date: DateTime.parse(json['date']),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'package': package,
+    'url': url,
+    'cover': cover,
+    'type': type,
+    'episodeGroupId': episodeGroupId,
+    'episodeId': episodeId,
+    'title': title,
+    'episodeTitle': episodeTitle,
+    'progress': progress,
+    'totalProgress': totalProgress,
+    'date': date.toIso8601String(),
+  };
 }
 
 extension HistoryExtension on History {
@@ -51,66 +74,14 @@ extension HistoryExtension on History {
   }
 }
 
-@Entity()
-class MangaSetting {
-  @Id()
-  int id;
-
-  @Unique(onConflict: ConflictStrategy.replace)
-  String url;
-  String readMode;
-
-  MangaSetting({this.id = 0, required this.url, required this.readMode});
-}
-
-extension MangaSettingExtension on MangaSetting {
-  MangaReadMode get mangaReadMode => MangaReadMode.values.firstWhere(
-    (e) => e.toString().split('.').last == readMode,
-    orElse: () => MangaReadMode.standard,
-  );
-
-  set mangaReadMode(MangaReadMode value) {
-    readMode = value.toString().split('.').last;
-  }
-}
-
-@Entity()
-class MiruDetail {
-  @Id()
-  int id;
-
-  @Unique(onConflict: ConflictStrategy.replace)
-  String package;
-  String url;
-  String data;
-  int? tmdbID;
-  @Property(type: PropertyType.date)
-  DateTime updateTime;
-  String? aniListID;
-
-  MiruDetail({
-    this.id = 0,
-    required this.package,
-    required this.url,
-    required this.data,
-    this.tmdbID,
-    required this.updateTime,
-    this.aniListID,
-  });
-}
-
-@Entity()
 class Favorite {
-  @Id()
   int id;
 
-  @Unique(onConflict: ConflictStrategy.replace)
   String package;
   String url;
   String type;
   String title;
   String? cover;
-  @Property(type: PropertyType.date)
   DateTime date;
 
   Favorite({
@@ -122,6 +93,26 @@ class Favorite {
     this.cover,
     required this.date,
   });
+
+  factory Favorite.fromJson(Map<String, dynamic> json) => Favorite(
+    id: json['id'] ?? 0,
+    package: json['package'],
+    url: json['url'],
+    type: json['type'],
+    title: json['title'],
+    cover: json['cover'],
+    date: DateTime.parse(json['date']),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'package': package,
+    'url': url,
+    'type': type,
+    'title': title,
+    'cover': cover,
+    'date': date.toIso8601String(),
+  };
 }
 
 class EnumToString {
@@ -141,27 +132,43 @@ class EnumToString {
   }
 }
 
-@Entity()
 class FavoriateGroup {
-  @Id()
   int id;
 
-  @Unique(onConflict: ConflictStrategy.replace)
   String name;
-  final favorite = ToMany<Favorite>();
-  @Property(type: PropertyType.date)
+  List<Favorite> favorites;
   DateTime date;
 
-  FavoriateGroup({this.id = 0, required this.name, required this.date});
+  FavoriateGroup({
+    this.id = 0,
+    required this.name,
+    required this.date,
+    this.favorites = const [],
+  });
+
+  factory FavoriateGroup.fromJson(Map<String, dynamic> json) => FavoriateGroup(
+    id: json['id'] ?? 0,
+    name: json['name'],
+    date: DateTime.parse(json['date']),
+    favorites:
+        (json['favorites'] as List?)
+            ?.map((e) => Favorite.fromJson(e))
+            .toList() ??
+        [],
+  );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'date': date.toIso8601String(),
+    'favorites': favorites.map((e) => e.toJson()).toList(),
+  };
 }
 
 // Recored download for saving downlading progress
-@Entity()
 class DownloadRecord {
-  @Id()
   int id;
 
-  @Unique(onConflict: ConflictStrategy.replace)
   String saveDir;
   String url;
   int currentSegment;

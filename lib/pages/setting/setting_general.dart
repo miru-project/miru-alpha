@@ -23,20 +23,20 @@ class SettingGeneral extends HookConsumerWidget {
               SettingsInputTile(
                 title: "tmdb-api-key",
                 subtitle: 'tmdb-api-key-subtitle',
-                initialValue: MiruStorage.getSettingSync<String>(
+                initialValue: MiruSettings.getSettingSync<String>(
                   SettingKey.tmdbKey,
                 ),
                 onChanged: (value) {
-                  MiruStorage.setSettingSync(SettingKey.tmdbKey, value);
+                  MiruSettings.setSettingSync(SettingKey.tmdbKey, value);
                 },
               ),
               FDivider(),
               SettingsToggleTile(
                 title: 'allow-nsfw',
                 subtitle: 'allow-nsfw-subtitle',
-                value: MiruStorage.getSettingSync<bool>(SettingKey.enableNSFW),
+                value: MiruSettings.getSettingSync<bool>(SettingKey.enableNSFW),
                 onChanged: (value) {
-                  MiruStorage.setSettingSync(
+                  MiruSettings.setSettingSync(
                     SettingKey.enableNSFW,
                     value.toString(),
                   );
@@ -53,7 +53,7 @@ class SettingGeneral extends HookConsumerWidget {
               SettingsRadiosTile.detailed(
                 title: 'theme',
                 subtitle: 'theme-subtitle',
-                value: MiruStorage.getSettingSync<String>(SettingKey.theme),
+                value: MiruSettings.getSettingSync<String>(SettingKey.theme),
                 onChanged: (val) => c.changeTheme(val),
                 entry: const [
                   RadioTileEntry(
@@ -77,12 +77,12 @@ class SettingGeneral extends HookConsumerWidget {
               SettingsRadiosTile(
                 title: 'accent-color',
                 subtitle: 'accent-color-subtitle',
-                value: MiruStorage.getSettingSync<String>(
+                value: MiruSettings.getSettingSync<String>(
                   SettingKey.accentColor,
                 ),
                 onChanged: (val) {
                   c.changeAccentColor(val);
-                  MiruStorage.setSettingSync(SettingKey.accentColor, val);
+                  MiruSettings.setSettingSync(SettingKey.accentColor, val);
                 },
                 radios:
                     ThemeUtils.accentToBright.keys.map((e) => e.name).toList(),
@@ -100,11 +100,11 @@ class SettingGeneral extends HookConsumerWidget {
               SettingsToggleTile(
                 title: 'auto-update',
                 subtitle: 'auto-update-subtitle',
-                value: MiruStorage.getSettingSync<bool>(
+                value: MiruSettings.getSettingSync<bool>(
                   SettingKey.autoCheckUpdate,
                 ),
                 onChanged: (value) {
-                  MiruStorage.setSettingSync(
+                  MiruSettings.setSettingSync(
                     SettingKey.autoCheckUpdate,
                     value.toString(),
                   );
@@ -115,11 +115,11 @@ class SettingGeneral extends HookConsumerWidget {
                 SettingsToggleTile(
                   title: 'mobile-title-position',
                   subtitle: 'mobile-title-position-subtitle',
-                  value: MiruStorage.getSettingSync<bool>(
+                  value: MiruSettings.getSettingSync<bool>(
                     SettingKey.mobiletitleIsonTop,
                   ),
                   onChanged: (value) {
-                    MiruStorage.setSettingSync(
+                    MiruSettings.setSettingSync(
                       SettingKey.mobiletitleIsonTop,
                       value.toString(),
                     );

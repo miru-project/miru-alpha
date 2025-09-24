@@ -12,7 +12,7 @@ import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/model/miru_core.dart';
-import 'package:miru_app_new/objectbox.g.dart';
+// import 'package:miru_app_new/objectbox.g.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
@@ -20,7 +20,7 @@ import 'package:miru_app_new/utils/download/download_utils.dart';
 
 import 'package:miru_app_new/utils/index.dart';
 import 'package:miru_app_new/utils/log.dart';
-import 'package:miru_app_new/utils/network/request.dart';
+// import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 import 'package:miru_app_new/widgets/core/inner_card.dart';
@@ -548,48 +548,13 @@ class LoadedContent extends HookWidget {
 class _DetailPageState extends ConsumerState<DetailPage> {
   @override
   void initState() {
-    final watchedQuery = DatabaseService.historys.query(
-      History_.package.equals(widget.meta.packageName),
-    );
-    watchedQuery.watch().listen((query) {
-      final value = query.findFirst();
-      ref.read(detialProvider.notifier).putHistory(value);
+    Future.microtask(() async {
+      final history = await DatabaseService.getHistoryByPackageAndUrl(
+        widget.meta.packageName,
+        widget.url,
+      );
+      ref.read(detialProvider.notifier).putHistory(history);
     });
-    // final favQuery =
-    //     DatabaseService.fav
-    //         .query(
-    //           Favorite_.package
-    //               .equals(widget.meta.packageName)
-    //               .and(Favorite_.url.equals(widget.url)),
-    //         )
-    //         .build();
-
-    // ref.read(detialProvider.notifier).putFavorite(favQuery.findFirst());
-    // DatabaseService.historys
-    //     .filter()
-    //     .packageEqualTo(widget.extensionService.extension.package)
-    //     .build()
-    //     .watchLazy()
-    //     .listen((val) {
-    //   DatabaseService.db.historys.where().findFirst().then((value) {
-    //     ref.read(_history.notifier).putHistory(value);
-    //   });
-    // });
-    // _favoriteNotifer.putFavorite(DatabaseService.db.favorites
-    //     .where()
-    //     .packageUrlEqualTo(
-    //         widget.extensionService.extension.package, widget.url)
-    //     .findFirstSync());
-    Future.microtask(
-      () => ref
-          .read(detialProvider.notifier)
-          .putHistory(
-            DatabaseService.getHistoryByPackageAndUrl(
-              widget.meta.packageName,
-              widget.url,
-            ),
-          ),
-    );
     // Trigger detail fetch via DetialProvider so UI doesn't depend directly on the fetch provider
     Future.microtask(
       () => ref
@@ -1138,24 +1103,22 @@ class _FavoriteDialogState extends ConsumerState<_FavoriteDialog> {
   final List<int> initSelected = [];
   @override
   void initState() {
-    group.value = DatabaseService.favGroup.getAll();
-    DatabaseService.favGroup.query().watch().listen((query) {
-      group.value = query.find();
-    });
-    // DatabaseService.db.favoriateGroups.where().watchLazy().listen((_) {
-    //   group.value = DatabaseService.db.favoriateGroups.where().findAllSync();
-    //   // debugger();
-    // });
-    final fav = ref.read(detialProvider).favorite;
-    if (fav != null) {
-      final result = DatabaseService.getFavoriteGroupsById(fav.id);
-      final nameList = group.value.map((e) => e.name).toList();
-      for (final item in result) {
-        initSelected.add(nameList.indexOf(item.name));
+    Future.microtask(() async {
+      group.value = await DatabaseService.getAllFavoriteGroup();
+      final fav = ref.read(detialProvider).favorite;
+      if (fav != null) {
+        final result = await DatabaseService.getFavoriteGroupsByFavorite(
+          fav.package,
+          fav.url,
+        );
+        final nameList = group.value.map((e) => e.name).toList();
+        for (final item in result) {
+          initSelected.add(nameList.indexOf(item.name));
+        }
+        selected.value = initSelected;
+        debugPrint(initSelected.toString());
       }
-      selected.value = initSelected;
-      debugPrint(initSelected.toString());
-    }
+    });
     super.initState();
   }
 
@@ -1310,50 +1273,68 @@ class _FavoriteDialogState extends ConsumerState<_FavoriteDialog> {
                                         : () {
                                           //remove from favorite
                                           DatabaseService.deleteFavorite(
-                                            widget.detailUrl,
                                             widget.meta.packageName,
-                                          );
-                                          ref
-                                              .read(detialProvider.notifier)
-                                              .putFavorite(null);
-                                          context.pop();
+                                            widget.detailUrl,
+                                          ).then((_) {
+                                            if (!context.mounted) return;
+                                            ref
+                                                .read(detialProvider.notifier)
+                                                .putFavorite(null);
+                                            context.pop();
+                                          });
                                         },
                               ),
                               MoonButton(
                                 buttonSize: MoonButtonSize.lg,
                                 label: Text('Confirm'),
                                 onTap: () {
-                                  final fav = DatabaseService.putFavorite(
-                                    widget.detailUrl,
-                                    widget.detail,
-                                    widget.meta.packageName,
-                                    widget.meta.type,
-                                  );
-                                  ref
-                                      .read(detialProvider.notifier)
-                                      .putFavorite(fav);
-
-                                  final result =
-                                      group.value.map((e) {
-                                        final List<Favorite> item = e.favorite
-                                            .toList(growable: true);
-                                        // remove every fav id from the group
-                                        item.removeWhere(
-                                          (element) => element.id == fav.id,
+                                  Future.microtask(() async {
+                                    final package = widget.meta.packageName;
+                                    final url = widget.detailUrl;
+                                    final fav =
+                                        await DatabaseService.putFavorite(
+                                          url,
+                                          widget.detail,
+                                          package,
+                                          widget.meta.type,
                                         );
-                                        // add the fav id to the group if selected
-                                        if (selected.value.contains(
-                                          group.value.indexOf(e),
-                                        )) {
-                                          item.add(fav);
-                                        }
-                                        e.favorite.addAll(item);
-                                        return e;
-                                      }).toList();
+                                    ref
+                                        .read(detialProvider.notifier)
+                                        .putFavorite(fav);
 
-                                  DatabaseService.putFavoriteByIndex(result);
+                                    final result =
+                                        await DatabaseService.getFavoriteGroupsByFavorite(
+                                          package,
+                                          url,
+                                        );
+                                    for (final item in result) {
+                                      final List<Favorite> itemList =
+                                          item.favorites
+                                              .where(
+                                                (element) =>
+                                                    element.id == fav.id,
+                                              )
+                                              .toList();
+                                      // remove every fav id from the group
+                                      itemList.removeWhere(
+                                        (element) => element.id == fav.id,
+                                      );
+                                      // add the fav id to the group if selected
+                                      if (selected.value.contains(
+                                        group.value.indexOf(item),
+                                      )) {
+                                        itemList.add(fav);
+                                      }
+                                      item.favorites.clear();
+                                      item.favorites.addAll(itemList);
+                                    }
 
-                                  context.pop();
+                                    await DatabaseService.putFavoriteByIndex(
+                                      result,
+                                    );
+                                    if (!context.mounted) return;
+                                    context.pop();
+                                  });
                                 },
                               ),
                             ],

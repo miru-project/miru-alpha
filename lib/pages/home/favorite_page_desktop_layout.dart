@@ -20,27 +20,18 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
   final ValueNotifier<List<FavoriateGroup>> _favGroup = ValueNotifier([]);
   List<Favorite> filterFav = [];
   final ValueNotifier<List<Favorite>> _fav = ValueNotifier([]);
+  List<Favorite> allFav = [];
   @override
   get wantKeepAlive => true;
 
   @override
   void initState() {
-    _fav.value = DatabaseService.getAllFavorite();
-    filterFav = _fav.value;
-    _favGroup.value = DatabaseService.getAllFavoriteGroup();
-
-    ref.listen<MainPageState>(mainPageProvider, (prev, next) {
-      _fav.value = filterBySearch(filterFav);
+    Future.microtask(() async {
+      _favGroup.value = await DatabaseService.getAllFavoriteGroup();
+      allFav = _favGroup.value.expand((g) => g.favorites).toList();
+      _fav.value = filterFavoriteByGroup(allFav);
+      filterFav = _fav.value;
     });
-
-    DatabaseService.fav.query().watch().listen((query) {
-      _fav.value = filterFavoriteByGroup(_fav.value);
-    });
-
-    DatabaseService.favGroup.query().watch().listen((query) {
-      _favGroup.value = DatabaseService.getAllFavoriteGroup();
-    });
-
     super.initState();
   }
 
@@ -60,10 +51,10 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
         selected.map((e) => _favGroup.value[e]).toList();
     final Set<int> favId = {};
     for (final group in selectedFavGroup) {
-      favId.addAll(group.favorite.map((e) => e.id).toList());
+      favId.addAll(group.favorites.map((e) => e.id).toList());
     }
     final List<Favorite?> result = List.from(
-      DatabaseService.fav.getMany(favId.toList()),
+      fav.where((f) => favId.contains(f.id)),
       growable: true,
     );
     filterFav = result.whereType<Favorite>().toList();
@@ -76,6 +67,10 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<MainPageState>(mainPageProvider, (prev, next) {
+      _fav.value = filterFavoriteByGroup(allFav);
+      filterFav = _fav.value;
+    });
     super.build(context);
     return ValueListenableBuilder(
       valueListenable: _fav,

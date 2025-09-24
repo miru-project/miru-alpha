@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/widgets/button.dart';
+import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/utils/download/download_utils.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/log.dart';
-import 'package:miru_app_new/utils/network/request.dart';
+// import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/widgets/snackbar.dart';
-import 'package:moon_design/moon_design.dart';
 
 final downloadsProvider =
     NotifierProvider<_DownloadsNotifier, AsyncValue<List<dynamic>>>(
@@ -126,7 +127,6 @@ class DownloadPage extends ConsumerWidget {
     final id = item['id']!.toString();
     String buttonLabel;
     String action;
-    Color buttonColor = Colors.blue;
     final name = MiruCoreDownload.tasks[id]?.name ?? 'Download';
     switch (status) {
       case 'Downloading':
@@ -140,7 +140,6 @@ class DownloadPage extends ConsumerWidget {
       case 'Completed':
         buttonLabel = 'Delete';
         action = 'delete';
-        buttonColor = Colors.red;
         onComplete(
           names,
           (item['media_type'] ?? "") == "hls",
@@ -156,7 +155,6 @@ class DownloadPage extends ConsumerWidget {
       default:
         buttonLabel = 'Cancel';
         action = 'cancel';
-        buttonColor = Colors.red;
     }
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -172,10 +170,9 @@ class DownloadPage extends ConsumerWidget {
             Text('Progress: ${(progress * 100).toStringAsFixed(0)}%'),
           ],
         ),
-        trailing: MoonButton(
-          label: Text(buttonLabel),
-          backgroundColor: buttonColor,
-          onTap:
+        trailing: FButton(
+          child: Text(buttonLabel),
+          onPress:
               () => ref
                   .read(downloadsProvider.notifier)
                   .sendAction(context, id, action),

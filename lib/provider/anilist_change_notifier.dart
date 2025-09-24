@@ -24,14 +24,14 @@ class AnilistPageNotifier with ChangeNotifier {
   }
 
   void updateAniListToken(String accessToken) {
-    MiruStorage.setSettingSync(SettingKey.aniListToken, accessToken);
+    MiruSettings.setSettingSync(SettingKey.aniListToken, accessToken);
     _anilistIsLogin = true;
     notifyListeners();
     // initAnilistData();
   }
 
   void logoutAniList() {
-    MiruStorage.setSettingSync(SettingKey.aniListToken, "");
+    MiruSettings.setSettingSync(SettingKey.aniListToken, "");
     _anilistIsLogin = false;
     notifyListeners();
   }
@@ -80,7 +80,7 @@ class AnilistPageNotifier with ChangeNotifier {
   }
 
   void init() {
-    final token = MiruStorage.getSettingSync<String>(SettingKey.aniListToken);
+    final token = MiruSettings.getSettingSync<String>(SettingKey.aniListToken);
     if (token != "") {
       _anilistIsLogin = true;
       notifyListeners();

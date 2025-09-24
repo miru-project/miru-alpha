@@ -48,7 +48,7 @@ class _WebViewPageState extends State<WebViewPage> {
       body: InAppWebView(
         initialUrlRequest: URLRequest(url: WebUri(url)),
         initialSettings: InAppWebViewSettings(
-          userAgent: MiruStorage.getUASetting(),
+          userAgent: MiruSettings.getUASetting(),
         ),
         onLoadStart: (controller, url) {
           setState(() {

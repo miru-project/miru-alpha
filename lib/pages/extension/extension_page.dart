@@ -50,9 +50,6 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
       return null;
     }, const []);
 
-    void filterExtensionListWithName(String query) =>
-        extNotifier.filterByName(query);
-
     return MiruScaffold(
       scrollController: scrollController,
       snappingSheetController: extNotifier.snappingController,

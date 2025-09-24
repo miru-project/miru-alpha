@@ -7,7 +7,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/widgets/card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/objectbox.g.dart';
 import 'package:miru_app_new/provider/extension_page_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
@@ -39,16 +38,12 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
   @override
   get wantKeepAlive => true;
 
+  int historyLen = 0;
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final history =
-          DatabaseService.historys
-              .query()
-              .order(History_.date, flags: Order.descending)
-              .build()
-              .find();
+    Future.microtask(() async {
+      final history = await DatabaseService.getHistorysByType();
       ref.read(mainPageProvider.notifier).updateHistory(history);
     });
   }
@@ -61,6 +56,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
     int index = 0;
     useEffect(() {
       Timer.periodic(const Duration(seconds: 5), (timer) {
+        if (historyLen == 0) return;
         controller.animateToItem(index);
         index++;
       });
@@ -68,6 +64,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
     }, [controller]);
     final width = DeviceUtil.getWidth(context);
     final history = ref.watch(mainPageProvider).history;
+    historyLen = history.length;
     return CustomScrollView(
       slivers: [
         const SliverToBoxAdapter(child: SizedBox(height: 10)),

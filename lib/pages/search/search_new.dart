@@ -58,7 +58,7 @@ class NewSearchPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final metaData = ref.watch(extensionPageControllerProvider).metaData;
     final pinnedExtensions = useState(
-      MiruStorage.getSettingSync<Set<String>>(SettingKey.pinnedExtension),
+      MiruSettings.getSettingSync<Set<String>>(SettingKey.pinnedExtension),
     );
     // MiruStorage.getSettingSync
     return Stack(
@@ -91,7 +91,7 @@ class NewSearchPage extends HookConsumerWidget {
                               newSet.add(ext.packageName);
                             }
                             pinnedExtensions.value = newSet;
-                            MiruStorage.setSettingSync(
+                            MiruSettings.setSettingSync(
                               SettingKey.pinnedExtension,
                               newSet.toString(),
                             );
@@ -128,7 +128,7 @@ class NewSearchPage extends HookConsumerWidget {
                             newSet.add(ext.packageName);
                           }
                           pinnedExtensions.value = newSet;
-                          MiruStorage.setSettingSync(
+                          MiruSettings.setSettingSync(
                             SettingKey.pinnedExtension,
                             newSet.toString(),
                           );
