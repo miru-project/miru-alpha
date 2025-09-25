@@ -14,48 +14,73 @@ jobs:
   # # This workflow contains a single job called "build"
   # build-and-release-android:
   #   # The type of runner that the job will run on
-  #   runs-on: ubuntu-latest
+  build-and-release-android:
+    runs-on: ubuntu-latest
 
-  #   # Steps represent a sequence of tasks that will be executed as part of the job
-  #   steps:
-  #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-  #     - uses: actions/checkout@v3
-  #     - name: Flutter action
-  #       uses: subosito/flutter-action@v2
-  #       with:
-  #         flutter-version:  3.16.8 
-  #         channel: stable
-  #     - name: Decode keystore
-  #       run: |
-  #         echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
-  #       env:
-  #         ENCODED_KEYSTORE: ${{ secrets.KEYSTORE }}
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  #     - run: flutter pub get
-  #     # 打包apk
-  #     - name: Collect Apks
-  #       run: flutter build apk --release --split-per-abi
-  #       env:
-  #         KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-  #         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-  #         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD}}
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.25.1'
 
-  #     # 发布安装包
-  #     - name: Upload Artifact - armeabi-v7a
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         path: "build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
-  #         name: Miru-pr-${{ github.event.pull_request.number }}-armeabi-v7a.apk
-  #     - name: Upload Artifact - arm64-v8a
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         path: "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
-  #         name: Miru-pr-${{ github.event.pull_request.number }}-arm64-v8a.apk
-  #     - name: Upload Artifact - x86
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         path: "build/app/outputs/flutter-apk/app-x86_64-release.apk"
-  #         name: Miru-pr-${{ github.event.pull_request.number }}-x86_64.apk
+      - uses: actions/checkout@v4
+      - name: Flutter action
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version:  3.55.4
+          channel: stable
+
+      - name: Decode keystore
+        run: |
+          echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.KEYSTORE }}
+      
+      - name: Install gomobile
+        run: |
+          go get golang.org/x/mobile/cmd/gomobile
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          gomobile version || true
+          gomobile init
+        working-directory: src/miru_core/miru-core
+
+      - name: Build Android AAR (gomobile bind)
+        working-directory: src/miru_core/miru-core
+        run: |
+          gomobile bind -ldflags="-s -w" -o ../../android/libmiru-core.aar -target=android -androidapi 21
+
+      - run: flutter pub get
+      # 打包apk
+      - name: Collect Apks
+        run: flutter build apk --release --split-per-abi
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD}}
+
+          
+      - name: Set artifact timestamp
+        run: echo "TIMESTAMP=$(date -u +'%Y%m%dT%H%M%SZ')" >> $GITHUB_ENV
+      # 发布安装包
+      - name: Upload Artifact - armeabi-v7a
+        uses: actions/upload-artifact@v4
+        with:
+          path: "build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
+          name: Miru-pr-${{ github.event.pull_request.number }}-armeabi-v7a.apk
+      - name: Upload Artifact - arm64-v8a
+        uses: actions/upload-artifact@v4
+        with:
+          path: "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+          name: Miru-pr-${{ github.event.pull_request.number }}-arm64-v8a.apk
+      - name: Upload Artifact - x86
+        uses: actions/upload-artifact@v4
+        with:
+          path: "build/app/outputs/flutter-apk/app-x86_64-release.apk"
+          name: Miru-pr-${{ github.event.pull_request.number }}-x86_64.apk
 
   build-and-release-windows:
     runs-on: windows-latest
@@ -83,7 +108,7 @@ jobs:
           mv build/windows/x64/runner/Release build/windows/x64/runner/Miru-alpha
             # set a timestamp based on the commit time and use that in artifact names
 
-      - name: Set artifact timestamp
+      - name: Set artifact timestamps
         run: echo "TIMESTAMP=$(date -u +'%Y%m%dT%H%M%SZ')" >> $GITHUB_ENV
 
       # 发布安装包

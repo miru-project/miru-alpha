@@ -12,7 +12,6 @@ import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/model/miru_core.dart';
-// import 'package:miru_app_new/objectbox.g.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/utils/database_service.dart';
 import 'package:miru_app_new/utils/device_util.dart';
@@ -51,7 +50,9 @@ class DetailItemBox extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBox(child: InnerCard(title: title, child: child));
+    return AnimatedBox(
+      child: InnerCard(title: title, child: child),
+    );
   }
 }
 
@@ -75,48 +76,39 @@ class DetailEpButton extends HookWidget {
       return const Text('No Episode');
     }
     return LayoutBuilder(
-      builder:
-          (context, constraint) => ValueListenableBuilder(
-            valueListenable: notifier,
-            builder:
-                (context, selectedValue, child) =>
-                    (detail.episodes!.isEmpty)
-                        ? const Text('No Episode')
-                        : Wrap(
-                          spacing: spacing,
-                          runSpacing: runSpacing,
-                          children: [
-                            ...List.generate(
-                              detail.episodes![selectedValue].urls.length,
-                              (index) {
-                                return MoonButton(
-                                  onTap: () => onTap(index),
-                                  label: PlatformWidget(
-                                    mobileWidget: ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxWidth: constraint.maxWidth - 50,
-                                      ),
-                                      child: Text(
-                                        overflow: TextOverflow.ellipsis,
-                                        detail
-                                            .episodes![selectedValue]
-                                            .urls[index]
-                                            .name,
-                                      ),
-                                    ),
-                                    desktopWidget: Text(
-                                      detail
-                                          .episodes![selectedValue]
-                                          .urls[index]
-                                          .name,
-                                    ),
-                                  ),
-                                );
-                              },
+      builder: (context, constraint) => ValueListenableBuilder(
+        valueListenable: notifier,
+        builder: (context, selectedValue, child) => (detail.episodes!.isEmpty)
+            ? const Text('No Episode')
+            : Wrap(
+                spacing: spacing,
+                runSpacing: runSpacing,
+                children: [
+                  ...List.generate(
+                    detail.episodes![selectedValue].urls.length,
+                    (index) {
+                      return MoonButton(
+                        onTap: () => onTap(index),
+                        label: PlatformWidget(
+                          mobileWidget: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: constraint.maxWidth - 50,
                             ),
-                          ],
+                            child: Text(
+                              overflow: TextOverflow.ellipsis,
+                              detail.episodes![selectedValue].urls[index].name,
+                            ),
+                          ),
+                          desktopWidget: Text(
+                            detail.episodes![selectedValue].urls[index].name,
+                          ),
                         ),
-          ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+      ),
     );
   }
 }
@@ -201,19 +193,18 @@ class DesktopDetail extends ConsumerWidget {
                           if (snapShot.hasValue &&
                               snapShot.value?.episodes != null)
                             FTabs(
-                              children:
-                                  snapShot.value!.episodes!
-                                      .map(
-                                        (e) => FTabEntry(
-                                          label: Text(e.title),
-                                          child: DetailItemBox(
-                                            title: 'Episode',
-                                            padding: _gloablDesktopPadding,
-                                            child: ep,
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
+                              children: snapShot.value!.episodes!
+                                  .map(
+                                    (e) => FTabEntry(
+                                      label: Text(e.title),
+                                      child: DetailItemBox(
+                                        title: 'Episode',
+                                        padding: _gloablDesktopPadding,
+                                        child: ep,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
                             ),
 
                           const SizedBox(height: 20),
@@ -402,11 +393,10 @@ class LoadedContent extends HookWidget {
                                           "Currently no description ... ",
                                       style: TextStyle(
                                         fontSize: 15,
-                                        color:
-                                            context
-                                                .theme
-                                                .colors
-                                                .mutedForeground,
+                                        color: context
+                                            .theme
+                                            .colors
+                                            .mutedForeground,
                                       ),
                                     ),
                                   ),
@@ -1000,24 +990,21 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
               Row(
                 children: [
                   MoonButton(
-                    borderColor:
-                        context
-                            .moonTheme
-                            ?.segmentedControlTheme
-                            .colors
-                            .backgroundColor,
-                    textColor:
-                        context
-                            .moonTheme
-                            ?.segmentedControlTheme
-                            .colors
-                            .textColor,
-                    backgroundColor:
-                        context
-                            .moonTheme
-                            ?.segmentedControlTheme
-                            .colors
-                            .backgroundColor,
+                    borderColor: context
+                        .moonTheme
+                        ?.segmentedControlTheme
+                        .colors
+                        .backgroundColor,
+                    textColor: context
+                        .moonTheme
+                        ?.segmentedControlTheme
+                        .colors
+                        .textColor,
+                    backgroundColor: context
+                        .moonTheme
+                        ?.segmentedControlTheme
+                        .colors
+                        .backgroundColor,
                     label: const Text('Play'),
                     onTap: null,
                   ),
@@ -1027,26 +1014,23 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                       final fav = ref.watch(detialProvider).favorite;
                       return MoonChip(
                         isActive: fav != null,
-                        activeColor:
-                            context
-                                .moonTheme
-                                ?.segmentedControlTheme
-                                .colors
-                                .textColor,
-                        borderColor:
-                            context
-                                .moonTheme
-                                ?.segmentedControlTheme
-                                .colors
-                                .backgroundColor,
+                        activeColor: context
+                            .moonTheme
+                            ?.segmentedControlTheme
+                            .colors
+                            .textColor,
+                        borderColor: context
+                            .moonTheme
+                            ?.segmentedControlTheme
+                            .colors
+                            .backgroundColor,
                         textColor:
                             context.moonTheme?.textInputTheme.colors.textColor,
-                        backgroundColor:
-                            context
-                                .moonTheme
-                                ?.textInputTheme
-                                .colors
-                                .backgroundColor,
+                        backgroundColor: context
+                            .moonTheme
+                            ?.textInputTheme
+                            .colors
+                            .backgroundColor,
                         label: Text(
                           fav != null ? 'Favorited' : 'Favorite',
                           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -1058,12 +1042,11 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
                           }
                           showMoonModal(
                             context: context,
-                            builder:
-                                (context) => _FavoriteDialog(
-                                  meta: meta,
-                                  detail: detail!,
-                                  detailUrl: detailUrl!,
-                                ),
+                            builder: (context) => _FavoriteDialog(
+                              meta: meta,
+                              detail: detail!,
+                              detailUrl: detailUrl!,
+                            ),
                           );
                         },
                       );
@@ -1135,217 +1118,200 @@ class _FavoriteDialogState extends ConsumerState<_FavoriteDialog> {
         boxShadow: [
           BoxShadow(
             blurRadius: 10,
-            color:
-                MediaQuery.of(context).platformBrightness == Brightness.light
-                    ? MoonColors.light.goku.withValues(alpha: .2)
-                    : MoonColors.dark.goku.withValues(alpha: .2),
+            color: MediaQuery.of(context).platformBrightness == Brightness.light
+                ? MoonColors.light.goku.withValues(alpha: .2)
+                : MoonColors.dark.goku.withValues(alpha: .2),
           ),
         ],
       ),
       child: ValueListenableBuilder(
         valueListenable: group,
-        builder:
-            (context, value, _) => SizedBox(
-              width: width * factor,
-              height: height * factor,
-              child: Padding(
-                padding: const EdgeInsets.all(30),
-                child: DefaultTextStyle(
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    // fontFamily: "HarmonyOS_Sans",
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        builder: (context, value, _) => SizedBox(
+          width: width * factor,
+          height: height * factor,
+          child: Padding(
+            padding: const EdgeInsets.all(30),
+            child: DefaultTextStyle(
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                // fontFamily: "HarmonyOS_Sans",
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Favorite ?', style: TextStyle(fontSize: 25)),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Favorite ?', style: TextStyle(fontSize: 25)),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Selected Group',
-                            style: TextStyle(fontSize: 15),
-                          ),
-                          ValueListenableBuilder(
-                            valueListenable: selectedToDelete,
-                            builder:
-                                (context, delete, _) =>
-                                    delete.isEmpty
-                                        ? Text(
-                                          DeviceUtil.device(
-                                            mobile:
-                                                'Long Press To Delete Group',
-                                            desktop:
-                                                'Right Click To Delete Group',
-                                            context: context,
-                                          ),
-                                          style: TextStyle(
-                                            color: Colors.grey[500],
-                                            fontWeight: FontWeight.normal,
-                                            fontSize: 10,
-                                          ),
-                                        )
-                                        : MoonButton(
-                                          label: const Icon(
-                                            MoonIcons.generic_delete_24_regular,
-                                          ),
-                                          onTap: () {
-                                            showMoonModal(
-                                              context: context,
-                                              builder:
-                                                  (
-                                                    context,
-                                                  ) => FavoriteWarningDialog(
-                                                    setLongPress: setLongPress,
-                                                    setSelected: setSelected,
-                                                    selectedToDelete:
-                                                        selectedToDelete,
-                                                    selected: selected,
-                                                    group: group,
-                                                  ),
-                                            );
-                                          },
-                                        ),
-                          ),
-                        ],
+                      const Text(
+                        'Selected Group',
+                        style: TextStyle(fontSize: 15),
                       ),
-                      const SizedBox(height: 10),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: CatergoryGroupChip(
-                            setLongPress: setLongPress,
-                            setSelected: setSelected,
-                            onLongPress: (p0) {
-                              selectedToDelete.value = p0;
-                            },
-                            minSelected: 0,
-                            trailing: MoonButton(
-                              leading: const Icon(
-                                MoonIcons.controls_plus_24_regular,
-                              ),
-                              width: width * factor - 100,
-                              onTap: () {
-                                showMoonModal(
+                      ValueListenableBuilder(
+                        valueListenable: selectedToDelete,
+                        builder: (context, delete, _) => delete.isEmpty
+                            ? Text(
+                                DeviceUtil.device(
+                                  mobile: 'Long Press To Delete Group',
+                                  desktop: 'Right Click To Delete Group',
                                   context: context,
-                                  builder:
-                                      (context) => FavoriteAddGroupDialog(
-                                        onComplete: (p0) {
-                                          DatabaseService.putFavoriteGroup(p0);
-                                        },
-                                      ),
-                                );
-                              },
-                              label: const Text(
-                                'Add Group',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  // fontFamily: "HarmonyOS_Sans",
                                 ),
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 10,
+                                ),
+                              )
+                            : MoonButton(
+                                label: const Icon(
+                                  MoonIcons.generic_delete_24_regular,
+                                ),
+                                onTap: () {
+                                  showMoonModal(
+                                    context: context,
+                                    builder: (context) => FavoriteWarningDialog(
+                                      setLongPress: setLongPress,
+                                      setSelected: setSelected,
+                                      selectedToDelete: selectedToDelete,
+                                      selected: selected,
+                                      group: group,
+                                    ),
+                                  );
+                                },
                               ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: CatergoryGroupChip(
+                        setLongPress: setLongPress,
+                        setSelected: setSelected,
+                        onLongPress: (p0) {
+                          selectedToDelete.value = p0;
+                        },
+                        minSelected: 0,
+                        trailing: MoonButton(
+                          leading: const Icon(
+                            MoonIcons.controls_plus_24_regular,
+                          ),
+                          width: width * factor - 100,
+                          onTap: () {
+                            showMoonModal(
+                              context: context,
+                              builder: (context) => FavoriteAddGroupDialog(
+                                onComplete: (p0) {
+                                  DatabaseService.putFavoriteGroup(p0);
+                                },
+                              ),
+                            );
+                          },
+                          label: const Text(
+                            'Add Group',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              // fontFamily: "HarmonyOS_Sans",
                             ),
-                            items: group.value.map((val) => val.name).toList(),
-                            onpress: (val) {
-                              selected.value = val;
-                            },
-                            initSelected: initSelected,
                           ),
                         ),
+                        items: group.value.map((val) => val.name).toList(),
+                        onpress: (val) {
+                          selected.value = val;
+                        },
+                        initSelected: initSelected,
                       ),
-                      (Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    ),
+                  ),
+                  (Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      MoonButton(
+                        buttonSize: MoonButtonSize.lg,
+                        label: const Text('Cancel'),
+                        onTap: () {
+                          context.pop();
+                        },
+                      ),
+                      Row(
                         children: [
                           MoonButton(
                             buttonSize: MoonButtonSize.lg,
-                            label: const Text('Cancel'),
+                            label: const Text('Delete'),
+                            onTap: ref.read(detialProvider).favorite == null
+                                ? null
+                                : () {
+                                    //remove from favorite
+                                    DatabaseService.deleteFavorite(
+                                      widget.meta.packageName,
+                                      widget.detailUrl,
+                                    ).then((_) {
+                                      if (!context.mounted) return;
+                                      ref
+                                          .read(detialProvider.notifier)
+                                          .putFavorite(null);
+                                      context.pop();
+                                    });
+                                  },
+                          ),
+                          MoonButton(
+                            buttonSize: MoonButtonSize.lg,
+                            label: Text('Confirm'),
                             onTap: () {
-                              context.pop();
+                              Future.microtask(() async {
+                                final package = widget.meta.packageName;
+                                final url = widget.detailUrl;
+                                final fav = await DatabaseService.putFavorite(
+                                  url,
+                                  widget.detail,
+                                  package,
+                                  widget.meta.type,
+                                );
+                                ref
+                                    .read(detialProvider.notifier)
+                                    .putFavorite(fav);
+
+                                final result =
+                                    await DatabaseService.getFavoriteGroupsByFavorite(
+                                      package,
+                                      url,
+                                    );
+                                for (final item in result) {
+                                  final List<Favorite> itemList = item.favorites
+                                      .where((element) => element.id == fav.id)
+                                      .toList();
+                                  // remove every fav id from the group
+                                  itemList.removeWhere(
+                                    (element) => element.id == fav.id,
+                                  );
+                                  // add the fav id to the group if selected
+                                  if (selected.value.contains(
+                                    group.value.indexOf(item),
+                                  )) {
+                                    itemList.add(fav);
+                                  }
+                                  item.favorites.clear();
+                                  item.favorites.addAll(itemList);
+                                }
+
+                                await DatabaseService.putFavoriteByIndex(
+                                  result,
+                                );
+                                if (!context.mounted) return;
+                                context.pop();
+                              });
                             },
                           ),
-                          Row(
-                            children: [
-                              MoonButton(
-                                buttonSize: MoonButtonSize.lg,
-                                label: const Text('Delete'),
-                                onTap:
-                                    ref.read(detialProvider).favorite == null
-                                        ? null
-                                        : () {
-                                          //remove from favorite
-                                          DatabaseService.deleteFavorite(
-                                            widget.meta.packageName,
-                                            widget.detailUrl,
-                                          ).then((_) {
-                                            if (!context.mounted) return;
-                                            ref
-                                                .read(detialProvider.notifier)
-                                                .putFavorite(null);
-                                            context.pop();
-                                          });
-                                        },
-                              ),
-                              MoonButton(
-                                buttonSize: MoonButtonSize.lg,
-                                label: Text('Confirm'),
-                                onTap: () {
-                                  Future.microtask(() async {
-                                    final package = widget.meta.packageName;
-                                    final url = widget.detailUrl;
-                                    final fav =
-                                        await DatabaseService.putFavorite(
-                                          url,
-                                          widget.detail,
-                                          package,
-                                          widget.meta.type,
-                                        );
-                                    ref
-                                        .read(detialProvider.notifier)
-                                        .putFavorite(fav);
-
-                                    final result =
-                                        await DatabaseService.getFavoriteGroupsByFavorite(
-                                          package,
-                                          url,
-                                        );
-                                    for (final item in result) {
-                                      final List<Favorite> itemList =
-                                          item.favorites
-                                              .where(
-                                                (element) =>
-                                                    element.id == fav.id,
-                                              )
-                                              .toList();
-                                      // remove every fav id from the group
-                                      itemList.removeWhere(
-                                        (element) => element.id == fav.id,
-                                      );
-                                      // add the fav id to the group if selected
-                                      if (selected.value.contains(
-                                        group.value.indexOf(item),
-                                      )) {
-                                        itemList.add(fav);
-                                      }
-                                      item.favorites.clear();
-                                      item.favorites.addAll(itemList);
-                                    }
-
-                                    await DatabaseService.putFavoriteByIndex(
-                                      result,
-                                    );
-                                    if (!context.mounted) return;
-                                    context.pop();
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
                         ],
-                      )),
+                      ),
                     ],
-                  ),
-                ),
+                  )),
+                ],
               ),
             ),
+          ),
+        ),
       ),
     );
   }
@@ -1386,45 +1352,42 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     debugPrint('shrinkOffset: $shrinkOffset');
-    int alpha =
-        _mapRange(
-          shrinkOffset,
-          minExt,
-          maxExt,
-          0,
-          255,
-        ).clamp(0, clampMax).toInt();
+    int alpha = _mapRange(
+      shrinkOffset,
+      minExt,
+      maxExt,
+      0,
+      255,
+    ).clamp(0, clampMax).toInt();
 
     return (Container(
       decoration: BoxDecoration(
         color: Colors.grey,
-        image:
-            (isLoading || detail?.cover == null)
-                ? null
-                : DecorationImage(
-                  image: ExtendedNetworkImageProvider(detail?.cover ?? ''),
-                  fit: BoxFit.cover,
-                ),
+        image: (isLoading || detail?.cover == null)
+            ? null
+            : DecorationImage(
+                image: ExtendedNetworkImageProvider(detail?.cover ?? ''),
+                fit: BoxFit.cover,
+              ),
       ),
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors:
-                Theme.of(context).brightness == Brightness.dark
-                    ? [
-                      MoonColors.dark.gohan.withAlpha(
-                        alpha,
-                      ), // Dark theme gradient colors
-                      MoonColors.dark.gohan.withAlpha(128 + (alpha ~/ 2)),
-                      MoonColors.dark.gohan,
-                    ]
-                    : [
-                      MoonColors.light.gohan.withAlpha(alpha),
-                      MoonColors.light.gohan.withAlpha(128 + (alpha ~/ 2)),
-                      MoonColors.light.gohan,
-                    ],
+            colors: Theme.of(context).brightness == Brightness.dark
+                ? [
+                    MoonColors.dark.gohan.withAlpha(
+                      alpha,
+                    ), // Dark theme gradient colors
+                    MoonColors.dark.gohan.withAlpha(128 + (alpha ~/ 2)),
+                    MoonColors.dark.gohan,
+                  ]
+                : [
+                    MoonColors.light.gohan.withAlpha(alpha),
+                    MoonColors.light.gohan.withAlpha(128 + (alpha ~/ 2)),
+                    MoonColors.light.gohan,
+                  ],
           ),
         ),
         child: PlatformWidget(
@@ -1475,161 +1438,153 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(
-                    child:
-                        (isLoading)
-                            ? Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const SizedBox(width: 20),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Theme.of(context).brightness ==
-                                                Brightness.dark
-                                            ? MoonColors.dark.gohan
-                                            : MoonColors.light.gohan,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Shimmer.fromColors(
-                                    baseColor: context
-                                        .moonTheme!
-                                        .segmentedControlTheme
-                                        .colors
-                                        .backgroundColor
-                                        .withAlpha(50),
-                                    highlightColor: context
-                                        .moonTheme!
-                                        .segmentedControlTheme
-                                        .colors
-                                        .backgroundColor
-                                        .withAlpha(100),
-                                    child: Container(
-                                      width: 150,
-                                      height: 200,
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
+                    child: (isLoading)
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const SizedBox(width: 20),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? MoonColors.dark.gohan
+                                      : MoonColors.light.gohan,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Shimmer.fromColors(
+                                  baseColor: context
+                                      .moonTheme!
+                                      .segmentedControlTheme
+                                      .colors
+                                      .backgroundColor
+                                      .withAlpha(50),
+                                  highlightColor: context
+                                      .moonTheme!
+                                      .segmentedControlTheme
+                                      .colors
+                                      .backgroundColor
+                                      .withAlpha(100),
+                                  child: Container(
+                                    width: 150,
+                                    height: 200,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey,
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 20),
-                                const LoadingWidget(
-                                  padding: EdgeInsets.all(0),
-                                  lineCount: 2,
-                                  lineheight: 20,
+                              ),
+                              const SizedBox(width: 20),
+                              const LoadingWidget(
+                                padding: EdgeInsets.all(0),
+                                lineCount: 2,
+                                lineheight: 20,
+                              ),
+                            ],
+                          )
+                        : LayoutBuilder(
+                            builder: (context, contraint) =>
+                                _DetailSideWidgetMobile(
+                                  constraint: constraint,
+                                  detail: detail,
+                                  detailUrl: detailUrl,
+                                  meta: meta,
                                 ),
-                              ],
-                            )
-                            : LayoutBuilder(
-                              builder:
-                                  (context, contraint) =>
-                                      _DetailSideWidgetMobile(
-                                        constraint: constraint,
-                                        detail: detail,
-                                        detailUrl: detailUrl,
-                                        meta: meta,
-                                      ),
-                            ),
+                          ),
                   ),
                   const SizedBox(height: 20),
                 ],
               );
             },
           ),
-          desktopWidget:
-              shrinkOffset > 250
-                  ? MaxWidth(
-                    maxWidth: 1500,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 10),
-                        LayoutBuilder(
-                          builder:
-                              (context, constraint) => Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      if (detail != null)
-                                        DownloadButton(
-                                          meta: meta,
-                                          // detailUrl: detailUrl,
-                                          detail: detail!,
-                                          isIcon: true,
-                                        ),
-                                      const SizedBox(width: 10),
-                                      ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: constraint.maxWidth * .5,
-                                        ),
-                                        child: Text(
-                                          overflow: TextOverflow.ellipsis,
-                                          detail?.title ?? 'Title Not Found',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 25,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text(meta.name, style: const TextStyle()),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      MoonButton(
-                                        leading: const Icon(
-                                          MoonIcons.media_play_24_regular,
-                                        ),
-                                        backgroundColor:
-                                            context
-                                                .moonTheme
-                                                ?.segmentedControlTheme
-                                                .colors
-                                                .backgroundColor,
-                                        textColor:
-                                            context
-                                                .moonTheme
-                                                ?.segmentedControlTheme
-                                                .colors
-                                                .textColor,
-                                        onTap: isLoading ? null : () {},
-                                        label: const Text('Play'),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      _FavButton(
-                                        meta: meta,
-                                        detailUrl: detailUrl,
-                                        detail: detail,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                        ),
-                      ],
-                    ),
-                  )
-                  : Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
+          desktopWidget: shrinkOffset > 250
+              ? MaxWidth(
+                  maxWidth: 1500,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        constraints: const BoxConstraints(maxWidth: 1500),
-                        child:
-                            (isLoading)
-                                ? _DesktopLoadingWidgetExtended()
-                                : _DesktopWidgetExtended(
+                      const SizedBox(height: 10),
+                      LayoutBuilder(
+                        builder: (context, constraint) => Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                if (detail != null)
+                                  DownloadButton(
+                                    meta: meta,
+                                    // detailUrl: detailUrl,
+                                    detail: detail!,
+                                    isIcon: true,
+                                  ),
+                                const SizedBox(width: 10),
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    maxWidth: constraint.maxWidth * .5,
+                                  ),
+                                  child: Text(
+                                    overflow: TextOverflow.ellipsis,
+                                    detail?.title ?? 'Title Not Found',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 25,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(meta.name, style: const TextStyle()),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                MoonButton(
+                                  leading: const Icon(
+                                    MoonIcons.media_play_24_regular,
+                                  ),
+                                  backgroundColor: context
+                                      .moonTheme
+                                      ?.segmentedControlTheme
+                                      .colors
+                                      .backgroundColor,
+                                  textColor: context
+                                      .moonTheme
+                                      ?.segmentedControlTheme
+                                      .colors
+                                      .textColor,
+                                  onTap: isLoading ? null : () {},
+                                  label: const Text('Play'),
+                                ),
+                                const SizedBox(width: 10),
+                                _FavButton(
                                   meta: meta,
                                   detailUrl: detailUrl,
                                   detail: detail,
                                 ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 20),
                     ],
                   ),
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      constraints: const BoxConstraints(maxWidth: 1500),
+                      child: (isLoading)
+                          ? _DesktopLoadingWidgetExtended()
+                          : _DesktopWidgetExtended(
+                              meta: meta,
+                              detailUrl: detailUrl,
+                              detail: detail,
+                            ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
         ),
       ),
     ));
@@ -1730,73 +1685,70 @@ class _DownloadDialogState extends State<_DownloadDialog>
     // final service = widget.extensionService;
     return ValueListenableBuilder(
       valueListenable: isSelected,
-      builder:
-          (context, value, child) => TabBarView(
-            controller: tabController,
-            children: (List.generate(
-              epGroup.length,
-              (index) => ListView.builder(
-                itemBuilder: (context, index) {
-                  return MoonMenuItem(
-                    // onTap: () {
-                    //   final testM3u8 =
-                    //       "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
-                    //   DownloadUtils.addTask(
-                    //     VideoDownlodTasks(
-                    //       episodeName: epGroup[value].urls[index].name,
-                    //       episodeGroupName: epGroup[value].title,
-                    //       videoName: widget.detail.title,
-                    //       watchType: ExtensionWatchBangumiType.hls,
-                    //       videoUrl: testM3u8,
-                    //       packageName: service.className,
-                    //     ),
-                    //     context,
-                    //   );
-                    // },
-                    onTap: () async {
-                      final videoWatch =
-                          await ExtensionEndpoint.watch(
-                                epGroup[value].urls[index].url,
-                                widget.meta.packageName,
-                                widget.meta.type,
-                              )
-                              as ExtensionBangumiWatch?;
+      builder: (context, value, child) => TabBarView(
+        controller: tabController,
+        children: (List.generate(
+          epGroup.length,
+          (index) => ListView.builder(
+            itemBuilder: (context, index) {
+              return MoonMenuItem(
+                // onTap: () {
+                //   final testM3u8 =
+                //       "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
+                //   DownloadUtils.addTask(
+                //     VideoDownlodTasks(
+                //       episodeName: epGroup[value].urls[index].name,
+                //       episodeGroupName: epGroup[value].title,
+                //       videoName: widget.detail.title,
+                //       watchType: ExtensionWatchBangumiType.hls,
+                //       videoUrl: testM3u8,
+                //       packageName: service.className,
+                //     ),
+                //     context,
+                //   );
+                // },
+                onTap: () async {
+                  final videoWatch =
+                      await ExtensionEndpoint.watch(
+                            epGroup[value].urls[index].url,
+                            widget.meta.packageName,
+                            widget.meta.type,
+                          )
+                          as ExtensionBangumiWatch?;
 
-                      if (videoWatch == null) return;
-                      await MiruDirectory.createMoviesFolder(
+                  if (videoWatch == null) return;
+                  await MiruDirectory.createMoviesFolder(widget.detail.title);
+                  final res = await dio.post(
+                    "http://127.127.127.127:12777/download/bangumi",
+                    data: {
+                      "url": videoWatch.url,
+                      "download_path": p.join(
+                        MiruDirectory.getMoviesDirectory,
                         widget.detail.title,
-                      );
-                      final res = await dio.post(
-                        "http://127.127.127.127:12777/download/bangumi",
-                        data: {
-                          "url": videoWatch.url,
-                          "download_path": p.join(
-                            MiruDirectory.getMoviesDirectory,
-                            widget.detail.title,
-                          ),
-                          "is_hls": true,
-                        },
-                      );
-                      logger.info(res);
-                      final jsonRes = MiruCoreResponse.fromJson(res.data);
-                      MiruCoreDownload.addTask(
-                        MiruDownloadTask(
-                          id: jsonRes.data['task_id'].toString(),
-                          name: widget.detail.title,
-                        ),
-                      );
-                      if (!context.mounted) {
-                        return;
-                      }
-                      context.pop();
+                      ),
+                      "is_hls": true,
                     },
-                    label: Text(epGroup[value].urls[index].name),
                   );
+                  logger.info(res);
+                  final jsonRes = MiruCoreResponse.fromJson(res.data);
+                  MiruCoreDownload.addTask(
+                    MiruDownloadTask(
+                      id: jsonRes.data['task_id'].toString(),
+                      name: widget.detail.title,
+                    ),
+                  );
+                  if (!context.mounted) {
+                    return;
+                  }
+                  context.pop();
                 },
-                itemCount: epGroup[value].urls.length,
-              ),
-            )),
+                label: Text(epGroup[value].urls[index].name),
+              );
+            },
+            itemCount: epGroup[value].urls.length,
           ),
+        )),
+      ),
     );
   }
 
@@ -1810,47 +1762,42 @@ class _DownloadDialogState extends State<_DownloadDialog>
         boxShadow: [
           BoxShadow(
             blurRadius: 10,
-            color:
-                MediaQuery.of(context).platformBrightness == Brightness.light
-                    ? MoonColors.light.goku.withValues(alpha: .2)
-                    : MoonColors.dark.goku.withValues(alpha: .2),
+            color: MediaQuery.of(context).platformBrightness == Brightness.light
+                ? MoonColors.light.goku.withValues(alpha: .2)
+                : MoonColors.dark.goku.withValues(alpha: .2),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: LayoutBuilder(
-          builder:
-              (context, constraints) => DeviceUtil.deviceWidgetFunction(
-                context: context,
-                child: MoonModal(
-                  child:
-                      (epGroup == null)
-                          ? Center(child: Text("No Episodes found"))
-                          : Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Column(
-                              children: [
-                                tabBar(),
-                                const SizedBox(height: 10),
-                                Expanded(child: tabView(epGroup, context)),
-                              ],
-                            ),
-                          ),
-                ),
-                desktop:
-                    (buildchild) => SizedBox(
-                      width: constraints.maxWidth * .4,
-                      height: constraints.maxHeight * .5,
-                      child: buildchild,
+          builder: (context, constraints) => DeviceUtil.deviceWidgetFunction(
+            context: context,
+            child: MoonModal(
+              child: (epGroup == null)
+                  ? Center(child: Text("No Episodes found"))
+                  : Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          tabBar(),
+                          const SizedBox(height: 10),
+                          Expanded(child: tabView(epGroup, context)),
+                        ],
+                      ),
                     ),
-                mobile:
-                    (buildchild) => SizedBox(
-                      width: constraints.maxWidth * .8,
-                      height: constraints.maxHeight * .8,
-                      child: buildchild,
-                    ),
-              ),
+            ),
+            desktop: (buildchild) => SizedBox(
+              width: constraints.maxWidth * .4,
+              height: constraints.maxHeight * .5,
+              child: buildchild,
+            ),
+            mobile: (buildchild) => SizedBox(
+              width: constraints.maxWidth * .8,
+              height: constraints.maxHeight * .8,
+              child: buildchild,
+            ),
+          ),
         ),
       ),
     );
@@ -1868,16 +1815,17 @@ class _DesktopWidgetExtended extends StatelessWidget {
   final ExtensionMeta meta;
   void onTap() async {
     final url = meta.webSite + detailUrl!;
-    final webview = await WebviewWindow.create(
-        configuration: CreateConfiguration(
-          windowHeight: 1280,
-          windowWidth: 720,
-          title: "ExampleTestWindow",
-          titleBarTopPadding: Platform.isMacOS ? 20 : 0,
-          // userDataFolderWindows: await _getWebViewPath(),
-        ),
-      )
-      ..launch(url);
+    final webview =
+        await WebviewWindow.create(
+            configuration: CreateConfiguration(
+              windowHeight: 1280,
+              windowWidth: 720,
+              title: "ExampleTestWindow",
+              titleBarTopPadding: Platform.isMacOS ? 20 : 0,
+              // userDataFolderWindows: await _getWebViewPath(),
+            ),
+          )
+          ..launch(url);
     final timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       try {
         final cookies = await webview.getAllCookies();
@@ -1904,34 +1852,33 @@ class _DesktopWidgetExtended extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder:
-          (context, constraint) => Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: PlatformWidget(
-                  mobileWidget: ExtendedImage.network(
-                    detail?.cover ?? '',
-                    width: 150,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
-                  desktopWidget: ExtendedImage.network(
-                    detail?.cover ?? '',
-                    width: 200,
-                    height: 300,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+      builder: (context, constraint) => Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: PlatformWidget(
+              mobileWidget: ExtendedImage.network(
+                detail?.cover ?? '',
+                width: 150,
+                height: 200,
+                fit: BoxFit.cover,
               ),
-              const SizedBox(width: 40),
-            ],
+              desktopWidget: ExtendedImage.network(
+                detail?.cover ?? '',
+                width: 200,
+                height: 300,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
+          const SizedBox(width: 40),
+        ],
+      ),
     );
   }
 }
@@ -1945,10 +1892,9 @@ class _DesktopLoadingWidgetExtended extends StatelessWidget {
         const SizedBox(width: 20),
         Container(
           decoration: BoxDecoration(
-            color:
-                Theme.of(context).brightness == Brightness.dark
-                    ? MoonColors.dark.gohan
-                    : MoonColors.light.gohan,
+            color: Theme.of(context).brightness == Brightness.dark
+                ? MoonColors.dark.gohan
+                : MoonColors.light.gohan,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Shimmer.fromColors(
@@ -2008,12 +1954,11 @@ class _FavButton extends StatelessWidget {
             }
             showMoonModal(
               context: context,
-              builder:
-                  (context) => _FavoriteDialog(
-                    meta: meta,
-                    detail: detail!,
-                    detailUrl: detailUrl!,
-                  ),
+              builder: (context) => _FavoriteDialog(
+                meta: meta,
+                detail: detail!,
+                detailUrl: detailUrl!,
+              ),
             );
           },
         );

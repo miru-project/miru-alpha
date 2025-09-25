@@ -173,22 +173,21 @@ Future<void> loadMiruCore() async {
     if (!configDir.existsSync()) {
       configDir.createSync(recursive: true);
     }
-    final configData =
-        '''{
-        "database": {
-          "driver": "sqlite3",
-          "host": "localhost",
-          "port": 5432,
-          "user": "miru",
-          "password": "",
-          "dbname": ${jsonEncode(p.join(appSupportDir, 'miru.db'))},
-          "sslmode": "disable"
-        },
-        "extensionPath": ${jsonEncode(p.join(appSupportDir, 'extensions'))},
-        "debug": false
-      }''';
+    final Map<String, dynamic> configData = {
+      "database": {
+        "driver": "sqlite3",
+        "host": "localhost",
+        "port": 5432,
+        "user": "miru",
+        "password": "",
+        "dbname": p.join(appSupportDir, 'miru.db'),
+        "sslmode": "disable",
+      },
+      "cookieStoreLocation": Platform.isAndroid ? appSupportDir : "",
+      "extensionPath": p.join(appSupportDir, 'extensions'),
+    };
 
-    File(configPath).writeAsStringSync(configData);
+    File(configPath).writeAsStringSync(jsonEncode(configData));
     logger.info('Default configuration written to config file');
     logger.info('Config file created: $configPath');
   }
