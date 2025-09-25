@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: 'true'
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -44,7 +46,7 @@ jobs:
           go get golang.org/x/mobile/bind
           gomobile version || true
           gomobile init
-        working-directory: src/miru_core/miru-core
+        working-directory: ./src/miru_core/miru-core
 
       - name: Build Android AAR (gomobile bind)
         working-directory: src/miru_core/miru-core
