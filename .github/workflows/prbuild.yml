@@ -40,8 +40,8 @@ jobs:
       
       - name: Install gomobile
         run: |
-          go get golang.org/x/mobile/cmd/gomobile
           go install golang.org/x/mobile/cmd/gomobile@latest
+          go get golang.org/x/mobile/bind
           gomobile version || true
           gomobile init
         working-directory: src/miru_core/miru-core
