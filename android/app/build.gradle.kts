@@ -1,9 +1,32 @@
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
+
+
+fun getApiKey(name:String): String? {
+    val fl = rootProject.file("key.properties")
+
+    if (fl.exists()) {
+        val properties = Properties()
+        properties.load(FileInputStream(fl))
+        return properties.getProperty(name)
+    } else {
+        return null
+    }
+}
+
+val keystorePath = System.getenv("KEYSTORE") ?: getApiKey("storeFile") ?: "keystore.jks"
+val storeFileRef = file(keystorePath)
+val storePasswordRef: String? = System.getenv("KEYSTORE_PASSWORD") ?: getApiKey("storePassword")
+val keyAliasRef: String? = System.getenv("KEY_ALIAS") ?:getApiKey("keyAlias")
+val keyPasswordRef: String? = System.getenv("KEY_PASSWORD") ?: getApiKey("keyPassword")
+
 
 android {
     namespace = "com.example.miru_new"
@@ -41,6 +64,29 @@ android {
             }
         }
     }
+
+     signingConfigs {
+        create("release") {
+            keyAlias = keyAliasRef
+            keyPassword = keyPasswordRef
+            storeFile = file(keystorePath)
+            storePassword = storePasswordRef
+        }
+    }
+
+    buildTypes {
+        release {
+            val releaseSigning = signingConfigs.findByName("release")
+            signingConfig = if (releaseSigning?.keyPassword != null) {
+                println("release sign config applied")
+                releaseSigning
+            } else {
+                println("debug sign config applied")
+                signingConfigs.getByName("debug")
+            }
+        }
+    }
+    
    splits {
         abi {
             isEnable = true
@@ -49,26 +95,7 @@ android {
             isUniversalApk = true
         }
     }
-    // splits {
-    //     abi {
-    //         isEnable = false
-    //     }
-    // }
 
-    // Native libs for miru-core 
-    // sourceSets.all {
-    //     jniLibs.srcDirs("${project.rootDir}/../src/miru_core/android")
-    // }
-
-    // buildTypes {
-    //     release {
-    //         signingConfig = signingConfigs.getByName("debug")
-    //         // Enable code shrinking, resource shrinking and R8/ProGuard rules to reduce APK/AAB size.
-    //         isMinifyEnabled = true
-    //         isShrinkResources = true
-    //     }
-    // }
-    
     externalNativeBuild {
         cmake {
             path("../../android/CMakeLists.txt")
