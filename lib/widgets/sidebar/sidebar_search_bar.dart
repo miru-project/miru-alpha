@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:moon_design/moon_design.dart';
 
 class SideBarSearchBar extends StatelessWidget {
   final void Function(String)? onChanged;

@@ -5,15 +5,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-// removed direct network providers; notifier will fetch repos
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
-// notifier handles network calls; removed direct network import
 import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/widgets/core/search_filter_card.dart';
 import 'package:miru_app_new/widgets/gridView/index.dart';
 import 'package:miru_app_new/widgets/homepage/extension/clearable_select.dart';
-import 'package:miru_app_new/widgets/image_widget.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'package:moon_design/moon_design.dart';
@@ -43,7 +40,6 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     final extNotifier = ref.read(extensionPageProvider.notifier);
 
     final scrollController = useScrollController();
-    final controller = useTabController(initialLength: _categories.length);
     final textController = useTextEditingController();
     final catGroup = [
       CategoryGroup(
@@ -72,7 +68,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     return MiruScaffold(
       scrollController: scrollController,
       snappingSheetController: _snappingController,
-      mobileHeader: SideBarListTitle(
+      mobileHeader: SnapSheetHeader(
         title: 'Extension',
         trailings: [
           FButton.icon(
@@ -82,7 +78,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
           ),
         ],
       ),
-      sidebar: DeviceUtil.isMobileLayout(context)
+      snapSheet: DeviceUtil.isMobileLayout(context)
           ? <Widget>[
               Listener(
                 behavior: HitTestBehavior.translucent,
@@ -102,26 +98,6 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                   ),
                 ),
               ),
-              // const SizedBox(height: 10),
-              // SizedBox(
-              //   height: 300,
-              //   child: TabBarView(
-              //     controller: controller,
-              //     children: [
-              //       CategoryGroup(
-              //         items: const ['Installed', 'Not installed'],
-              //         onpress: (val) => extNotifier.filterByInstalledIndex(val),
-              //       ),
-              //       CategoryGroup(
-              //         title: "Type",
-              //         items: const ['ALL', 'Video', 'Manga', 'Novel'],
-              //         onpress: (val) {},
-              //       ),
-              //       // CategoryGroup(items: const ['ALL'], onpress: (val) {}),
-              //       // CategoryGroup(items: const ['ALL'], onpress: (val) {}),
-              //     ],
-              //   ),
-              // ),
             ]
           : <Widget>[],
       body: LayoutBuilder(
@@ -318,16 +294,15 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
               onRefresh: () async {
                 await extNotifier.reloadRepos();
               },
-              child: FTileGroup.builder(
-                label: const Text('Settings'),
-                description: const Text('Personalize your experience'),
-                maxHeight: 200,
-                count: 200,
-                tileBuilder: (context, index) => FTile(
-                  title: Text('Tile $index'),
-                  suffix: Icon(FIcons.chevronRight),
-                  onPress: () {},
-                ),
+              child: MiruListView.builder(
+                controller: scrollController,
+                itemBuilder: (context, index) {
+                  final pair = extensionsWithRepo[index];
+                  final data = pair['ext'] as GithubExtension;
+                  final repoUrl = pair['repoUrl'] as String;
+                  return _ExtensionTile(data: data, repoUrl: repoUrl);
+                },
+                itemCount: extensionsWithRepo.length,
               ),
               // MiruListView.builder(
               //   controller: scrollController,
@@ -361,32 +336,17 @@ class _ExtensionTile extends HookConsumerWidget {
     return DeviceUtil.deviceWidget(
       // Mobile widget
       context: context,
-      mobile: MoonMenuItem(
-        onTap: () {},
-        trailing: Row(
-          children: [
-            if (isInstalled)
-              MoonButton(
-                onTap: () async {
-                  await notifier.uninstallPackage(data.package);
-                },
-                leading: const Icon(MoonIcons.generic_delete_24_regular),
-              )
-            else
-              MoonButton(
-                onTap: () async {
-                  await notifier.installPackage(data.package, repoUrl);
-                },
-                leading: const Icon(MoonIcons.generic_download_24_regular),
-              ),
-          ],
-        ),
-        leading: SizedBox(
-          width: 40,
-          height: 40,
-          child: data.icon == null ? null : ImageWidget(imageUrl: data.icon!),
-        ),
-        label: Text(data.name),
+      mobile: ExtensionListTile(
+        name: data.name,
+        version: data.version,
+        author: data.author,
+        type: data.type,
+        onInstall: () async {
+          await notifier.installPackage(data.package, repoUrl);
+        },
+        onUninstall: () async {
+          await notifier.uninstallPackage(data.package);
+        },
       ),
       desktop: ExtensionGridTile(
         isNSFW: data.isNsfw,

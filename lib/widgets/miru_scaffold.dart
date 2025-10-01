@@ -11,14 +11,14 @@ class MiruScaffold extends StatefulHookWidget {
     super.key,
     this.appBar,
     required this.body,
-    this.sidebar,
+    this.snapSheet,
     this.snappingSheetController,
     this.mobileHeader,
     this.scrollController,
   });
   final PreferredSizeWidget? appBar;
   final Widget body;
-  final List<Widget>? sidebar;
+  final List<Widget>? snapSheet;
   final ScrollController? scrollController;
   final SnappingSheetController? snappingSheetController;
   final Widget? mobileHeader;
@@ -74,7 +74,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
             boxShadow: [
               BoxShadow(
                 blurRadius: 25,
-                color: Colors.black.withValues(alpha: .2),
+                color: context.theme.colors.primaryForeground.withAlpha(230),
               ),
             ],
           ),
@@ -90,7 +90,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
                       SettingKey.mobiletitleIsonTop,
                     ))
                   widget.mobileHeader!,
-                ...widget.sidebar!,
+                ...widget.snapSheet!,
               ],
             ),
           ),
@@ -110,11 +110,10 @@ class _MiruScaffoldState extends State<MiruScaffold> {
   Widget build(BuildContext context) {
     return PlatformWidget(
       mobileWidget: FScaffold(
-        header:
-            MiruSettings.getSettingSync<bool>(SettingKey.mobiletitleIsonTop)
-                ? FHeader(title: widget.mobileHeader ?? const SizedBox())
-                : null,
-        child: widget.sidebar == null ? widget.body : sheet(),
+        header: MiruSettings.getSettingSync<bool>(SettingKey.mobiletitleIsonTop)
+            ? FHeader(title: widget.mobileHeader ?? const SizedBox())
+            : null,
+        child: widget.snapSheet == null ? widget.body : sheet(),
       ),
       desktopWidget: widget.body,
     );

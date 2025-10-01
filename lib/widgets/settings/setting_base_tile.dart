@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:forui/widgets/label.dart';
 
 class SettingBaseTile extends StatelessWidget {
-  const SettingBaseTile({super.key, required this.title, required this.subtitle, required this.child});
+  const SettingBaseTile({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.child,
+  });
   final String title;
   final String subtitle;
   final Widget child;
@@ -13,10 +18,18 @@ class SettingBaseTile extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: FLabel(axis: Axis.vertical, description: Text(subtitle), child: Text(title, style: TextStyle(fontWeight: FontWeight.bold))),
+            child: FLabel(
+              axis: Axis.vertical,
+              description: Text(subtitle),
+              child: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
           ),
           const SizedBox(width: 12),
-          Container(constraints: const BoxConstraints(maxWidth: 300), height: 40, child: child),
+          Container(
+            constraints: const BoxConstraints(maxWidth: 300),
+            height: 40,
+            child: child,
+          ),
         ],
       ),
     );

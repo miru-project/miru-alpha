@@ -49,19 +49,19 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
   @override
   Widget build(BuildContext context) {
     final epcontroller = ref.watch(NovelProvider.epProvider);
-    final url =
-        widget
-            .epGroup![epcontroller.selectedGroupIndex]
-            .urls[epcontroller.selectedEpisodeIndex]
-            .url;
+    final url = widget
+        .epGroup![epcontroller.selectedGroupIndex]
+        .urls[epcontroller.selectedEpisodeIndex]
+        .url;
     final snapShot = ref.watch(
       fikushonLoadProvider(url, widget.meta.packageName, widget.meta.type),
     );
 
     return MiruScaffold(
-      scrollController:
-          ref.read(NovelProvider.epProvider.notifier).scrollController,
-      sidebar: <Widget>[
+      scrollController: ref
+          .read(NovelProvider.epProvider.notifier)
+          .scrollController,
+      snapSheet: <Widget>[
         if (DeviceUtil.getWidth(context) < 800)
           //mobile
           MoonButton(
@@ -245,10 +245,9 @@ class _MobileSilderState extends ConsumerState<_MobileSilder> {
     sliderValue = useState(0.0);
     final controller = ref.watch(
       NovelProvider.provider.select(
-        (it) =>
-            it
-              ..itemPosition
-              ..totalPage,
+        (it) => it
+          ..itemPosition
+          ..totalPage,
       ),
     );
     final c = ref.watch(NovelProvider.provider.notifier);
@@ -258,12 +257,11 @@ class _MobileSilderState extends ConsumerState<_MobileSilder> {
       children: [
         MoonButton.icon(
           icon: const Icon(Icons.skip_previous_rounded),
-          onTap:
-              epcontroller.selectedEpisodeIndex != 0
-                  ? () {
-                    epNotifier.prevChapter();
-                  }
-                  : null,
+          onTap: epcontroller.selectedEpisodeIndex != 0
+              ? () {
+                  epNotifier.prevChapter();
+                }
+              : null,
         ),
         const SizedBox(width: 10),
         Text(
@@ -274,30 +272,28 @@ class _MobileSilderState extends ConsumerState<_MobileSilder> {
         Expanded(
           child:
               (c.itemScrollController.isAttached && controller.totalPage >= 0)
-                  ? Slider(
-                    divisions: controller.totalPage,
-                    min: 0,
-                    max: controller.totalPage.toDouble(),
-                    value:
-                        isSliding.value
-                            ? sliderValue.value
-                            : controller.itemPosition.toDouble(),
-                    onChanged: (val) {
-                      sliderValue.value = val;
-                      c.itemScrollController.jumpTo(index: val.toInt());
-                    },
-                    label:
-                        isSliding.value
-                            ? '${sliderValue.value.toInt()}'
-                            : '${controller.itemPosition}',
-                    onChangeStart: (value) {
-                      isSliding.value = true;
-                    },
-                    onChangeEnd: (value) {
-                      isSliding.value = false;
-                    },
-                  )
-                  : const Slider(value: 0, onChanged: null),
+              ? Slider(
+                  divisions: controller.totalPage,
+                  min: 0,
+                  max: controller.totalPage.toDouble(),
+                  value: isSliding.value
+                      ? sliderValue.value
+                      : controller.itemPosition.toDouble(),
+                  onChanged: (val) {
+                    sliderValue.value = val;
+                    c.itemScrollController.jumpTo(index: val.toInt());
+                  },
+                  label: isSliding.value
+                      ? '${sliderValue.value.toInt()}'
+                      : '${controller.itemPosition}',
+                  onChangeStart: (value) {
+                    isSliding.value = true;
+                  },
+                  onChangeEnd: (value) {
+                    isSliding.value = false;
+                  },
+                )
+              : const Slider(value: 0, onChanged: null),
         ),
         Text(controller.totalPage.toString()),
         const SizedBox(width: 10),
@@ -305,14 +301,14 @@ class _MobileSilderState extends ConsumerState<_MobileSilder> {
           icon: const Icon(Icons.skip_next_rounded),
           onTap:
               epcontroller.selectedEpisodeIndex <
-                      epcontroller
-                          .epGroup[epcontroller.selectedGroupIndex]
-                          .urls
-                          .length
-                  ? () {
-                    epNotifier.nextChapter();
-                  }
-                  : null,
+                  epcontroller
+                      .epGroup[epcontroller.selectedGroupIndex]
+                      .urls
+                      .length
+              ? () {
+                  epNotifier.nextChapter();
+                }
+              : null,
         ),
       ],
     );

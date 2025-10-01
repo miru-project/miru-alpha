@@ -69,7 +69,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
     // tabController = useState(useTabController(initialLength: 0));
 
     return MiruScaffold(
-      sidebar: (DeviceUtil.getWidth(context) < 800)
+      snapSheet: (DeviceUtil.getWidth(context) < 800)
           //mobile
           ? <Widget>[
               Align(

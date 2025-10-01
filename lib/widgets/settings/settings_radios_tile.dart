@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_app_new/widgets/settings/setting_base_tile.dart';
 
-class SettingsRadiosTile extends HookWidget {
+class SettingsRadiosTile extends HookWidget with FTileMixin {
   const SettingsRadiosTile({
     super.key,
     required this.title,
@@ -13,6 +13,7 @@ class SettingsRadiosTile extends HookWidget {
     required this.onChanged,
     this.icon,
     this.color,
+    this.isMobileLayout = false,
   }) : entry = null;
 
   const SettingsRadiosTile.detailed({
@@ -24,6 +25,7 @@ class SettingsRadiosTile extends HookWidget {
     required this.entry,
     this.icon,
     this.color,
+    this.isMobileLayout = false,
   }) : radios = const [];
 
   final String title;
@@ -34,11 +36,27 @@ class SettingsRadiosTile extends HookWidget {
   final void Function(String) onChanged;
   final IconData? icon;
   final List<RadioTileEntry>? entry;
-
+  final bool isMobileLayout;
   @override
   Widget build(BuildContext context) {
     final selected = useState(value);
-
+    if (isMobileLayout) {
+      return FSelectMenuTile(
+        detailsBuilder: (_, val, _) {
+          if (val.isEmpty) {
+            val.add(selected.value);
+          }
+          return Text(val.first.toString());
+        },
+        subtitle: Text(subtitle),
+        menu: (entry == null)
+            ? radios.map((e) => FSelectTile(title: Text(e), value: e)).toList()
+            : entry!
+                  .map((e) => FSelectTile(title: Text(e.title), value: e.value))
+                  .toList(),
+        title: Text(title),
+      );
+    }
     return SettingBaseTile(
       title: title,
       subtitle: subtitle,
@@ -49,10 +67,9 @@ class SettingsRadiosTile extends HookWidget {
           selected.value = value;
           onChanged(value);
         },
-        items:
-            (entry == null)
-                ? {for (final item in radios) item: item}
-                : {for (final e in entry!) e.value: e.title},
+        items: (entry == null)
+            ? {for (final item in radios) item: item}
+            : {for (final e in entry!) e.value: e.title},
       ),
     );
   }

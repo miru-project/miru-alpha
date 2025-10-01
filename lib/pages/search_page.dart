@@ -43,8 +43,8 @@ class SearchPage extends HookWidget {
     final scrollController = useScrollController();
     final searchValue = useState(search ?? '');
     return MiruScaffold(
-      mobileHeader: const SideBarListTitle(title: 'Seach'),
-      sidebar: DeviceUtil.device(
+      mobileHeader: const SnapSheetHeader(title: 'Seach'),
+      snapSheet: DeviceUtil.device(
         mobile: <Widget>[
           //mobile
           // SideBarSearchBar(
@@ -105,59 +105,60 @@ class SearchPage extends HookWidget {
           //   ),
           // ),
         ],
-        desktop: [
-          //desktop
-          const SideBarListTitle(title: 'Search'),
-          SideBarSearchBar(
-            controller: editController,
-            onsubmitted: (val) {
-              searchValue.value = val;
-              needRefresh.value = !needRefresh.value;
-            },
-            trailing: MoonButton.icon(
-              icon: const Icon(MoonIcons.controls_close_24_regular),
-              onTap: () {
-                editController.clear();
-                searchValue.value = '';
-                needRefresh.value = !needRefresh.value;
-              },
-            ),
-          ),
-          const SizedBox(height: 10),
-          SidebarExpander(
-            title: "Type",
-            expanded: true,
-            child: CategoryGroup(
-              needSpacer: false,
-              items: const ['ALL', 'Video', 'Manga', 'Novel'],
-              onpress: (val) {},
-            ),
-          ),
-          const SizedBox(height: 15),
-          SidebarExpander(
-            title: 'Language',
-            child: CategoryGroup(
-              needSpacer: false,
-              items: const ['ALL'],
-              onpress: (val) {},
-            ),
-          ),
-          const SizedBox(height: 15),
-          SidebarExpander(
-            title: 'Extension',
-            child: CategoryGroup(
-              needSpacer: false,
-              items: const ['ALL'],
-              onpress: (val) {},
-            ),
-          ),
-          // MoonButton(
-          //   onTap: () {
-          //     needRefresh.value = !needRefresh.value;
-          //   },
-          //   label: const Text('刷新'),
-          // )
-        ],
+        desktop: [],
+        // [
+        //   //desktop
+        //   const SideBarListTitle(title: 'Search'),
+        //   SideBarSearchBar(
+        //     controller: editController,
+        //     onsubmitted: (val) {
+        //       searchValue.value = val;
+        //       needRefresh.value = !needRefresh.value;
+        //     },
+        //     trailing: MoonButton.icon(
+        //       icon: const Icon(MoonIcons.controls_close_24_regular),
+        //       onTap: () {
+        //         editController.clear();
+        //         searchValue.value = '';
+        //         needRefresh.value = !needRefresh.value;
+        //       },
+        //     ),
+        //   ),
+        //   const SizedBox(height: 10),
+        //   SidebarExpander(
+        //     title: "Type",
+        //     expanded: true,
+        //     child: CategoryGroup(
+        //       needSpacer: false,
+        //       items: const ['ALL', 'Video', 'Manga', 'Novel'],
+        //       onpress: (val) {},
+        //     ),
+        //   ),
+        //   const SizedBox(height: 15),
+        //   SidebarExpander(
+        //     title: 'Language',
+        //     child: CategoryGroup(
+        //       needSpacer: false,
+        //       items: const ['ALL'],
+        //       onpress: (val) {},
+        //     ),
+        //   ),
+        //   const SizedBox(height: 15),
+        //   SidebarExpander(
+        //     title: 'Extension',
+        //     child: CategoryGroup(
+        //       needSpacer: false,
+        //       items: const ['ALL'],
+        //       onpress: (val) {},
+        //     ),
+        //   ),
+        //   // MoonButton(
+        //   //   onTap: () {
+        //   //     needRefresh.value = !needRefresh.value;
+        //   //   },
+        //   //   label: const Text('刷新'),
+        //   // )
+        // ],
         context: context,
       ),
       body: EasyRefresh(

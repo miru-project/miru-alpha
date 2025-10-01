@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class SideBarListTitle extends StatelessWidget {
-  const SideBarListTitle({
+class SnapSheetHeader extends StatelessWidget {
+  const SnapSheetHeader({
     super.key,
     required this.title,
     this.trailings,
@@ -22,12 +22,7 @@ class SideBarListTitle extends StatelessWidget {
           if (leading != null) ...[...leading!, const SizedBox(width: 8)],
           Text(
             title,
-            style: TextStyle(
-              // color: context.moonTheme?.chipTheme.colors.textColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 25,
-              // fontFamily: "HarmonyOS_Sans",
-            ),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
           ),
           const Spacer(),
           if (trailings != null) ...trailings!,

@@ -12,13 +12,15 @@ class ExtensionListTile extends StatefulWidget {
     required this.author,
     required this.type,
     required this.onUninstall,
+    required this.onInstall,
   });
   final String name;
   final String? icon;
   final String version;
   final String author;
   final String type;
-  final void Function() onUninstall;
+  final VoidCallback onUninstall;
+  final VoidCallback onInstall;
 
   @override
   State<ExtensionListTile> createState() => _ExtensionListTileState();
@@ -103,10 +105,9 @@ class ExtensionGridTile extends StatelessWidget {
   final bool isInstalled;
   @override
   Widget build(BuildContext context) {
-    final badges =
-        tags
-            .map((e) => FBadge(style: FBadgeStyle.outline(), child: Text(e)))
-            .toList();
+    final badges = tags
+        .map((e) => FBadge(style: FBadgeStyle.outline(), child: Text(e)))
+        .toList();
     if (isNSFW) {
       badges.add(FBadge(style: FBadgeStyle.destructive(), child: Text('NSFW')));
     }
@@ -128,21 +129,20 @@ class ExtensionGridTile extends StatelessWidget {
                         width: 70,
                         height: 70,
                         child: FCard.raw(
-                          child:
-                              icon == null
-                                  ? Placeholder()
-                                  : ExtendedImage.network(
-                                    icon!,
-                                    cache: true,
-                                    loadStateChanged: (state) {
-                                      if (state.extendedImageLoadState ==
-                                          LoadState.failed) {
-                                        return Placeholder();
-                                      }
+                          child: icon == null
+                              ? Placeholder()
+                              : ExtendedImage.network(
+                                  icon!,
+                                  cache: true,
+                                  loadStateChanged: (state) {
+                                    if (state.extendedImageLoadState ==
+                                        LoadState.failed) {
+                                      return Placeholder();
+                                    }
 
-                                      return null;
-                                    },
-                                  ),
+                                    return null;
+                                  },
+                                ),
                         ),
                       ),
                     ),
