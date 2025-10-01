@@ -1,6 +1,7 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/forui.dart';
 import 'package:miru_app_new/pages/search/search_new.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'package:miru_app_new/widgets/index.dart';
@@ -34,10 +35,10 @@ class SearchPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final needRefresh = useState(false);
-    final controller = useTabController(
-      initialIndex: 0,
-      initialLength: _categories.length,
-    );
+    // final controller = useTabController(
+    //   initialIndex: 0,
+    //   initialLength: _categories.length,
+    // );
     final editController = useTextEditingController();
     final scrollController = useScrollController();
     final searchValue = useState(search ?? '');
@@ -46,53 +47,63 @@ class SearchPage extends HookWidget {
       sidebar: DeviceUtil.device(
         mobile: <Widget>[
           //mobile
-          SideBarSearchBar(
-            controller: editController,
-            onsubmitted: (val) {
-              searchValue.value = val;
-              needRefresh.value = !needRefresh.value;
-            },
-            trailing: MoonButton.icon(
-              icon: const Icon(MoonIcons.controls_close_24_regular),
-              onTap: () {
-                editController.clear();
-                searchValue.value = '';
-                needRefresh.value = !needRefresh.value;
-              },
-            ),
-          ),
-          const SizedBox(height: 10),
-          MoonTabBar(
-            tabController: controller,
-            tabs: List.generate(
+          // SideBarSearchBar(
+          //   controller: editController,
+          //   onsubmitted: (val) {
+          //     searchValue.value = val;
+          //     needRefresh.value = !needRefresh.value;
+          //   },
+          //   trailing: FButton.icon(
+          //     style: FButtonStyle.ghost(),
+          //     child: const Icon(FIcons.x),
+          //     onPress: () {
+          //       editController.clear();
+          //       searchValue.value = '';
+          //       needRefresh.value = !needRefresh.value;
+          //     },
+          //   ),
+          // ),
+          // const SizedBox(height: 10),
+          FTabs(
+            children: List.generate(
               _categories.length,
-              (index) => MoonTab(
-                tabStyle: MoonTabStyle(
-                  selectedTextColor:
-                      context
-                          .moonTheme
-                          ?.segmentedControlTheme
-                          .colors
-                          .backgroundColor,
-                ),
+              (index) => FTabEntry(
                 label: Text(_categories[index]),
+                child: Placeholder(),
               ),
             ),
           ),
-          SizedBox(
-            height: 200,
-            child: TabBarView(
-              controller: controller,
-              children: [
-                CategoryGroup(
-                  items: const ['ALL', 'Video', 'Manga', 'Novel'],
-                  onpress: (val) {},
-                ),
-                CategoryGroup(items: const ['ALL'], onpress: (val) {}),
-                CategoryGroup(items: const ['ALL'], onpress: (val) {}),
-              ],
-            ),
-          ),
+          // MoonTabBar(
+          //   tabController: controller,
+          //   tabs: List.generate(
+          //     _categories.length,
+          //     (index) => MoonTab(
+          //       tabStyle: MoonTabStyle(
+          //         selectedTextColor:
+          //             context
+          //                 .moonTheme
+          //                 ?.segmentedControlTheme
+          //                 .colors
+          //                 .backgroundColor,
+          //       ),
+          //       label: Text(_categories[index]),
+          //     ),
+          //   ),
+          // ),
+          // SizedBox(
+          //   height: 200,
+          //   child: TabBarView(
+          //     controller: controller,
+          //     children: [
+          //       CategoryGroup(
+          //         items: const ['ALL', 'Video', 'Manga', 'Novel'],
+          //         onpress: (val) {},
+          //       ),
+          //       CategoryGroup(items: const ['ALL'], onpress: (val) {}),
+          //       CategoryGroup(items: const ['ALL'], onpress: (val) {}),
+          //     ],
+          //   ),
+          // ),
         ],
         desktop: [
           //desktop

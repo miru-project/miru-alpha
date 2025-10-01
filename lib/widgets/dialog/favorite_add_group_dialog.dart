@@ -62,12 +62,12 @@ class FavoriteAddGroupDialog extends HookWidget {
                         fontWeight: FontWeight.bold,
                         // fontFamily: "HarmonyOS_Sans",
                       ),
-                      activeBorderColor:
-                          context
-                              .moonTheme
-                              ?.segmentedControlTheme
-                              .colors
-                              .backgroundColor,
+                      // activeBorderColor:
+                      //     context
+                      //         .moonTheme
+                      //         ?.segmentedControlTheme
+                      //         .colors
+                      //         .backgroundColor,
                       controller: textcontorller,
                     ),
                     const SizedBox(height: 10),

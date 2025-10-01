@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:forui/forui.dart';
 import 'package:miru_app_new/pages/setting/setting_general.dart';
 import 'package:miru_app_new/utils/device_util.dart';
 import 'setting_extension.dart';
@@ -30,30 +31,30 @@ class SettingsPage extends HookWidget {
 
     return MiruScaffold(
       mobileHeader: const SideBarListTitle(title: 'Settings'),
-      sidebar: DeviceUtil.device(
-        mobile: [
-          sideBarTile('General', SideBarName.general),
-          sideBarTile('Extension', SideBarName.extension),
-          sideBarTile('Player', SideBarName.player),
-          sideBarTile('BT Server', SideBarName.miruCore),
-          sideBarTile('Reader', SideBarName.reader),
-          sideBarTile('Advanced', SideBarName.advanced),
-          sideBarTile('Download', SideBarName.download),
-          sideBarTile('About', SideBarName.about),
-        ],
-        desktop: [
-          const SideBarListTitle(title: 'Settings'),
-          sideBarTile('General', SideBarName.general),
-          sideBarTile('Extension', SideBarName.extension),
-          sideBarTile('Player', SideBarName.player),
-          sideBarTile('BT Server', SideBarName.miruCore),
-          sideBarTile('Reader', SideBarName.reader),
-          sideBarTile('Advanced', SideBarName.advanced),
-          sideBarTile('Download', SideBarName.download),
-          sideBarTile('About', SideBarName.about),
-        ],
-        context: context,
-      ),
+      // sidebar: DeviceUtil.device(
+      //   mobile: [
+      //     sideBarTile('General', SideBarName.general),
+      //     sideBarTile('Extension', SideBarName.extension),
+      //     sideBarTile('Player', SideBarName.player),
+      //     sideBarTile('BT Server', SideBarName.miruCore),
+      //     sideBarTile('Reader', SideBarName.reader),
+      //     sideBarTile('Advanced', SideBarName.advanced),
+      //     sideBarTile('Download', SideBarName.download),
+      //     sideBarTile('About', SideBarName.about),
+      //   ],
+      //   desktop: [
+      //     const SideBarListTitle(title: 'Settings'),
+      //     sideBarTile('General', SideBarName.general),
+      //     sideBarTile('Extension', SideBarName.extension),
+      //     sideBarTile('Player', SideBarName.player),
+      //     sideBarTile('BT Server', SideBarName.miruCore),
+      //     sideBarTile('Reader', SideBarName.reader),
+      //     sideBarTile('Advanced', SideBarName.advanced),
+      //     sideBarTile('Download', SideBarName.download),
+      //     sideBarTile('About', SideBarName.about),
+      //   ],
+      //   context: context,
+      // ),
       body: SettingPage(selected: select.value),
     );
   }
@@ -94,7 +95,35 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
   Widget build(BuildContext context) {
     return PlatformWidget(
       desktopWidget: selected(widget.selected, context),
-      mobileWidget: Center(),
+      mobileWidget: FTileGroup(
+        label: const Text('Settings'),
+        description: const Text('Personalize your experience'),
+        children: [
+          FTile(
+            prefix: Icon(FIcons.menu),
+            title: const Text('General'),
+            suffix: Icon(FIcons.chevronRight),
+            subtitle: Text('Language, Theme, etc.'),
+            onPress: () {},
+          ),
+          FTile(
+            prefix: Icon(FIcons.blocks),
+            title: const Text('Extension'),
+            subtitle: const Text('repos'),
+            // details: const Text('Forus Labs (5G)'),
+            suffix: Icon(FIcons.chevronRight),
+            onPress: () {},
+          ),
+          FTile(
+            prefix: Icon(FIcons.tv),
+            title: const Text('Video Player'),
+            subtitle: const Text('player setting'),
+            // details: const Text('Forus Labs (5G)'),
+            suffix: Icon(FIcons.chevronRight),
+            onPress: () {},
+          ),
+        ],
+      ),
     );
   }
 }

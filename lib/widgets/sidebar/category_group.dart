@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/forui.dart';
+import 'package:forui_hooks/forui_hooks.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 
@@ -10,6 +12,7 @@ class CategoryGroup extends HookWidget {
     this.needSpacer = true,
     this.maxSelected,
     this.minSelected,
+    this.title,
     super.key,
   });
   final List<String> items;
@@ -17,25 +20,36 @@ class CategoryGroup extends HookWidget {
   final void Function(int) onpress;
   final int? maxSelected;
   final int? minSelected;
+  final String? title;
   @override
   Widget build(BuildContext context) {
-    final selected = useState(0);
-    return Column(
-      children: [
-        if (needSpacer) const SizedBox(height: 10),
-        ...List.generate(
-          items.length,
-          (index) => SideBarListTile(
-            title: items[index],
-            selected: selected.value == index,
-            onPressed: () {
-              selected.value = index;
-              onpress(index);
-            },
-          ),
-        ),
-      ],
+    // final selected = useState(0);
+    final controller = FSelectTileGroupController<String>.radio(items[0]);
+    return FSelectTileGroup<String>(
+      label: title == null ? null : Text(title!),
+      selectController: controller,
+      children: List.generate(
+        items.length,
+        (index) =>
+            FSelectTile<String>(title: Text(items[index]), value: items[index]),
+      ),
     );
+    // Column(
+    //   children: [
+    //     if (needSpacer) const SizedBox(height: 10),
+    //     ...List.generate(
+    //       items.length,
+    //       (index) => SideBarListTile(
+    //         title: items[index],
+    //         selected: selected.value == index,
+    //         onPressed: () {
+    //           selected.value = index;
+    //           onpress(index);
+    //         },
+    //       ),
+    //     ),
+    //   ],
+    // );
   }
 }
 
@@ -125,88 +139,77 @@ class _CatergoryGroupChipState extends State<CatergoryGroupChip>
               widget.items.length,
               (index) => ValueListenableBuilder(
                 valueListenable: selected,
-                builder:
-                    (context, val, _) => ValueListenableBuilder(
-                      valueListenable: longPress,
-                      builder:
-                          (context, press, _) => Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color:
-                                    press.contains(index)
-                                        ? Colors.white
-                                        : Colors.transparent,
-                                width: 2,
-                              ),
-                              borderRadius: BorderRadius.circular(11),
-                            ),
-                            child: GestureDetector(
-                              onSecondaryTap:
-                                  widget.onLongPress == null
-                                      ? null
-                                      : () {
-                                        final newlongPress = List<int>.from(
-                                          longPress.value,
-                                        );
-                                        if (newlongPress.contains(index)) {
-                                          newlongPress.remove(index);
-                                        } else {
-                                          newlongPress.add(index);
-                                        }
-                                        longPress.value = widget
-                                            .customOnLongPress(newlongPress);
-                                        widget.onLongPress!(newlongPress);
-                                      },
-                              child: MoonChip(
-                                borderWidth: 2,
-                                onLongPress:
-                                    widget.onLongPress == null
-                                        ? null
-                                        : () {
-                                          final newlongPress = List<int>.from(
-                                            longPress.value,
-                                          );
-                                          if (newlongPress.contains(index)) {
-                                            newlongPress.remove(index);
-                                          } else {
-                                            newlongPress.add(index);
-                                          }
-                                          longPress.value = widget
-                                              .customOnLongPress(newlongPress);
-                                          widget.onLongPress!(newlongPress);
-                                        },
-                                isActive: selected.value.contains(index),
-                                label: Text(
-                                  widget.items[index],
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                onTap: () {
-                                  final newSelected = List<int>.from(
-                                    selected.value,
-                                  );
-                                  if (newSelected.contains(index) &&
-                                      newSelected.length >
-                                          (widget.minSelected ?? 0)) {
-                                    newSelected.remove(index);
-                                  } else {
-                                    if (newSelected.length >=
-                                        (widget.maxSelected ??
-                                            widget.items.length)) {
-                                      newSelected.removeAt(0);
-                                    }
-                                    newSelected.add(index);
-                                  }
-                                  selected.value = widget.customOnTap(
-                                    newSelected,
-                                  );
-                                  widget.onpress(selected.value);
-                                },
-                              ),
-                            ),
-                          ),
+                builder: (context, val, _) => ValueListenableBuilder(
+                  valueListenable: longPress,
+                  builder: (context, press, _) => Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: press.contains(index)
+                            ? Colors.white
+                            : Colors.transparent,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(11),
                     ),
+                    child: GestureDetector(
+                      onSecondaryTap: widget.onLongPress == null
+                          ? null
+                          : () {
+                              final newlongPress = List<int>.from(
+                                longPress.value,
+                              );
+                              if (newlongPress.contains(index)) {
+                                newlongPress.remove(index);
+                              } else {
+                                newlongPress.add(index);
+                              }
+                              longPress.value = widget.customOnLongPress(
+                                newlongPress,
+                              );
+                              widget.onLongPress!(newlongPress);
+                            },
+                      child: MoonChip(
+                        borderWidth: 2,
+                        onLongPress: widget.onLongPress == null
+                            ? null
+                            : () {
+                                final newlongPress = List<int>.from(
+                                  longPress.value,
+                                );
+                                if (newlongPress.contains(index)) {
+                                  newlongPress.remove(index);
+                                } else {
+                                  newlongPress.add(index);
+                                }
+                                longPress.value = widget.customOnLongPress(
+                                  newlongPress,
+                                );
+                                widget.onLongPress!(newlongPress);
+                              },
+                        isActive: selected.value.contains(index),
+                        label: Text(
+                          widget.items[index],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        onTap: () {
+                          final newSelected = List<int>.from(selected.value);
+                          if (newSelected.contains(index) &&
+                              newSelected.length > (widget.minSelected ?? 0)) {
+                            newSelected.remove(index);
+                          } else {
+                            if (newSelected.length >=
+                                (widget.maxSelected ?? widget.items.length)) {
+                              newSelected.removeAt(0);
+                            }
+                            newSelected.add(index);
+                          }
+                          selected.value = widget.customOnTap(newSelected);
+                          widget.onpress(selected.value);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
               ),
             )),
             if (widget.trailing != null) widget.trailing!,

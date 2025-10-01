@@ -165,28 +165,6 @@ class NewSearchPage extends HookConsumerWidget {
                       FDivider(axis: Axis.vertical),
                     ],
                   ),
-                  // FMultiSelect<String>.searchBuilder(
-                  //   hint: Text('Select extension'),
-                  //   format: (s) => Text(s),
-                  //   filter: (query) {
-                  //     final pkg = metaData.map((ext) => ext.packageName);
-                  //     return query.isEmpty
-                  //         ? pkg
-                  //         : pkg.where(
-                  //           (ext) =>
-                  //               ext.toLowerCase().contains(query.toLowerCase()),
-                  //         );
-                  //   },
-                  //   contentBuilder: (context, query, value) {
-                  //     return [
-                  //       for (final ext in metaData)
-                  //         FSelectItem(
-                  //           title: Text(ext.name),
-                  //           value: ext.packageName,
-                  //         ),
-                  //     ];
-                  //   },
-                  // ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(

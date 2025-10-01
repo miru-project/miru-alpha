@@ -25,10 +25,13 @@ class SideBarSearchBar extends StatelessWidget {
       ),
       child: FTextField(
         controller: controller,
-        prefixBuilder:
-            (context, _, _) => const Icon(MoonIcons.generic_search_16_regular),
-        suffixBuilder:
-            (trailing == null) ? null : (conetext, _, _) => trailing!,
+        prefixBuilder: (context, _, _) => const Padding(
+          padding: EdgeInsetsGeometry.only(left: 6),
+          child: Icon(FIcons.search),
+        ),
+        suffixBuilder: (trailing == null)
+            ? null
+            : (conetext, _, _) => trailing!,
         // // textInputSize: MoonTextInputSize.sm,
         // decoration: const BoxDecoration(color: Colors.transparent),
         onSubmit: onsubmitted,

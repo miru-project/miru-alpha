@@ -69,204 +69,157 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
     // tabController = useState(useTabController(initialLength: 0));
 
     return MiruScaffold(
-      sidebar:
-          (DeviceUtil.getWidth(context) < 800)
-              //mobile
-              ? <Widget>[
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: MoonButton(
-                    label: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.meta.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                        ValueListenableBuilder(
-                          valueListenable: _page,
-                          builder: (context, value, _) => Text('page: $value'),
-                        ),
-                      ],
-                    ),
-                    onTap: () {
-                      context.pop();
-                    },
-                    leading: const Icon(
-                      MoonIcons.controls_chevron_left_16_regular,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                SideBarSearchBar(
-                  trailing: Row(
+      sidebar: (DeviceUtil.getWidth(context) < 800)
+          //mobile
+          ? <Widget>[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: MoonButton(
+                  label: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      MoonButton.icon(
-                        icon: const Icon(MoonIcons.controls_close_24_regular),
-                        onTap: () {
-                          _query.value = '';
-                          _page.value = 1;
-                          ref.invalidate(
-                            fetchExtensionLatestProvider(
-                              widget.meta.packageName,
-                              _page.value,
-                            ),
-                          );
-                          ref.read(
-                            fetchExtensionLatestProvider(
-                              widget.meta.packageName,
-                              _page.value,
-                            ),
-                          );
-                          _result.value = [];
-                          _isLoading.value = true;
-                        },
+                      Text(
+                        widget.meta.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
                       ),
-                      MoonButton.icon(
-                        onTap: () {
-                          isFilterActivate.value = !isFilterActivate.value;
-                        },
-                        icon:
-                            isFilterActivate.value
-                                ? Icon(
-                                  Icons.filter_alt,
-                                  color:
-                                      context
-                                          .moonTheme
-                                          ?.segmentedControlTheme
-                                          .colors
-                                          .backgroundColor,
-                                )
-                                : const Icon(Icons.filter_alt_off_outlined),
+                      ValueListenableBuilder(
+                        valueListenable: _page,
+                        builder: (context, value, _) => Text('page: $value'),
                       ),
                     ],
                   ),
-                  onsubmitted: (val) {
-                    if (val.isEmpty) return;
-
-                    _query.value = val;
-                    _page.value = 1;
-                    ref.invalidate(
-                      fetchExtensionSearchProvider(
-                        widget.meta.packageName,
-                        _query.value,
-                        _page.value,
-                      ),
-                    );
-                    ref.read(
-                      fetchExtensionSearchProvider(
-                        widget.meta.packageName,
-                        _query.value,
-                        _page.value,
-                      ),
-                    );
-                    _result.value = [];
-                    _isLoading.value = true;
+                  onTap: () {
+                    context.pop();
                   },
-                ),
-                const SizedBox(height: 10),
-                if (_isUpdateFilter.value) ...[
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: MoonTabBar(
-                      tabController: tabController,
-                      tabs: List.generate(
-                        _fileNotifier.value.length,
-                        (index) => MoonTab(
-                          label: Text(_fileNotifier.value.keys.toList()[index]),
-                        ),
-                      ),
-                    ),
+                  leading: const Icon(
+                    MoonIcons.controls_chevron_left_16_regular,
                   ),
-                  SizedBox(
-                    height: 1000,
-                    child: TabBarView(
-                      controller: tabController,
-                      children: List.generate(_fileNotifier.value.length, (
-                        index,
-                      ) {
-                        final keys = _fileNotifier.value.keys.toList();
-                        final defaultOpt =
-                            _fileNotifier.value[keys[index]]?.defaultOption ??
-                            '';
+                ),
+              ),
+              const SizedBox(height: 10),
 
-                        final map = _fileNotifier.value;
-                        final selectOptions =
-                            _fileNotifier.value[keys[index]]?.options.values
-                                .toList() ??
-                            [];
-                        {
-                          if (selectOptions.contains(defaultOpt)) {
-                            final initIndex = selectOptions.indexOf(defaultOpt);
-                            _selected.value[index] = [initIndex];
-                          }
-                        }
-                        return CatergoryGroupChip(
-                          maxSelected: _fileNotifier.value[keys[index]]?.max,
-                          minSelected: _fileNotifier.value[keys[index]]?.min,
-                          initSelected: _selected.value[index],
-                          items: map[keys[index]]!.options.values.toList(),
-                          onpress: (val) {
-                            final newSelected = List<List<int>>.from(
-                              _selected.value,
-                            );
-                            newSelected[index] = val;
-                            _selected.value = newSelected;
-                          },
+              SideBarSearchBar(
+                trailing: Row(
+                  children: [
+                    MoonButton.icon(
+                      icon: const Icon(MoonIcons.controls_close_24_regular),
+                      onTap: () {
+                        _query.value = '';
+                        _page.value = 1;
+                        ref.invalidate(
+                          fetchExtensionLatestProvider(
+                            widget.meta.packageName,
+                            _page.value,
+                          ),
                         );
-                      }),
+                        ref.read(
+                          fetchExtensionLatestProvider(
+                            widget.meta.packageName,
+                            _page.value,
+                          ),
+                        );
+                        _result.value = [];
+                        _isLoading.value = true;
+                      },
                     ),
-                  ),
-                ],
-              ]
-              : <Widget>[
-                const SideBarListTitle(title: '主页'),
-                SideBarSearchBar(
-                  onsubmitted: (val) {
-                    _query.value = val;
-                    _page.value = 1;
-                  },
-                ),
-                const SizedBox(height: 10),
-                SidebarExpander(
-                  title: "歷史",
-                  expanded: true,
-                  child: CategoryGroup(
-                    needSpacer: false,
-                    items: const ['全部'],
-                    onpress: (val) {},
-                  ),
-                ),
-                SidebarExpander(
-                  title: "分类",
-                  expanded: true,
-                  child: CategoryGroup(
-                    needSpacer: false,
-                    items: const ['全部', '影視', '漫畫', '小說'],
-                    onpress: (val) {},
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SidebarExpander(
-                  title: '收藏夹',
-                  actions: [
-                    Button(
-                      onPressed: () {},
-                      child: const Icon(Icons.add, size: 15),
+                    MoonButton.icon(
+                      onTap: () {
+                        isFilterActivate.value = !isFilterActivate.value;
+                      },
+                      icon: isFilterActivate.value
+                          ? Icon(
+                              Icons.filter_alt,
+                              color: context
+                                  .moonTheme
+                                  ?.segmentedControlTheme
+                                  .colors
+                                  .backgroundColor,
+                            )
+                          : const Icon(Icons.filter_alt_off_outlined),
                     ),
                   ],
-                  expanded: true,
-                  child: CategoryGroup(
-                    needSpacer: false,
-                    items: const ['全部'],
-                    onpress: (val) {},
+                ),
+                onsubmitted: (val) {
+                  if (val.isEmpty) return;
+
+                  _query.value = val;
+                  _page.value = 1;
+                  ref.invalidate(
+                    fetchExtensionSearchProvider(
+                      widget.meta.packageName,
+                      _query.value,
+                      _page.value,
+                    ),
+                  );
+                  ref.read(
+                    fetchExtensionSearchProvider(
+                      widget.meta.packageName,
+                      _query.value,
+                      _page.value,
+                    ),
+                  );
+                  _result.value = [];
+                  _isLoading.value = true;
+                },
+              ),
+              const SizedBox(height: 10),
+              if (_isUpdateFilter.value) ...[
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: MoonTabBar(
+                    tabController: tabController,
+                    tabs: List.generate(
+                      _fileNotifier.value.length,
+                      (index) => MoonTab(
+                        label: Text(_fileNotifier.value.keys.toList()[index]),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 1000,
+                  child: TabBarView(
+                    controller: tabController,
+                    children: List.generate(_fileNotifier.value.length, (
+                      index,
+                    ) {
+                      final keys = _fileNotifier.value.keys.toList();
+                      final defaultOpt =
+                          _fileNotifier.value[keys[index]]?.defaultOption ?? '';
+
+                      final map = _fileNotifier.value;
+                      final selectOptions =
+                          _fileNotifier.value[keys[index]]?.options.values
+                              .toList() ??
+                          [];
+                      {
+                        if (selectOptions.contains(defaultOpt)) {
+                          final initIndex = selectOptions.indexOf(defaultOpt);
+                          _selected.value[index] = [initIndex];
+                        }
+                      }
+                      return CatergoryGroupChip(
+                        maxSelected: _fileNotifier.value[keys[index]]?.max,
+                        minSelected: _fileNotifier.value[keys[index]]?.min,
+                        initSelected: _selected.value[index],
+                        items: map[keys[index]]!.options.values.toList(),
+                        onpress: (val) {
+                          final newSelected = List<List<int>>.from(
+                            _selected.value,
+                          );
+                          newSelected[index] = val;
+                          _selected.value = newSelected;
+                        },
+                      );
+                    }),
                   ),
                 ),
               ],
+            ]
+          : <Widget>[],
       body: LayoutBuilder(builder: (context, cons) => content(context, cons)),
     );
   }
@@ -305,8 +258,8 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
             );
           },
           error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
-          loading:
-              () => _GridLoadingWidget(scrollController: _scrollController),
+          loading: () =>
+              _GridLoadingWidget(scrollController: _scrollController),
         ),
       );
     }
@@ -349,12 +302,9 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
             isLoading: _isLoading,
           );
         },
-        error:
-            (e, stack) => Center(
-              child: Row(
-                children: [Text(e.toString()), Text(stack.toString())],
-              ),
-            ),
+        error: (e, stack) => Center(
+          child: Row(children: [Text(e.toString()), Text(stack.toString())]),
+        ),
         loading: () => _GridLoadingWidget(scrollController: _scrollController),
       ),
     );
@@ -368,20 +318,19 @@ class _GridLoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder:
-          (context, cons) => MiruGridView(
-            scrollController: scrollController,
-            mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: cons.maxWidth ~/ 110,
-              childAspectRatio: 0.6,
-            ),
-            desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: cons.maxWidth ~/ 180,
-              childAspectRatio: 0.6,
-            ),
-            itemBuilder: (context, index) => const MiruGridTileLoadingBox(),
-            itemCount: 20,
-          ),
+      builder: (context, cons) => MiruGridView(
+        scrollController: scrollController,
+        mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: cons.maxWidth ~/ 110,
+          childAspectRatio: 0.6,
+        ),
+        desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: cons.maxWidth ~/ 180,
+          childAspectRatio: 0.6,
+        ),
+        itemBuilder: (context, index) => const MiruGridTileLoadingBox(),
+        itemCount: 20,
+      ),
     );
   }
 }
@@ -451,18 +400,17 @@ class _GridView extends StatelessWidget {
                 crossAxisCount: cons.maxWidth ~/ 180,
                 childAspectRatio: 0.65,
               ),
-              itemBuilder:
-                  (context, index) => MiruGridTile(
-                    onTap: () {
-                      context.push(
-                        '/search/single/detail',
-                        extra: DetailParam(meta: meta, url: value[index].url),
-                      );
-                    },
-                    title: value[index].title,
-                    imageUrl: value[index].cover,
-                    subtitle: value[index].update ?? '',
-                  ),
+              itemBuilder: (context, index) => MiruGridTile(
+                onTap: () {
+                  context.push(
+                    '/search/single/detail',
+                    extra: DetailParam(meta: meta, url: value[index].url),
+                  );
+                },
+                title: value[index].title,
+                imageUrl: value[index].cover,
+                subtitle: value[index].update ?? '',
+              ),
               itemCount: value.length,
             );
           },

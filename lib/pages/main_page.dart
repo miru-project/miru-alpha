@@ -142,7 +142,7 @@ class _MainPageState extends ConsumerState<MainPage>
           ),
           child: Column(
             children: [
-              DragWindows(),
+              if (!DeviceUtil.isMobile) DragWindows(),
               Expanded(
                 child: SafeArea(child: widget.child ?? const SizedBox()),
               ),
@@ -258,24 +258,23 @@ class _MainPageState extends ConsumerState<MainPage>
                       },
                       initiallyExpanded: _fIconNavItem[i].expaned,
                       selected: controller.selectedIndex == i,
-                      children:
-                          _fIconNavItem[i].subItems != null
-                              ? _fIconNavItem[i].subItems!
-                                  .map(
-                                    (e) => FSidebarItem(
-                                      // selected: ,
-                                      label: Text(e.text),
-                                      icon: Icon(e.icon),
-                                      onPress: () {
-                                        if (e.page != null) {
-                                          context.go(e.page!);
-                                        }
-                                        c.selectIndex(i);
-                                      },
-                                    ),
-                                  )
-                                  .toList()
-                              : [],
+                      children: _fIconNavItem[i].subItems != null
+                          ? _fIconNavItem[i].subItems!
+                                .map(
+                                  (e) => FSidebarItem(
+                                    // selected: ,
+                                    label: Text(e.text),
+                                    icon: Icon(e.icon),
+                                    onPress: () {
+                                      if (e.page != null) {
+                                        context.go(e.page!);
+                                      }
+                                      c.selectIndex(i);
+                                    },
+                                  ),
+                                )
+                                .toList()
+                          : [],
                     ),
                   ],
                 ],
@@ -286,10 +285,11 @@ class _MainPageState extends ConsumerState<MainPage>
             padding: const EdgeInsets.symmetric(vertical: 7),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              // spacing: 12, // This might be causing issues
               children: [
-                const DragWindows(),
-                const FDivider(),
+                if (!DeviceUtil.isMobile) ...[
+                  const DragWindows(),
+                  const FDivider(),
+                ],
                 Expanded(child: widget.child ?? const SizedBox()),
               ],
             ),
@@ -305,23 +305,19 @@ class DragWindows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DeviceUtil.platformWidgetFunction(
-      context: context,
-      mobile: (buildchild) => buildchild,
-      desktop: (buildchild) => DragToMoveArea(child: buildchild),
+    return DragToMoveArea(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           BreadCrumb(),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 200, maxHeight: 35),
-            child:
-                Platform.isWindows || Platform.isLinux || Platform.isMacOS
-                    ? WindowCaption(
-                      brightness: context.theme.colors.brightness,
-                      backgroundColor: context.theme.colors.background,
-                    )
-                    : const Spacer(),
+            child: Platform.isWindows || Platform.isLinux || Platform.isMacOS
+                ? WindowCaption(
+                    brightness: context.theme.colors.brightness,
+                    backgroundColor: context.theme.colors.background,
+                  )
+                : const Spacer(),
           ),
         ],
       ),
@@ -336,8 +332,10 @@ class BreadCrumb extends StatelessWidget {
     final currentLocation =
         GoRouter.of(context).routerDelegate.state.fullPath ??
         GoRouter.of(context).routerDelegate.currentConfiguration.fullPath;
-    final segments =
-        currentLocation.split('/').where((s) => s.isNotEmpty).toList();
+    final segments = currentLocation
+        .split('/')
+        .where((s) => s.isNotEmpty)
+        .toList();
 
     // logger.info("loc", segments);
 

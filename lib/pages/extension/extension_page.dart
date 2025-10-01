@@ -28,7 +28,7 @@ class ExtensionPage extends StatefulHookConsumerWidget {
   createState() => _ExtensionPageState();
 }
 
-const _categories = ['Status', 'Type', 'Repo', 'Language'];
+const _categories = ['Status', 'Type', 'Repo'];
 
 class _ExtensionPageState extends ConsumerState<ExtensionPage> {
   @override
@@ -45,6 +45,22 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     final scrollController = useScrollController();
     final controller = useTabController(initialLength: _categories.length);
     final textController = useTextEditingController();
+    final catGroup = [
+      CategoryGroup(
+        items: const ['Installed', 'Not installed'],
+        onpress: (val) => extNotifier.filterByInstalledIndex(val),
+      ),
+      CategoryGroup(
+        title: "Type",
+        items: const ['ALL', 'Video', 'Manga', 'Novel'],
+        onpress: (val) {},
+      ),
+      CategoryGroup(
+        title: "Type",
+        items: const ['ALL', 'Video', 'Manga', 'Novel'],
+        onpress: (val) {},
+      ),
+    ];
     useEffect(() {
       // load repos once after first frame to avoid modifying providers during build
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -56,11 +72,18 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     return MiruScaffold(
       scrollController: scrollController,
       snappingSheetController: _snappingController,
-      mobileHeader: const SideBarListTitle(title: 'Extension'),
+      mobileHeader: SideBarListTitle(
+        title: 'Extension',
+        trailings: [
+          FButton.icon(
+            style: FButtonStyle.ghost(),
+            onPress: () {},
+            child: Icon(FIcons.earth),
+          ),
+        ],
+      ),
       sidebar: DeviceUtil.isMobileLayout(context)
           ? <Widget>[
-              // SideBarSearchBar(onChanged: filterExtensionListWithName),
-              // const SizedBox(height: 10),
               Listener(
                 behavior: HitTestBehavior.translucent,
                 onPointerDown: (_) {
@@ -69,33 +92,36 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                     _snappingController.setSnappingSheetPosition(400);
                   }
                 },
-                child: MoonTabBar(
-                  tabController: controller,
-                  tabs: List.generate(
+                child: FTabs(
+                  children: List.generate(
                     _categories.length,
-                    (index) => MoonTab(label: Text(_categories[index])),
+                    (index) => FTabEntry(
+                      label: Text(_categories[index]),
+                      child: catGroup[index],
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-              SizedBox(
-                height: 300,
-                child: TabBarView(
-                  controller: controller,
-                  children: [
-                    CategoryGroup(
-                      items: const ['Installed', 'Not installed'],
-                      onpress: (val) => extNotifier.filterByInstalledIndex(val),
-                    ),
-                    CategoryGroup(
-                      items: const ['ALL', 'Video', 'Manga', 'Novel'],
-                      onpress: (val) {},
-                    ),
-                    CategoryGroup(items: const ['ALL'], onpress: (val) {}),
-                    CategoryGroup(items: const ['ALL'], onpress: (val) {}),
-                  ],
-                ),
-              ),
+              // const SizedBox(height: 10),
+              // SizedBox(
+              //   height: 300,
+              //   child: TabBarView(
+              //     controller: controller,
+              //     children: [
+              //       CategoryGroup(
+              //         items: const ['Installed', 'Not installed'],
+              //         onpress: (val) => extNotifier.filterByInstalledIndex(val),
+              //       ),
+              //       CategoryGroup(
+              //         title: "Type",
+              //         items: const ['ALL', 'Video', 'Manga', 'Novel'],
+              //         onpress: (val) {},
+              //       ),
+              //       // CategoryGroup(items: const ['ALL'], onpress: (val) {}),
+              //       // CategoryGroup(items: const ['ALL'], onpress: (val) {}),
+              //     ],
+              //   ),
+              // ),
             ]
           : <Widget>[],
       body: LayoutBuilder(
@@ -292,16 +318,27 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
               onRefresh: () async {
                 await extNotifier.reloadRepos();
               },
-              child: MiruListView.builder(
-                controller: scrollController,
-                itemBuilder: (context, index) {
-                  final pair = extensionsWithRepo[index];
-                  final data = pair['ext'] as GithubExtension;
-                  final repoUrl = pair['repoUrl'] as String;
-                  return _ExtensionTile(data: data, repoUrl: repoUrl);
-                },
-                itemCount: extensionsWithRepo.length,
+              child: FTileGroup.builder(
+                label: const Text('Settings'),
+                description: const Text('Personalize your experience'),
+                maxHeight: 200,
+                count: 200,
+                tileBuilder: (context, index) => FTile(
+                  title: Text('Tile $index'),
+                  suffix: Icon(FIcons.chevronRight),
+                  onPress: () {},
+                ),
               ),
+              // MiruListView.builder(
+              //   controller: scrollController,
+              //   itemBuilder: (context, index) {
+              //     final pair = extensionsWithRepo[index];
+              //     final data = pair['ext'] as GithubExtension;
+              //     final repoUrl = pair['repoUrl'] as String;
+              //     return _ExtensionTile(data: data, repoUrl: repoUrl);
+              //   },
+              //   itemCount: extensionsWithRepo.length,
+              // ),
             ),
           );
         },
@@ -321,9 +358,10 @@ class _ExtensionTile extends HookConsumerWidget {
     final notifier = ref.read(extensionPageProvider.notifier);
     final isInstalled = state.installedPackages.contains(data.package);
 
-    return PlatformWidget(
+    return DeviceUtil.deviceWidget(
       // Mobile widget
-      mobileWidget: MoonMenuItem(
+      context: context,
+      mobile: MoonMenuItem(
         onTap: () {},
         trailing: Row(
           children: [
@@ -350,7 +388,7 @@ class _ExtensionTile extends HookConsumerWidget {
         ),
         label: Text(data.name),
       ),
-      desktopWidget: ExtensionGridTile(
+      desktop: ExtensionGridTile(
         isNSFW: data.isNsfw,
         isInstalled: isInstalled,
         name: data.name,

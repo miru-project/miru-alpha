@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forui/widgets/button.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/utils/database_service.dart';
@@ -55,16 +56,16 @@ class FavoriteWarningDialog extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    MoonButton(
-                      textColor:
-                          context
-                              .moonTheme
-                              ?.segmentedControlTheme
-                              .colors
-                              .backgroundColor,
-                      buttonSize: MoonButtonSize.lg,
-                      label: const Text('Cancel'),
-                      onTap: () {
+                    FButton(
+                      // textColor:
+                      //     context
+                      //         .moonTheme
+                      //         ?.segmentedControlTheme
+                      //         .colors
+                      //         .backgroundColor,
+                      // buttonSize: MoonButtonSize.lg,
+                      child: const Text('Cancel'),
+                      onPress: () {
                         context.pop();
                       },
                     ),

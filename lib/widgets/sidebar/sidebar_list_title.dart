@@ -15,7 +15,7 @@ class SideBarListTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 5),
       margin: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
@@ -25,7 +25,7 @@ class SideBarListTitle extends StatelessWidget {
             style: TextStyle(
               // color: context.moonTheme?.chipTheme.colors.textColor,
               fontWeight: FontWeight.bold,
-              fontSize: 20,
+              fontSize: 25,
               // fontFamily: "HarmonyOS_Sans",
             ),
           ),

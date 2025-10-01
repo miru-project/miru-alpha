@@ -324,20 +324,6 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
               (index) => GestureDetector(
                 onSecondaryTap: () => showPopUp(favGroupValue, index),
                 child: FPopover(
-                  // onTapOutside: () {
-                  //   setLongPress.value = [];
-                  // },
-                  // maxWidth: 170,
-                  // decoration: BoxDecoration(
-                  //   // color:
-                  //   //     context.moonTheme?.chipTheme.colors.backgroundColor,
-                  //   borderRadius: BorderRadius.circular(10),
-                  // ),
-                  // contentPadding: const EdgeInsets.symmetric(
-                  //   horizontal: 20,
-                  //   vertical: 10,
-                  // ),
-                  // popoverPosition: MoonPopoverPosition.bottom,
                   popoverBuilder: (context, controller) => Column(
                     children: [
                       Text(

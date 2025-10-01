@@ -30,7 +30,7 @@ class DeviceUtil {
     return isMobileLayout(context) ? mobile : desktop;
   }
 
-  // Widget function for device specific
+  // Widget for device specific by checking layout
   static Y deviceWidgetFunction<T, Y>({
     required Y Function(T buildchild) mobile,
     required Y Function(T buildchild) desktop,
@@ -43,17 +43,39 @@ class DeviceUtil {
     return desktop(child);
   }
 
-  // widget function  for platform specific
+  // Widget for device specific by checking layout
+  static Widget deviceWidget({
+    required Widget mobile,
+    required Widget desktop,
+    required BuildContext context,
+  }) {
+    if (isMobileLayout(context)) {
+      return mobile;
+    }
+    return desktop;
+  }
+
+  // Widget for device specific by checking platform
   static Y platformWidgetFunction<T, Y>({
     required Y Function(T buildchild) mobile,
     required Y Function(T buildchild) desktop,
     required T child,
-    required BuildContext context,
   }) {
     if (Platform.isAndroid || Platform.isIOS) {
       return mobile(child);
     }
     return desktop(child);
+  }
+
+  // Widget for device specific by checking platform
+  static Widget platformWidget({
+    required Widget mobile,
+    required Widget desktop,
+  }) {
+    if (Platform.isAndroid || Platform.isIOS) {
+      return mobile;
+    }
+    return desktop;
   }
 
   static bool get isMobile => Platform.isAndroid || Platform.isIOS;
