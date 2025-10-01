@@ -6,7 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
-import 'package:miru_app_new/utils/storage_index.dart';
+import 'package:miru_app_new/utils/store/storage_index.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 import 'package:miru_app_new/widgets/core/inner_card.dart';
 import 'package:miru_app_new/widgets/core/search_filter_card.dart';

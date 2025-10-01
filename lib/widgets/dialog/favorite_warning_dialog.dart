@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:forui/widgets/button.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:go_router/go_router.dart';
-import 'package:miru_app_new/utils/database_service.dart';
-import 'package:miru_app_new/utils/device_util.dart';
+import 'package:miru_app_new/utils/store/database_service.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:moon_design/moon_design.dart';
 
 class FavoriteWarningDialog extends StatelessWidget {

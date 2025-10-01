@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import './storage_index.dart';
+import '../store/storage_index.dart';
 
 final logger = Logger('Miru');
 

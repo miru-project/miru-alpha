@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
 // import 'package:miru_app_new/utils/network/request.dart';
-import '../i18n.dart';
-import 'package:miru_app_new/utils/index.dart';
+import '../core/i18n.dart';
+import 'package:miru_app_new/utils/setting_dir_index.dart';
 
 enum AnilistType { anime, manga }
 
@@ -141,17 +141,18 @@ class AniListProvider {
     return {
       "UserAvatar": data["avatar"]["medium"],
       "User": data["name"],
-      "AnimeEpWatched":
-          data["statistics"]["anime"]["episodesWatched"].toString(),
-      "MangaChapterRead":
-          data["statistics"]["manga"]["chaptersRead"].toString(),
+      "AnimeEpWatched": data["statistics"]["anime"]["episodesWatched"]
+          .toString(),
+      "MangaChapterRead": data["statistics"]["manga"]["chaptersRead"]
+          .toString(),
     };
   }
 
   static Future<Map<String, dynamic>> getCollection(
     AnilistType anilistType,
   ) async {
-    final query = """
+    final query =
+        """
       {
         MediaListCollection(userId: $userid, type : ${_typeToQuery(anilistType)}) {
           lists {
@@ -205,7 +206,8 @@ class AniListProvider {
     required AnilistType type,
     int? page,
   }) async {
-    final String nameQuery = """{Page(page:${page ?? 1}){
+    final String nameQuery =
+        """{Page(page:${page ?? 1}){
     media(search:"$searchString",type:${_typeToQuery(type)}){
         id
         type
@@ -279,7 +281,8 @@ class AniListProvider {
 
     final queryStr = queryList.join(",");
 
-    final queryString = """mutation{
+    final queryString =
+        """mutation{
     SaveMediaListEntry(status:${mediaListStatusToQuery(status)},private:${isPrivate ?? false},$queryStr){
         id
       }
@@ -291,7 +294,8 @@ class AniListProvider {
   }
 
   static Future<bool> deleteList({required String id}) async {
-    final String deleteMutation = """
+    final String deleteMutation =
+        """
     mutation{
         DeleteMediaListEntry(id:$id){
               deleted
@@ -303,7 +307,8 @@ class AniListProvider {
   }
 
   static Future<dynamic> getMediaList(String id) async {
-    final query = """
+    final query =
+        """
 {
    Media(id: $id) {
     id

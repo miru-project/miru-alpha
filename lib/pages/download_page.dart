@@ -6,7 +6,7 @@ import 'package:forui/widgets/button.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/utils/download/download_utils.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
-import 'package:miru_app_new/utils/log.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 // import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/widgets/snackbar.dart';
 
@@ -37,12 +37,11 @@ class _DownloadsNotifier extends Notifier<AsyncValue<List<dynamic>>> {
       final res = await dio.get("http://127.127.127.127:12777/download/status");
       final data = res.data['data'] as Map<String, dynamic>?;
       if (data != null) {
-        final downloads =
-            data.entries.map((e) {
-              final value = e.value as Map<String, dynamic>;
-              value['id'] = e.key;
-              return value;
-            }).toList();
+        final downloads = data.entries.map((e) {
+          final value = e.value as Map<String, dynamic>;
+          value['id'] = e.key;
+          return value;
+        }).toList();
         state = AsyncData(downloads);
       } else {
         state = const AsyncData([]);
@@ -172,10 +171,9 @@ class DownloadPage extends ConsumerWidget {
         ),
         trailing: FButton(
           child: Text(buttonLabel),
-          onPress:
-              () => ref
-                  .read(downloadsProvider.notifier)
-                  .sendAction(context, id, action),
+          onPress: () => ref
+              .read(downloadsProvider.notifier)
+              .sendAction(context, id, action),
         ),
       ),
     );
@@ -195,15 +193,14 @@ class DownloadPage extends ConsumerWidget {
           return filtered.isEmpty
               ? const Center(child: Text('No Download Task '))
               : ListView.builder(
-                itemCount: filtered.length,
-                itemBuilder:
-                    (context, index) => _buildDownloadItem(
-                      context,
-                      ref,
-                      filtered[index],
-                      loading,
-                    ),
-              );
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) => _buildDownloadItem(
+                    context,
+                    ref,
+                    filtered[index],
+                    loading,
+                  ),
+                );
         },
       ),
     );

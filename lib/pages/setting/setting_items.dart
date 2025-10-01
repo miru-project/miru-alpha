@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:miru_app_new/utils/btserver.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'package:miru_app_new/utils/index.dart';
+import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:moon_design/moon_design.dart';
 
 enum SideBarName {
@@ -35,37 +35,36 @@ class SettingPlayer extends HookWidget {
         ),
         ListenableBuilder(
           listenable: btServerNotifier,
-          builder:
-              (context, child) => MoonMenuItem(
-                onTap: () {},
-                content: const Text('bt-server-subtitle'),
-                label: const Text('bt-server'),
-                trailing: Row(
-                  children: [
-                    if (btServerNotifier.isInstalled)
-                      MoonButton(
-                        label: const Text('uninstall'),
-                        onTap: () {
-                          btServerNotifier.uninstallServer();
-                        },
-                      )
-                    else if (btServerNotifier.isDownloading)
-                      MoonButton(
-                        label: Text(
-                          '${(btServerNotifier.progress.toStringAsFixed(1))}%',
-                        ),
-                        onTap: () {},
-                      )
-                    else
-                      MoonButton(
-                        label: const Text('install'),
-                        onTap: () {
-                          btServerNotifier.downloadOrUpgradeServer(context);
-                        },
-                      ),
-                  ],
-                ),
-              ),
+          builder: (context, child) => MoonMenuItem(
+            onTap: () {},
+            content: const Text('bt-server-subtitle'),
+            label: const Text('bt-server'),
+            trailing: Row(
+              children: [
+                if (btServerNotifier.isInstalled)
+                  MoonButton(
+                    label: const Text('uninstall'),
+                    onTap: () {
+                      btServerNotifier.uninstallServer();
+                    },
+                  )
+                else if (btServerNotifier.isDownloading)
+                  MoonButton(
+                    label: Text(
+                      '${(btServerNotifier.progress.toStringAsFixed(1))}%',
+                    ),
+                    onTap: () {},
+                  )
+                else
+                  MoonButton(
+                    label: const Text('install'),
+                    onTap: () {
+                      btServerNotifier.downloadOrUpgradeServer(context);
+                    },
+                  ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -89,37 +88,36 @@ class SettingMiruCore extends HookWidget {
         ),
         ListenableBuilder(
           listenable: btServerNotifier,
-          builder:
-              (context, child) => MoonMenuItem(
-                onTap: () {},
-                content: const Text('bt-server-subtitle'),
-                label: const Text('bt-server'),
-                trailing: Row(
-                  children: [
-                    if (btServerNotifier.isInstalled)
-                      MoonButton(
-                        label: const Text('uninstall'),
-                        onTap: () {
-                          btServerNotifier.uninstallServer();
-                        },
-                      )
-                    else if (btServerNotifier.isDownloading)
-                      MoonButton(
-                        label: Text(
-                          '${(btServerNotifier.progress.toStringAsFixed(1))}%',
-                        ),
-                        onTap: () {},
-                      )
-                    else
-                      MoonButton(
-                        label: const Text('install'),
-                        onTap: () {
-                          btServerNotifier.downloadOrUpgradeServer(context);
-                        },
-                      ),
-                  ],
-                ),
-              ),
+          builder: (context, child) => MoonMenuItem(
+            onTap: () {},
+            content: const Text('bt-server-subtitle'),
+            label: const Text('bt-server'),
+            trailing: Row(
+              children: [
+                if (btServerNotifier.isInstalled)
+                  MoonButton(
+                    label: const Text('uninstall'),
+                    onTap: () {
+                      btServerNotifier.uninstallServer();
+                    },
+                  )
+                else if (btServerNotifier.isDownloading)
+                  MoonButton(
+                    label: Text(
+                      '${(btServerNotifier.progress.toStringAsFixed(1))}%',
+                    ),
+                    onTap: () {},
+                  )
+                else
+                  MoonButton(
+                    label: const Text('install'),
+                    onTap: () {
+                      btServerNotifier.downloadOrUpgradeServer(context);
+                    },
+                  ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -136,10 +134,9 @@ class SettingDownload extends HookWidget {
           title: 'max-connection',
           subtitle: 'max-connection-subtitle',
           radios: List.generate(3, (i) => (i + 2).toString()),
-          value:
-              MiruSettings.getSettingSync<int>(
-                SettingKey.maxConnection,
-              ).toString(),
+          value: MiruSettings.getSettingSync<int>(
+            SettingKey.maxConnection,
+          ).toString(),
           onChanged: (val) {
             MiruSettings.setSettingSync(SettingKey.maxConnection, val);
           },

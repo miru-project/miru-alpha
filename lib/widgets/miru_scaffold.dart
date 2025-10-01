@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_app_new/provider/main_controller_provider.dart';
-import 'package:miru_app_new/utils/index.dart';
+import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
 

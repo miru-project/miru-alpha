@@ -6,9 +6,9 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/utils/database_service.dart';
+import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/device_util.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
 
 class MainPageState {
   int selectedIndex;

@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/model.dart';
-import 'package:miru_app_new/utils/log.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/utils/device_util.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
 
 class PlatformWidget extends StatelessWidget {
   const PlatformWidget({

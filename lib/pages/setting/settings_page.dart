@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/pages/setting/setting_general.dart';
 import 'setting_extension.dart';
 import 'package:miru_app_new/widgets/index.dart';
@@ -14,20 +13,20 @@ class SettingsPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final select = useState(SideBarName.general);
-    Widget sideBarTile(String name, SideBarName selected) {
-      return Column(
-        children: [
-          SideBarListTile(
-            title: name,
-            selected: select.value == selected,
-            onPressed: () {
-              select.value = selected;
-            },
-          ),
-          const SizedBox(height: 8),
-        ],
-      );
-    }
+    // Widget sideBarTile(String name, SideBarName selected) {
+    //   return Column(
+    //     children: [
+    //       SideBarListTile(
+    //         title: name,
+    //         selected: select.value == selected,
+    //         onPressed: () {
+    //           select.value = selected;
+    //         },
+    //       ),
+    //       const SizedBox(height: 8),
+    //     ],
+    //   );
+    // }
 
     return MiruScaffold(
       mobileHeader: const SnapSheetHeader(title: 'Settings'),

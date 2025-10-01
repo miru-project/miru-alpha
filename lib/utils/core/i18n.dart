@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_i18n/loaders/decoders/json_decode_strategy.dart';
-import 'package:miru_app_new/utils/index.dart';
+import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 
 final GlobalKey<ScaffoldMessengerState> messengerKey =

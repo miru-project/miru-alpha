@@ -1,5 +1,5 @@
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/database_service.dart';
+import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'epidsode_provider.g.dart';
 

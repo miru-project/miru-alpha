@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/utils/database_service.dart';
+import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/device_util.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/widgets/gridView/index.dart';
@@ -47,8 +47,9 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
 
   List<Favorite> filterFavoriteByGroup(List<Favorite> fav) {
     final selected = ref.read(mainPageProvider).selectedGroups;
-    final List<FavoriateGroup> selectedFavGroup =
-        selected.map((e) => _favGroup.value[e]).toList();
+    final List<FavoriateGroup> selectedFavGroup = selected
+        .map((e) => _favGroup.value[e])
+        .toList();
     final Set<int> favId = {};
     for (final group in selectedFavGroup) {
       favId.addAll(group.favorites.map((e) => e.id).toList());
@@ -74,39 +75,38 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
     super.build(context);
     return ValueListenableBuilder(
       valueListenable: _fav,
-      builder:
-          (context, fav, _) => MiruGridView(
-            desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 220,
-              childAspectRatio: 0.7,
-            ),
-            mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: DeviceUtil.getWidth(context) ~/ 150,
-              childAspectRatio: 0.65,
-            ),
-            itemBuilder: (context, index) {
-              return MiruGridTile(
-                title: fav[index].title,
-                subtitle: fav[index].package,
-                imageUrl: fav[index].cover,
-                onTap: () {
-                  final extensionIsExist = ExtensionUtils.runtimes.containsKey(
-                    fav[index].package,
-                  );
-                  if (extensionIsExist) {
-                    context.push(
-                      '/search/detail',
-                      extra: DetailParam(
-                        meta: ExtensionUtils.runtimes[fav[index].package]!,
-                        url: fav[index].url,
-                      ),
-                    );
-                  }
-                },
+      builder: (context, fav, _) => MiruGridView(
+        desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 220,
+          childAspectRatio: 0.7,
+        ),
+        mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: DeviceUtil.getWidth(context) ~/ 150,
+          childAspectRatio: 0.65,
+        ),
+        itemBuilder: (context, index) {
+          return MiruGridTile(
+            title: fav[index].title,
+            subtitle: fav[index].package,
+            imageUrl: fav[index].cover,
+            onTap: () {
+              final extensionIsExist = ExtensionUtils.runtimes.containsKey(
+                fav[index].package,
               );
+              if (extensionIsExist) {
+                context.push(
+                  '/search/detail',
+                  extra: DetailParam(
+                    meta: ExtensionUtils.runtimes[fav[index].package]!,
+                    url: fav[index].url,
+                  ),
+                );
+              }
             },
-            itemCount: fav.length,
-          ),
+          );
+        },
+        itemCount: fav.length,
+      ),
     );
   }
 }

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
-import 'package:miru_app_new/utils/subtitle.dart';
+import 'package:miru_app_new/utils/watch/subtitle.dart';
 import 'package:video_player/video_player.dart';
 
 import 'package:flutter/material.dart';
@@ -142,10 +142,9 @@ class VideoPlayerNotifier extends Notifier<VideoPlayerState> {
   @override
   VideoPlayerState build() {
     defaultSize = _initialRatio ?? const Size(0, 0);
-    final controller =
-        _url != null
-            ? VideoPlayerController.networkUrl(Uri.parse(_url!))
-            : null;
+    final controller = _url != null
+        ? VideoPlayerController.networkUrl(Uri.parse(_url!))
+        : null;
     final initialState = VideoPlayerState(
       controller: controller,
       subtitlesRaw: _subtitlesRaw ?? const [],
@@ -323,8 +322,8 @@ class VideoPlayerNotifier extends Notifier<VideoPlayerState> {
     final subtitle = state.subtitles.firstWhere(
       (subtitle) =>
           state.position >= subtitle.start && state.position <= subtitle.end,
-      orElse:
-          () => Subtitle(start: Duration.zero, end: Duration.zero, text: ''),
+      orElse: () =>
+          Subtitle(start: Duration.zero, end: Duration.zero, text: ''),
     );
     return subtitle.text;
   }

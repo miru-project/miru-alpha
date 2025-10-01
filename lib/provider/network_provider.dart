@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_hls_parser/flutter_hls_parser.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
-import 'package:miru_app_new/utils/log.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/network/index.dart';
 // import 'package:miru_app_new/utils/network/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -137,8 +137,9 @@ Future<Map<String, String>> getQuality(
   }
 
   if (playlist is HlsMasterPlaylist) {
-    final urlList =
-        playlist.mediaPlaylistUrls.map((e) => e.toString()).toList();
+    final urlList = playlist.mediaPlaylistUrls
+        .map((e) => e.toString())
+        .toList();
     final resolution = playlist.variants.map(
       (it) => "${it.format.width}x${it.format.height}",
     );

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
-import 'package:miru_app_new/utils/log.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 
 class MiruSettings {
   static Map<String, String> _settingsCache = {};

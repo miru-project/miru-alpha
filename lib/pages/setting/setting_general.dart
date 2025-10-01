@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
-import 'package:miru_app_new/utils/device_util.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/widgets/core/outter_card.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'package:miru_app_new/utils/index.dart';
+import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
 
 // abstract class SettingEntry {

@@ -9,8 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/provider/main_controller_provider.dart';
-import 'package:miru_app_new/utils/device_util.dart';
-import 'package:miru_app_new/utils/i18n.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
+import 'package:miru_app_new/utils/core/i18n.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'setting/setting_items.dart';

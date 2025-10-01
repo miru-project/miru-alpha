@@ -13,12 +13,12 @@ import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/model/miru_core.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
-import 'package:miru_app_new/utils/database_service.dart';
-import 'package:miru_app_new/utils/device_util.dart';
+import 'package:miru_app_new/utils/store/database_service.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/download/download_utils.dart';
 
-import 'package:miru_app_new/utils/index.dart';
-import 'package:miru_app_new/utils/log.dart';
+import 'package:miru_app_new/utils/setting_dir_index.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 // import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';

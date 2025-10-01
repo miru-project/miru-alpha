@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/utils/index.dart';
+import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:miru_app_new/utils/tracking/anilist_provider.dart';
 import 'package:go_router/go_router.dart';
 
@@ -61,10 +61,11 @@ class AnilistPageNotifier with ChangeNotifier {
       _saveAnilistToken(result ?? '');
       return;
     }
-    final webview = await WebviewWindow.create(
-        configuration: const CreateConfiguration(title: "Anilist Login"),
-      )
-      ..launch(loginUrl);
+    final webview =
+        await WebviewWindow.create(
+            configuration: const CreateConfiguration(title: "Anilist Login"),
+          )
+          ..launch(loginUrl);
 
     Timer.periodic(const Duration(seconds: 1), (timer) async {
       final url =

@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_app_new/pages/search/search_new.dart';
-import 'package:miru_app_new/utils/device_util.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'package:moon_design/moon_design.dart';
 
 class SearchPage extends HookWidget {
   const SearchPage({super.key, this.search});

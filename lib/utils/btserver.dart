@@ -5,9 +5,9 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
-import 'package:miru_app_new/utils/device_util.dart';
-import 'package:miru_app_new/utils/index.dart';
-import 'package:miru_app_new/utils/log.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
+import 'package:miru_app_new/utils/setting_dir_index.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/widgets/snackbar.dart';
 import 'package:path/path.dart' as path;
 
@@ -203,10 +203,9 @@ class BTServerApi {
   }
 
   static Future<List<String>> getFileList(String infoHash) async {
-    final fileList =
-        (await dio.get<Map<String, dynamic>>(
-          "/torrent/$infoHash",
-        )).data!['files'];
+    final fileList = (await dio.get<Map<String, dynamic>>(
+      "/torrent/$infoHash",
+    )).data!['files'];
     return List<String>.from(fileList);
   }
 }

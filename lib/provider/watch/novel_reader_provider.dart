@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/database_service.dart';
+import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class NovelProvider {
@@ -13,8 +13,10 @@ class NovelProvider {
   static late NotifierProvider<NovelEpisodeNotifier, NovelEpisodeNotifierState>
   _episodeNotifier;
 
-  static NotifierProvider<NovelReaderProvider, MangaReaderState> get provider => _mangaReaderProvider;
-  static NotifierProvider<NovelEpisodeNotifier, NovelEpisodeNotifierState> get epProvider => _episodeNotifier;
+  static NotifierProvider<NovelReaderProvider, MangaReaderState> get provider =>
+      _mangaReaderProvider;
+  static NotifierProvider<NovelEpisodeNotifier, NovelEpisodeNotifierState>
+  get epProvider => _episodeNotifier;
 
   static void initEpisode(
     List<ExtensionEpisodeGroup> epGroup,
@@ -22,10 +24,11 @@ class NovelProvider {
     int selectedGroupIndex,
     int selectedEpisodeIndex,
   ) {
-    _episodeNotifier = NotifierProvider.autoDispose<
-      NovelEpisodeNotifier,
-      NovelEpisodeNotifierState
-    >(NovelEpisodeNotifier.new);
+    _episodeNotifier =
+        NotifierProvider.autoDispose<
+          NovelEpisodeNotifier,
+          NovelEpisodeNotifierState
+        >(NovelEpisodeNotifier.new);
   }
 }
 
@@ -151,13 +154,12 @@ class NovelEpisodeNotifier extends Notifier<NovelEpisodeNotifierState> {
             episodeId: state.selectedEpisodeIndex,
             progress: state.selectedEpisodeIndex.toString(),
             cover: imageUrl,
-            totalProgress:
-                state.epGroup[state.selectedGroupIndex].urls.length.toString(),
-            episodeTitle:
-                state
-                    .epGroup[state.selectedGroupIndex]
-                    .urls[state.selectedEpisodeIndex]
-                    .name,
+            totalProgress: state.epGroup[state.selectedGroupIndex].urls.length
+                .toString(),
+            episodeTitle: state
+                .epGroup[state.selectedGroupIndex]
+                .urls[state.selectedEpisodeIndex]
+                .name,
             url: detailUrl,
             date: DateTime.now(),
           ),
