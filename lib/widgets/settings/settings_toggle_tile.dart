@@ -11,7 +11,7 @@ class SettingsToggleTile extends HookWidget with FTileMixin {
     required this.subtitle,
     required this.value,
     required this.onChanged,
-    this.ismobile = false,
+    this.isMobileLayout = false,
     this.onTap,
     this.icon,
   });
@@ -22,11 +22,11 @@ class SettingsToggleTile extends HookWidget with FTileMixin {
   final Function(bool) onChanged;
   final void Function()? onTap;
   final IconData? icon;
-  final bool ismobile;
+  final bool isMobileLayout;
   @override
   Widget build(BuildContext context) {
     final val = useState(value);
-    if (ismobile) {
+    if (isMobileLayout) {
       return FTile(
         title: Text(title),
         subtitle: Text(subtitle),

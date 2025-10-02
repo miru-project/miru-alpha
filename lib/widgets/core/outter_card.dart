@@ -20,25 +20,26 @@ class OutterCard extends StatelessWidget {
       children: [
         Padding(
           padding: EdgeInsetsGeometry.symmetric(horizontal: 10, vertical: 10),
-          child:
-              trailing == null
-                  ? Text(
-                    title,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
-                  )
-                  : Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
-                      trailing!,
-                    ],
+          child: trailing == null
+              ? Text(
+                  title,
+                  style: context.theme.typography.xl2.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    trailing!,
+                  ],
+                ),
         ),
         AnimatedBox(
           child: SizedBox(

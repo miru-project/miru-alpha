@@ -30,30 +30,6 @@ class SettingsPage extends HookWidget {
 
     return MiruScaffold(
       mobileHeader: const SnapSheetHeader(title: 'Settings'),
-      // sidebar: DeviceUtil.device(
-      //   mobile: [
-      //     sideBarTile('General', SideBarName.general),
-      //     sideBarTile('Extension', SideBarName.extension),
-      //     sideBarTile('Player', SideBarName.player),
-      //     sideBarTile('BT Server', SideBarName.miruCore),
-      //     sideBarTile('Reader', SideBarName.reader),
-      //     sideBarTile('Advanced', SideBarName.advanced),
-      //     sideBarTile('Download', SideBarName.download),
-      //     sideBarTile('About', SideBarName.about),
-      //   ],
-      //   desktop: [
-      //     const SideBarListTitle(title: 'Settings'),
-      //     sideBarTile('General', SideBarName.general),
-      //     sideBarTile('Extension', SideBarName.extension),
-      //     sideBarTile('Player', SideBarName.player),
-      //     sideBarTile('BT Server', SideBarName.miruCore),
-      //     sideBarTile('Reader', SideBarName.reader),
-      //     sideBarTile('Advanced', SideBarName.advanced),
-      //     sideBarTile('Download', SideBarName.download),
-      //     sideBarTile('About', SideBarName.about),
-      //   ],
-      //   context: context,
-      // ),
       body: SettingPage(selected: select.value),
     );
   }
@@ -70,7 +46,7 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
   Widget selected(SideBarName name, BuildContext context) {
     switch (name) {
       case SideBarName.general:
-        return SettingDesktopGeneral();
+        return SettingGeneral();
       case SideBarName.extension:
         return SettingExtension();
       case SideBarName.player:
@@ -123,7 +99,7 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
             suffix: Icon(FIcons.chevronRight),
             subtitle: Text('Language, Theme, etc.'),
             onPress: () {
-              _pushtoPage(context, SettingMobileGeneral());
+              _pushtoPage(context, SettingGeneral());
             },
           ),
           FTile(

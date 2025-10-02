@@ -23,27 +23,99 @@ class _ExtensionListTile extends HookWidget {
       onTap: () {
         context.push('/search/single', extra: SearchPageParam(meta: ext));
       },
-      child: FCard(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          child: Row(
+      child: FPopoverMenu.tiles(
+        menu: [
+          FTileGroup(
             children: [
-              Row(
+              FTile.raw(
+                child: Text(
+                  ext.name,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              FTile(
+                prefix: const Icon(FIcons.trash),
+                title: const Text('Uninstall'),
+                onPress: () {
+                  showFDialog(
+                    context: context,
+                    builder: (context, style, animation) {
+                      return HookConsumer(
+                        builder: (context, WidgetRef ref, _) {
+                          final checkboxVal = useState(false);
+                          return FDialog(
+                            animation: animation,
+                            direction: Axis.horizontal,
+                            title: Text('Uninstall ${ext.name}?'),
+                            body: FCheckbox(
+                              label: const Text(
+                                'Do not show again  this dialog when try to uninstall',
+                              ),
+
+                              value: checkboxVal.value,
+                              onChange: (value) {
+                                checkboxVal.value = value;
+                              },
+                            ),
+                            actions: [
+                              FButton(
+                                style: FButtonStyle.outline(),
+                                onPress: () => Navigator.of(context).pop(),
+                                child: const Text('Cancel'),
+                              ),
+                              FButton(
+                                onPress: () {
+                                  final notifier = ref.read(
+                                    extensionPageProvider.notifier,
+                                  );
+                                  notifier.uninstallPackage(ext.packageName);
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Continue'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+              FTile(
+                prefix: const Icon(FIcons.bolt),
+                title: const Text("Setting (WIP)"),
+                onPress: () {},
+              ),
+            ],
+          ),
+        ],
+        builder: (context, controller, _) => GestureDetector(
+          onSecondaryTap: () => controller.show(),
+          onLongPress: () => controller.show(),
+          behavior: HitTestBehavior.translucent,
+          child: FCard(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: Row(
                 children: [
-                  FCard.raw(
-                    child: SizedBox.square(
-                      dimension: 40,
-                      child: ext.icon == null
-                          ? Icon(FIcons.toyBrick)
-                          : ImageWidget(imageUrl: ext.icon!),
-                    ),
+                  Row(
+                    children: [
+                      FCard.raw(
+                        child: SizedBox.square(
+                          dimension: 40,
+                          child: ext.icon == null
+                              ? Icon(FIcons.toyBrick)
+                              : ImageWidget(imageUrl: ext.icon!),
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      Text(ext.name),
+                    ],
                   ),
-                  SizedBox(width: 20),
-                  Text(ext.name),
+                  if (trailing != null) ...[Spacer(), trailing!],
                 ],
               ),
-              if (trailing != null) ...[Spacer(), trailing!],
-            ],
+            ),
           ),
         ),
       ),
@@ -189,7 +261,7 @@ class NewSearchPage extends HookConsumerWidget {
                         ],
                       );
                     },
-                    hint: 'Search globally',
+                    hint: 'Search globally (WIP)',
                   ),
                 ),
               ],

@@ -12,7 +12,7 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
     required this.onChanged,
     this.onTap,
     this.icon,
-    this.ismobile = false,
+    this.isMobileLayout = false,
   });
   final String title;
   final String subtitle;
@@ -20,11 +20,11 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
   final void Function(String) onChanged;
   final void Function()? onTap;
   final IconData? icon;
-  final bool ismobile;
+  final bool isMobileLayout;
 
   @override
   Widget build(BuildContext context) {
-    if (ismobile) {
+    if (isMobileLayout) {
       return FTile(
         title: Text(title),
         subtitle: Text(subtitle),
