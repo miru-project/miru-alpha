@@ -3,17 +3,12 @@
 name: Dev Build CI
 
 on:
-  # pull_request:
-  #   branches: ["main", "dev"]
   push:
-    # branches: ["forui"]
-
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
+env:
+  FLUTTER_VERSION: '3.35.5'
+  GO_VERSION: '1.25.1'
 jobs:
-
-  # # This workflow contains a single job called "build"
-  # build-and-release-android:
-  #   # The type of runner that the job will run on
   build-and-release-android:
     runs-on: ubuntu-latest
 
@@ -27,11 +22,11 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.25.1'
+          go-version: '${{ env.GO_VERSION }}'
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version:  3.35.4
+          flutter-version:  ${{ env.FLUTTER_VERSION }}
           channel: stable
 
       - name: Decode keystore
@@ -94,12 +89,12 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.25.1'
+          go-version: ${{env.GO_VERSION}}
 
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version:  3.35.4
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
 
       - name: Build artifacts
@@ -130,7 +125,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.25.1'
+          go-version: ${{env.GO_VERSION}}
       - name: update Dependencies
         run: sudo apt update
       - name: Install Dependencies
@@ -138,7 +133,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version:  3.35.4
+          flutter-version:  ${{ env.FLUTTER_VERSION }}
           channel: stable
 
       - name: Build artifacts
