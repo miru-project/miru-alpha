@@ -194,7 +194,7 @@ Future<void> loadMiruCore() async {
   // startMiruCore(configPath);
 
   if (Platform.isAndroid) {
-    final platform = MethodChannel('com.example.miru_new/miru_core');
+    final platform = MethodChannel('com.miru.alpha/miru_core');
     await platform.invokeMethod('InitAAR', configPath);
     return;
   }
