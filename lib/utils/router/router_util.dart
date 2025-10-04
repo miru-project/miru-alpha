@@ -37,7 +37,6 @@ class RouterUtil {
   }
 
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
-  static final shellNavigatorKey = GlobalKey<NavigatorState>();
   static final GoRoute _buildDetail = GoRoute(
     path: 'detail',
 
@@ -111,27 +110,23 @@ class RouterUtil {
                 routes: [
                   GoRoute(
                     path: 'history',
-                    pageBuilder:
-                        (context, state) =>
-                            getPage(state: state, child: const HistoryPage()),
+                    pageBuilder: (context, state) =>
+                        getPage(state: state, child: const HistoryPage()),
                   ),
                   GoRoute(
                     path: 'favorite',
-                    pageBuilder:
-                        (context, state) =>
-                            getPage(state: state, child: const FavoritePage()),
+                    pageBuilder: (context, state) =>
+                        getPage(state: state, child: const FavoritePage()),
                   ),
                   GoRoute(
                     path: 'download',
-                    pageBuilder:
-                        (context, state) =>
-                            getPage(state: state, child: DownloadPage()),
+                    pageBuilder: (context, state) =>
+                        getPage(state: state, child: DownloadPage()),
                   ),
                 ],
                 path: '/home',
-                pageBuilder:
-                    (context, state) =>
-                        getPage(state: state, child: FavoritePage()),
+                pageBuilder: (context, state) =>
+                    getPage(state: state, child: FavoritePage()),
               ),
             ],
           ),
@@ -139,11 +134,10 @@ class RouterUtil {
             routes: [
               GoRoute(
                 path: '/search',
-                pageBuilder:
-                    (context, state) => getPage(
-                      state: state,
-                      child: SearchPage(search: state.extra as String?),
-                    ),
+                pageBuilder: (context, state) => getPage(
+                  state: state,
+                  child: SearchPage(search: state.extra as String?),
+                ),
                 routes: [
                   GoRoute(
                     path: 'single',
@@ -175,9 +169,8 @@ class RouterUtil {
             routes: [
               GoRoute(
                 path: '/extension',
-                pageBuilder:
-                    (context, state) =>
-                        getPage(state: state, child: const ExtensionPage()),
+                pageBuilder: (context, state) =>
+                    getPage(state: state, child: const ExtensionPage()),
               ),
             ],
           ),
@@ -186,18 +179,18 @@ class RouterUtil {
               for (final item in SideBarName.values)
                 GoRoute(
                   path: "/settings/${item.name}",
-                  pageBuilder:
-                      (context, state) => getPage(
-                        state: state,
-                        child: SettingPage(selected: item),
-                      ),
+                  pageBuilder: (context, state) => getPage(
+                    state: state,
+                    child: SettingPage(selected: item),
+                  ),
                 ),
             ],
           ),
         ],
-        pageBuilder:
-            (context, state, navigationShell) =>
-                getPage(state: state, child: MainPage(child: navigationShell)),
+        pageBuilder: (context, state, navigationShell) => getPage(
+          state: state,
+          child: MainPage(child: navigationShell),
+        ),
       ),
     ],
   );

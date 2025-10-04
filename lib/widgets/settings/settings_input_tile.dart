@@ -29,6 +29,7 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
         title: Text(title),
         subtitle: Text(subtitle),
         details: Text(initialValue),
+        onPress: () {},
       );
     }
     return SettingBaseTile(

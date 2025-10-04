@@ -8,7 +8,6 @@ import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/widgets/snackbar.dart';
 import 'package:path/path.dart' as path;
 
 final btServerNotifier = BTDialogController();
@@ -284,11 +283,11 @@ class BTDialogController with ChangeNotifier {
       );
     } catch (e) {
       if (context.mounted) {
-        showErrorSnackBar(
-          context: context,
-          errorText: "Failed to Download Bt-server",
-          detailErrortext: e.toString(),
-        );
+        // showErrorSnackBar(
+        //   context: context,
+        //   errorText: "Failed to Download Bt-server",
+        //   detailErrortext: e.toString(),
+        // );
       }
     } finally {
       _isDownloading = false;

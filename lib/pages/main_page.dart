@@ -119,10 +119,10 @@ class _MainPageState extends ConsumerState<MainPage>
     final controller = ref.watch(mainControllerProvider);
     final selected = useState(controller.selectedIndex);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
-    return PlatformWidget(
-      mobileWidget: FTheme(
-        data: themeData,
-        child: FScaffold(
+    return FTheme(
+      data: themeData,
+      child: PlatformWidget(
+        mobileWidget: FScaffold(
           footer: FBottomNavigationBar(
             index: controller.selectedIndex,
             onChange: (value) {
@@ -149,10 +149,7 @@ class _MainPageState extends ConsumerState<MainPage>
             ],
           ),
         ),
-      ),
-      desktopWidget: FTheme(
-        data: themeData,
-        child: FScaffold(
+        desktopWidget: FScaffold(
           key: messengerKey,
           sidebar: SafeFSidebar(
             autofocus: true,
@@ -325,19 +322,22 @@ class DragWindows extends StatelessWidget {
   }
 }
 
-class BreadCrumb extends StatelessWidget {
+class BreadCrumb extends HookWidget {
   const BreadCrumb({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final routeInfoProvider = GoRouter.of(context).routeInformationProvider;
+    useListenable(routeInfoProvider);
+
     final currentLocation =
         GoRouter.of(context).routerDelegate.state.fullPath ??
         GoRouter.of(context).routerDelegate.currentConfiguration.fullPath;
+
     final segments = currentLocation
         .split('/')
         .where((s) => s.isNotEmpty)
         .toList();
-
-    // logger.info("loc", segments);
 
     return FBreadcrumb(
       children: [
@@ -345,12 +345,6 @@ class BreadCrumb extends StatelessWidget {
           FBreadcrumbItem(
             onPress: () {
               if (seg == segments.last) return;
-              // context.go('/${segments.takeWhile((s) => s != seg).join('/')}');
-
-              // if (seg == segments.first) {
-              //   context.go('/$seg');
-              //   return;
-              // }
               if (!context.canPop()) return;
               if (seg == 'search' && segments.last == 'detail') {
                 context.pop();

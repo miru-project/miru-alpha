@@ -144,24 +144,54 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
     state = state.copyWith(extensionList: filtered);
   }
 
-  void filterByInstalledIndex(int val) {
-    final filteredExtensions = state.fetchedRepo
-        .expand((repo) => repo.extensions)
-        .where(
-          (ext) =>
-              (val == 0 && state.installedPackages.contains(ext.package)) ||
-              (val == 1 && !state.installedPackages.contains(ext.package)),
-        )
-        .toList();
-    state = state.copyWith(
-      extensionList: [
-        ExtensionRepo(
-          extensions: filteredExtensions,
-          name: 'filtered',
-          url: '',
-        ),
-      ],
-    );
+  void filterByInstalled(String status) {
+    switch (status) {
+      case 'ALL':
+        state = state.copyWith(extensionList: List.from(state.fetchedRepo));
+        return;
+      case 'Installed':
+        final filtered = state.fetchedRepo
+            .expand((repo) => repo.extensions)
+            .where((ext) => state.installedPackages.contains(ext.package))
+            .toList();
+        state = state.copyWith(
+          extensionList: [
+            ExtensionRepo(extensions: filtered, name: 'filtered', url: ''),
+          ],
+        );
+        return;
+      case 'Not installed':
+        final filtered = state.fetchedRepo
+            .expand((repo) => repo.extensions)
+            .where((ext) => !state.installedPackages.contains(ext.package))
+            .toList();
+        state = state.copyWith(
+          extensionList: [
+            ExtensionRepo(extensions: filtered, name: 'filtered', url: ''),
+          ],
+        );
+        return;
+      default:
+        state = state.copyWith(extensionList: List.from(state.fetchedRepo));
+        return;
+    }
+    // final filteredExtensions = state.fetchedRepo
+    //     .expand((repo) => repo.extensions)
+    //     .where(
+    //       (ext) =>
+    //           (val == 0 && state.installedPackages.contains(ext.package)) ||
+    //           (val == 1 && !state.installedPackages.contains(ext.package)),
+    //     )
+    //     .toList();
+    // state = state.copyWith(
+    //   extensionList: [
+    //     ExtensionRepo(
+    //       extensions: filteredExtensions,
+    //       name: 'filtered',
+    //       url: '',
+    //     ),
+    //   ],
+    // );
   }
 
   void filterByMediaType(String type) {
@@ -198,15 +228,17 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
     }
   }
 
-  Future<void> uninstallPackage(String package) async {
+  Future<String?> uninstallPackage(String package) async {
     try {
       await ExtensionEndpoint.removeExtension(package);
       logger.info('remove package $package ');
       final newInstalled = List<String>.from(state.installedPackages)
         ..remove(package);
       state = state.copyWith(installedPackages: newInstalled);
+      return null;
     } catch (e) {
       logger.info(e.toString());
+      return e.toString();
     }
   }
 

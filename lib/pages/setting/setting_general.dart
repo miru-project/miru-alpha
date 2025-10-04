@@ -22,8 +22,8 @@ class SettingBasedGeneral extends HookConsumerWidget {
           children: [
             SettingsInputTile(
               isMobileLayout: isMobileLayout,
-              title: "tmdb-api-key",
-              subtitle: 'tmdb-api-key-subtitle',
+              title: "TMDB api key",
+              subtitle: 'api for tmdb-api',
               initialValue: MiruSettings.getSettingSync<String>(
                 SettingKey.tmdbKey,
               ),
@@ -49,7 +49,7 @@ class SettingBasedGeneral extends HookConsumerWidget {
 
         SettingGroup(
           isMobileLayout: isMobileLayout,
-          title: 'appearance',
+          title: 'Appearance',
           children: [
             SettingsRadiosTile.detailed(
               isMobileLayout: isMobileLayout,
@@ -112,16 +112,15 @@ class SettingBasedGeneral extends HookConsumerWidget {
 
             SettingsToggleTile(
               isMobileLayout: isMobileLayout,
-              title: 'mobile-title-position',
-              subtitle: 'mobile-title-position-subtitle',
+              title: 'Mobile title always on top',
+              subtitle: 'make the title always on top in mobile',
               value: MiruSettings.getSettingSync<bool>(
                 SettingKey.mobiletitleIsonTop,
               ),
               onChanged: (value) {
-                MiruSettings.setSettingSync(
-                  SettingKey.mobiletitleIsonTop,
-                  value.toString(),
-                );
+                ref
+                    .read(applicationControllerProvider.notifier)
+                    .updateMobileTitleOnTop(value);
               },
             ),
           ],
@@ -145,24 +144,23 @@ class SettingMobileGeneralState extends ConsumerState<SettingGeneral> {
   Widget build(BuildContext context) {
     return DeviceUtil.deviceWidget(
       context: context,
-      desktop: SettingBasedGeneral(),
-      mobile: Column(
-        children: [
-          FHeader.nested(
-            title: const Text('General'),
-            titleAlignment: Alignment.center,
-            prefixes: [
-              FHeaderAction.back(
-                onPress: () {
-                  Navigator.of(context).pop();
-                },
-                onHoverChange: (hovered) {},
-                onStateChange: (delta) {},
-              ),
-            ],
-          ),
-          Expanded(child: SettingBasedGeneral(isMobileLayout: true)),
-        ],
+      desktop: FScaffold(child: SettingBasedGeneral()),
+      mobile: MiruScaffold(
+        mobileHeader: FHeader.nested(
+          title: const Text('General'),
+          titleAlignment: Alignment.centerLeft,
+          prefixes: [
+            FHeaderAction.back(
+              onPress: () {
+                Navigator.of(context).pop();
+              },
+              onHoverChange: (hovered) {},
+              onStateChange: (delta) {},
+            ),
+          ],
+        ),
+        snapSheet: [],
+        body: SettingBasedGeneral(isMobileLayout: true),
       ),
     );
   }

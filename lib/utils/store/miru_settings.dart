@@ -86,6 +86,7 @@ class MiruSettings {
     SettingKey.mobiletitleIsonTop: "false",
     SettingKey.btServerLink: "https://github.com/miru-project/bt-server",
     SettingKey.maxConnection: "3",
+    SettingKey.showDeleteExtensionDialog: "true",
     SettingKey.pinnedExtension: {}.toString(),
   };
   static Future<void> _initSettings() async {
@@ -192,4 +193,5 @@ class SettingKey {
   static const btServerLink = "BtServerLink";
   static const maxConnection = "MaxConnection";
   static const pinnedExtension = "PinnedExtension";
+  static const showDeleteExtensionDialog = "ShowDeleteExtensionDialog";
 }

@@ -42,7 +42,7 @@ final class ApplicationControllerProvider
 }
 
 String _$applicationControllerHash() =>
-    r'79aeb1c48ece02f51522c076b7a983ac288bc162';
+    r'b1a9b38b3f4c404d7df205b810ebeeb3d34a1c21';
 
 abstract class _$ApplicationController extends $Notifier<ApplicationState> {
   ApplicationState build();

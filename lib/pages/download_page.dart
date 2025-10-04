@@ -7,8 +7,8 @@ import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/utils/download/download_utils.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/core/log.dart';
+import 'package:miru_app_new/widgets/core/toast.dart';
 // import 'package:miru_app_new/utils/network/request.dart';
-import 'package:miru_app_new/widgets/snackbar.dart';
 
 final downloadsProvider =
     NotifierProvider<_DownloadsNotifier, AsyncValue<List<dynamic>>>(
@@ -78,9 +78,9 @@ class _DownloadsNotifier extends Notifier<AsyncValue<List<dynamic>>> {
       return;
     }
     if (res.statusCode != 200) {
-      showSnackBar(
-        context: context,
-        content: Text('Failed to $action download: ${res.data}'),
+      showSimpleToast(
+        // context: context,
+        'Failed to $action download: ${res.data}',
       );
     } else {
       await _fetchStatus();

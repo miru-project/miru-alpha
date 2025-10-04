@@ -1,19 +1,20 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/assets.dart';
+import 'package:forui/widgets/button.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
+import 'package:miru_app_new/provider/search_page_single_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/widgets/error.dart';
-import 'package:miru_app_new/widgets/gridView/index.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'package:moon_design/moon_design.dart';
 import 'package:go_router/go_router.dart';
+import 'package:miru_app_new/widgets/search/search_grid_loading.dart';
+import 'package:miru_app_new/widgets/search/search_grid_view.dart';
 
 class SearchPageSingleView extends StatefulHookConsumerWidget {
   const SearchPageSingleView({super.key, this.query, required this.meta});
@@ -25,33 +26,27 @@ class SearchPageSingleView extends StatefulHookConsumerWidget {
 
 class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
     with TickerProviderStateMixin {
-  late final ValueNotifier<String> _query;
-  late final ValueNotifier<int> _page;
-  final ValueNotifier<List<ExtensionListItem>> _result = ValueNotifier([]);
   late final _scrollController = ScrollController();
-  final ValueNotifier<bool> _isLoading = ValueNotifier(false);
-  // late final Map<String, ExtensionFilter> _filters;
-  late ValueNotifier<Map<String, ExtensionFilter>> _fileNotifier;
-  late ValueNotifier<bool> _isUpdateFilter;
   late TabController tabController;
-  late final ValueNotifier<List<List<int>>> _selected;
 
   @override
   void initState() {
-    _query = ValueNotifier(widget.query ?? '');
-    _isLoading.value = true;
-    _page = ValueNotifier(1);
+    super.initState();
+    // initialize provider-backed state
+    final notifier = ref.read(searchPageSingleProviderProvider.notifier);
+    // notifier.setQuery(widget.query ?? '');
+    // notifier.setLoading(true);
+    // notifier.setPage(1);
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final filter = await ExtensionEndpoint.createFilter(
         widget.meta.packageName,
       );
       tabController = TabController(length: filter.length, vsync: this);
-      _fileNotifier.value.addAll(filter);
-      _selected = ValueNotifier(List.generate(filter.length, (index) => []));
-      _isUpdateFilter.value = true;
+      notifier.addFileNotifier(filter);
+      notifier.initializeSelected(filter.length);
+      notifier.setIsUpdateFilter(true);
     });
-
-    super.initState();
   }
 
   @override
@@ -63,8 +58,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
   void indexToFilterParam() {}
   @override
   Widget build(context) {
-    _fileNotifier = useState({});
-    _isUpdateFilter = useState(false);
+    // provider-backed state
     final isFilterActivate = useState(false);
     // tabController = useState(useTabController(initialLength: 0));
 
@@ -74,8 +68,12 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
           ? <Widget>[
               Align(
                 alignment: Alignment.centerLeft,
-                child: MoonButton(
-                  label: Column(
+                child: FButton(
+                  onPress: () {
+                    context.pop();
+                  },
+                  prefix: const Icon(FIcons.chevronLeft),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -85,17 +83,10 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                           fontSize: 20,
                         ),
                       ),
-                      ValueListenableBuilder(
-                        valueListenable: _page,
-                        builder: (context, value, _) => Text('page: $value'),
+                      Text(
+                        'page: ${ref.watch(searchPageSingleProviderProvider).page}',
                       ),
                     ],
-                  ),
-                  onTap: () {
-                    context.pop();
-                  },
-                  leading: const Icon(
-                    MoonIcons.controls_chevron_left_16_regular,
                   ),
                 ),
               ),
@@ -104,39 +95,42 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
               SideBarSearchBar(
                 trailing: Row(
                   children: [
-                    MoonButton.icon(
-                      icon: const Icon(MoonIcons.controls_close_24_regular),
-                      onTap: () {
-                        _query.value = '';
-                        _page.value = 1;
+                    FButton.icon(
+                      child: const Icon(FIcons.x),
+                      onPress: () {
+                        final notifier = ref.read(
+                          searchPageSingleProviderProvider.notifier,
+                        );
+                        notifier.setQuery('');
+                        notifier.setPage(1);
                         ref.invalidate(
                           fetchExtensionLatestProvider(
                             widget.meta.packageName,
-                            _page.value,
+                            ref.read(searchPageSingleProviderProvider).page,
                           ),
                         );
                         ref.read(
                           fetchExtensionLatestProvider(
                             widget.meta.packageName,
-                            _page.value,
+                            ref.read(searchPageSingleProviderProvider).page,
                           ),
                         );
-                        _result.value = [];
-                        _isLoading.value = true;
+                        notifier.clearResult();
+                        notifier.setLoading(true);
                       },
                     ),
-                    MoonButton.icon(
-                      onTap: () {
+                    FButton.icon(
+                      onPress: () {
                         isFilterActivate.value = !isFilterActivate.value;
                       },
-                      icon: isFilterActivate.value
+                      child: isFilterActivate.value
                           ? Icon(
                               Icons.filter_alt,
-                              color: context
-                                  .moonTheme
-                                  ?.segmentedControlTheme
-                                  .colors
-                                  .backgroundColor,
+                              // color: context
+                              //     .moonTheme
+                              //     ?.segmentedControlTheme
+                              //     .colors
+                              //     .backgroundColor,
                             )
                           : const Icon(Icons.filter_alt_off_outlined),
                     ),
@@ -144,77 +138,100 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                 ),
                 onsubmitted: (val) {
                   if (val.isEmpty) return;
-
-                  _query.value = val;
-                  _page.value = 1;
+                  final notifier = ref.read(
+                    searchPageSingleProviderProvider.notifier,
+                  );
+                  notifier.setQuery(val);
+                  notifier.setPage(1);
                   ref.invalidate(
                     fetchExtensionSearchProvider(
                       widget.meta.packageName,
-                      _query.value,
-                      _page.value,
+                      ref.read(searchPageSingleProviderProvider).query,
+                      ref.read(searchPageSingleProviderProvider).page,
                     ),
                   );
                   ref.read(
                     fetchExtensionSearchProvider(
                       widget.meta.packageName,
-                      _query.value,
-                      _page.value,
+                      ref.read(searchPageSingleProviderProvider).query,
+                      ref.read(searchPageSingleProviderProvider).page,
                     ),
                   );
-                  _result.value = [];
-                  _isLoading.value = true;
+                  notifier.clearResult();
+                  notifier.setLoading(true);
                 },
               ),
               const SizedBox(height: 10),
-              if (_isUpdateFilter.value) ...[
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: MoonTabBar(
-                    tabController: tabController,
-                    tabs: List.generate(
-                      _fileNotifier.value.length,
-                      (index) => MoonTab(
-                        label: Text(_fileNotifier.value.keys.toList()[index]),
-                      ),
-                    ),
-                  ),
-                ),
+              if (ref
+                  .watch(searchPageSingleProviderProvider)
+                  .isUpdateFilter) ...[
+                // SingleChildScrollView(
+                //   scrollDirection: Axis.horizontal,
+                //   child: MoonTabBar(
+                //     tabController: tabController,
+                //     tabs: List.generate(
+                //       ref.watch(searchPageSingleProviderProvider).fileNotifier.length,
+                //       (index) => MoonTab(
+                //         label: Text(
+                //           ref
+                //               .watch(searchPageSingleProviderProvider)
+                //               .fileNotifier
+                //               .keys
+                //               .toList()[index],
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 SizedBox(
                   height: 1000,
                   child: TabBarView(
                     controller: tabController,
-                    children: List.generate(_fileNotifier.value.length, (
-                      index,
-                    ) {
-                      final keys = _fileNotifier.value.keys.toList();
-                      final defaultOpt =
-                          _fileNotifier.value[keys[index]]?.defaultOption ?? '';
+                    children: List.generate(
+                      ref
+                          .watch(searchPageSingleProviderProvider)
+                          .fileNotifier
+                          .length,
+                      (index) {
+                        final fileMap = ref
+                            .watch(searchPageSingleProviderProvider)
+                            .fileNotifier;
+                        final keys = fileMap.keys.toList();
+                        final defaultOpt =
+                            fileMap[keys[index]]?.defaultOption ?? '';
 
-                      final map = _fileNotifier.value;
-                      final selectOptions =
-                          _fileNotifier.value[keys[index]]?.options.values
-                              .toList() ??
-                          [];
-                      {
-                        if (selectOptions.contains(defaultOpt)) {
-                          final initIndex = selectOptions.indexOf(defaultOpt);
-                          _selected.value[index] = [initIndex];
+                        final selectOptions =
+                            fileMap[keys[index]]?.options.values.toList() ?? [];
+                        {
+                          if (selectOptions.contains(defaultOpt)) {
+                            final initIndex = selectOptions.indexOf(defaultOpt);
+                            ref
+                                .read(searchPageSingleProviderProvider.notifier)
+                                .setSelectedIndex(index, [initIndex]);
+                          }
                         }
-                      }
-                      return CatergoryGroupChip(
-                        maxSelected: _fileNotifier.value[keys[index]]?.max,
-                        minSelected: _fileNotifier.value[keys[index]]?.min,
-                        initSelected: _selected.value[index],
-                        items: map[keys[index]]!.options.values.toList(),
-                        onpress: (val) {
-                          final newSelected = List<List<int>>.from(
-                            _selected.value,
-                          );
-                          newSelected[index] = val;
-                          _selected.value = newSelected;
-                        },
-                      );
-                    }),
+                        return CatergoryGroupChip(
+                          maxSelected: fileMap[keys[index]]?.max,
+                          minSelected: fileMap[keys[index]]?.min,
+                          initSelected:
+                              ref
+                                      .watch(searchPageSingleProviderProvider)
+                                      .selected
+                                      .length >
+                                  index
+                              ? ref
+                                    .watch(searchPageSingleProviderProvider)
+                                    .selected[index]
+                              : [],
+                          items: fileMap[keys[index]]!.options.values.toList(),
+                          onpress: (val) {
+                            ref
+                                .read(searchPageSingleProviderProvider.notifier)
+                                .setSelectedIndex(index, val);
+                          },
+                        );
+                      },
+                    ),
                   ),
                 ),
               ],
@@ -225,14 +242,17 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
   }
 
   Widget content(BuildContext context, BoxConstraints cons) {
-    if (_query.value.isEmpty) {
+    final state = ref.watch(searchPageSingleProviderProvider);
+    final notifier = ref.read(searchPageSingleProviderProvider.notifier);
+
+    if (state.query.isEmpty) {
       final snapshot = ref.watch(
-        fetchExtensionLatestProvider(widget.meta.packageName, _page.value),
+        fetchExtensionLatestProvider(widget.meta.packageName, state.page),
       );
       return EasyRefresh(
         scrollController: _scrollController,
         onLoad: () async {
-          debugPrint('load');
+          logger.info('load');
           // if (_isLoading.value) return;
           // _isLoading.value = true;
           // final data = await widget.service.latest(_page.value);
@@ -243,179 +263,72 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
         footer: const ClassicFooter(),
         child: snapshot.when(
           data: (data) {
-            if (_isLoading.value) {
-              _result.value.addAll(data);
-              _isLoading.value = false;
+            if (state.isLoading) {
+              // notifier.addResult(data);
+              // notifier.setLoading(false);
+              return SearchGridLoadingWidget(
+                scrollController: _scrollController,
+              );
             }
-            return _GridView(
+            return SearchGridView(
               meta: widget.meta,
               scrollController: _scrollController,
               cons: cons,
-              query: _query,
-              page: _page,
-              result: _result,
-              isLoading: _isLoading,
+              page: state.page,
+              result: state.result,
+              isLoading: state.isLoading,
             );
           },
           error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
           loading: () =>
-              _GridLoadingWidget(scrollController: _scrollController),
+              SearchGridLoadingWidget(scrollController: _scrollController),
         ),
       );
     }
     final snapshot = ref.watch(
       fetchExtensionSearchProvider(
         widget.meta.packageName,
-        _query.value,
-        _page.value,
+        state.query,
+        state.page,
       ),
     );
     return EasyRefresh(
       scrollController: _scrollController,
       onLoad: () async {
         logger.info('load');
-        if (_isLoading.value) return;
-        _isLoading.value = true;
+        if (state.isLoading) return;
+        notifier.setLoading(true);
         final data = await ExtensionEndpoint.search(
           widget.meta.packageName,
-          _query.value,
-          _page.value,
+          state.query,
+          state.page,
         );
-        _result.value.addAll(data);
-        _isLoading.value = false;
-        _page.value++;
+        notifier.addResult(data);
+        notifier.setLoading(false);
+        notifier.incPage();
       },
       footer: const ClassicFooter(),
       child: snapshot.when(
         data: (data) {
-          if (_isLoading.value) {
-            _result.value.addAll(data);
-            _isLoading.value = false;
+          if (state.isLoading) {
+            notifier.addResult(data);
+            notifier.setLoading(false);
           }
-          return _GridView(
+          return SearchGridView(
             meta: widget.meta,
             scrollController: _scrollController,
             cons: cons,
-            query: _query,
-            page: _page,
-            result: _result,
-            isLoading: _isLoading,
+            page: state.page,
+            result: state.result,
+            isLoading: state.isLoading,
           );
         },
         error: (e, stack) => Center(
           child: Row(children: [Text(e.toString()), Text(stack.toString())]),
         ),
-        loading: () => _GridLoadingWidget(scrollController: _scrollController),
+        loading: () =>
+            SearchGridLoadingWidget(scrollController: _scrollController),
       ),
-    );
-  }
-}
-
-class _GridLoadingWidget extends StatelessWidget {
-  final ScrollController scrollController;
-  const _GridLoadingWidget({required this.scrollController});
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, cons) => MiruGridView(
-        scrollController: scrollController,
-        mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: cons.maxWidth ~/ 110,
-          childAspectRatio: 0.6,
-        ),
-        desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: cons.maxWidth ~/ 180,
-          childAspectRatio: 0.6,
-        ),
-        itemBuilder: (context, index) => const MiruGridTileLoadingBox(),
-        itemCount: 20,
-      ),
-    );
-  }
-}
-
-class _GridView extends StatelessWidget {
-  final ValueNotifier<String> query;
-  final ValueNotifier<int> page;
-  final ValueNotifier<List<ExtensionListItem>> result;
-  final BoxConstraints cons;
-  final ScrollController scrollController;
-  // late final scrollController = ScrollController();
-  // final ValueNotifier<bool> isLoading = ValueNotifier(false);
-  final ValueNotifier<bool> isLoading;
-  final ExtensionMeta meta;
-  const _GridView({
-    required this.scrollController,
-    required this.cons,
-    required this.query,
-    required this.page,
-    required this.meta,
-    required this.result,
-    required this.isLoading,
-  });
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: result,
-      builder: (context, value, _) {
-        return ValueListenableBuilder(
-          valueListenable: isLoading,
-          builder: (conetxt, isLoading, _) {
-            if (isLoading) {
-              final truncateDivison = cons.maxWidth ~/ 110;
-              final loadingWidgetCount =
-                  truncateDivison * 2 - value.length % truncateDivison;
-              debugPrint(loadingWidgetCount.toString());
-              return MiruGridView(
-                scrollController: scrollController,
-                mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: cons.maxWidth ~/ 110,
-                  childAspectRatio: 0.6,
-                ),
-                desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: cons.maxWidth ~/ 180,
-                  childAspectRatio: 0.6,
-                ),
-                itemBuilder: (context, index) {
-                  if (index >= value.length) {
-                    return const MiruGridTileLoadingBox();
-                  }
-                  return MiruGridTile(
-                    title: value[index].title,
-                    imageUrl: value[index].cover,
-                    subtitle: value[index].update ?? '',
-                  );
-                },
-                itemCount: value.length + loadingWidgetCount,
-              );
-            }
-            return MiruGridView(
-              scrollController: scrollController,
-              mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: cons.maxWidth ~/ 110,
-                childAspectRatio: 0.6,
-              ),
-              desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: cons.maxWidth ~/ 180,
-                childAspectRatio: 0.65,
-              ),
-              itemBuilder: (context, index) => MiruGridTile(
-                onTap: () {
-                  context.push(
-                    '/search/single/detail',
-                    extra: DetailParam(meta: meta, url: value[index].url),
-                  );
-                },
-                title: value[index].title,
-                imageUrl: value[index].cover,
-                subtitle: value[index].update ?? '',
-              ),
-              itemCount: value.length,
-            );
-          },
-        );
-      },
     );
   }
 }

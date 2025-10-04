@@ -89,36 +89,39 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
   Widget build(BuildContext context) {
     return PlatformWidget(
       desktopWidget: selected(widget.selected, context),
-      mobileWidget: FTileGroup(
-        label: const Text('Settings'),
-        description: const Text('Personalize your experience'),
-        children: [
-          FTile(
-            prefix: Icon(FIcons.menu),
-            title: const Text('General'),
-            suffix: Icon(FIcons.chevronRight),
-            subtitle: Text('Language, Theme, etc.'),
-            onPress: () {
-              _pushtoPage(context, SettingGeneral());
-            },
-          ),
-          FTile(
-            prefix: Icon(FIcons.blocks),
-            title: const Text('Extension'),
-            subtitle: const Text('repos'),
-            // details: const Text('Forus Labs (5G)'),
-            suffix: Icon(FIcons.chevronRight),
-            onPress: () {},
-          ),
-          FTile(
-            prefix: Icon(FIcons.tv),
-            title: const Text('Video Player'),
-            subtitle: const Text('player setting'),
-            // details: const Text('Forus Labs (5G)'),
-            suffix: Icon(FIcons.chevronRight),
-            onPress: () {},
-          ),
-        ],
+      mobileWidget: MiruScaffold(
+        mobileHeader: SnapSheetHeader(title: 'Settings'),
+        body: FTileGroup(
+          // label: const Text('Settings'),
+          description: const Text('Personalize your experience'),
+          children: [
+            FTile(
+              prefix: Icon(FIcons.menu),
+              title: const Text('General'),
+              suffix: Icon(FIcons.chevronRight),
+              subtitle: Text('Language, Theme, etc.'),
+              onPress: () {
+                _pushtoPage(context, SettingGeneral());
+              },
+            ),
+            FTile(
+              prefix: Icon(FIcons.blocks),
+              title: const Text('Extension'),
+              subtitle: const Text('repos'),
+              // details: const Text('Forus Labs (5G)'),
+              suffix: Icon(FIcons.chevronRight),
+              onPress: () {},
+            ),
+            FTile(
+              prefix: Icon(FIcons.tv),
+              title: const Text('Video Player'),
+              subtitle: const Text('player setting'),
+              // details: const Text('Forus Labs (5G)'),
+              suffix: Icon(FIcons.chevronRight),
+              onPress: () {},
+            ),
+          ],
+        ),
       ),
     );
   }

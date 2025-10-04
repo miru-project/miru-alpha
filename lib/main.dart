@@ -132,11 +132,13 @@ class _App extends ConsumerState<App> {
     final c = ref.watch(applicationControllerProvider);
     return FTheme(
       data: c.themeData,
-      child: MaterialApp.router(
-        themeMode: c.themeMode,
-        title: 'Miru',
-        routerConfig: RouterUtil.appRouter,
-        // debugShowCheckedModeBanner: false,
+      child: FScaffold(
+        child: MaterialApp.router(
+          themeMode: c.themeMode,
+          title: 'Miru',
+          routerConfig: RouterUtil.appRouter,
+          // debugShowCheckedModeBanner: false,
+        ),
       ),
     );
   }

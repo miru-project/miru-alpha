@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/provider/main_controller_provider.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
 
-class MiruScaffold extends StatefulHookWidget {
+class MiruScaffold extends StatefulHookConsumerWidget {
   const MiruScaffold({
     super.key,
-    this.appBar,
+    // this.appBar,
     required this.body,
-    this.snapSheet,
+    this.snapSheet = const [],
     this.snappingSheetController,
     this.mobileHeader,
     this.scrollController,
   });
-  final PreferredSizeWidget? appBar;
+  // final PreferredSizeWidget? appBar;
   final Widget body;
-  final List<Widget>? snapSheet;
+  final List<Widget> snapSheet;
   final ScrollController? scrollController;
   final SnappingSheetController? snappingSheetController;
   final Widget? mobileHeader;
   @override
-  State<MiruScaffold> createState() => _MiruScaffoldState();
+  ConsumerState<MiruScaffold> createState() => _MiruScaffoldState();
 }
 
-class _MiruScaffoldState extends State<MiruScaffold> {
+class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
   late ScrollController scrollController;
   @override
   void dispose() {
@@ -41,8 +41,7 @@ class _MiruScaffoldState extends State<MiruScaffold> {
     super.initState();
   }
 
-  late final MainController c;
-  Widget sheet() {
+  Widget sheet(bool isMobileTitleOnTop) {
     return SnappingSheet(
       lockOverflowDrag: true,
       controller: widget.snappingSheetController,
@@ -68,54 +67,41 @@ class _MiruScaffoldState extends State<MiruScaffold> {
       sheetBelow: SnappingSheetContent(
         childScrollController: scrollController,
         draggable: (details) => true,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 25,
-                color: context.theme.colors.primaryForeground.withAlpha(230),
-              ),
-            ],
-          ),
-          clipBehavior: Clip.antiAlias,
+        child: FCard.raw(
           child: Blur(
+            blurDensity: 20,
             child: ListView(
               controller: scrollController,
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
               children: [
                 _GrabbingWidget(),
-                if (widget.mobileHeader != null &&
-                    !MiruSettings.getSettingSync<bool>(
-                      SettingKey.mobiletitleIsonTop,
-                    ))
-                  widget.mobileHeader!,
-                ...widget.snapSheet!,
+                if (!isMobileTitleOnTop) widget.mobileHeader!,
+                if (widget.snapSheet.isNotEmpty) ...widget.snapSheet,
               ],
             ),
           ),
         ),
       ),
-      child: Column(
-        children: [
-          if (MiruSettings.getSettingSync<bool>(SettingKey.mobiletitleIsonTop))
-            const SizedBox(height: 50),
-          Expanded(child: widget.body),
-        ],
-      ),
+      child: widget.body,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isMobileTitleOnTop = ref.watch(
+      applicationControllerProvider.select((value) => value.isMobileTitleOnTop),
+    );
     return PlatformWidget(
       mobileWidget: FScaffold(
-        header: MiruSettings.getSettingSync<bool>(SettingKey.mobiletitleIsonTop)
-            ? FHeader(title: widget.mobileHeader ?? const SizedBox())
+        childPad: false,
+        header: isMobileTitleOnTop
+            ? widget.mobileHeader ?? const SizedBox()
             : null,
-        child: widget.snapSheet == null ? widget.body : sheet(),
+        child: (widget.snapSheet.isEmpty && isMobileTitleOnTop)
+            ? widget.body
+            : sheet(isMobileTitleOnTop),
       ),
-      desktopWidget: widget.body,
+      desktopWidget: FScaffold(child: widget.body),
     );
   }
 }

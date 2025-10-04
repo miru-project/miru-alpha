@@ -10,11 +10,13 @@ class ApplicationState {
   final AccentColors accentColor;
   final FThemeData themeData;
   final ThemeMode themeMode;
+  final bool isMobileTitleOnTop;
   ApplicationState({
     required this.themeText,
     required this.accentColor,
     required this.themeData,
     required this.themeMode,
+    this.isMobileTitleOnTop = true,
   });
 
   ApplicationState copyWith({
@@ -22,12 +24,14 @@ class ApplicationState {
     AccentColors? accentColor,
     FThemeData? themeData,
     ThemeMode? themeMode,
+    bool? isMobileTitleOnTop,
   }) {
     return ApplicationState(
       themeData: themeData ?? this.themeData,
       themeText: themeText ?? this.themeText,
       accentColor: accentColor ?? this.accentColor,
       themeMode: themeMode ?? this.themeMode,
+      isMobileTitleOnTop: isMobileTitleOnTop ?? this.isMobileTitleOnTop,
     );
   }
 }
@@ -42,7 +46,9 @@ class ApplicationController extends _$ApplicationController {
           SettingKey.accentColor,
         )] ??
         AccentColors.zinc;
-
+    final isMobileTitleOnTop = MiruSettings.getSettingSync<bool>(
+      SettingKey.mobiletitleIsonTop,
+    );
     final themeData = currentThemeData(themeText, accentColor);
 
     return ApplicationState(
@@ -50,6 +56,7 @@ class ApplicationController extends _$ApplicationController {
       accentColor: accentColor,
       themeData: themeData,
       themeMode: ThemeMode.system,
+      isMobileTitleOnTop: isMobileTitleOnTop,
     );
   }
 
@@ -111,5 +118,13 @@ class ApplicationController extends _$ApplicationController {
       themeText: mode,
       themeData: currentThemeData(mode, state.accentColor),
     );
+  }
+
+  void updateMobileTitleOnTop(bool isOnTop) {
+    MiruSettings.setSettingSync(
+      SettingKey.mobiletitleIsonTop,
+      isOnTop.toString(),
+    );
+    state = state.copyWith(isMobileTitleOnTop: isOnTop);
   }
 }

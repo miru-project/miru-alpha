@@ -353,7 +353,21 @@ class LoadedContent extends HookWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              FBadge(child: Text('Favorited')),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  FBadge(child: Text('Favorited')),
+                                  FButton.icon(
+                                    onPress: () {},
+                                    child: Icon(
+                                      FIcons.star,
+                                      blendMode: BlendMode.luminosity,
+                                      color: context.theme.colors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
                               const SizedBox(height: 10),
                               Padding(
                                 padding: EdgeInsetsGeometry.symmetric(
@@ -877,34 +891,35 @@ class LoadingWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (header != null) header!,
-          Shimmer.fromColors(
-            baseColor: context
-                .moonTheme!
-                .segmentedControlTheme
-                .colors
-                .backgroundColor
-                .withAlpha(50),
-            highlightColor: context
-                .moonTheme!
-                .segmentedControlTheme
-                .colors
-                .backgroundColor
-                .withAlpha(100),
-            child: Column(
-              children: List.generate(
-                lineCount,
-                (index) => Column(
-                  children: [
-                    SizedBox(height: lineSeperate ?? 20),
-                    Container(
-                      height: lineheight ?? 10,
-                      decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.circular(90),
-                      ),
+          // Shimmer.fromColors(
+          //   // baseColor: context
+          //   //     .moonTheme!
+          //   //     .segmentedControlTheme
+          //   //     .colors
+          //   //     .backgroundColor
+          //   //     .withAlpha(50),
+          //   // highlightColor: context
+          //   //     .moonTheme!
+          //   //     .segmentedControlTheme
+          //   //     .colors
+          //   //     .backgroundColor
+          //   //     .withAlpha(100),
+          //   child: ,
+          // ),
+          Column(
+            children: List.generate(
+              lineCount,
+              (index) => Column(
+                children: [
+                  SizedBox(height: lineSeperate ?? 20),
+                  Container(
+                    height: lineheight ?? 10,
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(90),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -989,67 +1004,68 @@ class _DetailSideWidgetMobile extends ConsumerWidget {
               const SizedBox(height: 40),
               Row(
                 children: [
-                  MoonButton(
-                    borderColor: context
-                        .moonTheme
-                        ?.segmentedControlTheme
-                        .colors
-                        .backgroundColor,
-                    textColor: context
-                        .moonTheme
-                        ?.segmentedControlTheme
-                        .colors
-                        .textColor,
-                    backgroundColor: context
-                        .moonTheme
-                        ?.segmentedControlTheme
-                        .colors
-                        .backgroundColor,
-                    label: const Text('Play'),
-                    onTap: null,
+                  FButton(
+                    // borderColor: context
+                    //     .moonTheme
+                    //     ?.segmentedControlTheme
+                    //     .colors
+                    //     .backgroundColor,
+                    // textColor: context
+                    //     .moonTheme
+                    //     ?.segmentedControlTheme
+                    //     .colors
+                    //     .textColor,
+                    // backgroundColor: context
+                    //     .moonTheme
+                    //     ?.segmentedControlTheme
+                    //     .colors
+                    //     .backgroundColor,
+                    onPress: null,
+                    child: const Text('Play'),
                   ),
                   const SizedBox(width: 10),
                   Consumer(
                     builder: (context, ref, _) {
                       final fav = ref.watch(detialProvider).favorite;
-                      return MoonChip(
-                        isActive: fav != null,
-                        activeColor: context
-                            .moonTheme
-                            ?.segmentedControlTheme
-                            .colors
-                            .textColor,
-                        borderColor: context
-                            .moonTheme
-                            ?.segmentedControlTheme
-                            .colors
-                            .backgroundColor,
-                        textColor:
-                            context.moonTheme?.textInputTheme.colors.textColor,
-                        backgroundColor: context
-                            .moonTheme
-                            ?.textInputTheme
-                            .colors
-                            .backgroundColor,
-                        label: Text(
-                          fav != null ? 'Favorited' : 'Favorite',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        leading: const Icon(MoonIcons.generic_star_24_regular),
-                        onTap: () {
-                          if (detail == null || detailUrl == null) {
-                            return;
-                          }
-                          showMoonModal(
-                            context: context,
-                            builder: (context) => _FavoriteDialog(
-                              meta: meta,
-                              detail: detail!,
-                              detailUrl: detailUrl!,
-                            ),
-                          );
-                        },
-                      );
+                      return Text("WIP");
+                      // return MoonChip(
+                      //   isActive: fav != null,
+                      //   activeColor: context
+                      //       .moonTheme
+                      //       ?.segmentedControlTheme
+                      //       .colors
+                      //       .textColor,
+                      //   borderColor: context
+                      //       .moonTheme
+                      //       ?.segmentedControlTheme
+                      //       .colors
+                      //       .backgroundColor,
+                      //   textColor:
+                      //       context.moonTheme?.textInputTheme.colors.textColor,
+                      //   backgroundColor: context
+                      //       .moonTheme
+                      //       ?.textInputTheme
+                      //       .colors
+                      //       .backgroundColor,
+                      //   label: Text(
+                      //     fav != null ? 'Favorited' : 'Favorite',
+                      //     style: const TextStyle(fontWeight: FontWeight.bold),
+                      //   ),
+                      //   leading: const Icon(MoonIcons.generic_star_24_regular),
+                      //   onTap: () {
+                      //     if (detail == null || detailUrl == null) {
+                      //       return;
+                      //     }
+                      //     showMoonModal(
+                      //       context: context,
+                      //       builder: (context) => _FavoriteDialog(
+                      //         meta: meta,
+                      //         detail: detail!,
+                      //         detailUrl: detailUrl!,
+                      //       ),
+                      //     );
+                      //   },
+                      // );
                     },
                   ),
                   DownloadButton(isIcon: true, detail: detail!, meta: meta),

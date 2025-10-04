@@ -2,25 +2,34 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_app_new/widgets/button.dart';
+import 'package:miru_app_new/widgets/core/image_widget.dart';
 
 class ExtensionListTile extends StatefulWidget {
   const ExtensionListTile({
     super.key,
     required this.name,
+    required this.isNSFW,
     this.icon,
     required this.version,
     required this.author,
     required this.type,
-    required this.onUninstall,
+    this.description,
     required this.onInstall,
+    required this.onUninstall,
+    required this.isInstalled,
+    this.tags = const [],
   });
+  final bool isNSFW;
   final String name;
   final String? icon;
   final String version;
   final String author;
   final String type;
-  final VoidCallback onUninstall;
-  final VoidCallback onInstall;
+  final String? description;
+  final List<String> tags;
+  final void Function() onInstall;
+  final void Function() onUninstall;
+  final bool isInstalled;
 
   @override
   State<ExtensionListTile> createState() => _ExtensionListTileState();
@@ -38,22 +47,22 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
             child: Row(
               children: [
                 if (widget.icon != null)
-                  ExtendedImage.network(
-                    widget.icon!,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                  ),
+                  ImageWidget(imageUrl: widget.icon!, width: 50, height: 50),
                 const SizedBox(width: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(widget.name, style: const TextStyle(fontSize: 18)),
-                    Text(
-                      widget.author,
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ],
+                FLabel(
+                  axis: Axis.vertical,
+
+                  description: Row(
+                    children: [
+                      Text(widget.author),
+                      if (widget.isNSFW)
+                        const Text(
+                          ' • NSFW',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                    ],
+                  ),
+                  child: Text(widget.name),
                 ),
               ],
             ),
@@ -64,13 +73,22 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
               style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ),
-          Expanded(
-            child: Text(
-              widget.type,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
+          // Expanded(
+          //   child: Text(
+          //     widget.type,
+          //     style: const TextStyle(fontSize: 14, color: Colors.grey),
+          //   ),
+          // ),
+          if (widget.isInstalled)
+            FButton.icon(
+              onPress: widget.onUninstall,
+              child: Icon(FIcons.trash2),
+            )
+          else
+            FButton.icon(
+              onPress: widget.onInstall,
+              child: Icon(FIcons.arrowDownToLine),
             ),
-          ),
-          Button(onPressed: widget.onUninstall, child: const Text('Uninstall')),
         ],
       ),
     );

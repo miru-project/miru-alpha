@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 import 'package:moon_design/moon_design.dart';
 
 class CategoryGroup extends HookWidget {
@@ -15,7 +16,7 @@ class CategoryGroup extends HookWidget {
   });
   final List<String> items;
   final bool needSpacer;
-  final void Function(int) onpress;
+  final void Function(String) onpress;
   final int? maxSelected;
   final int? minSelected;
   final String? title;
@@ -26,28 +27,16 @@ class CategoryGroup extends HookWidget {
     return FSelectTileGroup<String>(
       label: title == null ? null : Text(title!),
       selectController: controller,
+      onSelect: (val) {
+        onpress(val.$1);
+      },
+
       children: List.generate(
         items.length,
         (index) =>
             FSelectTile<String>(title: Text(items[index]), value: items[index]),
       ),
     );
-    // Column(
-    //   children: [
-    //     if (needSpacer) const SizedBox(height: 10),
-    //     ...List.generate(
-    //       items.length,
-    //       (index) => SideBarListTile(
-    //         title: items[index],
-    //         selected: selected.value == index,
-    //         onPressed: () {
-    //           selected.value = index;
-    //           onpress(index);
-    //         },
-    //       ),
-    //     ),
-    //   ],
-    // );
   }
 }
 

@@ -42,6 +42,9 @@ class SettingsRadiosTile extends HookWidget with FTileMixin {
     final selected = useState(value);
     if (isMobileLayout) {
       return FSelectMenuTile(
+        onChange: (selected) {
+          onChanged(selected.first);
+        },
         detailsBuilder: (_, val, _) {
           if (val.isEmpty) {
             val.add(selected.value);
