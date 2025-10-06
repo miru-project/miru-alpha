@@ -1,12 +1,14 @@
 import 'dart:isolate';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/misc.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 
 late final Dio dio;
 
@@ -100,7 +102,6 @@ class CoreNetwork {
     dio = Dio();
     await waitForServerLoaded();
     logger.info('Miru_core initialized with base URL: $baseUrl');
-    startPollRootInIsolate(interval: const Duration(milliseconds: 200));
   }
 
   // Run inside seperate isolate to handle json unmarshalling from the miru-core  response
@@ -147,52 +148,55 @@ class CoreNetwork {
     }
   }
 
-  static void startPollRootInIsolate({
+  static void startPollRootInIsolate(
+    void Function(dynamic) callback, {
     Duration interval = const Duration(milliseconds: 200),
   }) async {
     final receivePort = ReceivePort();
     // await Isolate.spawn(_pollRootIsolateEntry, [receivePort.sendPort, interval]);
     _pollRootIsolateEntry([receivePort.sendPort, interval]);
 
-    receivePort.listen((data) {
-      if (data is List<ExtensionMeta>) {
-        MetaDataController.update(data);
-
-        _extensionNotifier?.setMetaData(data);
-      } else if (data is String) {
-        logger.info('Error received: $data');
-      } else {
-        logger.info('Unknown data type received: $data');
-      }
-    });
+    receivePort.listen(callback);
   }
 
-  static ExtensionPageNotifier? _extensionNotifier;
+  // static ExtensionPageNotifier? _extensionNotifier;
 
-  static void setExtensionNotifier(ExtensionPageNotifier notifier) {
-    _extensionNotifier = notifier;
+  // static void setExtensionNotifier(ExtensionPageNotifier notifier) {
+  //   _extensionNotifier = notifier;
+  // }
+}
+
+extension Context on BuildContext {
+  // Custom call a provider for reading method only
+  // It will be helpful for us for calling the read function
+  // without Consumer,ConsumerWidget or ConsumerStatefulWidget
+  // Incase if you face any issue using this then please wrap your widget
+  // with consumer and then call your provider
+
+  T read<T>(ProviderBase<T> provider) {
+    return ProviderScope.containerOf(this, listen: false).read(provider);
   }
 }
 
-class MetaDataController {
-  // single updater callback registered by the UI/provider layer
-  static void Function(List<ExtensionMeta>? data)? _updater;
+// class MetaDataController {
+//   // single updater callback registered by the UI/provider layer
+//   static void Function(List<ExtensionMeta>? data)? _updater;
 
-  static void registerUpdater(
-    void Function(List<ExtensionMeta>? data) updater,
-  ) {
-    _updater = updater;
-  }
+//   // static void registerUpdater(
+//   //   void Function(List<ExtensionMeta>? data) updater,
+//   // ) {
+//   //   _updater = updater;
+//   // }
 
-  static void update(List<ExtensionMeta>? data) {
-    if (_updater == null) return;
-    try {
-      _updater!(data);
-    } catch (e) {
-      logger.info('Failed to call MetaDataController updater: $e');
-    }
-  }
-}
+//   static void update(List<ExtensionMeta>? data) {
+//     if (_updater == null) return;
+//     try {
+//       _updater!(data);
+//     } catch (e) {
+//       logger.info('Failed to call MetaDataController updater: $e');
+//     }
+//   }
+// }
 
 class ExtensionEndpoint {
   static String get extensionPathUrl => 'ext';

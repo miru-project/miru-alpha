@@ -14,6 +14,7 @@ import 'package:fvp/fvp.dart';
 
 import 'package:macos_window_utils/macos/ns_window_button_type.dart';
 import 'package:macos_window_utils/window_manipulator.dart';
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/generated_bindings.dart';
 import 'package:miru_app_new/miru_core/network/network.dart';
@@ -122,9 +123,24 @@ class _App extends ConsumerState<App> {
         'player': {'buffer': '2000+600000'},
       },
     );
-    // Pass the ExtensionPageNotifier instance to CoreNetwork so non-widget
-    // network code can optionally update provider state directly.
-    CoreNetwork.setExtensionNotifier(ref.read(extensionPageProvider.notifier));
+
+    CoreNetwork.startPollRootInIsolate(
+      poll,
+      interval: const Duration(milliseconds: 200),
+    );
+  }
+
+  void poll(dynamic data) {
+    if (data is List<ExtensionMeta>) {
+      // MetaDataController.update(data);
+
+      // _extensionNotifier?.setMetaData(data);
+      ref.read(extensionPageProvider.notifier).setMetaData(data);
+    } else if (data is String) {
+      logger.info('Error received: $data');
+    } else {
+      logger.info('Unknown data type received: $data');
+    }
   }
 
   @override
