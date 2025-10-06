@@ -13,13 +13,9 @@ class PlatformWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (DeviceUtil.isMobileLayout(context)) {
-          return mobileWidget;
-        }
-        return desktopWidget;
-      },
-    );
+    if (DeviceUtil.isMobileLayout(context)) {
+      return mobileWidget;
+    }
+    return desktopWidget;
   }
 }

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
-import 'package:miru_app_new/utils/setting_dir_index.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
 
@@ -24,6 +25,23 @@ class MiruScaffold extends StatefulHookConsumerWidget {
   final Widget? mobileHeader;
   @override
   ConsumerState<MiruScaffold> createState() => _MiruScaffoldState();
+  const MiruScaffold.desktop({
+    super.key,
+    // this.appBar,
+    required this.body,
+  }) : snapSheet = const [],
+       snappingSheetController = null,
+       mobileHeader = null,
+       scrollController = null;
+  const MiruScaffold.mobile({
+    super.key,
+    // this.appBar,
+    required this.body,
+    this.snapSheet = const [],
+    this.snappingSheetController,
+    this.mobileHeader,
+    this.scrollController,
+  });
 }
 
 class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
@@ -75,7 +93,8 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
               children: [
                 _GrabbingWidget(),
-                if (!isMobileTitleOnTop) widget.mobileHeader!,
+                if (!isMobileTitleOnTop && widget.mobileHeader != null)
+                  widget.mobileHeader!,
                 if (widget.snapSheet.isNotEmpty) ...widget.snapSheet,
               ],
             ),
@@ -91,6 +110,8 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     final isMobileTitleOnTop = ref.watch(
       applicationControllerProvider.select((value) => value.isMobileTitleOnTop),
     );
+    final a = DeviceUtil.isMobileLayout(context);
+    logger.info("isMobileLayout: $a");
     return PlatformWidget(
       mobileWidget: FScaffold(
         childPad: false,

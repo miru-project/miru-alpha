@@ -8,9 +8,19 @@ class MiruGridTileLoadingBox extends StatelessWidget {
   final double? height;
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: context.theme.colors.background.withAlpha(50),
-      highlightColor: context.theme.colors.foreground.withAlpha(100),
+    return Shimmer(
+      // baseColor: context.theme.colors.background.withAlpha(50),
+      // highlightColor: context.theme.colors.foreground.withAlpha(100),
+      gradient: LinearGradient(
+        colors: [
+          context.theme.colors.background.withAlpha(50),
+          context.theme.colors.foreground.withAlpha(100),
+          context.theme.colors.background.withAlpha(50),
+        ],
+        begin: Alignment(-1.0, -0.3),
+        end: Alignment(1.0, 0.3),
+        stops: const [0.4, 0.5, 0.6],
+      ),
       child: SizedBox(
         width: width ?? 200,
         height: height,

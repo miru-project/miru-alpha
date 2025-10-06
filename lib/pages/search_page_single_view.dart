@@ -39,13 +39,13 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
     // notifier.setPage(1);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final filter = await ExtensionEndpoint.createFilter(
-        widget.meta.packageName,
-      );
-      tabController = TabController(length: filter.length, vsync: this);
-      notifier.addFileNotifier(filter);
-      notifier.initializeSelected(filter.length);
-      notifier.setIsUpdateFilter(true);
+      // final filter = await ExtensionEndpoint.createFilter(
+      //   widget.meta.packageName,
+      // );
+      // tabController = TabController(length: filter.length, vsync: this);
+      // notifier.addFileNotifier(filter);
+      // notifier.initializeSelected(filter.length);
+      // notifier.setIsUpdateFilter(true);
     });
   }
 
@@ -223,7 +223,9 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                                     .watch(searchPageSingleProviderProvider)
                                     .selected[index]
                               : [],
-                          items: fileMap[keys[index]]!.options.values.toList(),
+                          items:
+                              fileMap[keys[index]]?.options.values.toList() ??
+                              [],
                           onpress: (val) {
                             ref
                                 .read(searchPageSingleProviderProvider.notifier)

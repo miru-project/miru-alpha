@@ -8,8 +8,8 @@ import 'package:miru_app_new/widgets/core/inner_card.dart';
 import 'package:miru_app_new/widgets/core/search_filter_card.dart';
 import 'package:miru_app_new/widgets/search/desktop_search_list_tile.dart';
 
-class NewSearchPage extends HookConsumerWidget {
-  const NewSearchPage({super.key});
+class DesktopSearchPage extends HookConsumerWidget {
+  const DesktopSearchPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final metaData = ref.watch(extensionPageProvider).metaData;

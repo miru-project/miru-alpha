@@ -42,7 +42,7 @@ final class ExtensionPageNotifierProvider
 }
 
 String _$extensionPageNotifierHash() =>
-    r'389fccf765ece47a6ff5b54581447727de77291c';
+    r'2b20412e534d355851b7ae020abd58a0de4b7c34';
 
 abstract class _$ExtensionPageNotifier extends $Notifier<ExtensionPageModel> {
   ExtensionPageModel build();

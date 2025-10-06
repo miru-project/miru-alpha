@@ -572,14 +572,11 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   Widget build(BuildContext context) {
     final detial =
         ref.watch(detialProvider).detailState ?? const AsyncValue.loading();
-    return MiruScaffold(
-      body: PlatformWidget(
-        desktopWidget: detial.when(
-          data: (detial) => LoadedContent(detail: detial, meta: widget.meta),
-          error: (err, stack) => ErrorDisplay(err: err, stack: stack),
-          loading: () => Center(child: FProgress.circularIcon()),
-        ),
-        mobileWidget: Text(""),
+    return MiruScaffold.desktop(
+      body: detial.when(
+        data: (detial) => LoadedContent(detail: detial, meta: widget.meta),
+        error: (err, stack) => ErrorDisplay(err: err, stack: stack),
+        loading: () => Center(child: FProgress.circularIcon()),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/widgets/button.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
 
 class ExtensionListTile extends StatefulWidget {
@@ -39,7 +38,7 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8, top: 8),
       child: Row(
         children: [
           Expanded(

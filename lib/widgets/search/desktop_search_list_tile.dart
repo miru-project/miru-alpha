@@ -96,7 +96,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
                 onPress: () {
                   // final context = RouterUtil.rootNavigatorKey.currentContext;
                   // if (context == null) return;
-                  showFToast(context: context, title: Text("Test"));
+                  // showFToast(context: context, title: Text("Test"));
                   if (MiruSettings.getSettingSync<bool>(
                     SettingKey.showDeleteExtensionDialog,
                   )) {

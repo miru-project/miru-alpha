@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/utils/theme/theme.dart';
 
 class ClearableSelect extends StatelessWidget {
   const ClearableSelect({
@@ -26,25 +25,29 @@ class ClearableSelect extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsetsGeometry.only(left: 5),
-              child: Text(
-                title,
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 5),
+            // Padding(
+            //   padding: EdgeInsetsGeometry.only(left: 5),
+            //   child: Text(
+            //     title,
+            //     style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+            //   ),
+            // ),
+            // const SizedBox(height: 5),
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 200, maxHeight: 50),
+              constraints: const BoxConstraints(maxWidth: 200, maxHeight: 59),
               child: FSelect(
+                label: Text(
+                  title,
+                  // style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                ),
                 initialValue: initialValue,
                 onChange: onChange,
-                style:
-                    FSelectStyle.inherit(
-                      colors: context.theme.colors,
-                      typography: overrideTheme.typography,
-                      style: context.theme.style,
-                    ).call,
+                // style:
+                //     FSelectStyle.inherit(
+                //       colors: context.theme.colors,
+                //       typography: overrideTheme.typography,
+                //       style: context.theme.style,
+                //     ).call,
                 hint: hintText,
                 clearable: true,
                 items: {for (final item in items) item: item},
