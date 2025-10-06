@@ -152,7 +152,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
           return LayoutBuilder(
             builder: (context, constraints) {
               if (extState) {
-                return const Center(child: FProgress.circularIcon());
+                return const Center(child: FCircularProgress());
               }
 
               // Build flat list preserving repo url and name for each extension

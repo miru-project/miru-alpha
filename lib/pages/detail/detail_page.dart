@@ -576,7 +576,7 @@ class _DetailPageState extends ConsumerState<DetailPage> {
       body: detial.when(
         data: (detial) => LoadedContent(detail: detial, meta: widget.meta),
         error: (err, stack) => ErrorDisplay(err: err, stack: stack),
-        loading: () => Center(child: FProgress.circularIcon()),
+        loading: () => Center(child: FCircularProgress()),
       ),
     );
   }

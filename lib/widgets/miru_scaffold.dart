@@ -122,7 +122,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
             ? widget.body
             : sheet(isMobileTitleOnTop),
       ),
-      desktopWidget: FScaffold(child: widget.body),
+      desktopWidget: widget.body,
     );
   }
 }

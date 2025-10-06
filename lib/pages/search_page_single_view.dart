@@ -277,7 +277,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
               scrollController: _scrollController,
               cons: cons,
               page: state.page,
-              result: state.result,
+              result: data,
               isLoading: state.isLoading,
             );
           },
@@ -321,7 +321,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
             scrollController: _scrollController,
             cons: cons,
             page: state.page,
-            result: state.result,
+            result: data,
             isLoading: state.isLoading,
           );
         },

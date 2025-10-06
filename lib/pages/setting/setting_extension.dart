@@ -34,9 +34,8 @@ class RepoDialog extends HookConsumerWidget {
                 autovalidateMode: AutovalidateMode.always,
                 hint: 'Official Repo',
                 onChange: (value) => name.value = value,
-                validator:
-                    (val) =>
-                        (val?.isEmpty ?? false) ? 'Name cannot be empty' : null,
+                validator: (val) =>
+                    (val?.isEmpty ?? false) ? 'Name cannot be empty' : null,
               ),
               const SizedBox(height: 10),
               FTextFormField(
@@ -45,11 +44,9 @@ class RepoDialog extends HookConsumerWidget {
                 label: Text('Repo URL'),
                 hint: 'https://miru-repo.0n0.dev/index.json',
                 autovalidateMode: AutovalidateMode.always,
-                validator:
-                    (value) =>
-                        (value?.contains('.json') ?? false)
-                            ? null
-                            : 'Repo url must contain .json extension.',
+                validator: (value) => (value?.contains('.json') ?? false)
+                    ? null
+                    : 'Repo url must contain .json extension.',
               ),
             ],
           ),
@@ -57,18 +54,17 @@ class RepoDialog extends HookConsumerWidget {
       ),
       actions: [
         FButton(
-          onPress:
-              (name.value.isEmpty && !url.value.contains('.json'))
-                  ? null
-                  : () async {
-                    await ExtensionEndpoint.setRepo(url.value, name.value);
-                    ref.invalidate(extensionRepoProvider);
-                    ref.read(extensionRepoProvider.future);
-                    if (!context.mounted) {
-                      return;
-                    }
-                    Navigator.of(context).pop();
-                  },
+          onPress: (name.value.isEmpty && !url.value.contains('.json'))
+              ? null
+              : () async {
+                  await ExtensionEndpoint.setRepo(url.value, name.value);
+                  ref.invalidate(extensionRepoProvider);
+                  ref.read(extensionRepoProvider.future);
+                  if (!context.mounted) {
+                    return;
+                  }
+                  Navigator.of(context).pop();
+                },
           child: const Text('Save'),
         ),
         FButton(
@@ -90,12 +86,12 @@ class SettingExtension extends HookConsumerWidget {
     List<dynamic> repos,
   ) {
     return repos.map((repo) {
-      final name =
-          (repo is Map && (repo['name'] ?? repo['title']) != null)
-              ? (repo['name'] ?? repo['title']).toString()
-              : repo.toString();
-      final url =
-          (repo is Map && repo['url'] != null) ? repo['url'].toString() : '';
+      final name = (repo is Map && (repo['name'] ?? repo['title']) != null)
+          ? (repo['name'] ?? repo['title']).toString()
+          : repo.toString();
+      final url = (repo is Map && repo['url'] != null)
+          ? repo['url'].toString()
+          : '';
       return Column(
         children: [
           Row(
@@ -145,159 +141,148 @@ class SettingExtension extends HookConsumerWidget {
             children: [
               if (selected.value.isNotEmpty) ...[
                 FButton(
-                  onPress:
-                      () => showFDialog(
-                        style:
-                            context.theme.dialogStyle
-                                .copyWith(
-                                  barrierFilter:
-                                      (animation) => ImageFilter.compose(
-                                        outer: ImageFilter.blur(
-                                          sigmaX: animation * 5,
-                                          sigmaY: animation * 5,
-                                        ),
-                                        inner: ColorFilter.mode(
-                                          context.theme.colors.barrier,
-                                          BlendMode.srcOver,
-                                        ),
-                                      ),
-                                )
-                                .call,
-                        context: context,
-                        builder: (context, style, animation) {
-                          return FDialog(
-                            style: style.call,
-                            animation: animation,
-                            title: const Text('Are you absolutely sure?'),
-                            body: const Text(
-                              'This action cannot be undone. This will permanently delete the selected extension repositories.',
+                  onPress: () => showFDialog(
+                    routeStyle: context.theme.dialogRouteStyle
+                        .copyWith(
+                          barrierFilter: (animation) => ImageFilter.compose(
+                            outer: ImageFilter.blur(
+                              sigmaX: animation * 5,
+                              sigmaY: animation * 5,
                             ),
-                            actions: [
-                              FButton(
-                                onPress: () async {
-                                  for (var url in selected.value) {
-                                    await ExtensionEndpoint.deleteRepo(url);
-                                  }
-                                  if (!context.mounted) {
-                                    return;
-                                  }
-                                  ref.invalidate(extensionRepoProvider);
-                                  ref.read(extensionRepoProvider.future);
-                                  Navigator.of(context).pop();
-                                },
-                                child: const Text('Continue'),
-                              ),
-                              FButton(
-                                style: FButtonStyle.outline(),
-                                onPress: () => Navigator.of(context).pop(),
-                                child: const Text('Cancel'),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                            inner: ColorFilter.mode(
+                              context.theme.colors.barrier,
+                              BlendMode.srcOver,
+                            ),
+                          ),
+                        )
+                        .call,
+                    context: context,
+                    builder: (context, style, animation) {
+                      return FDialog(
+                        style: style.call,
+                        animation: animation,
+                        title: const Text('Are you absolutely sure?'),
+                        body: const Text(
+                          'This action cannot be undone. This will permanently delete the selected extension repositories.',
+                        ),
+                        actions: [
+                          FButton(
+                            onPress: () async {
+                              for (var url in selected.value) {
+                                await ExtensionEndpoint.deleteRepo(url);
+                              }
+                              if (!context.mounted) {
+                                return;
+                              }
+                              ref.invalidate(extensionRepoProvider);
+                              ref.read(extensionRepoProvider.future);
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Continue'),
+                          ),
+                          FButton(
+                            style: FButtonStyle.outline(),
+                            onPress: () => Navigator.of(context).pop(),
+                            child: const Text('Cancel'),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                   child: const Text('remove-repo'),
                 ),
                 SizedBox(width: 10),
               ],
               FButton(
-                onPress:
-                    () => showFDialog(
-                      style:
-                          context.theme.dialogStyle
-                              .copyWith(
-                                barrierFilter:
-                                    (animation) => ImageFilter.compose(
-                                      outer: ImageFilter.blur(
-                                        sigmaX: animation * 5,
-                                        sigmaY: animation * 5,
-                                      ),
-                                      inner: ColorFilter.mode(
-                                        context.theme.colors.barrier,
-                                        BlendMode.srcOver,
-                                      ),
-                                    ),
-                              )
-                              .call,
-                      context: context,
-                      builder: (context, style, animation) {
-                        return RepoDialog(
-                          animation: animation,
-                          style: style.call,
-                        );
-                      },
-                    ),
+                onPress: () => showFDialog(
+                  routeStyle: context.theme.dialogRouteStyle
+                      .copyWith(
+                        barrierFilter: (animation) => ImageFilter.compose(
+                          outer: ImageFilter.blur(
+                            sigmaX: animation * 5,
+                            sigmaY: animation * 5,
+                          ),
+                          inner: ColorFilter.mode(
+                            context.theme.colors.barrier,
+                            BlendMode.srcOver,
+                          ),
+                        ),
+                      )
+                      .call,
+                  context: context,
+                  builder: (context, style, animation) {
+                    return RepoDialog(animation: animation, style: style.call);
+                  },
+                ),
                 child: const Text('add-repo'),
               ),
             ],
           ),
           child: reposAsync.when(
-            loading: () => const Center(child: FProgress.circularIcon()),
+            loading: () => const Center(child: FCircularProgress()),
             error: (err, st) => Text('Error loading repos: $err'),
-            data:
-                (repos) => Column(
+            data: (repos) => Column(
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: 40,
-                          child: FCheckbox(
-                            value: selectAll.value,
-                            label: const Text(""),
-                            onChange: (value) {
-                              selectAll.value = value;
-                              if (value) {
-                                for (var repo in repos) {
-                                  final url =
-                                      (repo is Map && repo['url'] != null)
-                                          ? repo['url'].toString()
-                                          : '';
-                                  selected.value = Set.from(selected.value)
-                                    ..add(url);
-                                }
-                              } else {
-                                selected.value = {};
-                              }
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          flex: 2,
-                          child: Text(
-                            "name",
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: context.theme.colors.mutedForeground,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            "url",
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: context.theme.colors.mutedForeground,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    FDivider(),
-                    if (repos.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text('No extension repositories found.'),
-                      )
-                    else
-                      ...buildSeparators(
-                        buildRepoSetting(selectAll, selected, repos),
+                    SizedBox(
+                      width: 40,
+                      child: FCheckbox(
+                        value: selectAll.value,
+                        label: const Text(""),
+                        onChange: (value) {
+                          selectAll.value = value;
+                          if (value) {
+                            for (var repo in repos) {
+                              final url = (repo is Map && repo['url'] != null)
+                                  ? repo['url'].toString()
+                                  : '';
+                              selected.value = Set.from(selected.value)
+                                ..add(url);
+                            }
+                          } else {
+                            selected.value = {};
+                          }
+                        },
                       ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        "name",
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        "url",
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
+                FDivider(),
+                if (repos.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text('No extension repositories found.'),
+                  )
+                else
+                  ...buildSeparators(
+                    buildRepoSetting(selectAll, selected, repos),
+                  ),
+              ],
+            ),
           ),
         ),
       ],

@@ -154,7 +154,7 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
             ),
           ),
         ),
-        loading: () => const Center(child: FProgress.circularIcon()),
+        loading: () => const Center(child: FCircularProgress()),
       ),
     );
   }
@@ -619,7 +619,7 @@ class _DesktopFooter extends HookConsumerWidget {
   void showDialog(BuildContext context, int index) {
     showFDialog(
       useRootNavigator: false,
-      style: context.theme.dialogStyle
+      routeStyle: context.theme.dialogRouteStyle
           .copyWith(
             barrierFilter: (animation) => ImageFilter.compose(
               outer: ImageFilter.blur(
