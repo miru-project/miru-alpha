@@ -20,7 +20,7 @@ final class SearchPageSingleProviderProvider
         argument: null,
         retry: null,
         name: r'searchPageSingleProviderProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -42,7 +42,7 @@ final class SearchPageSingleProviderProvider
 }
 
 String _$searchPageSingleProviderHash() =>
-    r'2000ac6db0904fa9592c7561999a905048a6a6d3';
+    r'e5aaedbcb8ab749e0bce522a7d1bc4fbbaf86955';
 
 abstract class _$SearchPageSingleProvider
     extends $Notifier<SingleSearchPageState> {

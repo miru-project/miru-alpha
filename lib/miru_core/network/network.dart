@@ -1,9 +1,6 @@
 import 'dart:isolate';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hooks_riverpod/misc.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/utils/core/log.dart';
@@ -158,45 +155,7 @@ class CoreNetwork {
 
     receivePort.listen(callback);
   }
-
-  // static ExtensionPageNotifier? _extensionNotifier;
-
-  // static void setExtensionNotifier(ExtensionPageNotifier notifier) {
-  //   _extensionNotifier = notifier;
-  // }
 }
-
-extension Context on BuildContext {
-  // Custom call a provider for reading method only
-  // It will be helpful for us for calling the read function
-  // without Consumer,ConsumerWidget or ConsumerStatefulWidget
-  // Incase if you face any issue using this then please wrap your widget
-  // with consumer and then call your provider
-
-  T read<T>(ProviderBase<T> provider) {
-    return ProviderScope.containerOf(this, listen: false).read(provider);
-  }
-}
-
-// class MetaDataController {
-//   // single updater callback registered by the UI/provider layer
-//   static void Function(List<ExtensionMeta>? data)? _updater;
-
-//   // static void registerUpdater(
-//   //   void Function(List<ExtensionMeta>? data) updater,
-//   // ) {
-//   //   _updater = updater;
-//   // }
-
-//   static void update(List<ExtensionMeta>? data) {
-//     if (_updater == null) return;
-//     try {
-//       _updater!(data);
-//     } catch (e) {
-//       logger.info('Failed to call MetaDataController updater: $e');
-//     }
-//   }
-// }
 
 class ExtensionEndpoint {
   static String get extensionPathUrl => 'ext';
@@ -262,18 +221,17 @@ class ExtensionEndpoint {
     String pkg,
     String kw,
     int page, {
-    Map<String, List<String>>? filter,
+    Map<String, ExtensionFilter>? filter,
   }) async {
-    final jsResult = await CoreNetwork.requestRaw(
-      '$searchUrl/$pkg/$page/$kw',
-      data: filter,
-      method: 'GET',
-    );
-    List<ExtensionListItem> result = jsonDecode(jsResult.stringResult)
-        .map<ExtensionListItem>((e) {
-          return ExtensionListItem.fromJson(e);
-        })
-        .toList();
+    final jsResult = await CoreNetwork.requestFormData(searchUrl, {
+      'pkg': pkg,
+      'kw': kw,
+      'page': page,
+      if (filter != null) 'filter': jsonEncode(filter),
+    }, method: 'GET');
+    List<ExtensionListItem> result = jsResult.data.map<ExtensionListItem>((e) {
+      return ExtensionListItem.fromJson(e);
+    }).toList();
     return result;
   }
 

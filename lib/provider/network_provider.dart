@@ -53,8 +53,30 @@ Future<List<ExtensionListItem>> fetchExtensionSearch(
   String package,
   String query,
   int page, {
-  Map<String, List<String>>? filter,
+  Map<String, ExtensionFilter>? filter,
 }) async {
+  final result = await ExtensionEndpoint.search(
+    package,
+    query,
+    page,
+    filter: filter,
+  );
+  return result;
+}
+
+@riverpod
+Future<List<ExtensionListItem>> fetchExtensionSearchLatest(
+  Ref ref,
+  String package,
+
+  int page, {
+  String? query,
+  Map<String, ExtensionFilter>? filter,
+}) async {
+  if (query == null || query.isEmpty) {
+    final result = await ExtensionEndpoint.latest(package, page);
+    return result;
+  }
   final result = await ExtensionEndpoint.search(
     package,
     query,

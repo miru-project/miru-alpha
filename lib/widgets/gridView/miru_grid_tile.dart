@@ -1,8 +1,8 @@
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
+import 'package:miru_app_new/widgets/core/image_widget.dart';
 
 class _TextTile extends StatelessWidget {
   const _TextTile({required this.title, required this.subtitle});
@@ -49,7 +49,7 @@ class MiruGridTile extends HookWidget {
     return AnimatedBox(
       onTap: onTap,
       child: SizedBox(
-        width: width ?? 200,
+        // width: width ?? 200,
         height: height,
         child: FCard.raw(
           child: Column(
@@ -63,43 +63,56 @@ class MiruGridTile extends HookWidget {
                   child: _TextTile(title: title, subtitle: subtitle),
                 )
               else
-                // Use AspectRatio to keep consistent image size and avoid overflow
-                AspectRatio(
-                  aspectRatio: 9 / 11.5,
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(8),
-                    ),
-                    child: ExtendedImage.network(
-                      imageUrl!,
-
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.cover,
-                      cache: true,
-                    ),
+                // Use a Stack so we can add a bottom gradient "shadow" over the image.
+                Expanded(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Image fills the area
+                      ImageWidget(imageUrl: imageUrl!, fit: BoxFit.cover),
+                      // Bottom gradient shadow
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        height: 60,
+                        child: IgnorePointer(
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.transparent, Colors.black54],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: FLabel(
-                  description: Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  axis: Axis.vertical,
-                  child: Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+              SizedBox(
+                height: 50,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: FLabel(
+                    description: Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    axis: Axis.vertical,
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ),
               if (stackLabel != null) ...[
                 const SizedBox(height: 8),
-                // Place the optional stackLabel below the content but inside card bounds
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: stackLabel!,

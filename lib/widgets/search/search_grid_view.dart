@@ -10,7 +10,7 @@ class SearchGridView extends StatelessWidget {
   final List<ExtensionListItem> result;
   final BoxConstraints cons;
   final ScrollController scrollController;
-  final bool isLoading;
+  // final bool isLoading;
   final ExtensionMeta meta;
   const SearchGridView({
     super.key,
@@ -19,63 +19,63 @@ class SearchGridView extends StatelessWidget {
     required this.page,
     required this.meta,
     required this.result,
-    required this.isLoading,
+    // required this.isLoading,
   });
 
   @override
   Widget build(BuildContext context) {
-    final value = result;
-    final loading = isLoading;
-    if (loading) {
-      final truncateDivison = cons.maxWidth ~/ 110;
-      final loadingWidgetCount =
-          truncateDivison * 2 - value.length % truncateDivison;
-      debugPrint(loadingWidgetCount.toString());
-      return MiruGridView(
-        scrollController: scrollController,
-        mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: cons.maxWidth ~/ 110,
-          childAspectRatio: 0.6,
-        ),
-        desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: cons.maxWidth ~/ 180,
-          childAspectRatio: 0.6,
-        ),
-        itemBuilder: (context, index) {
-          if (index >= value.length) {
-            return const MiruGridTileLoadingBox();
-          }
-          return MiruGridTile(
-            title: value[index].title,
-            imageUrl: value[index].cover,
-            subtitle: value[index].update ?? '',
-          );
-        },
-        itemCount: value.length + loadingWidgetCount,
-      );
-    }
+    // final loading = isLoading;
+    // if (isLoading) {
+    //   final truncateDivison = cons.maxWidth ~/ 110;
+    //   final loadingWidgetCount =
+    //       truncateDivison * 2 - value.length % truncateDivison;
+    //   debugPrint(loadingWidgetCount.toString());
+    //   return MiruGridView(
+    //     scrollController: scrollController,
+    //     mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    //       crossAxisCount: cons.maxWidth ~/ 110,
+    //       childAspectRatio: 0.6,
+    //     ),
+    //     desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    //       crossAxisCount: cons.maxWidth ~/ 180,
+    //       childAspectRatio: 0.6,
+    //     ),
+    //     itemBuilder: (context, index) {
+    //       if (index >= value.length) {
+    //         return const MiruGridTileLoadingBox();
+    //       }
+    //       return MiruGridTile(
+    //         title: value[index].title,
+    //         imageUrl: value[index].cover,
+    //         subtitle: value[index].update ?? '',
+    //       );
+    //     },
+    //     itemCount: value.length + loadingWidgetCount,
+    //   );
+    // }
     return MiruGridView(
+      paddingHeightOffest: 50,
       scrollController: scrollController,
       mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: cons.maxWidth ~/ 110,
         childAspectRatio: 0.6,
       ),
       desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: cons.maxWidth ~/ 180,
-        childAspectRatio: 0.65,
+        crossAxisCount: cons.maxWidth ~/ 200,
+        childAspectRatio: 0.7,
       ),
       itemBuilder: (context, index) => MiruGridTile(
         onTap: () {
           context.push(
             '/search/single/detail',
-            extra: DetailParam(meta: meta, url: value[index].url),
+            extra: DetailParam(meta: meta, url: result[index].url),
           );
         },
-        title: value[index].title,
-        imageUrl: value[index].cover,
-        subtitle: value[index].update ?? '',
+        title: result[index].title,
+        imageUrl: result[index].cover,
+        subtitle: result[index].update ?? '',
       ),
-      itemCount: value.length,
+      itemCount: result.length,
     );
   }
 }

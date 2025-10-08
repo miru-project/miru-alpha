@@ -6,7 +6,7 @@ part 'search_page_single_provider.g.dart';
 class SingleSearchPageState {
   final String query;
   final int page;
-  final bool isLoading;
+  bool isLoading;
   final List<ExtensionListItem> result;
   final Map<String, ExtensionFilter> fileNotifier;
   final bool isUpdateFilter;
@@ -43,7 +43,8 @@ class SingleSearchPageState {
   }
 }
 
-@Riverpod(keepAlive: true)
+// @Riverpod(keepAlive: true)
+@riverpod
 class SearchPageSingleProvider extends _$SearchPageSingleProvider {
   @override
   SingleSearchPageState build() {
@@ -51,7 +52,17 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
   }
 
   // Mutators for fields that used to be ValueNotifiers
-  void setQuery(String q) => state = state.copyWith(query: q);
+  void setQuery(String q) async {
+    state = state.copyWith(query: q, page: 1, isLoading: true);
+    // // state.isLoading = true;
+    // final result = await ExtensionEndpoint.search(
+    //   'all',
+    //   q,
+    //   1,
+    //   filter: state.fileNotifier,
+    // );
+    // state = state.copyWith(result: result, isLoading: false);
+  }
 
   void setPage(int p) => state = state.copyWith(page: p);
 

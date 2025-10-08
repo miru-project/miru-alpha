@@ -8,10 +8,12 @@ class ImageWidget extends StatelessWidget {
     required this.imageUrl,
     this.width,
     this.height,
+    this.fit,
   });
   final String imageUrl;
   final double? width;
   final double? height;
+  final BoxFit? fit;
   @override
   Widget build(BuildContext context) {
     return ExtendedImage.network(
@@ -20,6 +22,7 @@ class ImageWidget extends StatelessWidget {
       width: width,
       height: height,
       cache: true,
+      fit: fit,
       imageUrl,
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {

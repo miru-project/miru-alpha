@@ -298,7 +298,7 @@ final class FetchExtensionSearchProvider
         $FutureProvider<List<ExtensionListItem>> {
   const FetchExtensionSearchProvider._({
     required FetchExtensionSearchFamily super.from,
-    required (String, String, int, {Map<String, List<String>>? filter})
+    required (String, String, int, {Map<String, ExtensionFilter>? filter})
     super.argument,
   }) : super(
          retry: null,
@@ -328,7 +328,7 @@ final class FetchExtensionSearchProvider
   FutureOr<List<ExtensionListItem>> create(Ref ref) {
     final argument =
         this.argument
-            as (String, String, int, {Map<String, List<String>>? filter});
+            as (String, String, int, {Map<String, ExtensionFilter>? filter});
     return fetchExtensionSearch(
       ref,
       argument.$1,
@@ -350,13 +350,13 @@ final class FetchExtensionSearchProvider
 }
 
 String _$fetchExtensionSearchHash() =>
-    r'b2fd204c1ee2d381805b1ddb168f0a4aca3647c0';
+    r'e2c041c7aacedd2f30c1e09106d56f9d463adac6';
 
 final class FetchExtensionSearchFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<List<ExtensionListItem>>,
-          (String, String, int, {Map<String, List<String>>? filter})
+          (String, String, int, {Map<String, ExtensionFilter>? filter})
         > {
   const FetchExtensionSearchFamily._()
     : super(
@@ -371,7 +371,7 @@ final class FetchExtensionSearchFamily extends $Family
     String package,
     String query,
     int page, {
-    Map<String, List<String>>? filter,
+    Map<String, ExtensionFilter>? filter,
   }) => FetchExtensionSearchProvider._(
     argument: (package, query, page, filter: filter),
     from: this,
@@ -379,6 +379,115 @@ final class FetchExtensionSearchFamily extends $Family
 
   @override
   String toString() => r'fetchExtensionSearchProvider';
+}
+
+@ProviderFor(fetchExtensionSearchLatest)
+const fetchExtensionSearchLatestProvider = FetchExtensionSearchLatestFamily._();
+
+final class FetchExtensionSearchLatestProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ExtensionListItem>>,
+          List<ExtensionListItem>,
+          FutureOr<List<ExtensionListItem>>
+        >
+    with
+        $FutureModifier<List<ExtensionListItem>>,
+        $FutureProvider<List<ExtensionListItem>> {
+  const FetchExtensionSearchLatestProvider._({
+    required FetchExtensionSearchLatestFamily super.from,
+    required (
+      String,
+      int, {
+      String? query,
+      Map<String, ExtensionFilter>? filter,
+    })
+    super.argument,
+  }) : super(
+         retry: null,
+         name: r'fetchExtensionSearchLatestProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$fetchExtensionSearchLatestHash();
+
+  @override
+  String toString() {
+    return r'fetchExtensionSearchLatestProvider'
+        ''
+        '$argument';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ExtensionListItem>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ExtensionListItem>> create(Ref ref) {
+    final argument =
+        this.argument
+            as (
+              String,
+              int, {
+              String? query,
+              Map<String, ExtensionFilter>? filter,
+            });
+    return fetchExtensionSearchLatest(
+      ref,
+      argument.$1,
+      argument.$2,
+      query: argument.query,
+      filter: argument.filter,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is FetchExtensionSearchLatestProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$fetchExtensionSearchLatestHash() =>
+    r'4ccf6f258ee11592e915fa4cf40d5b4d6425021c';
+
+final class FetchExtensionSearchLatestFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<List<ExtensionListItem>>,
+          (String, int, {String? query, Map<String, ExtensionFilter>? filter})
+        > {
+  const FetchExtensionSearchLatestFamily._()
+    : super(
+        retry: null,
+        name: r'fetchExtensionSearchLatestProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  FetchExtensionSearchLatestProvider call(
+    String package,
+    int page, {
+    String? query,
+    Map<String, ExtensionFilter>? filter,
+  }) => FetchExtensionSearchLatestProvider._(
+    argument: (package, page, query: query, filter: filter),
+    from: this,
+  );
+
+  @override
+  String toString() => r'fetchExtensionSearchLatestProvider';
 }
 
 @ProviderFor(mangaLoad)
