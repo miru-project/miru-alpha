@@ -8,57 +8,51 @@ class MiruGridTileLoadingBox extends StatelessWidget {
   final double? height;
   @override
   Widget build(BuildContext context) {
-    return Shimmer(
-      // baseColor: context.theme.colors.background.withAlpha(50),
-      // highlightColor: context.theme.colors.foreground.withAlpha(100),
-      gradient: LinearGradient(
-        colors: [
-          context.theme.colors.background.withAlpha(50),
-          context.theme.colors.foreground.withAlpha(100),
-          context.theme.colors.background.withAlpha(50),
-        ],
-        begin: Alignment(-1.0, -0.3),
-        end: Alignment(1.0, 0.3),
-        stops: const [0.4, 0.5, 0.6],
-      ),
-      child: SizedBox(
-        width: width ?? 200,
-        height: height,
-        child: FCard.raw(
-          child: Column(
-            children: [
-              Expanded(
-                child: Container(
-                  width: width ?? 200,
-                  height: height,
-                  decoration: BoxDecoration(
-                    color: context.theme.colors.mutedForeground,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: Shimmer.fromColors(
+            baseColor: context.theme.colors.background,
+            highlightColor: context.theme.colors.secondary,
+            child: SizedBox(
+              width: width ?? 200,
+              height: height,
+              child: Container(
                 width: width ?? 200,
-                height: 10,
+                height: height,
                 decoration: BoxDecoration(
                   color: context.theme.colors.mutedForeground,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              const SizedBox(height: 4),
-              Container(
-                width: width ?? 200,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: context.theme.colors.mutedForeground,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+        const SizedBox(height: 8),
+        Shimmer.fromColors(
+          baseColor: context.theme.colors.background,
+          highlightColor: context.theme.colors.secondary,
+          child: SizedBox(
+            height: 60,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10.0,
+                vertical: 5,
+              ),
+              child: Container(
+                // width: width ?? 200,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: context.theme.colors.mutedForeground,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

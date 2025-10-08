@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forui/theme.dart';
 import 'package:forui/widgets/toast.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 
@@ -18,7 +19,7 @@ void iconsMessageToast(String title, IconData icon) {
   showFToast(
     context: ctx,
     title: Text(title),
-    icon: Icon(icon, color: Colors.white),
+    icon: Icon(icon, color: ctx.theme.colors.primaryForeground),
     alignment: FToastAlignment.bottomCenter,
   );
 }

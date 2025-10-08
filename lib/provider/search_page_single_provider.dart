@@ -8,7 +8,7 @@ class SingleSearchPageState {
   final int page;
   bool isLoading;
   final List<ExtensionListItem> result;
-  final Map<String, ExtensionFilter> fileNotifier;
+  final Map<String, ExtensionFilter> filter;
   final bool isUpdateFilter;
   final List<List<int>> selected;
 
@@ -17,7 +17,7 @@ class SingleSearchPageState {
     this.page = 1,
     this.isLoading = false,
     this.result = const [],
-    this.fileNotifier = const {},
+    this.filter = const {},
     this.isUpdateFilter = false,
     this.selected = const [],
   });
@@ -27,7 +27,7 @@ class SingleSearchPageState {
     int? page,
     bool? isLoading,
     List<ExtensionListItem>? result,
-    Map<String, ExtensionFilter>? fileNotifier,
+    Map<String, ExtensionFilter>? filter,
     bool? isUpdateFilter,
     List<List<int>>? selected,
   }) {
@@ -36,7 +36,7 @@ class SingleSearchPageState {
       page: page ?? this.page,
       isLoading: isLoading ?? this.isLoading,
       result: result ?? this.result,
-      fileNotifier: fileNotifier ?? this.fileNotifier,
+      filter: filter ?? this.filter,
       isUpdateFilter: isUpdateFilter ?? this.isUpdateFilter,
       selected: selected ?? this.selected,
     );
@@ -54,14 +54,6 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
   // Mutators for fields that used to be ValueNotifiers
   void setQuery(String q) async {
     state = state.copyWith(query: q, page: 1, isLoading: true);
-    // // state.isLoading = true;
-    // final result = await ExtensionEndpoint.search(
-    //   'all',
-    //   q,
-    //   1,
-    //   filter: state.fileNotifier,
-    // );
-    // state = state.copyWith(result: result, isLoading: false);
   }
 
   void setPage(int p) => state = state.copyWith(page: p);
@@ -79,10 +71,10 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
   void clearResult() => state = state.copyWith(result: []);
 
   void setFileNotifier(Map<String, ExtensionFilter> m) =>
-      state = state.copyWith(fileNotifier: Map.from(m));
+      state = state.copyWith(filter: Map.from(m));
 
   void addFileNotifier(Map<String, ExtensionFilter> m) =>
-      state = state.copyWith(fileNotifier: {...state.fileNotifier, ...m});
+      state = state.copyWith(filter: {...state.filter, ...m});
 
   void setIsUpdateFilter(bool v) => state = state.copyWith(isUpdateFilter: v);
 

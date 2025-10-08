@@ -24,12 +24,19 @@ class MiruGridView extends StatelessWidget {
 
     return PlatformWidget(
       mobileWidget: GridView.builder(
-        padding: EdgeInsets.fromLTRB(8, (8 + padding.top + paddingHeightOffest), 8, 190),
+        controller: scrollController,
+        padding: EdgeInsets.fromLTRB(
+          8,
+          (8 + padding.top + paddingHeightOffest),
+          8,
+          190,
+        ),
         gridDelegate: mobileGridDelegate,
         itemBuilder: itemBuilder,
         itemCount: itemCount,
       ),
       desktopWidget: GridView.builder(
+        controller: scrollController,
         padding: EdgeInsets.fromLTRB(20, 70.0 + paddingHeightOffest, 20, 20),
         gridDelegate: desktopGridDelegate,
         itemBuilder: itemBuilder,

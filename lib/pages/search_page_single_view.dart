@@ -1,13 +1,10 @@
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/provider/search_page_single_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/widgets/core/search_filter_card.dart';
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:miru_app_new/widgets/index.dart';
@@ -57,7 +54,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
   @override
   Widget build(context) {
     // final notifier = ref.read(searchPageSingleProviderProvider.notifier);
-    final isFilterActivate = useState(false);
+    // final isFilterActivate = useState(false);
     // tabController = useState(useTabController(initialLength: 0));
     final isUpdateFilter = ref.watch(
       searchPageSingleProviderProvider.select((value) => value.isUpdateFilter),
@@ -231,7 +228,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
       body: LayoutBuilder(
         builder: (context, cons) => Consumer(
           builder: (context, cref, _) {
-            return contentWithRef(context, cons);
+            return content(context, cons);
           },
         ),
       ),
@@ -250,7 +247,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
     );
   }
 
-  Widget contentWithRef(
+  Widget content(
     // WidgetRef localRef,
     BuildContext context,
     BoxConstraints cons,
@@ -265,79 +262,67 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
       ),
     );
 
-    return EasyRefresh(
-      scrollController: _scrollController,
-      onLoad: () async {
-        logger.info('load');
-      },
-      footer: const ClassicFooter(),
-      child: snapshot.when(
-        data: (data) {
-          return Stack(
-            children: [
-              SearchGridView(
-                meta: widget.meta,
-                scrollController: _scrollController,
-                cons: cons,
-                page: state.page,
-                result: data,
-              ),
-              SizedBox(
-                height: 75,
-                child: SearchFilterCard(
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: FTextField(
-                          prefixBuilder: (context, style, states) {
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                left: 8.0,
-                                right: 4,
-                              ),
-                              child: Icon(FIcons.search),
-                            );
-                          },
-                          suffixBuilder: (context, style, states) {
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                left: 4.0,
-                                right: 8,
-                              ),
-                              child: FBadge(child: Text('↵')),
-                            );
-                          },
-                          contextMenuBuilder: (context, editableTextState) {
-                            return Column(
-                              children: [Text('Custom Context Menu')],
-                            );
-                          },
-                          hint: 'Search ',
-                          onSubmit: (value) {
-                            ref
-                                .read(searchPageSingleProviderProvider.notifier)
-                                .setQuery(value);
-                            refresh();
-                          },
-                        ),
+    return snapshot.when(
+      data: (data) {
+        return Stack(
+          children: [
+            SearchGridView(
+              meta: widget.meta,
+              scrollController: _scrollController,
+              cons: cons,
+              // page: state.page,
+              res: data,
+            ),
+            SizedBox(
+              height: 75,
+              child: SearchFilterCard(
+                child: Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: FTextField(
+                        initialText: state.query,
+                        prefixBuilder: (context, style, states) {
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 8.0, right: 4),
+                            child: Icon(FIcons.search),
+                          );
+                        },
+                        suffixBuilder: (context, style, states) {
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 4.0, right: 8),
+                            child: FBadge(child: Text('↵')),
+                          );
+                        },
+                        contextMenuBuilder: (context, editableTextState) {
+                          return Column(
+                            children: [Text('Custom Context Menu')],
+                          );
+                        },
+                        hint: 'Search ',
+                        onSubmit: (value) {
+                          ref
+                              .read(searchPageSingleProviderProvider.notifier)
+                              .setQuery(value);
+                          refresh();
+                        },
                       ),
-                      SizedBox(width: 8),
-                      FButton.icon(
-                        onPress: () => refresh(),
-                        child: Icon(FIcons.refreshCcw),
-                      ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(width: 8),
+                    FButton.icon(
+                      onPress: () => refresh(),
+                      child: Icon(FIcons.refreshCcw),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          );
-        },
-        error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
-        loading: () =>
-            SearchGridLoadingWidget(scrollController: _scrollController),
-      ),
+            ),
+          ],
+        );
+      },
+      error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
+      loading: () =>
+          SearchGridLoadingWidget(scrollController: _scrollController),
     );
   }
 }
