@@ -7,7 +7,7 @@ import 'package:miru_app_new/utils/core/device_util.dart';
 class SearchPage extends HookWidget {
   const SearchPage({super.key, this.search});
   final String? search;
-  static const _categories = ['Type', 'Language', 'Extension'];
+  // static const _categories = ['Type', 'Language', 'Extension'];
 
   // Widget buildCategories(List<String> items, void Function(int) onpress) {
   //   final selected = useState(0);
@@ -31,14 +31,14 @@ class SearchPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final needRefresh = useState(false);
+    // final needRefresh = useState(false);
     // final controller = useTabController(
     //   initialIndex: 0,
     //   initialLength: _categories.length,
     // );
-    final editController = useTextEditingController();
-    final scrollController = useScrollController();
-    final searchValue = useState(search ?? '');
+    // final editController = useTextEditingController();
+    // final scrollController = useScrollController();
+    // final searchValue = useState(search ?? '');
     return DeviceUtil.deviceWidget(
       mobile: MobileSearchPage(),
       desktop: DesktopSearchPage(),

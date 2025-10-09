@@ -91,8 +91,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
               children: [
                 _GrabbingWidget(),
-                if (!isMobileTitleOnTop && widget.mobileHeader != null)
-                  widget.mobileHeader!,
+                if (!isMobileTitleOnTop) widget.mobileHeader!,
                 if (widget.snapSheet.isNotEmpty) ...widget.snapSheet,
               ],
             ),
@@ -114,7 +113,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
         header: isMobileTitleOnTop
             ? widget.mobileHeader ?? const SizedBox()
             : null,
-        child: (widget.snapSheet.isEmpty && isMobileTitleOnTop)
+        child: (isMobileTitleOnTop && widget.snapSheet.isEmpty)
             ? widget.body
             : sheet(isMobileTitleOnTop),
       ),

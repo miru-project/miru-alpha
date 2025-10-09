@@ -7,8 +7,8 @@ import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/utils/store/storage_index.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
-import 'package:miru_app_new/widgets/miru_scaffold.dart';
-import 'package:miru_app_new/widgets/sidebar/sidebar_list_title.dart';
+import 'package:miru_app_new/widgets/scaffold/miru_scaffold.dart';
+import 'package:miru_app_new/widgets/scaffold/snapsheet_header.dart';
 
 class MobileSearchPage extends HookConsumerWidget {
   const MobileSearchPage({super.key});
@@ -60,6 +60,12 @@ class MobileSearchPage extends HookConsumerWidget {
                         .where((ext) => ext.packageName == pinnedPkg)
                         .first;
                     return FTile(
+                      onPress: () {
+                        context.push(
+                          '/search/single',
+                          extra: SearchPageParam(meta: ext),
+                        );
+                      },
                       title: Text(ext.name),
                       prefix: SizedBox(
                         height: 40,
@@ -98,7 +104,6 @@ class MobileSearchPage extends HookConsumerWidget {
               children: List.generate(metaData.length, (index) {
                 final ext = metaData[index];
                 return FTile(
-                  // ext: ext,
                   onPress: () {
                     context.push(
                       '/search/single',

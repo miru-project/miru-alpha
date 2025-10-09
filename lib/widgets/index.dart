@@ -1,12 +1,10 @@
 export 'miru_app_bar.dart';
 export 'extension_tile.dart';
-export 'button.dart';
-export 'miru_scaffold.dart';
+export 'scaffold/miru_scaffold.dart';
 export 'platform_widget.dart';
 export 'sidebar/index.dart';
-export 'miru_list_view.dart';
-export 'blur.dart';
+export 'scroll_view/miru_list_view.dart';
+export 'core/blur.dart';
 export 'settings/index.dart';
 export 'max_width.dart';
-export 'miru_single_child_view.dart';
-export 'miru_alert.dart';
+export 'scroll_view/miru_single_child_view.dart';

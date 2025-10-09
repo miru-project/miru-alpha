@@ -54,7 +54,10 @@ class SearchGridView extends HookConsumerWidget {
               );
               if (res.isNotEmpty) {
                 resState.value = [...resState.value, ...res];
-                page += 1;
+                // page += 1;
+                ref
+                    .read(searchPageSingleProviderProvider.notifier)
+                    .setPage(page + 1);
               }
               isLoading.value = false;
               return;
@@ -67,7 +70,10 @@ class SearchGridView extends HookConsumerWidget {
             );
             if (res.isNotEmpty) {
               resState.value = [...resState.value, ...res];
-              page += 1;
+              // page += 1;
+              ref
+                  .read(searchPageSingleProviderProvider.notifier)
+                  .setPage(page + 1);
             }
             isLoading.value = false;
           } catch (e) {

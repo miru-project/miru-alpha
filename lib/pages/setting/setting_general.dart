@@ -146,19 +146,23 @@ class SettingMobileGeneralState extends ConsumerState<SettingGeneral> {
       context: context,
       desktop: FScaffold(child: SettingBasedGeneral()),
       mobile: MiruScaffold(
-        mobileHeader: FHeader.nested(
-          title: const Text('General'),
-          titleAlignment: Alignment.centerLeft,
-          prefixes: [
-            FHeaderAction.back(
-              onPress: () {
-                Navigator.of(context).pop();
-              },
-              onHoverChange: (hovered) {},
-              onStateChange: (delta) {},
-            ),
-          ],
+        mobileHeader: DecoratedBox(
+          decoration: context.theme.scaffoldStyle.headerDecoration,
+          child: FHeader(title: Text("test")),
         ),
+        // FButton(
+        //   style: FButtonStyle.ghost(),
+        //   onPress: () {},
+        //   prefix: Icon(FIcons.chevronLeft),
+        //   child: Text("General"),
+        // ),
+        // Text("test"),
+        // SnapSheetHeader(
+        //   title: "General",
+        //   leading: [
+        //     ,
+        //   ],
+        // ),
         snapSheet: [],
         body: SettingBasedGeneral(isMobileLayout: true),
       ),
