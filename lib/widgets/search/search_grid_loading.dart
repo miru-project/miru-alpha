@@ -24,3 +24,30 @@ class SearchGridLoadingWidget extends StatelessWidget {
     );
   }
 }
+
+class MobileSeachGridLoadingWidget extends StatelessWidget {
+  final ScrollController scrollController;
+  const MobileSeachGridLoadingWidget({
+    super.key,
+    required this.scrollController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, cons) => MiruGridView(
+        scrollController: scrollController,
+        mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.6,
+        ),
+        desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: cons.maxWidth ~/ 180,
+          childAspectRatio: 0.6,
+        ),
+        itemBuilder: (context, index) => const MobileTileLoadingBox(),
+        itemCount: 20,
+      ),
+    );
+  }
+}

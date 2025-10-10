@@ -123,6 +123,7 @@ class _MainPageState extends ConsumerState<MainPage>
       data: themeData,
       child: PlatformWidget(
         mobileWidget: FScaffold(
+          childPad: false,
           footer: FBottomNavigationBar(
             index: controller.selectedIndex,
             onChange: (value) {

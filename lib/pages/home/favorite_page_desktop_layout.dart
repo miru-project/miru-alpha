@@ -85,7 +85,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
           childAspectRatio: 0.65,
         ),
         itemBuilder: (context, index) {
-          return MiruGridTile(
+          return MiruDesktopGridTile(
             title: fav[index].title,
             subtitle: fav[index].package,
             imageUrl: fav[index].cover,

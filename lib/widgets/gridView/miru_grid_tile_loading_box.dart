@@ -56,3 +56,31 @@ class MiruGridTileLoadingBox extends StatelessWidget {
     );
   }
 }
+
+class MobileTileLoadingBox extends StatelessWidget {
+  const MobileTileLoadingBox({super.key, this.width, this.height});
+  final double? width;
+  final double? height;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsetsGeometry.all(8),
+      child: Shimmer.fromColors(
+        baseColor: context.theme.colors.background,
+        highlightColor: context.theme.colors.secondary,
+        child: SizedBox(
+          width: width ?? 110,
+          height: height,
+          child: Container(
+            width: width ?? 110,
+            height: height,
+            decoration: BoxDecoration(
+              color: context.theme.colors.mutedForeground,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -138,7 +138,7 @@ class _LatestState extends ConsumerState<Latest> {
                       children: [
                         ListView.builder(
                           controller: _scrollController,
-                          itemBuilder: (context, index) => MiruGridTile(
+                          itemBuilder: (context, index) => MiruDesktopGridTile(
                             title: data[index].title,
                             subtitle: data[index].update ?? "",
                             imageUrl: data[index].cover,
@@ -331,7 +331,7 @@ class _LatestState extends ConsumerState<Latest> {
                   }
                   return ListView.builder(
                     controller: _scrollController,
-                    itemBuilder: (context, index) => MiruGridTile(
+                    itemBuilder: (context, index) => MiruDesktopGridTile(
                       title: data[index].title,
                       subtitle: data[index].update ?? "",
                       imageUrl: data[index].cover,

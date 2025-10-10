@@ -12,6 +12,7 @@ import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/widgets/core/toast.dart';
 import 'package:miru_app_new/widgets/gridView/index.dart';
+import 'package:miru_app_new/widgets/platform_widget.dart';
 
 class SearchGridView extends HookConsumerWidget {
   // final int page;
@@ -94,41 +95,74 @@ class SearchGridView extends HookConsumerWidget {
     }, [page]);
 
     final axisCnt = DeviceUtil.isMobileLayout(context)
-        ? cons.maxWidth ~/ 110
+        ? 2
         : cons.maxWidth ~/ 200;
     final remain = result.length % axisCnt;
     final remainLoading = remain == 0 ? axisCnt : axisCnt - remain;
 
-    return MiruGridView(
-      paddingHeightOffest: 50,
-      scrollController: scrollController,
-      mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: axisCnt,
-        childAspectRatio: 0.6,
+    return PlatformWidget(
+      desktopWidget: MiruGridView(
+        paddingHeightOffest: 50,
+        scrollController: scrollController,
+        mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: axisCnt,
+          childAspectRatio: 0.6,
+        ),
+        desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: axisCnt,
+          childAspectRatio: 0.7,
+        ),
+        itemBuilder: (context, index) {
+          if (isLoading.value && index >= result.length) {
+            return const MiruGridTileLoadingBox();
+          }
+          return MiruDesktopGridTile(
+            onTap: () {
+              context.push(
+                '/search/single/detail',
+                extra: DetailParam(meta: meta, url: result[index].url),
+              );
+            },
+            title: result[index].title,
+            imageUrl: result[index].cover,
+            subtitle: result[index].update ?? '',
+          );
+        },
+        itemCount: isLoading.value
+            ? result.length + remainLoading
+            : result.length,
       ),
-      desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: axisCnt,
-        childAspectRatio: 0.7,
+      mobileWidget: MiruGridView(
+        paddingHeightOffest: 50,
+        scrollController: scrollController,
+        mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: axisCnt,
+          childAspectRatio: 0.6,
+        ),
+        desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: axisCnt,
+          childAspectRatio: 0.7,
+        ),
+        itemBuilder: (context, index) {
+          if (isLoading.value && index >= result.length) {
+            return const MiruGridTileLoadingBox();
+          }
+          return MiruMobileTile(
+            onTap: () {
+              context.push(
+                '/search/single/detail',
+                extra: DetailParam(meta: meta, url: result[index].url),
+              );
+            },
+            title: result[index].title,
+            imageUrl: result[index].cover,
+            subtitle: result[index].update ?? '',
+          );
+        },
+        itemCount: isLoading.value
+            ? result.length + remainLoading
+            : result.length,
       ),
-      itemBuilder: (context, index) {
-        if (isLoading.value && index >= result.length) {
-          return const MiruGridTileLoadingBox();
-        }
-        return MiruGridTile(
-          onTap: () {
-            context.push(
-              '/search/single/detail',
-              extra: DetailParam(meta: meta, url: result[index].url),
-            );
-          },
-          title: result[index].title,
-          imageUrl: result[index].cover,
-          subtitle: result[index].update ?? '',
-        );
-      },
-      itemCount: isLoading.value
-          ? result.length + remainLoading
-          : result.length,
     );
   }
 }

@@ -148,24 +148,47 @@ class SettingMobileGeneralState extends ConsumerState<SettingGeneral> {
       mobile: MiruScaffold(
         mobileHeader: DecoratedBox(
           decoration: context.theme.scaffoldStyle.headerDecoration,
-          child: FHeader(title: Text("test")),
+          child: SnapSheetNested(
+            title: 'General',
+            prefix: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 12.0, top: 4),
+                  child: Icon(FIcons.chevronLeft, size: 28),
+                ),
+              ),
+            ],
+          ),
         ),
-        // FButton(
-        //   style: FButtonStyle.ghost(),
-        //   onPress: () {},
-        //   prefix: Icon(FIcons.chevronLeft),
-        //   child: Text("General"),
-        // ),
-        // Text("test"),
-        // SnapSheetHeader(
-        //   title: "General",
-        //   leading: [
-        //     ,
-        //   ],
-        // ),
+
         snapSheet: [],
         body: SettingBasedGeneral(isMobileLayout: true),
       ),
+    );
+  }
+}
+
+class SnapSheetNested extends StatelessWidget {
+  const SnapSheetNested({
+    super.key,
+    required this.title,
+    this.prefix = const <Widget>[],
+  });
+  final String title;
+  final List<Widget> prefix;
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        ...prefix,
+        Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+        ),
+      ],
     );
   }
 }

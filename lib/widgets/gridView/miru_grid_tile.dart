@@ -25,8 +25,8 @@ class _TextTile extends StatelessWidget {
   }
 }
 
-class MiruGridTile extends HookWidget {
-  const MiruGridTile({
+class MiruDesktopGridTile extends HookWidget {
+  const MiruDesktopGridTile({
     super.key,
     this.imageUrl,
     required this.title,
@@ -121,6 +121,87 @@ class MiruGridTile extends HookWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class MiruMobileTile extends StatelessWidget {
+  const MiruMobileTile({
+    super.key,
+    this.imageUrl,
+    required this.title,
+    required this.subtitle,
+    this.stackLabel,
+    this.width,
+    this.onTap,
+    this.height,
+  });
+  final String? imageUrl;
+  final String title;
+  final String subtitle;
+  final void Function()? onTap;
+  final double? height;
+  final double? width;
+  final Widget? stackLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl == null) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: _TextTile(title: title, subtitle: subtitle),
+      );
+    }
+    return Padding(
+      padding: EdgeInsetsGeometry.all(8),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Image fills the area
+          ImageWidget(imageUrl: imageUrl!, fit: BoxFit.cover),
+
+          // Bottom gradient shadow
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 60,
+            child: IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      context.theme.colors.background.withAlpha(200),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: AlignmentGeometry.bottomLeft,
+            child: Padding(
+              padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
+              child: FLabel(
+                description: Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                axis: Axis.vertical,
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

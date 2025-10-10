@@ -153,7 +153,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
             ),
             delegate: SliverChildBuilderDelegate((context, index) {
               final item = history[index];
-              return MiruGridTile(
+              return MiruDesktopGridTile(
                 title: item.title,
                 subtitle: item.episodeTitle,
                 imageUrl: item.cover,
