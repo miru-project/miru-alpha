@@ -201,7 +201,9 @@ Future<void> loadMiruCore() async {
         "dbname": p.join(appSupportDir, 'miru.db'),
         "sslmode": "disable",
       },
-      "cookieStoreLocation": Platform.isAndroid ? appSupportDir : "",
+      "cookieStoreLocation": Platform.isAndroid
+          ? p.join(appSupportDir, "cookies")
+          : "",
       "extensionPath": p.join(appSupportDir, 'extensions'),
     };
 

@@ -10,7 +10,7 @@ import '../../../pages/home/history_page.dart';
 import '../../../pages/index.dart';
 import '../../../pages/main_page.dart';
 import '../../pages/watch/manga_reader.dart';
-import '../../../pages/mobile_webview.dart';
+import '../../pages/webview/mobile_webview.dart';
 import '../../pages/watch/novel_reader.dart';
 import '../../../pages/search_page_single_view.dart';
 import '../../pages/watch/video_player.dart';

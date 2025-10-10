@@ -1,7 +1,12 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/pages/webview/desktop_webview.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/store/storage_index.dart';
@@ -86,24 +91,35 @@ class DesktopSearchPage extends HookConsumerWidget {
                     final ext = metaData[index];
                     return DesktopSearchListTile(
                       ext: ext,
-                      trailing: FButton.icon(
-                        selected: true,
-                        onPress: () {
-                          final newSet = {...pinnedExtensions.value};
-                          if (newSet.contains(ext.packageName)) {
-                            newSet.remove(ext.packageName);
-                          } else {
-                            newSet.add(ext.packageName);
-                          }
-                          pinnedExtensions.value = newSet;
-                          MiruSettings.setSettingSync(
-                            SettingKey.pinnedExtension,
-                            newSet.toString(),
-                          );
-                        },
-                        child: pinnedExtensions.value.contains(ext.packageName)
-                            ? Icon(FIcons.pinOff)
-                            : Icon(FIcons.pin),
+                      trailing: Row(
+                        children: [
+                          FButton.icon(
+                            style: FButtonStyle.ghost(),
+                            onPress: () => openWebview(ext),
+                            child: Icon(FIcons.globe),
+                          ),
+                          SizedBox(width: 8),
+                          FButton.icon(
+                            selected: true,
+                            onPress: () {
+                              final newSet = {...pinnedExtensions.value};
+                              if (newSet.contains(ext.packageName)) {
+                                newSet.remove(ext.packageName);
+                              } else {
+                                newSet.add(ext.packageName);
+                              }
+                              pinnedExtensions.value = newSet;
+                              MiruSettings.setSettingSync(
+                                SettingKey.pinnedExtension,
+                                newSet.toString(),
+                              );
+                            },
+                            child:
+                                pinnedExtensions.value.contains(ext.packageName)
+                                ? Icon(FIcons.pinOff)
+                                : Icon(FIcons.pin),
+                          ),
+                        ],
                       ),
                     );
                   },

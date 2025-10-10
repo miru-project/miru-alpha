@@ -1589,7 +1589,7 @@ class DetailHeaderDelegate extends SliverPersistentHeaderDelegate {
                       constraints: const BoxConstraints(maxWidth: 1500),
                       child: (isLoading)
                           ? _DesktopLoadingWidgetExtended()
-                          : _DesktopWidgetExtended(
+                          : DesktopWebView(
                               meta: meta,
                               detailUrl: detailUrl,
                               detail: detail,
@@ -1817,8 +1817,9 @@ class _DownloadDialogState extends State<_DownloadDialog>
   }
 }
 
-class _DesktopWidgetExtended extends StatelessWidget {
-  const _DesktopWidgetExtended({
+class DesktopWebView extends StatelessWidget {
+  const DesktopWebView({
+    super.key,
     required this.meta,
     this.detailUrl,
     this.detail,
