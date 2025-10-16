@@ -1,87 +1,53 @@
 import 'dart:async';
-
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'dart:developer';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/provider/network_provider.dart';
+// import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/watch/subtitle.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:video_player/video_player.dart';
 
 import 'package:flutter/material.dart';
+part 'video_player_provider.g.dart';
 
-class VideoPlayerProvider {
-  static late NotifierProvider<VideoPlayerNotifier, VideoPlayerState>
-  _videoPlayerNotifier;
-
-  static void initProvider(
-    String url,
-    List<ExtensionBangumiWatchSubtitle> subtitle,
-    Map<String, String> headers,
-    Size ratio,
-  ) {
-    _videoPlayerNotifier =
-        NotifierProvider.autoDispose<VideoPlayerNotifier, VideoPlayerState>(
-          () => VideoPlayerNotifier._withParams(url, subtitle, headers, ratio),
-        );
-  }
-
-  static NotifierProvider<VideoPlayerNotifier, VideoPlayerState> get provider =>
-      _videoPlayerNotifier;
-}
-
-class VideoPlayerState {
-  VideoPlayerController? controller;
+class VideoPlayerTickState {
   Duration duration;
-  List<DurationRange> buffered;
+  List<DurationRange> bufferedRange;
   final Duration position;
   final bool isPlaying;
   final double speed;
-  final Size size;
   final int selectedSubtitleIndex;
-  final bool isOpenSideBar;
   final bool isShowSideBar;
   final List<ExtensionBangumiWatchSubtitle> subtitlesRaw;
   final List<Subtitle> subtitles;
   final bool isShowSubtitle;
-  final List<ExtensionEpisodeGroup> epGroup;
-  final int selectedGroupIndex;
-  final int selectedEpisodeIndex;
-  final String name;
   final String currentSubtitle;
   final bool showControls;
   final Map<String, String> qualityMap;
   final double ratio;
-  VideoPlayerState({
-    this.controller,
+  VideoPlayerTickState({
     this.position = Duration.zero,
     this.isPlaying = false,
     this.duration = Duration.zero,
     this.speed = 1.0,
-    this.buffered = const [],
-    this.size = const Size(0, 0),
+    this.bufferedRange = const [],
     this.selectedSubtitleIndex = 0,
-    this.isOpenSideBar = false,
     this.isShowSideBar = false,
     this.subtitlesRaw = const [],
     this.subtitles = const [],
     this.isShowSubtitle = false,
-    this.epGroup = const [],
-    this.selectedGroupIndex = 0,
-    this.name = '',
-    this.selectedEpisodeIndex = 0,
     this.qualityMap = const {},
     this.ratio = 0.0,
     this.currentSubtitle = '',
     this.showControls = false,
   });
 
-  VideoPlayerState copyWith({
+  VideoPlayerTickState copyWith({
     VideoPlayerController? controller,
     Duration? position,
     bool? isPlaying,
     Duration? duration,
     double? speed,
     List<DurationRange>? buffered,
-    Size? size,
     int? selectedSubtitleIndex,
     bool? isOpenSideBar,
     bool? isShowSideBar,
@@ -89,7 +55,6 @@ class VideoPlayerState {
     List<Subtitle>? subtitles,
     bool? isShowSubtitle,
     bool? showControls,
-    List<ExtensionEpisodeGroup>? epGroup,
     int? selectedGroupIndex,
     int? selectedEpisodeIndex,
     String? name,
@@ -97,25 +62,18 @@ class VideoPlayerState {
     double? ratio,
     Map<String, String>? qualityMap,
   }) {
-    return VideoPlayerState(
-      controller: controller ?? this.controller,
+    return VideoPlayerTickState(
       position: position ?? this.position,
       isPlaying: isPlaying ?? this.isPlaying,
       duration: duration ?? this.duration,
       speed: speed ?? this.speed,
-      buffered: buffered ?? this.buffered,
-      size: size ?? this.size,
+      bufferedRange: buffered ?? bufferedRange,
       selectedSubtitleIndex:
           selectedSubtitleIndex ?? this.selectedSubtitleIndex,
-      isOpenSideBar: isOpenSideBar ?? this.isOpenSideBar,
       isShowSideBar: isShowSideBar ?? this.isShowSideBar,
       subtitlesRaw: subtitlesRaw ?? this.subtitlesRaw,
       subtitles: subtitles ?? this.subtitles,
       isShowSubtitle: isShowSubtitle ?? this.isShowSubtitle,
-      epGroup: epGroup ?? this.epGroup,
-      selectedGroupIndex: selectedGroupIndex ?? this.selectedGroupIndex,
-      selectedEpisodeIndex: selectedEpisodeIndex ?? this.selectedEpisodeIndex,
-      name: name ?? this.name,
       currentSubtitle: currentSubtitle ?? this.currentSubtitle,
       ratio: ratio ?? this.ratio,
       qualityMap: qualityMap ?? this.qualityMap,
@@ -124,63 +82,56 @@ class VideoPlayerState {
   }
 }
 
-class VideoPlayerNotifier extends Notifier<VideoPlayerState> {
-  VideoPlayerNotifier();
-
-  VideoPlayerNotifier._withParams(
-    this._url,
-    this._subtitlesRaw,
-    this._headers,
-    this._initialRatio,
-  );
-
-  String? _url;
-  List<ExtensionBangumiWatchSubtitle>? _subtitlesRaw;
-  Map<String, String>? _headers;
-  Size? _initialRatio;
-
+@riverpod
+class VideoPlayerNotifier extends _$VideoPlayerNotifier {
+  late VideoPlayerController vidController;
+  late final Size defaultSize;
+  VideoPlayerController get videoPlayerController => vidController;
   @override
-  VideoPlayerState build() {
-    defaultSize = _initialRatio ?? const Size(0, 0);
-    final controller = _url != null
-        ? VideoPlayerController.networkUrl(Uri.parse(_url!))
-        : null;
-    final initialState = VideoPlayerState(
-      controller: controller,
-      subtitlesRaw: _subtitlesRaw ?? const [],
+  VideoPlayerTickState build(
+    String url, {
+    List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
+    Map<String, String>? headers,
+    Size? initialRatio,
+  }) {
+    defaultSize = initialRatio ?? const Size(0, 0);
+    vidController = VideoPlayerController.networkUrl(
+      Uri.parse(url),
+      httpHeaders: headers ?? const {},
+    );
+    final initialState = VideoPlayerTickState(
+      subtitlesRaw: subtitlesRaw ?? const [],
       showControls: false,
-      ratio:
-          controller?.value.aspectRatio ??
-          (defaultSize.width /
-              (defaultSize.height == 0 ? 1 : defaultSize.height)),
+      ratio: vidController.value.aspectRatio,
     );
 
-    // schedule initialization and cleanup
-    if (_url != null) {
-      // initialize async parts
-      Future.microtask(() => _init(_url!, _headers ?? {}));
-    }
-
+    Future.microtask(() => _init(url, headers ?? const {}));
     ref.onDispose(() {
       _hideTimer?.cancel();
-      initialState.controller?.removeListener(_updatePosition);
-      initialState.controller?.dispose();
+      vidController.removeListener(_updatePosition);
+      vidController.dispose();
     });
 
     return initialState;
   }
 
   Timer? _hideTimer;
+  int prevTime = 0;
 
   /// Shows controls and schedules hiding after 3 seconds.
   void updateTimer() {
-    _hideTimer?.cancel();
-    // show controls immediately
+    final curTime = DateTime.now().microsecondsSinceEpoch;
+    if (curTime - prevTime < 300000) {
+      return;
+    }
+    // _hideTimer?.cancel();
+    // // show controls immediately
     state = state.copyWith(showControls: true);
-    // start periodic timer to hide after 3 seconds
-    _hideTimer = Timer(const Duration(seconds: 10000), () {
-      state = state.copyWith(showControls: false);
-    });
+    prevTime = curTime;
+    // // start periodic timer to hide after 3 seconds
+    // _hideTimer = Timer(const Duration(seconds: 10000), () {
+    //   state = state.copyWith(showControls: false);
+    // });
   }
 
   /// Manually set showControls state and cancel existing timer if hiding.
@@ -196,19 +147,19 @@ class VideoPlayerNotifier extends Notifier<VideoPlayerState> {
   }
 
   void _init(String url, Map<String, String> headers) {
-    state.controller?.initialize().then((_) {
-      state.controller?.addListener(_updatePosition);
-      state.controller?.play();
+    vidController.initialize().then((_) {
+      vidController.addListener(_updatePosition);
+      vidController.play();
 
       state = state.copyWith(
         isPlaying: true,
-        duration: state.controller?.value.duration,
-        buffered: state.controller?.value.buffered,
+        duration: vidController.value.duration,
+        buffered: vidController.value.buffered,
       );
     });
-    getQuality(url, headers).then((val) {
-      state = state.copyWith(qualityMap: val);
-    });
+    // getQuality(url, headers).then((val) {
+    //   state = state.copyWith(qualityMap: val);
+    // });
   }
 
   // player management
@@ -222,58 +173,36 @@ class VideoPlayerNotifier extends Notifier<VideoPlayerState> {
     2.0,
     3.0,
   ];
-  // void initVideoPlayer(String url, Map<String, String> headers) {
-  //   final controller = VideoPlayerController.networkUrl(Uri.parse(url));
-
-  //   state.controller = controller;
-  //   state.duration = controller.value.duration;
-  //   state.buffered = controller.value.buffered;
-  //   state.controller?.initialize().then((_) {
-  //     state.controller?.addListener(_updatePosition);
-  //     state.controller?.play();
-
-  //     state = state.copyWith(
-  //         isPlaying: true,
-  //         duration: state.controller?.value.duration,
-  //         buffered: state.controller?.value.buffered,
-  //         isShowSubtitle: false,
-  //         selectedSubtitleIndex: 0,
-  //         subtitles: const []);
-  //     getQuality(url, headers);
-  //   });
-  // }
 
   void changeVideoQuality(String url) {
-    state.controller?.pause();
-    state.controller?.dispose();
+    vidController.pause();
+    vidController.dispose();
     final controller = VideoPlayerController.networkUrl(Uri.parse(url));
     state = state.copyWith(
       controller: controller,
       duration: controller.value.duration,
       buffered: controller.value.buffered,
     );
-    state.controller?.initialize().then((_) {
-      state.controller?.addListener(_updatePosition);
-      state.controller?.play();
+    vidController.initialize().then((_) {
+      vidController.addListener(_updatePosition);
+      vidController.play();
 
       state = state.copyWith(
         isPlaying: true,
-        duration: state.controller?.value.duration,
-        buffered: state.controller?.value.buffered,
+        duration: vidController.value.duration,
+        buffered: vidController.value.buffered,
       );
     });
   }
 
   void _updatePosition() {
     state = state.copyWith(
-      position: state.controller?.value.position,
-      isPlaying: state.controller?.value.isPlaying,
-      duration: state.controller?.value.duration,
-      buffered: state.controller?.value.buffered,
+      position: vidController.value.position,
+      isPlaying: vidController.value.isPlaying,
+      duration: vidController.value.duration,
+      buffered: vidController.value.buffered,
       currentSubtitle: getCurrentSubtitle(),
-      ratio:
-          state.controller?.value.aspectRatio ??
-          defaultSize.width / defaultSize.height,
+      ratio: vidController.value.aspectRatio,
     );
   }
 
@@ -282,7 +211,7 @@ class VideoPlayerNotifier extends Notifier<VideoPlayerState> {
   }
 
   void play() {
-    state.controller?.play();
+    vidController.play();
     state = state.copyWith(isPlaying: true);
   }
 
@@ -294,22 +223,18 @@ class VideoPlayerNotifier extends Notifier<VideoPlayerState> {
     play();
   }
 
-  void toggleSideBar() {
-    state = state.copyWith(isOpenSideBar: !state.isOpenSideBar);
-  }
-
   void pause() {
-    state.controller?.pause();
+    vidController.pause();
     state = state.copyWith(isPlaying: false);
   }
 
   void seek(Duration position) {
-    state.controller?.seekTo(position);
+    vidController.seekTo(position);
     state = state.copyWith(position: position);
   }
 
   void setSpeed(double speed) {
-    state.controller?.setPlaybackSpeed(speed);
+    vidController.setPlaybackSpeed(speed);
     state = state.copyWith(speed: speed);
   }
 
@@ -348,7 +273,6 @@ class VideoPlayerNotifier extends Notifier<VideoPlayerState> {
     );
   }
 
-  late final Size defaultSize;
   void putVideoDefaultRatio(Size size) {
     defaultSize = size;
   }
@@ -356,23 +280,4 @@ class VideoPlayerNotifier extends Notifier<VideoPlayerState> {
   int get length => state.subtitles.length;
   List<Subtitle> get subtitles => state.subtitles;
   int get selectedIndex => state.selectedSubtitleIndex;
-
-  //episode management
-  // void selectEpisode(int groupIndex, int episodeIndex) {
-  //   state = state.copyWith(
-  //     selectedGroupIndex: groupIndex,
-  //     selectedEpisodeIndex: episodeIndex,
-  //   );
-  // }
-
-  // void initEpisodes(int groupIndex, int episodeIndex,
-  //     List<ExtensionEpisodeGroup> epGroup, String name, bool flag) {
-  //   state = state.copyWith(
-  //       epGroup: epGroup,
-  //       name: name,
-  //       selectedGroupIndex: groupIndex,
-  //       selectedEpisodeIndex: episodeIndex);
-  // }
-
-  // cleanup moved to ref.onDispose inside build()
 }

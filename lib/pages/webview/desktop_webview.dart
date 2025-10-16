@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:desktop_webview_window/desktop_webview_window.dart';
+import 'package:miru_app_new/miru_core/network/network.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 
@@ -25,6 +26,12 @@ Future<void> openWebview(ExtensionMeta ext) async {
       if (cookies.isEmpty) {
         logger.info('⚠️ no cookies found');
       }
+      String cookie = "";
+      for (final c in cookies) {
+        cookie += "${c.name}=${c.value}; ";
+      }
+      // logger.info('Cookies: $cookie');
+      await ExtensionEndpoint.setCookie(cookie, url);
     } catch (e, stack) {
       logger.info('getAllCookies error: $e');
       logger.info(stack);

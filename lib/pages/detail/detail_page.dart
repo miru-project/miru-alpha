@@ -19,11 +19,12 @@ import 'package:miru_app_new/utils/download/download_utils.dart';
 
 import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:miru_app_new/utils/core/log.dart';
-// import 'package:miru_app_new/utils/network/request.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
+import 'package:miru_app_new/widgets/core/image_widget.dart';
 import 'package:miru_app_new/widgets/core/inner_card.dart';
 import 'package:miru_app_new/widgets/core/outter_card.dart';
+import 'package:miru_app_new/widgets/detail/detail_desktop_box.dart';
 import 'package:miru_app_new/widgets/dialog/favorite_add_group_dialog.dart';
 import 'package:miru_app_new/widgets/dialog/favorite_warning_dialog.dart';
 import 'package:miru_app_new/widgets/error.dart';
@@ -328,118 +329,7 @@ class LoadedContent extends HookWidget {
               flex: 7,
               child: Column(
                 children: [
-                  AnimatedBox(
-                    child: FCard.raw(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: DecorationImage(
-                            fit: BoxFit.fitWidth,
-                            image: ExtendedNetworkImageProvider(detail.cover!),
-                            colorFilter: ColorFilter.mode(
-                              Colors.black.withAlpha(
-                                200,
-                              ), // optional dark overlay
-                              BlendMode.darken,
-                            ),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsetsGeometry.symmetric(
-                            horizontal: 25,
-                            vertical: 30,
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  FBadge(child: Text('Favorited')),
-                                  FButton.icon(
-                                    onPress: () {},
-                                    child: Icon(
-                                      FIcons.star,
-                                      blendMode: BlendMode.luminosity,
-                                      color: context.theme.colors.primary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 10),
-                              Padding(
-                                padding: EdgeInsetsGeometry.symmetric(
-                                  horizontal: 10,
-                                ),
-                                child: Text(
-                                  detail.title,
-                                  maxLines: 2,
-                                  style: TextStyle(
-                                    fontSize: 40,
-                                    fontWeight: FontWeight.bold,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 25),
-                              FAccordion(
-                                style: (style) {
-                                  return FAccordionStyle(
-                                    titleTextStyle: style.titleTextStyle,
-                                    childTextStyle: style.childTextStyle,
-                                    iconStyle: style.iconStyle,
-                                    focusedOutlineStyle:
-                                        style.focusedOutlineStyle,
-                                    dividerStyle: style.dividerStyle.copyWith(
-                                      color: Colors.transparent,
-                                    ),
-                                    tappableStyle: style.tappableStyle,
-                                  );
-                                },
-                                children: [
-                                  FAccordionItem(
-                                    initiallyExpanded: true,
-                                    title: Text("Description"),
-                                    child: Text(
-                                      detail.desc ??
-                                          "Currently no description ... ",
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: context
-                                            .theme
-                                            .colors
-                                            .mutedForeground,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                              Row(
-                                // direction: Axis.horizontal,
-                                children: [
-                                  FButton(
-                                    suffix: Icon(FIcons.play),
-                                    onPress: () {},
-                                    child: Text("Play"),
-                                  ),
-                                  SizedBox(width: 15),
-                                  FButton(
-                                    style: FButtonStyle.secondary(),
-                                    suffix: Icon(FIcons.globe),
-                                    onPress: () {},
-                                    child: Text("WebView"),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  DetailDesktopBox(detail: detail, meta: meta, url: url),
                   const SizedBox(height: 30),
                   if (detail.episodes == null)
                     DetailItemBox(
@@ -453,7 +343,7 @@ class LoadedContent extends HookWidget {
                       trailing: Row(
                         children: [
                           SizedBox(
-                            width: 100,
+                            width: 150,
                             child: FSelect<int>(
                               initialValue: selected.value,
                               onChange: (value) {
@@ -522,12 +412,7 @@ class LoadedContent extends HookWidget {
                     child: FCard.raw(
                       child: ClipRRect(
                         // borderRadius: BorderRadius.circular(),
-                        child: ExtendedImage.network(
-                          url,
-                          borderRadius: BorderRadius.circular(10),
-                          shape: BoxShape.rectangle,
-                          fit: BoxFit.fitHeight,
-                        ),
+                        child: ImageWidget(imageUrl: url),
                       ),
                     ),
                   ),
@@ -572,10 +457,11 @@ class _DetailPageState extends ConsumerState<DetailPage> {
   Widget build(BuildContext context) {
     final detial =
         ref.watch(detialProvider).detailState ?? const AsyncValue.loading();
-    return MiruScaffold.desktop(
+    return MiruScaffold(
+      mobileHeader: SizedBox(),
       body: detial.when(
         data: (detial) => LoadedContent(detail: detial, meta: widget.meta),
-        error: (err, stack) => ErrorDisplay(err: err, stack: stack),
+        error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
         loading: () => Center(child: FCircularProgress()),
       ),
     );

@@ -1,5 +1,7 @@
+import 'dart:developer';
+
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/store/database_service.dart';
+// import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'epidsode_provider.g.dart';
 
@@ -40,50 +42,46 @@ class EpisodeNotifier extends _$EpisodeNotifier {
   late ExtensionType type;
   late String detailUrl;
   @override
-  EpisodeNotifierState build() {
-    ref.onDispose(() {
-      DatabaseService.putHistory(
-        History(
-          title: state.name,
-          package: package,
-          type: EnumToString.convertToString(type),
-          episodeGroupId: state.selectedGroupIndex,
-          episodeId: state.selectedEpisodeIndex,
-          progress: state.selectedEpisodeIndex.toString(),
-          cover: imageUrl,
-          totalProgress: state.epGroup[state.selectedGroupIndex].urls.length
-              .toString(),
-          episodeTitle: state
-              .epGroup[state.selectedGroupIndex]
-              .urls[state.selectedEpisodeIndex]
-              .name,
-          url: detailUrl,
-          date: DateTime.now(),
-        ),
-      );
-    });
-
-    return EpisodeNotifierState();
-  }
-
-  void selectEpisode(int groupIndex, int episodeIndex) {
-    state = state.copyWith(
-      selectedGroupIndex: groupIndex,
-      selectedEpisodeIndex: episodeIndex,
-    );
-  }
-
-  void initEpisodes(
+  EpisodeNotifierState build(
     int groupIndex,
     int episodeIndex,
     List<ExtensionEpisodeGroup> epGroup,
     String name,
     bool flag,
   ) {
-    state = state.copyWith(
+    ref.onDispose(() {
+      // DatabaseService.putHistory(
+      //   History(
+      //     title: state.name,
+      //     package: package,
+      //     type: EnumToString.convertToString(type),
+      //     episodeGroupId: state.selectedGroupIndex,
+      //     episodeId: state.selectedEpisodeIndex,
+      //     progress: state.selectedEpisodeIndex.toString(),
+      //     cover: imageUrl,
+      //     totalProgress: state.epGroup[state.selectedGroupIndex].urls.length
+      //         .toString(),
+      //     episodeTitle: state
+      //         .epGroup[state.selectedGroupIndex]
+      //         .urls[state.selectedEpisodeIndex]
+      //         .name,
+      //     url: detailUrl,
+      //     date: DateTime.now(),
+      //   ),
+      // );
+    });
+
+    return EpisodeNotifierState(
       epGroup: epGroup,
       flag: flag,
       name: name,
+      selectedGroupIndex: groupIndex,
+      selectedEpisodeIndex: episodeIndex,
+    );
+  }
+
+  void selectEpisode(int groupIndex, int episodeIndex) {
+    state = state.copyWith(
       selectedGroupIndex: groupIndex,
       selectedEpisodeIndex: episodeIndex,
     );

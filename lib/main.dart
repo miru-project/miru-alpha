@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:ffi' as ffi;
 import 'dart:io';
 import 'dart:isolate';
@@ -37,7 +38,7 @@ void main() {
       WidgetsFlutterBinding.ensureInitialized();
       MiruLog.ensureInitialized();
 
-      if (!(Platform.isAndroid || Platform.isIOS) && !kIsWeb) {
+      if (!(Platform.isAndroid || Platform.isIOS || kIsWeb)) {
         await windowManager.ensureInitialized();
         WindowOptions windowOptions = const WindowOptions(
           size: Size(1300, 700),
@@ -86,9 +87,10 @@ void main() {
       // Init config for miru_core
       if (kReleaseMode) _bindErrorWidget();
 
-      runApp(const ProviderScope(child: App()));
+      runApp(ProviderScope(child: App()));
     },
     (error, stack) {
+      debugger();
       logger.severe('Uncaught error: $error', error, stack);
     },
   );
@@ -220,4 +222,19 @@ Future<void> loadMiruCore() async {
   }
   await Isolate.run(() => startNativeMiruCore(configPath));
   return;
+}
+
+final class LoggingObserver extends ProviderObserver {
+  @override
+  void didUpdateProvider(
+    ProviderObserverContext context,
+    Object? previousValue,
+    Object? newValue,
+  ) {
+    debugPrint(
+      'provider updated: ${context.provider} '
+      ' $previousValue -> $newValue',
+    );
+    debugPrint(StackTrace.current.toString()); // helps find caller
+  }
 }

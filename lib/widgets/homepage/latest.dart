@@ -7,7 +7,7 @@ import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/utils/watch/watch_entry.dart';
-import 'package:miru_app_new/widgets/gridView/index.dart';
+import 'package:miru_app_new/widgets/grid_view/index.dart';
 
 class Latest extends ConsumerStatefulWidget {
   const Latest({

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/widgets/gridView/index.dart';
+import 'package:miru_app_new/widgets/grid_view/index.dart';
 
 class SearchGridLoadingWidget extends StatelessWidget {
   final ScrollController scrollController;

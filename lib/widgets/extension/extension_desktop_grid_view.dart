@@ -6,7 +6,7 @@ import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/widgets/search/search_filter_card.dart';
 import 'package:miru_app_new/widgets/extension/extension_tile.dart';
-import 'package:miru_app_new/widgets/gridView/index.dart';
+import 'package:miru_app_new/widgets/grid_view/index.dart';
 import 'package:miru_app_new/widgets/extension/clearable_select.dart';
 
 class ExtensionDesktopGridView extends HookConsumerWidget {

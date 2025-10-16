@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/model.dart';
+import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -284,6 +285,13 @@ class ExtensionEndpoint {
     return CoreNetwork.requestFormData("rm/extension", {
       'pkg': package,
     }, method: 'DELETE').then((value) => value.msg);
+  }
+
+  static Future<void> setCookie(String cookie, String url) async {
+    return CoreNetwork.requestFormData("network/cookies", {
+      'cookies': cookie,
+      'url': url,
+    }, method: 'POST').then((value) => value.msg);
   }
 }
 

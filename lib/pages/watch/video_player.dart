@@ -1,27 +1,18 @@
-import 'dart:async';
-import 'dart:ui';
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:forui/forui.dart';
-import 'package:forui_hooks/forui_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
-import 'package:miru_app_new/provider/main_controller_provider.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/utils/theme/theme.dart';
-import 'package:miru_app_new/widgets/core/inner_card.dart';
 import 'package:miru_app_new/widgets/error.dart';
-import 'package:miru_app_new/widgets/index.dart';
-
-// import 'package:moon_design/moon_design.dart';
+import 'package:miru_app_new/widgets/video_player/desktop_footer.dart';
+import 'package:miru_app_new/widgets/video_player/player_header.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -29,14 +20,7 @@ import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
 bool _hasOriented = false;
-// final _episodeNotifierProvider = Provider<EpisodeNotifierState>(
-//   isAutoDispose: true,
-//   (ref) {
-//     return EpisodeNotifierState();
-//   },
-// );
 
-//Changing epsisode will make this reload
 class MiruVideoPlayer extends StatefulHookConsumerWidget {
   const MiruVideoPlayer({
     super.key,
@@ -64,22 +48,6 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
   late double maxHeight;
   late double maxWidth;
   @override
-  void initState() {
-    super.initState();
-    // init episodes
-    Future.microtask(() {
-      final epcontroller = ref.read(episodeProvider.notifier);
-      epcontroller.initEpisodes(
-        widget.selectedGroupIndex,
-        widget.selectedEpisodeIndex,
-        widget.epGroup ?? [],
-        widget.name,
-        false,
-      );
-    });
-  }
-
-  @override
   void dispose() {
     if (_hasOriented) {
       SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -89,6 +57,14 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
+    final epProvider = episodeProvider(
+      widget.selectedGroupIndex,
+      widget.selectedEpisodeIndex,
+      widget.epGroup ?? [],
+      widget.name,
+      false,
+    );
+
     maxWidth = DeviceUtil.getWidth(context);
     maxHeight = DeviceUtil.getHeight(context);
 
@@ -96,8 +72,7 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
       _hasOriented = true;
       SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
     }
-    final epNotifier = ref.watch(episodeProvider);
-    final epcontroller = ref.read(episodeProvider.notifier);
+    final epNotifier = ref.watch(epProvider);
     if (epNotifier.epGroup.isEmpty) {
       return Center(
         child: Column(
@@ -117,66 +92,47 @@ class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
         .epGroup[epNotifier.selectedGroupIndex]
         .urls[epNotifier.selectedEpisodeIndex]
         .url;
-    final snapshot = ref.watch(
-      videoLoadProvider(url, widget.meta.packageName, widget.meta.type),
-    );
-    epcontroller.putinformation(
-      widget.meta.type,
-      widget.meta.packageName,
-      widget.detailImageUrl,
-      widget.detailUrl,
-    );
-    return FTheme(
-      data: ref.watch(applicationControllerProvider).themeData,
-      child: snapshot.when(
-        data: (value) {
-          // _resolutionNotifer =
-          //     FetchResolutionProvider(value.url, value.headers ?? {});
-          return PlayerResolution(
-            ratio: MediaQuery.of(context).size,
-            name: widget.name,
-            value: value as ExtensionBangumiWatch,
-            url: url,
-            meta: widget.meta,
-          );
-        },
-        error: (error, trace) => Center(
-          child: ErrorDisplay(
-            err: error,
-            stack: trace,
-            prefix: FButton(
-              style: FButtonStyle.ghost(),
-              prefix: Icon(FIcons.undo2),
-              onPress: () {
-                context.pop();
-              },
-              child: Text('Return'),
+
+    return Consumer(
+      builder: (context, ref, child) {
+        final snapshot = ref.watch(
+          videoLoadProvider(url, widget.meta.packageName, widget.meta.type),
+        );
+        return FTheme(
+          data: ref.watch(applicationControllerProvider).themeData,
+          child: snapshot.when(
+            data: (value) {
+              return PlayerResolution(
+                epProvider: epProvider,
+                screenRatio: MediaQuery.of(context).size,
+                name: widget.name,
+                value: value as ExtensionBangumiWatch,
+                url: url,
+                meta: widget.meta,
+              );
+            },
+            error: (error, trace) => FScaffold(
+              child: Center(
+                child: ErrorDisplay(
+                  err: error,
+                  stack: trace,
+                  prefix: FButton(
+                    style: FButtonStyle.ghost(),
+                    prefix: Icon(FIcons.undo2),
+                    onPress: () {
+                      context.pop();
+                    },
+                    child: Text('Return'),
+                  ),
+                ),
+              ),
             ),
+            loading: () => const Center(child: FCircularProgress()),
           ),
-        ),
-        loading: () => const Center(child: FCircularProgress()),
-      ),
+        );
+      },
     );
   }
-}
-
-//changing video quality will make this reload
-class PlayerResolution extends StatefulHookConsumerWidget {
-  const PlayerResolution({
-    super.key,
-    required this.name,
-    required this.value,
-    required this.url,
-    required this.ratio,
-    required this.meta,
-  });
-  final ExtensionBangumiWatch value;
-  final String name;
-  final ExtensionMeta meta;
-  final String url;
-  final Size ratio;
-  @override
-  createState() => _PlayerResoltionState();
 }
 
 class PlayerButton extends StatelessWidget {
@@ -199,43 +155,49 @@ class PlayerButton extends StatelessWidget {
   }
 }
 
-class _PlayerResoltionState extends ConsumerState<PlayerResolution> {
+class PlayerResolution extends ConsumerWidget {
+  const PlayerResolution({
+    super.key,
+    required this.name,
+    required this.value,
+    required this.url,
+    required this.screenRatio,
+    required this.meta,
+    required this.epProvider,
+  });
+  final ExtensionBangumiWatch value;
+  final String name;
+  final ExtensionMeta meta;
+  final String url;
+  final Size screenRatio;
+  final EpisodeNotifierProvider epProvider;
   @override
-  void initState() {
-    VideoPlayerProvider.initProvider(
-      widget.value.url,
-      widget.value.subtitles ?? [],
-      widget.value.headers ?? {},
-      widget.ratio,
+  Widget build(context, WidgetRef ref) {
+    final vidProvider = videoPlayerProvider(
+      value.url,
+      subtitlesRaw: value.subtitles,
+      headers: value.headers,
     );
 
-    super.initState();
-  }
-
-  @override
-  Widget build(context) {
-    final controller = ref.watch(
-      VideoPlayerProvider.provider.select(
-        (it) => it
-          ..currentSubtitle
-          ..ratio
-          ..controller,
-      ),
+    final ratio = ref.watch(vidProvider.select((s) => s.ratio));
+    final currentSubtitle = ref.watch(
+      vidProvider.select((s) => s.currentSubtitle),
     );
 
+    // return VideoPlayer(ref.read(vidProvider.notifier).vidController);
     return Stack(
       children: [
         //video player
         Center(
           child: AspectRatio(
-            aspectRatio: controller.ratio == 0
-                ? widget.ratio.width / widget.ratio.height
-                : controller.ratio,
-            child: VideoPlayer(controller.controller!),
+            aspectRatio: ratio == 0
+                ? screenRatio.width / screenRatio.height
+                : ratio,
+            child: VideoPlayer(ref.read(vidProvider.notifier).vidController),
           ),
         ),
         //subtitle text
-        if (controller.currentSubtitle.isNotEmpty)
+        if (currentSubtitle.isNotEmpty)
           Positioned(
             bottom: 50,
             left: 20,
@@ -250,7 +212,7 @@ class _PlayerResoltionState extends ConsumerState<PlayerResolution> {
                 ),
                 child: RichText(
                   text: TextSpan(
-                    text: controller.currentSubtitle,
+                    text: currentSubtitle,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -263,13 +225,16 @@ class _PlayerResoltionState extends ConsumerState<PlayerResolution> {
             ),
           ),
         //player controls ui
-        _VideoPlayer(),
+        _VideoPlayer(vidPr: vidProvider, epProvider: epProvider),
       ],
     );
   }
 }
 
 class _VideoPlayer extends StatefulHookConsumerWidget {
+  const _VideoPlayer({required this.vidPr, required this.epProvider});
+  final VideoPlayerNotifierProvider vidPr;
+  final EpisodeNotifierProvider epProvider;
   @override
   _DesktopVideoPlayerState createState() => _DesktopVideoPlayerState();
 }
@@ -290,60 +255,66 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
   bool _isLongPress = false;
   void _updateTimer() {
     // delegate to provider
-    ref.read(VideoPlayerProvider.provider.notifier).updateTimer();
+    ref.read(widget.vidPr.notifier).updateTimer();
   }
 
-  Widget buildcontent(VideoPlayerState controller, VideoPlayerNotifier c) {
-    void close() {
-      WindowManager.instance.setAlwaysOnTop(false);
-      // ref.invalidate(subtitleProvider);
+  void close() {
+    WindowManager.instance.setAlwaysOnTop(false);
+    // ref.invalidate(subtitleProvider);
+    context.pop();
+    // ref.invalidate(episodeProvider);
+    // ref.invalidate(widget.vidPr);
+  }
 
-      context.pop();
-    }
-
-    final showControls = ref.watch(
-      VideoPlayerProvider.provider.select((s) => s.showControls),
+  Widget buildcontent(VideoPlayerNotifier c) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final showControls = ref.watch(
+          widget.vidPr.select((s) => s.showControls),
+        );
+        final isPlaying = ref.watch(widget.vidPr.select((s) => s.isPlaying));
+        if (!showControls) return const SizedBox.expand();
+        return Column(
+          children: [
+            DefaultTextStyle(
+              // color: Colors.transparent,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              child: _hasOriented
+                  ? Header(
+                      titleSize: 20,
+                      subTitleSize: 12,
+                      iconSize: 20,
+                      onClose: close,
+                      episodeProvider: widget.epProvider,
+                    )
+                  : Header(onClose: close, episodeProvider: widget.epProvider),
+            ),
+            Expanded(
+              child: (!isPlaying)
+                  ? Center(
+                      child: PlayerButton(
+                        onPressed: () {
+                          c.play();
+                        },
+                        icon: FIcons.play,
+                      ),
+                    )
+                  : Container(color: Colors.transparent),
+            ),
+            DesktopFooter(vidPr: widget.vidPr, epProvdier: widget.epProvider),
+          ],
+        );
+      },
     );
-    if (showControls) {
-      return Column(
-        children: [
-          DefaultTextStyle(
-            // color: Colors.transparent,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-            child: _hasOriented
-                ? _Header(
-                    titleSize: 20,
-                    subTitleSize: 12,
-                    iconSize: 20,
-                    onClose: close,
-                  )
-                : _Header(onClose: close),
-          ),
-          Expanded(
-            child: (!controller.isPlaying)
-                ? Center(
-                    child: PlayerButton(
-                      onPressed: () {
-                        c.play();
-                      },
-                      icon: FIcons.play,
-                    ),
-                  )
-                : Container(color: Colors.transparent),
-          ),
-          _DesktopFooter(),
-        ],
-      );
-    }
-
-    return const SizedBox.expand();
   }
 
   @override
   Widget build(BuildContext context) {
     final currentBrightness = useState(0.0);
-    final controller = ref.watch(VideoPlayerProvider.provider);
-    final c = ref.read(VideoPlayerProvider.provider.notifier);
+    final position = ref.watch(widget.vidPr.select((s) => s.position));
+    final duration = ref.watch(widget.vidPr.select((s) => s.duration));
+
+    final c = ref.read(widget.vidPr.notifier);
     return Stack(
       children: [
         DefaultTextStyle(
@@ -372,7 +343,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                             ),
                             const Text('/'),
                             Text(
-                              '${controller.duration.inMinutes}:${(controller.duration.inSeconds % 60).toString().padLeft(2, '0')}',
+                              '${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}',
                             ),
                           ],
                         ),
@@ -415,10 +386,8 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
-              if (ref.read(VideoPlayerProvider.provider).showControls) {
-                ref
-                    .read(VideoPlayerProvider.provider.notifier)
-                    .setShowControls(false);
+              if (ref.read(widget.vidPr).showControls) {
+                ref.read(widget.vidPr.notifier).setShowControls(false);
                 return;
               }
               _updateTimer();
@@ -428,9 +397,9 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
               final dx = details.localPosition.dx;
               final width = MediaQuery.of(context).size.width / 3;
               if (dx < width) {
-                c.seek(controller.position - const Duration(seconds: 10));
+                c.seek(position - const Duration(seconds: 10));
               } else if (dx > width * 2) {
-                c.seek(controller.position + const Duration(seconds: 10));
+                c.seek(position + const Duration(seconds: 10));
               } else {
                 c.playOrPause();
               }
@@ -463,7 +432,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
               setState(() {});
             },
             onHorizontalDragStart: (details) {
-              _position = controller.position;
+              _position = position;
             },
             onVerticalDragEnd: (details) {
               _isAdjusting = false;
@@ -495,607 +464,20 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
               setState(() {});
             },
             onLongPressEnd: (details) {
-              c.setSpeed(controller.speed);
+              c.setSpeed(ref.read(widget.vidPr).speed);
               _isLongPress = false;
               setState(() {});
             },
-            child: buildcontent(controller, c),
+            child: buildcontent(c),
           )
         else
           MouseRegion(
             onHover: (event) {
               _updateTimer();
             },
-            child: buildcontent(controller, c),
+            child: buildcontent(c),
           ),
       ],
     );
-  }
-}
-
-class _Header extends ConsumerStatefulWidget {
-  const _Header({
-    required this.onClose,
-    this.titleSize = 20,
-    this.subTitleSize = 18,
-    this.iconSize = 24,
-  });
-  final VoidCallback onClose;
-  final double titleSize;
-  final double subTitleSize;
-  final double iconSize;
-  @override
-  ConsumerState<_Header> createState() => _HeaderState();
-}
-
-class _HeaderState extends ConsumerState<_Header> {
-  bool _isAlwaysOnTop = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (!DeviceUtil.isMobile) {
-      WindowManager.instance.isAlwaysOnTop().then((value) {
-        _isAlwaysOnTop = value;
-      });
-    }
-  }
-
-  Widget buildcontent(EpisodeNotifierState epNotifier) {
-    return FLabel(
-      axis: Axis.vertical,
-      description: Text(
-        '${epNotifier.epGroup[epNotifier.selectedGroupIndex].title}-${epNotifier.epGroup[epNotifier.selectedGroupIndex].urls[epNotifier.selectedEpisodeIndex].name}',
-        style: TextStyle(
-          fontSize: widget.subTitleSize,
-          fontWeight: FontWeight.w300,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-      child: Text(
-        epNotifier.name,
-        style: TextStyle(
-          fontSize: widget.titleSize,
-          fontWeight: FontWeight.bold,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final epNotifier = ref.watch(episodeProvider);
-    return FCard.raw(
-      // decoration:s BoxDecoration(
-      //   color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
-      //   borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
-      //   boxShadow: [
-      //     BoxShadow(blurRadius: 25, color: Colors.black.withValues(alpha: 0.2)),
-      //   ],
-      // ),
-      child: Blur(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: DeviceUtil.isMobile
-                    ? buildcontent(epNotifier)
-                    : DragToMoveArea(child: buildcontent(epNotifier)),
-              ),
-              // 置顶
-              if (!DeviceUtil.isMobile) ...[
-                PlayerButton(
-                  onPressed: () async {
-                    WindowManager.instance.setAlwaysOnTop(!_isAlwaysOnTop);
-                    setState(() {
-                      _isAlwaysOnTop = !_isAlwaysOnTop;
-                    });
-                  },
-                  icon: _isAlwaysOnTop
-                      ? Icons.push_pin_outlined
-                      : Icons.push_pin,
-                ),
-                const SizedBox(width: 10),
-                PlayerButton(
-                  onPressed: () {
-                    WindowManager.instance.minimize();
-                  },
-                  icon: FIcons.minus,
-                ),
-              ],
-              const SizedBox(width: 10),
-              PlayerButton(onPressed: widget.onClose, icon: FIcons.x),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _DesktopFooter extends HookConsumerWidget {
-  void showDialog(BuildContext context, int index) {
-    showFDialog(
-      useRootNavigator: false,
-      routeStyle: context.theme.dialogRouteStyle
-          .copyWith(
-            barrierFilter: (animation) => ImageFilter.compose(
-              outer: ImageFilter.blur(
-                sigmaX: animation * 5,
-                sigmaY: animation * 5,
-              ),
-              inner: ColorFilter.mode(
-                context.theme.colors.barrier,
-                BlendMode.srcOver,
-              ),
-            ),
-          )
-          .call,
-      context: context,
-      builder: (context, style, animation) {
-        return _DesktopSettingDialog(initialIndex: index);
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final speedPopOverController = useFPopoverController();
-    // final isSubtitlesToggled = useState(false);
-
-    final controller = ref.watch(VideoPlayerProvider.provider);
-    final c = ref.read(VideoPlayerProvider.provider.notifier);
-    // buttonSize removed; not used
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: (FCard.raw(
-        style: FCardStyle.inherit(
-          colors: context.theme.colors.copyWith(
-            background: context.theme.colors.background.withAlpha(230),
-          ),
-          typography: overrideTheme.typography,
-          style: context.theme.style,
-        ).call,
-        child: Blur(
-          child: Padding(
-            padding: EdgeInsetsGeometry.symmetric(vertical: 10, horizontal: 15),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _SeekBar(),
-                // if (!_hasOriented) const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Row(
-                      children: [
-                        PlayerButton(onPressed: () {}, icon: FIcons.skipBack),
-                        if (controller.isPlaying)
-                          PlayerButton(onPressed: c.pause, icon: FIcons.pause)
-                        else
-                          PlayerButton(onPressed: c.play, icon: FIcons.play),
-                        PlayerButton(
-                          onPressed: () {},
-                          icon: FIcons.skipForward,
-                        ),
-                        const SizedBox(width: 10),
-                        // 播放进度
-                        Text(
-                          '${controller.position.inMinutes}:${(controller.position.inSeconds % 60).toString().padLeft(2, '0')}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        const Text('/'),
-                        const SizedBox(width: 10),
-                        Text(
-                          '${controller.duration.inMinutes}:${(controller.duration.inSeconds % 60).toString().padLeft(2, '0')}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Spacer(),
-                    // Obx(() {
-                    //   if (controller.currentQuality.value.isEmpty) {
-                    //     return const SizedBox.shrink();
-                    //   }
-                    //   return FilledButton.tonal(
-                    //     onPressed: () {
-                    //       if (controller.qualityMap.isEmpty) {
-                    //         controller.sendMessage(
-                    //           Message(
-                    //             Text(
-                    //               'video.no-qualities'.i18n,
-                    //             ),
-                    //           ),
-                    //         );
-                    //         return;
-                    //       }
-                    //       controller.toggleSideBar(SidebarTab.qualitys);
-                    //     },
-                    //     style: ButtonStyle(
-                    //       padding: MaterialStateProperty.all(
-                    //         const EdgeInsets.symmetric(
-                    //           horizontal: 10,
-                    //           vertical: 5,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //     child: Text(
-                    //       controller.currentQuality.value,
-                    //       style: const TextStyle(
-                    //         fontSize: 14,
-                    //         fontWeight: FontWeight.w300,
-                    //       ),
-                    //     ),
-                    //   );
-                    // }),
-                    // 倍速
-                    Row(
-                      children: [
-                        const SizedBox(width: 10),
-                        FPopover(
-                          onTapHide: () => speedPopOverController.hide(),
-                          controller: speedPopOverController,
-                          // onTapOutside: () {
-                          //   isspeedToggled.value = false;
-                          // },
-                          // show: isspeedToggled.value,
-                          popoverBuilder: (context, ctrller) => InnerCard(
-                            title: "Adjust playback speed",
-                            child: SizedBox(
-                              width: 200,
-                              child: FItemGroup(
-                                maxHeight: 150,
-                                children: [
-                                  FItem(
-                                    prefix: Icon(FIcons.user),
-                                    title: const Text('Personalization'),
-                                    suffix: Icon(FIcons.chevronRight),
-                                    onPress: () {},
-                                  ),
-                                  FItem(
-                                    prefix: Icon(FIcons.mail),
-                                    title: const Text('Mail'),
-                                    suffix: Icon(FIcons.chevronRight),
-                                    onPress: () {},
-                                  ),
-                                  FItem(
-                                    prefix: Icon(FIcons.wifi),
-                                    title: const Text('WiFi'),
-                                    details: const Text('Forus Labs (5G)'),
-                                    suffix: Icon(FIcons.chevronRight),
-                                    onPress: () {},
-                                  ),
-                                  FItem(
-                                    prefix: Icon(FIcons.alarmClock),
-                                    title: const Text('Alarm Clock'),
-                                    suffix: Icon(FIcons.chevronRight),
-                                    onPress: () {},
-                                  ),
-                                  FItem(
-                                    prefix: Icon(FIcons.qrCode),
-                                    title: const Text('QR code'),
-                                    suffix: Icon(FIcons.chevronRight),
-                                    onPress: () {},
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          child: FButton.icon(
-                            onPress: () => speedPopOverController.toggle(),
-                            child: Text(
-                              '${controller.speed}x',
-                              style: const TextStyle(fontSize: 14),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        // Obx(() {
-                        //   if (controller.torrentMediaFileList.isEmpty) {
-                        //     return const SizedBox.shrink();
-                        //   }
-                        //   return IconButton(
-                        //     onPressed: () {
-                        //       // controller.toggleSideBar(SidebarTab.torrentFiles);
-                        //     },
-                        //     icon: const Icon(Icons.video_file),
-                        //   );
-                        // }),
-                        PlayerButton(
-                          onPressed: () => showDialog(context, 1),
-                          icon: FIcons.captions,
-                        ),
-                        // 播放列表
-                        PlayerButton(
-                          icon: FIcons.listVideo,
-                          onPressed: () {
-                            showDialog(context, 0);
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      )),
-    );
-  }
-}
-
-// class _DialogButton extends HookWidget {
-//   const _DialogButton({this.initIndex, required this.onPressed});
-//   final int? initIndex;
-//   final void Function(int) onPressed;
-
-//   static const _navItems = [
-//     NavItem(text: 'Episode', icon: Icons.tv_outlined, selectIcon: Icons.tv),
-//     NavItem(text: 'Resolution', icon: Icons.hd_outlined, selectIcon: Icons.hd),
-//     NavItem(
-//       text: 'Subtitle',
-//       icon: Icons.subtitles_outlined,
-//       selectIcon: Icons.subtitles_rounded,
-//     ),
-//     NavItem(
-//       text: 'Settings',
-//       icon: Icons.settings_outlined,
-//       selectIcon: Icons.settings,
-//     ),
-//   ];
-
-//   @override
-//   Widget build(context) {
-//     final hover = useState(0);
-//     final ishover = useState(false);
-//     final selectedIndex = useState(initIndex ?? 0);
-//     return Column(
-//       mainAxisAlignment: MainAxisAlignment.center,
-//       children: List.generate(
-//         _navItems.length,
-//         (index) => MouseRegion(
-//           cursor: SystemMouseCursors.click,
-//           onEnter: (_) {
-//             ishover.value = true;
-//             hover.value = index;
-//           },
-//           onExit: (_) {
-//             ishover.value = false;
-//             hover.value = index;
-//           },
-//           child: GestureDetector(
-//             onTap: () {
-//               onPressed(index);
-//               selectedIndex.value = index;
-//             },
-//             child: Container(
-//               width: 40,
-//               height: 40,
-//               padding: const EdgeInsets.all(5),
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   Icon(
-//                     selectedIndex.value == index ||
-//                             (hover.value == index && ishover.value)
-//                         ? _navItems[index].selectIcon
-//                         : _navItems[index].icon,
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-class _DesktopSettingDialog extends HookConsumerWidget {
-  const _DesktopSettingDialog({this.initialIndex = 0});
-  static const _navItems = [
-    NavItem(text: 'Episode', icon: FIcons.tv),
-    NavItem(text: 'Resolution', icon: FIcons.ratio),
-    NavItem(text: 'Subtitle', icon: FIcons.captions),
-    NavItem(text: 'Settings', icon: FIcons.bolt),
-  ];
-  final int initialIndex;
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = useState(initialIndex);
-    final height = MediaQuery.of(context).size.height;
-    final width = MediaQuery.of(context).size.width;
-    final epController = ref.watch(episodeProvider);
-    final epNotifier = ref.read(episodeProvider.notifier);
-    // final subController = ref.watch(subtitleProvider);
-    // final subNotifier = ref.read(subtitleProvider.notifier);
-    final controller = ref.read(VideoPlayerProvider.provider);
-    final notifer = ref.read(VideoPlayerProvider.provider.notifier);
-    final dialogContent = [
-      // episodes
-      ListView.builder(
-        itemBuilder: (context, index) => Column(
-          children: [
-            FAccordion(
-              children: List.generate(
-                epController.epGroup[index].urls.length,
-                (i) => FButton(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  style: FButtonStyle.ghost(),
-                  child: Text(
-                    epController.epGroup[index].urls[i].name,
-                    style: TextStyle(),
-                  ),
-                  onPress: () {
-                    epNotifier.selectEpisode(index, i);
-                    context.pop();
-                  },
-                ),
-              ),
-            ),
-          ],
-        ),
-        itemCount: epController.epGroup.length,
-      ),
-      ListView.builder(
-        itemBuilder: (context, index) {
-          final item = controller.qualityMap.keys.toList()[index];
-          return FButton(
-            style: FButtonStyle.ghost(),
-            mainAxisAlignment: MainAxisAlignment.start,
-            onPress: () {
-              notifer.changeVideoQuality(controller.qualityMap[item]!);
-              context.pop();
-            },
-            child: Text(item),
-          );
-        },
-        itemCount: controller.qualityMap.length,
-      ),
-      // subtitle
-      ListView.builder(
-        itemCount: controller.subtitlesRaw.length,
-        itemBuilder: (context, int index) => FButton(
-          onPress: () {
-            notifer.setSelectedIndex(index);
-            context.pop();
-          },
-          suffix: Text('${controller.subtitlesRaw[index].language}'),
-          child: Text(controller.subtitlesRaw[index].title),
-        ),
-      ),
-      // settings
-      Container(),
-    ];
-    final dialogFactor = _hasOriented ? 0.8 : .5;
-    return Center(
-      child: SizedBox(
-        height: height * dialogFactor,
-        width: width * dialogFactor,
-        child: FCard.raw(
-          child: Padding(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 5, vertical: 15),
-            child: FScaffold(
-              sidebar: SizedBox(
-                width: 160,
-                child: FSidebarGroup(
-                  children: List.generate(_navItems.length, (index) {
-                    return FSidebarItem(
-                      onPress: () {
-                        selectedIndex.value = index;
-                      },
-                      icon: Icon(_navItems[index].icon),
-                      label: Text(_navItems[index].text),
-                    );
-                  }),
-                ),
-              ),
-              child: Container(
-                height: height * dialogFactor,
-                decoration: BoxDecoration(
-                  // color: Theme.of(context).colorScheme.surface,
-                  borderRadius: const BorderRadius.horizontal(
-                    right: Radius.circular(10),
-                  ),
-                ),
-                child: dialogContent[selectedIndex.value],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SeekBar extends StatefulHookConsumerWidget {
-  @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _SeekBarState();
-}
-
-class _SeekBarState extends ConsumerState<_SeekBar> {
-  Timer? _timer;
-  void updateSliderTimer(VoidFunction callback) {
-    _timer?.cancel();
-    _timer = Timer(const Duration(milliseconds: 300), () {
-      callback();
-    });
-  }
-
-  int prevTime = 0;
-  bool isSliderDraging = false;
-  double rawextent = 0;
-  final sliderPos = 0;
-  @override
-  Widget build(BuildContext context) {
-    final duration = ref.watch(
-      VideoPlayerProvider.provider.select((s) => s.duration),
-    );
-    final pos = ref.watch(
-      VideoPlayerProvider.provider.select((s) => s.position),
-    );
-    final vidLen = duration.inMilliseconds;
-    final double playerPos = vidLen == 0 ? 0 : pos.inMilliseconds / vidLen;
-    final sliderSelection = FSliderSelection(max: 1);
-    final fcontroller = useFContinuousSliderController(
-      stepPercentage: .00001,
-      selection: sliderSelection,
-    );
-
-    // fcontroller.slide(pos / vidLen, min: fa);
-    {
-      if (!isSliderDraging) {
-        fcontroller.slide(playerPos * rawextent, min: false);
-      }
-      return SizedBox(
-        height: 50,
-        child: FSlider(
-          enabled: duration.inMilliseconds > 0,
-          layout: FLayout.ltr,
-          tooltipBuilder: (tip, val) {
-            return Text(
-              Duration(
-                milliseconds: (vidLen * val).toInt(),
-              ).toString().split('.').first.substring(2),
-            );
-          },
-          controller: fcontroller,
-          semanticFormatterCallback: (val) {
-            rawextent = val.rawExtent.max;
-            isSliderDraging = false;
-            // logger.info("playerpos", playerPos);
-            return "";
-          },
-          onChange: (value) {
-            isSliderDraging = true;
-
-            ref.read(VideoPlayerProvider.provider.notifier).updateTimer();
-            final time = DateTime.now().millisecondsSinceEpoch;
-            logger.info("playerpos on change ");
-            if (time - prevTime > 300) {
-              logger.info(sliderSelection.rawExtent);
-              prevTime = time;
-              updateSliderTimer(() {
-                final seekVal = value.offset.max * vidLen;
-                // logger.info('seek to $seekVal');
-                ref
-                    .read(VideoPlayerProvider.provider.notifier)
-                    .seek(Duration(milliseconds: seekVal.toInt()));
-                isSliderDraging = false;
-              });
-            }
-          },
-        ),
-      );
-    }
   }
 }
