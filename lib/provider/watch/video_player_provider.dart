@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/provider/network_provider.dart';
 // import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/watch/subtitle.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -126,8 +126,9 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     }
     // _hideTimer?.cancel();
     // // show controls immediately
-    state = state.copyWith(showControls: true);
     prevTime = curTime;
+    if (state.showControls) return;
+    state = state.copyWith(showControls: true);
     // // start periodic timer to hide after 3 seconds
     // _hideTimer = Timer(const Duration(seconds: 10000), () {
     //   state = state.copyWith(showControls: false);
@@ -157,9 +158,9 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
         buffered: vidController.value.buffered,
       );
     });
-    // getQuality(url, headers).then((val) {
-    //   state = state.copyWith(qualityMap: val);
-    // });
+    getQuality(url, headers).then((val) {
+      state = state.copyWith(qualityMap: val);
+    });
   }
 
   // player management
@@ -229,8 +230,8 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
   }
 
   void seek(Duration position) {
-    vidController.seekTo(position);
     state = state.copyWith(position: position);
+    vidController.seekTo(position);
   }
 
   void setSpeed(double speed) {

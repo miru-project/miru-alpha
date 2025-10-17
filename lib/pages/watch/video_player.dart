@@ -179,54 +179,71 @@ class PlayerResolution extends ConsumerWidget {
       headers: value.headers,
     );
 
-    final ratio = ref.watch(vidProvider.select((s) => s.ratio));
-    final currentSubtitle = ref.watch(
-      vidProvider.select((s) => s.currentSubtitle),
-    );
-
     // return VideoPlayer(ref.read(vidProvider.notifier).vidController);
     return Stack(
       children: [
         //video player
-        Center(
-          child: AspectRatio(
-            aspectRatio: ratio == 0
-                ? screenRatio.width / screenRatio.height
-                : ratio,
-            child: VideoPlayer(ref.read(vidProvider.notifier).vidController),
-          ),
-        ),
-        //subtitle text
-        if (currentSubtitle.isNotEmpty)
-          Positioned(
-            bottom: 50,
-            left: 20,
-            right: 20,
-            child: IntrinsicWidth(
-              child: Container(
-                padding: const EdgeInsets.all(10.0),
-                margin: const EdgeInsets.symmetric(horizontal: 20.0),
-                decoration: BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: RichText(
-                  text: TextSpan(
-                    text: currentSubtitle,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      decoration: TextDecoration.none, // Remove underline
-                    ),
-                  ),
-                  textAlign: TextAlign.center,
+        Consumer(
+          builder: (context, ref, child) {
+            final ratio = ref.watch(vidProvider.select((s) => s.ratio));
+            return Center(
+              child: AspectRatio(
+                aspectRatio: ratio == 0
+                    ? screenRatio.width / screenRatio.height
+                    : ratio,
+                child: VideoPlayer(
+                  ref.read(vidProvider.notifier).vidController,
                 ),
               ),
-            ),
-          ),
+            );
+          },
+        ),
+        //subtitle text
+        VideoPlayerSubtitle(vidProvider: vidProvider),
         //player controls ui
         _VideoPlayer(vidPr: vidProvider, epProvider: epProvider),
       ],
+    );
+  }
+}
+
+class VideoPlayerSubtitle extends ConsumerWidget {
+  const VideoPlayerSubtitle({super.key, required this.vidProvider});
+  final VideoPlayerNotifierProvider vidProvider;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentSubtitle = ref.watch(
+      vidProvider.select((s) => s.currentSubtitle),
+    );
+    if (currentSubtitle.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Positioned(
+      bottom: 50,
+      left: 20,
+      right: 20,
+      child: IntrinsicWidth(
+        child: Container(
+          padding: const EdgeInsets.all(10.0),
+          margin: const EdgeInsets.symmetric(horizontal: 20.0),
+          decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: RichText(
+            text: TextSpan(
+              text: currentSubtitle,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                decoration: TextDecoration.none, // Remove underline
+              ),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -260,10 +277,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
 
   void close() {
     WindowManager.instance.setAlwaysOnTop(false);
-    // ref.invalidate(subtitleProvider);
     context.pop();
-    // ref.invalidate(episodeProvider);
-    // ref.invalidate(widget.vidPr);
   }
 
   Widget buildcontent(VideoPlayerNotifier c) {
@@ -272,7 +286,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
         final showControls = ref.watch(
           widget.vidPr.select((s) => s.showControls),
         );
-        final isPlaying = ref.watch(widget.vidPr.select((s) => s.isPlaying));
+
         if (!showControls) return const SizedBox.expand();
         return Column(
           children: [
@@ -289,19 +303,29 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                     )
                   : Header(onClose: close, episodeProvider: widget.epProvider),
             ),
-            Expanded(
-              child: (!isPlaying)
-                  ? Center(
-                      child: PlayerButton(
-                        onPressed: () {
-                          c.play();
-                        },
-                        icon: FIcons.play,
-                      ),
-                    )
-                  : Container(color: Colors.transparent),
+            Consumer(
+              builder: (context, ref, child) {
+                final isPlaying = ref.watch(
+                  widget.vidPr.select((s) => s.isPlaying),
+                );
+                return Expanded(
+                  child: (!isPlaying)
+                      ? Center(
+                          child: PlayerButton(
+                            onPressed: () {
+                              c.play();
+                            },
+                            icon: FIcons.play,
+                          ),
+                        )
+                      : Container(color: Colors.transparent),
+                );
+              },
             ),
-            DesktopFooter(vidPr: widget.vidPr, epProvdier: widget.epProvider),
+            DesktopPlayerFooter(
+              vidPr: widget.vidPr,
+              epProvdier: widget.epProvider,
+            ),
           ],
         );
       },
@@ -311,8 +335,6 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
   @override
   Widget build(BuildContext context) {
     final currentBrightness = useState(0.0);
-    final position = ref.watch(widget.vidPr.select((s) => s.position));
-    final duration = ref.watch(widget.vidPr.select((s) => s.duration));
 
     final c = ref.read(widget.vidPr.notifier);
     return Stack(
@@ -323,152 +345,166 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
             top: 30,
             left: 0,
             right: 0,
-            child: Center(
-              child: Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                  color: Colors.black45,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_isSeeking)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${_position.inMinutes}:${(_position.inSeconds % 60).toString().padLeft(2, '0')}',
-                            ),
-                            const Text('/'),
-                            Text(
-                              '${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}',
-                            ),
-                          ],
-                        ),
-                      ),
-                    if (_isLongPress)
-                      const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text('Playing at 3x speed'),
-                      ),
-                    if (_isAdjusting)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (_isBrightness) ...[
-                              const Icon(Icons.brightness_5),
-                              const SizedBox(width: 5),
-                              Text(
-                                (currentBrightness.value * 100).toStringAsFixed(
-                                  0,
+            child: Consumer(
+              builder: (context, ref, child) {
+                final duration = ref.watch(
+                  widget.vidPr.select((s) => s.duration),
+                );
+                return Center(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                      color: Colors.black45,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_isSeeking)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${_position.inMinutes}:${(_position.inSeconds % 60).toString().padLeft(2, '0')}',
                                 ),
-                              ),
-                            ],
-                            if (!_isBrightness) ...[
-                              const Icon(Icons.volume_up),
-                              const SizedBox(width: 5),
-                              Text((_currentVolume * 100).toStringAsFixed(0)),
-                            ],
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
+                                const Text('/'),
+                                Text(
+                                  '${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}',
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (_isLongPress)
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text('Playing at 3x speed'),
+                          ),
+                        if (_isAdjusting)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (_isBrightness) ...[
+                                  const Icon(Icons.brightness_5),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    (currentBrightness.value * 100)
+                                        .toStringAsFixed(0),
+                                  ),
+                                ],
+                                if (!_isBrightness) ...[
+                                  const Icon(Icons.volume_up),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    (_currentVolume * 100).toStringAsFixed(0),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),
         if (DeviceUtil.isMobile)
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              if (ref.read(widget.vidPr).showControls) {
-                ref.read(widget.vidPr.notifier).setShowControls(false);
-                return;
-              }
-              _updateTimer();
+          Consumer(
+            builder: (context, ref, child) {
+              final position = ref.watch(
+                widget.vidPr.select((s) => s.position),
+              );
+
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  if (ref.read(widget.vidPr).showControls) {
+                    ref.read(widget.vidPr.notifier).setShowControls(false);
+                    return;
+                  }
+                  _updateTimer();
+                },
+                onDoubleTapDown: (details) {
+                  // 如果左边点击快退，中间暂停，右边快进
+                  final dx = details.localPosition.dx;
+                  final width = MediaQuery.of(context).size.width / 3;
+                  if (dx < width) {
+                    c.seek(position - const Duration(seconds: 10));
+                  } else if (dx > width * 2) {
+                    c.seek(position + const Duration(seconds: 10));
+                  } else {
+                    c.playOrPause();
+                  }
+                },
+                onVerticalDragStart: (details) {
+                  _isBrightness =
+                      details.localPosition.dx <
+                      MediaQuery.of(context).size.width / 2;
+                },
+                // 左右两边上下滑动
+                onVerticalDragUpdate: (details) {
+                  final add = details.delta.dy / 500;
+                  // 如果是左边调节亮度
+                  if (_isBrightness) {
+                    currentBrightness.value = (currentBrightness.value - add)
+                        .clamp(0, 1);
+                    ScreenBrightness().setApplicationScreenBrightness(
+                      currentBrightness.value,
+                    );
+                  }
+                  // 如果是右边调节音量
+                  else {
+                    _currentVolume = (_currentVolume - add).clamp(0, 1);
+                    // VolumeController.setVolume(_currentVolume);
+                    VolumeController.instance.setVolume(_currentVolume);
+                  }
+                  _isAdjusting = true;
+                  setState(() {});
+                },
+                onHorizontalDragStart: (details) {
+                  _position = position;
+                },
+                onVerticalDragEnd: (details) {
+                  _isAdjusting = false;
+                  setState(() {});
+                },
+                // 左右滑动
+                onHorizontalDragUpdate: (details) {
+                  // double scale = 200000 / MediaQuery.of(context).size.width;
+                  // Duration pos =
+                  //     _position +
+                  //     Duration(milliseconds: (details.delta.dx * scale).round());
+                  // _position = Duration(
+                  //   milliseconds: pos.inMilliseconds.clamp(
+                  //     0,
+                  //     controller.duration.inMilliseconds,
+                  //   ),
+                  // );
+                  // _isSeeking = true;
+                  // setState(() {});
+                },
+                onHorizontalDragEnd: (details) {
+                  c.seek(_position);
+                  _isSeeking = false;
+                  setState(() {});
+                },
+                onLongPressStart: (details) {
+                  _isLongPress = true;
+                  c.setSpeed(3);
+                  setState(() {});
+                },
+                onLongPressEnd: (details) {
+                  c.setSpeed(ref.read(widget.vidPr).speed);
+                  _isLongPress = false;
+                  setState(() {});
+                },
+                child: buildcontent(c),
+              );
             },
-            onDoubleTapDown: (details) {
-              // 如果左边点击快退，中间暂停，右边快进
-              final dx = details.localPosition.dx;
-              final width = MediaQuery.of(context).size.width / 3;
-              if (dx < width) {
-                c.seek(position - const Duration(seconds: 10));
-              } else if (dx > width * 2) {
-                c.seek(position + const Duration(seconds: 10));
-              } else {
-                c.playOrPause();
-              }
-            },
-            onVerticalDragStart: (details) {
-              _isBrightness =
-                  details.localPosition.dx <
-                  MediaQuery.of(context).size.width / 2;
-            },
-            // 左右两边上下滑动
-            onVerticalDragUpdate: (details) {
-              final add = details.delta.dy / 500;
-              // 如果是左边调节亮度
-              if (_isBrightness) {
-                currentBrightness.value = (currentBrightness.value - add).clamp(
-                  0,
-                  1,
-                );
-                ScreenBrightness().setApplicationScreenBrightness(
-                  currentBrightness.value,
-                );
-              }
-              // 如果是右边调节音量
-              else {
-                _currentVolume = (_currentVolume - add).clamp(0, 1);
-                // VolumeController.setVolume(_currentVolume);
-                VolumeController.instance.setVolume(_currentVolume);
-              }
-              _isAdjusting = true;
-              setState(() {});
-            },
-            onHorizontalDragStart: (details) {
-              _position = position;
-            },
-            onVerticalDragEnd: (details) {
-              _isAdjusting = false;
-              setState(() {});
-            },
-            // 左右滑动
-            onHorizontalDragUpdate: (details) {
-              // double scale = 200000 / MediaQuery.of(context).size.width;
-              // Duration pos =
-              //     _position +
-              //     Duration(milliseconds: (details.delta.dx * scale).round());
-              // _position = Duration(
-              //   milliseconds: pos.inMilliseconds.clamp(
-              //     0,
-              //     controller.duration.inMilliseconds,
-              //   ),
-              // );
-              // _isSeeking = true;
-              // setState(() {});
-            },
-            onHorizontalDragEnd: (details) {
-              c.seek(_position);
-              _isSeeking = false;
-              setState(() {});
-            },
-            onLongPressStart: (details) {
-              _isLongPress = true;
-              c.setSpeed(3);
-              setState(() {});
-            },
-            onLongPressEnd: (details) {
-              c.setSpeed(ref.read(widget.vidPr).speed);
-              _isLongPress = false;
-              setState(() {});
-            },
-            child: buildcontent(c),
           )
         else
           MouseRegion(

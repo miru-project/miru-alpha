@@ -1,12 +1,11 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:forui/forui.dart';
-import 'package:forui_hooks/forui_hooks.dart';
+import 'package:forui/theme.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
-// removed unused import
 import 'dart:ui' show lerpDouble;
+
+import 'package:miru_app_new/utils/core/log.dart';
 
 class SeekBar extends HookConsumerWidget {
   const SeekBar({super.key, required this.vidPr});
@@ -14,127 +13,76 @@ class SeekBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Move mutable state into hooks to keep this widget immutable
-    final timerRef = useRef<Timer?>(null);
-    // previous-timer throttle value removed (unused)
-    final isSliderDraggingRef = useRef<bool>(false);
-    final rawExtentRef = useRef<double>(0);
+    final vidLen = useState(0);
+    final sliderValue = useState<double>(0.0);
+    final isSliderDraggingRef = useState<bool>(false);
+    final buffered = ref.watch(vidPr.select((s) => s.bufferedRange));
 
-    // helper to debounce slider updates (kept commented for future use)
-    // void updateSliderTimer(VoidFunction callback) {
-    //   timerRef.value?.cancel();
-    //   timerRef.value = Timer(const Duration(milliseconds: 300), () {
-    //     callback();
-    //   });
-    // }
+    // Update slider position when player reports position, but only when
+    // the user isn't actively dragging the thumb.
+    ref.listen<Duration>(vidPr.select((s) => s.position), (previous, next) {
+      if (isSliderDraggingRef.value) return;
+      final dur = ref.read(vidPr.select((s) => s.duration));
+      vidLen.value = dur.inMilliseconds;
+      sliderValue.value = vidLen.value == 0
+          ? 0.0
+          : next.inMilliseconds.toDouble();
+    });
 
-    // Cancel timer on dispose
-    useEffect(() {
-      return () {
-        timerRef.value?.cancel();
-        timerRef.value = null;
-      };
-    }, const []);
-    final duration = ref.watch(vidPr.select((s) => s.duration));
-    final pos = ref.watch(vidPr.select((s) => s.position));
-    final vidLen = duration.inMilliseconds;
-    final double playerPos = vidLen == 0 ? 0 : pos.inMilliseconds / vidLen;
-    final sliderSelection = FSliderSelection(max: 1);
-    final fcontroller = useFContinuousSliderController(
-      stepPercentage: .00001,
-      selection: sliderSelection,
-    );
-
-    {
-      if (!isSliderDraggingRef.value) {
-        fcontroller.slide(playerPos * rawExtentRef.value, min: false);
-      }
-      return Material(
-        color: Colors.transparent,
-        child: SliderTheme(
-          data: SliderThemeData(
-            year2023: true,
-            thumbShape: HandleThumbShape(),
-            trackHeight: 4,
-            thumbColor: Colors.white,
-            activeTrackColor: Colors.white,
-            inactiveTrackColor: Colors.white.withOpacity(0.5),
-            overlayColor: Colors.transparent,
-            thumbSize: WidgetStatePropertyAll(Size(12, 12)),
+    return Material(
+      color: Colors.transparent,
+      child: SliderTheme(
+        data: SliderThemeData(
+          thumbShape: MaterialExpressiveThumbShape(
+            mainColor: context.theme.colors.primary,
           ),
-          child: Theme(
-            // Disable splash/ripple from InkWell for this subtree.
-            data: Theme.of(context).copyWith(
-              splashFactory: NoSplash.splashFactory,
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-            ),
-            child: Slider(
-              value: playerPos.isNaN ? 0 : playerPos,
-              onChanged: (value) {
-                isSliderDraggingRef.value = true;
-                ref.read(vidPr.notifier).updateTimer();
-              },
-              onChangeEnd: (value) {
-                final seekVal = value * vidLen;
-                ref
-                    .read(vidPr.notifier)
-                    .seek(Duration(milliseconds: seekVal.toInt()));
-                isSliderDraggingRef.value = false;
-              },
-            ),
+          trackHeight: 6,
+          activeTrackColor: context.theme.colors.primary,
+          inactiveTrackColor: context.theme.colors.muted,
+          overlayColor: Colors.transparent,
+        ),
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            splashFactory: NoSplash.splashFactory,
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
+          child: Slider(
+            secondaryTrackValue: buffered.isNotEmpty
+                ? buffered.last.end.inMilliseconds.toDouble()
+                : 0.0,
+            max: vidLen.value.toDouble(),
+            value: sliderValue.value.clamp(0.0, vidLen.value.toDouble()),
+            onChangeStart: (value) {
+              isSliderDraggingRef.value = true;
+            },
+            onChanged: (value) {
+              sliderValue.value = value;
+            },
+            onChangeEnd: (value) {
+              ref
+                  .read(vidPr.notifier)
+                  .seek(Duration(milliseconds: value.toInt()));
+              logger.info(value, 'seek_end');
+              isSliderDraggingRef.value = false;
+            },
           ),
         ),
-      );
-      // SizedBox(
-      //   height: 50,
-      //   child: FSlider(
-      //     enabled: duration.inMilliseconds > 0,
-      //     layout: FLayout.ltr,
-      //     tooltipBuilder: (tip, val) {
-      //       return Text(
-      //         Duration(
-      //           milliseconds: (vidLen * val).toInt(),
-      //         ).toString().split('.').first.substring(2),
-      //       );
-      //     },
-      //     controller: fcontroller,
-      //     semanticFormatterCallback: (val) {
-      //       rawExtentRef.value = val.rawExtent.max;
-      //       isSliderDraggingRef.value = false;
-      //       return "";
-      //     },
-
-      //     // onChange: (value) {
-      //     //   isSliderDraggingRef.value = true;
-
-      //     //   ref.read(vidPr.notifier).updateTimer();
-      //     //   final time = DateTime.now().millisecondsSinceEpoch;
-      //     //   logger.info("playerpos on change ");
-      //     //   if (time - prevTimeRef.value > 300) {
-      //     //     logger.info(sliderSelection.rawExtent);
-      //     //     prevTimeRef.value = time;
-      //     //     updateSliderTimer(() {
-      //     //       final seekVal = value.offset.max * vidLen;
-      //     //       ref
-      //     //           .read(vidPr.notifier)
-      //     //           .seek(Duration(milliseconds: seekVal.toInt()));
-      //     //       isSliderDraggingRef.value = false;
-      //     //     });
-      //     //   }
-      //     // },
-      //   ),
-      // );
-    }
+      ),
+    );
   }
 }
 
-// Custom thumb shape that animates its size using the slider's activationAnimation.
-class HandleThumbShape extends SliderComponentShape {
+// Material-expressive thumb: outer white ring and inner black circle.
+class MaterialExpressiveThumbShape extends SliderComponentShape {
   final double minRadius;
   final double maxRadius;
-
-  const HandleThumbShape({this.minRadius = 10.0, this.maxRadius = 12.0});
+  final Color mainColor;
+  const MaterialExpressiveThumbShape({
+    this.minRadius = 10.0,
+    this.maxRadius = 12.0,
+    this.mainColor = Colors.white,
+  });
 
   @override
   Size getPreferredSize(bool isEnabled, bool isDiscrete) {
@@ -159,51 +107,64 @@ class HandleThumbShape extends SliderComponentShape {
   }) {
     final Canvas canvas = context.canvas;
 
-    // activationAnimation goes from 0.0 -> 1.0 when the thumb is pressed/active.
+    // Smooth ease for the activation animation.
     final t = Curves.easeOut.transform(activationAnimation.value);
 
     // Interpolate radius between min and max.
-    final radius = lerpDouble(minRadius, maxRadius, t)!;
+    final baseRadius = lerpDouble(minRadius, maxRadius, t)!;
 
-    // Draw subtle shadow that grows with the animation.
+    // Convert radius into a rect size. Make the thumb vertical (taller than
+    // wide) so it's a vertical pill instead of a horizontal one.
+    // Make the thumb narrower (thinner) while keeping it tall.
+    final thumbWidth = baseRadius * 0.3;
+    final thumbHeight = baseRadius * 2.5;
+    final borderRadius = Radius.circular(baseRadius * 0.35);
+
+    // Thinner ring for a more delicate look.
+    final ringThickness = (baseRadius * 0.2).clamp(0.5, baseRadius * 0.35);
+
+    final outerRect = Rect.fromCenter(
+      center: center,
+      width: thumbWidth + ringThickness * 2,
+      height: thumbHeight + ringThickness * 2,
+    );
+    final innerRect = Rect.fromCenter(
+      center: center,
+      width: thumbWidth,
+      height: thumbHeight,
+    );
+
+    // Shadow for the thumb (subtle)
     if (t > 0.01) {
       final shadowPaint = Paint()
         ..color = Colors.black.withOpacity(0.12 * t)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
-      canvas.drawCircle(center.translate(0, 1.0 * t), radius, shadowPaint);
+      final shadowOffset = Offset(0, 1.0 * t);
+      final shadowOuter = outerRect.shift(shadowOffset);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(shadowOuter, borderRadius),
+        shadowPaint,
+      );
     }
 
-    // Draw concentric thumb using filled circles so the white ring fits
-    // perfectly around the black center. We draw a white filled circle
-    // (outer) and then a smaller black filled circle (inner) on top.
-    final outerColor = Colors.white;
-    final innerColor = Colors.black;
-
-    // Determine ring thickness as a proportion of the animated radius.
-    // Clamp so it never disappears or becomes too large.
-    final ringThickness = (radius * 0.22).clamp(1.0, radius * 0.45);
-
-    // Outer (white) radius is the animated radius.
-    final outerRadius = radius;
-    // Inner (black) radius sits exactly inside the white ring.
-    final innerRadius = (outerRadius - ringThickness).clamp(
-      1.0,
-      outerRadius - 1.0,
-    );
-
     final outerPaint = Paint()
-      ..color = outerColor
+      ..color = mainColor
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
     final innerPaint = Paint()
-      ..color = innerColor
+      ..color = Colors.black
       ..style = PaintingStyle.fill
       ..isAntiAlias = true;
 
-    // Draw the white outer circle and then the black inner circle to form
-    // a perfectly fitting ring.
-    canvas.drawCircle(center, outerRadius, outerPaint);
-    canvas.drawCircle(center, innerRadius, innerPaint);
+    // Draw outer rounded rect (ring) then inner rounded rect (thumb body).
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(outerRect, borderRadius),
+      outerPaint,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(innerRect, borderRadius),
+      innerPaint,
+    );
   }
 }

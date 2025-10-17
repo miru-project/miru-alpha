@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:miru_app_new/model/index.dart';
 // import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -87,17 +85,17 @@ class EpisodeNotifier extends _$EpisodeNotifier {
     );
   }
 
-  void putinformation(
-    ExtensionType type,
-    String package,
-    String imageUrl,
-    String detailUrl,
-  ) {
-    this.package = package;
-    this.type = type;
-    this.imageUrl = imageUrl;
-    this.detailUrl = detailUrl;
-  }
+  // void putinformation(
+  //   ExtensionType type,
+  //   String package,
+  //   String imageUrl,
+  //   String detailUrl,
+  // ) {
+  //   this.package = package;
+  //   this.type = type;
+  //   this.imageUrl = imageUrl;
+  //   this.detailUrl = detailUrl;
+  // }
 
   // dispose behavior moved to ref.onDispose in build()
 }

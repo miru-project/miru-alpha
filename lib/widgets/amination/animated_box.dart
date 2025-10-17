@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
 class AnimatedBox extends HookWidget {
-  const AnimatedBox({required this.child, this.onTap, super.key});
+  const AnimatedBox({required this.child, this.onTap, super.key})
+    : horizontalPadding = 10,
+      verticalPadding = 5;
+  const AnimatedBox.nopadding({required this.child, this.onTap, super.key})
+    : horizontalPadding = 0,
+      verticalPadding = 0;
   final Widget child;
   final VoidCallback? onTap;
+  final double horizontalPadding;
+  final double verticalPadding;
   @override
   Widget build(BuildContext context) {
     final isHovered = useState(false);
@@ -20,23 +27,25 @@ class AnimatedBox extends HookWidget {
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOut,
           decoration: BoxDecoration(
-            boxShadow:
-                isHovered.value
-                    ? [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(10),
-                        blurRadius: 8,
-                        offset: Offset(0, 4),
-                      ),
-                    ]
-                    : null,
+            boxShadow: isHovered.value
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(10),
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ]
+                : null,
           ),
           child: AnimatedScale(
             scale: isHovered.value ? 1.02 : 1.0,
             duration: const Duration(milliseconds: 150),
             curve: Curves.easeOut,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: verticalPadding,
+              ),
               child: child,
             ),
           ),
