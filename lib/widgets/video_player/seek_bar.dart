@@ -137,7 +137,7 @@ class MaterialExpressiveThumbShape extends SliderComponentShape {
     // Shadow for the thumb (subtle)
     if (t > 0.01) {
       final shadowPaint = Paint()
-        ..color = Colors.black.withOpacity(0.12 * t)
+        ..color = Colors.black.withAlpha((3 * t).toInt())
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
       final shadowOffset = Offset(0, 1.0 * t);
       final shadowOuter = outerRect.shift(shadowOffset);

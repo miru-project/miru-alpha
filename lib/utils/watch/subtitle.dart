@@ -1,4 +1,4 @@
-import 'package:miru_app_new/miru_core/network/network.dart';
+import 'package:miru_app_new/miru_core/network.dart';
 
 class SubtitleUtil {
   static Future<List<Subtitle>> parseVttSubtitles(String url) async {

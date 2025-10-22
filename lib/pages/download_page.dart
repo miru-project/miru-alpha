@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/widgets/button.dart';
-import 'package:miru_app_new/miru_core/network/network.dart';
+import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/utils/download/download_utils.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/core/log.dart';

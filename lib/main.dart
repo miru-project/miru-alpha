@@ -1,42 +1,33 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
-import 'dart:ffi' as ffi;
 import 'dart:io';
-import 'dart:isolate';
 
-import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:fvp/fvp.dart';
 
 import 'package:macos_window_utils/macos/ns_window_button_type.dart';
 import 'package:macos_window_utils/window_manipulator.dart';
+import 'package:miru_app_new/miru_core/core.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
-import 'package:miru_app_new/generated_bindings.dart';
-import 'package:miru_app_new/miru_core/network/network.dart';
+import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/core/log.dart';
+import 'package:miru_app_new/utils/core/miru_directory.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
-import 'package:miru_app_new/utils/store/storage_index.dart';
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:path/path.dart' as p;
 
-// Miru Core ffi definitions
-typedef InitDyLibNative = ffi.Void Function(ffi.Pointer<ffi.Char>);
-typedef InitDyLib = void Function(ffi.Pointer<ffi.Char>);
 void main() {
   runZonedGuarded(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
-      MiruLog.ensureInitialized();
 
       if (!(Platform.isAndroid || Platform.isIOS || kIsWeb)) {
         await windowManager.ensureInitialized();
@@ -54,7 +45,9 @@ void main() {
       }
 
       FFMpegUtils.ensureInitialized();
-
+      await MiruDirectory.ensureInitialized();
+      MiruLog.ensureInitialized();
+      Core.loadConfig();
       if (Platform.isMacOS) {
         await WindowManipulator.initialize(enableWindowDelegate: true);
         await WindowManipulator.addToolbar();
@@ -72,11 +65,6 @@ void main() {
         );
       }
 
-      await MiruDirectory.ensureInitialized();
-      await loadMiruCore();
-      await CoreNetwork.ensureInitialized();
-      await DeviceUtil.ensureInitialized();
-      await MiruSettings.ensureInitialized();
       SystemChrome.setPreferredOrientations([
         DeviceOrientation.portraitUp,
         DeviceOrientation.portraitDown,
@@ -84,14 +72,14 @@ void main() {
         DeviceOrientation.landscapeRight,
       ]);
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-      // Init config for miru_core
       if (kReleaseMode) _bindErrorWidget();
 
-      runApp(ProviderScope(child: App()));
+      runApp(ProviderScope(child: EntryLoadingState()));
     },
     (error, stack) {
       debugger();
-      logger.severe('Uncaught error: $error', error, stack);
+      debugPrint('Uncaught error: $error');
+      debugPrint(stack.toString());
     },
   );
 }
@@ -106,6 +94,61 @@ Widget _func(FlutterErrorDetails details) {
 void _bindErrorWidget() {
   ErrorWidget.builder = _func;
   FlutterError.onError = _func;
+}
+
+class EntryLoadingState extends StatefulHookWidget {
+  const EntryLoadingState({super.key});
+  @override
+  createState() => _EntryLoadingState();
+}
+
+class _EntryLoadingState extends State<EntryLoadingState> {
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    Core.ensureInitialized().then((_) {
+      setState(() {
+        _initialized = true;
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_initialized) {
+      return const App();
+    }
+
+    return FTheme(
+      data: MediaQuery.of(context).platformBrightness == Brightness.dark
+          ? FThemes.zinc.dark
+          : FThemes.zinc.light,
+      child: FScaffold(
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Initializing Miru core",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+              ),
+              const SizedBox(height: 5),
+              FCircularProgress.pinwheel(
+                style: context.theme.circularProgressStyle
+                    .copyWith(iconStyle: IconThemeData(size: 20))
+                    .call,
+              ),
+              Text("Address: ${Core.host}:${Core.port}"),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class App extends ConsumerStatefulWidget {
@@ -134,9 +177,6 @@ class _App extends ConsumerState<App> {
 
   void poll(dynamic data) {
     if (data is List<ExtensionMeta>) {
-      // MetaDataController.update(data);
-
-      // _extensionNotifier?.setMetaData(data);
       ref.read(extensionPageProvider.notifier).setMetaData(data);
     } else if (data is String) {
       logger.info('Error received: $data');
@@ -159,82 +199,5 @@ class _App extends ConsumerState<App> {
         ),
       ),
     );
-  }
-}
-
-void startNativeMiruCore(String configPath) async {
-  late final ffi.DynamicLibrary lib;
-
-  if (Platform.isWindows) {
-    lib = ffi.DynamicLibrary.open('miru_core.dll');
-  } else if (Platform.isLinux) {
-    lib = ffi.DynamicLibrary.open('libmiru_core.so');
-  } else {
-    throw UnsupportedError('Unsupported platform: ${Platform.operatingSystem}');
-  }
-
-  using((Arena arena) {
-    final configPathPointer = configPath
-        .toNativeUtf8(allocator: arena)
-        .cast<ffi.Char>();
-    final core = MiruCore(lib);
-    core.initDyLib(configPathPointer);
-  });
-}
-
-Future<void> loadMiruCore() async {
-  final appSupportDir = MiruDirectory.getDirectory;
-  final configPath = p.join(appSupportDir, 'config.json');
-  if (File(configPath).existsSync()) {
-    logger.info('Config file exists: $configPath');
-  } else {
-    logger.info('Config file does not exist, creating: $configPath');
-    final configDir = Directory(appSupportDir);
-    if (!configDir.existsSync()) {
-      configDir.createSync(recursive: true);
-    }
-    final Map<String, dynamic> configData = {
-      "database": {
-        "driver": "sqlite3",
-        "host": "localhost",
-        "port": 5432,
-        "user": "miru",
-        "password": "",
-        "dbname": p.join(appSupportDir, 'miru.db'),
-        "sslmode": "disable",
-      },
-      "cookieStoreLocation": Platform.isAndroid
-          ? p.join(appSupportDir, "cookies")
-          : "",
-      "extensionPath": p.join(appSupportDir, 'extensions'),
-    };
-
-    File(configPath).writeAsStringSync(jsonEncode(configData));
-    logger.info('Default configuration written to config file');
-    logger.info('Config file created: $configPath');
-  }
-  // startMiruCore(configPath);
-
-  if (Platform.isAndroid) {
-    final platform = MethodChannel('com.miru.alpha/miru_core');
-    await platform.invokeMethod('InitAAR', configPath);
-    return;
-  }
-  await Isolate.run(() => startNativeMiruCore(configPath));
-  return;
-}
-
-final class LoggingObserver extends ProviderObserver {
-  @override
-  void didUpdateProvider(
-    ProviderObserverContext context,
-    Object? previousValue,
-    Object? newValue,
-  ) {
-    debugPrint(
-      'provider updated: ${context.provider} '
-      ' $previousValue -> $newValue',
-    );
-    debugPrint(StackTrace.current.toString()); // helps find caller
   }
 }

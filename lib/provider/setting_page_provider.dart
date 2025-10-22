@@ -1,5 +1,5 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/miru_core/network/network.dart';
+import 'package:miru_app_new/miru_core/network.dart';
 
 final extensionRepoProvider = FutureProvider.autoDispose<List<dynamic>>((
   ref,

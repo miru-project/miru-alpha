@@ -1,6 +1,7 @@
 import 'dart:isolate';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:miru_app_new/miru_core/core.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/model/index.dart';
@@ -46,8 +47,7 @@ class CoreMessage {
 }
 
 class CoreNetwork {
-  static String get baseUrl => 'http://127.127.127.127:12777';
-  static String get port => '12777';
+  static String get baseUrl => "http://${Core.host}:${Core.port}";
   static Future<dynamic> requestJSON(String path) async {
     return await dio
         .get('$baseUrl/$path')
@@ -89,6 +89,7 @@ class CoreNetwork {
     while (true) {
       try {
         await requestJSON("");
+        logger.info('Miru core loaded');
         return;
       } catch (e) {
         await Future.delayed(const Duration(milliseconds: 100));
@@ -98,8 +99,6 @@ class CoreNetwork {
 
   static Future<void> ensureInitialized() async {
     dio = Dio();
-    await waitForServerLoaded();
-    logger.info('Miru_core initialized with base URL: $baseUrl');
   }
 
   // Run inside seperate isolate to handle json unmarshalling from the miru-core  response
@@ -268,10 +267,11 @@ class ExtensionEndpoint {
     return await CoreNetwork.requestJSON(repoListUrl);
   }
 
-  static Future<void> deleteRepo(String repoUrl) async {
-    return await CoreNetwork.requestFormData('ext/repo', {
+  static Future<String?> deleteRepo(String repoUrl) async {
+    final res = await CoreNetwork.requestFormData('ext/repo', {
       'repoUrl': repoUrl,
-    }, method: 'DELETE').then((value) => value.msg);
+    }, method: 'DELETE');
+    return res.msg;
   }
 
   static Future<void> downloadExtension(String repoUrl, String package) async {

@@ -17,8 +17,8 @@ class MainActivity : FlutterActivity() {
                     try {
                         val configPath = call.arguments as String
                         val androidLib = AndroidLib()
-                        androidLib.initAAR(configPath)
-                        result.success(true)
+                        val initResult = androidLib.initAAR(configPath)
+                        result.success(initResult) 
                     } catch (e: Exception) {
                         result.error("INIT_ERROR", "Failed to initialize miru-core: ${e.message}", e.stackTraceToString())
                     }

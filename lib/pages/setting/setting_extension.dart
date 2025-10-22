@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/miru_core/network/network.dart';
+import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/provider/setting_page_provider.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/widgets/core/outter_card.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:miru_app_new/widgets/core/seperator.dart';
@@ -83,15 +84,11 @@ class SettingExtension extends HookConsumerWidget {
   List<Widget> buildRepoSetting(
     ValueNotifier<bool> selectAll,
     ValueNotifier<Set<String>> selected,
-    List<dynamic> repos,
+    List<Map<String, dynamic>> repos,
   ) {
     return repos.map((repo) {
-      final name = (repo is Map && (repo['name'] ?? repo['title']) != null)
-          ? (repo['name'] ?? repo['title']).toString()
-          : repo.toString();
-      final url = (repo is Map && repo['url'] != null)
-          ? repo['url'].toString()
-          : '';
+      final name = repo['name']?.toString() ?? 'Untitled';
+      final url = repo['link']?.toString() ?? '';
       return Column(
         children: [
           Row(
@@ -103,6 +100,7 @@ class SettingExtension extends HookConsumerWidget {
                   value: selectAll.value || selected.value.contains(url),
                   label: const Text(""),
                   onChange: (v) {
+                    logger.info('Checkbox changed: $v for $url');
                     if (v) {
                       selected.value = Set.from(selected.value)..add(url);
                     } else {
@@ -136,7 +134,7 @@ class SettingExtension extends HookConsumerWidget {
     return MiruListView(
       children: [
         OutterCard(
-          title: 'repo-setting',
+          title: 'Repo Management',
           trailing: Row(
             children: [
               if (selected.value.isNotEmpty) ...[
@@ -169,13 +167,16 @@ class SettingExtension extends HookConsumerWidget {
                           FButton(
                             onPress: () async {
                               for (var url in selected.value) {
-                                await ExtensionEndpoint.deleteRepo(url);
+                                final res = await ExtensionEndpoint.deleteRepo(
+                                  url,
+                                );
+                                logger.info('Deleted repo $url: $res');
                               }
                               if (!context.mounted) {
                                 return;
                               }
                               ref.invalidate(extensionRepoProvider);
-                              ref.read(extensionRepoProvider.future);
+                              ref.read(extensionRepoProvider);
                               Navigator.of(context).pop();
                             },
                             child: const Text('Continue'),
@@ -189,7 +190,7 @@ class SettingExtension extends HookConsumerWidget {
                       );
                     },
                   ),
-                  child: const Text('remove-repo'),
+                  child: const Text('Remove'),
                 ),
                 SizedBox(width: 10),
               ],
@@ -214,7 +215,7 @@ class SettingExtension extends HookConsumerWidget {
                     return RepoDialog(animation: animation, style: style.call);
                   },
                 ),
-                child: const Text('add-repo'),
+                child: const Text('Add'),
               ),
             ],
           ),
@@ -279,7 +280,11 @@ class SettingExtension extends HookConsumerWidget {
                   )
                 else
                   ...buildSeparators(
-                    buildRepoSetting(selectAll, selected, repos),
+                    buildRepoSetting(
+                      selectAll,
+                      selected,
+                      repos.whereType<Map<String, dynamic>>().toList(),
+                    ),
                   ),
               ],
             ),

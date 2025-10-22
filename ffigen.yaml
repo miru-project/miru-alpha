@@ -1,10 +1,11 @@
-output: 'lib/generated_bindings.dart'
+# FFI bindings  for linux and windows applications
+output: "lib/generated_bindings.dart"
 headers:
   entry-points:
-    - 'src/miru_core/android/arm64-v8a/libmiru_core.h'
+    - "src/miru_core/libmiru_core.h"
 name: MiruCore
 compiler-opts:
-  - '-I/usr/lib/clang/19/include'
+  - "-I/usr/lib/clang/20/include"
 preamble: |
   // ignore_for_file: always_specify_types
   // ignore_for_file: camel_case_types

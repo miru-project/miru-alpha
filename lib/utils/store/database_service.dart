@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/miru_core/network/network.dart';
+import 'package:miru_app_new/miru_core/network.dart';
 
 class DatabaseService {
   // Favorites
@@ -173,12 +173,9 @@ class DatabaseService {
     int? limit,
   }) async {
     final all = await getAllFavorite();
-    var filtered =
-        type == null
-            ? all
-            : all
-                .where((f) => f.type == type.toString().split('.').last)
-                .toList();
+    var filtered = type == null
+        ? all
+        : all.where((f) => f.type == type.toString().split('.').last).toList();
     filtered.sort((a, b) => b.date.compareTo(a.date));
     if (limit != null && filtered.length > limit) {
       filtered = filtered.sublist(0, limit);
