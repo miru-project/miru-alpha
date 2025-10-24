@@ -29,7 +29,57 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
         title: Text(title),
         subtitle: Text(subtitle),
         details: Text(initialValue),
-        onPress: () {},
+        onPress: () {
+          showFDialog(
+            context: context,
+            builder: (context, style, animation) => SingleChildScrollView(
+              child:
+                  // FDialog.raw(builder: (context,style){
+                  //            return  FTextField(
+                  //         // style: context.theme.textFieldStyle.copyWith(
+                  //         //   border: FWidgetStateMap(),
+                  //         // ),
+                  //         label: const Text('Username'),
+                  //         hint: 'JaneDoe',
+                  //         description: const Text('Please enter your username.'),
+                  //         maxLines: 1,
+                  //       )
+                  // })
+                  FDialog(
+                    style: style.call,
+                    animation: animation,
+                    title: const Text('TMDB Api keys'),
+                    body: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FTextField(
+                          // style: context.theme.textFieldStyle.copyWith(
+                          //   border: FWidgetStateMap(),
+                          // ),
+                          label: const Text('Username'),
+                          hint: 'JaneDoe',
+                          description: const Text(
+                            'Please enter your username.',
+                          ),
+                          maxLines: 1,
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      FButton(
+                        style: FButtonStyle.outline(),
+                        onPress: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel'),
+                      ),
+                      FButton(
+                        onPress: () => Navigator.of(context).pop(),
+                        child: const Text('Confirm'),
+                      ),
+                    ],
+                  ),
+            ),
+          );
+        },
       );
     }
     return SettingBaseTile(

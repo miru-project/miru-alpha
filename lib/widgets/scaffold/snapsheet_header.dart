@@ -22,3 +22,25 @@ class SnapSheetHeader extends StatelessWidget {
     );
   }
 }
+
+class SnapSheetNested extends StatelessWidget {
+  const SnapSheetNested({
+    super.key,
+    required this.title,
+    this.prefix = const <Widget>[],
+  });
+  final String title;
+  final List<Widget> prefix;
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        ...prefix,
+        Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+        ),
+      ],
+    );
+  }
+}

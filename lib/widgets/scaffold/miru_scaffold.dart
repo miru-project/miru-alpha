@@ -16,6 +16,7 @@ class MiruScaffold extends StatefulHookConsumerWidget {
     this.snappingSheetController,
     this.mobileHeader,
     this.scrollController,
+    this.resizeToAvoidBottomInset = true,
   });
   // final PreferredSizeWidget? appBar;
   final Widget body;
@@ -23,24 +24,23 @@ class MiruScaffold extends StatefulHookConsumerWidget {
   final ScrollController? scrollController;
   final SnappingSheetController? snappingSheetController;
   final Widget? mobileHeader;
+  final bool resizeToAvoidBottomInset;
   @override
   ConsumerState<MiruScaffold> createState() => _MiruScaffoldState();
-  const MiruScaffold.desktop({
-    super.key,
-    // this.appBar,
-    required this.body,
-  }) : snapSheet = const [],
-       snappingSheetController = null,
-       mobileHeader = null,
-       scrollController = null;
+  const MiruScaffold.desktop({super.key, required this.body})
+    : snapSheet = const [],
+      snappingSheetController = null,
+      mobileHeader = null,
+      resizeToAvoidBottomInset = true,
+      scrollController = null;
   const MiruScaffold.mobile({
     super.key,
-    // this.appBar,
     required this.body,
     this.snapSheet = const [],
     this.snappingSheetController,
     this.mobileHeader,
     this.scrollController,
+    this.resizeToAvoidBottomInset = false,
   });
 }
 
@@ -130,7 +130,8 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     );
     return PlatformWidget(
       mobileWidget: FScaffold(
-        // childPad: false,
+        resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+        childPad: false,
         header: isMobileTitleOnTop
             ? widget.mobileHeader ?? const SizedBox()
             : null,

@@ -71,59 +71,6 @@ class SettingPlayer extends HookWidget {
   }
 }
 
-class SettingMiruCore extends HookWidget {
-  const SettingMiruCore({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return MiruListView(
-      children: [
-        // FAlert(title: const Text('miru-core-running')),
-        SettingsInputTile(
-          title: 'btserver-download-link',
-          subtitle: 'btserver-download-link-sub',
-          initialValue: MiruSettings.getSettingSync(SettingKey.btServerLink),
-          onChanged: (val) {
-            MiruSettings.setSettingSync(SettingKey.btServerLink, val);
-          },
-        ),
-        ListenableBuilder(
-          listenable: btServerNotifier,
-          builder: (context, child) => MoonMenuItem(
-            onTap: () {},
-            content: const Text('bt-server-subtitle'),
-            label: const Text('bt-server'),
-            trailing: Row(
-              children: [
-                if (btServerNotifier.isInstalled)
-                  MoonButton(
-                    label: const Text('uninstall'),
-                    onTap: () {
-                      btServerNotifier.uninstallServer();
-                    },
-                  )
-                else if (btServerNotifier.isDownloading)
-                  MoonButton(
-                    label: Text(
-                      '${(btServerNotifier.progress.toStringAsFixed(1))}%',
-                    ),
-                    onTap: () {},
-                  )
-                else
-                  MoonButton(
-                    label: const Text('install'),
-                    onTap: () {
-                      btServerNotifier.downloadOrUpgradeServer(context);
-                    },
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class SettingDownload extends HookWidget {
   const SettingDownload({super.key});
   @override

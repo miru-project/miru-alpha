@@ -122,33 +122,28 @@ class _MainPageState extends ConsumerState<MainPage>
     return FTheme(
       data: themeData,
       child: PlatformWidget(
-        mobileWidget: FScaffold(
-          childPad: false,
-          footer: FBottomNavigationBar(
-            index: controller.selectedIndex,
-            onChange: (value) {
-              if (widget.child != null) {
-                widget.child!.goBranch(value);
-              }
-              c.selectIndex(value);
-              selected.value = value;
-            },
-            children: List.generate(
-              _navItems.length,
-              (i) => FBottomNavigationBarItem(
-                label: Text(_navItems[i].text),
-                icon: Icon(_navItems[i].icon),
+        mobileWidget: Column(
+          children: [
+            if (!DeviceUtil.isMobile) DragWindows(),
+            Expanded(child: SafeArea(child: widget.child ?? const SizedBox())),
+            FBottomNavigationBar(
+              index: controller.selectedIndex,
+              onChange: (value) {
+                if (widget.child != null) {
+                  widget.child!.goBranch(value);
+                }
+                c.selectIndex(value);
+                selected.value = value;
+              },
+              children: List.generate(
+                _navItems.length,
+                (i) => FBottomNavigationBarItem(
+                  label: Text(_navItems[i].text),
+                  icon: Icon(_navItems[i].icon),
+                ),
               ),
             ),
-          ),
-          child: Column(
-            children: [
-              if (!DeviceUtil.isMobile) DragWindows(),
-              Expanded(
-                child: SafeArea(child: widget.child ?? const SizedBox()),
-              ),
-            ],
-          ),
+          ],
         ),
         desktopWidget: FScaffold(
           key: messengerKey,
