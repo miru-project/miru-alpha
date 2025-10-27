@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/provider/search_page_single_provider.dart';
+import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:miru_app_new/widgets/search/search_filter_card.dart';
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:miru_app_new/widgets/index.dart';
@@ -31,6 +32,9 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
 
   @override
   Widget build(context) {
+    final showPageNumber = MiruSettings.getSettingSync<bool>(
+      SettingKey.showPageNumber,
+    );
     return MiruScaffold(
       mobileHeader: Padding(
         padding: EdgeInsetsGeometry.only(bottom: 10),
@@ -50,20 +54,24 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
               children: [
                 Text(
                   widget.meta.name,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: showPageNumber ? 20 : 22,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                Consumer(
-                  builder: (context, ref, _) {
-                    final page = ref.watch(
-                      searchPageSingleProviderProvider.select((v) => v.page),
-                    );
-                    return Text(
-                      'page: ${page.toString()}',
-                      style: TextStyle(fontSize: 13),
-                    );
-                  },
-                ),
+                if (MiruSettings.getSettingSync(SettingKey.showPageNumber))
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final page = ref.watch(
+                        searchPageSingleProviderProvider.select((v) => v.page),
+                      );
+                      return Text(
+                        'page: ${page.toString()}',
+                        style: TextStyle(fontSize: 13),
+                      );
+                    },
+                  ),
               ],
             ),
           ],
@@ -72,8 +80,25 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
       snapSheet: [
         FTextField(
           maxLines: 1,
-          onChange: (value) {
-            // extNotifier.filterByName(value);
+          onSubmit: (value) {
+            ref.invalidate(
+              fetchExtensionSearchLatestProvider.call(
+                widget.meta.packageName,
+                1,
+                query: value,
+              ),
+            );
+            ref.read(searchPageSingleProviderProvider.notifier).setQuery(value);
+            // final page = ref.watch(
+            //   searchPageSingleProviderProvider.select((e) => e.page),
+            // );
+            // ref.read(
+            //   fetchExtensionSearchLatestProvider.call(
+            //     widget.meta.packageName,
+            //     page,
+            //     query: value,
+            //   ),
+            // );
           },
           hint: "Search by Name or Tags ...",
           prefixBuilder: (context, style, states) => Padding(
@@ -82,43 +107,17 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
           ),
         ),
       ],
-      // snapSheet: <Widget>[
-      //   FHeader.nested(
-      //     title: const Text('Search'),
-      //     titleAlignment: Alignment.centerLeft,
-      //     prefixes: [
-      //       FHeaderAction.back(
-      //         onPress: () {
-      //           context.pop();
-      //         },
-      //       ),
-      //     ],
-      //   ),
-      //   Column(
-      //     crossAxisAlignment: CrossAxisAlignment.start,
-      //     children: [
-      //       Text(
-      //         widget.meta.name,
-      //         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-      //       ),
-      //       Consumer(
-      //         builder: (context, ref, _) {
-      //           final page = ref.watch(
-      //             searchPageSingleProviderProvider.select((v) => v.page),
-      //           );
-      //           return Text('page: ${page.toString()}');
-      //         },
-      //       ),
-      //     ],
-      //   ),
-      //   const SizedBox(height: 10),
-
-      //   const SizedBox(height: 10),
-      // ],
       body: LayoutBuilder(
         builder: (context, cons) {
+          final query = ref.watch(
+            searchPageSingleProviderProvider.select((v) => v.query),
+          );
           final snapshot = ref.watch(
-            fetchExtensionLatestProvider.call(widget.meta.packageName, 1),
+            fetchExtensionSearchLatestProvider.call(
+              widget.meta.packageName,
+              1,
+              query: query,
+            ),
           );
 
           return snapshot.when(
@@ -165,14 +164,6 @@ class DesktopSearchSingleFilterBox extends ConsumerWidget {
   final ExtensionMeta meta;
   void refresh(WidgetRef ref) {
     ref.invalidate(fetchExtensionSearchLatestProvider);
-    final state = ref.watch(searchPageSingleProviderProvider);
-    ref.read(
-      fetchExtensionSearchLatestProvider.call(
-        meta.packageName,
-        state.page,
-        query: state.query,
-      ),
-    );
   }
 
   @override
@@ -204,10 +195,17 @@ class DesktopSearchSingleFilterBox extends ConsumerWidget {
                 },
                 hint: 'Search ',
                 onSubmit: (value) {
-                  ref
-                      .read(searchPageSingleProviderProvider.notifier)
-                      .setQuery(value);
-                  refresh(ref);
+                  // ref
+                  //     .read(searchPageSingleProviderProvider.notifier)
+                  //     .setQuery(value);
+                  // refresh(ref);
+                  ref.invalidate(
+                    fetchExtensionSearchLatestProvider.call(
+                      meta.packageName,
+                      1,
+                      query: value,
+                    ),
+                  );
                 },
               ),
             ),

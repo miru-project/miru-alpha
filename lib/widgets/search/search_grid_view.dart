@@ -35,7 +35,9 @@ class SearchGridView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    int page = 1;
+    final page = ref.watch(
+      searchPageSingleProviderProvider.select((v) => v.page),
+    );
     final resState = useState(res);
     final result = resState.value;
     final isLoading = useState(false);
@@ -55,7 +57,7 @@ class SearchGridView extends HookConsumerWidget {
               );
               if (res.isNotEmpty) {
                 resState.value = [...resState.value, ...res];
-                // page += 1;
+
                 ref
                     .read(searchPageSingleProviderProvider.notifier)
                     .setPage(page + 1);
@@ -71,7 +73,6 @@ class SearchGridView extends HookConsumerWidget {
             );
             if (res.isNotEmpty) {
               resState.value = [...resState.value, ...res];
-              // page += 1;
               ref
                   .read(searchPageSingleProviderProvider.notifier)
                   .setPage(page + 1);
@@ -133,11 +134,13 @@ class SearchGridView extends HookConsumerWidget {
             : result.length,
       ),
       mobileWidget: MiruGridView(
-        paddingHeightOffest: 50,
+        // paddingHeightOffest: 50,
         scrollController: scrollController,
         mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
           crossAxisCount: axisCnt,
-          childAspectRatio: 0.6,
+          childAspectRatio: 0.65,
         ),
         desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: axisCnt,

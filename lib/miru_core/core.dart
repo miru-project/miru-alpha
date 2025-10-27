@@ -6,6 +6,7 @@ import 'dart:isolate';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
+import 'package:integral_isolates/integral_isolates.dart';
 
 import 'package:miru_app_new/generated_bindings.dart';
 import 'package:miru_app_new/miru_core/network.dart';
@@ -64,7 +65,7 @@ class Core {
     }
   }
 
-  static void startNativeMiruCore(
+  static Future<void> startNativeMiruCore(
     String configPath,
     // RootIsolateToken rootIsolateToken,
   ) async {
@@ -90,23 +91,24 @@ class Core {
           .toNativeUtf8(allocator: arena)
           .cast<ffi.Char>();
       final core = MiruCore(lib);
-      final res = core.initDyLib(configPathPointer);
-      final error = res.cast<Utf8>().toDartString();
-      debugger();
+      core.initDyLib(configPathPointer);
+      // final error = res.cast<Utf8>().toDartString();
+      // debugger();
       // CoreNetwork.setPort(port.toString());
     });
   }
 
   static Future<void> loadMiruCore(String configPath) async {
-    // startMiruCore(configPath);
-    // RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
     if (Platform.isAndroid) {
       // BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
       final platform = MethodChannel('com.miru.alpha/miru_core');
       await platform.invokeMethod('InitAAR', configPath);
       return;
     }
+    // final statefulIsolate = TailoredStatefulIsolate<String, Future<void>>();
+    // statefulIsolate.compute(startNativeMiruCore, configPath);
     Isolate.run(() => startNativeMiruCore(configPath));
+    // startNativeMiruCore(configPath);
     return;
   }
 }

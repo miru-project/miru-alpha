@@ -121,6 +121,20 @@ class SettingGeneral extends HookConsumerWidget {
                     .updateMobileTitleOnTop(value);
               },
             ),
+            SettingsToggleTile(
+              isMobileLayout: isMobileLayout,
+              title: 'Show page number',
+              subtitle: 'Show page number in Search / Latest',
+              value: MiruSettings.getSettingSync<bool>(
+                SettingKey.showPageNumber,
+              ),
+              onChanged: (value) {
+                MiruSettings.setSettingSync(
+                  SettingKey.showPageNumber,
+                  value.toString(),
+                );
+              },
+            ),
           ],
         ),
       ],

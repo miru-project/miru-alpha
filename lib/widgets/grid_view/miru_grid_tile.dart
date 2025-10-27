@@ -153,56 +153,66 @@ class MiruMobileTile extends StatelessWidget {
         child: _TextTile(title: title, subtitle: subtitle),
       );
     }
-    return Padding(
-      padding: EdgeInsetsGeometry.all(8),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Image fills the area
-          ImageWidget(imageUrl: imageUrl!, fit: BoxFit.cover),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Image fills the area
+        ImageWidget(imageUrl: imageUrl!, fit: BoxFit.cover),
 
-          // Bottom gradient shadow
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 60,
-            child: IgnorePointer(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      context.theme.colors.background.withAlpha(200),
-                    ],
+        // Bottom gradient shadow
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 80,
+          child: IgnorePointer(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    context.theme.colors.background.withAlpha(200),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Align(
+          alignment: AlignmentGeometry.bottomLeft,
+          child: Padding(
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
+            child: subtitle.isEmpty
+                ? Padding(
+                    padding: EdgeInsetsGeometry.symmetric(
+                      horizontal: 5,
+                      vertical: 5,
+                    ),
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13),
+                    ),
+                  )
+                : FLabel(
+                    description: Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    axis: Axis.vertical,
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ),
-            ),
           ),
-          Align(
-            alignment: AlignmentGeometry.bottomLeft,
-            child: Padding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-              child: FLabel(
-                description: Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                axis: Axis.vertical,
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

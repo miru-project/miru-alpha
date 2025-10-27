@@ -16,7 +16,7 @@ class MiruScaffold extends StatefulHookConsumerWidget {
     this.snappingSheetController,
     this.mobileHeader,
     this.scrollController,
-    this.resizeToAvoidBottomInset = true,
+    this.resizeToAvoidBottomInset = false,
   });
   // final PreferredSizeWidget? appBar;
   final Widget body;
@@ -88,18 +88,11 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           childScrollController: scrollController,
           draggable: (details) => true,
           child: FCard.raw(
-            style: (style) =>
-                FCardStyle.inherit(
-                  colors: context.theme.colors,
-                  typography: context.theme.typography,
-                  style: context.theme.style,
-                ).copyWith(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: context.theme.colors.border),
-                    color: context.theme.colors.background.withAlpha(150),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
+            style: (style) => style.copyWith(
+              decoration: BoxDecoration(
+                color: context.theme.colors.barrier.withAlpha(240),
+              ),
+            ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: BackdropFilter(

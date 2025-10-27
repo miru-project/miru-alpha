@@ -662,6 +662,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+  integral_isolates:
+    dependency: "direct main"
+    description:
+      name: integral_isolates
+      sha256: "62b1b45ea6350edc92d555aa1a98cbda09836b42e51e19e39d49bc39a686e601"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.1"
   intl:
     dependency: transitive
     description:

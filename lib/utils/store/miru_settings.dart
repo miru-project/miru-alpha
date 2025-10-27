@@ -88,6 +88,7 @@ class MiruSettings {
     SettingKey.maxConnection: "3",
     SettingKey.showDeleteExtensionDialog: "true",
     SettingKey.pinnedExtension: {}.toString(),
+    SettingKey.showPageNumber: "true",
   };
   static Future<void> _initSettings() async {
     for (final entry in _defaultSettings.entries) {
@@ -194,4 +195,5 @@ class SettingKey {
   static const maxConnection = "MaxConnection";
   static const pinnedExtension = "PinnedExtension";
   static const showDeleteExtensionDialog = "ShowDeleteExtensionDialog";
+  static const showPageNumber = 'ShowPageNumber';
 }

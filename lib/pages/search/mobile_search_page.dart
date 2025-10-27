@@ -19,7 +19,10 @@ class MobileSearchPage extends HookConsumerWidget {
     final pinnedExtensions = useState(
       MiruSettings.getSettingSync<Set<String>>(SettingKey.pinnedExtension),
     );
-    // MiruStorage.getSettingSync
+    final containedPinned = metaData.where((ext) {
+      return pinnedExtensions.value.contains(ext.packageName);
+    });
+
     return MiruScaffold(
       mobileHeader: const SnapSheetHeader(title: 'Seach'),
       snapSheet: [
@@ -48,17 +51,15 @@ class MobileSearchPage extends HookConsumerWidget {
       body: CustomScrollView(
         slivers: [
           // SliverToBoxAdapter(child: SizedBox(height: 150)),
-          if (pinnedExtensions.value.isNotEmpty)
+          if (containedPinned.isNotEmpty)
             SliverToBoxAdapter(
               child: FTileGroup(
                 label: Text('Pinned'),
                 description: Text('Pinned extensions '),
-                children: List.generate(pinnedExtensions.value.length, (index) {
+                children: List.generate(containedPinned.length, (index) {
                   {
-                    final pinnedPkg = pinnedExtensions.value.elementAt(index);
-                    final ext = metaData
-                        .where((ext) => ext.packageName == pinnedPkg)
-                        .first;
+                    final ext = containedPinned.elementAt(index);
+
                     return FTile(
                       onPress: () {
                         context.push(
