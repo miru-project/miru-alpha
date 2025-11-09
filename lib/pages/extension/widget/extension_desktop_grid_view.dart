@@ -4,10 +4,10 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/widgets/search/search_filter_card.dart';
-import 'package:miru_app_new/widgets/extension/extension_tile.dart';
+import 'package:miru_app_new/pages/search/widget/search_filter_card.dart';
+import 'package:miru_app_new/pages/extension/widget/extension_tile.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
-import 'package:miru_app_new/widgets/extension/clearable_select.dart';
+import 'package:miru_app_new/pages/extension/widget/clearable_select.dart';
 
 class ExtensionDesktopGridView extends HookConsumerWidget {
   const ExtensionDesktopGridView({

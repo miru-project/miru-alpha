@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/watch/watch_entry.dart';
+import 'package:miru_app_new/pages/detail/detail_load_page.dart';
+import 'package:miru_app_new/utils/router/page_entry.dart';
 import '../../../pages/anilist_webview.dart';
 import '../../../pages/download_page.dart';
 import '../../../pages/home/favorite_page_desktop_layout.dart';
 import '../../../pages/home/history_page.dart';
 import '../../../pages/index.dart';
 import '../../../pages/main_page.dart';
-import '../../pages/watch/manga_reader.dart';
+import '../../pages/manga_reader/manga_reader.dart';
 import '../../pages/webview/mobile_webview.dart';
-import '../../pages/watch/novel_reader.dart';
-import '../../../pages/search_page_single_view.dart';
-import '../../pages/watch/video_player.dart';
+import '../../pages/novel_reader/novel_reader.dart';
+import '../../pages/search/search_page_single_view.dart';
+import '../../pages/video_player/video_player.dart';
 import '../../../pages/setting/setting_items.dart';
 
 class ParamCache {
@@ -43,7 +44,7 @@ class RouterUtil {
     builder: (context, state) {
       final extra = ParamCache.getDetailParam(state.extra as DetailParam);
       // throw Exception('DetailParam is null');
-      return DetailPage(meta: extra.meta, url: extra.url);
+      return DetailLoadPage(meta: extra.meta, url: extra.url);
     },
   );
   static final appRouter = GoRouter(

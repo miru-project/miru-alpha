@@ -13,12 +13,32 @@ class _TextTile extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-        Text(
-          subtitle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Colors.grey, fontSize: 12),
+        Expanded(
+          child: Expanded(
+            child: FCard.raw(
+              child: Center(
+                child: Text(
+                  title,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 50,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: FLabel(
+              description: Text(
+                subtitle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              axis: Axis.vertical,
+              child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+          ),
         ),
       ],
     );
@@ -147,72 +167,88 @@ class MiruMobileTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imageUrl == null) {
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: _TextTile(title: title, subtitle: subtitle),
-      );
-    }
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Image fills the area
-        ImageWidget(imageUrl: imageUrl!, fit: BoxFit.cover),
-
-        // Bottom gradient shadow
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: 80,
-          child: IgnorePointer(
-            child: Container(
+    // if (imageUrl == null) {
+    //   return _TextTile(title: title, subtitle: subtitle);
+    // }
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Image fills the area
+          if (imageUrl == null)
+            Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    context.theme.colors.background.withAlpha(200),
-                  ],
+                color: Colors.red,
+                borderRadius: context.theme.cardStyle.decoration.borderRadius,
+              ),
+
+              child: Center(
+                child: Text(
+                  title,
+                  softWrap: true,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                ),
+              ),
+            )
+          else
+            ImageWidget(imageUrl: imageUrl!, fit: BoxFit.cover),
+
+          // Bottom gradient shadow
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: 80,
+            child: IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      context.theme.colors.background.withAlpha(200),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        Align(
-          alignment: AlignmentGeometry.bottomLeft,
-          child: Padding(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-            child: subtitle.isEmpty
-                ? Padding(
-                    padding: EdgeInsetsGeometry.symmetric(
-                      horizontal: 5,
-                      vertical: 5,
+          Align(
+            alignment: AlignmentGeometry.bottomLeft,
+            child: Padding(
+              padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
+              child: subtitle.isEmpty
+                  ? Padding(
+                      padding: EdgeInsetsGeometry.symmetric(
+                        horizontal: 5,
+                        vertical: 5,
+                      ),
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 13),
+                      ),
+                    )
+                  : FLabel(
+                      description: Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      axis: Axis.vertical,
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 13),
-                    ),
-                  )
-                : FLabel(
-                    description: Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    axis: Axis.vertical,
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

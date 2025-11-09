@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:ffi' as ffi;
 import 'dart:io';
 import 'dart:isolate';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
-import 'package:integral_isolates/integral_isolates.dart';
 
 import 'package:miru_app_new/generated_bindings.dart';
 import 'package:miru_app_new/miru_core/network.dart';

@@ -9,7 +9,7 @@ import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/provider/search_page_single_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/utils/watch/watch_entry.dart';
+import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/core/toast.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
 import 'package:miru_app_new/widgets/platform_widget.dart';

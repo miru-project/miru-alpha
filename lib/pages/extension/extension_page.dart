@@ -6,8 +6,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/widgets/extension/extension_desktop_grid_view.dart';
-import 'package:miru_app_new/widgets/extension/extension_tile.dart';
+import 'package:miru_app_new/pages/extension/widget/extension_desktop_grid_view.dart';
+import 'package:miru_app_new/pages/extension/widget/extension_tile.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'package:snapping_sheet_2/snapping_sheet.dart';

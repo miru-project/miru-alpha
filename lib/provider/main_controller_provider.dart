@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../pages/extension/extension_page.dart';
-import '../../pages/search_page.dart';
+import '../pages/search/search_page.dart';
 import '../../pages/setting/settings_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'main_controller_provider.g.dart';

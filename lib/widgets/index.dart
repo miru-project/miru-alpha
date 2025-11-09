@@ -1,10 +1,9 @@
-export 'miru_app_bar.dart';
-export 'extension_tile.dart';
+export '../pages/extension/widget/extension_list_tile.dart';
 export 'scaffold/miru_scaffold.dart';
 export 'platform_widget.dart';
 export 'sidebar/index.dart';
 export 'scroll_view/miru_list_view.dart';
 export 'core/blur.dart';
-export 'settings/index.dart';
+export '../pages/setting/widget/index.dart';
 export 'max_width.dart';
 export 'scroll_view/miru_single_child_view.dart';

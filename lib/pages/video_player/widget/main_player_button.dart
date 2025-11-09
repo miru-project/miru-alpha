@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 
-class PlayerButton extends StatelessWidget {
-  const PlayerButton({
+class MainPlayerButton extends StatelessWidget {
+  const MainPlayerButton({
     super.key,
     required this.onPressed,
     required this.icon,

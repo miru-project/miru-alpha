@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_app_new/pages/setting/setting_core.dart';
 import 'package:miru_app_new/pages/setting/setting_general.dart';
-import 'package:miru_app_new/widgets/settings/setting_scaffold.dart';
+import 'package:miru_app_new/pages/setting/widget/setting_scaffold.dart';
 import 'setting_extension.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'setting_items.dart';

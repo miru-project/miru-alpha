@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/widgets/settings/setting_base_tile.dart';
+import 'package:miru_app_new/pages/setting/widget/setting_base_tile.dart';
 
 class SettingsToggleTile extends HookWidget with FTileMixin {
   const SettingsToggleTile({

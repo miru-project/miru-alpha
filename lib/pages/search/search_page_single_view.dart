@@ -5,11 +5,11 @@ import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/provider/search_page_single_provider.dart';
 import 'package:miru_app_new/utils/setting_dir_index.dart';
-import 'package:miru_app_new/widgets/search/search_filter_card.dart';
+import 'package:miru_app_new/pages/search/widget/search_filter_card.dart';
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'package:miru_app_new/widgets/search/search_grid_loading.dart';
-import 'package:miru_app_new/widgets/search/search_grid_view.dart';
+import 'package:miru_app_new/pages/search/widget/search_grid_loading.dart';
+import 'package:miru_app_new/pages/search/widget/search_grid_view.dart';
 
 class SearchPageSingleView extends StatefulHookConsumerWidget {
   const SearchPageSingleView({super.key, this.query, required this.meta});

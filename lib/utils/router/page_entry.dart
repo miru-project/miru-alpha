@@ -1,22 +1,6 @@
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 
-// class WatchEntry {
-//   static handlePageRoute(ExtensionApiV1 extension, BuildContext context) {
-//     switch (extension.extension.type) {
-//       case ExtensionType.bangumi:
-//         context.go('/bangumi');
-//         break;
-//       case ExtensionType.manga:
-//         context.go('/manga');
-//         break;
-//       case ExtensionType.fikushon:
-//         context.go('/fikushon');
-//         break;
-//     }
-//   }
-// }
-
 class WatchParams {
   const WatchParams({
     required this.meta,
