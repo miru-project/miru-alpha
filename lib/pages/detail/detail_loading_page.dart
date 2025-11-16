@@ -4,15 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/pages/index.dart';
+import 'package:miru_app_new/pages/detail/desktop_loaded_page.dart';
+import 'package:miru_app_new/pages/detail/mobile_loaded_page.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 
 import 'package:miru_app_new/widgets/error.dart';
-import 'package:miru_app_new/widgets/index.dart';
 
-class DetailLoadPage extends StatefulHookConsumerWidget {
-  const DetailLoadPage({super.key, required this.meta, required this.url});
+class DetailLoadingPage extends StatefulHookConsumerWidget {
+  const DetailLoadingPage({super.key, required this.meta, required this.url});
   final ExtensionMeta meta;
   final String url;
 
@@ -20,7 +21,7 @@ class DetailLoadPage extends StatefulHookConsumerWidget {
   createState() => _DetailLoadPageState();
 }
 
-class _DetailLoadPageState extends ConsumerState<DetailLoadPage> {
+class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
   @override
   void initState() {
     Future.microtask(() async {
@@ -43,13 +44,17 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadPage> {
   Widget build(BuildContext context) {
     final detial =
         ref.watch(detialProvider).detailState ?? const AsyncValue.loading();
-    return MiruScaffold(
-      mobileHeader: SizedBox(),
-      body: detial.when(
-        data: (detial) => LoadedContent(detail: detial, meta: widget.meta),
-        error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
-        loading: () => Center(child: FCircularProgress()),
+    return detial.when(
+      data: (detial) => DeviceUtil.platformWidget(
+        mobile: MobileLoadedPage(
+          detail: detial,
+          meta: widget.meta,
+          detailUrl: widget.url,
+        ),
+        desktop: DesktopLoadedPage(detail: detial, meta: widget.meta),
       ),
+      error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
+      loading: () => Center(child: FCircularProgress()),
     );
   }
   // {

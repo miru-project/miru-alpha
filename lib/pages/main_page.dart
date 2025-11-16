@@ -125,7 +125,7 @@ class _MainPageState extends ConsumerState<MainPage>
         mobileWidget: Column(
           children: [
             if (!DeviceUtil.isMobile) DragWindows(),
-            Expanded(child: SafeArea(child: widget.child ?? const SizedBox())),
+            Expanded(child: widget.child ?? const SizedBox()),
             FBottomNavigationBar(
               index: controller.selectedIndex,
               onChange: (value) {

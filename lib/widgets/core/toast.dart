@@ -3,10 +3,11 @@ import 'package:forui/theme.dart';
 import 'package:forui/widgets/toast.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 
-void showSimpleToast(String title) {
+void showSimpleToast(String title, [int duration = 3]) {
   final ctx = RouterUtil.rootNavigatorKey.currentContext;
   if (ctx == null) return;
   showFToast(
+    duration: Duration(seconds: duration),
     context: ctx,
     title: Text(title),
     alignment: FToastAlignment.bottomCenter,

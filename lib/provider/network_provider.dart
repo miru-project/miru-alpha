@@ -19,7 +19,7 @@ Future<Object> videoLoad(
   String pkg,
   ExtensionType type,
 ) async {
-  return await ExtensionEndpoint.watch(url, pkg, type);
+  return await MiruCoreEndpoint.watch(url, pkg, type);
 }
 
 @riverpod
@@ -34,7 +34,7 @@ Future<ExtensionDetail> fetchExtensionDetail(
   String pkg,
   String url,
 ) async {
-  final result = await ExtensionEndpoint.detail(pkg, url);
+  final result = await MiruCoreEndpoint.detail(pkg, url);
   return result;
 }
 
@@ -44,7 +44,7 @@ Future<List<ExtensionListItem>> fetchExtensionLatest(
   String pkg,
   int page,
 ) async {
-  return await ExtensionEndpoint.latest(pkg, page);
+  return await MiruCoreEndpoint.latest(pkg, page);
 }
 
 @riverpod
@@ -55,7 +55,7 @@ Future<List<ExtensionListItem>> fetchExtensionSearch(
   int page, {
   Map<String, ExtensionFilter>? filter,
 }) async {
-  final result = await ExtensionEndpoint.search(
+  final result = await MiruCoreEndpoint.search(
     package,
     query,
     page,
@@ -74,10 +74,10 @@ Future<List<ExtensionListItem>> fetchExtensionSearchLatest(
   Map<String, ExtensionFilter>? filter,
 }) async {
   if (query == null || query.isEmpty) {
-    final result = await ExtensionEndpoint.latest(package, page);
+    final result = await MiruCoreEndpoint.latest(package, page);
     return result;
   }
-  final result = await ExtensionEndpoint.search(
+  final result = await MiruCoreEndpoint.search(
     package,
     query,
     page,
@@ -94,7 +94,7 @@ Future<ExtensionMangaWatch> mangaLoad(
   ExtensionType type,
 ) async {
   final result =
-      await ExtensionEndpoint.watch(url, pkg, type) as ExtensionMangaWatch;
+      await MiruCoreEndpoint.watch(url, pkg, type) as ExtensionMangaWatch;
   return result;
 }
 
@@ -106,7 +106,7 @@ Future<ExtensionFikushonWatch> fikushonLoad(
   ExtensionType type,
 ) async {
   final result =
-      await ExtensionEndpoint.watch(url, pkg, type) as ExtensionFikushonWatch;
+      await MiruCoreEndpoint.watch(url, pkg, type) as ExtensionFikushonWatch;
   return result;
 }
 

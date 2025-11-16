@@ -12,6 +12,7 @@ import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/model/miru_core.dart';
+import 'package:miru_app_new/pages/detail/widget/desktop_detail_item_box.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
@@ -19,42 +20,12 @@ import 'package:miru_app_new/utils/download/download_utils.dart';
 
 import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
-import 'package:miru_app_new/widgets/amination/animated_box.dart';
-import 'package:miru_app_new/widgets/core/image_widget.dart';
-import 'package:miru_app_new/widgets/core/inner_card.dart';
-import 'package:miru_app_new/widgets/core/outter_card.dart';
-import 'package:miru_app_new/pages/detail/widget/detail_desktop_box.dart';
 import 'package:miru_app_new/widgets/dialog/favorite_add_group_dialog.dart';
 import 'package:miru_app_new/widgets/dialog/favorite_warning_dialog.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:moon_design/moon_design.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:path/path.dart' as p;
-
-class DetailItemBox extends HookWidget {
-  const DetailItemBox({
-    required this.padding,
-    required this.child,
-    required this.title,
-    this.isMobile = false,
-    this.needExpand = true,
-    super.key,
-  });
-
-  final Widget child;
-  final double padding;
-  final String title;
-  final bool isMobile;
-  final bool needExpand;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBox(
-      child: InnerCard(title: title, child: child),
-    );
-  }
-}
 
 class DetailEpButton extends HookWidget {
   const DetailEpButton({
@@ -170,13 +141,13 @@ class DesktopDetail extends ConsumerWidget {
                       flex: 2,
                       child: Column(
                         children: [
-                          DetailItemBox(
+                          DesktopDetailItemBox(
                             title: 'Season',
                             padding: _gloablDesktopPadding,
                             child: season,
                           ),
                           const SizedBox(height: 20),
-                          DetailItemBox(
+                          DesktopDetailItemBox(
                             needExpand: false,
                             title: 'Description',
                             padding: _gloablDesktopPadding,
@@ -197,7 +168,7 @@ class DesktopDetail extends ConsumerWidget {
                                   .map(
                                     (e) => FTabEntry(
                                       label: Text(e.title),
-                                      child: DetailItemBox(
+                                      child: DesktopDetailItemBox(
                                         title: 'Episode',
                                         padding: _gloablDesktopPadding,
                                         child: ep,
@@ -274,7 +245,7 @@ class MobileDetail extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DetailItemBox(
+                    DesktopDetailItemBox(
                       title: 'Description',
                       isMobile: true,
                       needExpand: false,
@@ -282,7 +253,7 @@ class MobileDetail extends StatelessWidget {
                       child: desc,
                     ),
                     const SizedBox(height: 20),
-                    DetailItemBox(
+                    DesktopDetailItemBox(
                       title: 'Episode',
                       isMobile: true,
                       padding: _globalMobilePadding,
@@ -295,130 +266,6 @@ class MobileDetail extends StatelessWidget {
             ),
           ],
         ),
-      ],
-    );
-  }
-}
-
-class LoadedContent extends HookWidget {
-  final ExtensionDetail detail;
-  final ExtensionMeta meta;
-  const LoadedContent({super.key, required this.detail, required this.meta});
-  @override
-  Widget build(BuildContext context) {
-    final url = detail.cover ?? '';
-    final selected = useState(0);
-    return MiruListView(
-      padding: EdgeInsets.all(20),
-      children: [
-        Flex(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          direction: Axis.horizontal,
-          children: [
-            Expanded(
-              flex: 7,
-              child: Column(
-                children: [
-                  DetailDesktopBox(detail: detail, meta: meta, url: url),
-                  const SizedBox(height: 30),
-                  if (detail.episodes == null)
-                    DetailItemBox(
-                      title: 'No Episode',
-                      padding: 20,
-                      child: SizedBox.expand(),
-                    )
-                  else
-                    OutterCard(
-                      title: 'Episodes',
-                      trailing: Row(
-                        children: [
-                          SizedBox(
-                            width: 150,
-                            child: FSelect<int>(
-                              initialValue: selected.value,
-                              onChange: (value) {
-                                if (value == null) {
-                                  return;
-                                }
-                                selected.value = value;
-                              },
-                              items: {
-                                for (
-                                  int i = 0;
-                                  i < detail.episodes!.length;
-                                  i++
-                                )
-                                  detail.episodes![i].title: i,
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          for (final item
-                              in detail.episodes![selected.value].urls)
-                            FButton.icon(
-                              onPress: () {
-                                context.push(
-                                  '/watch',
-                                  extra: WatchParams(
-                                    name: detail.title,
-                                    detailImageUrl: detail.cover ?? '',
-                                    selectedEpisodeIndex: detail
-                                        .episodes![selected.value]
-                                        .urls
-                                        .indexOf(item),
-                                    selectedGroupIndex: selected.value,
-                                    epGroup: detail.episodes,
-                                    detailUrl: item.url,
-                                    url: item.url,
-                                    meta: meta,
-                                    type: meta.type,
-                                  ),
-                                );
-                              },
-                              child: Padding(
-                                padding: EdgeInsetsGeometry.symmetric(
-                                  horizontal: 10,
-                                ),
-                                child: Text(item.name),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            Spacer(),
-            Expanded(
-              flex: 3,
-              child: Column(
-                children: [
-                  AnimatedBox(
-                    child: FCard.raw(
-                      child: ClipRRect(
-                        // borderRadius: BorderRadius.circular(),
-                        child: ImageWidget(imageUrl: url),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  AnimatedBox(
-                    child: InnerCard(
-                      title: 'Tracking',
-                      child: Center(child: Text("anilist")),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 40),
       ],
     );
   }
@@ -1281,7 +1128,7 @@ class _DownloadDialogState extends State<_DownloadDialog>
                 // },
                 onTap: () async {
                   final videoWatch =
-                      await ExtensionEndpoint.watch(
+                      await MiruCoreEndpoint.watch(
                             epGroup[value].urls[index].url,
                             widget.meta.packageName,
                             widget.meta.type,

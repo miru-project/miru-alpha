@@ -110,8 +110,8 @@ class SettingGeneral extends HookConsumerWidget {
 
             SettingsToggleTile(
               isMobileLayout: isMobileLayout,
-              title: 'Mobile title always on top',
-              subtitle: 'make the title always on top in mobile',
+              title: 'Mobile header always on top',
+              subtitle: 'make the app bar header always on top in mobile',
               value: MiruSettings.getSettingSync<bool>(
                 SettingKey.mobiletitleIsonTop,
               ),

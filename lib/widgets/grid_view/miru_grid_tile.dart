@@ -203,13 +203,11 @@ class MiruMobileTile extends StatelessWidget {
             child: IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      context.theme.colors.background.withAlpha(200),
-                    ],
+                    colors: [Colors.transparent, Colors.black.withAlpha(200)],
                   ),
                 ),
               ),
@@ -229,7 +227,7 @@ class MiruMobileTile extends StatelessWidget {
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 13),
+                        style: TextStyle(fontSize: 13, color: Colors.white),
                       ),
                     )
                   : FLabel(

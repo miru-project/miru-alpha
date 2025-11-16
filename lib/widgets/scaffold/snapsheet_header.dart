@@ -15,10 +15,15 @@ class SnapSheetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // FHeader()
     return DecoratedBox(
       decoration: context.theme.scaffoldStyle.headerDecoration,
-      child: FHeader(title: Text(title)),
+      child: Padding(
+        padding: EdgeInsetsGeometry.only(left: 12, bottom: 6),
+        child: Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+        ),
+      ),
     );
   }
 }
@@ -28,9 +33,11 @@ class SnapSheetNested extends StatelessWidget {
     super.key,
     required this.title,
     this.prefix = const <Widget>[],
+    this.suffix = const <Widget>[],
   });
   final String title;
   final List<Widget> prefix;
+  final List<Widget> suffix;
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -40,6 +47,8 @@ class SnapSheetNested extends StatelessWidget {
           title,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
         ),
+        if (suffix.isNotEmpty) const Spacer(),
+        ...suffix,
       ],
     );
   }

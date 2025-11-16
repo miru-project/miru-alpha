@@ -31,7 +31,7 @@ Future<void> openWebview(ExtensionMeta ext) async {
         cookie += "${c.name}=${c.value}; ";
       }
       // logger.info('Cookies: $cookie');
-      await ExtensionEndpoint.setCookie(cookie, url);
+      await MiruCoreEndpoint.setCookie(cookie, url);
     } catch (e, stack) {
       logger.info('getAllCookies error: $e');
       logger.info(stack);

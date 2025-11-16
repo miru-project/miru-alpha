@@ -58,7 +58,7 @@ final class VideoLoadProvider
   }
 }
 
-String _$videoLoadHash() => r'313b20d2538d9936b4835d2571512ad04c748dae';
+String _$videoLoadHash() => r'7dd2b930943505dfd73231571c4a4ffb163b8a62';
 
 final class VideoLoadFamily extends $Family
     with
@@ -180,7 +180,7 @@ final class FetchExtensionDetailProvider
 }
 
 String _$fetchExtensionDetailHash() =>
-    r'28d77e1f1c617e9f01ac46656430f8869c43e523';
+    r'e22aa8d5a0f262643785e6cdbeaae6832990a0ea';
 
 final class FetchExtensionDetailFamily extends $Family
     with
@@ -259,7 +259,7 @@ final class FetchExtensionLatestProvider
 }
 
 String _$fetchExtensionLatestHash() =>
-    r'e7f0f2e557ba88c4d5b5b637830ba43a26a6fdfb';
+    r'654f6b598a8ea3b55ef7be39388f15376eee73ca';
 
 final class FetchExtensionLatestFamily extends $Family
     with
@@ -350,7 +350,7 @@ final class FetchExtensionSearchProvider
 }
 
 String _$fetchExtensionSearchHash() =>
-    r'e2c041c7aacedd2f30c1e09106d56f9d463adac6';
+    r'4cd9a7561506a1fb7197a0d87fe070bc525d5121';
 
 final class FetchExtensionSearchFamily extends $Family
     with
@@ -459,7 +459,7 @@ final class FetchExtensionSearchLatestProvider
 }
 
 String _$fetchExtensionSearchLatestHash() =>
-    r'4ccf6f258ee11592e915fa4cf40d5b4d6425021c';
+    r'7aef9218fcb0de6b34be9356c306bb368374604c';
 
 final class FetchExtensionSearchLatestFamily extends $Family
     with
@@ -547,7 +547,7 @@ final class MangaLoadProvider
   }
 }
 
-String _$mangaLoadHash() => r'e1fc06f1fd04e6c7cbc3caf43d69f78df34b3bbf';
+String _$mangaLoadHash() => r'762b1472df8d65978c89a06f12edcb279595f10c';
 
 final class MangaLoadFamily extends $Family
     with
@@ -628,7 +628,7 @@ final class FikushonLoadProvider
   }
 }
 
-String _$fikushonLoadHash() => r'915bdb903473a61cdad32d68453d23efa3060b6d';
+String _$fikushonLoadHash() => r'2a57979cec1b776607c80d28adf7a31c18aca9cd';
 
 final class FikushonLoadFamily extends $Family
     with

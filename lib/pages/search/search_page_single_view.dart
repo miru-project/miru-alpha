@@ -45,8 +45,12 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                 Navigator.of(context).pop();
               },
               child: Padding(
-                padding: const EdgeInsets.only(left: 10, right: 12.0, top: 4),
-                child: Icon(FIcons.chevronLeft, size: 20),
+                padding: const EdgeInsets.only(right: 12.0, top: 4, left: 10),
+                child: Icon(
+                  FIcons.chevronLeft,
+                  size: 28,
+                  color: context.theme.colors.primary,
+                ),
               ),
             ),
             Column(
@@ -78,32 +82,36 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
         ),
       ),
       snapSheet: [
-        FTextField(
-          maxLines: 1,
-          onSubmit: (value) {
-            ref.invalidate(
-              fetchExtensionSearchLatestProvider.call(
-                widget.meta.packageName,
-                1,
-                query: value,
-              ),
-            );
-            ref.read(searchPageSingleProviderProvider.notifier).setQuery(value);
-            // final page = ref.watch(
-            //   searchPageSingleProviderProvider.select((e) => e.page),
-            // );
-            // ref.read(
-            //   fetchExtensionSearchLatestProvider.call(
-            //     widget.meta.packageName,
-            //     page,
-            //     query: value,
-            //   ),
-            // );
-          },
-          hint: "Search by Name or Tags ...",
-          prefixBuilder: (context, style, states) => Padding(
-            padding: EdgeInsetsGeometry.only(left: 12, right: 10),
-            child: Icon(FIcons.search),
+        FCard.raw(
+          child: FTextField(
+            maxLines: 1,
+            onSubmit: (value) {
+              ref.invalidate(
+                fetchExtensionSearchLatestProvider.call(
+                  widget.meta.packageName,
+                  1,
+                  query: value,
+                ),
+              );
+              ref
+                  .read(searchPageSingleProviderProvider.notifier)
+                  .setQuery(value);
+              // final page = ref.watch(
+              //   searchPageSingleProviderProvider.select((e) => e.page),
+              // );
+              // ref.read(
+              //   fetchExtensionSearchLatestProvider.call(
+              //     widget.meta.packageName,
+              //     page,
+              //     query: value,
+              //   ),
+              // );
+            },
+            hint: "Search by Name or Tags ...",
+            prefixBuilder: (context, style, states) => Padding(
+              padding: EdgeInsetsGeometry.only(left: 12, right: 10),
+              child: Icon(FIcons.search),
+            ),
           ),
         ),
       ],

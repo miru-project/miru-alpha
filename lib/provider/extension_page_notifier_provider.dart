@@ -218,7 +218,7 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
 
   Future<void> installPackage(String package, String repoUrl) async {
     try {
-      await ExtensionEndpoint.downloadExtension(repoUrl, package);
+      await MiruCoreEndpoint.downloadExtension(repoUrl, package);
       logger.info('install package $package from $repoUrl');
       final newInstalled = List<String>.from(state.installedPackages)
         ..add(package);
@@ -230,7 +230,7 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
 
   Future<String?> uninstallPackage(String package) async {
     try {
-      await ExtensionEndpoint.removeExtension(package);
+      await MiruCoreEndpoint.removeExtension(package);
       logger.info('remove package $package ');
       final newInstalled = List<String>.from(state.installedPackages)
         ..remove(package);

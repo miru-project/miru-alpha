@@ -157,7 +157,7 @@ class CoreNetwork {
   }
 }
 
-class ExtensionEndpoint {
+class MiruCoreEndpoint {
   static String get extensionPathUrl => 'ext';
   static String get searchUrl => '$extensionPathUrl/search';
   static String get latestBaseUrl => '$extensionPathUrl/latest';

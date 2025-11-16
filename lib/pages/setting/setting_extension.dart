@@ -77,7 +77,7 @@ class MobileRepoDialog extends HookConsumerWidget {
             onPress: (name.value.isEmpty && !url.value.contains('.json'))
                 ? null
                 : () async {
-                    await ExtensionEndpoint.setRepo(url.value, name.value);
+                    await MiruCoreEndpoint.setRepo(url.value, name.value);
                     ref.invalidate(extensionRepoProvider);
                     ref.read(extensionRepoProvider.future);
                     if (!context.mounted) {
@@ -145,7 +145,7 @@ class RepoDialog extends HookConsumerWidget {
           onPress: (name.value.isEmpty && !url.value.contains('.json'))
               ? null
               : () async {
-                  await ExtensionEndpoint.setRepo(url.value, name.value);
+                  await MiruCoreEndpoint.setRepo(url.value, name.value);
                   ref.invalidate(extensionRepoProvider);
                   ref.read(extensionRepoProvider.future);
                   if (!context.mounted) {
@@ -245,7 +245,7 @@ class SettingExtension extends HookConsumerWidget {
             FButton(
               onPress: () async {
                 for (var url in selected) {
-                  final res = await ExtensionEndpoint.deleteRepo(url);
+                  final res = await MiruCoreEndpoint.deleteRepo(url);
                   logger.info('Deleted repo $url: $res');
                 }
                 if (!context.mounted) {

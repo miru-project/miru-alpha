@@ -129,15 +129,17 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
       ),
       snapSheet: DeviceUtil.isMobileLayout(context)
           ? <Widget>[
-              FTextField(
-                maxLines: 1,
-                onChange: (value) {
-                  extNotifier.filterByName(value);
-                },
-                hint: "Search by Name or Tags ...",
-                prefixBuilder: (context, style, states) => Padding(
-                  padding: EdgeInsetsGeometry.only(left: 12, right: 10),
-                  child: Icon(FIcons.search),
+              FCard.raw(
+                child: FTextField(
+                  maxLines: 1,
+                  onChange: (value) {
+                    extNotifier.filterByName(value);
+                  },
+                  hint: "Search by Name or Tags ...",
+                  prefixBuilder: (context, style, states) => Padding(
+                    padding: EdgeInsetsGeometry.only(left: 12, right: 10),
+                    child: Icon(FIcons.search),
+                  ),
                 ),
               ),
               SizedBox(height: 10),

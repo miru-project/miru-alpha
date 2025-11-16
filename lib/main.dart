@@ -190,7 +190,7 @@ class _App extends ConsumerState<App> {
     final c = ref.watch(applicationControllerProvider);
     return FTheme(
       data: c.themeData,
-      child: FScaffold(
+      child: FToaster(
         child: MaterialApp.router(
           themeMode: c.themeMode,
           title: 'Miru',

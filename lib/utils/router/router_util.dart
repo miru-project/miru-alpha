@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/pages/detail/detail_load_page.dart';
+import 'package:miru_app_new/pages/detail/detail_loading_page.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import '../../../pages/anilist_webview.dart';
 import '../../../pages/download_page.dart';
@@ -43,12 +43,10 @@ class RouterUtil {
 
     builder: (context, state) {
       final extra = ParamCache.getDetailParam(state.extra as DetailParam);
-      // throw Exception('DetailParam is null');
-      return DetailLoadPage(meta: extra.meta, url: extra.url);
+      return DetailLoadingPage(meta: extra.meta, url: extra.url);
     },
   );
   static final appRouter = GoRouter(
-    // observers: [GoRouterObserver()],
     navigatorKey: rootNavigatorKey,
     routes: [
       GoRoute(path: '/', redirect: (context, state) => '/home'),
@@ -100,7 +98,7 @@ class RouterUtil {
         path: '/mobileWebView',
         builder: (context, state) {
           final extra = state.extra as WebviewParam;
-          return WebViewPage(extensionRuntime: extra.meta, url: extra.url);
+          return MobileWebViewPage(extMeta: extra.meta, path: extra.url);
         },
       ),
       StatefulShellRoute.indexedStack(

@@ -50,7 +50,7 @@ class SearchGridView extends HookConsumerWidget {
           try {
             // Serach Mode
             if (c.query.isNotEmpty) {
-              final res = await ExtensionEndpoint.search(
+              final res = await MiruCoreEndpoint.search(
                 meta.packageName,
                 c.query,
                 page + 1,
@@ -67,7 +67,7 @@ class SearchGridView extends HookConsumerWidget {
             }
 
             // Latest Mode
-            final res = await ExtensionEndpoint.latest(
+            final res = await MiruCoreEndpoint.latest(
               meta.packageName,
               page + 1,
             );

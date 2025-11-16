@@ -6,12 +6,12 @@ import 'package:forui/forui.dart';
 class ImageWidget extends StatelessWidget {
   const ImageWidget({
     super.key,
-    required this.imageUrl,
+    this.imageUrl,
     this.width,
     this.height,
     this.fit,
   });
-  final String imageUrl;
+  final String? imageUrl;
   final double? width;
   final double? height;
   final BoxFit? fit;
@@ -55,10 +55,10 @@ class ImageWidget extends StatelessWidget {
     //   }
     // }
 
-    if (imageUrl.isEmpty) return const Icon(FIcons.cloudAlert);
+    if (imageUrl?.isEmpty ?? true) return const Icon(FIcons.cloudAlert);
     // Fallback: treat as network image
     return ExtendedImage.network(
-      imageUrl,
+      imageUrl!,
       borderRadius: BorderRadius.circular(10),
       shape: BoxShape.rectangle,
       width: width,

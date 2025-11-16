@@ -90,20 +90,25 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           child: FCard.raw(
             style: (style) => style.copyWith(
               decoration: BoxDecoration(
-                color: context.theme.colors.barrier.withAlpha(240),
+                color: context.theme.colors.background.withAlpha(150),
               ),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: BackdropFilter(
                 // enabled: false,
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                filter: ImageFilter.blur(
+                  sigmaX: 10,
+                  sigmaY: 10,
+                  tileMode: TileMode.mirror,
+                ),
                 child: ListView(
                   controller: scrollController,
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
                   children: [
                     _GrabbingWidget(),
                     if (!isMobileTitleOnTop) widget.mobileHeader!,
+                    SizedBox(height: 10),
                     if (widget.snapSheet.isNotEmpty) ...widget.snapSheet,
                   ],
                 ),
@@ -111,7 +116,10 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
             ),
           ),
         ),
-        child: widget.body,
+        child: FScaffold(
+          resizeToAvoidBottomInset: true,
+          child: SafeArea(child: widget.body),
+        ),
       ),
     );
   }
@@ -122,16 +130,35 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
       applicationControllerProvider.select((value) => value.isMobileTitleOnTop),
     );
     return PlatformWidget(
-      mobileWidget: FScaffold(
-        resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-        childPad: false,
-        header: isMobileTitleOnTop
-            ? widget.mobileHeader ?? const SizedBox()
-            : null,
-        child: (isMobileTitleOnTop && widget.snapSheet.isEmpty)
-            ? widget.body
-            : sheet(isMobileTitleOnTop),
+      mobileWidget: FTheme(
+        data: ref.watch(applicationControllerProvider).themeData,
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isMobileTitleOnTop) widget.mobileHeader ?? const SizedBox(),
+              Expanded(
+                child: (isMobileTitleOnTop && widget.snapSheet.isEmpty)
+                    ? FScaffold(
+                        resizeToAvoidBottomInset:
+                            widget.resizeToAvoidBottomInset,
+                        child: widget.body,
+                      )
+                    : sheet(isMobileTitleOnTop),
+              ),
+            ],
+          ),
+        ),
       ),
+      //  FScaffold(
+      //   resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+      //   header: isMobileTitleOnTop
+      //       ? widget.mobileHeader ?? const SizedBox()
+      //       : null,
+      //   child: (isMobileTitleOnTop && widget.snapSheet.isEmpty)
+      //       ? widget.body
+      //       : sheet(isMobileTitleOnTop),
+      // ),
       desktopWidget: widget.body,
     );
   }
