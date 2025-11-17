@@ -48,7 +48,7 @@ jobs:
       - name: Build Android AAR (gomobile bind)
         working-directory: src/miru_core/miru-core/binary
         run: |
-          gomobile bind -ldflags="-s -w" -o ../../android/libmiru-core.aar -target=android -androidapi 21
+          gomobile bind -ldflags="-s -w" -o ../../android/libmiru-core.aar -target=android -androidapi 28
 
       - run: flutter pub get
       # 打包apk
