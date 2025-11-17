@@ -3,9 +3,10 @@ output: "lib/generated_bindings.dart"
 headers:
   entry-points:
     - "src/miru_core/libmiru_core.h"
+description: "Bindings to MiruCore"
 name: MiruCore
 compiler-opts:
-  - "-I/usr/lib/clang/20/include"
+  - "-I/usr/lib/clang/21/include"
 preamble: |
   // ignore_for_file: always_specify_types
   // ignore_for_file: camel_case_types

@@ -82,7 +82,7 @@ typedef struct { void *data; GoInt len; GoInt cap; } GoSlice;
 extern "C" {
 #endif
 
-extern char* initDyLib(char* configPath);
+extern void initDyLib(char* configPath);
 
 #ifdef __cplusplus
 }

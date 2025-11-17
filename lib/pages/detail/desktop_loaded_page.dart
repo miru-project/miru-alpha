@@ -26,7 +26,7 @@ class DesktopLoadedPage extends HookWidget {
   Widget build(BuildContext context) {
     final url = detail.cover ?? '';
     final selected = useState(0);
-    return MiruScaffold(
+    return MiruScaffold.desktop(
       body: MiruListView(
         padding: EdgeInsets.all(20),
         children: [
