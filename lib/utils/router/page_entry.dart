@@ -29,3 +29,15 @@ class DetailParam {
   final ExtensionMeta meta;
   final String url;
 }
+
+class SearchPageParam {
+  final String? query;
+  final ExtensionMeta meta;
+  const SearchPageParam({this.query, required this.meta});
+}
+
+class WebviewParam {
+  final ExtensionMeta meta;
+  final String url;
+  const WebviewParam({required this.meta, required this.url});
+}

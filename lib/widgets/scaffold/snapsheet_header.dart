@@ -38,6 +38,12 @@ class SnapSheetNested extends StatelessWidget {
   final String title;
   final List<Widget> prefix;
   final List<Widget> suffix;
+
+  const SnapSheetNested.back({
+    super.key,
+    required this.title,
+    this.suffix = const <Widget>[],
+  }) : prefix = const <Widget>[HeaderBack()];
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -50,6 +56,27 @@ class SnapSheetNested extends StatelessWidget {
         if (suffix.isNotEmpty) const Spacer(),
         ...suffix,
       ],
+    );
+  }
+}
+
+class HeaderBack extends StatelessWidget {
+  const HeaderBack({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pop();
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(right: 12.0, top: 4),
+        child: Icon(
+          FIcons.chevronLeft,
+          size: 28,
+          color: context.theme.colors.primary,
+        ),
+      ),
     );
   }
 }

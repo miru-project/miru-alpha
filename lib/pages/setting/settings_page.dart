@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/pages/setting/setting_core.dart';
 import 'package:miru_app_new/pages/setting/setting_general.dart';
 import 'package:miru_app_new/pages/setting/widget/setting_scaffold.dart';
@@ -178,6 +179,21 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
                     // details: const Text('Forus Labs (5G)'),
                     suffix: Icon(FIcons.chevronRight),
                     onPress: () {},
+                  ),
+                ],
+              ),
+              FTileGroup(
+                label: Text("About"),
+                // description: const Text('Personalize your experience'),
+                children: [
+                  FTile(
+                    prefix: Icon(FIcons.code),
+                    title: const Text('Licenses'),
+                    // details: const Text('Forus Labs (5G)'),
+                    suffix: Icon(FIcons.chevronRight),
+                    onPress: () {
+                      context.push('/license');
+                    },
                   ),
                 ],
               ),

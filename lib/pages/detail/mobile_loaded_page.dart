@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:forui_hooks/forui_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/pages/detail/widget/mobile_detail_silverlist.dart';
 import 'package:miru_app_new/pages/detail/widget/mobile_detail_tabs.dart';
-import 'package:miru_app_new/utils/router/router_util.dart';
+import 'package:miru_app_new/provider/detail_page_provider.dart';
+import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
@@ -45,7 +47,53 @@ class MobileLoadedPage extends HookConsumerWidget {
               ),
             ),
             // FSelectMenuTile(title: Text(detail.episodes.toString()), menu: []),
-            Spacer(),
+            Expanded(
+              child: HookConsumer(
+                builder: (context, ref, _) {
+                  final selectedEpGroup = ref.watch(
+                    detailPageProviderProvider.select((e) => e.epGroupIdx),
+                  );
+                  final controller = useFPopoverController();
+
+                  return FPopoverMenu.tiles(
+                    menuAnchor: .topCenter,
+                    menu: [
+                      FTileGroup.builder(
+                        tileBuilder: (context, idx) {
+                          return FTile(
+                            onPress: () {
+                              ref
+                                  .read(detailPageProviderProvider.notifier)
+                                  .setEpGroup(idx);
+                              controller.toggle();
+                            },
+                            title: Text(detail.episodes![idx].title),
+                          );
+                        },
+                        count: detail.episodes?.length ?? 0,
+                      ),
+                    ],
+                    popoverController: controller,
+                    child: FButton(
+                      suffix: Icon(
+                        FIcons.chevronsUpDown,
+                        color: context.theme.colors.primary,
+                      ),
+                      mainAxisAlignment: .start,
+                      style: FButtonStyle.ghost(),
+                      onPress: () {
+                        controller.toggle();
+                      },
+                      child: Text(
+                        detail.episodes?[selectedEpGroup].title ??
+                            "No Episode ",
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
             FButton.icon(
               style: FButtonStyle.ghost(),
               onPress: () {
@@ -79,6 +127,7 @@ class MobileLoadedPage extends HookConsumerWidget {
           SliverToBoxAdapter(
             child: Column(
               children: [
+                SizedBox(height: 20),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -99,7 +148,10 @@ class MobileLoadedPage extends HookConsumerWidget {
                           children: [
                             FLabel(
                               axis: Axis.vertical,
-                              description: Text(meta.name),
+                              description: Text(
+                                "${meta.name} * ${meta.type.name}",
+                                style: TextStyle(height: 1.3),
+                              ),
                               child: Text(
                                 detail.title,
                                 style: TextStyle(
@@ -109,6 +161,17 @@ class MobileLoadedPage extends HookConsumerWidget {
                                 ),
                                 maxLines: 3,
                               ),
+                            ),
+                            SizedBox(height: 10),
+                            Wrap(
+                              spacing: 10,
+                              children: [
+                                FBadge(child: Text('Favgroup 1')),
+                                FBadge(
+                                  style: FBadgeStyle.secondary(),
+                                  child: Text('Favgroup 2'),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -124,6 +187,7 @@ class MobileLoadedPage extends HookConsumerWidget {
             meta: meta,
             detailUrl: detailUrl,
           ),
+          SliverToBoxAdapter(child: SizedBox(height: 300)),
         ],
       ),
     );

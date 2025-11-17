@@ -23,18 +23,19 @@ class MobileDetailTabs extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 10, vertical: 10),
             child: Text(
               detail.desc ?? 'No Description',
               textAlign: TextAlign.start,
+              style: TextStyle(height: 1.4, fontWeight: .w600),
             ),
           ),
         ],
       ),
       // Tracking
-      Placeholder(),
+      Text('WIP'),
       // Cast
-      Placeholder(),
+      Text("WIP"),
     ];
     return FTabs(
       children: List.generate(

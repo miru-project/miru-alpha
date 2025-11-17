@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/pages/detail/detail_loading_page.dart';
+import 'package:miru_app_new/pages/license/license_page.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import '../../../pages/anilist_webview.dart';
 import '../../../pages/download_page.dart';
@@ -50,6 +50,7 @@ class RouterUtil {
     navigatorKey: rootNavigatorKey,
     routes: [
       GoRoute(path: '/', redirect: (context, state) => '/home'),
+      GoRoute(path: '/license', builder: (context, state) => MiruLicensePage()),
       GoRoute(
         path: '/watch',
         builder: (context, state) {
@@ -193,16 +194,4 @@ class RouterUtil {
       ),
     ],
   );
-}
-
-class SearchPageParam {
-  final String? query;
-  final ExtensionMeta meta;
-  const SearchPageParam({this.query, required this.meta});
-}
-
-class WebviewParam {
-  final ExtensionMeta meta;
-  final String url;
-  const WebviewParam({required this.meta, required this.url});
 }

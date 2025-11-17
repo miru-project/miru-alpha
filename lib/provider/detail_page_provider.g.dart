@@ -42,7 +42,7 @@ final class DetailPageProviderProvider
 }
 
 String _$detailPageProviderHash() =>
-    r'be46518217220abd65ff2755b1299852735a6ebe';
+    r'7d6796c0d4419db4b40dcf970374ac5981f7495f';
 
 abstract class _$DetailPageProvider extends $Notifier<DetailPageProviderState> {
   DetailPageProviderState build();
