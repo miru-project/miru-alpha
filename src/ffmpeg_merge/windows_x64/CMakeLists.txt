@@ -11,9 +11,9 @@ add_library(ffmpeg_merge SHARED ${CMAKE_CURRENT_SOURCE_DIR}/../cpp/main.cpp)
 
 # Setting FFmpeg library
 set(LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-set(FFMPEG_URL "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n7.1-latest-win64-lgpl-shared-7.1.zip")
+set(FFMPEG_URL "https://sourceforge.net/projects/avbuild/files/windows-desktop/ffmpeg-8.0-mingw-gcc-lite.tar.xz/download")
 set(FFMPEG_ZIP "${LIB_PATH}/ffmpeg.zip")
-set(FFMPEG_ROOT "${LIB_PATH}/ffmpeg-n7.1-latest-win64-lgpl-shared-7.1")
+set(FFMPEG_ROOT "${LIB_PATH}/ffmpeg-8.0-mingw-gcc-lite")
 
 # Create directory if it doesn't exist
 if(NOT EXISTS "${LIB_PATH}")
@@ -38,7 +38,7 @@ endif()
 message(STATUS "FFmpeg root directory: ${FFMPEG_ROOT}")
 
 # Debug - list contents of the FFmpeg lib directory to verify library names
-file(GLOB FFMPEG_LIB_FILES "${FFMPEG_ROOT}/lib/*.lib")
+file(GLOB FFMPEG_LIB_FILES "${FFMPEG_ROOT}/lib/x86_64/*.lib")
 message(STATUS "Available FFmpeg libraries:")
 foreach(lib_file ${FFMPEG_LIB_FILES})
     message(STATUS "Found library: ${lib_file}")
@@ -49,13 +49,13 @@ include_directories(${FFMPEG_ROOT}/include)
 link_directories(${FFMPEG_ROOT}/lib)
 
 # Set direct paths to each library file to ensure they are found during linkage
-set(AVCODEC_LIB "${FFMPEG_ROOT}/lib/avcodec.lib")
-set(AVFORMAT_LIB "${FFMPEG_ROOT}/lib/avformat.lib")
-set(AVFILTER_LIB "${FFMPEG_ROOT}/lib/avfilter.lib")
-set(AVDEVICE_LIB "${FFMPEG_ROOT}/lib/avdevice.lib")
-set(SWRESAMPLE_LIB "${FFMPEG_ROOT}/lib/swresample.lib")
-set(SWSCALE_LIB "${FFMPEG_ROOT}/lib/swscale.lib")
-set(AVUTIL_LIB "${FFMPEG_ROOT}/lib/avutil.lib")
+set(AVCODEC_LIB "${FFMPEG_ROOT}/lib/x86_64/avcodec.lib")
+set(AVFORMAT_LIB "${FFMPEG_ROOT}/lib/x86_64/avformat.lib")
+set(AVFILTER_LIB "${FFMPEG_ROOT}/lib/x86_64/avfilter.lib")
+set(AVDEVICE_LIB "${FFMPEG_ROOT}/lib/x86_64/avdevice.lib")
+set(SWRESAMPLE_LIB "${FFMPEG_ROOT}/lib/x86_64/swresample.lib")
+set(SWSCALE_LIB "${FFMPEG_ROOT}/lib/x86_64/swscale.lib")
+set(AVUTIL_LIB "${FFMPEG_ROOT}/lib/x86_64/avutil.lib")
 
 # Verify the libraries exist
 foreach(lib ${AVCODEC_LIB} ${AVFORMAT_LIB} ${AVFILTER_LIB} ${AVDEVICE_LIB} ${SWRESAMPLE_LIB} ${SWSCALE_LIB} ${AVUTIL_LIB})
@@ -83,13 +83,13 @@ target_compile_definitions(ffmpeg_merge PRIVATE
 )
 
 # Copy FFmpeg DLLs to the output directory
-file(GLOB FFMPEG_DLLS "${FFMPEG_ROOT}/bin/*.dll")
+file(GLOB FFMPEG_DLLS "${FFMPEG_ROOT}/bin/x86_64/*.dll")
 file(COPY ${FFMPEG_DLLS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 # Add post-build command to copy DLLs to binary directory if needed
 add_custom_command(TARGET ffmpeg_merge POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${FFMPEG_ROOT}/bin"
+    "${FFMPEG_ROOT}/bin/x86_64"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
     COMMENT "Copying FFmpeg DLLs to output directory"
 )
