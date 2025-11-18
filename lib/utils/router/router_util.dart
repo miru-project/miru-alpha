@@ -37,6 +37,23 @@ class RouterUtil {
     return MaterialPage(key: state.pageKey, child: child);
   }
 
+  static Route<void> createRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0);
+        const end = Offset.zero;
+        final tween = Tween(
+          begin: begin,
+          end: end,
+        ).chain(CurveTween(curve: Curves.ease));
+        final offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(position: offsetAnimation, child: child);
+      },
+    );
+  }
+
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final GoRoute _buildDetail = GoRoute(
     path: 'detail',
@@ -141,11 +158,14 @@ class RouterUtil {
                 routes: [
                   GoRoute(
                     path: 'single',
-                    builder: (context, state) {
+                    pageBuilder: (context, state) {
                       final extra = state.extra as SearchPageParam;
-                      return SearchPageSingleView(
-                        query: extra.query,
-                        meta: extra.meta,
+                      return getPage(
+                        state: state,
+                        child: SearchPageSingleView(
+                          query: extra.query,
+                          meta: extra.meta,
+                        ),
                       );
                     },
                     routes: [_buildDetail],

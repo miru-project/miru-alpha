@@ -21,6 +21,7 @@ import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/core/miru_directory.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
+import 'package:miru_app_new/utils/router/transition.dart';
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -192,6 +193,17 @@ class _App extends ConsumerState<App> {
       data: c.themeData,
       child: FToaster(
         child: MaterialApp.router(
+          theme: ThemeData(
+            useMaterial3: true,
+            pageTransitionsTheme: const PageTransitionsTheme(
+              builders: <TargetPlatform, PageTransitionsBuilder>{
+                .android: SlideRightPageTransitionsBuilder(),
+                .iOS: SlideRightPageTransitionsBuilder(),
+                .linux: OpenUpwardsPageTransitionsBuilder(),
+                .macOS: FadeUpwardsPageTransitionsBuilder(),
+              },
+            ),
+          ),
           themeMode: c.themeMode,
           title: 'Miru',
           routerConfig: RouterUtil.appRouter,
