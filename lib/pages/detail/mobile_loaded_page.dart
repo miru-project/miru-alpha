@@ -47,53 +47,7 @@ class MobileLoadedPage extends HookConsumerWidget {
               ),
             ),
             // FSelectMenuTile(title: Text(detail.episodes.toString()), menu: []),
-            Expanded(
-              child: HookConsumer(
-                builder: (context, ref, _) {
-                  final selectedEpGroup = ref.watch(
-                    detailPageProviderProvider.select((e) => e.epGroupIdx),
-                  );
-                  final controller = useFPopoverController();
-
-                  return FPopoverMenu.tiles(
-                    menuAnchor: .topCenter,
-                    menu: [
-                      FTileGroup.builder(
-                        tileBuilder: (context, idx) {
-                          return FTile(
-                            onPress: () {
-                              ref
-                                  .read(detailPageProviderProvider.notifier)
-                                  .setEpGroup(idx);
-                              controller.toggle();
-                            },
-                            title: Text(detail.episodes![idx].title),
-                          );
-                        },
-                        count: detail.episodes?.length ?? 0,
-                      ),
-                    ],
-                    popoverController: controller,
-                    child: FButton(
-                      suffix: Icon(
-                        FIcons.chevronsUpDown,
-                        color: context.theme.colors.primary,
-                      ),
-                      mainAxisAlignment: .start,
-                      style: FButtonStyle.ghost(),
-                      onPress: () {
-                        controller.toggle();
-                      },
-                      child: Text(
-                        detail.episodes?[selectedEpGroup].title ??
-                            "No Episode ",
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
+            Spacer(),
             FButton.icon(
               style: FButtonStyle.ghost(),
               onPress: () {
@@ -143,8 +97,8 @@ class MobileLoadedPage extends HookConsumerWidget {
                       child: Padding(
                         padding: EdgeInsetsGeometry.only(top: 10),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: .spaceBetween,
+                          crossAxisAlignment: .start,
                           children: [
                             FLabel(
                               axis: Axis.vertical,

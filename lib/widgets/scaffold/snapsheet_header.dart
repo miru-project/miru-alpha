@@ -52,6 +52,7 @@ class SnapSheetNested extends StatelessWidget {
         Text(
           title,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+          overflow: .ellipsis,
         ),
         if (suffix.isNotEmpty) const Spacer(),
         ...suffix,

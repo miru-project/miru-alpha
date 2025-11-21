@@ -4,6 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
+import 'package:miru_app_new/pages/video_player/widget/mobile_footer.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
@@ -276,7 +277,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
   }
 
   void close() {
-    WindowManager.instance.setAlwaysOnTop(false);
+    if (!DeviceUtil.isMobile) WindowManager.instance.setAlwaysOnTop(false);
     context.pop();
   }
 
@@ -294,14 +295,20 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
               // color: Colors.transparent,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               child: _hasOriented
-                  ? Header(
+                  ? PlayerHeader(
                       titleSize: 20,
                       subTitleSize: 12,
                       iconSize: 20,
                       onClose: close,
                       episodeProvider: widget.epProvider,
+                      vidPr: widget.vidPr,
                     )
-                  : Header(onClose: close, episodeProvider: widget.epProvider),
+                  : PlayerHeader(
+                      titleSize: 10,
+                      onClose: close,
+                      episodeProvider: widget.epProvider,
+                      vidPr: widget.vidPr,
+                    ),
             ),
             Consumer(
               builder: (context, ref, child) {
@@ -322,9 +329,15 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
                 );
               },
             ),
-            DesktopPlayerFooter(
-              vidPr: widget.vidPr,
-              epProvdier: widget.epProvider,
+            DeviceUtil.platformWidget(
+              desktop: DesktopPlayerFooter(
+                vidPr: widget.vidPr,
+                epProvider: widget.epProvider,
+              ),
+              mobile: MobilePlayerFooter(
+                vidPr: widget.vidPr,
+                epProvider: widget.epProvider,
+              ),
             ),
           ],
         );

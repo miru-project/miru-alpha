@@ -3,40 +3,116 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
-class MiruLicensePage extends StatelessWidget {
-  MiruLicensePage({super.key});
+class MiruLicensePage extends StatefulWidget {
+  const MiruLicensePage({super.key});
 
-  final licenseMap = <Iterable<String>, Iterable<LicenseParagraph>>{};
+  @override
+  State<MiruLicensePage> createState() => _MiruLicensePageState();
+}
+
+class _MiruLicensePageState extends State<MiruLicensePage> {
+  late final Future<List<LicenseEntry>> _licensesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _licensesFuture = LicenseRegistry.licenses.toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MiruScaffold(
       mobileHeader: SnapSheetNested.back(title: 'License'),
-
-      body: FutureBuilder(
-        future: LicenseRegistry.licenses.toList(),
+      body: FutureBuilder<List<LicenseEntry>>(
+        future: _licensesFuture,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final licenses = snapshot.data!;
-            for (var entry in licenses) {
-              final paragraph = licenseMap[entry.packages] ?? [];
-              if (!licenseMap.containsKey(entry.packages)) {
-                licenseMap[entry.packages] = entry.paragraphs;
-                continue;
-              }
-              licenseMap[entry.packages] = [...paragraph, ...entry.paragraphs];
-            }
-
-            final processedLicense = licenseMap.keys.toList();
-            return FTileGroup.builder(
-              count: processedLicense.length,
-              tileBuilder: (context, index) {
-                final pkg = processedLicense[index];
-                final value = licenseMap[pkg]!;
-                return FTile(title: Text(pkg.first));
-              },
-            );
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
           }
-          return Container();
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No licenses found'));
+          }
+
+          final licenses = snapshot.data!;
+          final Map<String, List<LicenseParagraph>> packageLicenses = {};
+
+          for (final entry in licenses) {
+            for (final package in entry.packages) {
+              if (!packageLicenses.containsKey(package)) {
+                packageLicenses[package] = [];
+              }
+              packageLicenses[package]!.addAll(entry.paragraphs);
+            }
+          }
+
+          final sortedPackages = packageLicenses.keys.toList()
+            ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
+          return FTileGroup.builder(
+            count: sortedPackages.length,
+            tileBuilder: (context, index) {
+              final packageName = sortedPackages[index];
+              final paragraphs = packageLicenses[packageName]!;
+
+              return FTile(
+                title: Text(packageName),
+                subtitle: Text('${paragraphs.length} paragraphs'),
+                onPress: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => _LicenseDetailPage(
+                        packageName: packageName,
+                        paragraphs: paragraphs,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _LicenseDetailPage extends StatelessWidget {
+  final String packageName;
+  final List<LicenseParagraph> paragraphs;
+
+  const _LicenseDetailPage({
+    required this.packageName,
+    required this.paragraphs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MiruScaffold(
+      mobileHeader: SnapSheetNested.back(title: packageName),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: paragraphs.length,
+        itemBuilder: (context, index) {
+          final paragraph = paragraphs[index];
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: 12,
+              left: paragraph.indent == LicenseParagraph.centeredIndent
+                  ? 0
+                  : paragraph.indent * 16.0,
+            ),
+            child: Text(
+              paragraph.text,
+              textAlign: paragraph.indent == LicenseParagraph.centeredIndent
+                  ? TextAlign.center
+                  : TextAlign.left,
+            ),
+          );
         },
       ),
     );

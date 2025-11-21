@@ -63,3 +63,4 @@ src/ffmpeg_merge/windows_x64/ffmpeg-8.0-mingw-gcc-lite
 /src/ffmpeg_merge/**/*.tar.xz
 miru
 src/miru_core/miru-core
+flutter_*.png

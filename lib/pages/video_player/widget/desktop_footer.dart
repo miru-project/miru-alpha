@@ -16,10 +16,10 @@ class DesktopPlayerFooter extends StatelessWidget {
   const DesktopPlayerFooter({
     super.key,
     required this.vidPr,
-    required this.epProvdier,
+    required this.epProvider,
   });
   final VideoPlayerNotifierProvider vidPr;
-  final EpisodeNotifierProvider epProvdier;
+  final EpisodeNotifierProvider epProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class DesktopPlayerFooter extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SeekBar(vidPr: vidPr),
-                DesktopPlayerFooterMenu(vidPr: vidPr, epProvdier: epProvdier),
+                DesktopPlayerFooterMenu(vidPr: vidPr, epProvdier: epProvider),
               ],
             ),
           ),
@@ -122,92 +122,17 @@ class DesktopPlayerFooterMenu extends HookConsumerWidget {
           ],
         ),
         Spacer(),
-        // Obx(() {
-        //   if (controller.currentQuality.value.isEmpty) {
-        //     return const SizedBox.shrink();
-        //   }
-        //   return FilledButton.tonal(
-        //     onPressed: () {
-        //       if (controller.qualityMap.isEmpty) {
-        //         controller.sendMessage(
-        //           Message(
-        //             Text(
-        //               'video.no-qualities'.i18n,
-        //             ),
-        //           ),
-        //         );
-        //         return;
-        //       }
-        //       controller.toggleSideBar(SidebarTab.qualitys);
-        //     },
-        //     style: ButtonStyle(
-        //       padding: MaterialStateProperty.all(
-        //         const EdgeInsets.symmetric(
-        //           horizontal: 10,
-        //           vertical: 5,
-        //         ),
-        //       ),
-        //     ),
-        //     child: Text(
-        //       controller.currentQuality.value,
-        //       style: const TextStyle(
-        //         fontSize: 14,
-        //         fontWeight: FontWeight.w300,
-        //       ),
-        //     ),
-        //   );
-        // }),
-        // 倍速
         Row(
           children: [
             const SizedBox(width: 10),
             FPopover(
               onTapHide: () => speedPopOverController.hide(),
               controller: speedPopOverController,
-              // onTapOutside: () {
-              //   isspeedToggled.value = false;
-              // },
-              // show: isspeedToggled.value,
               popoverBuilder: (context, ctrller) => InnerCard(
                 title: "Adjust playback speed",
                 child: SizedBox(
                   width: 200,
-                  child: FItemGroup(
-                    maxHeight: 150,
-                    children: [
-                      FItem(
-                        prefix: Icon(FIcons.user),
-                        title: const Text('Personalization'),
-                        suffix: Icon(FIcons.chevronRight),
-                        onPress: () {},
-                      ),
-                      FItem(
-                        prefix: Icon(FIcons.mail),
-                        title: const Text('Mail'),
-                        suffix: Icon(FIcons.chevronRight),
-                        onPress: () {},
-                      ),
-                      FItem(
-                        prefix: Icon(FIcons.wifi),
-                        title: const Text('WiFi'),
-                        details: const Text('Forus Labs (5G)'),
-                        suffix: Icon(FIcons.chevronRight),
-                        onPress: () {},
-                      ),
-                      FItem(
-                        prefix: Icon(FIcons.alarmClock),
-                        title: const Text('Alarm Clock'),
-                        suffix: Icon(FIcons.chevronRight),
-                        onPress: () {},
-                      ),
-                      FItem(
-                        prefix: Icon(FIcons.qrCode),
-                        title: const Text('QR code'),
-                        suffix: Icon(FIcons.chevronRight),
-                        onPress: () {},
-                      ),
-                    ],
-                  ),
+                  child: FItemGroup(maxHeight: 150, children: []),
                 ),
               ),
               child: FButton.icon(
