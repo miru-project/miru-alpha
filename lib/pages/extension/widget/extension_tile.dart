@@ -7,11 +7,28 @@ import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/widgets/core/toast.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
-
 class ExtensionTile extends HookConsumerWidget with FTileMixin {
   final GithubExtension data;
   final String repoUrl;
   const ExtensionTile({super.key, required this.data, required this.repoUrl});
+
+  void oninstall(
+    GithubExtension data,
+    String repoUrl,
+    ExtensionPageNotifier notifier,
+  ) async {
+    await notifier.installPackage(data.package, repoUrl);
+    iconsMessageToast("Installed ${data.name}", FIcons.blocks, 1);
+  }
+
+  void onuninstall(
+    GithubExtension data,
+    String repoUrl,
+    ExtensionPageNotifier notifier,
+  ) async {
+    await notifier.uninstallPackage(data.package);
+    iconsMessageToast("Uninstalled ${data.name}", FIcons.blocks, 1);
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -30,14 +47,8 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
         author: data.author,
         type: data.type,
         icon: data.icon,
-        onInstall: () async {
-          await notifier.installPackage(data.package, repoUrl);
-          iconsMessageToast("Installed ${data.name}", FIcons.blocks);
-        },
-        onUninstall: () async {
-          await notifier.uninstallPackage(data.package);
-          iconsMessageToast("Uninstalled ${data.name}", FIcons.blocks);
-        },
+        onInstall: () => oninstall(data, repoUrl, notifier),
+        onUninstall: () => onuninstall(data, repoUrl, notifier),
       ),
       desktop: ExtensionGridTile(
         isNSFW: data.isNsfw,
@@ -47,14 +58,8 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
         author: data.author,
         type: data.type,
         icon: data.icon,
-        onInstall: () async {
-          await notifier.installPackage(data.package, repoUrl);
-          iconsMessageToast("Installed ${data.name}", FIcons.blocks);
-        },
-        onUninstall: () async {
-          await notifier.uninstallPackage(data.package);
-          iconsMessageToast("Uninstalled ${data.name}", FIcons.blocks);
-        },
+        onInstall: () => oninstall(data, repoUrl, notifier),
+        onUninstall: () => onuninstall(data, repoUrl, notifier),
       ),
     );
   }

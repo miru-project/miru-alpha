@@ -9,18 +9,25 @@ void showSimpleToast(String title, [int duration = 3]) {
   showFToast(
     duration: Duration(seconds: duration),
     context: ctx,
-    title: Text(title),
+    title: Text(
+      title,
+      style: TextStyle(color: ctx.theme.colors.primaryForeground),
+    ),
     alignment: FToastAlignment.bottomCenter,
   );
 }
 
-void iconsMessageToast(String title, IconData icon) {
+void iconsMessageToast(String title, IconData icon, [int duration = 3]) {
   final ctx = RouterUtil.rootNavigatorKey.currentContext;
   if (ctx == null) return;
   showFToast(
     context: ctx,
-    title: Text(title),
-    icon: Icon(icon, color: ctx.theme.colors.primaryForeground),
+    title: Text(
+      title,
+      style: TextStyle(color: ctx.theme.colors.primaryForeground),
+    ),
+    icon: Icon(icon, color: ctx.theme.colors.primary),
+    duration: Duration(seconds: duration),
     alignment: FToastAlignment.bottomCenter,
   );
 }

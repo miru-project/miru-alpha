@@ -6,14 +6,13 @@ import 'package:flutter_hls_parser/flutter_hls_parser.dart';
 import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/network/index.dart';
-// import 'package:miru_app_new/utils/network/request.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_app_new/model/index.dart';
 
 part 'network_provider.g.dart';
 
 @riverpod
-Future<Object> videoLoad(
+Future<Object> watch(
   Ref ref,
   String url,
   String pkg,
@@ -83,30 +82,6 @@ Future<List<ExtensionListItem>> fetchExtensionSearchLatest(
     page,
     filter: filter,
   );
-  return result;
-}
-
-@riverpod
-Future<ExtensionMangaWatch> mangaLoad(
-  Ref ref,
-  String url,
-  String pkg,
-  ExtensionType type,
-) async {
-  final result =
-      await MiruCoreEndpoint.watch(url, pkg, type) as ExtensionMangaWatch;
-  return result;
-}
-
-@riverpod
-Future<ExtensionFikushonWatch> fikushonLoad(
-  Ref ref,
-  String url,
-  String pkg,
-  ExtensionType type,
-) async {
-  final result =
-      await MiruCoreEndpoint.watch(url, pkg, type) as ExtensionFikushonWatch;
   return result;
 }
 

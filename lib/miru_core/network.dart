@@ -186,6 +186,10 @@ class MiruCoreEndpoint {
         final result = ExtensionMangaWatch.fromJson(data);
         // result.headers ??= await _defaultHeaders;
         return result;
+      case ExtensionType.fikushon:
+        final result = ExtensionFikushonWatch.fromJson(data);
+        // result.headers ??= await _defaultHeaders;
+        return result;
       default:
         throw (Exception('Unknown media type'));
     }

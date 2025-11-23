@@ -9,29 +9,29 @@ part of 'network_provider.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(videoLoad)
-const videoLoadProvider = VideoLoadFamily._();
+@ProviderFor(watch)
+const watchProvider = WatchFamily._();
 
-final class VideoLoadProvider
+final class WatchProvider
     extends $FunctionalProvider<AsyncValue<Object>, Object, FutureOr<Object>>
     with $FutureModifier<Object>, $FutureProvider<Object> {
-  const VideoLoadProvider._({
-    required VideoLoadFamily super.from,
+  const WatchProvider._({
+    required WatchFamily super.from,
     required (String, String, ExtensionType) super.argument,
   }) : super(
          retry: null,
-         name: r'videoLoadProvider',
+         name: r'watchProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$videoLoadHash();
+  String debugGetCreateSourceHash() => _$watchHash();
 
   @override
   String toString() {
-    return r'videoLoadProvider'
+    return r'watchProvider'
         ''
         '$argument';
   }
@@ -44,12 +44,12 @@ final class VideoLoadProvider
   @override
   FutureOr<Object> create(Ref ref) {
     final argument = this.argument as (String, String, ExtensionType);
-    return videoLoad(ref, argument.$1, argument.$2, argument.$3);
+    return watch(ref, argument.$1, argument.$2, argument.$3);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is VideoLoadProvider && other.argument == argument;
+    return other is WatchProvider && other.argument == argument;
   }
 
   @override
@@ -58,28 +58,28 @@ final class VideoLoadProvider
   }
 }
 
-String _$videoLoadHash() => r'7dd2b930943505dfd73231571c4a4ffb163b8a62';
+String _$watchHash() => r'c8ae404747f5cd7bd42b7fc8b844333c8f9a7c7e';
 
-final class VideoLoadFamily extends $Family
+final class WatchFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<Object>,
           (String, String, ExtensionType)
         > {
-  const VideoLoadFamily._()
+  const WatchFamily._()
     : super(
         retry: null,
-        name: r'videoLoadProvider',
+        name: r'watchProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  VideoLoadProvider call(String url, String pkg, ExtensionType type) =>
-      VideoLoadProvider._(argument: (url, pkg, type), from: this);
+  WatchProvider call(String url, String pkg, ExtensionType type) =>
+      WatchProvider._(argument: (url, pkg, type), from: this);
 
   @override
-  String toString() => r'videoLoadProvider';
+  String toString() => r'watchProvider';
 }
 
 @ProviderFor(fetchExtensionRepo)
@@ -488,166 +488,4 @@ final class FetchExtensionSearchLatestFamily extends $Family
 
   @override
   String toString() => r'fetchExtensionSearchLatestProvider';
-}
-
-@ProviderFor(mangaLoad)
-const mangaLoadProvider = MangaLoadFamily._();
-
-final class MangaLoadProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<ExtensionMangaWatch>,
-          ExtensionMangaWatch,
-          FutureOr<ExtensionMangaWatch>
-        >
-    with
-        $FutureModifier<ExtensionMangaWatch>,
-        $FutureProvider<ExtensionMangaWatch> {
-  const MangaLoadProvider._({
-    required MangaLoadFamily super.from,
-    required (String, String, ExtensionType) super.argument,
-  }) : super(
-         retry: null,
-         name: r'mangaLoadProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$mangaLoadHash();
-
-  @override
-  String toString() {
-    return r'mangaLoadProvider'
-        ''
-        '$argument';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<ExtensionMangaWatch> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<ExtensionMangaWatch> create(Ref ref) {
-    final argument = this.argument as (String, String, ExtensionType);
-    return mangaLoad(ref, argument.$1, argument.$2, argument.$3);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is MangaLoadProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$mangaLoadHash() => r'762b1472df8d65978c89a06f12edcb279595f10c';
-
-final class MangaLoadFamily extends $Family
-    with
-        $FunctionalFamilyOverride<
-          FutureOr<ExtensionMangaWatch>,
-          (String, String, ExtensionType)
-        > {
-  const MangaLoadFamily._()
-    : super(
-        retry: null,
-        name: r'mangaLoadProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  MangaLoadProvider call(String url, String pkg, ExtensionType type) =>
-      MangaLoadProvider._(argument: (url, pkg, type), from: this);
-
-  @override
-  String toString() => r'mangaLoadProvider';
-}
-
-@ProviderFor(fikushonLoad)
-const fikushonLoadProvider = FikushonLoadFamily._();
-
-final class FikushonLoadProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<ExtensionFikushonWatch>,
-          ExtensionFikushonWatch,
-          FutureOr<ExtensionFikushonWatch>
-        >
-    with
-        $FutureModifier<ExtensionFikushonWatch>,
-        $FutureProvider<ExtensionFikushonWatch> {
-  const FikushonLoadProvider._({
-    required FikushonLoadFamily super.from,
-    required (String, String, ExtensionType) super.argument,
-  }) : super(
-         retry: null,
-         name: r'fikushonLoadProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$fikushonLoadHash();
-
-  @override
-  String toString() {
-    return r'fikushonLoadProvider'
-        ''
-        '$argument';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<ExtensionFikushonWatch> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<ExtensionFikushonWatch> create(Ref ref) {
-    final argument = this.argument as (String, String, ExtensionType);
-    return fikushonLoad(ref, argument.$1, argument.$2, argument.$3);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is FikushonLoadProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$fikushonLoadHash() => r'2a57979cec1b776607c80d28adf7a31c18aca9cd';
-
-final class FikushonLoadFamily extends $Family
-    with
-        $FunctionalFamilyOverride<
-          FutureOr<ExtensionFikushonWatch>,
-          (String, String, ExtensionType)
-        > {
-  const FikushonLoadFamily._()
-    : super(
-        retry: null,
-        name: r'fikushonLoadProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  FikushonLoadProvider call(String url, String pkg, ExtensionType type) =>
-      FikushonLoadProvider._(argument: (url, pkg, type), from: this);
-
-  @override
-  String toString() => r'fikushonLoadProvider';
 }

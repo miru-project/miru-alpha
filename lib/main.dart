@@ -75,7 +75,12 @@ void main() {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       if (kReleaseMode) _bindErrorWidget();
 
-      runApp(ProviderScope(child: EntryLoadingState()));
+      runApp(
+        ProviderScope(
+          retry: (retryCount, error) => null,
+          child: EntryLoadingState(),
+        ),
+      );
     },
     (error, stack) {
       debugger();

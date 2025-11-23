@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/widgets/amination/animated_box.dart';
 
 class OutterCard extends StatelessWidget {
   const OutterCard({
@@ -41,17 +40,12 @@ class OutterCard extends StatelessWidget {
                   ],
                 ),
         ),
-        AnimatedBox(
-          child: SizedBox(
-            width: double.infinity,
-            child: FCard(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                child: LayoutBuilder(builder: (context, constraints) => child),
-              ),
+        SizedBox(
+          width: double.infinity,
+          child: FCard(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: LayoutBuilder(builder: (context, constraints) => child),
             ),
           ),
         ),

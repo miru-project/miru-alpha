@@ -1,5 +1,5 @@
 import 'package:miru_app_new/model/index.dart';
-// import 'package:miru_app_new/utils/store/database_service.dart';
+import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'epidsode_provider.g.dart';
 
@@ -48,25 +48,29 @@ class EpisodeNotifier extends _$EpisodeNotifier {
     bool flag,
   ) {
     ref.onDispose(() {
-      // DatabaseService.putHistory(
-      //   History(
-      //     title: state.name,
-      //     package: package,
-      //     type: EnumToString.convertToString(type),
-      //     episodeGroupId: state.selectedGroupIndex,
-      //     episodeId: state.selectedEpisodeIndex,
-      //     progress: state.selectedEpisodeIndex.toString(),
-      //     cover: imageUrl,
-      //     totalProgress: state.epGroup[state.selectedGroupIndex].urls.length
-      //         .toString(),
-      //     episodeTitle: state
-      //         .epGroup[state.selectedGroupIndex]
-      //         .urls[state.selectedEpisodeIndex]
-      //         .name,
-      //     url: detailUrl,
-      //     date: DateTime.now(),
-      //   ),
-      // );
+      try {
+        DatabaseService.putHistory(
+          History(
+            title: state.name,
+            package: package,
+            type: type.toString(),
+            episodeGroupId: state.selectedGroupIndex,
+            episodeId: state.selectedEpisodeIndex,
+            progress: state.selectedEpisodeIndex.toString(),
+            cover: imageUrl,
+            totalProgress: state.epGroup[state.selectedGroupIndex].urls.length
+                .toString(),
+            episodeTitle: state
+                .epGroup[state.selectedGroupIndex]
+                .urls[state.selectedEpisodeIndex]
+                .name,
+            url: detailUrl,
+            date: DateTime.now(),
+          ),
+        );
+      } catch (e) {
+        // ignore
+      }
     });
 
     return EpisodeNotifierState(
@@ -85,17 +89,15 @@ class EpisodeNotifier extends _$EpisodeNotifier {
     );
   }
 
-  // void putinformation(
-  //   ExtensionType type,
-  //   String package,
-  //   String imageUrl,
-  //   String detailUrl,
-  // ) {
-  //   this.package = package;
-  //   this.type = type;
-  //   this.imageUrl = imageUrl;
-  //   this.detailUrl = detailUrl;
-  // }
-
-  // dispose behavior moved to ref.onDispose in build()
+  void putInformation(
+    ExtensionType type,
+    String package,
+    String imageUrl,
+    String detailUrl,
+  ) {
+    this.package = package;
+    this.type = type;
+    this.imageUrl = imageUrl;
+    this.detailUrl = detailUrl;
+  }
 }

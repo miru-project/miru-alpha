@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
-// import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/watch/subtitle.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:video_player/video_player.dart';
@@ -177,13 +176,10 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
 
   void changeVideoQuality(String url) {
     vidController.pause();
+    vidController.removeListener(_updatePosition);
     vidController.dispose();
-    final controller = VideoPlayerController.networkUrl(Uri.parse(url));
-    state = state.copyWith(
-      controller: controller,
-      duration: controller.value.duration,
-      buffered: controller.value.buffered,
-    );
+    vidController = VideoPlayerController.networkUrl(Uri.parse(url));
+
     vidController.initialize().then((_) {
       vidController.addListener(_updatePosition);
       vidController.play();

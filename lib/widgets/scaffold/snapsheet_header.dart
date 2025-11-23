@@ -51,6 +51,7 @@ class SnapSheetNested extends StatelessWidget {
         ...prefix,
         Text(
           title,
+          maxLines: 1,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
           overflow: .ellipsis,
         ),

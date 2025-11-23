@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/pages/video_player/video_player.dart';
+import 'package:miru_app_new/pages/watch/video_player/video_player.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
 import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'package:miru_app_new/pages/video_player/widget/seek_bar.dart';
+import 'package:miru_app_new/pages/watch/video_player/widget/seek_bar.dart';
 
 class MobilePlayerFooter extends StatelessWidget {
   const MobilePlayerFooter({

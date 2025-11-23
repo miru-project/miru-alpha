@@ -1,140 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/pages/video_player/widget/mobile_footer.dart';
-import 'package:miru_app_new/provider/application_controller_provider.dart';
+import 'package:miru_app_new/pages/watch/video_player/widget/mobile_footer.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/widgets/error.dart';
-import 'package:miru_app_new/pages/video_player/widget/desktop_footer.dart';
-import 'package:miru_app_new/pages/video_player/widget/player_header.dart';
+import 'package:miru_app_new/pages/watch/video_player/widget/desktop_footer.dart';
+import 'package:miru_app_new/pages/watch/video_player/widget/player_header.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
-
-bool _hasOriented = false;
-
-class MiruVideoPlayer extends StatefulHookConsumerWidget {
-  const MiruVideoPlayer({
-    super.key,
-    required this.meta,
-    required this.selectedGroupIndex,
-    required this.selectedEpisodeIndex,
-    required this.name,
-    required this.detailImageUrl,
-    required this.detailUrl,
-    required this.epGroup,
-  });
-  final ExtensionMeta meta;
-  final String detailImageUrl;
-  final String detailUrl;
-  final List<ExtensionEpisodeGroup>? epGroup;
-  final int selectedGroupIndex;
-  final int selectedEpisodeIndex;
-  final String name;
-
-  @override
-  createState() => _MiruVideoPlayerState();
-}
-
-class _MiruVideoPlayerState extends ConsumerState<MiruVideoPlayer> {
-  late double maxHeight;
-  late double maxWidth;
-  @override
-  void dispose() {
-    if (_hasOriented) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    }
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final epProvider = episodeProvider(
-      widget.selectedGroupIndex,
-      widget.selectedEpisodeIndex,
-      widget.epGroup ?? [],
-      widget.name,
-      false,
-    );
-
-    maxWidth = DeviceUtil.getWidth(context);
-    maxHeight = DeviceUtil.getHeight(context);
-
-    if (maxWidth < maxHeight) {
-      _hasOriented = true;
-      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
-    }
-    final epNotifier = ref.watch(epProvider);
-    if (epNotifier.epGroup.isEmpty) {
-      return Center(
-        child: Column(
-          children: [
-            const Text('Error: No episodes found'),
-            FButton.icon(
-              child: const Text('back'),
-              onPress: () {
-                context.pop();
-              },
-            ),
-          ],
-        ),
-      );
-    }
-    final url = epNotifier
-        .epGroup[epNotifier.selectedGroupIndex]
-        .urls[epNotifier.selectedEpisodeIndex]
-        .url;
-
-    return Consumer(
-      builder: (context, ref, child) {
-        final snapshot = ref.watch(
-          videoLoadProvider(url, widget.meta.packageName, widget.meta.type),
-        );
-        return FTheme(
-          data: ref.watch(applicationControllerProvider).themeData,
-          child: snapshot.when(
-            data: (value) {
-              return PlayerResolution(
-                epProvider: epProvider,
-                screenRatio: MediaQuery.of(context).size,
-                name: widget.name,
-                value: value as ExtensionBangumiWatch,
-                url: url,
-                meta: widget.meta,
-              );
-            },
-            error: (error, trace) => FScaffold(
-              child: Center(
-                child: ErrorDisplay(
-                  err: error,
-                  stack: trace,
-                  prefix: FButton(
-                    style: FButtonStyle.ghost(),
-                    prefix: Icon(FIcons.undo2),
-                    onPress: () {
-                      context.pop();
-                    },
-                    child: Text('Return'),
-                  ),
-                ),
-              ),
-            ),
-            loading: () => const Center(child: FCircularProgress()),
-          ),
-        );
-      },
-    );
-  }
-}
 
 class PlayerButton extends StatelessWidget {
   const PlayerButton({
@@ -156,24 +36,25 @@ class PlayerButton extends StatelessWidget {
   }
 }
 
-class PlayerResolution extends ConsumerWidget {
-  const PlayerResolution({
+class MiruVideoPlayer extends ConsumerWidget {
+  const MiruVideoPlayer({
     super.key,
     required this.name,
     required this.value,
     required this.url,
-    required this.screenRatio,
     required this.meta,
     required this.epProvider,
+    required this.hasOriented,
   });
   final ExtensionBangumiWatch value;
   final String name;
   final ExtensionMeta meta;
   final String url;
-  final Size screenRatio;
   final EpisodeNotifierProvider epProvider;
+  final bool hasOriented;
   @override
   Widget build(context, WidgetRef ref) {
+    final screenRatio = MediaQuery.of(context).size;
     final vidProvider = videoPlayerProvider(
       value.url,
       subtitlesRaw: value.subtitles,
@@ -202,7 +83,11 @@ class PlayerResolution extends ConsumerWidget {
         //subtitle text
         VideoPlayerSubtitle(vidProvider: vidProvider),
         //player controls ui
-        _VideoPlayer(vidPr: vidProvider, epProvider: epProvider),
+        _VideoPlayer(
+          vidPr: vidProvider,
+          epProvider: epProvider,
+          hasOriented: hasOriented,
+        ),
       ],
     );
   }
@@ -250,9 +135,14 @@ class VideoPlayerSubtitle extends ConsumerWidget {
 }
 
 class _VideoPlayer extends StatefulHookConsumerWidget {
-  const _VideoPlayer({required this.vidPr, required this.epProvider});
+  const _VideoPlayer({
+    required this.vidPr,
+    required this.epProvider,
+    required this.hasOriented,
+  });
   final VideoPlayerNotifierProvider vidPr;
   final EpisodeNotifierProvider epProvider;
+  final bool hasOriented;
   @override
   _DesktopVideoPlayerState createState() => _DesktopVideoPlayerState();
 }
@@ -294,7 +184,7 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
             DefaultTextStyle(
               // color: Colors.transparent,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-              child: _hasOriented
+              child: widget.hasOriented
                   ? PlayerHeader(
                       titleSize: 20,
                       subTitleSize: 12,

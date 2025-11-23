@@ -19,7 +19,7 @@ class DeviceUtil {
   }
 
   static bool isMobileLayout(BuildContext context) {
-    return MediaQuery.of(context).size.width < 800;
+    return MediaQuery.of(context).size.width < 640;
   }
 
   static T device<T>({

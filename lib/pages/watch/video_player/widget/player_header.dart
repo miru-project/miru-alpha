@@ -1,9 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/pages/video_player/video_player.dart';
-import 'package:miru_app_new/pages/video_player/widget/mobile_setting_sheet.dart';
+import 'package:miru_app_new/pages/watch/video_player/video_player.dart';
+import 'package:miru_app_new/pages/watch/video_player/widget/mobile_setting_sheet.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
@@ -91,7 +90,7 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
               // 置顶
               if (!DeviceUtil.isMobile) ...[
                 PlayerButton(
-                  onPressed: () async {
+                  onPressed: () {
                     WindowManager.instance.setAlwaysOnTop(!_isAlwaysOnTop);
                     setState(() {
                       _isAlwaysOnTop = !_isAlwaysOnTop;

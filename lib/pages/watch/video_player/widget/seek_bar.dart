@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:forui/theme.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:miru_app_new/pages/video_player/widget/seek_bar_thumb.dart';
+import 'package:miru_app_new/pages/watch/video_player/widget/seek_bar_thumb.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 
@@ -38,9 +38,7 @@ class SeekBar extends HookConsumerWidget {
       color: Colors.transparent,
       child: SliderTheme(
         data: SliderThemeData(
-          thumbShape: CustomSeekBarThumb(
-            mainColor: context.theme.colors.primary,
-          ),
+          thumbShape: SliderThumb(mainColor: context.theme.colors.primary),
           trackHeight: DeviceUtil.isMobile ? 5 : 7,
           activeTrackColor: context.theme.colors.primary,
           inactiveTrackColor: context.theme.colors.muted,

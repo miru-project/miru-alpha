@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/pages/detail/detail_loading_page.dart';
 import 'package:miru_app_new/pages/license/license_page.dart';
+import 'package:miru_app_new/pages/watch/load_entry.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import '../../../pages/anilist_webview.dart';
 import '../../../pages/download_page.dart';
@@ -10,11 +10,8 @@ import '../../../pages/home/favorite_page_desktop_layout.dart';
 import '../../../pages/home/history_page.dart';
 import '../../../pages/index.dart';
 import '../../../pages/main_page.dart';
-import '../../pages/manga_reader/manga_reader.dart';
 import '../../pages/webview/mobile_webview.dart';
-import '../../pages/novel_reader/novel_reader.dart';
 import '../../pages/search/search_page_single_view.dart';
-import '../../pages/video_player/video_player.dart';
 import '../../../pages/setting/setting_items.dart';
 
 class ParamCache {
@@ -72,38 +69,7 @@ class RouterUtil {
         path: '/watch',
         builder: (context, state) {
           final extra = state.extra! as WatchParams;
-          switch (extra.type) {
-            case ExtensionType.bangumi:
-              return MiruVideoPlayer(
-                name: extra.name,
-                detailImageUrl: extra.detailImageUrl,
-                selectedEpisodeIndex: extra.selectedEpisodeIndex,
-                selectedGroupIndex: extra.selectedGroupIndex,
-                meta: extra.meta,
-                detailUrl: extra.detailUrl,
-                epGroup: extra.epGroup,
-              );
-            case ExtensionType.manga:
-              return MiruMangaReader(
-                name: extra.name,
-                detailImageUrl: extra.detailImageUrl,
-                selectedEpisodeIndex: extra.selectedEpisodeIndex,
-                selectedGroupIndex: extra.selectedGroupIndex,
-                meta: extra.meta,
-                detailUrl: extra.detailUrl,
-                epGroup: extra.epGroup,
-              );
-            default:
-              return MiruNovelReader(
-                name: extra.name,
-                detailImageUrl: extra.detailImageUrl,
-                selectedEpisodeIndex: extra.selectedEpisodeIndex,
-                selectedGroupIndex: extra.selectedGroupIndex,
-                meta: extra.meta,
-                detailUrl: extra.detailUrl,
-                epGroup: extra.epGroup,
-              );
-          }
+          return WatchLoadEntry(param: extra);
         },
       ),
       GoRoute(

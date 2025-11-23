@@ -57,11 +57,13 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
           child: SettingExtension(),
         );
       case SideBarName.player:
-        return SettingPlayer();
+        // return SettingPlayer();
+        return Center();
       case SideBarName.miruCore:
         return SettingMiruCore();
       case SideBarName.reader:
-        return SettingReader();
+        // return SettingReader();
+        return Center();
       case SideBarName.advanced:
         return Center();
       case SideBarName.about:
@@ -69,7 +71,8 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
       case SideBarName.tracking:
         return Center();
       case SideBarName.download:
-        return SettingDownload();
+        // return SettingDownload();
+        return Center();
     }
   }
 
