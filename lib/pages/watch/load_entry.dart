@@ -100,7 +100,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     value: data,
                     url: url,
                     meta: meta,
-                    detailImageUrl: extra.detailImageUrl,
+                    // detailImageUrl: extra.detailImageUrl,
                     epProvider: epProvider,
                   );
                 default:

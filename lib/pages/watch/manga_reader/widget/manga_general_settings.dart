@@ -12,6 +12,7 @@ class MangaSettingGeneral extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FTileGroup(
+      label: Text('General'),
       children: [
         SettingsRadiosTile(
           isMobileLayout: true,

@@ -6,11 +6,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/pages/watch/manga_reader/widget/manag_image.dart';
+import 'package:miru_app_new/pages/watch/manga_reader/widget/manga_episodes.dart';
+import 'package:miru_app_new/pages/watch/manga_reader/widget/manga_page_settings.dart';
 import 'package:miru_app_new/pages/watch/manga_reader/widget/mobile_page_slider.dart';
-import 'package:miru_app_new/pages/watch/manga_reader/widget/settings.dart';
+import 'package:miru_app_new/pages/watch/manga_reader/widget/manga_general_settings.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/manga_reader_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -23,14 +24,14 @@ class MiruMangaReader extends HookConsumerWidget {
     required this.meta,
     required this.url,
     required this.epProvider,
-    required this.detailImageUrl,
+    // required this.detailImageUrl,
   });
   final ExtensionMangaWatch value;
   final String name;
   final ExtensionMeta meta;
   final String url;
   final EpisodeNotifierProvider epProvider;
-  final String detailImageUrl;
+  // final String detailImageUrl;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
@@ -48,76 +49,35 @@ class MiruMangaReader extends HookConsumerWidget {
       scrollController: scrollController,
       mobileHeader: SnapSheetNested.back(title: name),
       snapSheet: <Widget>[
-        if (DeviceUtil.getWidth(context) < 800)
-          //mobile
-          // Text(
-          //   epState.name,
-          //   maxLines: 1,
-          //   overflow: TextOverflow.ellipsis,
-          //   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-          // ),
-          // FButton(
-          //   style: FButtonStyle.ghost(),
-          //   onPress: () {
-          //     Navigator.of(context).pop();
-          //   },
-          //   child: Row(
-          //     children: [
-          //       const Icon(FIcons.chevronLeft),
-          //       const SizedBox(width: 10),
-          //       Expanded(
-          //         child: Column(
-          //           crossAxisAlignment: CrossAxisAlignment.start,
-          //           children: [
-          //             Text(
-          //               epState.name,
-          //               maxLines: 1,
-          //               overflow: TextOverflow.ellipsis,
-          //               style: const TextStyle(
-          //                 fontWeight: FontWeight.bold,
-          //                 fontSize: 20,
-          //               ),
-          //             ),
-          //             Text(epState.epGroup[epState.selectedGroupIndex].title),
-          //           ],
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          const SizedBox(height: 10),
         MangaMobilePageSlider(
           epProvider: epProvider,
           mangaProvider: mangaProvider,
         ),
         const SizedBox(height: 10),
-        SizedBox(
-          height: 300,
-          child: FTabs(
-            children: [
-              FTabEntry(
-                label: Icon(FIcons.tableOfContents),
-                child: const Center(child: Text('Chapter Settings')),
-              ),
-              FTabEntry(
-                label: Icon(FIcons.book),
-                child: const Center(child: Text('Page Settings')),
-              ),
-              FTabEntry(
-                label: Icon(FIcons.alignHorizontalJustifyEnd),
-                child: const Center(child: Text('Alignment Settings')),
-              ),
-              FTabEntry(
-                label: Icon(FIcons.settings),
-                child: MangaSettingGeneral(mangaProvider: mangaProvider),
-              ),
-            ],
-          ),
+        FTabs(
+          children: [
+            FTabEntry(
+              label: Icon(FIcons.tableOfContents),
+              child: Center(child: MangaEpisodes(epProvider: epProvider)),
+            ),
+            FTabEntry(
+              label: Icon(FIcons.book),
+              child: MangaPageSetting(mangaProvider: mangaProvider),
+            ),
+            FTabEntry(
+              label: Icon(FIcons.alignHorizontalJustifyEnd),
+              child: const Center(child: Text('Alignment Settings')),
+            ),
+            FTabEntry(
+              label: Icon(FIcons.settings),
+              child: MangaSettingGeneral(mangaProvider: mangaProvider),
+            ),
+          ],
         ),
       ],
       body: _MiruMangaReadView(
         data: value,
-        detailImageUrl: detailImageUrl,
+        // detailImageUrl: detailImageUrl,
         detailUrl: url,
         epProvider: epProvider,
         mangaProvider: mangaProvider,
@@ -129,13 +89,13 @@ class MiruMangaReader extends HookConsumerWidget {
 class _MiruMangaReadView extends StatefulHookConsumerWidget {
   const _MiruMangaReadView({
     required this.data,
-    required this.detailImageUrl,
+    // required this.detailImageUrl,
     required this.detailUrl,
     required this.epProvider,
     required this.mangaProvider,
   });
   final ExtensionMangaWatch data;
-  final String detailImageUrl;
+  // final String detailImageUrl;
   final String detailUrl;
   final EpisodeNotifierProvider epProvider;
   final MangaReaderProvider mangaProvider;

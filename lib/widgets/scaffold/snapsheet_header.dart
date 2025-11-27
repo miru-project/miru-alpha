@@ -46,18 +46,21 @@ class SnapSheetNested extends StatelessWidget {
   }) : prefix = const <Widget>[HeaderBack()];
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        ...prefix,
-        Text(
-          title,
-          maxLines: 1,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
-          overflow: .ellipsis,
-        ),
-        if (suffix.isNotEmpty) const Spacer(),
-        ...suffix,
-      ],
+    return Padding(
+      padding: EdgeInsetsGeometry.only(bottom: 10),
+      child: Row(
+        children: [
+          ...prefix,
+          Text(
+            title,
+            maxLines: 1,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+            overflow: .ellipsis,
+          ),
+          if (suffix.isNotEmpty) const Spacer(),
+          ...suffix,
+        ],
+      ),
     );
   }
 }
@@ -72,7 +75,7 @@ class HeaderBack extends StatelessWidget {
         Navigator.of(context).pop();
       },
       child: Padding(
-        padding: const EdgeInsets.only(right: 12.0, top: 4),
+        padding: const EdgeInsets.only(right: 12.0, top: 4, left: 10),
         child: Icon(
           FIcons.chevronLeft,
           size: 28,

@@ -1,7 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/model/model.dart';
-import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -46,6 +45,7 @@ class MangaReaderState {
 
 @riverpod
 class MangaReader extends _$MangaReader {
+  bool isAdjusting = false;
   @override
   MangaReaderState build(
     int epIndex,
@@ -58,7 +58,7 @@ class MangaReader extends _$MangaReader {
     );
     final initState = MangaReaderState(
       content: data.urls,
-      totalPage: total,
+      totalPage: data.urls.length,
       readMode: readMode,
     );
     ref.onDispose(() {
@@ -88,7 +88,7 @@ class MangaReader extends _$MangaReader {
     final positions = itemPositionsListener.itemPositions.value;
     if (positions.isNotEmpty) {
       final index = positions.first.index;
-      jumpTo(index);
+      setPageNumber(index);
     }
   }
 
@@ -106,6 +106,7 @@ class MangaReader extends _$MangaReader {
 
   // Set the page number
   void setPageNumber(int page) {
+    if (isAdjusting) return;
     state = state.copyWith(itemPosition: page);
   }
 
@@ -114,14 +115,16 @@ class MangaReader extends _$MangaReader {
     setPageNumber(page);
     switch (state.readMode) {
       case MangaReadMode.webTonn:
-        itemScrollController.scrollTo(
-          index: page,
-          duration: const Duration(milliseconds: 300),
-        );
+        isAdjusting = true;
+        itemScrollController
+            .scrollTo(index: page, duration: const Duration(milliseconds: 100))
+            .then((_) {
+              isAdjusting = false;
+            });
       default:
         pageController.animateToPage(
           page,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 100),
           curve: Curves.easeInOut,
         );
     }
