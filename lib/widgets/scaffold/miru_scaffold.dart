@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:snapping_sheet_2/snapping_sheet.dart';
 
@@ -103,6 +104,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
                   tileMode: TileMode.mirror,
                 ),
                 child: ListView(
+                  shrinkWrap: true,
                   controller: scrollController,
                   padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
                   children: [
@@ -117,7 +119,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           ),
         ),
         child: FScaffold(
-          resizeToAvoidBottomInset: true,
+          resizeToAvoidBottomInset: false,
           child: SafeArea(child: widget.body),
         ),
       ),

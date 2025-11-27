@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/miru_core/network.dart';
+import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 
 class MiruSettings {
@@ -149,6 +150,8 @@ class MiruSettings {
           return <String>{} as T;
         }
         return val.split(',').map((e) => e.trim()).toSet() as T;
+      case const (MangaReadMode):
+        return MangaReadMode.values.where((e) => e.name == value).first as T;
       default:
         throw Exception('Unknown $T');
     }

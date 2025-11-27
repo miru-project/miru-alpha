@@ -1,6 +1,8 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/utils/core/log.dart';
+import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -12,6 +14,7 @@ class MangaReaderState {
   final int itemPosition;
   final int totalPage;
   final MangaReadMode readMode;
+  final bool isZoom;
 
   const MangaReaderState({
     this.content = const [],
@@ -19,6 +22,7 @@ class MangaReaderState {
     this.totalPage = 0,
     this.itemPosition = 0,
     this.readMode = MangaReadMode.standard,
+    this.isZoom = false,
   });
 
   MangaReaderState copyWith({
@@ -27,6 +31,7 @@ class MangaReaderState {
     int? itemPosition,
     int? totalPage,
     MangaReadMode? readMode,
+    bool? isZoom,
   }) {
     return MangaReaderState(
       content: content ?? this.content,
@@ -34,6 +39,7 @@ class MangaReaderState {
       offset: offset ?? this.offset,
       itemPosition: itemPosition ?? this.itemPosition,
       readMode: readMode ?? this.readMode,
+      isZoom: isZoom ?? this.isZoom,
     );
   }
 }
@@ -47,9 +53,19 @@ class MangaReader extends _$MangaReader {
     ExtensionMangaWatch data, {
     Map<String, String>? headers,
   }) {
-    final initState = MangaReaderState(content: data.urls, totalPage: total);
+    final readMode = MiruSettings.getSettingSync<MangaReadMode>(
+      SettingKey.readingMode,
+    );
+    final initState = MangaReaderState(
+      content: data.urls,
+      totalPage: total,
+      readMode: readMode,
+    );
     ref.onDispose(() {
       pageController.dispose();
+      itemPositionsListener.itemPositions.removeListener(
+        _whenItemPositionChange,
+      );
     });
     initListener();
     return initState;
@@ -59,21 +75,20 @@ class MangaReader extends _$MangaReader {
   final scrollOffsetController = ScrollOffsetController();
   final scrollOffsetListener = ScrollOffsetListener.create();
   final itemScrollController = ItemScrollController();
-  final pageController = PageController();
+  final ExtendedPageController pageController = ExtendedPageController();
 
   void initListener() {
     itemPositionsListener.itemPositions.addListener(_whenItemPositionChange);
-    scrollOffsetListener.changes.listen(_whenScrollOffsetChange);
-    pageController.addListener(() {
-      logger.info('eee');
-    });
+    scrollOffsetListener.changes.asBroadcastStream().listen(
+      _whenScrollOffsetChange,
+    );
   }
 
   void _whenItemPositionChange() {
     final positions = itemPositionsListener.itemPositions.value;
     if (positions.isNotEmpty) {
       final index = positions.first.index;
-      state = state.copyWith(itemPosition: index);
+      jumpTo(index);
     }
   }
 
@@ -85,7 +100,30 @@ class MangaReader extends _$MangaReader {
     state = state.copyWith(readMode: mode);
   }
 
-  // void reattach() {
-  //   initListener();
-  // }
+  void changeZoomMode(bool isZoom) {
+    state = state.copyWith(isZoom: isZoom);
+  }
+
+  // Set the page number
+  void setPageNumber(int page) {
+    state = state.copyWith(itemPosition: page);
+  }
+
+  // Jump to the page and set the page number
+  void jumpTo(int page) {
+    setPageNumber(page);
+    switch (state.readMode) {
+      case MangaReadMode.webTonn:
+        itemScrollController.scrollTo(
+          index: page,
+          duration: const Duration(milliseconds: 300),
+        );
+      default:
+        pageController.animateToPage(
+          page,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+    }
+  }
 }

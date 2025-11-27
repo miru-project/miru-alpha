@@ -125,21 +125,32 @@ class _MainPageState extends ConsumerState<MainPage>
         mobileWidget: Column(
           children: [
             if (!DeviceUtil.isMobile) DragWindows(),
-            Expanded(child: widget.child ?? const SizedBox()),
-            FBottomNavigationBar(
-              index: controller.selectedIndex,
-              onChange: (value) {
-                if (widget.child != null) {
-                  widget.child!.goBranch(value);
-                }
-                c.selectIndex(value);
-                selected.value = value;
-              },
-              children: List.generate(
-                _navItems.length,
-                (i) => FBottomNavigationBarItem(
-                  label: Text(_navItems[i].text),
-                  icon: Icon(_navItems[i].icon),
+            Expanded(
+              child: Container(
+                margin: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: Column(
+                  children: [
+                    Expanded(child: widget.child ?? const SizedBox()),
+                    FBottomNavigationBar(
+                      index: controller.selectedIndex,
+                      onChange: (value) {
+                        if (widget.child != null) {
+                          widget.child!.goBranch(value);
+                        }
+                        c.selectIndex(value);
+                        selected.value = value;
+                      },
+                      children: List.generate(
+                        _navItems.length,
+                        (i) => FBottomNavigationBarItem(
+                          label: Text(_navItems[i].text),
+                          icon: Icon(_navItems[i].icon),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

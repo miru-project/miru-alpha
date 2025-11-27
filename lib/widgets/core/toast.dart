@@ -22,10 +22,7 @@ void iconsMessageToast(String title, IconData icon, [int duration = 3]) {
   if (ctx == null) return;
   showFToast(
     context: ctx,
-    title: Text(
-      title,
-      style: TextStyle(color: ctx.theme.colors.primaryForeground),
-    ),
+    title: Text(title, style: TextStyle(color: ctx.theme.colors.foreground)),
     icon: Icon(icon, color: ctx.theme.colors.primary),
     duration: Duration(seconds: duration),
     alignment: FToastAlignment.bottomCenter,

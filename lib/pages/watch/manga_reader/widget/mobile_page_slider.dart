@@ -69,8 +69,9 @@ class MangaMobileSliderState extends ConsumerState<MangaMobilePageSlider> {
             child: Material(
               color: Colors.transparent,
               child:
-                  ((c.itemScrollController.isAttached &&
-                      readerState.totalPage >= 0)
+                  ((
+                  // c.itemScrollController.isAttached &&
+                  readerState.totalPage >= 0)
                   ? Slider(
                       divisions: readerState.totalPage > 0
                           ? readerState.totalPage
@@ -82,7 +83,7 @@ class MangaMobileSliderState extends ConsumerState<MangaMobilePageSlider> {
                           : readerState.itemPosition.toDouble(),
                       onChanged: (val) {
                         sliderValue.value = val;
-                        c.itemScrollController.jumpTo(index: val.toInt());
+                        c.jumpTo(val.toInt());
                       },
                       label: isSliding.value
                           ? '${sliderValue.value.toInt()}'

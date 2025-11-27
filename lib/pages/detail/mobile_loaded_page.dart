@@ -84,11 +84,13 @@ class MobileLoadedPage extends HookConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(width: 10),
-                    ImageWidget(
-                      imageUrl: detail.cover,
+                    SizedBox(
                       width: 120,
                       height: 180,
-                      fit: BoxFit.fitHeight,
+                      child: ImageWidget(
+                        imageUrl: detail.cover,
+                        fit: BoxFit.fitHeight,
+                      ),
                     ),
                     SizedBox(width: 30),
                     Expanded(

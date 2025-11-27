@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -10,7 +11,7 @@ import 'package:miru_app_new/pages/watch/manga_reader/widget/settings.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/manga_reader_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/widgets/core/image_widget.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -33,13 +34,12 @@ class MiruMangaReader extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
-    final List<int> pointer = [];
-    final isZoom = useState(false);
+
     final epcontroller = ref.read(epProvider);
     final currentEpIndex = epcontroller.selectedEpisodeIndex;
     final epurl = epcontroller.epGroup[epcontroller.selectedGroupIndex].urls;
 
-    final managaProvider = mangaReaderProvider(
+    final mangaProvider = mangaReaderProvider(
       currentEpIndex,
       epurl.length,
       value,
@@ -88,7 +88,7 @@ class MiruMangaReader extends HookConsumerWidget {
           const SizedBox(height: 10),
         MangaMobilePageSlider(
           epProvider: epProvider,
-          mangaProvider: managaProvider,
+          mangaProvider: mangaProvider,
         ),
         const SizedBox(height: 10),
         SizedBox(
@@ -109,31 +109,18 @@ class MiruMangaReader extends HookConsumerWidget {
               ),
               FTabEntry(
                 label: Icon(FIcons.settings),
-                child: MangaSettingGeneral(mangaProvider: managaProvider),
+                child: MangaSettingGeneral(mangaProvider: mangaProvider),
               ),
             ],
           ),
         ),
       ],
-      body: Listener(
-        behavior: HitTestBehavior.opaque,
-        onPointerDown: (event) {
-          pointer.add(event.pointer);
-          if (pointer.length == 2) {
-            isZoom.value = true;
-          }
-        },
-        onPointerUp: (event) {
-          pointer.remove(event.pointer);
-          isZoom.value = false;
-        },
-        child: _MiruMangaReadView(
-          data: value,
-          detailImageUrl: detailImageUrl,
-          detailUrl: url,
-          epProvider: epProvider,
-          mangaProvider: managaProvider,
-        ),
+      body: _MiruMangaReadView(
+        data: value,
+        detailImageUrl: detailImageUrl,
+        detailUrl: url,
+        epProvider: epProvider,
+        mangaProvider: mangaProvider,
       ),
     );
   }
@@ -160,44 +147,68 @@ class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
   @override
   Widget build(BuildContext context) {
     final item = widget.data.urls;
-    final List<int> pointer = [];
-    final isZoom = useState(false);
-    final c = ref.read(widget.mangaProvider.notifier);
-    final mode = ref.watch(widget.mangaProvider.select((e) => e.readMode));
-    // Future.microtask(() {
-    //   c.reattach();
-    // });
 
+    final mode = ref.watch(widget.mangaProvider.select((e) => e.readMode));
+    final c = ref.read(widget.mangaProvider.notifier);
     switch (mode) {
       case MangaReadMode.rightToLeft || MangaReadMode.standard:
-        return PageView.builder(
+        return ExtendedImageGesturePageView.builder(
+          reverse: mode == MangaReadMode.rightToLeft,
           controller: c.pageController,
-          itemBuilder: (context, index) => InteractiveViewer(
-            panAxis: PanAxis.free,
-            onInteractionStart: (details) {
-              debugPrint('start');
-            },
-            scaleEnabled: isZoom.value,
-            child: MangaImage(imageUrl: item[index]),
-          ),
+          itemBuilder: (context, index) => MangaImage(imageUrl: item[index]),
+          itemCount: item.length,
+          onPageChanged: (index) {
+            c.setPageNumber(index);
+          },
         );
       case MangaReadMode.webTonn:
-        return InteractiveViewer(
-          panAxis: PanAxis.free,
-          onInteractionStart: (details) {
-            debugPrint('start');
+        final List<int> pointer = [];
+        return Listener(
+          behavior: HitTestBehavior.opaque,
+          onPointerDown: (event) {
+            pointer.add(event.pointer);
+            if (pointer.length == 2) {
+              logger.info('zoom');
+              ref.read(widget.mangaProvider.notifier).changeZoomMode(true);
+            }
           },
-          scaleEnabled: isZoom.value,
-          child: ScrollablePositionedList.builder(
-            padding: const EdgeInsets.only(bottom: 190),
-            physics: isZoom.value ? const NeverScrollableScrollPhysics() : null,
-            itemScrollController: c.itemScrollController,
-            scrollOffsetController: c.scrollOffsetController,
-            scrollOffsetListener: c.scrollOffsetListener,
-            itemPositionsListener: c.itemPositionsListener,
-            itemCount: item.length,
-            itemBuilder: (context, index) {
-              return MangaImage(imageUrl: item[index]);
+          onPointerUp: (event) {
+            // if (pointer.length != 1) return;
+            ref.read(widget.mangaProvider.notifier).changeZoomMode(false);
+            logger.info('end  zoom');
+            pointer.remove(event.pointer);
+            // if (pointer.length == 1) {}
+          },
+          child: Consumer(
+            builder: (context, ref, child) {
+              final isZoom = ref.watch(
+                widget.mangaProvider.select((e) => e.isZoom),
+              );
+              return SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: Center(
+                  child: InteractiveViewer(
+                    minScale: 0.1,
+                    maxScale: 1.6,
+                    scaleEnabled: isZoom,
+                    child: ScrollablePositionedList.builder(
+                      itemPositionsListener: c.itemPositionsListener,
+                      scrollOffsetController: c.scrollOffsetController,
+                      scrollOffsetListener: c.scrollOffsetListener,
+                      itemScrollController: c.itemScrollController,
+                      padding: EdgeInsets.symmetric(horizontal: 1),
+                      physics: isZoom
+                          ? const NeverScrollableScrollPhysics()
+                          : null,
+                      itemCount: item.length,
+                      itemBuilder: (context, index) {
+                        return MangaImage(imageUrl: item[index]);
+                      },
+                    ),
+                  ),
+                ),
+              );
             },
           ),
         );
