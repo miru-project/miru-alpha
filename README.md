@@ -32,3 +32,73 @@ go get golang.org/x/mobile/cmd/gomobile #for the first time
 gomobile init  #for the first time
 gomobile bind -ldflags="-s -w" -o ../../android/libmiru-core.aar -target=android -androidapi 21
 ```
+
+## Progress and Future work
+
+The plan has split into two stage basic (`2.0.0`) and advanced.
+
+### Basic
+The basic stage contains necessary components for apps to run at minimum functionality.
+
+####  Miru Core (backend)
+
+##### Js Runtime (goja) V1
+
+- [x] DOM (implement with linkedom)
+- [x] Crypto Js
+
+##### DB
+
+- [x] Settings
+
+#### App
+
+##### Readview
+
+- [x] Video player 
+- [ ] Manga reader (partially)
+- [ ] Novel reader 
+##### Extension 
+- [x] Search and install
+### Advanced
+
+####  Miru Core (backend)
+##### Backup
+- [x] webdav
+- [ ] Torrent support 
+##### Downloader
+
+- [x] Mp4
+- [x] Hls
+- [ ] Torrent 
+- [ ] Manga
+- [ ] Novel
+
+##### DB
+ - [ ] Favorite 
+ - [ ] History
+
+#### App
+
+- [ ] Anilist support 
+- [ ] Devtool
+- [ ] Search filter
+
+##### Download 
+
+- [ ] UI
+- [x] FFmpeg 
+
+##### Video player
+
+##### Manga Reader 
+
+- [ ] infinite scroll
+- [ ] support Tortent
+
+##### Novel reader
+
+- [ ] support epub
+- [ ] support Torrent 
+- [ ] Page view
+
