@@ -93,24 +93,14 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   riverpod_generator: ^3.0.0
   ffigen: ^20.0.0
-
+  flutter_launcher_icons: ^0.14.4
 # The following section is specific to Flutter packages.
 flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
-  # fonts:
-  #   - family: HarmonyOS_Sans
-  #     fonts:
-  #       - asset: assets/fonts/HarmonyOS_Sans/HarmonyOS_Sans_Black.ttf
-  #       - asset: assets/fonts/HarmonyOS_Sans/HarmonyOS_Sans_Bold.ttf
-  #       - asset: assets/fonts/HarmonyOS_Sans/HarmonyOS_Sans_Light.ttf
-  #       - asset: assets/fonts/HarmonyOS_Sans/HarmonyOS_Sans_Medium.ttf
-  #       - asset: assets/fonts/HarmonyOS_Sans/HarmonyOS_Sans_Regular.ttf
-  #       - asset: assets/fonts/HarmonyOS_Sans/HarmonyOS_Sans_Thin.ttf
-
+  
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
