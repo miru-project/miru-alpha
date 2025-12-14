@@ -139,6 +139,11 @@ ExtensionBangumiWatch _$ExtensionBangumiWatchFromJson(
     (k, e) => MapEntry(k, e as String),
   ),
   audioTrack: json['audioTrack'] as String?,
+  torrent: json['torrent'] == null
+      ? null
+      : ExtensionBangumiWatchTorrent.fromJson(
+          json['torrent'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$ExtensionBangumiWatchToJson(
@@ -149,6 +154,7 @@ Map<String, dynamic> _$ExtensionBangumiWatchToJson(
   'subtitles': instance.subtitles,
   'headers': instance.headers,
   'audioTrack': instance.audioTrack,
+  'torrent': instance.torrent,
 };
 
 const _$ExtensionWatchBangumiTypeEnumMap = {
@@ -244,4 +250,85 @@ Map<String, dynamic> _$ExtensionNetworkLogToJson(
   'url': instance.url,
   'method': instance.method,
   'statusCode': instance.statusCode,
+};
+
+ExtensionBangumiWatchTorrent _$ExtensionBangumiWatchTorrentFromJson(
+  Map<String, dynamic> json,
+) => ExtensionBangumiWatchTorrent(
+  infoHash: json['infoHash'] as String,
+  detail: ExtensionBangumiWatchTorrentDetail.fromJson(
+    json['detail'] as Map<String, dynamic>,
+  ),
+  files: (json['files'] as List<dynamic>).map((e) => e as String).toList(),
+);
+
+Map<String, dynamic> _$ExtensionBangumiWatchTorrentToJson(
+  ExtensionBangumiWatchTorrent instance,
+) => <String, dynamic>{
+  'infoHash': instance.infoHash,
+  'detail': instance.detail,
+  'files': instance.files,
+};
+
+ExtensionBangumiWatchTorrentDetail _$ExtensionBangumiWatchTorrentDetailFromJson(
+  Map<String, dynamic> json,
+) => ExtensionBangumiWatchTorrentDetail(
+  pieceLength: (json['PieceLength'] as num?)?.toInt(),
+  pieces: json['Pieces'] as String?,
+  name: json['Name'] as String?,
+  nameUtf8: json['NameUtf8'] as String?,
+  length: (json['Length'] as num?)?.toInt(),
+  private: json['Private'],
+  source: json['Source'] as String?,
+  files: json['Files'] as List<dynamic>?,
+  metaVersion: (json['MetaVersion'] as num?)?.toInt(),
+  fileTree: json['FileTree'] == null
+      ? null
+      : ExtensionBangumiWatchTorrentFileTree.fromJson(
+          json['FileTree'] as Map<String, dynamic>,
+        ),
+);
+
+Map<String, dynamic> _$ExtensionBangumiWatchTorrentDetailToJson(
+  ExtensionBangumiWatchTorrentDetail instance,
+) => <String, dynamic>{
+  'PieceLength': instance.pieceLength,
+  'Pieces': instance.pieces,
+  'Name': instance.name,
+  'NameUtf8': instance.nameUtf8,
+  'Length': instance.length,
+  'Private': instance.private,
+  'Source': instance.source,
+  'Files': instance.files,
+  'MetaVersion': instance.metaVersion,
+  'FileTree': instance.fileTree,
+};
+
+ExtensionBangumiWatchTorrentFileTree
+_$ExtensionBangumiWatchTorrentFileTreeFromJson(Map<String, dynamic> json) =>
+    ExtensionBangumiWatchTorrentFileTree(
+      file: json['File'] == null
+          ? null
+          : ExtensionBangumiWatchTorrentFileTreeFile.fromJson(
+              json['File'] as Map<String, dynamic>,
+            ),
+      dir: json['Dir'],
+    );
+
+Map<String, dynamic> _$ExtensionBangumiWatchTorrentFileTreeToJson(
+  ExtensionBangumiWatchTorrentFileTree instance,
+) => <String, dynamic>{'File': instance.file, 'Dir': instance.dir};
+
+ExtensionBangumiWatchTorrentFileTreeFile
+_$ExtensionBangumiWatchTorrentFileTreeFileFromJson(Map<String, dynamic> json) =>
+    ExtensionBangumiWatchTorrentFileTreeFile(
+      length: (json['Length'] as num?)?.toInt(),
+      piecesRoot: json['PiecesRoot'] as String?,
+    );
+
+Map<String, dynamic> _$ExtensionBangumiWatchTorrentFileTreeFileToJson(
+  ExtensionBangumiWatchTorrentFileTreeFile instance,
+) => <String, dynamic>{
+  'Length': instance.length,
+  'PiecesRoot': instance.piecesRoot,
 };

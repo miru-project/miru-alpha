@@ -92,6 +92,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     meta: meta,
                     hasOriented: _hasOriented,
                     epProvider: epProvider,
+                    torrent: data.torrent,
                   );
                 case ExtensionType.manga:
                   final data = value as ExtensionMangaWatch;

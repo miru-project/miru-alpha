@@ -21,6 +21,7 @@ final class VideoPlayerNotifierProvider
       List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
       Map<String, String>? headers,
       Size? initialRatio,
+      ExtensionBangumiWatchTorrent? torrent,
     })
     super.argument,
   }) : super(
@@ -65,7 +66,7 @@ final class VideoPlayerNotifierProvider
 }
 
 String _$videoPlayerNotifierHash() =>
-    r'8906f03fe98d1198f10a76aa63c0481caa2950dd';
+    r'ebe82091e0d697fe91a42bc7eda2c1539493e66c';
 
 final class VideoPlayerNotifierFamily extends $Family
     with
@@ -79,6 +80,7 @@ final class VideoPlayerNotifierFamily extends $Family
             List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
             Map<String, String>? headers,
             Size? initialRatio,
+            ExtensionBangumiWatchTorrent? torrent,
           })
         > {
   const VideoPlayerNotifierFamily._()
@@ -95,12 +97,14 @@ final class VideoPlayerNotifierFamily extends $Family
     List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
     Map<String, String>? headers,
     Size? initialRatio,
+    ExtensionBangumiWatchTorrent? torrent,
   }) => VideoPlayerNotifierProvider._(
     argument: (
       url,
       subtitlesRaw: subtitlesRaw,
       headers: headers,
       initialRatio: initialRatio,
+      torrent: torrent,
     ),
     from: this,
   );
@@ -117,17 +121,20 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
             List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
             Map<String, String>? headers,
             Size? initialRatio,
+            ExtensionBangumiWatchTorrent? torrent,
           });
   String get url => _$args.$1;
   List<ExtensionBangumiWatchSubtitle>? get subtitlesRaw => _$args.subtitlesRaw;
   Map<String, String>? get headers => _$args.headers;
   Size? get initialRatio => _$args.initialRatio;
+  ExtensionBangumiWatchTorrent? get torrent => _$args.torrent;
 
   VideoPlayerTickState build(
     String url, {
     List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
     Map<String, String>? headers,
     Size? initialRatio,
+    ExtensionBangumiWatchTorrent? torrent,
   });
   @$mustCallSuper
   @override
@@ -137,6 +144,7 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
       subtitlesRaw: _$args.subtitlesRaw,
       headers: _$args.headers,
       initialRatio: _$args.initialRatio,
+      torrent: _$args.torrent,
     );
     final ref = this.ref as $Ref<VideoPlayerTickState, VideoPlayerTickState>;
     final element =

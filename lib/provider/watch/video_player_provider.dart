@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/watch/subtitle.dart';
@@ -92,10 +93,14 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
     Map<String, String>? headers,
     Size? initialRatio,
+    ExtensionBangumiWatchTorrent? torrent,
   }) {
     defaultSize = initialRatio ?? const Size(0, 0);
+    final streamUrl = torrent == null
+        ? url
+        : '${CoreNetwork.baseUrl}/torrent/data/${torrent.infoHash}/${Uri.encodeComponent(torrent.files.first)}';
     vidController = VideoPlayerController.networkUrl(
-      Uri.parse(url),
+      Uri.parse(streamUrl),
       httpHeaders: headers ?? const {},
     );
     final initialState = VideoPlayerTickState(
@@ -109,6 +114,9 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
       _hideTimer?.cancel();
       vidController.removeListener(_updatePosition);
       vidController.dispose();
+      if (torrent != null) {
+        CoreNetwork.requestRaw('torrent/${torrent.infoHash}', method: 'DELETE');
+      }
     });
 
     return initialState;

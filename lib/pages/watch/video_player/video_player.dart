@@ -45,6 +45,7 @@ class MiruVideoPlayer extends ConsumerWidget {
     required this.meta,
     required this.epProvider,
     required this.hasOriented,
+    this.torrent,
   });
   final ExtensionBangumiWatch value;
   final String name;
@@ -52,6 +53,7 @@ class MiruVideoPlayer extends ConsumerWidget {
   final String url;
   final EpisodeNotifierProvider epProvider;
   final bool hasOriented;
+  final ExtensionBangumiWatchTorrent? torrent;
   @override
   Widget build(context, WidgetRef ref) {
     final screenRatio = MediaQuery.of(context).size;
@@ -59,6 +61,7 @@ class MiruVideoPlayer extends ConsumerWidget {
       value.url,
       subtitlesRaw: value.subtitles,
       headers: value.headers,
+      torrent: torrent,
     );
 
     // return VideoPlayer(ref.read(vidProvider.notifier).vidController);

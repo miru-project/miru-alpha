@@ -10,37 +10,25 @@ class _TextTile extends StatelessWidget {
   final String subtitle;
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Expanded(
-            child: FCard.raw(
-              child: Center(
-                child: Text(
-                  title,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+    return SizedBox(
+      height: 200,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Expanded(
+              child: FCard.raw(
+                child: Center(
+                  child: Text(
+                    title,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        SizedBox(
-          height: 50,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: FLabel(
-              description: Text(
-                subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              axis: Axis.vertical,
-              child: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -77,40 +65,53 @@ class MiruDesktopGridTile extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Constrain the image's height so it cannot overflow the tile.
-              if (imageUrl == null)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: _TextTile(title: title, subtitle: subtitle),
-                )
-              else
-                // Use a Stack so we can add a bottom gradient "shadow" over the image.
-                Expanded(
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Image fills the area
-                      ImageWidget(imageUrl: imageUrl!, fit: BoxFit.cover),
-                      // Bottom gradient shadow
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        height: 60,
-                        child: IgnorePointer(
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [Colors.transparent, Colors.black54],
-                              ),
+              Expanded(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Image fills the area
+                    if (imageUrl != null)
+                      ImageWidget(imageUrl: imageUrl!, fit: BoxFit.cover)
+                    else
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius:
+                              context.theme.cardStyle.decoration.borderRadius,
+                        ),
+
+                        child: Center(
+                          child: Text(
+                            title,
+                            softWrap: true,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    // Bottom gradient shadow
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: 60,
+                      child: IgnorePointer(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.transparent, Colors.black54],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+              ),
               const SizedBox(height: 8),
               SizedBox(
                 height: 50,
