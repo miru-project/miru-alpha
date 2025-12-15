@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/watch/subtitle.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:video_player/video_player.dart';
@@ -125,27 +126,11 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
   Timer? _hideTimer;
   int prevTime = 0;
 
-  /// Shows controls and schedules hiding after 3 seconds.
-  void updateTimer() {
-    final curTime = DateTime.now().microsecondsSinceEpoch;
-    if (curTime - prevTime < 300000) {
-      return;
-    }
-    // _hideTimer?.cancel();
-    // // show controls immediately
-    prevTime = curTime;
-    if (state.showControls) return;
-    state = state.copyWith(showControls: true);
-    // // start periodic timer to hide after 3 seconds
-    // _hideTimer = Timer(const Duration(seconds: 10000), () {
-    //   state = state.copyWith(showControls: false);
-    // });
-  }
-
   /// Manually set showControls state and cancel existing timer if hiding.
   void setShowControls(bool v) {
     _hideTimer?.cancel();
     state = state.copyWith(showControls: v);
+    logger.info('setShowControls: $v');
     if (v) {
       // if showing, schedule auto-hide
       _hideTimer = Timer(const Duration(seconds: 3), () {
