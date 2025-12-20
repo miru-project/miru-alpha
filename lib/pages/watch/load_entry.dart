@@ -17,7 +17,6 @@ import 'package:miru_app_new/widgets/error.dart';
 class WatchLoadEntry extends StatefulHookConsumerWidget {
   const WatchLoadEntry({super.key, required this.param});
   final WatchParams param;
-
   @override
   createState() => _WatchLoadEntryState();
 }
@@ -42,6 +41,10 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
       widget.param.epGroup ?? [],
       widget.param.name,
       false,
+      widget.param.detailImageUrl,
+      widget.param.detailUrl,
+      widget.param.type,
+      widget.param.meta.packageName,
     );
 
     maxWidth = DeviceUtil.getWidth(context);

@@ -16,7 +16,17 @@ final class EpisodeNotifierProvider
     extends $NotifierProvider<EpisodeNotifier, EpisodeNotifierState> {
   const EpisodeNotifierProvider._({
     required EpisodeNotifierFamily super.from,
-    required (int, int, List<ExtensionEpisodeGroup>, String, bool)
+    required (
+      int,
+      int,
+      List<ExtensionEpisodeGroup>,
+      String,
+      bool,
+      String,
+      String,
+      ExtensionType,
+      String,
+    )
     super.argument,
   }) : super(
          retry: null,
@@ -59,7 +69,7 @@ final class EpisodeNotifierProvider
   }
 }
 
-String _$episodeNotifierHash() => r'a5cb0e33bd1d63d4797600f4f8f34abf14e1e111';
+String _$episodeNotifierHash() => r'74516bfcd1a6e74a6ccb355216249266ce742404';
 
 final class EpisodeNotifierFamily extends $Family
     with
@@ -68,7 +78,17 @@ final class EpisodeNotifierFamily extends $Family
           EpisodeNotifierState,
           EpisodeNotifierState,
           EpisodeNotifierState,
-          (int, int, List<ExtensionEpisodeGroup>, String, bool)
+          (
+            int,
+            int,
+            List<ExtensionEpisodeGroup>,
+            String,
+            bool,
+            String,
+            String,
+            ExtensionType,
+            String,
+          )
         > {
   const EpisodeNotifierFamily._()
     : super(
@@ -85,8 +105,22 @@ final class EpisodeNotifierFamily extends $Family
     List<ExtensionEpisodeGroup> epGroup,
     String name,
     bool flag,
+    String imageUrl,
+    String detailUrl,
+    ExtensionType type,
+    String package,
   ) => EpisodeNotifierProvider._(
-    argument: (groupIndex, episodeIndex, epGroup, name, flag),
+    argument: (
+      groupIndex,
+      episodeIndex,
+      epGroup,
+      name,
+      flag,
+      imageUrl,
+      detailUrl,
+      type,
+      package,
+    ),
     from: this,
   );
 
@@ -96,12 +130,27 @@ final class EpisodeNotifierFamily extends $Family
 
 abstract class _$EpisodeNotifier extends $Notifier<EpisodeNotifierState> {
   late final _$args =
-      ref.$arg as (int, int, List<ExtensionEpisodeGroup>, String, bool);
+      ref.$arg
+          as (
+            int,
+            int,
+            List<ExtensionEpisodeGroup>,
+            String,
+            bool,
+            String,
+            String,
+            ExtensionType,
+            String,
+          );
   int get groupIndex => _$args.$1;
   int get episodeIndex => _$args.$2;
   List<ExtensionEpisodeGroup> get epGroup => _$args.$3;
   String get name => _$args.$4;
   bool get flag => _$args.$5;
+  String get imageUrl => _$args.$6;
+  String get detailUrl => _$args.$7;
+  ExtensionType get type => _$args.$8;
+  String get package => _$args.$9;
 
   EpisodeNotifierState build(
     int groupIndex,
@@ -109,6 +158,10 @@ abstract class _$EpisodeNotifier extends $Notifier<EpisodeNotifierState> {
     List<ExtensionEpisodeGroup> epGroup,
     String name,
     bool flag,
+    String imageUrl,
+    String detailUrl,
+    ExtensionType type,
+    String package,
   );
   @$mustCallSuper
   @override
@@ -119,6 +172,10 @@ abstract class _$EpisodeNotifier extends $Notifier<EpisodeNotifierState> {
       _$args.$3,
       _$args.$4,
       _$args.$5,
+      _$args.$6,
+      _$args.$7,
+      _$args.$8,
+      _$args.$9,
     );
     final ref = this.ref as $Ref<EpisodeNotifierState, EpisodeNotifierState>;
     final element =

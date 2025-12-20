@@ -262,6 +262,7 @@ class ExtensionNetworkLog {
   Map<String, dynamic> toJson() => _$ExtensionNetworkLogToJson(this);
 }
 
+@JsonSerializable()
 class GithubExtension {
   final String name;
   final String? description;
@@ -270,8 +271,11 @@ class GithubExtension {
   final String author;
   final String? icon;
   final String type;
+  @JsonKey(name: 'lang')
   final String language;
+  @JsonKey(name: 'webSite')
   final String website;
+  @JsonKey(name: 'nsfw', fromJson: _boolFromString)
   final bool isNsfw;
   final String package;
   final List<String>? tags;
@@ -290,22 +294,14 @@ class GithubExtension {
     this.tags,
   });
 
-  factory GithubExtension.fromJson(Map<String, dynamic> json) {
-    return GithubExtension(
-      name: json['name'],
-      description: json['description'],
-      license: json['license'],
-      version: json['version'],
-      author: json['author'],
-      icon: json['icon'],
-      type: json['type'],
-      language: json['lang'],
-      website: json['webSite'],
-      isNsfw: json['nsfw'] == "true",
-      package: json['package'],
-      tags: (json['tags'] as List?)?.map((e) => e.toString()).toList(),
-    );
-  }
+  factory GithubExtension.fromJson(Map<String, dynamic> json) =>
+      _$GithubExtensionFromJson(json);
+
+  Map<String, dynamic> toJson() => _$GithubExtensionToJson(this);
+}
+
+bool _boolFromString(dynamic value) {
+  return value.toString() == "true";
 }
 
 @JsonSerializable()

@@ -1,5 +1,4 @@
 import 'dart:isolate';
-import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:miru_app_new/miru_core/core.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
@@ -8,6 +7,9 @@ import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'package:miru_app_new/miru_core/grpc_client.dart';
+import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
+    as proto;
 
 late final Dio dio;
 
@@ -16,26 +18,19 @@ class AppSettingEndpoint {
   /// Fetch all application settings from /appSetting
   /// The server returns an array of objects like {"key": "someKey", "value": "someValue"}
   static Future<Map<String, String>> getAll() async {
-    final jsResult = await CoreNetwork.requestJSON('appSetting');
-
-    // jsResult is expected to be a List of maps with keys 'key' and 'value'
-    final Map<String, String> result = {};
     try {
-      if (jsResult is List) {
-        for (final item in jsResult) {
-          if (item is Map) {
-            final k = item['key']?.toString();
-            final v = item['value']?.toString();
-            if (k != null && v != null) {
-              result[k] = v;
-            }
-          }
-        }
+      final response = await MiruGrpcClient.client.getAppSetting(
+        proto.GetAppSettingRequest(),
+      );
+      final Map<String, String> result = {};
+      for (final s in response.settings) {
+        result[s.key] = s.value;
       }
+      return result;
     } catch (e) {
-      logger.info('Failed to parse app settings from /appSetting: $e');
+      logger.info('Failed to fetch app settings via gRPC: $e');
+      return {};
     }
-    return result;
   }
 }
 
@@ -88,8 +83,8 @@ class CoreNetwork {
   static Future<void> waitForServerLoaded() async {
     while (true) {
       try {
-        await requestJSON("");
-        logger.info('Miru core loaded');
+        await MiruGrpcClient.client.helloMiru(proto.HelloMiruRequest());
+        logger.info('Miru core loaded (gRPC)');
         return;
       } catch (e) {
         await Future.delayed(const Duration(milliseconds: 100));
@@ -110,19 +105,34 @@ class CoreNetwork {
     while (true) {
       final int t1 = DateTime.now().millisecondsSinceEpoch;
       try {
-        final data = await CoreNetwork.requestJSON("");
+        final response = await MiruGrpcClient.client.helloMiru(
+          proto.HelloMiruRequest(),
+        );
 
-        // Handle  meta data
-        final List<dynamic> extList = data['extensionMeta'] ?? [];
+        // Handle meta data
+        final List<proto.ExtensionMeta> extList = response.extensionMeta;
 
         final extMetaList = extList
-            .map((e) => ExtensionMeta.fromJson(e))
+            .map(
+              (e) => ExtensionMeta(
+                name: e.name,
+                version: e.version,
+                author: e.author,
+                license: e.license,
+                lang: e.lang,
+                icon: e.icon,
+                packageName: e.package,
+                webSite: e.webSite,
+                description: e.description,
+                tags: e.tags,
+                api: e.api,
+                type: _extensionTypeFromProto(e.type),
+              ),
+            )
             .toList();
 
         // Use the size of the data structure to determine if it has changed
-        final metaSize = Uint8List.fromList(
-          utf8.encode(extMetaList.toString()),
-        ).length;
+        final metaSize = response.writeToBuffer().length;
         if (metaSize != prevMetaSize) {
           prevMetaSize = metaSize;
           sendPort.send(extMetaList);
@@ -155,6 +165,16 @@ class CoreNetwork {
 
     receivePort.listen(callback);
   }
+
+  static ExtensionType _extensionTypeFromProto(String value) {
+    return switch (value.toLowerCase()) {
+      'manga' => ExtensionType.manga,
+      'fikushon' => ExtensionType.fikushon,
+      'bangumi' => ExtensionType.bangumi,
+      'unknown' => ExtensionType.unknown,
+      _ => ExtensionType.unknown,
+    };
+  }
 }
 
 class MiruCoreEndpoint {
@@ -171,11 +191,10 @@ class MiruCoreEndpoint {
     String pkg,
     ExtensionType type,
   ) async {
-    final jsResult = await CoreNetwork.requestFormData(watchUrl, {
-      'url': url,
-      'pkg': pkg,
-    }, method: "GET");
-    final data = jsResult.data;
+    final response = await MiruGrpcClient.client.watch(
+      proto.WatchRequest(url: url, pkg: pkg),
+    );
+    final data = jsonDecode(response.data);
 
     switch (type) {
       case ExtensionType.bangumi:
@@ -213,12 +232,11 @@ class MiruCoreEndpoint {
   }
 
   static Future<ExtensionDetail> detail(String pkg, String url) async {
-    final jsResult = await CoreNetwork.requestFormData(detailUrl, {
-      'url': url,
-      'pkg': pkg,
-    }, method: 'GET');
+    final response = await MiruGrpcClient.client.detail(
+      proto.DetailRequest(pkg: pkg, url: url),
+    );
 
-    return ExtensionDetail.fromJson(jsResult.data);
+    return ExtensionDetail.fromJson(jsonDecode(response.data));
   }
 
   static Future<List<ExtensionListItem>> search(
@@ -227,75 +245,89 @@ class MiruCoreEndpoint {
     int page, {
     Map<String, ExtensionFilter>? filter,
   }) async {
-    final jsResult = await CoreNetwork.requestFormData(searchUrl, {
-      'pkg': pkg,
-      'kw': kw,
-      'page': page,
-      if (filter != null) 'filter': jsonEncode(filter),
-    }, method: 'GET');
-    List<ExtensionListItem> result = jsResult.data.map<ExtensionListItem>((e) {
-      return ExtensionListItem.fromJson(e);
+    final response = await MiruGrpcClient.client.search(
+      proto.SearchRequest(
+        pkg: pkg,
+        kw: kw,
+        page: page,
+        filter: filter != null ? jsonEncode(filter) : "",
+      ),
+    );
+
+    return response.items.map((e) {
+      return ExtensionListItem(
+        title: e.title,
+        url: e.url,
+        cover: e.cover,
+        update: e.update,
+      );
     }).toList();
-    return result;
   }
 
   static Future<List<ExtensionListItem>> latest(String pkg, int page) async {
-    final jsResult = await CoreNetwork.requestFormData(latestBaseUrl, {
-      'pkg': pkg,
-      'page': page,
-    }, method: 'GET');
-    List<ExtensionListItem> result = jsResult.data.map<ExtensionListItem>((e) {
-      return ExtensionListItem.fromJson(e);
+    final response = await MiruGrpcClient.client.latest(
+      proto.LatestRequest(pkg: pkg, page: page),
+    );
+
+    return response.items.map((e) {
+      return ExtensionListItem(
+        title: e.title,
+        url: e.url,
+        cover: e.cover,
+        update: e.update,
+      );
     }).toList();
-    return result;
   }
 
   static Future<void> setRepo(String repoUrl, String name) async {
-    await CoreNetwork.requestFormData(setRepoUrl, {
-      'repoUrl': repoUrl,
-      'name': name,
-    });
+    await MiruGrpcClient.client.setRepo(
+      proto.SetRepoRequest(repoUrl: repoUrl, name: name),
+    );
   }
 
   static Future<void> removeRepo(String repoUrl) async {
-    await CoreNetwork.requestFormData(setRepoUrl, {
-      'repoUrl': repoUrl,
-    }, method: 'DELETE');
+    await MiruGrpcClient.client.deleteRepo(
+      proto.DeleteRepoRequest(repoUrl: repoUrl),
+    );
   }
 
   static Future<dynamic> getRepo() async {
-    return await CoreNetwork.requestJSON(setRepoUrl);
+    final response = await MiruGrpcClient.client.getRepos(
+      proto.GetReposRequest(),
+    );
+    return jsonDecode(response.data);
   }
 
   static Future<dynamic> fetchRepo() async {
-    return await CoreNetwork.requestJSON(repoListUrl);
+    final response = await MiruGrpcClient.client.fetchRepoList(
+      proto.FetchRepoListRequest(),
+    );
+    return jsonDecode(response.data);
   }
 
   static Future<String?> deleteRepo(String repoUrl) async {
-    final res = await CoreNetwork.requestFormData('ext/repo', {
-      'repoUrl': repoUrl,
-    }, method: 'DELETE');
-    return res.msg;
+    final response = await MiruGrpcClient.client.deleteRepo(
+      proto.DeleteRepoRequest(repoUrl: repoUrl),
+    );
+    return response.message;
   }
 
   static Future<void> downloadExtension(String repoUrl, String package) async {
-    return await CoreNetwork.requestFormData("download/extension", {
-      'repoUrl': repoUrl,
-      'pkg': package,
-    }).then((value) => value.msg);
+    await MiruGrpcClient.client.downloadExtension(
+      proto.DownloadExtensionRequest(repoUrl: repoUrl, pkg: package),
+    );
   }
 
   static Future<void> removeExtension(String package) async {
-    return CoreNetwork.requestFormData("rm/extension", {
-      'pkg': package,
-    }, method: 'DELETE').then((value) => value.msg);
+    await MiruGrpcClient.client.removeExtension(
+      proto.RemoveExtensionRequest(pkg: package),
+    );
   }
 
   static Future<void> setCookie(String cookie, String url) async {
-    return CoreNetwork.requestFormData("network/cookies", {
-      'cookies': cookie,
-      'url': url,
-    }, method: 'POST').then((value) => value.msg);
+    await MiruGrpcClient.client.setCookie(
+      proto.SetCookieRequest(cookie: cookie, url: url),
+    );
   }
 }
 

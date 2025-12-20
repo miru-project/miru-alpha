@@ -49,6 +49,7 @@ class MangaEpisodes extends HookConsumerWidget {
         ),
 
         FTileGroup.builder(
+          cacheExtent: 3,
           tileBuilder: (context, idx) {
             return FTile(
               onPress: () {

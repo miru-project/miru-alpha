@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/widgets/button.dart';
-import 'package:miru_app_new/miru_core/network.dart';
+import 'package:miru_app_new/miru_core/grpc_client.dart';
+import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
+    as proto;
 import 'package:miru_app_new/utils/download/download_utils.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/core/log.dart';
@@ -34,18 +36,21 @@ class _DownloadsNotifier extends Notifier<AsyncValue<List<dynamic>>> {
 
   Future<void> _fetchStatus() async {
     try {
-      final res = await dio.get("http://127.127.127.127:12777/download/status");
-      final data = res.data['data'] as Map<String, dynamic>?;
-      if (data != null) {
-        final downloads = data.entries.map((e) {
-          final value = e.value as Map<String, dynamic>;
-          value['id'] = e.key;
-          return value;
-        }).toList();
-        state = AsyncData(downloads);
-      } else {
-        state = const AsyncData([]);
-      }
+      final res = await MiruGrpcClient.client.getDownloadStatus(
+        proto.GetDownloadStatusRequest(),
+      );
+      final downloads = res.downloadStatus.entries.map((e) {
+        return {
+          'id': e.key,
+          'progress': e.value.progress,
+          'names': e.value.names,
+          'total': e.value.total,
+          'status': e.value.status,
+          'media_type': e.value.mediaType,
+          'current_downloading': e.value.currentDownloading,
+        };
+      }).toList();
+      state = AsyncData(downloads);
     } catch (e) {
       state = AsyncError(e, StackTrace.current);
       logger.warning('Failed to fetch status: $e');
@@ -57,33 +62,34 @@ class _DownloadsNotifier extends Notifier<AsyncValue<List<dynamic>>> {
     String id,
     String action,
   ) async {
-    String url;
-    switch (action) {
-      case 'pause':
-        url = 'http://127.127.127.127:12777/download/pause/$id';
-        break;
-      case 'continue':
-      case 'resume':
-        url = 'http://127.127.127.127:12777/download/resume/$id';
-        break;
-      case 'cancel':
-        url = 'http://127.127.127.127:12777/download/cancel/$id';
-        break;
-      default:
-        url = '';
-    }
-    if (url.isEmpty) return;
-    final res = await dio.post(url);
-    if (!context.mounted) {
-      return;
-    }
-    if (res.statusCode != 200) {
-      showSimpleToast(
-        // context: context,
-        'Failed to $action download: ${res.data}',
-      );
-    } else {
+    final taskId = int.tryParse(id);
+    if (taskId == null) return;
+
+    try {
+      switch (action) {
+        case 'pause':
+          await MiruGrpcClient.client.pauseDownload(
+            proto.PauseDownloadRequest()..taskId = taskId,
+          );
+          break;
+        case 'continue':
+        case 'resume':
+          await MiruGrpcClient.client.resumeDownload(
+            proto.ResumeDownloadRequest()..taskId = taskId,
+          );
+          break;
+        case 'cancel':
+          await MiruGrpcClient.client.cancelDownload(
+            proto.CancelDownloadRequest()..taskId = taskId,
+          );
+          break;
+        default:
+          return;
+      }
       await _fetchStatus();
+    } catch (e) {
+      if (!context.mounted) return;
+      showSimpleToast('Failed to $action download: $e');
     }
   }
 

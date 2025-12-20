@@ -12,6 +12,15 @@ import 'package:miru_app_new/pages/detail/widget/desktop_detail_item_box.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
 
 import 'package:miru_app_new/widgets/index.dart';
+import 'package:path/path.dart' as p;
+import 'package:miru_app_new/miru_core/grpc_client.dart';
+import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
+    as proto;
+import 'package:miru_app_new/miru_core/network.dart';
+import 'package:miru_app_new/utils/download/download_utils.dart';
+import 'package:miru_app_new/utils/core/miru_directory.dart';
+import 'package:miru_app_new/utils/core/log.dart';
+import 'package:miru_app_new/widgets/core/toast.dart';
 // import 'package:moon_design/moon_design.dart';
 
 // class DetailEpButton extends HookWidget {
@@ -92,9 +101,6 @@ class DesktopDetail extends ConsumerWidget {
   final String? detailUrl;
   final ExtensionDetail? data;
 
-  static const double _maxExtDesktop = 600;
-  static const double _minExtDesktop = 60;
-  static const double _clampMaxDesktop = 200;
   static const _gloablDesktopPadding = 30.0;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -203,9 +209,6 @@ class MobileDetail extends StatelessWidget {
   final ExtensionDetail? data;
   final Widget Function(Widget child) addition;
   final String? detailUrl;
-  static const double _maxExtMobile = 250;
-  static const double _minExtMobile = 50;
-  static const double _clampMaxMobile = 100;
   static const _globalMobilePadding = 20.0;
   static Widget _default(Widget child) => child;
   @override
@@ -1003,160 +1006,142 @@ class LoadingWidget extends StatelessWidget {
 //   @override
 //   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
 //       true;
-// }
+class DownloadButton extends StatelessWidget {
+  const DownloadButton({
+    super.key,
+    required this.isIcon,
+    required this.detail,
+    required this.meta,
+  });
 
-// class DownloadButton extends StatelessWidget {
-//   const DownloadButton({
-//     super.key,
-//     required this.isIcon,
-//     // this.detailUrl,
-//     required this.detail,
-//     required this.meta,
-//   });
+  final bool isIcon;
+  final ExtensionDetail detail;
+  final ExtensionMeta meta;
 
-//   final bool isIcon;
-//   // final String? detailUrl;
-//   final ExtensionDetail detail;
-//   final ExtensionMeta meta;
-//   // final String url;
-//   @override
-//   Widget build(BuildContext context) {
-//     if (isIcon) {
-//       return MoonButton.icon(
-//         icon: Icon(MoonIcons.generic_download_24_regular),
-//         onTap: () => onTap(context),
-//       );
-//     }
-//     return MoonButton(
-//       label: const Text('Download'),
-//       onTap: () => onTap(context),
-//       leading: Icon(MoonIcons.generic_download_24_regular),
-//     );
-//   }
+  @override
+  Widget build(BuildContext context) {
+    if (isIcon) {
+      return FButton.icon(
+        onPress: () => onTap(context),
+        child: Icon(FIcons.download),
+      );
+    }
+    return FButton(
+      prefix: Icon(FIcons.download),
+      onPress: () => onTap(context),
+      child: const Text('Download'),
+    );
+  }
 
-//   void onTap(BuildContext context) {
-//     showMoonModal(
-//       context: context,
-//       builder: (context) => _DownloadDialog(detail, meta),
-//     );
-//   }
-// }
+  void onTap(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => _DownloadDialog(detail, meta),
+    );
+  }
+}
 
-// class _DownloadDialog extends StatefulHookWidget {
-//   const _DownloadDialog(this.detail, this.meta);
-//   final ExtensionDetail detail;
-//   final ExtensionMeta meta;
-//   @override
-//   createState() => _DownloadDialogState();
-// }
+class _DownloadDialog extends StatefulWidget {
+  const _DownloadDialog(this.detail, this.meta);
+  final ExtensionDetail detail;
+  final ExtensionMeta meta;
+  @override
+  State<_DownloadDialog> createState() => _DownloadDialogState();
+}
 
-// class _DownloadDialogState extends State<_DownloadDialog>
-//     with TickerProviderStateMixin {
-//   late final TabController tabController;
-//   late final ValueNotifier<int> isSelected;
+class _DownloadDialogState extends State<_DownloadDialog>
+    with TickerProviderStateMixin {
+  @override
+  void initState() {
+    super.initState();
+  }
 
-//   @override
-//   void initState() {
-//     isSelected = ValueNotifier(0);
-//     tabController = TabController(
-//       length: widget.detail.episodes?.length ?? 0,
-//       vsync: this,
-//     );
-//     super.initState();
-//   }
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
-//   @override
-//   void dispose() {
-//     isSelected.dispose();
-//     tabController.dispose();
-//     super.dispose();
-//   }
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Download',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          if (widget.detail.episodes == null || widget.detail.episodes!.isEmpty)
+            const Text('No episodes available')
+          else ...[
+            FTabs(
+              children: widget.detail.episodes!.map((group) {
+                return FTabEntry(
+                  label: Text(group.title),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: group.urls.length,
+                    itemBuilder: (context, index) {
+                      final url = group.urls[index];
+                      return ListTile(
+                        title: Text(url.name),
+                        onTap: () async {
+                          final videoWatch =
+                              await MiruCoreEndpoint.watch(
+                                    url.url,
+                                    widget.meta.packageName,
+                                    widget.meta.type,
+                                  )
+                                  as ExtensionBangumiWatch?;
 
-//   // Widget tabBar() {
-//   //   return MoonTabBar(
-//   //     onTabChanged: (value) {
-//   //       tabController.animateTo(value);
-//   //       isSelected.value = value;
-//   //     },
-//   //     tabs: List.generate(
-//   //       widget.detail.episodes?.length ?? 0,
-//   //       (index) => MoonTab(label: Text(widget.detail.episodes![index].title)),
-//   //     ),
-//   //   );
-//   // }
+                          if (videoWatch == null) return;
+                          await MiruDirectory.createMoviesFolder(
+                            widget.detail.title,
+                          );
 
-//   Widget tabView(List<ExtensionEpisodeGroup> epGroup, BuildContext context) {
-//     // final service = widget.extensionService;
-//     return ValueListenableBuilder(
-//       valueListenable: isSelected,
-//       builder: (context, value, child) => TabBarView(
-//         controller: tabController,
-//         children: (List.generate(
-//           epGroup.length,
-//           (index) => ListView.builder(
-//             itemBuilder: (context, index) {
-//               return const Text('WIP');
-//               // return MoonMenuItem(
-//               //   // onTap: () {
-//               //   //   final testM3u8 =
-//               //   //       "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8";
-//               //   //   DownloadUtils.addTask(
-//               //   //     VideoDownlodTasks(
-//               //   //       episodeName: epGroup[value].urls[index].name,
-//               //   //       episodeGroupName: epGroup[value].title,
-//               //   //       videoName: widget.detail.title,
-//               //   //       watchType: ExtensionWatchBangumiType.hls,
-//               //   //       videoUrl: testM3u8,
-//               //   //       packageName: service.className,
-//               //   //     ),
-//               //   //     context,
-//               //   //   );
-//               //   // },
-//               //   onTap: () async {
-//               //     final videoWatch =
-//               //         await MiruCoreEndpoint.watch(
-//               //               epGroup[value].urls[index].url,
-//               //               widget.meta.packageName,
-//               //               widget.meta.type,
-//               //             )
-//               //             as ExtensionBangumiWatch?;
+                          try {
+                            final res = await MiruGrpcClient.client
+                                .downloadBangumi(
+                                  proto.DownloadBangumiRequest()
+                                    ..url = videoWatch.url
+                                    ..downloadPath = p.join(
+                                      MiruDirectory.getMoviesDirectory,
+                                      widget.detail.title,
+                                    )
+                                    ..isHls = true,
+                                );
 
-//               //     if (videoWatch == null) return;
-//               //     await MiruDirectory.createMoviesFolder(widget.detail.title);
-//               //     final res = await dio.post(
-//               //       "http://127.127.127.127:12777/download/bangumi",
-//               //       data: {
-//               //         "url": videoWatch.url,
-//               //         "download_path": p.join(
-//               //           MiruDirectory.getMoviesDirectory,
-//               //           widget.detail.title,
-//               //         ),
-//               //         "is_hls": true,
-//               //       },
-//               //     );
-//               //     logger.info(res);
-//               //     final jsonRes = MiruCoreResponse.fromJson(res.data);
-//               //     MiruCoreDownload.addTask(
-//               //       MiruDownloadTask(
-//               //         id: jsonRes.data['task_id'].toString(),
-//               //         name: widget.detail.title,
-//               //       ),
-//               //     );
-//               //     if (!context.mounted) {
-//               //       return;
-//               //     }
-//               //     context.pop();
-//               //   },
-//               //   label: Text(epGroup[value].urls[index].name),
-//               // );
-//             },
-//             itemCount: epGroup[value].urls.length,
-//           ),
-//         )),
-//       ),
-//     );
-//   }
+                            MiruCoreDownload.addTask(
+                              MiruDownloadTask(
+                                id: res.taskId.toString(),
+                                name: widget.detail.title,
+                              ),
+                            );
+                            showSimpleToast('Download started');
+                          } catch (e) {
+                            logger.severe('Failed to start download: $e');
+                            showSimpleToast('Failed to start download: $e');
+                          }
 
+                          if (!context.mounted) {
+                            return;
+                          }
+                          Navigator.of(context).pop();
+                        },
+                      );
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
 //   @override
 //   Widget build(BuildContext context) {
 //     final epGroup = widget.detail.episodes;

@@ -21,7 +21,6 @@ class DetailDesktopBox extends HookWidget {
   final String url;
   @override
   Widget build(BuildContext context) {
-    final isFavorite = useState(false);
     return AnimatedBox(
       child: FCard.raw(
         child: Container(

@@ -64,3 +64,4 @@ src/ffmpeg_merge/windows_x64/ffmpeg-8.0-mingw-gcc-lite
 miru
 src/miru_core/miru-core
 flutter_*.png
+.agent

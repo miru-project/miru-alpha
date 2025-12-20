@@ -151,15 +151,6 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           ),
         ),
       ),
-      //  FScaffold(
-      //   resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-      //   header: isMobileTitleOnTop
-      //       ? widget.mobileHeader ?? const SizedBox()
-      //       : null,
-      //   child: (isMobileTitleOnTop && widget.snapSheet.isEmpty)
-      //       ? widget.body
-      //       : sheet(isMobileTitleOnTop),
-      // ),
       desktopWidget: widget.body,
     );
   }

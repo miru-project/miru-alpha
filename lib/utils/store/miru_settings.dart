@@ -1,47 +1,38 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/utils/core/log.dart';
+import 'package:miru_app_new/miru_core/grpc_client.dart';
+import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
+    as proto;
 
 class MiruSettings {
   static Map<String, String> _settingsCache = {};
   static Future<void> getAllSetting() async {
-    final jsResult = await CoreNetwork.requestJSON('appSetting');
-
-    final Map<String, String> result = {};
     try {
-      if (jsResult is List) {
-        for (final item in jsResult) {
-          if (item is Map) {
-            final k = item['key']?.toString();
-            final v = item['value']?.toString();
-            if (k != null && v != null) {
-              result[k] = v;
-            }
-          }
-        }
+      final response = await MiruGrpcClient.client.getAppSetting(
+        proto.GetAppSettingRequest(),
+      );
+      final Map<String, String> result = {};
+      for (final s in response.settings) {
+        result[s.key] = s.value;
       }
+      _settingsCache = result;
     } catch (e) {
-      logger.info('Failed to parse app settings from /appSetting: $e');
+      logger.info('Failed to fetch app settings via gRPC: $e');
     }
-    _settingsCache = result;
-    return;
   }
 
   // Update key and value in miru core by HTTP
   static Future<void> setSetting(String key, String value) async {
     try {
-      await CoreNetwork.requestRaw(
-        'appSetting',
-        data: [
-          {"key": key, "value": value},
-        ],
-        method: 'PUT',
+      await MiruGrpcClient.client.setAppSetting(
+        proto.SetAppSettingRequest()
+          ..settings.add(proto.AppSetting(key: key, value: value)),
       );
     } catch (e) {
-      logger.info('Failed to set setting $key to $value: $e');
+      logger.info('Failed to set setting $key to $value via gRPC: $e');
     }
   }
 

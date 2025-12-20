@@ -4,35 +4,6 @@ import 'package:forui/forui.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
 
-class _TextTile extends StatelessWidget {
-  const _TextTile({required this.title, required this.subtitle});
-  final String title;
-  final String subtitle;
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 200,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Expanded(
-              child: FCard.raw(
-                child: Center(
-                  child: Text(
-                    title,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class MiruDesktopGridTile extends HookWidget {
   const MiruDesktopGridTile({
     super.key,

@@ -141,17 +141,6 @@ class DesktopPlayerFooterMenu extends HookConsumerWidget {
               ),
             ),
             const SizedBox(width: 10),
-            // Obx(() {
-            //   if (controller.torrentMediaFileList.isEmpty) {
-            //     return const SizedBox.shrink();
-            //   }
-            //   return IconButton(
-            //     onPressed: () {
-            //       // controller.toggleSideBar(SidebarTab.torrentFiles);
-            //     },
-            //     icon: const Icon(Icons.video_file),
-            //   );
-            // }),
             PlayerButton(
               onPressed: () => showDialog(context, 1),
               icon: FIcons.captions,

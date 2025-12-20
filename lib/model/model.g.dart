@@ -252,6 +252,38 @@ Map<String, dynamic> _$ExtensionNetworkLogToJson(
   'statusCode': instance.statusCode,
 };
 
+GithubExtension _$GithubExtensionFromJson(Map<String, dynamic> json) =>
+    GithubExtension(
+      name: json['name'] as String,
+      description: json['description'] as String?,
+      license: json['license'] as String,
+      version: json['version'] as String,
+      author: json['author'] as String,
+      package: json['package'] as String,
+      icon: json['icon'] as String?,
+      type: json['type'] as String,
+      language: json['lang'] as String,
+      website: json['webSite'] as String,
+      isNsfw: _boolFromString(json['nsfw']),
+      tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList(),
+    );
+
+Map<String, dynamic> _$GithubExtensionToJson(GithubExtension instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'description': instance.description,
+      'license': instance.license,
+      'version': instance.version,
+      'author': instance.author,
+      'icon': instance.icon,
+      'type': instance.type,
+      'lang': instance.language,
+      'webSite': instance.website,
+      'nsfw': instance.isNsfw,
+      'package': instance.package,
+      'tags': instance.tags,
+    };
+
 ExtensionBangumiWatchTorrent _$ExtensionBangumiWatchTorrentFromJson(
   Map<String, dynamic> json,
 ) => ExtensionBangumiWatchTorrent(

@@ -1,162 +1,127 @@
-import 'dart:convert';
-
+import 'package:miru_app_new/miru_core/grpc_client.dart';
+import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
+    as proto;
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/miru_core/network.dart';
 
 class DatabaseService {
+  static proto.MiruCoreServiceClient get client => MiruGrpcClient.client;
+
   // Favorites
   static Future<List<Favorite>> getAllFavorite() async {
-    final response = await dio.get(
-      '${CoreNetwork.baseUrl}/db/favorite',
-      queryParameters: {'function': 'GetAllFavorite'},
-    );
-    final data = response.data['data'] as List;
-    return data.map((e) => Favorite.fromJson(e)).toList();
+    final response = await client.getAllFavorite(proto.GetAllFavoriteRequest());
+    return response.favorites.map((e) => Favorite.fromProto(e)).toList();
   }
 
   static Future<Favorite?> getFavoriteByPackageAndUrl(
     String package,
     String url,
   ) async {
-    final response = await dio.get(
-      '${CoreNetwork.baseUrl}/db/favorite',
-      queryParameters: {
-        'function': 'GetFavoriteByPackageAndUrl',
-        'package': package,
-        'url': url,
-      },
-    );
-    final data = response.data['data'];
-    if (data == null) return null;
-    return Favorite.fromJson(data);
+    try {
+      final response = await client.getFavoriteByPackageAndUrl(
+        proto.GetFavoriteByPackageAndUrlRequest()
+          ..package = package
+          ..url = url,
+      );
+      return Favorite.fromProto(response.favorite);
+    } catch (e) {
+      return null;
+    }
   }
 
   static Future<void> putFavoriteByIndex(List<FavoriateGroup> groups) async {
-    final body = groups.map((e) => e.toJson()).toList();
-    await dio.post(
-      '${CoreNetwork.baseUrl}/db/favorite',
-      queryParameters: {'function': 'PutFavoriteByIndex'},
-      data: jsonEncode(body),
+    await client.putFavoriteByIndex(
+      proto.PutFavoriteByIndexRequest()
+        ..groups.addAll(groups.map((e) => e.toProto())),
     );
   }
 
   // Favorite Groups
   static Future<List<FavoriateGroup>> getFavoriteGroupsById(int id) async {
-    final response = await dio.get(
-      '${CoreNetwork.baseUrl}/db/favoriteGroup',
-      queryParameters: {
-        'function': 'GetFavoriteGroupsById',
-        'id': id.toString(),
-      },
+    final response = await client.getFavoriteGroupsById(
+      proto.GetFavoriteGroupsByIdRequest()..id = id,
     );
-    final data = response.data['data'] as List;
-    return data.map((e) => FavoriateGroup.fromJson(e)).toList();
+    return response.groups.map((e) => FavoriateGroup.fromProto(e)).toList();
   }
 
   static Future<List<FavoriateGroup>> getAllFavoriteGroup() async {
-    final response = await dio.get(
-      '${CoreNetwork.baseUrl}/db/favoriteGroup',
-      queryParameters: {'function': 'GetAllFavoriteGroup'},
+    final response = await client.getAllFavoriteGroup(
+      proto.GetAllFavoriteGroupRequest(),
     );
-    final data = response.data['data'] as List;
-    return data.map((e) => FavoriateGroup.fromJson(e)).toList();
+    return response.groups.map((e) => FavoriateGroup.fromProto(e)).toList();
   }
 
   static Future<FavoriateGroup> putFavoriteGroup(
     String name, [
     List<int> items = const [],
   ]) async {
-    final body = {'name': name, 'items': items};
-    final response = await dio.post(
-      '${CoreNetwork.baseUrl}/db/favoriteGroup',
-      queryParameters: {'function': 'PutFavoriteGroup'},
-      data: jsonEncode(body),
+    final response = await client.putFavoriteGroup(
+      proto.PutFavoriteGroupRequest()
+        ..name = name
+        ..items.addAll(items),
     );
-    return FavoriateGroup.fromJson(response.data['data']);
+    return FavoriateGroup.fromProto(response.group);
   }
 
   static Future<void> renameFavoriteGroup(
     String oldName,
     String newName,
   ) async {
-    await dio.post(
-      '${CoreNetwork.baseUrl}/db/favoriteGroup',
-      queryParameters: {
-        'function': 'RenameFavoriteGroup',
-        'oldName': oldName,
-        'newName': newName,
-      },
+    await client.renameFavoriteGroup(
+      proto.RenameFavoriteGroupRequest()
+        ..oldName = oldName
+        ..newName = newName,
     );
   }
 
   static Future<void> deleteFavoriteGroup(List<String> names) async {
-    final body = {'names': names};
-    await dio.post(
-      '${CoreNetwork.baseUrl}/db/favoriteGroup',
-      queryParameters: {'function': 'DeleteFavoriteGroup'},
-      data: jsonEncode(body),
+    await client.deleteFavoriteGroup(
+      proto.DeleteFavoriteGroupRequest()..names.addAll(names),
     );
   }
 
   // History
-  static Future<List<History>> getHistorysByType({String? type}) async {
-    final params = {'function': 'GetHistorysByType'};
-    if (type != null) {
-      params['type'] = type;
-    }
-    final response = await dio.get(
-      '${CoreNetwork.baseUrl}/db/history',
-      queryParameters: params,
+  static Future<List<History>> getHistoriesByType({String? type}) async {
+    final response = await client.getHistoriesByType(
+      proto.GetHistoriesByTypeRequest()..type = type ?? '',
     );
-    final data = response.data['data'] as List;
-    return data.map((e) => History.fromJson(e)).toList();
+    return response.histories.map((e) => History.fromProto(e)).toList();
   }
 
   static Future<History?> getHistoryByPackageAndUrl(
     String package,
     String url,
   ) async {
-    final response = await dio.get(
-      '${CoreNetwork.baseUrl}/db/history',
-      queryParameters: {
-        'function': 'GetHistoryByPackageAndUrl',
-        'package': package,
-        'url': url,
-      },
-    );
-    final data = response.data['data'];
-    if (data == null) return null;
-    return History.fromJson(data);
+    try {
+      final response = await client.getHistoryByPackageAndUrl(
+        proto.GetHistoryByPackageAndUrlRequest()
+          ..package = package
+          ..url = url,
+      );
+      return History.fromProto(response.history);
+    } catch (e) {
+      return null;
+    }
   }
 
-  static Future<History> putHistory(History history) async {
-    final response = await dio.post(
-      '${CoreNetwork.baseUrl}/db/history',
-      queryParameters: {'function': 'PutHistory'},
-      data: jsonEncode(history.toJson()),
+  static Future<void> putHistory(History history) async {
+    await client.putHistory(
+      proto.PutHistoryRequest()..history = history.toProto(),
     );
-    return History.fromJson(response.data['data']);
   }
 
   static Future<void> deleteHistoryByPackageAndUrl(
     String package,
     String url,
   ) async {
-    await dio.post(
-      '${CoreNetwork.baseUrl}/db/history',
-      queryParameters: {
-        'function': 'DeleteHistoryByPackageAndUrl',
-        'package': package,
-        'url': url,
-      },
+    await client.deleteHistoryByPackageAndUrl(
+      proto.DeleteHistoryByPackageAndUrlRequest()
+        ..package = package
+        ..url = url,
     );
   }
 
   static Future<void> deleteAllHistory() async {
-    await dio.post(
-      '${CoreNetwork.baseUrl}/db/history',
-      queryParameters: {'function': 'DeleteAllHistory'},
-    );
+    await client.deleteAllHistory(proto.DeleteAllHistoryRequest());
   }
 
   // Helper methods for compatibility
@@ -183,37 +148,28 @@ class DatabaseService {
     return filtered;
   }
 
-  // Note: Other methods for extension settings, manga settings, etc. have been temporarily removed as per requirements
-
   static Future<List<History>> getHistorysFiltered({
     String? type,
     DateTime? beforeDate,
   }) async {
-    final params = {'function': 'GetHistorysFiltered'};
-    if (type != null) params['type'] = type;
-    if (beforeDate != null) params['beforeDate'] = beforeDate.toIso8601String();
-    final response = await dio.get(
-      '${CoreNetwork.baseUrl}/db/history',
-      queryParameters: params,
+    final response = await client.getHistorysFiltered(
+      proto.GetHistorysFilteredRequest()
+        ..type = type ?? ''
+        ..beforeDate = beforeDate?.toIso8601String() ?? '',
     );
-    final data = response.data['data'] as List;
-    return data.map((e) => History.fromJson(e)).toList();
+    return response.histories.map((e) => History.fromProto(e)).toList();
   }
 
   static Future<List<FavoriateGroup>> getFavoriteGroupsByFavorite(
     String package,
     String url,
   ) async {
-    final response = await dio.get(
-      '${CoreNetwork.baseUrl}/db/favoriteGroup',
-      queryParameters: {
-        'function': 'GetFavoriteGroupsByFavorite',
-        'package': package,
-        'url': url,
-      },
+    final response = await client.getFavoriteGroupsByFavorite(
+      proto.GetFavoriteGroupsByFavoriteRequest()
+        ..package = package
+        ..url = url,
     );
-    final data = response.data['data'] as List;
-    return data.map((e) => FavoriateGroup.fromJson(e)).toList();
+    return response.groups.map((e) => FavoriateGroup.fromProto(e)).toList();
   }
 
   static Future<Favorite> putFavorite(
@@ -222,30 +178,21 @@ class DatabaseService {
     String package,
     ExtensionType type,
   ) async {
-    final favorite = Favorite(
-      package: package,
-      url: detailUrl,
-      type: type.toString().split('.').last,
-      title: detail!.title,
-      cover: detail.cover,
-      date: DateTime.now(),
+    final response = await client.putFavorite(
+      proto.PutFavoriteRequest()
+        ..url = detailUrl
+        ..cover = detail?.cover ?? ''
+        ..package = package
+        ..type = type.toString().split('.').last,
     );
-    final response = await dio.post(
-      '${CoreNetwork.baseUrl}/db/favorite',
-      queryParameters: {'function': 'PutFavorite'},
-      data: jsonEncode(favorite.toJson()),
-    );
-    return Favorite.fromJson(response.data['data']);
+    return Favorite.fromProto(response.favorite);
   }
 
   static Future<void> deleteFavorite(String detailUrl, String package) async {
-    await dio.post(
-      '${CoreNetwork.baseUrl}/db/favorite',
-      queryParameters: {
-        'function': 'DeleteFavorite',
-        'url': detailUrl,
-        'package': package,
-      },
+    await client.deleteFavorite(
+      proto.DeleteFavoriteRequest()
+        ..url = detailUrl
+        ..package = package,
     );
   }
 }

@@ -1,6 +1,18 @@
+import 'package:miru_app_new/miru_core/proto/miru_core_service.pb.dart'
+    as proto;
+import 'package:json_annotation/json_annotation.dart';
 import './model.dart';
 
+part 'user_data.g.dart';
+
+int _parseInt(dynamic value) {
+  if (value is int) return value;
+  return int.tryParse(value.toString()) ?? 0;
+}
+
+@JsonSerializable()
 class History {
+  @JsonKey(fromJson: _parseInt)
   int id;
 
   String package;
@@ -13,8 +25,8 @@ class History {
   int episodeId;
   String title;
   String episodeTitle;
-  String progress;
-  String totalProgress;
+  int progress;
+  int totalProgress;
   DateTime date;
 
   History({
@@ -32,35 +44,43 @@ class History {
     required this.date,
   });
 
-  factory History.fromJson(Map<String, dynamic> json) => History(
-    id: json['id'] ?? 0,
-    package: json['package'],
-    url: json['url'],
-    cover: json['cover'],
-    type: json['type'],
-    episodeGroupId: json['episodeGroupId'],
-    episodeId: json['episodeId'],
-    title: json['title'],
-    episodeTitle: json['episodeTitle'],
-    progress: json['progress'],
-    totalProgress: json['totalProgress'],
-    date: DateTime.parse(json['date']),
-  );
+  factory History.fromJson(Map<String, dynamic> json) =>
+      _$HistoryFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'package': package,
-    'url': url,
-    'cover': cover,
-    'type': type,
-    'episodeGroupId': episodeGroupId,
-    'episodeId': episodeId,
-    'title': title,
-    'episodeTitle': episodeTitle,
-    'progress': progress,
-    'totalProgress': totalProgress,
-    'date': date.toIso8601String(),
-  };
+  Map<String, dynamic> toJson() => _$HistoryToJson(this);
+
+  static History fromProto(proto.History p) {
+    return History(
+      id: p.id,
+      package: p.package,
+      url: p.url,
+      cover: p.cover.isEmpty ? null : p.cover,
+      type: p.type,
+      episodeGroupId: p.episodeGroupId,
+      episodeId: p.episodeId,
+      title: p.title,
+      episodeTitle: p.episodeTitle,
+      progress: p.progress,
+      totalProgress: p.totalProgress,
+      date: DateTime.parse(p.date),
+    );
+  }
+
+  proto.History toProto() {
+    return proto.History()
+      ..id = id
+      ..package = package
+      ..url = url
+      ..cover = cover ?? ''
+      ..type = type
+      ..episodeGroupId = episodeGroupId
+      ..episodeId = episodeId
+      ..title = title
+      ..episodeTitle = episodeTitle
+      ..progress = progress
+      ..totalProgress = totalProgress
+      ..date = date.toUtc().toIso8601String();
+  }
 }
 
 extension HistoryExtension on History {
@@ -74,7 +94,9 @@ extension HistoryExtension on History {
   }
 }
 
+@JsonSerializable()
 class Favorite {
+  @JsonKey(fromJson: _parseInt)
   int id;
 
   String package;
@@ -94,25 +116,33 @@ class Favorite {
     required this.date,
   });
 
-  factory Favorite.fromJson(Map<String, dynamic> json) => Favorite(
-    id: json['id'] ?? 0,
-    package: json['package'],
-    url: json['url'],
-    type: json['type'],
-    title: json['title'],
-    cover: json['cover'],
-    date: DateTime.parse(json['date']),
-  );
+  factory Favorite.fromJson(Map<String, dynamic> json) =>
+      _$FavoriteFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'package': package,
-    'url': url,
-    'type': type,
-    'title': title,
-    'cover': cover,
-    'date': date.toIso8601String(),
-  };
+  Map<String, dynamic> toJson() => _$FavoriteToJson(this);
+
+  static Favorite fromProto(proto.Favorite p) {
+    return Favorite(
+      id: p.id,
+      package: p.package,
+      url: p.url,
+      type: p.type,
+      title: p.title,
+      cover: p.cover.isEmpty ? null : p.cover,
+      date: DateTime.parse(p.date),
+    );
+  }
+
+  proto.Favorite toProto() {
+    return proto.Favorite()
+      ..id = id
+      ..package = package
+      ..url = url
+      ..type = type
+      ..title = title
+      ..cover = cover ?? ''
+      ..date = date.toIso8601String();
+  }
 }
 
 class EnumToString {
@@ -123,16 +153,16 @@ class EnumToString {
   static T convertToEnum<T extends Enum>(String input, Iterable<T> values) {
     return values.firstWhere(
       (v) => v.toString().split('.').last == input,
-      orElse:
-          () =>
-              throw ArgumentError(
-                'No enum value for input "$input" in ${T.toString()}',
-              ),
+      orElse: () => throw ArgumentError(
+        'No enum value for input "$input" in ${T.toString()}',
+      ),
     );
   }
 }
 
+@JsonSerializable()
 class FavoriateGroup {
+  @JsonKey(fromJson: _parseInt)
   int id;
 
   String name;
@@ -146,23 +176,27 @@ class FavoriateGroup {
     this.favorites = const [],
   });
 
-  factory FavoriateGroup.fromJson(Map<String, dynamic> json) => FavoriateGroup(
-    id: json['id'] ?? 0,
-    name: json['name'],
-    date: DateTime.parse(json['date']),
-    favorites:
-        (json['favorites'] as List?)
-            ?.map((e) => Favorite.fromJson(e))
-            .toList() ??
-        [],
-  );
+  factory FavoriateGroup.fromJson(Map<String, dynamic> json) =>
+      _$FavoriateGroupFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'date': date.toIso8601String(),
-    'favorites': favorites.map((e) => e.toJson()).toList(),
-  };
+  Map<String, dynamic> toJson() => _$FavoriateGroupToJson(this);
+
+  static FavoriateGroup fromProto(proto.FavoriteGroup p) {
+    return FavoriateGroup(
+      id: p.id,
+      name: p.name,
+      date: DateTime.parse(p.date),
+      favorites: p.favorites.map((f) => Favorite.fromProto(f)).toList(),
+    );
+  }
+
+  proto.FavoriteGroup toProto() {
+    return proto.FavoriteGroup()
+      ..id = id
+      ..name = name
+      ..date = date.toIso8601String()
+      ..favorites.addAll(favorites.map((f) => f.toProto()));
+  }
 }
 
 // Recored download for saving downlading progress

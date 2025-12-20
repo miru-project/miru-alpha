@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+// trigger refresh
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -42,7 +43,7 @@ class MainPageNotifier extends Notifier<MainPageState> {
   @override
   MainPageState build() {
     Future.microtask(() async {
-      final history = await DatabaseService.getHistorysByType();
+      final history = await DatabaseService.getHistoriesByType();
       state = state.copyWith(history: history);
     });
     return MainPageState();
@@ -64,6 +65,11 @@ class MainPageNotifier extends Notifier<MainPageState> {
 
   void updateHistory(List<History> updateValue) {
     state = state.copyWith(history: updateValue);
+  }
+
+  Future<void> refreshHistory() async {
+    final history = await DatabaseService.getHistoriesByType();
+    state = state.copyWith(history: history);
   }
 }
 
@@ -124,53 +130,56 @@ class HomePageCarousel extends ConsumerWidget {
                     desktop: DeviceUtil.getWidth(context) * .25,
                     context: context,
                   ),
-                  child: Flex(
-                    direction: Axis.vertical,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 10),
-                      Expanded(
-                        flex: 3,
-                        child: Text(
-                          item.title,
+                  child: Padding(
+                    padding: .all(10),
+                    child: Flex(
+                      direction: Axis.vertical,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 10),
+                        Expanded(
+                          flex: 3,
+                          child: Text(
+                            item.title,
+                            maxLines: 2,
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                        ),
+                        Text(
+                          item.episodeTitle,
                           maxLines: 2,
-                          style: const TextStyle(fontSize: 20),
+                          style: const TextStyle(fontSize: 17),
                         ),
-                      ),
-                      Text(
-                        item.episodeTitle,
-                        maxLines: 2,
-                        style: const TextStyle(fontSize: 17),
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        height: 20,
-                        child: Row(
-                          children: [
-                            ExtendedImage.network(
-                              loadStateChanged: (state) {
-                                if (state.extendedImageLoadState ==
-                                    LoadState.failed) {
-                                  return const Icon(Icons.error);
-                                }
-                                return null;
-                              },
-                              cache: true,
-                              ext?.icon ?? '',
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              ext?.name ?? "Name Not Found",
-                              style: const TextStyle(),
-                            ),
-                          ],
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          height: 20,
+                          child: Row(
+                            children: [
+                              ExtendedImage.network(
+                                loadStateChanged: (state) {
+                                  if (state.extendedImageLoadState ==
+                                      LoadState.failed) {
+                                    return const Icon(Icons.error);
+                                  }
+                                  return null;
+                                },
+                                cache: true,
+                                ext?.icon ?? '',
+                                shape: BoxShape.rectangle,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                ext?.name ?? "Name Not Found",
+                                style: const TextStyle(),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(convertTime(item.date)),
-                    ],
+                        const SizedBox(height: 10),
+                        Text(convertTime(item.date)),
+                      ],
+                    ),
                   ),
                 ),
               ),

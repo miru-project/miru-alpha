@@ -27,7 +27,7 @@ class MobileDetailSilverlist extends ConsumerWidget {
     if (detail.episodes?.isEmpty ?? true) {
       return SliverToBoxAdapter(child: SizedBox(child: Text('No Episodes')));
     }
-    final groupName = detail.episodes![epGroupIdx].title;
+    // final groupName = detail.episodes![epGroupIdx].title;
     final selectGroup = detail.episodes![epGroupIdx].urls;
     return SliverToBoxAdapter(
       child: Padding(

@@ -2,13 +2,15 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:path/path.dart' as path;
+import 'package:miru_app_new/miru_core/grpc_client.dart';
+import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
+    as proto;
 
 final btServerNotifier = BTDialogController();
 
@@ -178,34 +180,39 @@ class StartServerException implements Exception {
 }
 
 class BTServerApi {
-  static const baseApi = "http://localhost:3000";
-  static final dio = Dio(BaseOptions(baseUrl: baseApi));
+  // Use gRPC instead of dio for torrent operations
   static Future<String> getVersion() async {
-    return (await dio.get<String>("/version")).data!;
+    final resp = await MiruGrpcClient.client.helloMiru(
+      proto.HelloMiruRequest(),
+    );
+    return resp.torrent.totalDown
+        .toString(); // Using a stat as version for now if no version field
   }
 
   static Future<String> addTorrent(Uint8List torrent) async {
-    return (await dio.post<Map<String, dynamic>>(
-      "/torrent",
-      data: torrent,
-      options: Options(
-        headers: {
-          "Content-Type": "application/x-bittorrent",
-          "Content-Length": torrent.length,
-        },
-      ),
-    )).data!["infoHash"];
+    final resp = await MiruGrpcClient.client.addTorrent(
+      proto.AddTorrentRequest()..torrent = torrent,
+    );
+    return resp.infoHash;
   }
 
   static Future<String> removeTorrent(String infoHash) async {
-    return (await dio.delete<String>("/torrent/$infoHash")).data!;
+    await MiruGrpcClient.client.deleteTorrent(
+      proto.DeleteTorrentRequest()..infoHash = infoHash,
+    );
+    return "success";
   }
 
   static Future<List<String>> getFileList(String infoHash) async {
-    final fileList = (await dio.get<Map<String, dynamic>>(
-      "/torrent/$infoHash",
-    )).data!['files'];
-    return List<String>.from(fileList);
+    final resp = await MiruGrpcClient.client.listTorrent(
+      proto.ListTorrentRequest(),
+    );
+    for (final t in resp.torrents) {
+      if (t.infoHash == infoHash) {
+        return t.files;
+      }
+    }
+    return [];
   }
 }
 

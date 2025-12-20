@@ -43,7 +43,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
   void initState() {
     super.initState();
     Future.microtask(() async {
-      final history = await DatabaseService.getHistorysByType();
+      final history = await DatabaseService.getHistoriesByType();
       ref.read(mainPageProvider.notifier).updateHistory(history);
     });
   }

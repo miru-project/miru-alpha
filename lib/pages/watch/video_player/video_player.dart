@@ -66,6 +66,9 @@ class MiruVideoPlayer extends ConsumerWidget {
           vidPr: vidProvider,
           epProvider: epProvider,
           hasOriented: hasOriented,
+          meta: meta,
+          name: name,
+          url: url,
         ),
       ],
     );
@@ -77,19 +80,66 @@ class _VideoPlayer extends StatefulHookConsumerWidget {
     required this.vidPr,
     required this.epProvider,
     required this.hasOriented,
+    required this.meta,
+    required this.name,
+    required this.url,
   });
   final VideoPlayerNotifierProvider vidPr;
   final EpisodeNotifierProvider epProvider;
   final bool hasOriented;
+  final ExtensionMeta meta;
+  final String name;
+  final String url;
   @override
   _DesktopVideoPlayerState createState() => _DesktopVideoPlayerState();
 }
 
 class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
+  // Timer? _timer;
   void _updateTimer() {
     // delegate to provider
     ref.read(widget.vidPr.notifier).setShowControls(true);
   }
+
+  // late String _coverUrl;
+  @override
+  void initState() {
+    super.initState();
+    // _coverUrl = ref.read(widget.epProvider.notifier).imageUrl;
+    // _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    //   _saveHistory();
+    // });
+  }
+
+  // void _saveHistory() async {
+  //   final vidState = ref.read(widget.vidPr);
+  //   final epState = ref.read(widget.epProvider);
+  //   final history = History(
+  //     package: widget.meta.packageName,
+  //     url: widget.url,
+  //     cover: _coverUrl,
+  //     type: widget.meta.type.toString().split('.').last,
+  //     episodeGroupId: epState.selectedGroupIndex,
+  //     episodeId: epState.selectedEpisodeIndex,
+  //     title: widget.name,
+  //     episodeTitle: epState
+  //         .epGroup[epState.selectedGroupIndex]
+  //         .urls[epState.selectedEpisodeIndex]
+  //         .name,
+  //     progress: vidState.position.inSeconds.toString(),
+  //     totalProgress: vidState.duration.inSeconds.toString(),
+  //     date: DateTime.now(),
+  //   );
+  //   await DatabaseService.putHistory(history);
+  //   ref.read(mainPageProvider.notifier).refreshHistory();
+  // }
+
+  // @override
+  // void dispose() {
+  //   // _timer?.cancel();
+  //   _saveHistory();
+  //   super.dispose();
+  // }
 
   void close() {
     if (!DeviceUtil.isMobile) WindowManager.instance.setAlwaysOnTop(false);
