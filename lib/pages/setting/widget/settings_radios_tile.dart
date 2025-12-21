@@ -42,9 +42,12 @@ class SettingsRadiosTile extends HookWidget with FTileMixin {
     final selected = useState(value);
     if (isMobileLayout) {
       return FSelectMenuTile(
-        onChange: (selected) {
-          onChanged(selected.first);
-        },
+        selectControl: FMultiValueControl<String>.managedRadio(
+          onChange: (value) {
+            onChanged(value.first);
+          },
+        ),
+
         detailsBuilder: (_, val, _) {
           if (val.isEmpty) {
             val.add(selected.value);
@@ -64,12 +67,14 @@ class SettingsRadiosTile extends HookWidget with FTileMixin {
       title: title,
       subtitle: subtitle,
       child: FSelect<String>(
-        initialValue: selected.value,
-        onChange: (value) {
-          if (value == null) return;
-          selected.value = value;
-          onChanged(value);
-        },
+        control: FSelectControl.managed(
+          initial: selected.value,
+          onChange: (value) {
+            if (value == null) return;
+            selected.value = value;
+            onChanged(value);
+          },
+        ),
         items: (entry == null)
             ? {for (final item in radios) item: item}
             : {for (final e in entry!) e.value: e.title},

@@ -25,6 +25,7 @@ class DesktopLoadedPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final url = detail.cover ?? '';
+    final ep = detail.episodes ?? [];
     final selected = useState(0);
     return FScaffold(
       // snapSheet: [],
@@ -41,7 +42,7 @@ class DesktopLoadedPage extends HookWidget {
                   children: [
                     DetailDesktopBox(detail: detail, meta: meta, url: url),
                     const SizedBox(height: 30),
-                    if (detail.episodes == null)
+                    if (ep.isEmpty)
                       DesktopDetailItemBox(
                         title: 'No Episode',
                         padding: 20,
@@ -55,20 +56,25 @@ class DesktopLoadedPage extends HookWidget {
                             SizedBox(
                               width: 150,
                               child: FSelect<int>(
-                                initialValue: selected.value,
-                                onChange: (value) {
-                                  if (value == null) {
-                                    return;
-                                  }
-                                  selected.value = value;
-                                },
+                                control: .lifted(
+                                  value: selected.value,
+                                  onChange: (value) {
+                                    if (value == null) {
+                                      return;
+                                    }
+                                    selected.value = value;
+                                  },
+                                ),
+                                // initialValue: selected.value,
+                                // onChange: (value) {
+                                //   if (value == null) {
+                                //     return;
+                                //   }
+                                //   selected.value = value;
+                                // },
                                 items: {
-                                  for (
-                                    int i = 0;
-                                    i < detail.episodes!.length;
-                                    i++
-                                  )
-                                    detail.episodes![i].title: i,
+                                  for (int i = 0; i < ep.length; i++)
+                                    ep[i].title: i,
                                 },
                               ),
                             ),
@@ -78,8 +84,7 @@ class DesktopLoadedPage extends HookWidget {
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            for (final item
-                                in detail.episodes![selected.value].urls)
+                            for (final item in ep[selected.value].urls)
                               FButton.icon(
                                 onPress: () {
                                   context.push(

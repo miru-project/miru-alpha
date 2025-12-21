@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:forui_hooks/forui_hooks.dart';
 // import 'package:moon_design/moon_design.dart';
 
 class CategoryGroup extends HookWidget {
@@ -22,13 +23,15 @@ class CategoryGroup extends HookWidget {
   @override
   Widget build(BuildContext context) {
     // final selected = useState(0);
-    final controller = FSelectTileGroupController<String>.radio(items[0]);
+    final controller = useFRadioMultiValueNotifier(value: items[0]);
     return FSelectTileGroup<String>(
+      control: .managedRadio(
+        controller: controller,
+        onChange: (value) {
+          onpress(value.first);
+        },
+      ),
       label: title == null ? null : Text(title!),
-      selectController: controller,
-      onSelect: (val) {
-        onpress(val.$1);
-      },
 
       children: List.generate(
         items.length,

@@ -185,7 +185,8 @@ class DesktopSearchSingleFilterBox extends ConsumerWidget {
             const SizedBox(width: 8),
             Expanded(
               child: FTextField(
-                initialText: state.query,
+                control: .managed(initial: TextEditingValue(text: state.query)),
+                // initialText: state.query,
                 prefixBuilder: (context, style, states) {
                   return Padding(
                     padding: const EdgeInsets.only(left: 8.0, right: 4),

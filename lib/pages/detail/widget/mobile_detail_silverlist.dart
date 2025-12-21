@@ -100,7 +100,7 @@ class MobileDetailSilverlist extends ConsumerWidget {
                                 count: detail.episodes?.length ?? 0,
                               ),
                             ],
-                            popoverController: controller,
+                            control: .managed(controller: controller),
                             child: FButton(
                               suffix: Icon(
                                 FIcons.chevronsUpDown,

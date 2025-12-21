@@ -40,8 +40,10 @@ class ClearableSelect extends StatelessWidget {
                   title,
                   // style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                 ),
-                initialValue: initialValue,
-                onChange: onChange,
+                control: .managed(initial: initialValue, onChange: onChange),
+
+                // initialValue: initialValue,
+                // onChange: onChange,
                 // style:
                 //     FSelectStyle.inherit(
                 //       colors: context.theme.colors,

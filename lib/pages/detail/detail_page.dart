@@ -1057,11 +1057,6 @@ class _DownloadDialogState extends State<_DownloadDialog>
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),

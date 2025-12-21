@@ -151,10 +151,12 @@ class ExtensionDesktopGridView extends HookConsumerWidget {
                                   );
                                 },
                                 hint: "Search by Name or Tags ...",
-                                controller: textController,
-                                onChange: (val) {
-                                  extNotifier.filterByName(val);
-                                },
+                                control: .managed(
+                                  controller: textController,
+                                  onChange: (value) {
+                                    extNotifier.filterByName(value.text);
+                                  },
+                                ),
                               ),
                             ),
                           ],

@@ -41,12 +41,13 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
 
   @override
   Widget build(BuildContext context) {
+    return Text('');
     return MiruScaffold(
       scrollController: scrollController,
-      snapSheet: <Widget>[
-        if (DeviceUtil.getWidth(context) < 800) const SizedBox(height: 10),
-        _MobileSilder(epProvider: widget.epProvider),
-      ],
+      // snapSheet: <Widget>[
+      //   if (DeviceUtil.getWidth(context) < 800) const SizedBox(height: 10),
+      //   _MobileSilder(epProvider: widget.epProvider),
+      // ],
       body: _MiruNovelReadView(
         data: widget.value,
         meta: widget.meta,

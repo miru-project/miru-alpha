@@ -214,6 +214,13 @@ class BTServerApi {
     }
     return [];
   }
+
+  static Future<String> addMagnet(String url) async {
+    final resp = await MiruGrpcClient.client.addMagnet(
+      proto.AddMagnetRequest()..url = url,
+    );
+    return resp.infoHash;
+  }
 }
 
 class BTDialogController with ChangeNotifier {

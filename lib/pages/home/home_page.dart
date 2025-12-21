@@ -366,7 +366,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                           //   fontWeight: FontWeight.bold,
                           //   // fontFamily: "HarmonyOS_Sans",
                           // ),
-                          controller: textController,
+                          control: .managed(controller: textController),
                         ),
                       ),
                       // const SizedBox(height: 10),

@@ -73,9 +73,9 @@ dependencies:
   permission_handler: ^12.0.0+1
   logging: ^1.3.0
   collection: ^1.19.1
-  forui: ^0.16.0
+  forui: ^0.17.0
   provider: ^6.1.5
-  forui_hooks: ^0.16.0
+  forui_hooks: ^0.17.0
   grpc: ^5.1.0
   protobuf: ^6.0.0
   fixnum: ^1.1.0

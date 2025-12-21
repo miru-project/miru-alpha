@@ -30,7 +30,7 @@ class MangaEpisodes extends HookConsumerWidget {
               count: epGroup.length,
             ),
           ],
-          popoverController: controller,
+          control: FPopoverControl.managed(controller: controller),
           child: FButton(
             suffix: Icon(
               FIcons.chevronsUpDown,

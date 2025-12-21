@@ -40,10 +40,12 @@ class MobileRepoDialog extends HookConsumerWidget {
               children: [
                 FTextFormField(
                   label: Text('Name'),
-                  initialText: "",
+                  control: FTextFieldControl.managed(
+                    initial: TextEditingValue(text: name.value),
+                    onChange: (value) => name.value = value.text,
+                  ),
                   autovalidateMode: AutovalidateMode.always,
                   hint: 'Official Repo',
-                  onChange: (value) => name.value = value,
                   validator: (val) =>
                       (val?.isEmpty ?? false) ? 'Name cannot be empty' : null,
                   style: (style) => MobileFTextFieldStyle.textFieldStyle(
@@ -59,8 +61,10 @@ class MobileRepoDialog extends HookConsumerWidget {
                     typography: context.theme.typography,
                     style: context.theme.style,
                   ),
-                  initialText: "",
-                  onChange: (value) => url.value = value,
+                  control: FTextFieldControl.managed(
+                    initial: TextEditingValue(text: url.value),
+                    onChange: (value) => url.value = value.text,
+                  ),
                   label: Text('Repo URL'),
                   hint: 'https://miru-repo.0n0.dev/index.json',
                   autovalidateMode: AutovalidateMode.always,
@@ -117,18 +121,22 @@ class RepoDialog extends HookConsumerWidget {
           child: Column(
             children: [
               FTextFormField(
+                control: FTextFieldControl.managed(
+                  initial: TextEditingValue(text: name.value),
+                  onChange: (value) => name.value = value.text,
+                ),
                 label: Text('Name'),
-                initialText: "",
                 autovalidateMode: AutovalidateMode.always,
                 hint: 'Official Repo',
-                onChange: (value) => name.value = value,
                 validator: (val) =>
                     (val?.isEmpty ?? false) ? 'Name cannot be empty' : null,
               ),
               const SizedBox(height: 10),
               FTextFormField(
-                initialText: "",
-                onChange: (value) => url.value = value,
+                control: FTextFieldControl.managed(
+                  initial: TextEditingValue(text: url.value),
+                  onChange: (value) => url.value = value.text,
+                ),
                 label: Text('Repo URL'),
                 hint: 'https://miru-repo.0n0.dev/index.json',
                 autovalidateMode: AutovalidateMode.always,
@@ -396,9 +404,9 @@ class SettingExtension extends HookConsumerWidget {
                     .whereType<Map<String, dynamic>>()
                     .toList();
                 if (isMobile) {
-                  final selectController = useFSelectGroupController<String>();
+                  final selectController = useFMultiValueNotifier<String>();
                   return FSelectTileGroup(
-                    selectController: selectController,
+                    control: .managed(controller: selectController),
                     children: repoList.map((repo) {
                       final name = repo['name']?.toString() ?? 'Untitled';
                       final url = repo['link']?.toString() ?? '';

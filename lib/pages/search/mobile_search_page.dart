@@ -28,9 +28,11 @@ class MobileSearchPage extends HookConsumerWidget {
       snapSheet: [
         FTextField(
           maxLines: 1,
-          onChange: (value) {
-            // extNotifier.filterByName(value);
-          },
+          control: .managed(
+            onChange: (value) {
+              // extNotifier.filterByName(value.text);
+            },
+          ),
           hint: "Search by Name or Tags ...",
           prefixBuilder: (context, style, states) => Padding(
             padding: EdgeInsetsGeometry.only(left: 12, right: 10),

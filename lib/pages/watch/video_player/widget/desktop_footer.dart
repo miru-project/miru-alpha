@@ -127,7 +127,9 @@ class DesktopPlayerFooterMenu extends HookConsumerWidget {
             const SizedBox(width: 10),
             FPopover(
               onTapHide: () => speedPopOverController.hide(),
-              controller: speedPopOverController,
+              control: FPopoverControl.managed(
+                controller: speedPopOverController,
+              ),
               popoverBuilder: (context, ctrller) => InnerCard(
                 title: "Adjust playback speed",
                 child: SizedBox(

@@ -85,7 +85,12 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
     return SettingBaseTile(
       title: title,
       subtitle: subtitle,
-      child: FTextField(onChange: onChanged, initialText: initialValue),
+      child: FTextField(
+        control: FTextFieldControl.managed(
+          initial: TextEditingValue(text: initialValue),
+          onChange: (value) => onChanged(value.text),
+        ),
+      ),
     );
   }
 }

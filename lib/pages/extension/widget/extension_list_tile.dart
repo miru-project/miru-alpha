@@ -86,7 +86,7 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
           else
             FButton.icon(
               onPress: widget.onInstall,
-              child: Icon(FIcons.arrowDownToLine),
+              child: Icon(FIcons.download),
             ),
         ],
       ),
