@@ -31,7 +31,7 @@ class LibraryPage extends HookConsumerWidget {
   }
 }
 
-class _MobileLibraryPage extends StatelessWidget {
+class _MobileLibraryPage extends HookWidget {
   const _MobileLibraryPage({
     required this.history,
     required this.scrollController,

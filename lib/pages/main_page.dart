@@ -11,6 +11,10 @@ import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/provider/main_controller_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/core/i18n.dart';
+import 'package:miru_app_new/widgets/animted_icon/block.dart';
+import 'package:miru_app_new/widgets/animted_icon/compass.dart';
+import 'package:miru_app_new/widgets/animted_icon/home.dart';
+import 'package:miru_app_new/widgets/animted_icon/settings_cog.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 import 'setting/setting_items.dart';
@@ -142,13 +146,44 @@ class _MainPageState extends ConsumerState<MainPage>
                         c.selectIndex(value);
                         selected.value = value;
                       },
-                      children: List.generate(
-                        _navItems.length,
-                        (i) => FBottomNavigationBarItem(
-                          label: Text(_navItems[i].text),
-                          icon: Icon(_navItems[i].icon),
+                      children: [
+                        FBottomNavigationBarItem(
+                          label: Text(_navItems[0].text),
+                          icon: selected.value == 0
+                              ? HomeIcon(
+                                  color: themeData.colors.primary,
+                                  isTriggered: selected.value == 0,
+                                )
+                              : Icon(FIcons.house),
                         ),
-                      ),
+                        FBottomNavigationBarItem(
+                          label: Text(_navItems[1].text),
+                          icon: selected.value == 1
+                              ? CompassIcon(
+                                  color: themeData.colors.primary,
+                                  isTriggered: selected.value == 1,
+                                )
+                              : Icon(FIcons.compass),
+                        ),
+                        FBottomNavigationBarItem(
+                          label: Text(_navItems[2].text),
+                          icon: selected.value == 2
+                              ? BlocksPathLoopIcon(
+                                  color: themeData.colors.primary,
+                                  isTriggered: selected.value == 2,
+                                )
+                              : Icon(FIcons.blocks),
+                        ),
+                        FBottomNavigationBarItem(
+                          label: Text(_navItems[3].text),
+                          icon: selected.value == 3
+                              ? SettingsIcon(
+                                  color: themeData.colors.primary,
+                                  isTriggered: selected.value == 3,
+                                )
+                              : Icon(FIcons.settings),
+                        ),
+                      ],
                     ),
                   ],
                 ),

@@ -79,6 +79,9 @@ dependencies:
   grpc: ^5.1.0
   protobuf: ^6.0.0
   fixnum: ^1.1.0
+  flutter_animate: ^4.5.2
+  path_drawing: ^1.0.1
+  vector_math: ^2.2.0
 
 dev_dependencies:
   flutter_test:
