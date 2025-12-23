@@ -779,6 +779,7 @@ const History$json = {
     {'1': 'progress', '3': 10, '4': 1, '5': 5, '10': 'progress'},
     {'1': 'total_progress', '3': 11, '4': 1, '5': 5, '10': 'totalProgress'},
     {'1': 'date', '3': 12, '4': 1, '5': 9, '10': 'date'},
+    {'1': 'detail_url', '3': 13, '4': 1, '5': 9, '10': 'detailUrl'},
   ],
 };
 
@@ -789,7 +790,8 @@ final $typed_data.Uint8List historyDescriptor = $convert.base64Decode(
     'EigKEGVwaXNvZGVfZ3JvdXBfaWQYBiABKAVSDmVwaXNvZGVHcm91cElkEh0KCmVwaXNvZGVfaW'
     'QYByABKAVSCWVwaXNvZGVJZBIUCgV0aXRsZRgIIAEoCVIFdGl0bGUSIwoNZXBpc29kZV90aXRs'
     'ZRgJIAEoCVIMZXBpc29kZVRpdGxlEhoKCHByb2dyZXNzGAogASgFUghwcm9ncmVzcxIlCg50b3'
-    'RhbF9wcm9ncmVzcxgLIAEoBVINdG90YWxQcm9ncmVzcxISCgRkYXRlGAwgASgJUgRkYXRl');
+    'RhbF9wcm9ncmVzcxgLIAEoBVINdG90YWxQcm9ncmVzcxISCgRkYXRlGAwgASgJUgRkYXRlEh0K'
+    'CmRldGFpbF91cmwYDSABKAlSCWRldGFpbFVybA==');
 
 @$core.Deprecated('Use getHistoriesByTypeRequestDescriptor instead')
 const GetHistoriesByTypeRequest$json = {

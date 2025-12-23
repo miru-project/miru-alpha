@@ -2869,6 +2869,7 @@ class History extends $pb.GeneratedMessage {
     $core.int? progress,
     $core.int? totalProgress,
     $core.String? date,
+    $core.String? detailUrl,
   }) {
     final result = create();
     if (id != null) result.id = id;
@@ -2883,6 +2884,7 @@ class History extends $pb.GeneratedMessage {
     if (progress != null) result.progress = progress;
     if (totalProgress != null) result.totalProgress = totalProgress;
     if (date != null) result.date = date;
+    if (detailUrl != null) result.detailUrl = detailUrl;
     return result;
   }
 
@@ -2911,6 +2913,7 @@ class History extends $pb.GeneratedMessage {
     ..aI(10, _omitFieldNames ? '' : 'progress')
     ..aI(11, _omitFieldNames ? '' : 'totalProgress')
     ..aOS(12, _omitFieldNames ? '' : 'date')
+    ..aOS(13, _omitFieldNames ? '' : 'detailUrl')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -3038,6 +3041,15 @@ class History extends $pb.GeneratedMessage {
   $core.bool hasDate() => $_has(11);
   @$pb.TagNumber(12)
   void clearDate() => $_clearField(12);
+
+  @$pb.TagNumber(13)
+  $core.String get detailUrl => $_getSZ(12);
+  @$pb.TagNumber(13)
+  set detailUrl($core.String value) => $_setString(12, value);
+  @$pb.TagNumber(13)
+  $core.bool hasDetailUrl() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearDetailUrl() => $_clearField(13);
 }
 
 class GetHistoriesByTypeRequest extends $pb.GeneratedMessage {

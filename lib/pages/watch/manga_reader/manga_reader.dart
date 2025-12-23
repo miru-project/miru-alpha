@@ -81,6 +81,7 @@ class MiruMangaReader extends HookConsumerWidget {
       name: name,
     );
     return MiruScaffold(
+      topSafeArea: false,
       snapSheet: controls,
       mobileHeader: SnapSheetNested.back(title: name),
       mobileBody: readView,

@@ -97,7 +97,11 @@ class EpisodeNotifier extends _$EpisodeNotifier {
                 .epGroup[s.selectedGroupIndex]
                 .urls[s.selectedEpisodeIndex]
                 .name,
-            url: this.detailUrl,
+            url: s
+                .epGroup[s.selectedGroupIndex]
+                .urls[s.selectedEpisodeIndex]
+                .url,
+            detailUrl: this.detailUrl,
             date: DateTime.now(),
           );
           await DatabaseService.putHistory(history);

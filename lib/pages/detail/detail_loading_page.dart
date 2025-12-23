@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/pages/detail/desktop_loaded_page.dart';
 import 'package:miru_app_new/pages/detail/mobile_loaded_page.dart';
+import 'package:miru_app_new/pages/detail/widget/favorite_dialog.dart';
 import 'package:miru_app_new/pages/detail/widget/mobile_detail_tabs.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
@@ -92,7 +93,18 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
               FButton.icon(
                 style: FButtonStyle.ghost(),
                 onPress: () {
-                  // MobileWebViewPage(url:,)
+                  showDialog(
+                    context: context,
+                    builder: (context) => FavoriteDialog(
+                      meta: widget.meta,
+                      detailUrl: widget.url,
+                      detail: detial,
+                      onSuccess: () {
+                        // Trigger rebuild to update "Favorited" badge
+                        (context as Element).markNeedsBuild();
+                      },
+                    ),
+                  );
                 },
                 child: Icon(
                   FIcons.heart,

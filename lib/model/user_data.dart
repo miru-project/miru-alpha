@@ -17,6 +17,7 @@ class History {
 
   String package;
   String url;
+  String detailUrl;
   String? cover;
 
   // Store enum as String
@@ -33,6 +34,7 @@ class History {
     this.id = 0,
     required this.package,
     required this.url,
+    required this.detailUrl,
     this.cover,
     required this.type,
     required this.episodeGroupId,
@@ -54,6 +56,7 @@ class History {
       id: p.id,
       package: p.package,
       url: p.url,
+      detailUrl: p.detailUrl,
       cover: p.cover.isEmpty ? null : p.cover,
       type: p.type,
       episodeGroupId: p.episodeGroupId,
@@ -71,6 +74,7 @@ class History {
       ..id = id
       ..package = package
       ..url = url
+      ..detailUrl = detailUrl
       ..cover = cover ?? ''
       ..type = type
       ..episodeGroupId = episodeGroupId

@@ -18,12 +18,14 @@ class MiruScaffold extends StatefulHookConsumerWidget {
     this.mobileHeader,
     this.scrollController,
     this.resizeToAvoidBottomInset = false,
+    this.topSafeArea = true,
   }) : assert(desktopBody != null || mobileBody != null || body != null);
   final List<Widget> snapSheet;
   final ScrollController? scrollController;
   final SnappingSheetController? snappingSheetController;
   final Widget? mobileHeader;
   final bool resizeToAvoidBottomInset;
+  final bool topSafeArea;
   final Widget? mobileBody;
   final Widget? desktopBody;
   final Widget? body;
@@ -108,7 +110,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
         ),
         child: FScaffold(
           resizeToAvoidBottomInset: false,
-          child: SafeArea(child: widget.mobileBody ?? widget.body!),
+          child: widget.mobileBody ?? widget.body!,
         ),
       ),
     );
@@ -123,6 +125,9 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
       mobileWidget: FTheme(
         data: ref.watch(applicationControllerProvider).themeData,
         child: SafeArea(
+          top: widget.topSafeArea,
+          left: false,
+          right: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -90,7 +90,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
                   if (ext == null) return;
                   context.push(
                     '/search/single/detail',
-                    extra: DetailParam(meta: ext, url: item.url),
+                    extra: DetailParam(meta: ext, url: item.detailUrl),
                   );
                 },
                 itemExtent: DeviceUtil.device(
@@ -164,7 +164,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
                   if (ext == null) return;
                   context.push(
                     '/search/detail',
-                    extra: DetailParam(meta: ext, url: item.url),
+                    extra: DetailParam(meta: ext, url: item.detailUrl),
                   );
                 },
               );
