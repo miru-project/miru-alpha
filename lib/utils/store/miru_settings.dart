@@ -88,7 +88,6 @@ class MiruSettings {
         _settingsCache[entry.key] = entry.value;
       }
     }
-    logger.info('Settings initialized');
   }
 
   static void setSettingSync(String key, String value) {

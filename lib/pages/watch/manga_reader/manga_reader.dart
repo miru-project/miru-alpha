@@ -81,63 +81,57 @@ class MiruMangaReader extends HookConsumerWidget {
       name: name,
     );
     return MiruScaffold(
-      // scrollController: scrollController,
-      mobileHeader: SnapSheetNested.back(title: name),
       snapSheet: controls,
-      body: PlatformWidget(
-        mobileWidget: readView,
-        desktopWidget: Row(
-          children: [
-            Expanded(child: readView),
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  left: BorderSide(
-                    color: context.theme.colors.border,
-                    width: 1,
-                  ),
-                ),
+      mobileHeader: SnapSheetNested.back(title: name),
+      mobileBody: readView,
+      desktopBody: Row(
+        children: [
+          Expanded(child: readView),
+          Container(
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(color: context.theme.colors.border, width: 1),
               ),
-              width: 400,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: FButton.icon(
-                          onPress: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Icon(FIcons.chevronLeft),
-                        ),
+            ),
+            width: 400,
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FButton.icon(
+                        onPress: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Icon(FIcons.chevronLeft),
                       ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            name,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.theme.typography.xl2.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          name,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.theme.typography.xl2.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  const Divider(),
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.all(8.0),
-                      children: controls,
                     ),
+                  ],
+                ),
+                const Divider(),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.all(8.0),
+                    children: controls,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

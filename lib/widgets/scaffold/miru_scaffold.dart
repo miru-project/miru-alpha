@@ -10,38 +10,25 @@ import 'package:snapping_sheet_2/snapping_sheet.dart';
 class MiruScaffold extends StatefulHookConsumerWidget {
   const MiruScaffold({
     super.key,
-    // this.appBar,
-    required this.body,
+    this.desktopBody,
+    this.mobileBody,
+    this.body,
     this.snapSheet = const [],
     this.snappingSheetController,
     this.mobileHeader,
     this.scrollController,
     this.resizeToAvoidBottomInset = false,
-  });
-  // final PreferredSizeWidget? appBar;
-  final Widget body;
+  }) : assert(desktopBody != null || mobileBody != null || body != null);
   final List<Widget> snapSheet;
   final ScrollController? scrollController;
   final SnappingSheetController? snappingSheetController;
   final Widget? mobileHeader;
   final bool resizeToAvoidBottomInset;
+  final Widget? mobileBody;
+  final Widget? desktopBody;
+  final Widget? body;
   @override
   ConsumerState<MiruScaffold> createState() => _MiruScaffoldState();
-  const MiruScaffold.desktop({super.key, required this.body})
-    : snapSheet = const [],
-      snappingSheetController = null,
-      mobileHeader = null,
-      resizeToAvoidBottomInset = true,
-      scrollController = null;
-  const MiruScaffold.mobile({
-    super.key,
-    required this.body,
-    this.snapSheet = const [],
-    this.snappingSheetController,
-    this.mobileHeader,
-    this.scrollController,
-    this.resizeToAvoidBottomInset = false,
-  });
 }
 
 class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
@@ -59,6 +46,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     super.initState();
   }
 
+  // mobile sheet
   Widget sheet(bool isMobileTitleOnTop) {
     return Blur(
       blurDensity: 10,
@@ -120,7 +108,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
         ),
         child: FScaffold(
           resizeToAvoidBottomInset: false,
-          child: SafeArea(child: widget.body),
+          child: SafeArea(child: widget.mobileBody ?? widget.body!),
         ),
       ),
     );
@@ -144,7 +132,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
                     ? FScaffold(
                         resizeToAvoidBottomInset:
                             widget.resizeToAvoidBottomInset,
-                        child: widget.body,
+                        child: widget.mobileBody ?? widget.body!,
                       )
                     : sheet(isMobileTitleOnTop),
               ),
@@ -152,7 +140,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           ),
         ),
       ),
-      desktopWidget: widget.body,
+      desktopWidget: widget.desktopBody ?? widget.body!,
     );
   }
 }

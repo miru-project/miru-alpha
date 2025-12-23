@@ -29,129 +29,126 @@ class DesktopLoadedPage extends HookWidget {
     final coverUrl = detail.cover ?? '';
     final ep = detail.episodes ?? [];
     final selected = useState(0);
-    return FScaffold(
-      // snapSheet: [],
-      child: MiruListView(
-        padding: EdgeInsets.all(20),
-        children: [
-          Flex(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            direction: Axis.horizontal,
-            children: [
-              Expanded(
-                flex: 7,
-                child: Column(
-                  children: [
-                    DetailDesktopBox(
-                      detail: detail,
-                      meta: meta,
-                      detailUrl: detailUrl,
-                    ),
-                    const SizedBox(height: 30),
-                    if (ep.isEmpty)
-                      DesktopDetailItemBox(
-                        title: 'No Episode',
-                        padding: 20,
-                        child: SizedBox.expand(),
-                      )
-                    else
-                      OutterCard(
-                        title: 'Episodes',
-                        trailing: Row(
-                          children: [
-                            SizedBox(
-                              width: 150,
-                              child: FSelect<int>(
-                                control: .lifted(
-                                  value: selected.value,
-                                  onChange: (value) {
-                                    if (value == null) {
-                                      return;
-                                    }
-                                    selected.value = value;
-                                  },
-                                ),
-                                // initialValue: selected.value,
-                                // onChange: (value) {
-                                //   if (value == null) {
-                                //     return;
-                                //   }
-                                //   selected.value = value;
-                                // },
-                                items: {
-                                  for (int i = 0; i < ep.length; i++)
-                                    ep[i].title: i,
+    return MiruListView(
+      padding: EdgeInsets.all(20),
+      children: [
+        Flex(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          direction: Axis.horizontal,
+          children: [
+            Expanded(
+              flex: 7,
+              child: Column(
+                children: [
+                  DetailDesktopBox(
+                    detail: detail,
+                    meta: meta,
+                    detailUrl: detailUrl,
+                  ),
+                  const SizedBox(height: 30),
+                  if (ep.isEmpty)
+                    DesktopDetailItemBox(
+                      title: 'No Episode',
+                      padding: 20,
+                      child: SizedBox.expand(),
+                    )
+                  else
+                    OutterCard(
+                      title: 'Episodes',
+                      trailing: Row(
+                        children: [
+                          SizedBox(
+                            width: 150,
+                            child: FSelect<int>(
+                              control: .lifted(
+                                value: selected.value,
+                                onChange: (value) {
+                                  if (value == null) {
+                                    return;
+                                  }
+                                  selected.value = value;
                                 },
+                              ),
+                              // initialValue: selected.value,
+                              // onChange: (value) {
+                              //   if (value == null) {
+                              //     return;
+                              //   }
+                              //   selected.value = value;
+                              // },
+                              items: {
+                                for (int i = 0; i < ep.length; i++)
+                                  ep[i].title: i,
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final item in ep[selected.value].urls)
+                            FButton.icon(
+                              onPress: () {
+                                context.push(
+                                  '/watch',
+                                  extra: WatchParams(
+                                    name: detail.title,
+                                    detailImageUrl: detail.cover ?? '',
+                                    selectedEpisodeIndex: detail
+                                        .episodes![selected.value]
+                                        .urls
+                                        .indexOf(item),
+                                    selectedGroupIndex: selected.value,
+                                    epGroup: detail.episodes,
+                                    detailUrl: item.url,
+                                    url: item.url,
+                                    meta: meta,
+                                    type: meta.type,
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: EdgeInsetsGeometry.symmetric(
+                                  horizontal: 10,
+                                ),
+                                child: Text(item.name),
                               ),
                             ),
-                          ],
-                        ),
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            for (final item in ep[selected.value].urls)
-                              FButton.icon(
-                                onPress: () {
-                                  context.push(
-                                    '/watch',
-                                    extra: WatchParams(
-                                      name: detail.title,
-                                      detailImageUrl: detail.cover ?? '',
-                                      selectedEpisodeIndex: detail
-                                          .episodes![selected.value]
-                                          .urls
-                                          .indexOf(item),
-                                      selectedGroupIndex: selected.value,
-                                      epGroup: detail.episodes,
-                                      detailUrl: item.url,
-                                      url: item.url,
-                                      meta: meta,
-                                      type: meta.type,
-                                    ),
-                                  );
-                                },
-                                child: Padding(
-                                  padding: EdgeInsetsGeometry.symmetric(
-                                    horizontal: 10,
-                                  ),
-                                  child: Text(item.name),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              Spacer(),
-              Expanded(
-                flex: 3,
-                child: Column(
-                  children: [
-                    AnimatedBox(
-                      child: FCard.raw(
-                        child: ClipRRect(
-                          // borderRadius: BorderRadius.circular(),
-                          child: ImageWidget(imageUrl: coverUrl),
-                        ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 30),
-                    AnimatedBox(
-                      child: InnerCard(
-                        title: 'Tracking',
-                        child: Center(child: Text("anilist")),
+                ],
+              ),
+            ),
+            Spacer(),
+            Expanded(
+              flex: 3,
+              child: Column(
+                children: [
+                  AnimatedBox(
+                    child: FCard.raw(
+                      child: ClipRRect(
+                        // borderRadius: BorderRadius.circular(),
+                        child: ImageWidget(imageUrl: coverUrl),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 30),
+                  AnimatedBox(
+                    child: InnerCard(
+                      title: 'Tracking',
+                      child: Center(child: Text("anilist")),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          SizedBox(height: 40),
-        ],
-      ),
+            ),
+          ],
+        ),
+        SizedBox(height: 40),
+      ],
     );
   }
 }

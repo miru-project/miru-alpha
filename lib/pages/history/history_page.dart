@@ -12,7 +12,7 @@ import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
-import 'home_page.dart';
+import '../home/home_page.dart';
 import 'package:go_router/go_router.dart';
 
 class HistoryPage extends StatefulHookConsumerWidget {

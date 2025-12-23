@@ -44,7 +44,6 @@ class _MobileExtensionModal extends HookConsumerWidget {
         title: 'Status',
         items: ['ALL', 'Installed', 'Not installed'],
         onpress: (val) {
-          logger.info(val);
           extNotifier.filterByInstalled(val);
         },
       ),

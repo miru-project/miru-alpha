@@ -2,15 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/pages/detail/desktop_loaded_page.dart';
 import 'package:miru_app_new/pages/detail/mobile_loaded_page.dart';
+import 'package:miru_app_new/pages/detail/widget/mobile_detail_tabs.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
+import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 
 import 'package:miru_app_new/widgets/error.dart';
+import 'package:miru_app_new/widgets/index.dart';
 
 class DetailLoadingPage extends StatefulHookConsumerWidget {
   const DetailLoadingPage({super.key, required this.meta, required this.url});
@@ -45,13 +48,67 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
     final detial =
         ref.watch(detialProvider).detailState ?? const AsyncValue.loading();
     return detial.when(
-      data: (detial) => DeviceUtil.platformWidget(
-        mobile: MobileLoadedPage(
+      data: (detial) => MiruScaffold(
+        snapSheet: [
+          MobileDetailTabs(
+            detail: detial,
+            meta: widget.meta,
+            detailUrl: widget.url,
+          ),
+        ],
+        mobileHeader: Padding(
+          padding: EdgeInsetsGeometry.only(right: 10, left: 5, bottom: 20),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12.0, top: 4),
+                  child: Icon(
+                    FIcons.chevronLeft,
+                    size: 28,
+                    color: context.theme.colors.primary,
+                  ),
+                ),
+              ),
+              // FSelectMenuTile(title: Text(detail.episodes.toString()), menu: []),
+              Spacer(),
+              FButton.icon(
+                style: FButtonStyle.ghost(),
+                onPress: () {
+                  context.push(
+                    '/mobileWebView',
+                    extra: WebviewParam(meta: widget.meta, url: widget.url),
+                  );
+                },
+                child: Icon(
+                  FIcons.globe,
+                  size: 28,
+                  color: context.theme.colors.primary,
+                ),
+              ),
+              FButton.icon(
+                style: FButtonStyle.ghost(),
+                onPress: () {
+                  // MobileWebViewPage(url:,)
+                },
+                child: Icon(
+                  FIcons.heart,
+                  size: 28,
+                  color: context.theme.colors.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+        desktopBody: DesktopLoadedPage(
           detail: detial,
           meta: widget.meta,
           detailUrl: widget.url,
         ),
-        desktop: DesktopLoadedPage(
+        mobileBody: MobileLoadedPage(
           detail: detial,
           meta: widget.meta,
           detailUrl: widget.url,
