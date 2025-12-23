@@ -2,6 +2,7 @@ import 'package:miru_app_new/miru_core/grpc_client.dart';
 import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
     as proto;
 import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/utils/core/log.dart';
 
 class DatabaseService {
   static proto.MiruCoreServiceClient get client => MiruGrpcClient.client;
@@ -178,11 +179,13 @@ class DatabaseService {
     String package,
     ExtensionType type,
   ) async {
+    logger.info('putFavorite $detailUrl $package $type');
     final response = await client.putFavorite(
       proto.PutFavoriteRequest()
         ..url = detailUrl
         ..cover = detail?.cover ?? ''
         ..package = package
+        ..title = detail?.title ?? ''
         ..type = type.toString().split('.').last,
     );
     return Favorite.fromProto(response.favorite);

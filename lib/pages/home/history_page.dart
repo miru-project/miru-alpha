@@ -10,7 +10,6 @@ import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
 import 'home_page.dart';
@@ -158,18 +157,15 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
                 subtitle: item.episodeTitle,
                 imageUrl: item.cover,
                 onTap: () {
-                  final extensionIsExist = ExtensionUtils.runtimes.containsKey(
-                    item.package,
+                  final meta = ref.read(extensionPageProvider).metaData;
+                  final ExtensionMeta? ext = meta.firstWhereOrNull(
+                    (element) => element.packageName == item.package,
                   );
-                  if (extensionIsExist) {
-                    context.push(
-                      '/search/detail',
-                      extra: DetailParam(
-                        meta: ExtensionUtils.runtimes[item.package]!,
-                        url: item.url,
-                      ),
-                    );
-                  }
+                  if (ext == null) return;
+                  context.push(
+                    '/search/detail',
+                    extra: DetailParam(meta: ext, url: item.url),
+                  );
                 },
               );
             }, childCount: history.length),

@@ -151,7 +151,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
               );
               // return ;
             },
-            error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
+            error: (err, stack) => ErrorDisplay.grpc(err: err, stack: stack),
             loading: () => PlatformWidget(
               mobileWidget: MobileSeachGridLoadingWidget(
                 scrollController: _scrollController,

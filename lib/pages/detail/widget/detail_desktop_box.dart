@@ -4,21 +4,22 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/core/log.dart';
+
 import 'package:miru_app_new/utils/store/database_service.dart';
 
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
+import 'package:miru_app_new/pages/detail/widget/favorite_dialog.dart';
 
 class DetailDesktopBox extends HookWidget {
   const DetailDesktopBox({
     super.key,
     required this.detail,
     required this.meta,
-    required this.url,
+    required this.detailUrl,
   });
   final ExtensionDetail detail;
   final ExtensionMeta meta;
-  final String url;
+  final String detailUrl;
   @override
   Widget build(BuildContext context) {
     return AnimatedBox(
@@ -44,13 +45,14 @@ class DetailDesktopBox extends HookWidget {
                 FutureBuilder(
                   future: DatabaseService.isFavorite(
                     package: meta.packageName,
-                    url: url,
+                    url: detailUrl,
                   ),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      logger.info('snapshot.data ${snapshot.data}');
+                    if (snapshot.connectionState == ConnectionState.done &&
+                        snapshot.data == true) {
+                      return FBadge(child: Text('Favorited'));
                     }
-                    return FBadge(child: Text('Favorited'));
+                    return const SizedBox.shrink();
                   },
                 ),
                 const SizedBox(height: 10),
@@ -118,6 +120,26 @@ class DetailDesktopBox extends HookWidget {
                       suffix: Icon(FIcons.globe),
                       onPress: () {},
                       child: Text("WebView"),
+                    ),
+                    const SizedBox(width: 15),
+                    FButton(
+                      style: FButtonStyle.secondary(),
+                      suffix: Icon(FIcons.heart),
+                      onPress: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => FavoriteDialog(
+                            meta: meta,
+                            detailUrl: detailUrl,
+                            detail: detail,
+                            onSuccess: () {
+                              // Trigger rebuild to update "Favorited" badge
+                              (context as Element).markNeedsBuild();
+                            },
+                          ),
+                        );
+                      },
+                      child: Text("Favorite"),
                     ),
                   ],
                 ),

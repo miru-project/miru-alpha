@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
+import 'package:grpc/grpc.dart';
 
 class ErrorDisplay extends StatelessWidget {
   final Object err;
@@ -37,6 +38,24 @@ class ErrorDisplay extends StatelessWidget {
       } else {
         errContent = e.message ?? e.stackTrace.toString();
       }
+      return;
+    }
+    errTitle = "Error: $err";
+    errContent = stack.toString();
+    return;
+  }
+
+  ErrorDisplay.grpc({
+    super.key,
+    required this.err,
+    required this.stack,
+    this.onRefresh,
+    this.prefix,
+  }) {
+    if (err is GrpcError) {
+      final e = err as GrpcError;
+      errTitle = "GRPC Error ${e.code}: ${e.codeName}";
+      errContent = e.message ?? "";
       return;
     }
     errTitle = "Error: $err";

@@ -1,4 +1,5 @@
 import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/pages/home/home_page.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -83,24 +84,24 @@ class EpisodeNotifier extends _$EpisodeNotifier {
       // Run async operation decoupled from the synchronous dispose cycle
       Future(() async {
         try {
-          await DatabaseService.putHistory(
-            History(
-              title: s.name,
-              package: this.package,
-              type: this.type.toString(),
-              episodeGroupId: s.selectedGroupIndex,
-              episodeId: s.selectedEpisodeIndex,
-              progress: s.selectedEpisodeIndex,
-              cover: this.imageUrl,
-              totalProgress: s.epGroup[s.selectedGroupIndex].urls.length,
-              episodeTitle: s
-                  .epGroup[s.selectedGroupIndex]
-                  .urls[s.selectedEpisodeIndex]
-                  .name,
-              url: this.detailUrl,
-              date: DateTime.now(),
-            ),
+          final history = History(
+            title: s.name,
+            package: this.package,
+            type: this.type.toString(),
+            episodeGroupId: s.selectedGroupIndex,
+            episodeId: s.selectedEpisodeIndex,
+            progress: s.selectedEpisodeIndex,
+            cover: this.imageUrl,
+            totalProgress: s.epGroup[s.selectedGroupIndex].urls.length,
+            episodeTitle: s
+                .epGroup[s.selectedGroupIndex]
+                .urls[s.selectedEpisodeIndex]
+                .name,
+            url: this.detailUrl,
+            date: DateTime.now(),
           );
+          await DatabaseService.putHistory(history);
+          ref.read(mainPageProvider.notifier).addHistory(history);
         } catch (e) {
           logger.info(e);
         }

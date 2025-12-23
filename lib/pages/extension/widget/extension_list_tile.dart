@@ -191,10 +191,27 @@ class ExtensionGridTile extends StatelessWidget {
                   child: Wrap(spacing: 5, runSpacing: 5, children: badges),
                 ),
                 if (isInstalled)
-                  FButton(
-                    onPress: onUninstall,
-                    prefix: Icon(FIcons.trash2),
-                    child: Text('Uninstall'),
+                  Row(
+                    spacing: 10,
+                    mainAxisSize: .max,
+                    children: [
+                      Expanded(
+                        child: FButton(
+                          onPress: () {},
+                          style: FButtonStyle.secondary(),
+                          prefix: Icon(FIcons.cog),
+                          child: Text('Configure'),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: FButton(
+                          onPress: onUninstall,
+                          prefix: Icon(FIcons.trash2),
+                          child: Text('Uninstall'),
+                        ),
+                      ),
+                    ],
                   )
                 else
                   FButton(

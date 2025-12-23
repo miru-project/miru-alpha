@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:forui/forui.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 late PackageInfo packageInfo;
@@ -19,7 +20,7 @@ class DeviceUtil {
   }
 
   static bool isMobileLayout(BuildContext context) {
-    return MediaQuery.of(context).size.width < 640;
+    return MediaQuery.of(context).size.width < context.theme.breakpoints.lg;
   }
 
   static T device<T>({

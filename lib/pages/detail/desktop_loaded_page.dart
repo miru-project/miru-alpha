@@ -17,14 +17,16 @@ import 'package:miru_app_new/widgets/index.dart';
 class DesktopLoadedPage extends HookWidget {
   final ExtensionDetail detail;
   final ExtensionMeta meta;
+  final String detailUrl;
   const DesktopLoadedPage({
     super.key,
     required this.detail,
     required this.meta,
+    required this.detailUrl,
   });
   @override
   Widget build(BuildContext context) {
-    final url = detail.cover ?? '';
+    final coverUrl = detail.cover ?? '';
     final ep = detail.episodes ?? [];
     final selected = useState(0);
     return FScaffold(
@@ -40,7 +42,11 @@ class DesktopLoadedPage extends HookWidget {
                 flex: 7,
                 child: Column(
                   children: [
-                    DetailDesktopBox(detail: detail, meta: meta, url: url),
+                    DetailDesktopBox(
+                      detail: detail,
+                      meta: meta,
+                      detailUrl: detailUrl,
+                    ),
                     const SizedBox(height: 30),
                     if (ep.isEmpty)
                       DesktopDetailItemBox(
@@ -127,7 +133,7 @@ class DesktopLoadedPage extends HookWidget {
                       child: FCard.raw(
                         child: ClipRRect(
                           // borderRadius: BorderRadius.circular(),
-                          child: ImageWidget(imageUrl: url),
+                          child: ImageWidget(imageUrl: coverUrl),
                         ),
                       ),
                     ),

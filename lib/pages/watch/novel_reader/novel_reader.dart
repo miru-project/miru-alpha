@@ -6,7 +6,6 @@ import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/novel_reader_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 

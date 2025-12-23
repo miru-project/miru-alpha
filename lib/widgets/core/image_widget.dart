@@ -13,6 +13,7 @@ class ImageWidget extends StatelessWidget {
     this.errChild = const Icon(FIcons.cloudAlert),
     this.loadingChild = const Center(child: FCircularProgress()),
     this.borderRadius = 10,
+    this.clipBehavior = Clip.antiAlias,
   });
   final String? imageUrl;
   final double? width;
@@ -21,6 +22,7 @@ class ImageWidget extends StatelessWidget {
   final Widget errChild;
   final Widget loadingChild;
   final double borderRadius;
+  final Clip clipBehavior;
   @override
   Widget build(BuildContext context) {
     if (imageUrl?.isEmpty ?? true) return errChild;
@@ -28,6 +30,7 @@ class ImageWidget extends StatelessWidget {
     return ExtendedImage.network(
       imageUrl!,
       borderRadius: BorderRadius.circular(borderRadius),
+      clipBehavior: clipBehavior,
       shape: BoxShape.rectangle,
       width: width,
       height: height,

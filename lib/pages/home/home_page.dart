@@ -2,7 +2,7 @@ import 'package:collection/collection.dart';
 // trigger refresh
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
@@ -10,6 +10,8 @@ import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
+
+export 'library_page.dart';
 
 class MainPageState {
   int selectedIndex;
@@ -67,6 +69,10 @@ class MainPageNotifier extends Notifier<MainPageState> {
     state = state.copyWith(history: updateValue);
   }
 
+  void addHistory(History history) {
+    state = state.copyWith(history: [history, ...state.history]);
+  }
+
   Future<void> refreshHistory() async {
     final history = await DatabaseService.getHistoriesByType();
     state = state.copyWith(history: history);
@@ -102,90 +108,87 @@ class HomePageCarousel extends ConsumerWidget {
     final ExtensionMeta? ext = meta.firstWhereOrNull(
       (element) => element.packageName == item.package,
     );
-    return SizedBox(
-      width: 600,
-      child: FCard.raw(
-        child: Row(
-          children: [
-            Flexible(
-              child: ExtendedImage.network(
-                // shape: BoxShape.rectangle,
-                fit: BoxFit.fitHeight,
-                item.cover ?? '',
-                // borderRadius: const BorderRadius.horizontal(
-                //   left: Radius.circular(20),
-                //   right: Radius.circular(10),
-                // ),
-              ),
+    return FCard.raw(
+      child: Row(
+        children: [
+          Flexible(
+            child: ExtendedImage.network(
+              // shape: BoxShape.rectangle,
+              fit: BoxFit.fitHeight,
+              item.cover ?? '',
+              // borderRadius: const BorderRadius.horizontal(
+              //   left: Radius.circular(20),
+              //   right: Radius.circular(10),
+              // ),
             ),
-            const SizedBox(width: 15),
-            SizedBox(
-              // width: DeviceUtil.getWidth(context) * .2,
-              child: DefaultTextStyle(
-                style: TextStyle(fontWeight: FontWeight.bold),
-                overflow: TextOverflow.ellipsis,
-                child: SizedBox(
-                  width: DeviceUtil.device(
-                    mobile: DeviceUtil.getWidth(context) - 200,
-                    desktop: DeviceUtil.getWidth(context) * .25,
-                    context: context,
-                  ),
-                  child: Padding(
-                    padding: .all(10),
-                    child: Flex(
-                      direction: Axis.vertical,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 10),
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            item.title,
-                            maxLines: 2,
-                            style: const TextStyle(fontSize: 20),
-                          ),
-                        ),
-                        Text(
-                          item.episodeTitle,
+          ),
+          const SizedBox(width: 15),
+          SizedBox(
+            // width: DeviceUtil.getWidth(context) * .2,
+            child: DefaultTextStyle(
+              style: TextStyle(fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+              child: SizedBox(
+                width: DeviceUtil.device(
+                  mobile: DeviceUtil.getWidth(context) - 200,
+                  desktop: DeviceUtil.getWidth(context) * .25,
+                  context: context,
+                ),
+                child: Padding(
+                  padding: .all(10),
+                  child: Flex(
+                    direction: Axis.vertical,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      Expanded(
+                        flex: 3,
+                        child: Text(
+                          item.title,
                           maxLines: 2,
-                          style: const TextStyle(fontSize: 17),
+                          style: const TextStyle(fontSize: 20),
                         ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 20,
-                          child: Row(
-                            children: [
-                              ExtendedImage.network(
-                                loadStateChanged: (state) {
-                                  if (state.extendedImageLoadState ==
-                                      LoadState.failed) {
-                                    return const Icon(Icons.error);
-                                  }
-                                  return null;
-                                },
-                                cache: true,
-                                ext?.icon ?? '',
-                                shape: BoxShape.rectangle,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                ext?.name ?? "Name Not Found",
-                                style: const TextStyle(),
-                              ),
-                            ],
-                          ),
+                      ),
+                      Text(
+                        item.episodeTitle,
+                        maxLines: 2,
+                        style: const TextStyle(fontSize: 17),
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        height: 20,
+                        child: Row(
+                          children: [
+                            ExtendedImage.network(
+                              loadStateChanged: (state) {
+                                if (state.extendedImageLoadState ==
+                                    LoadState.failed) {
+                                  return const Icon(Icons.error);
+                                }
+                                return null;
+                              },
+                              cache: true,
+                              ext?.icon ?? '',
+                              shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              ext?.name ?? "Name Not Found",
+                              style: const TextStyle(),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 10),
-                        Text(convertTime(item.date)),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(convertTime(item.date)),
+                    ],
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -277,280 +280,3 @@ class HomePageCarousel extends ConsumerWidget {
 //     );
 //   }
 // }
-
-class FavoriteTab extends ConsumerStatefulWidget {
-  const FavoriteTab({super.key});
-  @override
-  createState() => _FavoriteTabState();
-}
-
-class _FavoriteTabState extends ConsumerState<FavoriteTab> {
-  final ValueNotifier<List<FavoriateGroup>> favGroup = ValueNotifier([]);
-  final ValueNotifier<List<int>> setLongPress = ValueNotifier([]);
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() async {
-      favGroup.value = await DatabaseService.getAllFavoriteGroup();
-    });
-  }
-
-  String text = '';
-  @override
-  Widget build(BuildContext context) {
-    final textController = useTextEditingController();
-    final errorText = useState<String?>(null);
-    // final isShowAddPopUp = useState(false);
-
-    textController.addListener(() {
-      text = textController.text;
-      if (text.isEmpty) {
-        errorText.value = 'Name is empty';
-        return;
-      }
-      if (favGroup.value.any((element) => element.name == text)) {
-        errorText.value = 'Same name exists';
-        return;
-      }
-      errorText.value = null;
-    });
-
-    final selected = ref.watch(mainPageProvider).selectedGroups;
-
-    void showPopUp(List<FavoriateGroup> favGroupValue, int index) {
-      textController.text = favGroupValue[index].name;
-      setLongPress.value = [index];
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-      child: (ValueListenableBuilder(
-        valueListenable: favGroup,
-        builder: (context, favGroupValue, _) => DeviceUtil.deviceWidgetFunction(
-          child: <Widget>[
-            ...List.generate(
-              favGroupValue.length,
-              (index) => GestureDetector(
-                onSecondaryTap: () => showPopUp(favGroupValue, index),
-                child: FPopover(
-                  popoverBuilder: (context, controller) => Column(
-                    children: [
-                      Text(
-                        'Edit',
-                        style: TextStyle(
-                          // color:
-                          //     context.moonTheme?.chipTheme.colors.textColor,
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          // fontFamily: "HarmonyOS_Sans",
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: FTextField(
-                          error: (errorText.value == null)
-                              ? null
-                              : Text(errorText.value!),
-                          // inactiveBorderColor: Colors.transparent,
-                          hint: 'Group Name',
-                          suffixBuilder: (context, _, _) => FButton.icon(
-                            onPress: () {
-                              textController.clear();
-                            },
-
-                            child: const Icon(FIcons.circleX),
-                          ),
-                          // style: const TextStyle(
-                          //   fontSize: 15,
-                          //   fontWeight: FontWeight.bold,
-                          //   // fontFamily: "HarmonyOS_Sans",
-                          // ),
-                          control: .managed(controller: textController),
-                        ),
-                      ),
-                      // const SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          FButton.icon(
-                            onPress: () async {
-                              // delete group
-                              await DatabaseService.deleteFavoriteGroup([
-                                favGroupValue[index].name,
-                              ]);
-                              favGroup.value =
-                                  await DatabaseService.getAllFavoriteGroup();
-                              if (selected.contains(index)) {
-                                final update = List<int>.from(selected);
-                                update.removeWhere(
-                                  (element) => element == index,
-                                );
-                                ref
-                                    .read(mainPageProvider.notifier)
-                                    .setSelectedGroups(update);
-                                setLongPress.value = [];
-                                return;
-                              }
-                              //shift the selected index after delete
-                              for (int i = 0; i < selected.length; i++) {
-                                if (selected[i] > index) {
-                                  selected[i]--;
-                                }
-                              }
-                              setLongPress.value = [];
-                            },
-                            child: const Icon(FIcons.trash),
-                          ),
-                          FButton.icon(
-                            onPress: errorText.value == null
-                                ? () async {
-                                    final oldname = favGroupValue[index].name;
-                                    await DatabaseService.renameFavoriteGroup(
-                                      oldname,
-                                      textController.text,
-                                    );
-                                    favGroup.value =
-                                        await DatabaseService.getAllFavoriteGroup();
-                                    setLongPress.value = [];
-                                  }
-                                : null,
-                            child: const Icon(FIcons.textCursor),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  // show: setLongPress.value.contains(index),
-                  child: Text("WIP"),
-                  // MoonChip(
-                  //   onLongPress: () => showPopUp(favGroupValue, index),
-                  //   onTap: () {
-                  //     final update = List<int>.from(selected);
-                  //     if (selected.contains(index)) {
-                  //       update.remove(index);
-                  //       ref
-                  //           .read(mainPageProvider.notifier)
-                  //           .setSelectedGroups(update);
-                  //       return;
-                  //     }
-                  //     update.add(index);
-                  //     ref
-                  //           .read(mainPageProvider.notifier)
-                  //           .setSelectedGroups(update);
-                  //   },
-                  //   isActive: selected.contains(index),
-                  //   gap: 5,
-                  //   label: Text(
-                  //     favGroupValue[index].name,
-                  //     style: const TextStyle(
-                  //       fontSize: 15,
-                  //       fontWeight: FontWeight.bold,
-                  //       // fontFamily: "HarmonyOS_Sans",
-                  //     ),
-                  //   ),
-                  // ),
-                ),
-              ),
-            ),
-            // MoonPopover(
-            //   popoverPosition: MoonPopoverPosition.bottom,
-            //   onTapOutside: () => isShowAddPopUp.value = false,
-            //   decoration: BoxDecoration(
-            //     color: context.moonTheme?.chipTheme.colors.backgroundColor,
-            //     borderRadius: BorderRadius.circular(10),
-            //   ),
-            //   contentPadding: const EdgeInsets.symmetric(
-            //     horizontal: 20,
-            //     vertical: 10,
-            //   ),
-            //   maxWidth: 170,
-            //   content: Column(
-            //     children: [
-            //       Text(
-            //         'Add',
-            //         style: TextStyle(
-            //           color: context.moonTheme?.chipTheme.colors.textColor,
-            //           fontSize: 17,
-            //           fontWeight: FontWeight.bold,
-            //           // fontFamily: "HarmonyOS_Sans",
-            //         ),
-            //       ),
-            //       const SizedBox(height: 20),
-            //       Padding(
-            //         padding: const EdgeInsets.symmetric(horizontal: 5),
-            //         child: Material(
-            //           child: MoonFormTextInput(
-            //             errorText: errorText.value,
-            //             inactiveBorderColor: Colors.transparent,
-            //             hintText: 'Group Name',
-            //             trailing: MoonButton.icon(
-            //               onTap: () {
-            //                 textController.clear();
-            //               },
-            //               buttonSize: MoonButtonSize.sm,
-            //               icon: const Icon(
-            //                 MoonIcons.controls_close_24_regular,
-            //               ),
-            //             ),
-            //             style: const TextStyle(
-            //               fontSize: 15,
-            //               fontWeight: FontWeight.bold,
-            //               // fontFamily: "HarmonyOS_Sans",
-            //             ),
-            //             // textInputSize:
-            //             //     MoonTextInputSize.sm,
-            //             controller: textController,
-            //           ),
-            //         ),
-            //       ),
-            //       // const SizedBox(height: 10),
-            //       MoonButton.icon(
-            //         iconColor:
-            //             context
-            //                 .moonTheme
-            //                 ?.segmentedControlTheme
-            //                 .colors
-            //                 .backgroundColor,
-            //         icon: const Text('Confirm'),
-            //         onTap:
-            //             errorText.value == null
-            //                 ? () {
-            //                   DatabaseService.putFavoriteGroup(
-            //                     textController.text,
-            //                   );
-            //                   textController.clear();
-            //                   isShowAddPopUp.value = false;
-            //                   context.pop();
-            //                 }
-            //                 : null,
-            //       ),
-            //     ],
-            //   ),
-            //   child: MoonButton(
-            //     backgroundColor:
-            //         context.moonTheme?.chipTheme.colors.backgroundColor,
-            //     leading: const Icon(MoonIcons.controls_plus_24_regular),
-            //     onTap: () {
-            //       textController.clear();
-            //       isShowAddPopUp.value = false;
-            //     },
-            //     label: const Text('ADD'),
-            //   ),
-            // ),
-          ],
-          mobile: (children) =>
-              Wrap(spacing: 5, runSpacing: 10, children: children),
-          desktop: (children) => SizedBox(
-            height: 35,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: children,
-            ),
-          ),
-          context: context,
-        ),
-      )),
-    );
-  }
-}

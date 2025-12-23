@@ -51,9 +51,13 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
           meta: widget.meta,
           detailUrl: widget.url,
         ),
-        desktop: DesktopLoadedPage(detail: detial, meta: widget.meta),
+        desktop: DesktopLoadedPage(
+          detail: detial,
+          meta: widget.meta,
+          detailUrl: widget.url,
+        ),
       ),
-      error: (err, stack) => ErrorDisplay.network(err: err, stack: stack),
+      error: (err, stack) => ErrorDisplay.grpc(err: err, stack: stack),
       loading: () => Center(child: FCircularProgress()),
     );
   }
