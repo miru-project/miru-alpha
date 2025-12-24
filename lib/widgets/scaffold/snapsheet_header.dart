@@ -54,15 +54,17 @@ class SnapSheetNested extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsetsGeometry.only(bottom: 10),
+      padding: EdgeInsetsGeometry.only(bottom: 10, right: 12),
       child: Row(
         children: [
           ...prefix,
-          Text(
-            title,
-            maxLines: 1,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
-            overflow: .ellipsis,
+          Flexible(
+            child: Text(
+              title,
+              maxLines: 1,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+              overflow: .ellipsis,
+            ),
           ),
           if (suffix.isNotEmpty) const Spacer(),
           ...suffix,

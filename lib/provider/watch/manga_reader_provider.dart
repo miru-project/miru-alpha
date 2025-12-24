@@ -54,7 +54,7 @@ class MangaReader extends _$MangaReader {
     Map<String, String>? headers,
   }) {
     final readMode = MiruSettings.getSettingSync<MangaReadMode>(
-      SettingKey.readingMode,
+      SettingKey.mangaReadingMode,
     );
     final initState = MangaReaderState(
       content: data.urls,

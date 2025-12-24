@@ -1,3 +1,6 @@
+import 'package:flutter/widgets.dart';
+import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/utils/store/storage_index.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -7,6 +10,7 @@ class NovelReaderState {
   final List<String> content;
   final double offset;
   final int itemPosition;
+  final NovelReadMode readMode;
   final int totalPage;
 
   const NovelReaderState({
@@ -14,6 +18,7 @@ class NovelReaderState {
     this.offset = 0,
     this.totalPage = 0,
     this.itemPosition = 0,
+    this.readMode = NovelReadMode.standard,
   });
 
   NovelReaderState copyWith({
@@ -21,12 +26,14 @@ class NovelReaderState {
     double? offset,
     int? itemPosition,
     int? totalPage,
+    NovelReadMode? readMode,
   }) {
     return NovelReaderState(
       content: content ?? this.content,
       totalPage: totalPage ?? this.totalPage,
       offset: offset ?? this.offset,
       itemPosition: itemPosition ?? this.itemPosition,
+      readMode: readMode ?? this.readMode,
     );
   }
 }
@@ -37,10 +44,16 @@ class NovelReader extends _$NovelReader {
   final scrollOffsetController = ScrollOffsetController();
   final scrollOffsetListener = ScrollOffsetListener.create();
   final itemScrollController = ItemScrollController();
+  final pageController = PageController();
+  bool isAdjusting = false;
 
   @override
-  NovelReaderState build() {
-    return const NovelReaderState();
+  NovelReaderState build(List<String> content) {
+    final readMode = MiruSettings.getSettingSync<NovelReadMode>(
+      SettingKey.novelReadingMode,
+    );
+    final state = NovelReaderState(content: content, readMode: readMode);
+    return state;
   }
 
   void putContent(List<String> content) {
@@ -66,5 +79,40 @@ class NovelReader extends _$NovelReader {
 
   void setContent(List<String> content) {
     state = state.copyWith(content: content, totalPage: content.length - 1);
+  }
+
+  // Set the page number
+  void setPageNumber(int page) {
+    if (isAdjusting) return;
+    state = state.copyWith(itemPosition: page);
+  }
+
+  void jumpTo(int page) {
+    setPageNumber(page);
+    switch (state.readMode) {
+      case NovelReadMode.standard:
+        isAdjusting = true;
+        itemScrollController
+            .scrollTo(index: page, duration: const Duration(milliseconds: 100))
+            .then((_) {
+              isAdjusting = false;
+            });
+      case NovelReadMode.rightToLeft:
+        isAdjusting = true;
+        pageController.animateToPage(
+          page,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeInOut,
+        );
+      case NovelReadMode.webToon:
+        isAdjusting = true;
+        itemScrollController.scrollTo(
+          index: page,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeInOut,
+        );
+      default:
+        throw Exception("Unsupported read mode");
+    }
   }
 }

@@ -5,9 +5,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/pages/watch/manga_reader/widget/manag_image.dart';
-import 'package:miru_app_new/pages/watch/manga_reader/widget/manga_episodes.dart';
+import 'package:miru_app_new/pages/watch/widget/episodes_select.dart';
 import 'package:miru_app_new/pages/watch/manga_reader/widget/manga_page_settings.dart';
-import 'package:miru_app_new/pages/watch/manga_reader/widget/mobile_page_slider.dart';
+import 'package:miru_app_new/pages/watch/manga_reader/widget/manga_page_slider.dart';
 import 'package:miru_app_new/pages/watch/manga_reader/widget/manga_general_settings.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/manga_reader_provider.dart';
@@ -45,16 +45,13 @@ class MiruMangaReader extends HookConsumerWidget {
       value,
     );
     final controls = [
-      MangaMobilePageSlider(
-        epProvider: epProvider,
-        mangaProvider: mangaProvider,
-      ),
+      MangaPageSlider(epProvider: epProvider, mangaProvider: mangaProvider),
       const SizedBox(height: 10),
       FTabs(
         children: [
           FTabEntry(
             label: Icon(FIcons.tableOfContents),
-            child: Center(child: MangaEpisodes(epProvider: epProvider)),
+            child: Center(child: EpisodeSelect(epProvider: epProvider)),
           ),
           FTabEntry(
             label: Icon(FIcons.book),
@@ -73,7 +70,6 @@ class MiruMangaReader extends HookConsumerWidget {
     ];
     final readView = _MiruMangaReadView(
       data: value,
-      // detailImageUrl: detailImageUrl,
       detailUrl: url,
       epProvider: epProvider,
       mangaProvider: mangaProvider,
@@ -160,60 +156,17 @@ class _MiruMangaReadView extends StatefulHookConsumerWidget {
 }
 
 class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
-  // late String _coverUrl;
   @override
   void initState() {
     super.initState();
-    // _coverUrl = ref.read(widget.epProvider.notifier).imageUrl;
   }
-
-  // Timer? _debounce;
-
-  // void _saveHistory(MangaReaderState next) async {
-  //   final epState = ref.read(widget.epProvider);
-
-  //   final history = History(
-  //     package: widget.meta.packageName,
-  //     url: widget.detailUrl,
-  //     cover: _coverUrl,
-  //     type: widget.meta.type.toString().split('.').last,
-  //     episodeGroupId: epState.selectedGroupIndex,
-  //     episodeId: epState.selectedEpisodeIndex,
-  //     title: widget.name,
-  //     episodeTitle: epState
-  //         .epGroup[epState.selectedGroupIndex]
-  //         .urls[epState.selectedEpisodeIndex]
-  //         .name,
-  //     progress: next.itemPosition.toString(),
-  //     totalProgress: next.totalPage.toString(),
-  //     date: DateTime.now(),
-  //   );
-  //   await DatabaseService.putHistory(history);
-  //   ref.read(mainPageProvider.notifier).refreshHistory();
-  // }
-
-  // @override
-  // void dispose() {
-  //   // _debounce?.cancel();
-  //   _saveHistory(ref.read(widget.mangaProvider));
-  //   super.dispose();
-  // }
 
   @override
   Widget build(BuildContext context) {
-    // ref.listen(widget.mangaProvider, (previous, next) {
-    //   if (previous?.itemPosition != next.itemPosition) {
-    //     if (_debounce?.isActive ?? false) _debounce?.cancel();
-    //     _debounce = Timer(const Duration(seconds: 2), () {
-    //       _saveHistory(next);
-    //     });
-    //   }
-    // });
-
     final item = widget.data.urls;
-
     final mode = ref.watch(widget.mangaProvider.select((e) => e.readMode));
     final c = ref.read(widget.mangaProvider.notifier);
+
     switch (mode) {
       case MangaReadMode.rightToLeft || MangaReadMode.standard:
         return ExtendedImageGesturePageView.builder(

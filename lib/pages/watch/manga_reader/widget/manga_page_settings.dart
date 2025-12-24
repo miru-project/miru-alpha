@@ -19,9 +19,9 @@ class MangaPageSetting extends ConsumerWidget {
           title: 'ReadMode',
           subtitle: 'ReadMode',
           radios: MangaReadMode.values.map((e) => e.name).toList(),
-          value: MiruSettings.getSettingSync(SettingKey.readingMode),
+          value: MiruSettings.getSettingSync(SettingKey.mangaReadingMode),
           onChanged: (val) {
-            MiruSettings.setSetting(SettingKey.readingMode, val);
+            MiruSettings.setSetting(SettingKey.mangaReadingMode, val);
             ref
                 .read(mangaProvider.notifier)
                 .changeReadMode(

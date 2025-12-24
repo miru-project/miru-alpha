@@ -4,22 +4,22 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/pages/watch/video_player/widget/seek_bar_thumb.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
-import 'package:miru_app_new/provider/watch/manga_reader_provider.dart';
+import 'package:miru_app_new/provider/watch/novel_reader_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 
-class MangaMobilePageSlider extends StatefulHookConsumerWidget {
-  const MangaMobilePageSlider({
+class NovelPageSlider extends StatefulHookConsumerWidget {
+  const NovelPageSlider({
     super.key,
     required this.epProvider,
-    required this.mangaProvider,
+    required this.novelProvider,
   });
   final EpisodeNotifierProvider epProvider;
-  final MangaReaderProvider mangaProvider;
+  final NovelReaderProvider novelProvider;
   @override
-  createState() => MangaMobileSliderState();
+  createState() => NovelMobileSliderState();
 }
 
-class MangaMobileSliderState extends ConsumerState<MangaMobilePageSlider> {
+class NovelMobileSliderState extends ConsumerState<NovelPageSlider> {
   late ValueNotifier<double> sliderValue;
   @override
   void initState() {
@@ -30,8 +30,8 @@ class MangaMobileSliderState extends ConsumerState<MangaMobilePageSlider> {
   Widget build(BuildContext context) {
     final isSliding = useState(false);
     sliderValue = useState(0.0);
-    final readerState = ref.watch(widget.mangaProvider);
-    final c = ref.watch(widget.mangaProvider.notifier);
+    final readerState = ref.watch(widget.novelProvider);
+    final c = ref.watch(widget.novelProvider.notifier);
     final epState = ref.watch(widget.epProvider);
     final epNotifier = ref.watch(widget.epProvider.notifier);
 

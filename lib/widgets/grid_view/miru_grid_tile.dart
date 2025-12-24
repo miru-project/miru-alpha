@@ -164,7 +164,24 @@ class MiruMobileTile extends StatelessWidget {
               ),
             )
           else
-            ImageWidget(imageUrl: imageUrl!, fit: BoxFit.cover),
+            ImageWidget(
+              imageUrl: imageUrl!,
+              fit: BoxFit.cover,
+              errChild: Container(
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: context.theme.cardStyle.decoration.borderRadius,
+                ),
+
+                child: Center(
+                  child: Text(
+                    title,
+                    softWrap: true,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                  ),
+                ),
+              ),
+            ),
 
           // Bottom gradient shadow
           Positioned(

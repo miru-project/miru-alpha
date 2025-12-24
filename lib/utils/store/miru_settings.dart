@@ -56,7 +56,7 @@ class MiruSettings {
     SettingKey.keyJ: "-10.0",
     SettingKey.arrowLeft: "-2.0",
     SettingKey.arrowRight: "2.0",
-    SettingKey.readingMode: "standard",
+    SettingKey.mangaReadingMode: "standard",
     SettingKey.aniListToken: '',
     SettingKey.aniListUserId: '',
     SettingKey.autoTracking: 'true',
@@ -81,6 +81,7 @@ class MiruSettings {
     SettingKey.showDeleteExtensionDialog: "true",
     SettingKey.pinnedExtension: {}.toString(),
     SettingKey.showPageNumber: "true",
+    SettingKey.novelReadingMode: "webToon",
   };
   static Future<void> _initSettings() async {
     for (final entry in _defaultSettings.entries) {
@@ -142,6 +143,8 @@ class MiruSettings {
         return val.split(',').map((e) => e.trim()).toSet() as T;
       case const (MangaReadMode):
         return MangaReadMode.values.where((e) => e.name == value).first as T;
+      case const (NovelReadMode):
+        return NovelReadMode.values.where((e) => e.name == value).first as T;
       default:
         throw Exception('Unknown $T');
     }
@@ -163,7 +166,7 @@ class SettingKey {
   static const keyJ = 'KeyJ';
   static const arrowLeft = 'Arrowleft';
   static const arrowRight = 'Arrowright';
-  static const readingMode = 'ReadingMode';
+  static const mangaReadingMode = 'ReadingMode';
   static const aniListToken = 'AniListToken';
   static const aniListUserId = 'AniListUserId';
   static const autoTracking = 'AutoTracking';
@@ -189,4 +192,5 @@ class SettingKey {
   static const pinnedExtension = "PinnedExtension";
   static const showDeleteExtensionDialog = "ShowDeleteExtensionDialog";
   static const showPageNumber = 'ShowPageNumber';
+  static const novelReadingMode = 'NovelReadingMode';
 }

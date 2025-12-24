@@ -131,7 +131,11 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (isMobileTitleOnTop) widget.mobileHeader ?? const SizedBox(),
+              if (isMobileTitleOnTop)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: widget.mobileHeader,
+                ),
               Expanded(
                 child: (isMobileTitleOnTop && widget.snapSheet.isEmpty)
                     ? FScaffold(

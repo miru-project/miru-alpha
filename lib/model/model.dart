@@ -17,6 +17,16 @@ enum MangaReadMode {
   webTonn,
 }
 
+enum NovelReadMode {
+  // 标准 从左到右
+  standard,
+  // 从右到左
+  rightToLeft,
+  webToon,
+  rightToLeftFlip,
+  standardFlip,
+}
+
 @JsonSerializable()
 class Extension {
   Extension({

@@ -5,8 +5,8 @@ import 'package:forui_hooks/forui_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 
-class MangaEpisodes extends HookConsumerWidget {
-  const MangaEpisodes({super.key, required this.epProvider});
+class EpisodeSelect extends HookConsumerWidget {
+  const EpisodeSelect({super.key, required this.epProvider});
   final EpisodeNotifierProvider epProvider;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
