@@ -8,6 +8,7 @@ import 'package:forui/widgets/card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
+import 'package:miru_app_new/provider/watch/main_provider.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
@@ -43,7 +44,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
     super.initState();
     Future.microtask(() async {
       final history = await DatabaseService.getHistoriesByType();
-      ref.read(mainPageProvider.notifier).updateHistory(history);
+      ref.read(mainProvider.notifier).updateHistory(history);
     });
   }
 
@@ -62,7 +63,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
       return null;
     }, [controller]);
     final width = DeviceUtil.getWidth(context);
-    final history = ref.watch(mainPageProvider).history;
+    final history = ref.watch(mainProvider).history;
     historyLen = history.length;
     return CustomScrollView(
       slivers: [

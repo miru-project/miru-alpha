@@ -1,6 +1,6 @@
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/pages/home/home_page.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
+import 'package:miru_app_new/provider/watch/main_provider.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -106,7 +106,7 @@ class EpisodeNotifier extends _$EpisodeNotifier {
             date: DateTime.now(),
           );
           await DatabaseService.putHistory(history);
-          ref.read(mainPageProvider.notifier).addHistory(history);
+          ref.read(mainProvider.notifier).addHistory(history);
           ref.read(detialProvider.notifier).putHistory(history);
         } catch (e) {
           logger.info(e);

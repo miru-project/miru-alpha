@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/provider/watch/main_provider.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
@@ -7,7 +8,6 @@ import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'package:miru_app_new/pages/home/home_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/pages/favorite/favorite_tab.dart';
 
@@ -49,7 +49,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
   }
 
   List<Favorite> filterBySearch(List<Favorite> fav) {
-    final search = ref.read(mainPageProvider).searchText;
+    final search = ref.read(mainProvider).searchText;
     if (search.isEmpty) {
       return fav;
     }
@@ -62,7 +62,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
   }
 
   List<Favorite> filterFavoriteByGroup(List<Favorite> fav) {
-    final selected = ref.read(mainPageProvider).selectedGroups;
+    final selected = ref.read(mainProvider).selectedGroups;
 
     // If no group selected, show all favorites
     List<Favorite> result;
@@ -90,7 +90,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<MainPageState>(mainPageProvider, (prev, next) {
+    ref.listen<MainPageState>(mainProvider, (prev, next) {
       // Re-filter when main page state (selection/search) changes
       _fav.value = filterFavoriteByGroup(allFav);
       filterFav = _fav.value;

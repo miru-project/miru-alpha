@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/pages/home/home_page.dart';
 import 'package:miru_app_new/pages/home/widget/continue_watch.dart';
 import 'package:miru_app_new/pages/home/widget/download_item.dart';
 import 'package:miru_app_new/pages/home/widget/favorite_card.dart';
+import 'package:miru_app_new/provider/watch/main_provider.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:miru_app_new/model/index.dart';
 
@@ -14,7 +14,7 @@ class LibraryPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final history = ref.watch(mainPageProvider).history;
+    final history = ref.watch(mainProvider).history;
     final scrollController = useScrollController();
 
     return MiruScaffold(
@@ -27,6 +27,15 @@ class LibraryPage extends HookConsumerWidget {
         history: history,
         scrollController: scrollController,
       ),
+      snapSheet: [
+        FTabs(
+          children: [
+            FTabEntry(label: Text('Library'), child: Placeholder()),
+            FTabEntry(label: Text('History'), child: Placeholder()),
+            FTabEntry(label: Text('Favorite'), child: Placeholder()),
+          ],
+        ),
+      ],
     );
   }
 }

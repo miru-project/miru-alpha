@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/widgets/core/image_widget.dart';
 
 class DownloadItem extends ConsumerWidget {
   const DownloadItem({super.key, required this.item, required this.index});
@@ -26,22 +27,17 @@ class DownloadItem extends ConsumerWidget {
               // Thumbnail
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: ExtendedImage.network(
-                  item.cover ?? '',
+                child: ImageWidget(
+                  errChild: Container(
+                    width: 60,
+                    height: 60,
+                    color: context.theme.colors.muted,
+                    child: const Icon(FIcons.cloudAlert, size: 20),
+                  ),
+                  imageUrl: item.cover,
                   width: 60,
                   height: 60,
                   fit: BoxFit.cover,
-                  loadStateChanged: (state) {
-                    if (state.extendedImageLoadState == LoadState.failed) {
-                      return Container(
-                        width: 60,
-                        height: 60,
-                        color: Colors.grey[800],
-                        child: const Icon(Icons.error, size: 20),
-                      );
-                    }
-                    return null;
-                  },
                 ),
               ),
 
