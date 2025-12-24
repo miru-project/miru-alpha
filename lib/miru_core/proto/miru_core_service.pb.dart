@@ -5705,6 +5705,461 @@ class SetCookieResponse extends $pb.GeneratedMessage {
   void clearMessage() => $_clearField(1);
 }
 
+/// DB - Detail
+class Detail extends $pb.GeneratedMessage {
+  factory Detail({
+    $core.int? id,
+    $core.String? title,
+    $core.String? cover,
+    $core.String? desc,
+    $core.String? detailUrl,
+    $core.String? package,
+    $core.Iterable<$core.String>? downloaded,
+    $core.String? episodes,
+    $core.String? headers,
+  }) {
+    final result = create();
+    if (id != null) result.id = id;
+    if (title != null) result.title = title;
+    if (cover != null) result.cover = cover;
+    if (desc != null) result.desc = desc;
+    if (detailUrl != null) result.detailUrl = detailUrl;
+    if (package != null) result.package = package;
+    if (downloaded != null) result.downloaded.addAll(downloaded);
+    if (episodes != null) result.episodes = episodes;
+    if (headers != null) result.headers = headers;
+    return result;
+  }
+
+  Detail._();
+
+  factory Detail.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory Detail.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Detail',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aI(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'title')
+    ..aOS(3, _omitFieldNames ? '' : 'cover')
+    ..aOS(4, _omitFieldNames ? '' : 'desc')
+    ..aOS(5, _omitFieldNames ? '' : 'detailUrl')
+    ..aOS(6, _omitFieldNames ? '' : 'package')
+    ..pPS(7, _omitFieldNames ? '' : 'downloaded')
+    ..aOS(8, _omitFieldNames ? '' : 'episodes')
+    ..aOS(9, _omitFieldNames ? '' : 'headers')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Detail clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Detail copyWith(void Function(Detail) updates) =>
+      super.copyWith((message) => updates(message as Detail)) as Detail;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Detail create() => Detail._();
+  @$core.override
+  Detail createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static Detail getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Detail>(create);
+  static Detail? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get id => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set id($core.int value) => $_setSignedInt32(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get title => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set title($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTitle() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTitle() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get cover => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set cover($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasCover() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearCover() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get desc => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set desc($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasDesc() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearDesc() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get detailUrl => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set detailUrl($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasDetailUrl() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearDetailUrl() => $_clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get package => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set package($core.String value) => $_setString(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasPackage() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearPackage() => $_clearField(6);
+
+  @$pb.TagNumber(7)
+  $pb.PbList<$core.String> get downloaded => $_getList(6);
+
+  /// JSON encoded strings for complex types to mirror frontend ExtensionDetail
+  @$pb.TagNumber(8)
+  $core.String get episodes => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set episodes($core.String value) => $_setString(7, value);
+  @$pb.TagNumber(8)
+  $core.bool hasEpisodes() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearEpisodes() => $_clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.String get headers => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set headers($core.String value) => $_setString(8, value);
+  @$pb.TagNumber(9)
+  $core.bool hasHeaders() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearHeaders() => $_clearField(9);
+}
+
+class GetDetailRequest extends $pb.GeneratedMessage {
+  factory GetDetailRequest({
+    $core.String? package,
+    $core.String? detailUrl,
+  }) {
+    final result = create();
+    if (package != null) result.package = package;
+    if (detailUrl != null) result.detailUrl = detailUrl;
+    return result;
+  }
+
+  GetDetailRequest._();
+
+  factory GetDetailRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetDetailRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetDetailRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'package')
+    ..aOS(2, _omitFieldNames ? '' : 'detailUrl')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetDetailRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetDetailRequest copyWith(void Function(GetDetailRequest) updates) =>
+      super.copyWith((message) => updates(message as GetDetailRequest))
+          as GetDetailRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetDetailRequest create() => GetDetailRequest._();
+  @$core.override
+  GetDetailRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetDetailRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetDetailRequest>(create);
+  static GetDetailRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get package => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set package($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasPackage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPackage() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get detailUrl => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set detailUrl($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasDetailUrl() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDetailUrl() => $_clearField(2);
+}
+
+class GetDetailResponse extends $pb.GeneratedMessage {
+  factory GetDetailResponse({
+    Detail? detail,
+  }) {
+    final result = create();
+    if (detail != null) result.detail = detail;
+    return result;
+  }
+
+  GetDetailResponse._();
+
+  factory GetDetailResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetDetailResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetDetailResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOM<Detail>(1, _omitFieldNames ? '' : 'detail', subBuilder: Detail.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetDetailResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetDetailResponse copyWith(void Function(GetDetailResponse) updates) =>
+      super.copyWith((message) => updates(message as GetDetailResponse))
+          as GetDetailResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetDetailResponse create() => GetDetailResponse._();
+  @$core.override
+  GetDetailResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetDetailResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetDetailResponse>(create);
+  static GetDetailResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  Detail get detail => $_getN(0);
+  @$pb.TagNumber(1)
+  set detail(Detail value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasDetail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDetail() => $_clearField(1);
+  @$pb.TagNumber(1)
+  Detail ensureDetail() => $_ensure(0);
+}
+
+class UpsertDetailRequest extends $pb.GeneratedMessage {
+  factory UpsertDetailRequest({
+    $core.String? title,
+    $core.String? cover,
+    $core.String? desc,
+    $core.String? detailUrl,
+    $core.String? package,
+    $core.Iterable<$core.String>? downloaded,
+    $core.String? episodes,
+    $core.String? headers,
+  }) {
+    final result = create();
+    if (title != null) result.title = title;
+    if (cover != null) result.cover = cover;
+    if (desc != null) result.desc = desc;
+    if (detailUrl != null) result.detailUrl = detailUrl;
+    if (package != null) result.package = package;
+    if (downloaded != null) result.downloaded.addAll(downloaded);
+    if (episodes != null) result.episodes = episodes;
+    if (headers != null) result.headers = headers;
+    return result;
+  }
+
+  UpsertDetailRequest._();
+
+  factory UpsertDetailRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory UpsertDetailRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'UpsertDetailRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'title')
+    ..aOS(2, _omitFieldNames ? '' : 'cover')
+    ..aOS(3, _omitFieldNames ? '' : 'desc')
+    ..aOS(4, _omitFieldNames ? '' : 'detailUrl')
+    ..aOS(5, _omitFieldNames ? '' : 'package')
+    ..pPS(6, _omitFieldNames ? '' : 'downloaded')
+    ..aOS(7, _omitFieldNames ? '' : 'episodes')
+    ..aOS(8, _omitFieldNames ? '' : 'headers')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpsertDetailRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpsertDetailRequest copyWith(void Function(UpsertDetailRequest) updates) =>
+      super.copyWith((message) => updates(message as UpsertDetailRequest))
+          as UpsertDetailRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UpsertDetailRequest create() => UpsertDetailRequest._();
+  @$core.override
+  UpsertDetailRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static UpsertDetailRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<UpsertDetailRequest>(create);
+  static UpsertDetailRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get title => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set title($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTitle() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTitle() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get cover => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set cover($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasCover() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearCover() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get desc => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set desc($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasDesc() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDesc() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get detailUrl => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set detailUrl($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasDetailUrl() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearDetailUrl() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get package => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set package($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasPackage() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearPackage() => $_clearField(5);
+
+  @$pb.TagNumber(6)
+  $pb.PbList<$core.String> get downloaded => $_getList(5);
+
+  @$pb.TagNumber(7)
+  $core.String get episodes => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set episodes($core.String value) => $_setString(6, value);
+  @$pb.TagNumber(7)
+  $core.bool hasEpisodes() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearEpisodes() => $_clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get headers => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set headers($core.String value) => $_setString(7, value);
+  @$pb.TagNumber(8)
+  $core.bool hasHeaders() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearHeaders() => $_clearField(8);
+}
+
+class UpsertDetailResponse extends $pb.GeneratedMessage {
+  factory UpsertDetailResponse({
+    Detail? detail,
+  }) {
+    final result = create();
+    if (detail != null) result.detail = detail;
+    return result;
+  }
+
+  UpsertDetailResponse._();
+
+  factory UpsertDetailResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory UpsertDetailResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'UpsertDetailResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOM<Detail>(1, _omitFieldNames ? '' : 'detail', subBuilder: Detail.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpsertDetailResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpsertDetailResponse copyWith(void Function(UpsertDetailResponse) updates) =>
+      super.copyWith((message) => updates(message as UpsertDetailResponse))
+          as UpsertDetailResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UpsertDetailResponse create() => UpsertDetailResponse._();
+  @$core.override
+  UpsertDetailResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static UpsertDetailResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<UpsertDetailResponse>(create);
+  static UpsertDetailResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  Detail get detail => $_getN(0);
+  @$pb.TagNumber(1)
+  set detail(Detail value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasDetail() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDetail() => $_clearField(1);
+  @$pb.TagNumber(1)
+  Detail ensureDetail() => $_ensure(0);
+}
+
 const $core.bool _omitFieldNames =
     $core.bool.fromEnvironment('protobuf.omit_field_names');
 const $core.bool _omitMessageNames =

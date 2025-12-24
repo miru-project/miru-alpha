@@ -81,6 +81,21 @@ class MiruCoreServiceClient extends $grpc.Client {
     return $createUnaryCall(_$watch, request, options: options);
   }
 
+  /// DB - Detail
+  $grpc.ResponseFuture<$0.GetDetailResponse> getDetail(
+    $0.GetDetailRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$getDetail, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.UpsertDetailResponse> upsertDetail(
+    $0.UpsertDetailRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$upsertDetail, request, options: options);
+  }
+
   /// DB - Favorite
   $grpc.ResponseFuture<$0.GetAllFavoriteResponse> getAllFavorite(
     $0.GetAllFavoriteRequest request, {
@@ -364,6 +379,16 @@ class MiruCoreServiceClient extends $grpc.Client {
       '/miru.MiruCoreService/Watch',
       ($0.WatchRequest value) => value.writeToBuffer(),
       $0.WatchResponse.fromBuffer);
+  static final _$getDetail =
+      $grpc.ClientMethod<$0.GetDetailRequest, $0.GetDetailResponse>(
+          '/miru.MiruCoreService/GetDetail',
+          ($0.GetDetailRequest value) => value.writeToBuffer(),
+          $0.GetDetailResponse.fromBuffer);
+  static final _$upsertDetail =
+      $grpc.ClientMethod<$0.UpsertDetailRequest, $0.UpsertDetailResponse>(
+          '/miru.MiruCoreService/UpsertDetail',
+          ($0.UpsertDetailRequest value) => value.writeToBuffer(),
+          $0.UpsertDetailResponse.fromBuffer);
   static final _$getAllFavorite =
       $grpc.ClientMethod<$0.GetAllFavoriteRequest, $0.GetAllFavoriteResponse>(
           '/miru.MiruCoreService/GetAllFavorite',
@@ -593,6 +618,22 @@ abstract class MiruCoreServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.WatchRequest.fromBuffer(value),
         ($0.WatchResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GetDetailRequest, $0.GetDetailResponse>(
+        'GetDetail',
+        getDetail_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.GetDetailRequest.fromBuffer(value),
+        ($0.GetDetailResponse value) => value.writeToBuffer()));
+    $addMethod(
+        $grpc.ServiceMethod<$0.UpsertDetailRequest, $0.UpsertDetailResponse>(
+            'UpsertDetail',
+            upsertDetail_Pre,
+            false,
+            false,
+            ($core.List<$core.int> value) =>
+                $0.UpsertDetailRequest.fromBuffer(value),
+            ($0.UpsertDetailResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.GetAllFavoriteRequest,
             $0.GetAllFavoriteResponse>(
         'GetAllFavorite',
@@ -938,6 +979,23 @@ abstract class MiruCoreServiceBase extends $grpc.Service {
 
   $async.Future<$0.WatchResponse> watch(
       $grpc.ServiceCall call, $0.WatchRequest request);
+
+  $async.Future<$0.GetDetailResponse> getDetail_Pre($grpc.ServiceCall $call,
+      $async.Future<$0.GetDetailRequest> $request) async {
+    return getDetail($call, await $request);
+  }
+
+  $async.Future<$0.GetDetailResponse> getDetail(
+      $grpc.ServiceCall call, $0.GetDetailRequest request);
+
+  $async.Future<$0.UpsertDetailResponse> upsertDetail_Pre(
+      $grpc.ServiceCall $call,
+      $async.Future<$0.UpsertDetailRequest> $request) async {
+    return upsertDetail($call, await $request);
+  }
+
+  $async.Future<$0.UpsertDetailResponse> upsertDetail(
+      $grpc.ServiceCall call, $0.UpsertDetailRequest request);
 
   $async.Future<$0.GetAllFavoriteResponse> getAllFavorite_Pre(
       $grpc.ServiceCall $call,

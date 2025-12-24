@@ -1488,3 +1488,152 @@ const SetCookieResponse$json = {
 /// Descriptor for `SetCookieResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List setCookieResponseDescriptor = $convert.base64Decode(
     'ChFTZXRDb29raWVSZXNwb25zZRIYCgdtZXNzYWdlGAEgASgJUgdtZXNzYWdl');
+
+@$core.Deprecated('Use detailDescriptor instead')
+const Detail$json = {
+  '1': 'Detail',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
+    {'1': 'title', '3': 2, '4': 1, '5': 9, '9': 0, '10': 'title', '17': true},
+    {'1': 'cover', '3': 3, '4': 1, '5': 9, '9': 1, '10': 'cover', '17': true},
+    {'1': 'desc', '3': 4, '4': 1, '5': 9, '9': 2, '10': 'desc', '17': true},
+    {'1': 'detail_url', '3': 5, '4': 1, '5': 9, '10': 'detailUrl'},
+    {'1': 'package', '3': 6, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'downloaded', '3': 7, '4': 3, '5': 9, '10': 'downloaded'},
+    {
+      '1': 'episodes',
+      '3': 8,
+      '4': 1,
+      '5': 9,
+      '9': 3,
+      '10': 'episodes',
+      '17': true
+    },
+    {
+      '1': 'headers',
+      '3': 9,
+      '4': 1,
+      '5': 9,
+      '9': 4,
+      '10': 'headers',
+      '17': true
+    },
+  ],
+  '8': [
+    {'1': '_title'},
+    {'1': '_cover'},
+    {'1': '_desc'},
+    {'1': '_episodes'},
+    {'1': '_headers'},
+  ],
+};
+
+/// Descriptor for `Detail`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List detailDescriptor = $convert.base64Decode(
+    'CgZEZXRhaWwSDgoCaWQYASABKAVSAmlkEhkKBXRpdGxlGAIgASgJSABSBXRpdGxliAEBEhkKBW'
+    'NvdmVyGAMgASgJSAFSBWNvdmVyiAEBEhcKBGRlc2MYBCABKAlIAlIEZGVzY4gBARIdCgpkZXRh'
+    'aWxfdXJsGAUgASgJUglkZXRhaWxVcmwSGAoHcGFja2FnZRgGIAEoCVIHcGFja2FnZRIeCgpkb3'
+    'dubG9hZGVkGAcgAygJUgpkb3dubG9hZGVkEh8KCGVwaXNvZGVzGAggASgJSANSCGVwaXNvZGVz'
+    'iAEBEh0KB2hlYWRlcnMYCSABKAlIBFIHaGVhZGVyc4gBAUIICgZfdGl0bGVCCAoGX2NvdmVyQg'
+    'cKBV9kZXNjQgsKCV9lcGlzb2Rlc0IKCghfaGVhZGVycw==');
+
+@$core.Deprecated('Use getDetailRequestDescriptor instead')
+const GetDetailRequest$json = {
+  '1': 'GetDetailRequest',
+  '2': [
+    {'1': 'package', '3': 1, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'detail_url', '3': 2, '4': 1, '5': 9, '10': 'detailUrl'},
+  ],
+};
+
+/// Descriptor for `GetDetailRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getDetailRequestDescriptor = $convert.base64Decode(
+    'ChBHZXREZXRhaWxSZXF1ZXN0EhgKB3BhY2thZ2UYASABKAlSB3BhY2thZ2USHQoKZGV0YWlsX3'
+    'VybBgCIAEoCVIJZGV0YWlsVXJs');
+
+@$core.Deprecated('Use getDetailResponseDescriptor instead')
+const GetDetailResponse$json = {
+  '1': 'GetDetailResponse',
+  '2': [
+    {
+      '1': 'detail',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.Detail',
+      '10': 'detail'
+    },
+  ],
+};
+
+/// Descriptor for `GetDetailResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getDetailResponseDescriptor = $convert.base64Decode(
+    'ChFHZXREZXRhaWxSZXNwb25zZRIkCgZkZXRhaWwYASABKAsyDC5taXJ1LkRldGFpbFIGZGV0YW'
+    'ls');
+
+@$core.Deprecated('Use upsertDetailRequestDescriptor instead')
+const UpsertDetailRequest$json = {
+  '1': 'UpsertDetailRequest',
+  '2': [
+    {'1': 'title', '3': 1, '4': 1, '5': 9, '9': 0, '10': 'title', '17': true},
+    {'1': 'cover', '3': 2, '4': 1, '5': 9, '9': 1, '10': 'cover', '17': true},
+    {'1': 'desc', '3': 3, '4': 1, '5': 9, '9': 2, '10': 'desc', '17': true},
+    {'1': 'detail_url', '3': 4, '4': 1, '5': 9, '10': 'detailUrl'},
+    {'1': 'package', '3': 5, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'downloaded', '3': 6, '4': 3, '5': 9, '10': 'downloaded'},
+    {
+      '1': 'episodes',
+      '3': 7,
+      '4': 1,
+      '5': 9,
+      '9': 3,
+      '10': 'episodes',
+      '17': true
+    },
+    {
+      '1': 'headers',
+      '3': 8,
+      '4': 1,
+      '5': 9,
+      '9': 4,
+      '10': 'headers',
+      '17': true
+    },
+  ],
+  '8': [
+    {'1': '_title'},
+    {'1': '_cover'},
+    {'1': '_desc'},
+    {'1': '_episodes'},
+    {'1': '_headers'},
+  ],
+};
+
+/// Descriptor for `UpsertDetailRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List upsertDetailRequestDescriptor = $convert.base64Decode(
+    'ChNVcHNlcnREZXRhaWxSZXF1ZXN0EhkKBXRpdGxlGAEgASgJSABSBXRpdGxliAEBEhkKBWNvdm'
+    'VyGAIgASgJSAFSBWNvdmVyiAEBEhcKBGRlc2MYAyABKAlIAlIEZGVzY4gBARIdCgpkZXRhaWxf'
+    'dXJsGAQgASgJUglkZXRhaWxVcmwSGAoHcGFja2FnZRgFIAEoCVIHcGFja2FnZRIeCgpkb3dubG'
+    '9hZGVkGAYgAygJUgpkb3dubG9hZGVkEh8KCGVwaXNvZGVzGAcgASgJSANSCGVwaXNvZGVziAEB'
+    'Eh0KB2hlYWRlcnMYCCABKAlIBFIHaGVhZGVyc4gBAUIICgZfdGl0bGVCCAoGX2NvdmVyQgcKBV'
+    '9kZXNjQgsKCV9lcGlzb2Rlc0IKCghfaGVhZGVycw==');
+
+@$core.Deprecated('Use upsertDetailResponseDescriptor instead')
+const UpsertDetailResponse$json = {
+  '1': 'UpsertDetailResponse',
+  '2': [
+    {
+      '1': 'detail',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.Detail',
+      '10': 'detail'
+    },
+  ],
+};
+
+/// Descriptor for `UpsertDetailResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List upsertDetailResponseDescriptor = $convert.base64Decode(
+    'ChRVcHNlcnREZXRhaWxSZXNwb25zZRIkCgZkZXRhaWwYASABKAsyDC5taXJ1LkRldGFpbFIGZG'
+    'V0YWls');

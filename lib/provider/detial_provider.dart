@@ -1,7 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:miru_app_new/miru_core/grpc_client.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
+import 'package:miru_app_new/widgets/core/toast.dart';
 
 part 'detial_provider.g.dart';
 
@@ -64,25 +66,59 @@ class Detial extends _$Detial {
   /// Force reload and return the fetched detail. This uses ref.refresh which
   /// re-evaluates and returns the new Future result.
   Future<ExtensionDetail> reloadDetail(String pkg, String url) async {
-    final res = await ref.refresh(
-      fetchExtensionDetailProvider(pkg, url).future,
-    );
-    state = state.copyWith(detailState: AsyncValue.data(res));
-    return res;
+    try {
+      final res = await ref.refresh(
+        fetchExtensionDetailProvider(pkg, url).future,
+      );
+      // Upsert to DB
+      final detail = Detail.fromExtensionDetail(res, detailUrl: url, package: pkg);
+      await MiruGrpcClient.upsertDetail(detail);
+
+      state = state.copyWith(detailState: AsyncValue.data(res));
+      return res;
+    } catch (e) {
+      showSimpleToast("Update failed: $e");
+      rethrow;
+    }
   }
 
   /// Fetch detail (without invalidating). Updates `detailState` and notifies listeners.
   Future<void> fetchDetail(String pkg, String url) async {
-    state = state.copyWith(detailState: const AsyncValue.loading());
+    // 1. Try to fetch from DB
+    final dbDetail = await MiruGrpcClient.getDetail(pkg, url);
+    if (dbDetail != null) {
+      state = state.copyWith(detailState: AsyncValue.data(dbDetail.toExtensionDetail()));
+    } else {
+      state = state.copyWith(detailState: const AsyncValue.loading());
+    }
+
+    // 2. Fetch from Extension
     try {
       final data = await ref.read(
         fetchExtensionDetailProvider(pkg, url).future,
       );
+      
+      // 3. Upsert to DB if success
+      // If we had old DB data, we should probably preserve 'downloaded' list.
+      // But for simplicity as per "replace the old db entry", we create new one.
+      final newDetail = Detail.fromExtensionDetail(
+        data, 
+        detailUrl: url, 
+        package: pkg,
+        downloaded: dbDetail?.downloaded ?? [],
+      );
+      await MiruGrpcClient.upsertDetail(newDetail);
+
       state = state.copyWith(detailState: AsyncValue.data(data));
     } catch (e, st) {
-      state = state.copyWith(
-        detailState: AsyncValue<ExtensionDetail>.error(e, st),
-      );
+      if (dbDetail != null) {
+        // 4. Show snackbar if error and we have DB data
+        showSimpleToast("Fetch failed, showing cached data: $e");
+      } else {
+        state = state.copyWith(
+          detailState: AsyncValue<ExtensionDetail>.error(e, st),
+        );
+      }
     }
   }
 }

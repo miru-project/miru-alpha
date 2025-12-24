@@ -144,6 +144,65 @@ class ExtensionEpisode {
 }
 
 @JsonSerializable()
+class Detail {
+  final int? id;
+  final String title;
+  final String? cover;
+  final String? desc;
+  final List<ExtensionEpisodeGroup>? episodes;
+  final Map<String, String>? headers;
+  final List<String> downloaded;
+  final String detailUrl;
+  final String package;
+
+  Detail({
+    this.id,
+    required this.title,
+    this.cover,
+    this.desc,
+    this.episodes,
+    this.headers,
+    this.downloaded = const [],
+    required this.detailUrl,
+    required this.package,
+  });
+
+  factory Detail.fromJson(Map<String, dynamic> json) => _$DetailFromJson(json);
+
+  Map<String, dynamic> toJson() => _$DetailToJson(this);
+
+  factory Detail.fromExtensionDetail(
+    ExtensionDetail extensionDetail, {
+    required String detailUrl,
+    required String package,
+    List<String> downloaded = const [],
+    int? id,
+  }) {
+    return Detail(
+      id: id,
+      title: extensionDetail.title,
+      cover: extensionDetail.cover,
+      desc: extensionDetail.desc,
+      episodes: extensionDetail.episodes,
+      headers: extensionDetail.headers,
+      downloaded: downloaded,
+      detailUrl: detailUrl,
+      package: package,
+    );
+  }
+
+  ExtensionDetail toExtensionDetail() {
+    return ExtensionDetail(
+      title: title,
+      cover: cover,
+      desc: desc,
+      episodes: episodes,
+      headers: headers,
+    );
+  }
+}
+
+@JsonSerializable()
 class ExtensionBangumiWatch extends BaseWatch {
   ExtensionBangumiWatch({
     required this.type,

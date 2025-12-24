@@ -124,6 +124,38 @@ ExtensionEpisode _$ExtensionEpisodeFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$ExtensionEpisodeToJson(ExtensionEpisode instance) =>
     <String, dynamic>{'name': instance.name, 'url': instance.url};
 
+Detail _$DetailFromJson(Map<String, dynamic> json) => Detail(
+  id: (json['id'] as num?)?.toInt(),
+  title: json['title'] as String,
+  cover: json['cover'] as String?,
+  desc: json['desc'] as String?,
+  episodes: (json['episodes'] as List<dynamic>?)
+      ?.map((e) => ExtensionEpisodeGroup.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  headers: (json['headers'] as Map<String, dynamic>?)?.map(
+    (k, e) => MapEntry(k, e as String),
+  ),
+  downloaded:
+      (json['downloaded'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  detailUrl: json['detailUrl'] as String,
+  package: json['package'] as String,
+);
+
+Map<String, dynamic> _$DetailToJson(Detail instance) => <String, dynamic>{
+  'id': instance.id,
+  'title': instance.title,
+  'cover': instance.cover,
+  'desc': instance.desc,
+  'episodes': instance.episodes,
+  'headers': instance.headers,
+  'downloaded': instance.downloaded,
+  'detailUrl': instance.detailUrl,
+  'package': instance.package,
+};
+
 ExtensionBangumiWatch _$ExtensionBangumiWatchFromJson(
   Map<String, dynamic> json,
 ) => ExtensionBangumiWatch(
