@@ -41,7 +41,7 @@ class MiruDesktopGridTile extends HookWidget {
                   fit: StackFit.expand,
                   children: [
                     // Image fills the area
-                    if (imageUrl != null)
+                    if (imageUrl?.isNotEmpty ?? false)
                       ImageWidget(imageUrl: imageUrl!, fit: BoxFit.cover)
                     else
                       Container(

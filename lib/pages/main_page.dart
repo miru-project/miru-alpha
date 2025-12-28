@@ -19,6 +19,8 @@ import 'package:miru_app_new/widgets/index.dart';
 
 import 'setting/setting_items.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:miru_app_new/utils/store/miru_settings.dart';
+import 'package:file_picker/file_picker.dart';
 
 class MainPage extends StatefulHookConsumerWidget {
   final StatefulNavigationShell? child;
@@ -122,6 +124,44 @@ class _MainPageState extends ConsumerState<MainPage>
     final c = ref.read(mainControllerProvider.notifier);
     final controller = ref.watch(mainControllerProvider);
     final selected = useState(controller.selectedIndex);
+
+    useEffect(() {
+      Future.microtask(() async {
+        final downloadPath = MiruSettings.getSettingSync<String>(
+          SettingKey.downloadPath,
+        );
+        if (downloadPath.isEmpty && context.mounted) {
+          showFDialog(
+            context: context,
+            builder: (context, _, __) => FDialog(
+              title: const Text('Download Directory'),
+              body: const Text(
+                'Please select a target directory for your downloads. '
+                'On Android, this will use the Storage Access Framework.',
+              ),
+              actions: [
+                FButton(
+                  onPress: () async {
+                    String? result = await FilePicker.platform
+                        .getDirectoryPath();
+                    if (result != null) {
+                      MiruSettings.setSettingSync(
+                        SettingKey.downloadPath,
+                        result,
+                      );
+                      if (context.mounted) Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text('Select Directory'),
+                ),
+              ],
+            ),
+          );
+        }
+      });
+      return null;
+    }, []);
+
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     return FTheme(
       data: themeData,

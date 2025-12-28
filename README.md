@@ -56,16 +56,16 @@ The basic stage contains necessary components for apps to run at minimum functio
 ##### Readview
 
 - [x] Video player 
-- [ ] Manga reader (partially)
+- [x] Manga reader
 - [ ] Novel reader 
 ##### Extension 
 - [x] Search and install
 ### Advanced
 
 ####  Miru Core (backend)
+- [x] Torrent support 
 ##### Backup
 - [x] webdav
-- [ ] Torrent support 
 ##### Downloader
 
 - [x] Mp4

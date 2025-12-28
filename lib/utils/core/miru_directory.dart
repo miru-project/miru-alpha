@@ -7,24 +7,43 @@ import 'package:permission_handler/permission_handler.dart';
 
 class MiruDirectory {
   static late final Directory _appDocDir;
+  static late final Directory _appSupportDir;
   static late final Directory _cacheDir;
   static late final Directory _mirDonwloadDir;
   static late final Directory _moviesDir;
 
   static Future<void> ensureInitialized() async {
     _appDocDir = await getApplicationDocumentsDirectory();
+    _appSupportDir = await getApplicationSupportDirectory();
     _cacheDir = await getTemporaryDirectory();
     _mirDonwloadDir = await getDownloadsDirectory() ?? _cacheDir;
+
     if (Platform.isAndroid) {
       await _requestMediaPermissions();
-      if (await requestMediaAccess(MediaType.videos)) {
-        await createMoviesFolder('Miru');
-      }
+      // For Android, we don't necessarily want to use the hardcoded Movies path anymore
+      // if we're moving towards user-specified SAF paths.
+      // But we still need a default.
       _moviesDir = Directory(path.join('/storage/emulated/0/Movies', 'Miru'));
       return;
     }
 
     _moviesDir = _mirDonwloadDir;
+  }
+
+  static Future<String> getTempDownloadDirectory() async {
+    Directory tempDir;
+    if (Platform.isAndroid) {
+      // Use internal storage (application support directory) for Android temporary downloads
+      tempDir = Directory(path.join(_appSupportDir.path, 'temp_downloads'));
+    } else {
+      // Use system temp folder for Windows and Linux
+      tempDir = Directory(path.join(_cacheDir.path, 'miru_temp_downloads'));
+    }
+
+    if (!await tempDir.exists()) {
+      await tempDir.create(recursive: true);
+    }
+    return tempDir.path;
   }
 
   static Future<bool> _requestMediaPermissions() async {
@@ -91,7 +110,9 @@ class MiruDirectory {
       final targetDir = Directory(
         path.join('/storage/emulated/0/Movies', folderName),
       );
-      await targetDir.create(recursive: true);
+      if (!await targetDir.exists()) {
+        await targetDir.create(recursive: true);
+      }
 
       return targetDir.path;
     } catch (e) {

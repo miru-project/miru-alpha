@@ -5,7 +5,6 @@ import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
     as proto;
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
-import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/watch/subtitle.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:video_player/video_player.dart';
@@ -86,6 +85,27 @@ class VideoPlayerTickState {
   }
 }
 
+const videoExtensions = [
+  "mp4",
+  "webm",
+  "ogg",
+  "flv",
+  "mov",
+  "ts",
+  "3gp",
+  "avi",
+  "wmv",
+  "mkv",
+  "mpg",
+  "mpeg",
+  "m4v",
+  "mvp",
+  "flac",
+  "mp3",
+  "wav",
+  "m4a",
+];
+
 @riverpod
 class VideoPlayerNotifier extends _$VideoPlayerNotifier {
   late VideoPlayerController vidController;
@@ -100,9 +120,18 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     ExtensionBangumiWatchTorrent? torrent,
   }) {
     defaultSize = initialRatio ?? const Size(0, 0);
-    final streamUrl = torrent == null
-        ? url
-        : '${CoreNetwork.baseUrl}/torrent/data/${torrent.infoHash}/${Uri.encodeComponent(torrent.files.first)}';
+    String streamUrl = url;
+    // handle torrent url
+    if (torrent != null) {
+      for (var file in torrent.files) {
+        final ext = file.split('.').last;
+        if (videoExtensions.contains(ext)) {
+          streamUrl =
+              '${CoreNetwork.baseUrl}/torrent/data/${torrent.infoHash}/${Uri.encodeComponent(file)}';
+          break;
+        }
+      }
+    }
     vidController = VideoPlayerController.networkUrl(
       Uri.parse(streamUrl),
       httpHeaders: headers ?? const {},
@@ -135,7 +164,6 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
   void setShowControls(bool v) {
     _hideTimer?.cancel();
     state = state.copyWith(showControls: v);
-    logger.info('setShowControls: $v');
     if (v) {
       // if showing, schedule auto-hide
       _hideTimer = Timer(const Duration(seconds: 3), () {
@@ -155,6 +183,9 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
         buffered: vidController.value.buffered,
       );
     });
+    if (torrent != null) {
+      return;
+    }
     getQuality(url, headers).then((val) {
       state = state.copyWith(qualityMap: val);
     });

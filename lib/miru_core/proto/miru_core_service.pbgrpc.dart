@@ -262,6 +262,20 @@ class MiruCoreServiceClient extends $grpc.Client {
     return $createUnaryCall(_$downloadBangumi, request, options: options);
   }
 
+  $grpc.ResponseFuture<$0.GetAllDownloadsResponse> getAllDownloads(
+    $0.GetAllDownloadsRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$getAllDownloads, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.DeleteDownloadResponse> deleteDownload(
+    $0.DeleteDownloadRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$deleteDownload, request, options: options);
+  }
+
   /// Torrent
   $grpc.ResponseFuture<$0.ListTorrentResponse> listTorrent(
     $0.ListTorrentRequest request, {
@@ -341,6 +355,16 @@ class MiruCoreServiceClient extends $grpc.Client {
     $grpc.CallOptions? options,
   }) {
     return $createUnaryCall(_$setCookie, request, options: options);
+  }
+
+  /// Events Stream
+  $grpc.ResponseStream<$0.WatchEventsResponse> watchEvents(
+    $0.WatchEventsRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createStreamingCall(
+        _$watchEvents, $async.Stream.fromIterable([request]),
+        options: options);
   }
 
   // method descriptors
@@ -503,6 +527,16 @@ class MiruCoreServiceClient extends $grpc.Client {
           '/miru.MiruCoreService/DownloadBangumi',
           ($0.DownloadBangumiRequest value) => value.writeToBuffer(),
           $0.DownloadBangumiResponse.fromBuffer);
+  static final _$getAllDownloads =
+      $grpc.ClientMethod<$0.GetAllDownloadsRequest, $0.GetAllDownloadsResponse>(
+          '/miru.MiruCoreService/GetAllDownloads',
+          ($0.GetAllDownloadsRequest value) => value.writeToBuffer(),
+          $0.GetAllDownloadsResponse.fromBuffer);
+  static final _$deleteDownload =
+      $grpc.ClientMethod<$0.DeleteDownloadRequest, $0.DeleteDownloadResponse>(
+          '/miru.MiruCoreService/DeleteDownload',
+          ($0.DeleteDownloadRequest value) => value.writeToBuffer(),
+          $0.DeleteDownloadResponse.fromBuffer);
   static final _$listTorrent =
       $grpc.ClientMethod<$0.ListTorrentRequest, $0.ListTorrentResponse>(
           '/miru.MiruCoreService/ListTorrent',
@@ -558,6 +592,11 @@ class MiruCoreServiceClient extends $grpc.Client {
           '/miru.MiruCoreService/SetCookie',
           ($0.SetCookieRequest value) => value.writeToBuffer(),
           $0.SetCookieResponse.fromBuffer);
+  static final _$watchEvents =
+      $grpc.ClientMethod<$0.WatchEventsRequest, $0.WatchEventsResponse>(
+          '/miru.MiruCoreService/WatchEvents',
+          ($0.WatchEventsRequest value) => value.writeToBuffer(),
+          $0.WatchEventsResponse.fromBuffer);
 }
 
 @$pb.GrpcServiceName('miru.MiruCoreService')
@@ -833,6 +872,24 @@ abstract class MiruCoreServiceBase extends $grpc.Service {
         ($core.List<$core.int> value) =>
             $0.DownloadBangumiRequest.fromBuffer(value),
         ($0.DownloadBangumiResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GetAllDownloadsRequest,
+            $0.GetAllDownloadsResponse>(
+        'GetAllDownloads',
+        getAllDownloads_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.GetAllDownloadsRequest.fromBuffer(value),
+        ($0.GetAllDownloadsResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.DeleteDownloadRequest,
+            $0.DeleteDownloadResponse>(
+        'DeleteDownload',
+        deleteDownload_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.DeleteDownloadRequest.fromBuffer(value),
+        ($0.DeleteDownloadResponse value) => value.writeToBuffer()));
     $addMethod(
         $grpc.ServiceMethod<$0.ListTorrentRequest, $0.ListTorrentResponse>(
             'ListTorrent',
@@ -920,6 +977,15 @@ abstract class MiruCoreServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.SetCookieRequest.fromBuffer(value),
         ($0.SetCookieResponse value) => value.writeToBuffer()));
+    $addMethod(
+        $grpc.ServiceMethod<$0.WatchEventsRequest, $0.WatchEventsResponse>(
+            'WatchEvents',
+            watchEvents_Pre,
+            false,
+            true,
+            ($core.List<$core.int> value) =>
+                $0.WatchEventsRequest.fromBuffer(value),
+            ($0.WatchEventsResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.HelloMiruResponse> helloMiru_Pre($grpc.ServiceCall $call,
@@ -1198,6 +1264,24 @@ abstract class MiruCoreServiceBase extends $grpc.Service {
   $async.Future<$0.DownloadBangumiResponse> downloadBangumi(
       $grpc.ServiceCall call, $0.DownloadBangumiRequest request);
 
+  $async.Future<$0.GetAllDownloadsResponse> getAllDownloads_Pre(
+      $grpc.ServiceCall $call,
+      $async.Future<$0.GetAllDownloadsRequest> $request) async {
+    return getAllDownloads($call, await $request);
+  }
+
+  $async.Future<$0.GetAllDownloadsResponse> getAllDownloads(
+      $grpc.ServiceCall call, $0.GetAllDownloadsRequest request);
+
+  $async.Future<$0.DeleteDownloadResponse> deleteDownload_Pre(
+      $grpc.ServiceCall $call,
+      $async.Future<$0.DeleteDownloadRequest> $request) async {
+    return deleteDownload($call, await $request);
+  }
+
+  $async.Future<$0.DeleteDownloadResponse> deleteDownload(
+      $grpc.ServiceCall call, $0.DeleteDownloadRequest request);
+
   $async.Future<$0.ListTorrentResponse> listTorrent_Pre($grpc.ServiceCall $call,
       $async.Future<$0.ListTorrentRequest> $request) async {
     return listTorrent($call, await $request);
@@ -1289,4 +1373,12 @@ abstract class MiruCoreServiceBase extends $grpc.Service {
 
   $async.Future<$0.SetCookieResponse> setCookie(
       $grpc.ServiceCall call, $0.SetCookieRequest request);
+
+  $async.Stream<$0.WatchEventsResponse> watchEvents_Pre($grpc.ServiceCall $call,
+      $async.Future<$0.WatchEventsRequest> $request) async* {
+    yield* watchEvents($call, await $request);
+  }
+
+  $async.Stream<$0.WatchEventsResponse> watchEvents(
+      $grpc.ServiceCall call, $0.WatchEventsRequest request);
 }

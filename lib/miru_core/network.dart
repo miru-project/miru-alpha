@@ -1,7 +1,5 @@
-import 'dart:isolate';
 import 'package:dio/dio.dart';
 import 'package:miru_app_new/miru_core/core.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/core/log.dart';
@@ -95,86 +93,6 @@ class CoreNetwork {
   static Future<void> ensureInitialized() async {
     dio = Dio();
   }
-
-  // Run inside seperate isolate to handle json unmarshalling from the miru-core  response
-  // Update different part of streamcontroller  by sending data to the main isolate
-  static Future<void> _pollRootIsolateEntry(List args) async {
-    final SendPort sendPort = args[0];
-    final Duration interval = args[1];
-    int prevMetaSize = 0;
-    while (true) {
-      final int t1 = DateTime.now().millisecondsSinceEpoch;
-      try {
-        final response = await MiruGrpcClient.client.helloMiru(
-          proto.HelloMiruRequest(),
-        );
-
-        // Handle meta data
-        final List<proto.ExtensionMeta> extList = response.extensionMeta;
-
-        final extMetaList = extList
-            .map(
-              (e) => ExtensionMeta(
-                name: e.name,
-                version: e.version,
-                author: e.author,
-                license: e.license,
-                lang: e.lang,
-                icon: e.icon,
-                packageName: e.package,
-                webSite: e.webSite,
-                description: e.description,
-                tags: e.tags,
-                api: e.api,
-                type: _extensionTypeFromProto(e.type),
-              ),
-            )
-            .toList();
-
-        // Use the size of the data structure to determine if it has changed
-        final metaSize = response.writeToBuffer().length;
-        if (metaSize != prevMetaSize) {
-          prevMetaSize = metaSize;
-          sendPort.send(extMetaList);
-        }
-      } catch (e) {
-        // send message if show error
-        sendPort.send('Error: $e');
-      }
-      final deltaT = DateTime.now().millisecondsSinceEpoch - t1;
-
-      // Make sure that we wait for the full interval minus the time taken to process
-      await Future.delayed(
-        Duration(
-          milliseconds: (interval.inMilliseconds - deltaT).clamp(
-            0,
-            interval.inMilliseconds,
-          ),
-        ),
-      );
-    }
-  }
-
-  static void startPollRootInIsolate(
-    void Function(dynamic) callback, {
-    Duration interval = const Duration(milliseconds: 200),
-  }) async {
-    final receivePort = ReceivePort();
-    // await Isolate.spawn(_pollRootIsolateEntry, [receivePort.sendPort, interval]);
-    _pollRootIsolateEntry([receivePort.sendPort, interval]);
-
-    receivePort.listen(callback);
-  }
-
-  static ExtensionType _extensionTypeFromProto(String value) {
-    return switch (value.toLowerCase()) {
-      'manga' => ExtensionType.manga,
-      'fikushon' => ExtensionType.fikushon,
-      'bangumi' => ExtensionType.bangumi,
-      'unknown' => ExtensionType.unknown,
-      _ => ExtensionType.unknown,
-    };
-  }
 }
 
 class MiruCoreEndpoint {
@@ -186,6 +104,53 @@ class MiruCoreEndpoint {
   static String get downloadUrl => '$extensionPathUrl/download';
   static String get setRepoUrl => 'ext/repo';
   static String get repoListUrl => 'ext/repolist';
+
+  static Detail _detailFromProto(proto.Detail p) {
+    return Detail(
+      id: p.id,
+      title: p.hasTitle() ? p.title : "",
+      cover: p.hasCover() ? p.cover : null,
+      desc: p.hasDesc() ? p.desc : null,
+      downloaded: p.downloaded,
+      detailUrl: p.detailUrl,
+      package: p.package,
+      episodes: p.hasEpisodes()
+          ? (jsonDecode(p.episodes) as List)
+                .map((e) => ExtensionEpisodeGroup.fromJson(e))
+                .toList()
+          : null,
+      headers: p.hasHeaders()
+          ? (jsonDecode(p.headers) as Map<String, dynamic>).map(
+              (k, v) => MapEntry(k, v.toString()),
+            )
+          : null,
+    );
+  }
+
+  static Future<Detail?> getDbDetail(String pkg, String url) async {
+    final response = await MiruGrpcClient.client.getDetail(
+      proto.GetDetailRequest(package: pkg, detailUrl: url),
+    );
+    if (!response.hasDetail() || response.detail.package.isEmpty) return null;
+    return _detailFromProto(response.detail);
+  }
+
+  static Future<Detail> upsertDbDetail(Detail detail) async {
+    final response = await MiruGrpcClient.client.upsertDetail(
+      proto.UpsertDetailRequest(
+        title: detail.title,
+        cover: detail.cover,
+        desc: detail.desc,
+        detailUrl: detail.detailUrl,
+        package: detail.package,
+        downloaded: detail.downloaded,
+        episodes: detail.episodes != null ? jsonEncode(detail.episodes) : null,
+        headers: detail.headers != null ? jsonEncode(detail.headers) : null,
+      ),
+    );
+    return _detailFromProto(response.detail);
+  }
+
   static Future<Object> watch(
     String url,
     String pkg,
@@ -219,16 +184,6 @@ class MiruCoreEndpoint {
     Map<String, List<String>>? filter,
   }) async {
     throw UnimplementedError('createFilter method not implemented');
-    // final jsResult = await CoreNetwork.requestRaw(
-    //   '$searchUrl/filter/$pkg',
-    //   data: filter,
-    //   method: 'GET',
-    // );
-    // Map<String, ExtensionFilter> result = {};
-    // jsResult.forEach((key, value) {
-    //   result[key] = ExtensionFilter.fromJson(value);
-    // });
-    // return result;
   }
 
   static Future<ExtensionDetail> detail(String pkg, String url) async {
@@ -285,20 +240,14 @@ class MiruCoreEndpoint {
     );
   }
 
-  static Future<void> removeRepo(String repoUrl) async {
-    await MiruGrpcClient.client.deleteRepo(
-      proto.DeleteRepoRequest(repoUrl: repoUrl),
-    );
-  }
-
-  static Future<dynamic> getRepo() async {
+  static Future<dynamic> getRepos() async {
     final response = await MiruGrpcClient.client.getRepos(
       proto.GetReposRequest(),
     );
     return jsonDecode(response.data);
   }
 
-  static Future<dynamic> fetchRepo() async {
+  static Future<dynamic> fetchRepoList() async {
     final response = await MiruGrpcClient.client.fetchRepoList(
       proto.FetchRepoListRequest(),
     );

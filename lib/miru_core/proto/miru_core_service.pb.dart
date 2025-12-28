@@ -17,6 +17,237 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
 
+class WatchEventsRequest extends $pb.GeneratedMessage {
+  factory WatchEventsRequest() => create();
+
+  WatchEventsRequest._();
+
+  factory WatchEventsRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory WatchEventsRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'WatchEventsRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  WatchEventsRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  WatchEventsRequest copyWith(void Function(WatchEventsRequest) updates) =>
+      super.copyWith((message) => updates(message as WatchEventsRequest))
+          as WatchEventsRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static WatchEventsRequest create() => WatchEventsRequest._();
+  @$core.override
+  WatchEventsRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static WatchEventsRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<WatchEventsRequest>(create);
+  static WatchEventsRequest? _defaultInstance;
+}
+
+enum WatchEventsResponse_Event { downloadEvent, extensionEvent, notSet }
+
+class WatchEventsResponse extends $pb.GeneratedMessage {
+  factory WatchEventsResponse({
+    DownloadEvent? downloadEvent,
+    ExtensionEvent? extensionEvent,
+  }) {
+    final result = create();
+    if (downloadEvent != null) result.downloadEvent = downloadEvent;
+    if (extensionEvent != null) result.extensionEvent = extensionEvent;
+    return result;
+  }
+
+  WatchEventsResponse._();
+
+  factory WatchEventsResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory WatchEventsResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static const $core.Map<$core.int, WatchEventsResponse_Event>
+      _WatchEventsResponse_EventByTag = {
+    1: WatchEventsResponse_Event.downloadEvent,
+    2: WatchEventsResponse_Event.extensionEvent,
+    0: WatchEventsResponse_Event.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'WatchEventsResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..oo(0, [1, 2])
+    ..aOM<DownloadEvent>(1, _omitFieldNames ? '' : 'downloadEvent',
+        subBuilder: DownloadEvent.create)
+    ..aOM<ExtensionEvent>(2, _omitFieldNames ? '' : 'extensionEvent',
+        subBuilder: ExtensionEvent.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  WatchEventsResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  WatchEventsResponse copyWith(void Function(WatchEventsResponse) updates) =>
+      super.copyWith((message) => updates(message as WatchEventsResponse))
+          as WatchEventsResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static WatchEventsResponse create() => WatchEventsResponse._();
+  @$core.override
+  WatchEventsResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static WatchEventsResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<WatchEventsResponse>(create);
+  static WatchEventsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  @$pb.TagNumber(2)
+  WatchEventsResponse_Event whichEvent() =>
+      _WatchEventsResponse_EventByTag[$_whichOneof(0)]!;
+  @$pb.TagNumber(1)
+  @$pb.TagNumber(2)
+  void clearEvent() => $_clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  DownloadEvent get downloadEvent => $_getN(0);
+  @$pb.TagNumber(1)
+  set downloadEvent(DownloadEvent value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasDownloadEvent() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDownloadEvent() => $_clearField(1);
+  @$pb.TagNumber(1)
+  DownloadEvent ensureDownloadEvent() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  ExtensionEvent get extensionEvent => $_getN(1);
+  @$pb.TagNumber(2)
+  set extensionEvent(ExtensionEvent value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasExtensionEvent() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearExtensionEvent() => $_clearField(2);
+  @$pb.TagNumber(2)
+  ExtensionEvent ensureExtensionEvent() => $_ensure(1);
+}
+
+class DownloadEvent extends $pb.GeneratedMessage {
+  factory DownloadEvent({
+    $core.Iterable<$core.MapEntry<$core.int, DownloadProgress>>? downloadStatus,
+  }) {
+    final result = create();
+    if (downloadStatus != null)
+      result.downloadStatus.addEntries(downloadStatus);
+    return result;
+  }
+
+  DownloadEvent._();
+
+  factory DownloadEvent.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory DownloadEvent.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DownloadEvent',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..m<$core.int, DownloadProgress>(1, _omitFieldNames ? '' : 'downloadStatus',
+        entryClassName: 'DownloadEvent.DownloadStatusEntry',
+        keyFieldType: $pb.PbFieldType.O3,
+        valueFieldType: $pb.PbFieldType.OM,
+        valueCreator: DownloadProgress.create,
+        valueDefaultOrMaker: DownloadProgress.getDefault,
+        packageName: const $pb.PackageName('miru'))
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DownloadEvent clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DownloadEvent copyWith(void Function(DownloadEvent) updates) =>
+      super.copyWith((message) => updates(message as DownloadEvent))
+          as DownloadEvent;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DownloadEvent create() => DownloadEvent._();
+  @$core.override
+  DownloadEvent createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static DownloadEvent getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DownloadEvent>(create);
+  static DownloadEvent? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbMap<$core.int, DownloadProgress> get downloadStatus => $_getMap(0);
+}
+
+class ExtensionEvent extends $pb.GeneratedMessage {
+  factory ExtensionEvent({
+    $core.Iterable<ExtensionMeta>? extensionMeta,
+  }) {
+    final result = create();
+    if (extensionMeta != null) result.extensionMeta.addAll(extensionMeta);
+    return result;
+  }
+
+  ExtensionEvent._();
+
+  factory ExtensionEvent.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ExtensionEvent.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ExtensionEvent',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..pPM<ExtensionMeta>(1, _omitFieldNames ? '' : 'extensionMeta',
+        subBuilder: ExtensionMeta.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionEvent clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionEvent copyWith(void Function(ExtensionEvent) updates) =>
+      super.copyWith((message) => updates(message as ExtensionEvent))
+          as ExtensionEvent;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ExtensionEvent create() => ExtensionEvent._();
+  @$core.override
+  ExtensionEvent createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ExtensionEvent getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ExtensionEvent>(create);
+  static ExtensionEvent? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<ExtensionMeta> get extensionMeta => $_getList(0);
+}
+
 class SearchRequest extends $pb.GeneratedMessage {
   factory SearchRequest({
     $core.String? pkg,
@@ -918,6 +1149,9 @@ class DownloadProgress extends $pb.GeneratedMessage {
     $core.String? mediaType,
     $core.String? currentDownloading,
     $core.int? taskId,
+    $core.String? title,
+    $core.String? package,
+    $core.String? key,
   }) {
     final result = create();
     if (progress != null) result.progress = progress;
@@ -928,6 +1162,9 @@ class DownloadProgress extends $pb.GeneratedMessage {
     if (currentDownloading != null)
       result.currentDownloading = currentDownloading;
     if (taskId != null) result.taskId = taskId;
+    if (title != null) result.title = title;
+    if (package != null) result.package = package;
+    if (key != null) result.key = key;
     return result;
   }
 
@@ -951,6 +1188,9 @@ class DownloadProgress extends $pb.GeneratedMessage {
     ..aOS(5, _omitFieldNames ? '' : 'mediaType')
     ..aOS(6, _omitFieldNames ? '' : 'currentDownloading')
     ..aI(7, _omitFieldNames ? '' : 'taskId')
+    ..aOS(8, _omitFieldNames ? '' : 'title')
+    ..aOS(9, _omitFieldNames ? '' : 'package')
+    ..aOS(10, _omitFieldNames ? '' : 'key')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -1028,6 +1268,33 @@ class DownloadProgress extends $pb.GeneratedMessage {
   $core.bool hasTaskId() => $_has(6);
   @$pb.TagNumber(7)
   void clearTaskId() => $_clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get title => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set title($core.String value) => $_setString(7, value);
+  @$pb.TagNumber(8)
+  $core.bool hasTitle() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearTitle() => $_clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.String get package => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set package($core.String value) => $_setString(8, value);
+  @$pb.TagNumber(9)
+  $core.bool hasPackage() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearPackage() => $_clearField(9);
+
+  @$pb.TagNumber(10)
+  $core.String get key => $_getSZ(9);
+  @$pb.TagNumber(10)
+  set key($core.String value) => $_setString(9, value);
+  @$pb.TagNumber(10)
+  $core.bool hasKey() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearKey() => $_clearField(10);
 }
 
 class TorrentStats extends $pb.GeneratedMessage {
@@ -4180,12 +4447,18 @@ class DownloadBangumiRequest extends $pb.GeneratedMessage {
     $core.String? downloadPath,
     $core.Iterable<$core.MapEntry<$core.String, $core.String>>? header,
     $core.bool? isHls,
+    $core.String? package,
+    $core.String? key,
+    $core.String? title,
   }) {
     final result = create();
     if (url != null) result.url = url;
     if (downloadPath != null) result.downloadPath = downloadPath;
     if (header != null) result.header.addEntries(header);
     if (isHls != null) result.isHls = isHls;
+    if (package != null) result.package = package;
+    if (key != null) result.key = key;
+    if (title != null) result.title = title;
     return result;
   }
 
@@ -4210,6 +4483,9 @@ class DownloadBangumiRequest extends $pb.GeneratedMessage {
         valueFieldType: $pb.PbFieldType.OS,
         packageName: const $pb.PackageName('miru'))
     ..aOB(4, _omitFieldNames ? '' : 'isHls')
+    ..aOS(5, _omitFieldNames ? '' : 'package')
+    ..aOS(6, _omitFieldNames ? '' : 'key')
+    ..aOS(7, _omitFieldNames ? '' : 'title')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4261,6 +4537,33 @@ class DownloadBangumiRequest extends $pb.GeneratedMessage {
   $core.bool hasIsHls() => $_has(3);
   @$pb.TagNumber(4)
   void clearIsHls() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get package => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set package($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasPackage() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearPackage() => $_clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get key => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set key($core.String value) => $_setString(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasKey() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearKey() => $_clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get title => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set title($core.String value) => $_setString(6, value);
+  @$pb.TagNumber(7)
+  $core.bool hasTitle() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearTitle() => $_clearField(7);
 }
 
 class DownloadBangumiResponse extends $pb.GeneratedMessage {
@@ -4335,6 +4638,366 @@ class DownloadBangumiResponse extends $pb.GeneratedMessage {
   $core.bool hasIsDownloading() => $_has(2);
   @$pb.TagNumber(3)
   void clearIsDownloading() => $_clearField(3);
+}
+
+class Download extends $pb.GeneratedMessage {
+  factory Download({
+    $core.int? id,
+    $core.Iterable<$core.String>? url,
+    $core.String? headers,
+    $core.String? package,
+    $core.Iterable<$core.int>? progress,
+    $core.String? key,
+    $core.String? title,
+    $core.String? mediaType,
+    $core.String? status,
+    $core.String? savePath,
+    $core.String? date,
+  }) {
+    final result = create();
+    if (id != null) result.id = id;
+    if (url != null) result.url.addAll(url);
+    if (headers != null) result.headers = headers;
+    if (package != null) result.package = package;
+    if (progress != null) result.progress.addAll(progress);
+    if (key != null) result.key = key;
+    if (title != null) result.title = title;
+    if (mediaType != null) result.mediaType = mediaType;
+    if (status != null) result.status = status;
+    if (savePath != null) result.savePath = savePath;
+    if (date != null) result.date = date;
+    return result;
+  }
+
+  Download._();
+
+  factory Download.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory Download.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Download',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aI(1, _omitFieldNames ? '' : 'id')
+    ..pPS(2, _omitFieldNames ? '' : 'url')
+    ..aOS(3, _omitFieldNames ? '' : 'headers')
+    ..aOS(4, _omitFieldNames ? '' : 'package')
+    ..p<$core.int>(5, _omitFieldNames ? '' : 'progress', $pb.PbFieldType.K3)
+    ..aOS(6, _omitFieldNames ? '' : 'key')
+    ..aOS(7, _omitFieldNames ? '' : 'title')
+    ..aOS(8, _omitFieldNames ? '' : 'mediaType')
+    ..aOS(9, _omitFieldNames ? '' : 'status')
+    ..aOS(10, _omitFieldNames ? '' : 'savePath')
+    ..aOS(11, _omitFieldNames ? '' : 'date')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Download clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Download copyWith(void Function(Download) updates) =>
+      super.copyWith((message) => updates(message as Download)) as Download;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Download create() => Download._();
+  @$core.override
+  Download createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static Download getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Download>(create);
+  static Download? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get id => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set id($core.int value) => $_setSignedInt32(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $pb.PbList<$core.String> get url => $_getList(1);
+
+  @$pb.TagNumber(3)
+  $core.String get headers => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set headers($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasHeaders() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearHeaders() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get package => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set package($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasPackage() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearPackage() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $pb.PbList<$core.int> get progress => $_getList(4);
+
+  @$pb.TagNumber(6)
+  $core.String get key => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set key($core.String value) => $_setString(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasKey() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearKey() => $_clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get title => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set title($core.String value) => $_setString(6, value);
+  @$pb.TagNumber(7)
+  $core.bool hasTitle() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearTitle() => $_clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get mediaType => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set mediaType($core.String value) => $_setString(7, value);
+  @$pb.TagNumber(8)
+  $core.bool hasMediaType() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearMediaType() => $_clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.String get status => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set status($core.String value) => $_setString(8, value);
+  @$pb.TagNumber(9)
+  $core.bool hasStatus() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearStatus() => $_clearField(9);
+
+  @$pb.TagNumber(10)
+  $core.String get savePath => $_getSZ(9);
+  @$pb.TagNumber(10)
+  set savePath($core.String value) => $_setString(9, value);
+  @$pb.TagNumber(10)
+  $core.bool hasSavePath() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearSavePath() => $_clearField(10);
+
+  @$pb.TagNumber(11)
+  $core.String get date => $_getSZ(10);
+  @$pb.TagNumber(11)
+  set date($core.String value) => $_setString(10, value);
+  @$pb.TagNumber(11)
+  $core.bool hasDate() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearDate() => $_clearField(11);
+}
+
+class GetAllDownloadsRequest extends $pb.GeneratedMessage {
+  factory GetAllDownloadsRequest() => create();
+
+  GetAllDownloadsRequest._();
+
+  factory GetAllDownloadsRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetAllDownloadsRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetAllDownloadsRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetAllDownloadsRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetAllDownloadsRequest copyWith(
+          void Function(GetAllDownloadsRequest) updates) =>
+      super.copyWith((message) => updates(message as GetAllDownloadsRequest))
+          as GetAllDownloadsRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetAllDownloadsRequest create() => GetAllDownloadsRequest._();
+  @$core.override
+  GetAllDownloadsRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetAllDownloadsRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetAllDownloadsRequest>(create);
+  static GetAllDownloadsRequest? _defaultInstance;
+}
+
+class GetAllDownloadsResponse extends $pb.GeneratedMessage {
+  factory GetAllDownloadsResponse({
+    $core.Iterable<Download>? downloads,
+  }) {
+    final result = create();
+    if (downloads != null) result.downloads.addAll(downloads);
+    return result;
+  }
+
+  GetAllDownloadsResponse._();
+
+  factory GetAllDownloadsResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetAllDownloadsResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetAllDownloadsResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..pPM<Download>(1, _omitFieldNames ? '' : 'downloads',
+        subBuilder: Download.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetAllDownloadsResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetAllDownloadsResponse copyWith(
+          void Function(GetAllDownloadsResponse) updates) =>
+      super.copyWith((message) => updates(message as GetAllDownloadsResponse))
+          as GetAllDownloadsResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetAllDownloadsResponse create() => GetAllDownloadsResponse._();
+  @$core.override
+  GetAllDownloadsResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetAllDownloadsResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetAllDownloadsResponse>(create);
+  static GetAllDownloadsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<Download> get downloads => $_getList(0);
+}
+
+class DeleteDownloadRequest extends $pb.GeneratedMessage {
+  factory DeleteDownloadRequest({
+    $core.int? id,
+  }) {
+    final result = create();
+    if (id != null) result.id = id;
+    return result;
+  }
+
+  DeleteDownloadRequest._();
+
+  factory DeleteDownloadRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory DeleteDownloadRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DeleteDownloadRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aI(1, _omitFieldNames ? '' : 'id')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteDownloadRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteDownloadRequest copyWith(
+          void Function(DeleteDownloadRequest) updates) =>
+      super.copyWith((message) => updates(message as DeleteDownloadRequest))
+          as DeleteDownloadRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DeleteDownloadRequest create() => DeleteDownloadRequest._();
+  @$core.override
+  DeleteDownloadRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static DeleteDownloadRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DeleteDownloadRequest>(create);
+  static DeleteDownloadRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get id => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set id($core.int value) => $_setSignedInt32(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => $_clearField(1);
+}
+
+class DeleteDownloadResponse extends $pb.GeneratedMessage {
+  factory DeleteDownloadResponse({
+    $core.String? message,
+  }) {
+    final result = create();
+    if (message != null) result.message = message;
+    return result;
+  }
+
+  DeleteDownloadResponse._();
+
+  factory DeleteDownloadResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory DeleteDownloadResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DeleteDownloadResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'message')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteDownloadResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteDownloadResponse copyWith(
+          void Function(DeleteDownloadResponse) updates) =>
+      super.copyWith((message) => updates(message as DeleteDownloadResponse))
+          as DeleteDownloadResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DeleteDownloadResponse create() => DeleteDownloadResponse._();
+  @$core.override
+  DeleteDownloadResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static DeleteDownloadResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DeleteDownloadResponse>(create);
+  static DeleteDownloadResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get message => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set message($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasMessage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMessage() => $_clearField(1);
 }
 
 class AvailableHlsVariant extends $pb.GeneratedMessage {
@@ -4578,9 +5241,13 @@ class ListTorrentResponse extends $pb.GeneratedMessage {
 class AddTorrentRequest extends $pb.GeneratedMessage {
   factory AddTorrentRequest({
     $core.List<$core.int>? torrent,
+    $core.String? package,
+    $core.String? title,
   }) {
     final result = create();
     if (torrent != null) result.torrent = torrent;
+    if (package != null) result.package = package;
+    if (title != null) result.title = title;
     return result;
   }
 
@@ -4599,6 +5266,8 @@ class AddTorrentRequest extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..a<$core.List<$core.int>>(
         1, _omitFieldNames ? '' : 'torrent', $pb.PbFieldType.OY)
+    ..aOS(2, _omitFieldNames ? '' : 'package')
+    ..aOS(3, _omitFieldNames ? '' : 'title')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4628,6 +5297,24 @@ class AddTorrentRequest extends $pb.GeneratedMessage {
   $core.bool hasTorrent() => $_has(0);
   @$pb.TagNumber(1)
   void clearTorrent() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get package => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set package($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasPackage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPackage() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get title => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set title($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasTitle() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTitle() => $_clearField(3);
 }
 
 class AddTorrentResponse extends $pb.GeneratedMessage {
@@ -4814,9 +5501,13 @@ class DeleteTorrentResponse extends $pb.GeneratedMessage {
 class AddMagnetRequest extends $pb.GeneratedMessage {
   factory AddMagnetRequest({
     $core.String? url,
+    $core.String? package,
+    $core.String? title,
   }) {
     final result = create();
     if (url != null) result.url = url;
+    if (package != null) result.package = package;
+    if (title != null) result.title = title;
     return result;
   }
 
@@ -4834,6 +5525,8 @@ class AddMagnetRequest extends $pb.GeneratedMessage {
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'url')
+    ..aOS(2, _omitFieldNames ? '' : 'package')
+    ..aOS(3, _omitFieldNames ? '' : 'title')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -4863,6 +5556,24 @@ class AddMagnetRequest extends $pb.GeneratedMessage {
   $core.bool hasUrl() => $_has(0);
   @$pb.TagNumber(1)
   void clearUrl() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get package => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set package($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasPackage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPackage() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get title => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set title($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasTitle() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTitle() => $_clearField(3);
 }
 
 class AddMagnetResponse extends $pb.GeneratedMessage {

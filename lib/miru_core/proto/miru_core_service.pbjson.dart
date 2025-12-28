@@ -15,6 +15,109 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use watchEventsRequestDescriptor instead')
+const WatchEventsRequest$json = {
+  '1': 'WatchEventsRequest',
+};
+
+/// Descriptor for `WatchEventsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List watchEventsRequestDescriptor =
+    $convert.base64Decode('ChJXYXRjaEV2ZW50c1JlcXVlc3Q=');
+
+@$core.Deprecated('Use watchEventsResponseDescriptor instead')
+const WatchEventsResponse$json = {
+  '1': 'WatchEventsResponse',
+  '2': [
+    {
+      '1': 'download_event',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.DownloadEvent',
+      '9': 0,
+      '10': 'downloadEvent'
+    },
+    {
+      '1': 'extension_event',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionEvent',
+      '9': 0,
+      '10': 'extensionEvent'
+    },
+  ],
+  '8': [
+    {'1': 'event'},
+  ],
+};
+
+/// Descriptor for `WatchEventsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List watchEventsResponseDescriptor = $convert.base64Decode(
+    'ChNXYXRjaEV2ZW50c1Jlc3BvbnNlEjwKDmRvd25sb2FkX2V2ZW50GAEgASgLMhMubWlydS5Eb3'
+    'dubG9hZEV2ZW50SABSDWRvd25sb2FkRXZlbnQSPwoPZXh0ZW5zaW9uX2V2ZW50GAIgASgLMhQu'
+    'bWlydS5FeHRlbnNpb25FdmVudEgAUg5leHRlbnNpb25FdmVudEIHCgVldmVudA==');
+
+@$core.Deprecated('Use downloadEventDescriptor instead')
+const DownloadEvent$json = {
+  '1': 'DownloadEvent',
+  '2': [
+    {
+      '1': 'download_status',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.DownloadEvent.DownloadStatusEntry',
+      '10': 'downloadStatus'
+    },
+  ],
+  '3': [DownloadEvent_DownloadStatusEntry$json],
+};
+
+@$core.Deprecated('Use downloadEventDescriptor instead')
+const DownloadEvent_DownloadStatusEntry$json = {
+  '1': 'DownloadStatusEntry',
+  '2': [
+    {'1': 'key', '3': 1, '4': 1, '5': 5, '10': 'key'},
+    {
+      '1': 'value',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.DownloadProgress',
+      '10': 'value'
+    },
+  ],
+  '7': {'7': true},
+};
+
+/// Descriptor for `DownloadEvent`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List downloadEventDescriptor = $convert.base64Decode(
+    'Cg1Eb3dubG9hZEV2ZW50ElAKD2Rvd25sb2FkX3N0YXR1cxgBIAMoCzInLm1pcnUuRG93bmxvYW'
+    'RFdmVudC5Eb3dubG9hZFN0YXR1c0VudHJ5Ug5kb3dubG9hZFN0YXR1cxpZChNEb3dubG9hZFN0'
+    'YXR1c0VudHJ5EhAKA2tleRgBIAEoBVIDa2V5EiwKBXZhbHVlGAIgASgLMhYubWlydS5Eb3dubG'
+    '9hZFByb2dyZXNzUgV2YWx1ZToCOAE=');
+
+@$core.Deprecated('Use extensionEventDescriptor instead')
+const ExtensionEvent$json = {
+  '1': 'ExtensionEvent',
+  '2': [
+    {
+      '1': 'extension_meta',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.ExtensionMeta',
+      '10': 'extensionMeta'
+    },
+  ],
+};
+
+/// Descriptor for `ExtensionEvent`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List extensionEventDescriptor = $convert.base64Decode(
+    'Cg5FeHRlbnNpb25FdmVudBI6Cg5leHRlbnNpb25fbWV0YRgBIAMoCzITLm1pcnUuRXh0ZW5zaW'
+    '9uTWV0YVINZXh0ZW5zaW9uTWV0YQ==');
+
 @$core.Deprecated('Use searchRequestDescriptor instead')
 const SearchRequest$json = {
   '1': 'SearchRequest',
@@ -263,6 +366,9 @@ const DownloadProgress$json = {
       '10': 'currentDownloading'
     },
     {'1': 'task_id', '3': 7, '4': 1, '5': 5, '10': 'taskId'},
+    {'1': 'title', '3': 8, '4': 1, '5': 9, '10': 'title'},
+    {'1': 'package', '3': 9, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'key', '3': 10, '4': 1, '5': 9, '10': 'key'},
   ],
 };
 
@@ -271,7 +377,9 @@ final $typed_data.Uint8List downloadProgressDescriptor = $convert.base64Decode(
     'ChBEb3dubG9hZFByb2dyZXNzEhoKCHByb2dyZXNzGAEgASgFUghwcm9ncmVzcxIUCgVuYW1lcx'
     'gCIAMoCVIFbmFtZXMSFAoFdG90YWwYAyABKAVSBXRvdGFsEhYKBnN0YXR1cxgEIAEoCVIGc3Rh'
     'dHVzEh0KCm1lZGlhX3R5cGUYBSABKAlSCW1lZGlhVHlwZRIvChNjdXJyZW50X2Rvd25sb2FkaW'
-    '5nGAYgASgJUhJjdXJyZW50RG93bmxvYWRpbmcSFwoHdGFza19pZBgHIAEoBVIGdGFza0lk');
+    '5nGAYgASgJUhJjdXJyZW50RG93bmxvYWRpbmcSFwoHdGFza19pZBgHIAEoBVIGdGFza0lkEhQK'
+    'BXRpdGxlGAggASgJUgV0aXRsZRIYCgdwYWNrYWdlGAkgASgJUgdwYWNrYWdlEhAKA2tleRgKIA'
+    'EoCVIDa2V5');
 
 @$core.Deprecated('Use torrentStatsDescriptor instead')
 const TorrentStats$json = {
@@ -1132,6 +1240,9 @@ const DownloadBangumiRequest$json = {
       '10': 'header'
     },
     {'1': 'is_hls', '3': 4, '4': 1, '5': 8, '10': 'isHls'},
+    {'1': 'package', '3': 5, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'key', '3': 6, '4': 1, '5': 9, '10': 'key'},
+    {'1': 'title', '3': 7, '4': 1, '5': 9, '10': 'title'},
   ],
   '3': [DownloadBangumiRequest_HeaderEntry$json],
 };
@@ -1151,8 +1262,9 @@ final $typed_data.Uint8List downloadBangumiRequestDescriptor = $convert.base64De
     'ChZEb3dubG9hZEJhbmd1bWlSZXF1ZXN0EhAKA3VybBgBIAEoCVIDdXJsEiMKDWRvd25sb2FkX3'
     'BhdGgYAiABKAlSDGRvd25sb2FkUGF0aBJACgZoZWFkZXIYAyADKAsyKC5taXJ1LkRvd25sb2Fk'
     'QmFuZ3VtaVJlcXVlc3QuSGVhZGVyRW50cnlSBmhlYWRlchIVCgZpc19obHMYBCABKAhSBWlzSG'
-    'xzGjkKC0hlYWRlckVudHJ5EhAKA2tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGAIgASgJUgV2YWx1'
-    'ZToCOAE=');
+    'xzEhgKB3BhY2thZ2UYBSABKAlSB3BhY2thZ2USEAoDa2V5GAYgASgJUgNrZXkSFAoFdGl0bGUY'
+    'ByABKAlSBXRpdGxlGjkKC0hlYWRlckVudHJ5EhAKA2tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGA'
+    'IgASgJUgV2YWx1ZToCOAE=');
 
 @$core.Deprecated('Use downloadBangumiResponseDescriptor instead')
 const DownloadBangumiResponse$json = {
@@ -1176,6 +1288,87 @@ final $typed_data.Uint8List downloadBangumiResponseDescriptor = $convert.base64D
     'ChdEb3dubG9hZEJhbmd1bWlSZXNwb25zZRIXCgd0YXNrX2lkGAEgASgFUgZ0YXNrSWQSQgoPdm'
     'FyaWFudF9zdW1tYXJ5GAIgAygLMhkubWlydS5BdmFpbGFibGVIbHNWYXJpYW50Ug52YXJpYW50'
     'U3VtbWFyeRIlCg5pc19kb3dubG9hZGluZxgDIAEoCFINaXNEb3dubG9hZGluZw==');
+
+@$core.Deprecated('Use downloadDescriptor instead')
+const Download$json = {
+  '1': 'Download',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
+    {'1': 'url', '3': 2, '4': 3, '5': 9, '10': 'url'},
+    {'1': 'headers', '3': 3, '4': 1, '5': 9, '10': 'headers'},
+    {'1': 'package', '3': 4, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'progress', '3': 5, '4': 3, '5': 5, '10': 'progress'},
+    {'1': 'key', '3': 6, '4': 1, '5': 9, '10': 'key'},
+    {'1': 'title', '3': 7, '4': 1, '5': 9, '10': 'title'},
+    {'1': 'media_type', '3': 8, '4': 1, '5': 9, '10': 'mediaType'},
+    {'1': 'status', '3': 9, '4': 1, '5': 9, '10': 'status'},
+    {'1': 'save_path', '3': 10, '4': 1, '5': 9, '10': 'savePath'},
+    {'1': 'date', '3': 11, '4': 1, '5': 9, '10': 'date'},
+  ],
+};
+
+/// Descriptor for `Download`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List downloadDescriptor = $convert.base64Decode(
+    'CghEb3dubG9hZBIOCgJpZBgBIAEoBVICaWQSEAoDdXJsGAIgAygJUgN1cmwSGAoHaGVhZGVycx'
+    'gDIAEoCVIHaGVhZGVycxIYCgdwYWNrYWdlGAQgASgJUgdwYWNrYWdlEhoKCHByb2dyZXNzGAUg'
+    'AygFUghwcm9ncmVzcxIQCgNrZXkYBiABKAlSA2tleRIUCgV0aXRsZRgHIAEoCVIFdGl0bGUSHQ'
+    'oKbWVkaWFfdHlwZRgIIAEoCVIJbWVkaWFUeXBlEhYKBnN0YXR1cxgJIAEoCVIGc3RhdHVzEhsK'
+    'CXNhdmVfcGF0aBgKIAEoCVIIc2F2ZVBhdGgSEgoEZGF0ZRgLIAEoCVIEZGF0ZQ==');
+
+@$core.Deprecated('Use getAllDownloadsRequestDescriptor instead')
+const GetAllDownloadsRequest$json = {
+  '1': 'GetAllDownloadsRequest',
+};
+
+/// Descriptor for `GetAllDownloadsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getAllDownloadsRequestDescriptor =
+    $convert.base64Decode('ChZHZXRBbGxEb3dubG9hZHNSZXF1ZXN0');
+
+@$core.Deprecated('Use getAllDownloadsResponseDescriptor instead')
+const GetAllDownloadsResponse$json = {
+  '1': 'GetAllDownloadsResponse',
+  '2': [
+    {
+      '1': 'downloads',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.Download',
+      '10': 'downloads'
+    },
+  ],
+};
+
+/// Descriptor for `GetAllDownloadsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getAllDownloadsResponseDescriptor =
+    $convert.base64Decode(
+        'ChdHZXRBbGxEb3dubG9hZHNSZXNwb25zZRIsCglkb3dubG9hZHMYASADKAsyDi5taXJ1LkRvd2'
+        '5sb2FkUglkb3dubG9hZHM=');
+
+@$core.Deprecated('Use deleteDownloadRequestDescriptor instead')
+const DeleteDownloadRequest$json = {
+  '1': 'DeleteDownloadRequest',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
+  ],
+};
+
+/// Descriptor for `DeleteDownloadRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List deleteDownloadRequestDescriptor = $convert
+    .base64Decode('ChVEZWxldGVEb3dubG9hZFJlcXVlc3QSDgoCaWQYASABKAVSAmlk');
+
+@$core.Deprecated('Use deleteDownloadResponseDescriptor instead')
+const DeleteDownloadResponse$json = {
+  '1': 'DeleteDownloadResponse',
+  '2': [
+    {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `DeleteDownloadResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List deleteDownloadResponseDescriptor =
+    $convert.base64Decode(
+        'ChZEZWxldGVEb3dubG9hZFJlc3BvbnNlEhgKB21lc3NhZ2UYASABKAlSB21lc3NhZ2U=');
 
 @$core.Deprecated('Use availableHlsVariantDescriptor instead')
 const AvailableHlsVariant$json = {
@@ -1241,12 +1434,15 @@ const AddTorrentRequest$json = {
   '1': 'AddTorrentRequest',
   '2': [
     {'1': 'torrent', '3': 1, '4': 1, '5': 12, '10': 'torrent'},
+    {'1': 'package', '3': 2, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'title', '3': 3, '4': 1, '5': 9, '10': 'title'},
   ],
 };
 
 /// Descriptor for `AddTorrentRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List addTorrentRequestDescriptor = $convert.base64Decode(
-    'ChFBZGRUb3JyZW50UmVxdWVzdBIYCgd0b3JyZW50GAEgASgMUgd0b3JyZW50');
+    'ChFBZGRUb3JyZW50UmVxdWVzdBIYCgd0b3JyZW50GAEgASgMUgd0b3JyZW50EhgKB3BhY2thZ2'
+    'UYAiABKAlSB3BhY2thZ2USFAoFdGl0bGUYAyABKAlSBXRpdGxl');
 
 @$core.Deprecated('Use addTorrentResponseDescriptor instead')
 const AddTorrentResponse$json = {
@@ -1294,12 +1490,15 @@ const AddMagnetRequest$json = {
   '1': 'AddMagnetRequest',
   '2': [
     {'1': 'url', '3': 1, '4': 1, '5': 9, '10': 'url'},
+    {'1': 'package', '3': 2, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'title', '3': 3, '4': 1, '5': 9, '10': 'title'},
   ],
 };
 
 /// Descriptor for `AddMagnetRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List addMagnetRequestDescriptor =
-    $convert.base64Decode('ChBBZGRNYWduZXRSZXF1ZXN0EhAKA3VybBgBIAEoCVIDdXJs');
+final $typed_data.Uint8List addMagnetRequestDescriptor = $convert.base64Decode(
+    'ChBBZGRNYWduZXRSZXF1ZXN0EhAKA3VybBgBIAEoCVIDdXJsEhgKB3BhY2thZ2UYAiABKAlSB3'
+    'BhY2thZ2USFAoFdGl0bGUYAyABKAlSBXRpdGxl');
 
 @$core.Deprecated('Use addMagnetResponseDescriptor instead')
 const AddMagnetResponse$json = {

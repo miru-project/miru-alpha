@@ -82,6 +82,7 @@ class MiruSettings {
     SettingKey.pinnedExtension: {}.toString(),
     SettingKey.showPageNumber: "true",
     SettingKey.novelReadingMode: "webToon",
+    SettingKey.downloadPath: "",
   };
   static Future<void> _initSettings() async {
     for (final entry in _defaultSettings.entries) {
@@ -193,4 +194,5 @@ class SettingKey {
   static const showDeleteExtensionDialog = "ShowDeleteExtensionDialog";
   static const showPageNumber = 'ShowPageNumber';
   static const novelReadingMode = 'NovelReadingMode';
+  static const downloadPath = 'DownloadPath';
 }

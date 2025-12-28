@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/pages/detail/widget/download_button.dart';
 import 'package:miru_app_new/provider/detail_page_provider.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 
@@ -49,11 +50,11 @@ class MobileDetailSilverlist extends ConsumerWidget {
                     ),
                   ),
                   Expanded(
-                    child: FButton(
+                    child: DownloadButton(
                       style: FButtonStyle.secondary(),
-                      onPress: null,
-                      prefix: Icon(FIcons.download),
-                      child: Text("Download"),
+                      isIcon: false,
+                      detail: detail,
+                      meta: meta,
                     ),
                   ),
                 ],

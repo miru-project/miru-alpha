@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -15,13 +14,14 @@ import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_app_new/miru_core/core.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
-import 'package:miru_app_new/miru_core/network.dart';
+import 'package:miru_app_new/miru_core/event_service.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/core/miru_directory.dart';
 import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/utils/router/transition.dart';
+import 'package:miru_app_new/widgets/core/toast.dart';
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -83,7 +83,7 @@ void main() {
       );
     },
     (error, stack) {
-      debugger();
+      showSimpleToast(error.toString());
       debugPrint('Uncaught error: $error');
       debugPrint(stack.toString());
     },
@@ -175,10 +175,12 @@ class _App extends ConsumerState<App> {
       },
     );
 
-    CoreNetwork.startPollRootInIsolate(
-      poll,
-      interval: const Duration(milliseconds: 200),
-    );
+    miruEventService.start();
+    miruEventService.extensionStream.listen((data) {
+      ref
+          .read(extensionPageProvider.notifier)
+          .setMetaData(data.map((e) => ExtensionMeta.fromProto(e)).toList());
+    });
   }
 
   void poll(dynamic data) {

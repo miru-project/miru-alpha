@@ -8,6 +8,7 @@ import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
+import 'package:miru_app_new/pages/detail/widget/download_button.dart';
 import 'package:miru_app_new/pages/detail/widget/favorite_dialog.dart';
 
 class DetailDesktopBox extends HookWidget {
@@ -115,11 +116,11 @@ class DetailDesktopBox extends HookWidget {
                         ),
                       ],
                     ),
-                    FButton(
+                    DownloadButton(
                       style: FButtonStyle.secondary(),
-                      suffix: Icon(FIcons.globe),
-                      onPress: () {},
-                      child: Text("WebView"),
+                      isIcon: false,
+                      detail: detail,
+                      meta: meta,
                     ),
                     const SizedBox(width: 15),
                     FButton(

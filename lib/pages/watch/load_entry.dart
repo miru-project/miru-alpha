@@ -121,7 +121,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
             },
             error: (error, trace) => FScaffold(
               child: Center(
-                child: ErrorDisplay(
+                child: ErrorDisplay.grpc(
                   err: error,
                   stack: trace,
                   prefix: FButton(

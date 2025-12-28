@@ -4,7 +4,7 @@ part 'model.g.dart';
 
 enum ExtensionType { manga, bangumi, fikushon, unknown }
 
-enum ExtensionWatchBangumiType { hls, mp4, torrent }
+enum ExtensionWatchBangumiType { hls, mp4, torrent, magnet }
 
 enum ExtensionLogLevel { info, error }
 

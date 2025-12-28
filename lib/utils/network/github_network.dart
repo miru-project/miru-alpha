@@ -4,7 +4,7 @@ import '../../model/index.dart';
 class GithubNetwork {
   static Future<List<ExtensionRepo>> fetchRepo() async {
     final List<ExtensionRepo> resList = [];
-    final repoInfo = await MiruCoreEndpoint.getRepo();
+    final repoInfo = await MiruCoreEndpoint.getRepos();
     final Map<String, String> urlToName = {};
     if (repoInfo is List) {
       for (final item in repoInfo) {
@@ -16,7 +16,7 @@ class GithubNetwork {
       }
     }
 
-    final Map<String, dynamic> req = await MiruCoreEndpoint.fetchRepo();
+    final Map<String, dynamic> req = await MiruCoreEndpoint.fetchRepoList();
     req.forEach((repoUrl, rawList) {
       final List<GithubExtension> repoList = [];
       for (final ext in rawList) {

@@ -37,6 +37,7 @@ class ExtensionMeta {
   final String api;
   @JsonKey(fromJson: _extensionTypeFromJson)
   final ExtensionType type;
+  final String? error;
 
   ExtensionMeta({
     required this.name,
@@ -51,9 +52,29 @@ class ExtensionMeta {
     required this.tags,
     required this.api,
     required this.type,
+    this.error,
   });
 
-  factory ExtensionMeta.fromJson(Map<String, dynamic> json) => _$ExtensionMetaFromJson(json);
+  factory ExtensionMeta.fromJson(Map<String, dynamic> json) =>
+      _$ExtensionMetaFromJson(json);
 
   Map<String, dynamic> toJson() => _$ExtensionMetaToJson(this);
+
+  factory ExtensionMeta.fromProto(dynamic p) {
+    return ExtensionMeta(
+      name: p.name,
+      version: p.version,
+      author: p.author,
+      license: p.license,
+      lang: p.lang,
+      icon: p.icon,
+      packageName: p.package,
+      webSite: p.webSite,
+      description: p.description,
+      tags: p.tags,
+      api: p.api,
+      type: _extensionTypeFromJson(p.type),
+      error: p.error,
+    );
+  }
 }

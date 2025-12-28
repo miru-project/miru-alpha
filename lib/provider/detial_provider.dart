@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:miru_app_new/miru_core/grpc_client.dart';
+import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/widgets/core/toast.dart';
@@ -71,8 +71,12 @@ class Detial extends _$Detial {
         fetchExtensionDetailProvider(pkg, url).future,
       );
       // Upsert to DB
-      final detail = Detail.fromExtensionDetail(res, detailUrl: url, package: pkg);
-      await MiruGrpcClient.upsertDetail(detail);
+      final detail = Detail.fromExtensionDetail(
+        res,
+        detailUrl: url,
+        package: pkg,
+      );
+      await MiruCoreEndpoint.upsertDbDetail(detail);
 
       state = state.copyWith(detailState: AsyncValue.data(res));
       return res;
@@ -85,9 +89,11 @@ class Detial extends _$Detial {
   /// Fetch detail (without invalidating). Updates `detailState` and notifies listeners.
   Future<void> fetchDetail(String pkg, String url) async {
     // 1. Try to fetch from DB
-    final dbDetail = await MiruGrpcClient.getDetail(pkg, url);
+    final dbDetail = await MiruCoreEndpoint.getDbDetail(pkg, url);
     if (dbDetail != null) {
-      state = state.copyWith(detailState: AsyncValue.data(dbDetail.toExtensionDetail()));
+      state = state.copyWith(
+        detailState: AsyncValue.data(dbDetail.toExtensionDetail()),
+      );
     } else {
       state = state.copyWith(detailState: const AsyncValue.loading());
     }
@@ -97,17 +103,17 @@ class Detial extends _$Detial {
       final data = await ref.read(
         fetchExtensionDetailProvider(pkg, url).future,
       );
-      
+
       // 3. Upsert to DB if success
       // If we had old DB data, we should probably preserve 'downloaded' list.
       // But for simplicity as per "replace the old db entry", we create new one.
       final newDetail = Detail.fromExtensionDetail(
-        data, 
-        detailUrl: url, 
+        data,
+        detailUrl: url,
         package: pkg,
         downloaded: dbDetail?.downloaded ?? [],
       );
-      await MiruGrpcClient.upsertDetail(newDetail);
+      await MiruCoreEndpoint.upsertDbDetail(newDetail);
 
       state = state.copyWith(detailState: AsyncValue.data(data));
     } catch (e, st) {
