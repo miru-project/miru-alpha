@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
-    as proto;
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 import 'package:miru_app_new/utils/store/miru_settings.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:miru_app_new/widgets/index.dart';
@@ -238,7 +237,7 @@ class _DownloadHistoryCard extends ConsumerWidget {
           FButton.icon(
             style: FButtonStyle.destructive(),
             onPress: () async {
-              await MiruGrpcClient.client.deleteDownload(
+              await MiruGrpcClient.downloadClient.deleteDownload(
                 proto.DeleteDownloadRequest()..id = download.id,
               );
               ref.invalidate(allDownloadsProvider);

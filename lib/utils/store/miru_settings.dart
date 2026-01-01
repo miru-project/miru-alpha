@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
-    as proto;
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 
 class MiruSettings {
   static Map<String, String> _settingsCache = {};
   static Future<void> getAllSetting() async {
     try {
-      final response = await MiruGrpcClient.client.getAppSetting(
+      final response = await MiruGrpcClient.appSettingClient.getAppSetting(
         proto.GetAppSettingRequest(),
       );
       final Map<String, String> result = {};
@@ -27,7 +26,7 @@ class MiruSettings {
   // Update key and value in miru core by HTTP
   static Future<void> setSetting(String key, String value) async {
     try {
-      await MiruGrpcClient.client.setAppSetting(
+      await MiruGrpcClient.appSettingClient.setAppSetting(
         proto.SetAppSettingRequest()
           ..settings.add(proto.AppSetting(key: key, value: value)),
       );

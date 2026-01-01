@@ -1,5 +1,4 @@
-import 'package:miru_app_new/miru_core/proto/miru_core_service.pb.dart'
-    as proto;
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 import 'package:json_annotation/json_annotation.dart';
 import './model.dart';
 

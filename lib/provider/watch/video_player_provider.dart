@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
-    as proto;
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/watch/subtitle.dart';
@@ -148,7 +147,7 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
       vidController.removeListener(_updatePosition);
       vidController.dispose();
       if (torrent != null) {
-        MiruGrpcClient.client.deleteTorrent(
+        MiruGrpcClient.downloadClient.deleteTorrent(
           proto.DeleteTorrentRequest()..infoHash = torrent.infoHash,
         );
       }

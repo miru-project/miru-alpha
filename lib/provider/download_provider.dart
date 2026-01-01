@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_app_new/miru_core/event_service.dart';
 import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
-    as proto;
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 import 'package:miru_app_new/utils/download/download_utils.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/widgets/core/toast.dart';
@@ -17,7 +16,7 @@ final downloadsProvider =
     >(DownloadsNotifier.new);
 
 final allDownloadsProvider = FutureProvider<List<proto.Download>>((ref) async {
-  final res = await MiruGrpcClient.client.getAllDownloads(
+  final res = await MiruGrpcClient.downloadClient.getAllDownloads(
     proto.GetAllDownloadsRequest(),
   );
   return res.downloads;
@@ -48,7 +47,7 @@ class DownloadsNotifier
 
   Future<void> _fetchStatus() async {
     try {
-      final res = await MiruGrpcClient.client.getDownloadStatus(
+      final res = await MiruGrpcClient.downloadClient.getDownloadStatus(
         proto.GetDownloadStatusRequest(),
       );
       state = AsyncData(res.downloadStatus.values.toList());
@@ -113,18 +112,18 @@ class DownloadsNotifier
     try {
       switch (action) {
         case 'pause':
-          await MiruGrpcClient.client.pauseDownload(
+          await MiruGrpcClient.downloadClient.pauseDownload(
             proto.PauseDownloadRequest()..taskId = taskId,
           );
           break;
         case 'continue':
         case 'resume':
-          await MiruGrpcClient.client.resumeDownload(
+          await MiruGrpcClient.downloadClient.resumeDownload(
             proto.ResumeDownloadRequest()..taskId = taskId,
           );
           break;
         case 'cancel':
-          await MiruGrpcClient.client.cancelDownload(
+          await MiruGrpcClient.downloadClient.cancelDownload(
             proto.CancelDownloadRequest()..taskId = taskId,
           );
           break;

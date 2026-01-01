@@ -6,8 +6,7 @@ import 'package:miru_app_new/utils/core/log.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
-    as proto;
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 
 late final Dio dio;
 
@@ -17,7 +16,7 @@ class AppSettingEndpoint {
   /// The server returns an array of objects like {"key": "someKey", "value": "someValue"}
   static Future<Map<String, String>> getAll() async {
     try {
-      final response = await MiruGrpcClient.client.getAppSetting(
+      final response = await MiruGrpcClient.appSettingClient.getAppSetting(
         proto.GetAppSettingRequest(),
       );
       final Map<String, String> result = {};
@@ -81,7 +80,7 @@ class CoreNetwork {
   static Future<void> waitForServerLoaded() async {
     while (true) {
       try {
-        await MiruGrpcClient.client.helloMiru(proto.HelloMiruRequest());
+        await MiruGrpcClient.coreClient.helloMiru(proto.HelloMiruRequest());
         logger.info('Miru core loaded (gRPC)');
         return;
       } catch (e) {
@@ -128,7 +127,7 @@ class MiruCoreEndpoint {
   }
 
   static Future<Detail?> getDbDetail(String pkg, String url) async {
-    final response = await MiruGrpcClient.client.getDetail(
+    final response = await MiruGrpcClient.dbClient.getDetail(
       proto.GetDetailRequest(package: pkg, detailUrl: url),
     );
     if (!response.hasDetail() || response.detail.package.isEmpty) return null;
@@ -136,7 +135,7 @@ class MiruCoreEndpoint {
   }
 
   static Future<Detail> upsertDbDetail(Detail detail) async {
-    final response = await MiruGrpcClient.client.upsertDetail(
+    final response = await MiruGrpcClient.dbClient.upsertDetail(
       proto.UpsertDetailRequest(
         title: detail.title,
         cover: detail.cover,
@@ -156,7 +155,7 @@ class MiruCoreEndpoint {
     String pkg,
     ExtensionType type,
   ) async {
-    final response = await MiruGrpcClient.client.watch(
+    final response = await MiruGrpcClient.extensionClient.watch(
       proto.WatchRequest(url: url, pkg: pkg),
     );
     final data = jsonDecode(response.data);
@@ -187,7 +186,7 @@ class MiruCoreEndpoint {
   }
 
   static Future<ExtensionDetail> detail(String pkg, String url) async {
-    final response = await MiruGrpcClient.client.detail(
+    final response = await MiruGrpcClient.extensionClient.detail(
       proto.DetailRequest(pkg: pkg, url: url),
     );
 
@@ -200,7 +199,7 @@ class MiruCoreEndpoint {
     int page, {
     Map<String, ExtensionFilter>? filter,
   }) async {
-    final response = await MiruGrpcClient.client.search(
+    final response = await MiruGrpcClient.extensionClient.search(
       proto.SearchRequest(
         pkg: pkg,
         kw: kw,
@@ -220,7 +219,7 @@ class MiruCoreEndpoint {
   }
 
   static Future<List<ExtensionListItem>> latest(String pkg, int page) async {
-    final response = await MiruGrpcClient.client.latest(
+    final response = await MiruGrpcClient.extensionClient.latest(
       proto.LatestRequest(pkg: pkg, page: page),
     );
 
@@ -235,46 +234,46 @@ class MiruCoreEndpoint {
   }
 
   static Future<void> setRepo(String repoUrl, String name) async {
-    await MiruGrpcClient.client.setRepo(
+    await MiruGrpcClient.repoClient.setRepo(
       proto.SetRepoRequest(repoUrl: repoUrl, name: name),
     );
   }
 
   static Future<dynamic> getRepos() async {
-    final response = await MiruGrpcClient.client.getRepos(
+    final response = await MiruGrpcClient.repoClient.getRepos(
       proto.GetReposRequest(),
     );
     return jsonDecode(response.data);
   }
 
   static Future<dynamic> fetchRepoList() async {
-    final response = await MiruGrpcClient.client.fetchRepoList(
+    final response = await MiruGrpcClient.repoClient.fetchRepoList(
       proto.FetchRepoListRequest(),
     );
     return jsonDecode(response.data);
   }
 
   static Future<String?> deleteRepo(String repoUrl) async {
-    final response = await MiruGrpcClient.client.deleteRepo(
+    final response = await MiruGrpcClient.repoClient.deleteRepo(
       proto.DeleteRepoRequest(repoUrl: repoUrl),
     );
     return response.message;
   }
 
   static Future<void> downloadExtension(String repoUrl, String package) async {
-    await MiruGrpcClient.client.downloadExtension(
+    await MiruGrpcClient.extensionClient.downloadExtension(
       proto.DownloadExtensionRequest(repoUrl: repoUrl, pkg: package),
     );
   }
 
   static Future<void> removeExtension(String package) async {
-    await MiruGrpcClient.client.removeExtension(
+    await MiruGrpcClient.extensionClient.removeExtension(
       proto.RemoveExtensionRequest(pkg: package),
     );
   }
 
   static Future<void> setCookie(String cookie, String url) async {
-    await MiruGrpcClient.client.setCookie(
+    await MiruGrpcClient.networkClient.setCookie(
       proto.SetCookieRequest(cookie: cookie, url: url),
     );
   }

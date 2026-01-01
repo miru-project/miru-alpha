@@ -1,6 +1,6 @@
 // This is a generated file - do not edit.
 //
-// Generated from proto/miru_core_service.proto.
+// Generated from proto/network.proto.
 
 // @dart = 3.3
 

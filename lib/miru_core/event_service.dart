@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
-    as proto;
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 import 'package:miru_app_new/utils/core/log.dart';
 
 class MiruEventService {
@@ -14,18 +13,20 @@ class MiruEventService {
       StreamController<Map<int, proto.DownloadProgress>>.broadcast();
   final _extensionController =
       StreamController<List<proto.ExtensionMeta>>.broadcast();
+  final _historyController = StreamController<List<proto.History>>.broadcast();
 
   Stream<Map<int, proto.DownloadProgress>> get downloadStream =>
       _downloadController.stream;
   Stream<List<proto.ExtensionMeta>> get extensionStream =>
       _extensionController.stream;
+  Stream<List<proto.History>> get historyStream => _historyController.stream;
 
   Future<void> start() async {
     _subscription?.cancel();
 
     // Fetch initial state
     try {
-      final hello = await MiruGrpcClient.client.helloMiru(
+      final hello = await MiruGrpcClient.coreClient.helloMiru(
         proto.HelloMiruRequest(),
       );
       if (hello.downloadStatus.isNotEmpty) {
@@ -34,11 +35,14 @@ class MiruEventService {
       if (hello.extensionMeta.isNotEmpty) {
         _extensionController.add(hello.extensionMeta);
       }
+      if (hello.history.isNotEmpty) {
+        _historyController.add(hello.history);
+      }
     } catch (e) {
       logger.warning('Failed to fetch initial state: $e');
     }
 
-    _subscription = MiruGrpcClient.client
+    _subscription = MiruGrpcClient.eventClient
         .watchEvents(proto.WatchEventsRequest())
         .listen(
           (event) {
@@ -46,6 +50,8 @@ class MiruEventService {
               _downloadController.add(event.downloadEvent.downloadStatus);
             } else if (event.hasExtensionEvent()) {
               _extensionController.add(event.extensionEvent.extensionMeta);
+            } else if (event.hasHistoryEvent()) {
+              _historyController.add(event.historyEvent.history);
             }
           },
           onError: (e) {

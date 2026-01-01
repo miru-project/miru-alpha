@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/miru_core/proto/common.pb.dart' as common;
 import 'package:miru_app_new/provider/download_provider.dart';
 import 'package:miru_app_new/provider/watch/main_provider.dart';
-import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
-    as proto;
 import 'package:miru_app_new/widgets/core/image_widget.dart';
 
 class DownloadItem extends ConsumerWidget {
   const DownloadItem({super.key, required this.task});
 
-  final proto.DownloadProgress task;
+  final common.DownloadProgress task;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

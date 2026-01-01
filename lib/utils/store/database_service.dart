@@ -1,11 +1,10 @@
 import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
-    as proto;
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 
 class DatabaseService {
-  static proto.MiruCoreServiceClient get client => MiruGrpcClient.client;
+  static proto.DbServiceClient get client => MiruGrpcClient.dbClient;
 
   // Favorites
   static Future<List<Favorite>> getAllFavorite() async {

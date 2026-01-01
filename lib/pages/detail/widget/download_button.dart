@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_app_new/miru_core/network.dart';
-import 'package:miru_app_new/miru_core/proto/miru_core_service.pbgrpc.dart'
-    as proto;
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/miru_core/grpc_client.dart';
@@ -70,7 +69,7 @@ class _DownloadDialogState extends State<_DownloadDialog>
   }) async {
     try {
       final tempDir = await MiruDirectory.getTempDownloadDirectory();
-      final res = await MiruGrpcClient.client.downloadBangumi(
+      final res = await MiruGrpcClient.downloadClient.downloadBangumi(
         proto.DownloadBangumiRequest(
           url: url,
           downloadPath: p.join(tempDir, title),

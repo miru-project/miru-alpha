@@ -133,7 +133,7 @@ class _MainPageState extends ConsumerState<MainPage>
         if (downloadPath.isEmpty && context.mounted) {
           showFDialog(
             context: context,
-            builder: (context, _, __) => FDialog(
+            builder: (context, _, _) => FDialog(
               title: const Text('Download Directory'),
               body: const Text(
                 'Please select a target directory for your downloads. '
