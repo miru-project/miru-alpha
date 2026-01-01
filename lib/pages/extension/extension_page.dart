@@ -190,16 +190,6 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                     },
                     itemCount: extensionsWithRepo.length,
                   ),
-                  // MiruListView.builder(
-                  //   controller: scrollController,
-                  //   itemBuilder: (context, index) {
-                  //     final pair = extensionsWithRepo[index];
-                  //     final data = pair['ext'] as GithubExtension;
-                  //     final repoUrl = pair['repoUrl'] as String;
-                  //     return _ExtensionTile(data: data, repoUrl: repoUrl);
-                  //   },
-                  //   itemCount: extensionsWithRepo.length,
-                  // ),
                 ),
               );
             },
@@ -211,66 +201,3 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
 }
 
 enum CheckBoxInstalled { installed, notInstalled }
-
-// class _ExtensionContent extends StatefulHookConsumerWidget {
-//   final List<GithubExtension> extensionList;
-//   const _ExtensionContent({required this.extensionList});
-//   @override
-//   _ExtensionContentState createState() => _ExtensionContentState();
-// }
-
-// class _ExtensionContentState extends ConsumerState<_ExtensionContent> {
-//   @override
-//   Widget build(conetext) {
-//     return MiruListView.builder(
-//       itemBuilder: (context, index) {
-//         final data = widget.extensionList[index];
-//         return MoonMenuItem(
-//           onTap: () {},
-//           trailing: Row(
-//             children: [
-//               if (ExtensionUtils.runtimes.containsKey(data.package))
-//                 MoonButton(
-//                   onTap: () {
-//                     // uninstall(data.package);
-//                   },
-//                   leading: const Icon(MoonIcons.generic_delete_24_regular),
-//                 )
-//               else
-//                 MoonButton(
-//                   onTap: () {
-//                     // install(data.package);
-//                   },
-//                   leading: const Icon(MoonIcons.generic_download_24_regular),
-//                 ),
-//             ],
-//           ),
-//           leading: SizedBox(
-//             width: 40,
-//             height: 40,
-//             child: data.icon == null
-//                 ? null
-//                 : Container(
-//                     decoration: BoxDecoration(
-//                       borderRadius: BorderRadius.circular(10),
-//                     ),
-//                     child: ExtendedImage.network(
-//                       data.icon!,
-//                       loadStateChanged: (ExtendedImageState state) {
-//                         if (state.extendedImageLoadState == LoadState.failed) {
-//                           return const Icon(
-//                             MoonIcons.notifications_error_16_regular,
-//                           ); // Fallback widget
-//                         }
-//                         return null; // Use the default widget
-//                       },
-//                     ),
-//                   ),
-//           ),
-//           label: Text(data.name),
-//         );
-//       },
-//       itemCount: widget.extensionList.length,
-//     );
-//   }
-// }

@@ -100,22 +100,13 @@ class DetailDesktopBox extends HookWidget {
                 const SizedBox(height: 20),
                 Row(
                   children: [
-                    Row(
-                      children: [
-                        FButton(
-                          suffix: Icon(FIcons.play),
-                          onPress: () {},
-                          child: Text("Play"),
-                        ),
-                        SizedBox(width: 15),
-                        FButton(
-                          style: FButtonStyle.outline(),
-                          suffix: Icon(FIcons.globe),
-                          onPress: () {},
-                          child: Text("WebView"),
-                        ),
-                      ],
+                    FButton(
+                      suffix: Icon(FIcons.play),
+                      onPress: () {},
+                      child: Text("Play"),
                     ),
+
+                    SizedBox(width: 15),
                     DownloadButton(
                       style: FButtonStyle.secondary(),
                       isIcon: false,
@@ -141,6 +132,13 @@ class DetailDesktopBox extends HookWidget {
                         );
                       },
                       child: Text("Favorite"),
+                    ),
+                    SizedBox(width: 15),
+                    FButton(
+                      style: FButtonStyle.outline(),
+                      suffix: Icon(FIcons.globe),
+                      onPress: () {},
+                      child: Text("WebView"),
                     ),
                   ],
                 ),

@@ -104,7 +104,10 @@ class DownloadPage extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Active Tasks", style: context.theme.typography.lg),
+        Text(
+          "Active Tasks",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+        ),
         const SizedBox(height: 12),
         active.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -136,7 +139,10 @@ class DownloadPage extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("History", style: context.theme.typography.lg),
+        Text(
+          "Downloads History",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+        ),
         const SizedBox(height: 12),
         all.when(
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -173,7 +179,7 @@ class _DownloadProgressCard extends ConsumerWidget {
         children: [
           Text("Status: ${task.status}"),
           const SizedBox(height: 8),
-          LinearProgressIndicator(value: progress),
+          FDeterminateProgress(value: progress),
           const SizedBox(height: 4),
           Text(
             "${(progress * 100).toStringAsFixed(1)}% - ${task.progress}/${task.total}",

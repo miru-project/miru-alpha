@@ -17,7 +17,7 @@ import 'package:miru_app_new/widgets/animted_icon/home.dart';
 import 'package:miru_app_new/widgets/animted_icon/settings_cog.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
-import 'setting/setting_items.dart';
+import '../model/setting_items.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:miru_app_new/utils/store/miru_settings.dart';
 import 'package:file_picker/file_picker.dart';
@@ -55,7 +55,9 @@ class _MainPageState extends ConsumerState<MainPage>
     NavItem(text: 'Extension', icon: Icons.extension_outlined),
     NavItem(text: 'Settings', icon: Icons.settings_outlined),
   ];
-  static final List<FIconNavItem> _subNavItem = [
+
+  static final List<FIconNavItem> _fIconNavItem = [
+    FIconNavItem(text: 'Home', icon: FIcons.house, page: "/home"),
     FIconNavItem(text: 'History', icon: FIcons.history, page: "/home/history"),
     FIconNavItem(
       text: 'Favorite',
@@ -68,14 +70,6 @@ class _MainPageState extends ConsumerState<MainPage>
       text: 'Download',
       icon: FIcons.download,
       page: "/home/download",
-    ),
-  ];
-  static final List<FIconNavItem> _fIconNavItem = [
-    FIconNavItem(
-      text: 'Home',
-      icon: FIcons.house,
-      page: "/home",
-      subItems: _subNavItem,
     ),
     FIconNavItem(text: 'Search', icon: FIcons.search, page: "/search"),
     FIconNavItem(text: 'Extension', icon: FIcons.blocks, page: "/extension"),
@@ -325,6 +319,7 @@ class _MainPageState extends ConsumerState<MainPage>
                 children: [
                   for (var i = 0; i < _fIconNavItem.length; i++) ...[
                     FSidebarItem(
+                      initiallyExpanded: true,
                       label: Text(_fIconNavItem[i].text),
                       icon: Icon(_fIconNavItem[i].icon),
                       onPress: () {
@@ -335,7 +330,6 @@ class _MainPageState extends ConsumerState<MainPage>
 
                         c.selectIndex(i);
                       },
-                      initiallyExpanded: _fIconNavItem[i].expaned,
                       selected: controller.selectedIndex == i,
                       children: _fIconNavItem[i].subItems != null
                           ? _fIconNavItem[i].subItems!

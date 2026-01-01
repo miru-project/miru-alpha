@@ -41,27 +41,11 @@ class MiruDesktopGridTile extends HookWidget {
                   fit: StackFit.expand,
                   children: [
                     // Image fills the area
-                    if (imageUrl?.isNotEmpty ?? false)
-                      ImageWidget(imageUrl: imageUrl!, fit: BoxFit.cover)
-                    else
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius:
-                              context.theme.cardStyle.decoration.borderRadius,
-                        ),
-
-                        child: Center(
-                          child: Text(
-                            title,
-                            softWrap: true,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 22,
-                            ),
-                          ),
-                        ),
-                      ),
+                    ImageWidget.defaultErr(
+                      imageUrl: imageUrl,
+                      fit: BoxFit.cover,
+                      title: title,
+                    ),
                     // Bottom gradient shadow
                     Positioned(
                       left: 0,

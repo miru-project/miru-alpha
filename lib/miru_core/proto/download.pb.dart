@@ -444,12 +444,12 @@ class PauseDownloadResponse extends $pb.GeneratedMessage {
   void clearMessage() => $_clearField(1);
 }
 
-class DownloadBangumiRequest extends $pb.GeneratedMessage {
-  factory DownloadBangumiRequest({
+class DownloadRequest extends $pb.GeneratedMessage {
+  factory DownloadRequest({
     $core.String? url,
     $core.String? downloadPath,
     $core.Iterable<$core.MapEntry<$core.String, $core.String>>? header,
-    $core.bool? isHls,
+    $core.String? mediaType,
     $core.String? package,
     $core.String? key,
     $core.String? title,
@@ -458,58 +458,57 @@ class DownloadBangumiRequest extends $pb.GeneratedMessage {
     if (url != null) result.url = url;
     if (downloadPath != null) result.downloadPath = downloadPath;
     if (header != null) result.header.addEntries(header);
-    if (isHls != null) result.isHls = isHls;
+    if (mediaType != null) result.mediaType = mediaType;
     if (package != null) result.package = package;
     if (key != null) result.key = key;
     if (title != null) result.title = title;
     return result;
   }
 
-  DownloadBangumiRequest._();
+  DownloadRequest._();
 
-  factory DownloadBangumiRequest.fromBuffer($core.List<$core.int> data,
+  factory DownloadRequest.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory DownloadBangumiRequest.fromJson($core.String json,
+  factory DownloadRequest.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'DownloadBangumiRequest',
+      _omitMessageNames ? '' : 'DownloadRequest',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'url')
     ..aOS(2, _omitFieldNames ? '' : 'downloadPath')
     ..m<$core.String, $core.String>(3, _omitFieldNames ? '' : 'header',
-        entryClassName: 'DownloadBangumiRequest.HeaderEntry',
+        entryClassName: 'DownloadRequest.HeaderEntry',
         keyFieldType: $pb.PbFieldType.OS,
         valueFieldType: $pb.PbFieldType.OS,
         packageName: const $pb.PackageName('miru'))
-    ..aOB(4, _omitFieldNames ? '' : 'isHls')
+    ..aOS(4, _omitFieldNames ? '' : 'mediaType')
     ..aOS(5, _omitFieldNames ? '' : 'package')
     ..aOS(6, _omitFieldNames ? '' : 'key')
     ..aOS(7, _omitFieldNames ? '' : 'title')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  DownloadBangumiRequest clone() => deepCopy();
+  DownloadRequest clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  DownloadBangumiRequest copyWith(
-          void Function(DownloadBangumiRequest) updates) =>
-      super.copyWith((message) => updates(message as DownloadBangumiRequest))
-          as DownloadBangumiRequest;
+  DownloadRequest copyWith(void Function(DownloadRequest) updates) =>
+      super.copyWith((message) => updates(message as DownloadRequest))
+          as DownloadRequest;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static DownloadBangumiRequest create() => DownloadBangumiRequest._();
+  static DownloadRequest create() => DownloadRequest._();
   @$core.override
-  DownloadBangumiRequest createEmptyInstance() => create();
+  DownloadRequest createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static DownloadBangumiRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<DownloadBangumiRequest>(create);
-  static DownloadBangumiRequest? _defaultInstance;
+  static DownloadRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DownloadRequest>(create);
+  static DownloadRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get url => $_getSZ(0);
@@ -533,13 +532,13 @@ class DownloadBangumiRequest extends $pb.GeneratedMessage {
   $pb.PbMap<$core.String, $core.String> get header => $_getMap(2);
 
   @$pb.TagNumber(4)
-  $core.bool get isHls => $_getBF(3);
+  $core.String get mediaType => $_getSZ(3);
   @$pb.TagNumber(4)
-  set isHls($core.bool value) => $_setBool(3, value);
+  set mediaType($core.String value) => $_setString(3, value);
   @$pb.TagNumber(4)
-  $core.bool hasIsHls() => $_has(3);
+  $core.bool hasMediaType() => $_has(3);
   @$pb.TagNumber(4)
-  void clearIsHls() => $_clearField(4);
+  void clearMediaType() => $_clearField(4);
 
   @$pb.TagNumber(5)
   $core.String get package => $_getSZ(4);
@@ -569,8 +568,8 @@ class DownloadBangumiRequest extends $pb.GeneratedMessage {
   void clearTitle() => $_clearField(7);
 }
 
-class DownloadBangumiResponse extends $pb.GeneratedMessage {
-  factory DownloadBangumiResponse({
+class DownloadResponse extends $pb.GeneratedMessage {
+  factory DownloadResponse({
     $core.int? taskId,
     $core.Iterable<$1.AvailableHlsVariant>? variantSummary,
     $core.bool? isDownloading,
@@ -582,17 +581,17 @@ class DownloadBangumiResponse extends $pb.GeneratedMessage {
     return result;
   }
 
-  DownloadBangumiResponse._();
+  DownloadResponse._();
 
-  factory DownloadBangumiResponse.fromBuffer($core.List<$core.int> data,
+  factory DownloadResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory DownloadBangumiResponse.fromJson($core.String json,
+  factory DownloadResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'DownloadBangumiResponse',
+      _omitMessageNames ? '' : 'DownloadResponse',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
     ..aI(1, _omitFieldNames ? '' : 'taskId')
@@ -602,24 +601,23 @@ class DownloadBangumiResponse extends $pb.GeneratedMessage {
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  DownloadBangumiResponse clone() => deepCopy();
+  DownloadResponse clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  DownloadBangumiResponse copyWith(
-          void Function(DownloadBangumiResponse) updates) =>
-      super.copyWith((message) => updates(message as DownloadBangumiResponse))
-          as DownloadBangumiResponse;
+  DownloadResponse copyWith(void Function(DownloadResponse) updates) =>
+      super.copyWith((message) => updates(message as DownloadResponse))
+          as DownloadResponse;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static DownloadBangumiResponse create() => DownloadBangumiResponse._();
+  static DownloadResponse create() => DownloadResponse._();
   @$core.override
-  DownloadBangumiResponse createEmptyInstance() => create();
+  DownloadResponse createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static DownloadBangumiResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<DownloadBangumiResponse>(create);
-  static DownloadBangumiResponse? _defaultInstance;
+  static DownloadResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DownloadResponse>(create);
+  static DownloadResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.int get taskId => $_getIZ(0);
@@ -932,12 +930,12 @@ class ListTorrentResponse extends $pb.GeneratedMessage {
 
 class AddTorrentRequest extends $pb.GeneratedMessage {
   factory AddTorrentRequest({
-    $core.List<$core.int>? torrent,
+    $core.String? url,
     $core.String? package,
     $core.String? title,
   }) {
     final result = create();
-    if (torrent != null) result.torrent = torrent;
+    if (url != null) result.url = url;
     if (package != null) result.package = package;
     if (title != null) result.title = title;
     return result;
@@ -956,8 +954,7 @@ class AddTorrentRequest extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'AddTorrentRequest',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
-    ..a<$core.List<$core.int>>(
-        1, _omitFieldNames ? '' : 'torrent', $pb.PbFieldType.OY)
+    ..aOS(1, _omitFieldNames ? '' : 'url')
     ..aOS(2, _omitFieldNames ? '' : 'package')
     ..aOS(3, _omitFieldNames ? '' : 'title')
     ..hasRequiredFields = false;
@@ -982,13 +979,13 @@ class AddTorrentRequest extends $pb.GeneratedMessage {
   static AddTorrentRequest? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.List<$core.int> get torrent => $_getN(0);
+  $core.String get url => $_getSZ(0);
   @$pb.TagNumber(1)
-  set torrent($core.List<$core.int> value) => $_setBytes(0, value);
+  set url($core.String value) => $_setString(0, value);
   @$pb.TagNumber(1)
-  $core.bool hasTorrent() => $_has(0);
+  $core.bool hasUrl() => $_has(0);
   @$pb.TagNumber(1)
-  void clearTorrent() => $_clearField(1);
+  void clearUrl() => $_clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get package => $_getSZ(1);

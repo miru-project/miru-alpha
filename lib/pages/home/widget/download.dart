@@ -128,7 +128,7 @@ class DownloadsList extends ConsumerWidget {
         if (activeTasks.isEmpty) {
           return const SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.symmetric(horizontal: 40),
               child: Text("No active downloads"),
             ),
           );
@@ -153,8 +153,8 @@ class DownloadsList extends ConsumerWidget {
   }
 }
 
-class DownloadsSection extends StatelessWidget {
-  const DownloadsSection({required this.padding, super.key});
+class DownloadsText extends StatelessWidget {
+  const DownloadsText({required this.padding, super.key});
   final EdgeInsetsGeometry padding;
 
   @override

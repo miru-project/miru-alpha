@@ -9,7 +9,7 @@ import 'package:miru_app_new/pages/setting/widget/setting_scaffold.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 import 'setting_extension.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'setting_items.dart';
+import '../../model/setting_items.dart';
 
 class SettingsPage extends HookWidget {
   const SettingsPage({super.key});

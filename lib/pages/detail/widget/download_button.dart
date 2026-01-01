@@ -66,14 +66,15 @@ class _DownloadDialogState extends State<_DownloadDialog>
     required String title,
     required String key,
     required Map<String, String> headers,
+    required ExtensionWatchBangumiType type,
   }) async {
     try {
       final tempDir = await MiruDirectory.getTempDownloadDirectory();
-      final res = await MiruGrpcClient.downloadClient.downloadBangumi(
-        proto.DownloadBangumiRequest(
+      final res = await MiruGrpcClient.downloadClient.download(
+        proto.DownloadRequest(
           url: url,
           downloadPath: p.join(tempDir, title),
-          isHls: true,
+          mediaType: type.name,
           package: widget.meta.packageName,
           title: title,
           key: key,
@@ -91,9 +92,9 @@ class _DownloadDialogState extends State<_DownloadDialog>
             body: SizedBox(
               width: 300,
               height: 300,
-              child: ListView.builder(
-                itemCount: res.variantSummary.length,
-                itemBuilder: (context, index) {
+              child: FTileGroup.builder(
+                count: res.variantSummary.length,
+                tileBuilder: (context, index) {
                   final variant = res.variantSummary[index];
                   return FTile(
                     title: Text(variant.resolution),
@@ -101,6 +102,7 @@ class _DownloadDialogState extends State<_DownloadDialog>
                     onPress: () async {
                       Navigator.of(context).pop();
                       await _startDownload(
+                        type: type,
                         url: variant.url,
                         title: title,
                         key: key,
@@ -166,6 +168,7 @@ class _DownloadDialogState extends State<_DownloadDialog>
 
                             if (videoWatch == null) return;
                             await _startDownload(
+                              type: videoWatch.type,
                               url: videoWatch.url,
                               title:
                                   "${widget.detail.title}-${group.title}-${url.name}",

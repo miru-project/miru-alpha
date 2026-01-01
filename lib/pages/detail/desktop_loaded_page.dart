@@ -9,7 +9,6 @@ import 'package:miru_app_new/pages/detail/widget/desktop_detail_item_box.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
-import 'package:miru_app_new/widgets/core/inner_card.dart';
 import 'package:miru_app_new/widgets/core/outter_card.dart';
 import 'package:miru_app_new/pages/detail/widget/detail_desktop_box.dart';
 import 'package:miru_app_new/widgets/index.dart';
@@ -69,13 +68,6 @@ class DesktopLoadedPage extends HookWidget {
                                   selected.value = value;
                                 },
                               ),
-                              // initialValue: selected.value,
-                              // onChange: (value) {
-                              //   if (value == null) {
-                              //     return;
-                              //   }
-                              //   selected.value = value;
-                              // },
                               items: {
                                 for (int i = 0; i < ep.length; i++)
                                   ep[i].title: i,
@@ -131,13 +123,16 @@ class DesktopLoadedPage extends HookWidget {
                     child: FCard.raw(
                       child: ClipRRect(
                         // borderRadius: BorderRadius.circular(),
-                        child: ImageWidget(imageUrl: coverUrl),
+                        child: ImageWidget.defaultErr(
+                          title: detail.title,
+                          imageUrl: coverUrl,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 30),
                   AnimatedBox(
-                    child: InnerCard(
+                    child: OutterCard(
                       title: 'Tracking',
                       child: Center(child: Text("anilist")),
                     ),

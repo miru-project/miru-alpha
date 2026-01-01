@@ -56,31 +56,39 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              Text(
+                "Tags",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+              ),
+              const Spacer(),
+              if (!isCreating.value)
+                FButton(
+                  style: FButtonStyle.outline(),
+                  onPress: () {
+                    isCreating.value = true;
+                    textController.clear();
+                    textFieldKey.value = UniqueKey();
+                  },
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(FIcons.plus),
+                      SizedBox(width: 4),
+                      Text("New Tag"),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 20),
           ValueListenableBuilder(
             valueListenable: favGroup,
             builder: (context, favGroupValue, _) => Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                // Add Button
-                if (!isCreating.value)
-                  FButton(
-                    style: FButtonStyle.ghost(),
-                    onPress: () {
-                      isCreating.value = true;
-                      textController.clear();
-                      textFieldKey.value = UniqueKey();
-                    },
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(FIcons.plus),
-                        SizedBox(width: 4),
-                        Text("New Tag"),
-                      ],
-                    ),
-                  ),
-
                 // New Tag Input
                 if (isCreating.value)
                   SizedBox(

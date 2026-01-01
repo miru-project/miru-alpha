@@ -13,7 +13,7 @@ import '../../../pages/index.dart';
 import '../../../pages/main_page.dart';
 import '../../pages/webview/mobile_webview.dart';
 import '../../pages/search/search_page_single_view.dart';
-import '../../../pages/setting/setting_items.dart';
+import '../../model/setting_items.dart';
 
 class ParamCache {
   static DetailParam? detailParam;

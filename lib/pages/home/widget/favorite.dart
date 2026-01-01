@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:miru_app_new/model/index.dart';
@@ -23,7 +24,9 @@ class FavoritesHeader extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             FButton(
-              onPress: () {},
+              onPress: () {
+                context.go("/home/favorite");
+              },
               style: FButtonStyle.outline(),
               child: const Text('View All'),
             ),
@@ -95,7 +98,8 @@ class FavoriteCard extends ConsumerWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: FCard.raw(
-                child: ImageWidget(
+                child: ImageWidget.defaultErr(
+                  title: item.title,
                   width: 210,
                   height: 280,
                   fit: BoxFit.cover,

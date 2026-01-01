@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:forui/widgets/card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
@@ -13,7 +12,6 @@ import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
-import '../home/home_page.dart';
 import 'package:go_router/go_router.dart';
 
 class HistoryPage extends StatefulHookConsumerWidget {
@@ -67,76 +65,15 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
     historyLen = history.length;
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(child: SizedBox(height: 10)),
-        SliverToBoxAdapter(
-          child: SizedBox(
-            height: DeviceUtil.device(
-              mobile: 250,
-              desktop: 300,
-              context: context,
-            ),
-            width: 1000,
-            child: ScrollConfiguration(
-              behavior: CarsouelScrollBehavior(),
-              child: CarouselView(
-                itemSnapping: true,
-                controller: controller,
-                scrollDirection: Axis.horizontal,
-                onTap: (value) {
-                  final item = history[value];
-                  final meta = ref.read(extensionPageProvider).metaData;
-                  final ExtensionMeta? ext = meta.firstWhereOrNull(
-                    (element) => element.packageName == item.package,
-                  );
-                  if (ext == null) return;
-                  context.push(
-                    '/search/single/detail',
-                    extra: DetailParam(meta: ext, url: item.detailUrl),
-                  );
-                },
-                itemExtent: DeviceUtil.device(
-                  mobile: width - 32,
-                  desktop: width * .4,
-                  context: context,
-                ),
-                shrinkExtent: 200.0,
-                children: List.generate(
-                  history.length > 10 ? 10 : history.length,
-                  (itemIndex) {
-                    if (history.length <= itemIndex) {
-                      return FCard.raw(
-                        child: Center(
-                          child: Text(
-                            'No history',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              // fontFamily: "HarmonyOS_Sans",
-                            ),
-                          ),
-                        ),
-                      );
-                    }
-                    final item = history[itemIndex];
-                    return SizedBox(
-                      width: 100,
-                      child: HomePageCarousel(item: item),
-                    );
-                  },
-                ),
-              ),
+        const SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          sliver: SliverToBoxAdapter(
+            child: Text(
+              "History",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
             ),
           ),
         ),
-        // SliverPadding(
-        //   padding: const EdgeInsets.symmetric(vertical: 10),
-        //   sliver: SliverToBoxAdapter(
-        //     child: MoonDotIndicator(
-        //       selectedDot: selectedDot.value,
-        //       dotCount: 10,
-        //     ),
-        //   ),
-        // ),
         SliverPadding(
           padding: const EdgeInsets.all(15.0),
           sliver: SliverGrid(

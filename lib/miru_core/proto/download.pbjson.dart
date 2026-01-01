@@ -142,9 +142,9 @@ final $typed_data.Uint8List pauseDownloadResponseDescriptor =
     $convert.base64Decode(
         'ChVQYXVzZURvd25sb2FkUmVzcG9uc2USGAoHbWVzc2FnZRgBIAEoCVIHbWVzc2FnZQ==');
 
-@$core.Deprecated('Use downloadBangumiRequestDescriptor instead')
-const DownloadBangumiRequest$json = {
-  '1': 'DownloadBangumiRequest',
+@$core.Deprecated('Use downloadRequestDescriptor instead')
+const DownloadRequest$json = {
+  '1': 'DownloadRequest',
   '2': [
     {'1': 'url', '3': 1, '4': 1, '5': 9, '10': 'url'},
     {'1': 'download_path', '3': 2, '4': 1, '5': 9, '10': 'downloadPath'},
@@ -153,19 +153,19 @@ const DownloadBangumiRequest$json = {
       '3': 3,
       '4': 3,
       '5': 11,
-      '6': '.miru.DownloadBangumiRequest.HeaderEntry',
+      '6': '.miru.DownloadRequest.HeaderEntry',
       '10': 'header'
     },
-    {'1': 'is_hls', '3': 4, '4': 1, '5': 8, '10': 'isHls'},
+    {'1': 'media_type', '3': 4, '4': 1, '5': 9, '10': 'mediaType'},
     {'1': 'package', '3': 5, '4': 1, '5': 9, '10': 'package'},
     {'1': 'key', '3': 6, '4': 1, '5': 9, '10': 'key'},
     {'1': 'title', '3': 7, '4': 1, '5': 9, '10': 'title'},
   ],
-  '3': [DownloadBangumiRequest_HeaderEntry$json],
+  '3': [DownloadRequest_HeaderEntry$json],
 };
 
-@$core.Deprecated('Use downloadBangumiRequestDescriptor instead')
-const DownloadBangumiRequest_HeaderEntry$json = {
+@$core.Deprecated('Use downloadRequestDescriptor instead')
+const DownloadRequest_HeaderEntry$json = {
   '1': 'HeaderEntry',
   '2': [
     {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
@@ -174,18 +174,18 @@ const DownloadBangumiRequest_HeaderEntry$json = {
   '7': {'7': true},
 };
 
-/// Descriptor for `DownloadBangumiRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List downloadBangumiRequestDescriptor = $convert.base64Decode(
-    'ChZEb3dubG9hZEJhbmd1bWlSZXF1ZXN0EhAKA3VybBgBIAEoCVIDdXJsEiMKDWRvd25sb2FkX3'
-    'BhdGgYAiABKAlSDGRvd25sb2FkUGF0aBJACgZoZWFkZXIYAyADKAsyKC5taXJ1LkRvd25sb2Fk'
-    'QmFuZ3VtaVJlcXVlc3QuSGVhZGVyRW50cnlSBmhlYWRlchIVCgZpc19obHMYBCABKAhSBWlzSG'
-    'xzEhgKB3BhY2thZ2UYBSABKAlSB3BhY2thZ2USEAoDa2V5GAYgASgJUgNrZXkSFAoFdGl0bGUY'
-    'ByABKAlSBXRpdGxlGjkKC0hlYWRlckVudHJ5EhAKA2tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGA'
-    'IgASgJUgV2YWx1ZToCOAE=');
+/// Descriptor for `DownloadRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List downloadRequestDescriptor = $convert.base64Decode(
+    'Cg9Eb3dubG9hZFJlcXVlc3QSEAoDdXJsGAEgASgJUgN1cmwSIwoNZG93bmxvYWRfcGF0aBgCIA'
+    'EoCVIMZG93bmxvYWRQYXRoEjkKBmhlYWRlchgDIAMoCzIhLm1pcnUuRG93bmxvYWRSZXF1ZXN0'
+    'LkhlYWRlckVudHJ5UgZoZWFkZXISHQoKbWVkaWFfdHlwZRgEIAEoCVIJbWVkaWFUeXBlEhgKB3'
+    'BhY2thZ2UYBSABKAlSB3BhY2thZ2USEAoDa2V5GAYgASgJUgNrZXkSFAoFdGl0bGUYByABKAlS'
+    'BXRpdGxlGjkKC0hlYWRlckVudHJ5EhAKA2tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGAIgASgJUg'
+    'V2YWx1ZToCOAE=');
 
-@$core.Deprecated('Use downloadBangumiResponseDescriptor instead')
-const DownloadBangumiResponse$json = {
-  '1': 'DownloadBangumiResponse',
+@$core.Deprecated('Use downloadResponseDescriptor instead')
+const DownloadResponse$json = {
+  '1': 'DownloadResponse',
   '2': [
     {'1': 'task_id', '3': 1, '4': 1, '5': 5, '10': 'taskId'},
     {
@@ -200,11 +200,11 @@ const DownloadBangumiResponse$json = {
   ],
 };
 
-/// Descriptor for `DownloadBangumiResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List downloadBangumiResponseDescriptor = $convert.base64Decode(
-    'ChdEb3dubG9hZEJhbmd1bWlSZXNwb25zZRIXCgd0YXNrX2lkGAEgASgFUgZ0YXNrSWQSQgoPdm'
-    'FyaWFudF9zdW1tYXJ5GAIgAygLMhkubWlydS5BdmFpbGFibGVIbHNWYXJpYW50Ug52YXJpYW50'
-    'U3VtbWFyeRIlCg5pc19kb3dubG9hZGluZxgDIAEoCFINaXNEb3dubG9hZGluZw==');
+/// Descriptor for `DownloadResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List downloadResponseDescriptor = $convert.base64Decode(
+    'ChBEb3dubG9hZFJlc3BvbnNlEhcKB3Rhc2tfaWQYASABKAVSBnRhc2tJZBJCCg92YXJpYW50X3'
+    'N1bW1hcnkYAiADKAsyGS5taXJ1LkF2YWlsYWJsZUhsc1ZhcmlhbnRSDnZhcmlhbnRTdW1tYXJ5'
+    'EiUKDmlzX2Rvd25sb2FkaW5nGAMgASgIUg1pc0Rvd25sb2FkaW5n');
 
 @$core.Deprecated('Use getAllDownloadsRequestDescriptor instead')
 const GetAllDownloadsRequest$json = {
@@ -294,7 +294,7 @@ final $typed_data.Uint8List listTorrentResponseDescriptor = $convert.base64Decod
 const AddTorrentRequest$json = {
   '1': 'AddTorrentRequest',
   '2': [
-    {'1': 'torrent', '3': 1, '4': 1, '5': 12, '10': 'torrent'},
+    {'1': 'url', '3': 1, '4': 1, '5': 9, '10': 'url'},
     {'1': 'package', '3': 2, '4': 1, '5': 9, '10': 'package'},
     {'1': 'title', '3': 3, '4': 1, '5': 9, '10': 'title'},
   ],
@@ -302,8 +302,8 @@ const AddTorrentRequest$json = {
 
 /// Descriptor for `AddTorrentRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List addTorrentRequestDescriptor = $convert.base64Decode(
-    'ChFBZGRUb3JyZW50UmVxdWVzdBIYCgd0b3JyZW50GAEgASgMUgd0b3JyZW50EhgKB3BhY2thZ2'
-    'UYAiABKAlSB3BhY2thZ2USFAoFdGl0bGUYAyABKAlSBXRpdGxl');
+    'ChFBZGRUb3JyZW50UmVxdWVzdBIQCgN1cmwYASABKAlSA3VybBIYCgdwYWNrYWdlGAIgASgJUg'
+    'dwYWNrYWdlEhQKBXRpdGxlGAMgASgJUgV0aXRsZQ==');
 
 @$core.Deprecated('Use addTorrentResponseDescriptor instead')
 const AddTorrentResponse$json = {

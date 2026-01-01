@@ -60,11 +60,11 @@ class DownloadServiceClient extends $grpc.Client {
     return $createUnaryCall(_$pauseDownload, request, options: options);
   }
 
-  $grpc.ResponseFuture<$0.DownloadBangumiResponse> downloadBangumi(
-    $0.DownloadBangumiRequest request, {
+  $grpc.ResponseFuture<$0.DownloadResponse> download(
+    $0.DownloadRequest request, {
     $grpc.CallOptions? options,
   }) {
-    return $createUnaryCall(_$downloadBangumi, request, options: options);
+    return $createUnaryCall(_$download, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.GetAllDownloadsResponse> getAllDownloads(
@@ -132,11 +132,11 @@ class DownloadServiceClient extends $grpc.Client {
           '/miru.DownloadService/PauseDownload',
           ($0.PauseDownloadRequest value) => value.writeToBuffer(),
           $0.PauseDownloadResponse.fromBuffer);
-  static final _$downloadBangumi =
-      $grpc.ClientMethod<$0.DownloadBangumiRequest, $0.DownloadBangumiResponse>(
-          '/miru.DownloadService/DownloadBangumi',
-          ($0.DownloadBangumiRequest value) => value.writeToBuffer(),
-          $0.DownloadBangumiResponse.fromBuffer);
+  static final _$download =
+      $grpc.ClientMethod<$0.DownloadRequest, $0.DownloadResponse>(
+          '/miru.DownloadService/Download',
+          ($0.DownloadRequest value) => value.writeToBuffer(),
+          $0.DownloadResponse.fromBuffer);
   static final _$getAllDownloads =
       $grpc.ClientMethod<$0.GetAllDownloadsRequest, $0.GetAllDownloadsResponse>(
           '/miru.DownloadService/GetAllDownloads',
@@ -210,15 +210,13 @@ abstract class DownloadServiceBase extends $grpc.Service {
             ($core.List<$core.int> value) =>
                 $0.PauseDownloadRequest.fromBuffer(value),
             ($0.PauseDownloadResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.DownloadBangumiRequest,
-            $0.DownloadBangumiResponse>(
-        'DownloadBangumi',
-        downloadBangumi_Pre,
+    $addMethod($grpc.ServiceMethod<$0.DownloadRequest, $0.DownloadResponse>(
+        'Download',
+        download_Pre,
         false,
         false,
-        ($core.List<$core.int> value) =>
-            $0.DownloadBangumiRequest.fromBuffer(value),
-        ($0.DownloadBangumiResponse value) => value.writeToBuffer()));
+        ($core.List<$core.int> value) => $0.DownloadRequest.fromBuffer(value),
+        ($0.DownloadResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.GetAllDownloadsRequest,
             $0.GetAllDownloadsResponse>(
         'GetAllDownloads',
@@ -307,14 +305,13 @@ abstract class DownloadServiceBase extends $grpc.Service {
   $async.Future<$0.PauseDownloadResponse> pauseDownload(
       $grpc.ServiceCall call, $0.PauseDownloadRequest request);
 
-  $async.Future<$0.DownloadBangumiResponse> downloadBangumi_Pre(
-      $grpc.ServiceCall $call,
-      $async.Future<$0.DownloadBangumiRequest> $request) async {
-    return downloadBangumi($call, await $request);
+  $async.Future<$0.DownloadResponse> download_Pre($grpc.ServiceCall $call,
+      $async.Future<$0.DownloadRequest> $request) async {
+    return download($call, await $request);
   }
 
-  $async.Future<$0.DownloadBangumiResponse> downloadBangumi(
-      $grpc.ServiceCall call, $0.DownloadBangumiRequest request);
+  $async.Future<$0.DownloadResponse> download(
+      $grpc.ServiceCall call, $0.DownloadRequest request);
 
   $async.Future<$0.GetAllDownloadsResponse> getAllDownloads_Pre(
       $grpc.ServiceCall $call,

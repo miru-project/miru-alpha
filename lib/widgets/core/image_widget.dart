@@ -14,7 +14,7 @@ class ImageWidget extends StatelessWidget {
     this.loadingChild = const Center(child: FCircularProgress()),
     this.borderRadius = 10,
     this.clipBehavior = Clip.antiAlias,
-  });
+  }) : title = '';
   final String? imageUrl;
   final double? width;
   final double? height;
@@ -23,9 +23,40 @@ class ImageWidget extends StatelessWidget {
   final Widget loadingChild;
   final double borderRadius;
   final Clip clipBehavior;
+  final String title;
+
+  const ImageWidget.defaultErr({
+    super.key,
+    this.imageUrl,
+    this.width,
+    this.height,
+    this.fit,
+    this.loadingChild = const Center(child: FCircularProgress()),
+    this.borderRadius = 10,
+    this.clipBehavior = Clip.antiAlias,
+    required this.title,
+  }) : errChild = const Placeholder();
+
+  Widget buildErrchild() {
+    if (title.isEmpty) return errChild;
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(borderRadius),
+      ),
+      child: Center(
+        child: Text(
+          title,
+          softWrap: true,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (imageUrl?.isEmpty ?? true) return errChild;
+    if (imageUrl?.isEmpty ?? true) return buildErrchild();
     // Fallback: treat as network image
     return ExtendedImage.network(
       imageUrl!,
@@ -42,7 +73,7 @@ class ImageWidget extends StatelessWidget {
           case LoadState.completed:
             return null;
           case LoadState.failed:
-            return errChild;
+            return buildErrchild();
         }
       },
     );

@@ -12,64 +12,6 @@ import 'package:miru_app_new/pages/detail/widget/desktop_detail_item_box.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
 
 import 'package:miru_app_new/widgets/index.dart';
-// import 'package:moon_design/moon_design.dart';
-
-// class DetailEpButton extends HookWidget {
-//   const DetailEpButton({
-//     super.key,
-//     required this.detail,
-//     required this.notifier,
-//     required this.onTap,
-//     required this.spacing,
-//     required this.runSpacing,
-//   });
-//   final ExtensionDetail detail;
-//   final ValueNotifier<int> notifier;
-//   final Function(int) onTap;
-//   final double spacing;
-//   final double runSpacing;
-//   @override
-//   Widget build(BuildContext context) {
-//     if (detail.episodes == null) {
-//       return const Text('No Episode');
-//     }
-//     return LayoutBuilder(
-//       builder: (context, constraint) => ValueListenableBuilder(
-//         valueListenable: notifier,
-//         builder: (context, selectedValue, child) => (detail.episodes!.isEmpty)
-//             ? const Text('No Episode')
-//             : Wrap(
-//                 spacing: spacing,
-//                 runSpacing: runSpacing,
-//                 children: [
-//                   ...List.generate(
-//                     detail.episodes![selectedValue].urls.length,
-//                     (index) {
-//                       return MoonButton(
-//                         onTap: () => onTap(index),
-//                         label: PlatformWidget(
-//                           mobileWidget: ConstrainedBox(
-//                             constraints: BoxConstraints(
-//                               maxWidth: constraint.maxWidth - 50,
-//                             ),
-//                             child: Text(
-//                               overflow: TextOverflow.ellipsis,
-//                               detail.episodes![selectedValue].urls[index].name,
-//                             ),
-//                           ),
-//                           desktopWidget: Text(
-//                             detail.episodes![selectedValue].urls[index].name,
-//                           ),
-//                         ),
-//                       );
-//                     },
-//                   ),
-//                 ],
-//               ),
-//       ),
-//     );
-//   }
-// }
 
 class DesktopDetail extends ConsumerWidget {
   const DesktopDetail({
