@@ -20,17 +20,6 @@ class HistoryPage extends StatefulHookConsumerWidget {
   createState() => _HistoryPageState();
 }
 
-class CarsouelScrollBehavior extends MaterialScrollBehavior {
-  // Override behavior methods and getters like dragDevices
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-    PointerDeviceKind.touch,
-    PointerDeviceKind.mouse,
-    PointerDeviceKind.trackpad,
-    PointerDeviceKind.stylus,
-  };
-}
-
 class _HistoryPageState extends ConsumerState<HistoryPage>
     with AutomaticKeepAliveClientMixin {
   @override
@@ -49,18 +38,6 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final controller = useCarouselController();
-    // final selectedDot = useState(0);
-    int index = 0;
-    useEffect(() {
-      Timer.periodic(const Duration(seconds: 5), (timer) {
-        if (historyLen == 0) return;
-        controller.animateToItem(index);
-        index++;
-      });
-      return null;
-    }, [controller]);
-    final width = DeviceUtil.getWidth(context);
     final history = ref.watch(mainProvider).history;
     historyLen = history.length;
     return CustomScrollView(

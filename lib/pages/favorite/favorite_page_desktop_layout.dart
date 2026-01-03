@@ -97,48 +97,87 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
     });
 
     super.build(context);
-    return MiruScaffold(
-      mobileHeader: SnapSheetHeader(title: 'Home'),
-      body: Column(
-        children: [
-          FavoriteTab(onGroupChanged: _refreshGroups),
-          Expanded(
-            child: ValueListenableBuilder(
-              valueListenable: _fav,
-              builder: (context, fav, _) => MiruGridView(
-                desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 220,
-                  childAspectRatio: 0.7,
+    return PlatformWidget(
+      desktopWidget: MiruScaffold(
+        mobileHeader: SnapSheetHeader(title: 'Home'),
+        body: Column(
+          children: [
+            FavoriteTab(onGroupChanged: _refreshGroups),
+            Expanded(
+              child: ValueListenableBuilder(
+                valueListenable: _fav,
+                builder: (context, fav, _) => GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 220,
+                    childAspectRatio: 0.7,
+                  ),
+
+                  itemBuilder: (context, index) {
+                    return MiruDesktopGridTile(
+                      title: fav[index].title,
+                      subtitle: fav[index].package,
+                      imageUrl: fav[index].cover,
+                      onTap: () {
+                        final extensionIsExist = ExtensionUtils.runtimes
+                            .containsKey(fav[index].package);
+                        if (extensionIsExist) {
+                          context.push(
+                            '/search/detail',
+                            extra: DetailParam(
+                              meta:
+                                  ExtensionUtils.runtimes[fav[index].package]!,
+                              url: fav[index].url,
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  },
+                  itemCount: fav.length,
                 ),
-                mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: DeviceUtil.getWidth(context) ~/ 150,
-                  childAspectRatio: 0.65,
-                ),
-                itemBuilder: (context, index) {
-                  return MiruDesktopGridTile(
-                    title: fav[index].title,
-                    subtitle: fav[index].package,
-                    imageUrl: fav[index].cover,
-                    onTap: () {
-                      final extensionIsExist = ExtensionUtils.runtimes
-                          .containsKey(fav[index].package);
-                      if (extensionIsExist) {
-                        context.push(
-                          '/search/detail',
-                          extra: DetailParam(
-                            meta: ExtensionUtils.runtimes[fav[index].package]!,
-                            url: fav[index].url,
-                          ),
-                        );
-                      }
-                    },
-                  );
-                },
-                itemCount: fav.length,
               ),
             ),
+          ],
+        ),
+      ),
+      mobileWidget: ValueListenableBuilder(
+        valueListenable: _fav,
+        builder: (context, fav, _) => GridView.builder(
+          padding: EdgeInsets.fromLTRB(
+            8,
+            8 + MediaQuery.of(context).padding.top,
+            8,
+            190,
           ),
-        ],
+          itemCount: fav.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: DeviceUtil.getWidth(context) ~/ 150,
+            childAspectRatio: 0.65,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+          ),
+          itemBuilder: (context, index) {
+            return MiruMobileTile(
+              title: fav[index].title,
+              subtitle: fav[index].package,
+              imageUrl: fav[index].cover,
+              onTap: () {
+                final extensionIsExist = ExtensionUtils.runtimes.containsKey(
+                  fav[index].package,
+                );
+                if (extensionIsExist) {
+                  context.push(
+                    '/search/detail',
+                    extra: DetailParam(
+                      meta: ExtensionUtils.runtimes[fav[index].package]!,
+                      url: fav[index].url,
+                    ),
+                  );
+                }
+              },
+            );
+          },
+        ),
       ),
     );
   }

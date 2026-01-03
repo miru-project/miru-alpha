@@ -1,58 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // For HapticFeedback
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:path_drawing/path_drawing.dart';
 import 'package:vector_math/vector_math_64.dart' as vec;
 
-class HeartButton extends StatefulWidget {
+class HeartButton extends StatelessWidget {
   final double size;
   final Color activeColor;
   final Color inactiveColor;
-  final Function(bool isLiked)? onChanged;
+  final bool isLiked;
 
   const HeartButton({
     super.key,
     this.size = 40.0,
     this.activeColor = Colors.red,
     this.inactiveColor = Colors.grey,
-    this.onChanged,
+    this.isLiked = false,
   });
 
   @override
-  State<HeartButton> createState() => _HeartButtonState();
-}
-
-class _HeartButtonState extends State<HeartButton> {
-  bool _isLiked = false;
-
-  void _handleTap() {
-    setState(() {
-      _isLiked = !_isLiked;
-    });
-
-    // Provide a light haptic tap when liked
-    if (_isLiked) {
-      HapticFeedback.lightImpact();
-    }
-
-    if (widget.onChanged != null) {
-      widget.onChanged!(_isLiked);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _handleTap,
-      // Using Transparent hitTest behavior ensures the button is clickable
-      // even in the empty spaces of the heart path.
-      behavior: HitTestBehavior.opaque,
-      child: Center(
-        child: _HeartIconView(
-          isAnimated: _isLiked,
-          size: widget.size,
-          color: _isLiked ? widget.activeColor : widget.inactiveColor,
-        ),
+    return Center(
+      child: _HeartIconView(
+        isAnimated: isLiked,
+        size: size,
+        color: isLiked ? activeColor : inactiveColor,
       ),
     );
   }

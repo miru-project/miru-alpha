@@ -12,6 +12,7 @@ import 'package:miru_app_new/pages/detail/widget/mobile_detail_tabs.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
+import 'package:miru_app_new/widgets/animted_icon/heart.dart';
 
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:miru_app_new/widgets/index.dart';
@@ -34,6 +35,13 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
         widget.url,
       );
       ref.read(detialProvider.notifier).putHistory(history);
+
+      // Fetch favorite state
+      final favorite = await DatabaseService.getFavoriteByPackageAndUrl(
+        widget.meta.packageName,
+        widget.url,
+      );
+      ref.read(detialProvider.notifier).putFavorite(favorite);
     });
     // Trigger detail fetch via DetialProvider so UI doesn't depend directly on the fetch provider
     Future.microtask(
@@ -48,6 +56,9 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
   Widget build(BuildContext context) {
     final detial =
         ref.watch(detialProvider).detailState ?? const AsyncValue.loading();
+    final favorite = ref.watch(
+      detialProvider.select((value) => value.favorite),
+    );
     return detial.when(
       data: (detial) => MiruScaffold(
         snapSheet: [
@@ -93,23 +104,37 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
               FButton.icon(
                 style: FButtonStyle.ghost(),
                 onPress: () {
+                  if (favorite != null) {
+                    DatabaseService.deleteFavorite(
+                      widget.meta.packageName,
+                      widget.url,
+                    );
+                    ref.read(detialProvider.notifier).putFavorite(null);
+                    return;
+                  }
                   showDialog(
                     context: context,
                     builder: (context) => FavoriteDialog(
                       meta: widget.meta,
                       detailUrl: widget.url,
                       detail: detial,
-                      onSuccess: () {
-                        // Trigger rebuild to update "Favorited" badge
-                        (context as Element).markNeedsBuild();
+                      onSuccess: () async {
+                        // Refresh favorite state after dialog closes
+                        final favorite =
+                            await DatabaseService.getFavoriteByPackageAndUrl(
+                              widget.meta.packageName,
+                              widget.url,
+                            );
+                        ref.read(detialProvider.notifier).putFavorite(favorite);
                       },
                     ),
                   );
                 },
-                child: Icon(
-                  FIcons.heart,
+                child: HeartButton(
                   size: 28,
-                  color: context.theme.colors.primary,
+                  activeColor: context.theme.colors.primary,
+                  inactiveColor: context.theme.colors.primary,
+                  isLiked: favorite != null,
                 ),
               ),
             ],

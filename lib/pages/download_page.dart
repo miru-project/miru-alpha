@@ -84,9 +84,9 @@ class DownloadPage extends ConsumerWidget {
     AsyncValue<List<proto.Download>> all,
   ) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: .max,
         children: [
           _buildActiveSection(context, ref, active),
           const SizedBox(height: 24),
