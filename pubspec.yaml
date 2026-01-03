@@ -46,7 +46,7 @@ dependencies:
   go_router: ^17.0.0
   shimmer: ^3.0.0
   flutter_riverpod: ^3.0.1
-  riverpod_annotation: ^3.0.1
+  riverpod_annotation: ^4.0.0
   volume_controller: ^3.3.1
   screen_brightness: ^2.0.1
   hooks_riverpod: ^3.0.1
@@ -93,7 +93,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  riverpod_generator: ^3.0.0
+  riverpod_generator: ^4.0.0+1
   ffigen: ^20.0.0
   flutter_launcher_icons: ^0.14.4
 # The following section is specific to Flutter packages.

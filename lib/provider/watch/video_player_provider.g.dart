@@ -10,11 +10,11 @@ part of 'video_player_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(VideoPlayerNotifier)
-const videoPlayerProvider = VideoPlayerNotifierFamily._();
+final videoPlayerProvider = VideoPlayerNotifierFamily._();
 
 final class VideoPlayerNotifierProvider
     extends $NotifierProvider<VideoPlayerNotifier, VideoPlayerTickState> {
-  const VideoPlayerNotifierProvider._({
+  VideoPlayerNotifierProvider._({
     required VideoPlayerNotifierFamily super.from,
     required (
       String, {
@@ -66,7 +66,7 @@ final class VideoPlayerNotifierProvider
 }
 
 String _$videoPlayerNotifierHash() =>
-    r'27f22ff4904746ecc04fe8c5fc9e99024e854e71';
+    r'14332a66caa6ee30ab8bf681d7de2e8acbe99a14';
 
 final class VideoPlayerNotifierFamily extends $Family
     with
@@ -83,7 +83,7 @@ final class VideoPlayerNotifierFamily extends $Family
             ExtensionBangumiWatchTorrent? torrent,
           })
         > {
-  const VideoPlayerNotifierFamily._()
+  VideoPlayerNotifierFamily._()
     : super(
         retry: null,
         name: r'videoPlayerProvider',
@@ -139,13 +139,6 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(
-      _$args.$1,
-      subtitlesRaw: _$args.subtitlesRaw,
-      headers: _$args.headers,
-      initialRatio: _$args.initialRatio,
-      torrent: _$args.torrent,
-    );
     final ref = this.ref as $Ref<VideoPlayerTickState, VideoPlayerTickState>;
     final element =
         ref.element
@@ -155,6 +148,15 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(
+      ref,
+      () => build(
+        _$args.$1,
+        subtitlesRaw: _$args.subtitlesRaw,
+        headers: _$args.headers,
+        initialRatio: _$args.initialRatio,
+        torrent: _$args.torrent,
+      ),
+    );
   }
 }

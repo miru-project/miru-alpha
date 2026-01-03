@@ -10,11 +10,11 @@ part of 'manga_reader_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(MangaReader)
-const mangaReaderProvider = MangaReaderFamily._();
+final mangaReaderProvider = MangaReaderFamily._();
 
 final class MangaReaderProvider
     extends $NotifierProvider<MangaReader, MangaReaderState> {
-  const MangaReaderProvider._({
+  MangaReaderProvider._({
     required MangaReaderFamily super.from,
     required (int, int, ExtensionMangaWatch, {Map<String, String>? headers})
     super.argument,
@@ -70,7 +70,7 @@ final class MangaReaderFamily extends $Family
           MangaReaderState,
           (int, int, ExtensionMangaWatch, {Map<String, String>? headers})
         > {
-  const MangaReaderFamily._()
+  MangaReaderFamily._()
     : super(
         retry: null,
         name: r'mangaReaderProvider',
@@ -111,12 +111,6 @@ abstract class _$MangaReader extends $Notifier<MangaReaderState> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(
-      _$args.$1,
-      _$args.$2,
-      _$args.$3,
-      headers: _$args.headers,
-    );
     final ref = this.ref as $Ref<MangaReaderState, MangaReaderState>;
     final element =
         ref.element
@@ -126,6 +120,9 @@ abstract class _$MangaReader extends $Notifier<MangaReaderState> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(
+      ref,
+      () => build(_$args.$1, _$args.$2, _$args.$3, headers: _$args.headers),
+    );
   }
 }

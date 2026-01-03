@@ -10,11 +10,11 @@ part of 'epidsode_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(EpisodeNotifier)
-const episodeProvider = EpisodeNotifierFamily._();
+final episodeProvider = EpisodeNotifierFamily._();
 
 final class EpisodeNotifierProvider
     extends $NotifierProvider<EpisodeNotifier, EpisodeNotifierState> {
-  const EpisodeNotifierProvider._({
+  EpisodeNotifierProvider._({
     required EpisodeNotifierFamily super.from,
     required (
       int,
@@ -90,7 +90,7 @@ final class EpisodeNotifierFamily extends $Family
             String,
           )
         > {
-  const EpisodeNotifierFamily._()
+  EpisodeNotifierFamily._()
     : super(
         retry: null,
         name: r'episodeProvider',
@@ -166,17 +166,6 @@ abstract class _$EpisodeNotifier extends $Notifier<EpisodeNotifierState> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(
-      _$args.$1,
-      _$args.$2,
-      _$args.$3,
-      _$args.$4,
-      _$args.$5,
-      _$args.$6,
-      _$args.$7,
-      _$args.$8,
-      _$args.$9,
-    );
     final ref = this.ref as $Ref<EpisodeNotifierState, EpisodeNotifierState>;
     final element =
         ref.element
@@ -186,6 +175,19 @@ abstract class _$EpisodeNotifier extends $Notifier<EpisodeNotifierState> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(
+      ref,
+      () => build(
+        _$args.$1,
+        _$args.$2,
+        _$args.$3,
+        _$args.$4,
+        _$args.$5,
+        _$args.$6,
+        _$args.$7,
+        _$args.$8,
+        _$args.$9,
+      ),
+    );
   }
 }

@@ -10,11 +10,11 @@ part of 'detail_page_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(DetailPageProvider)
-const detailPageProviderProvider = DetailPageProviderProvider._();
+final detailPageProviderProvider = DetailPageProviderProvider._();
 
 final class DetailPageProviderProvider
     extends $NotifierProvider<DetailPageProvider, DetailPageProviderState> {
-  const DetailPageProviderProvider._()
+  DetailPageProviderProvider._()
     : super(
         from: null,
         argument: null,
@@ -49,7 +49,6 @@ abstract class _$DetailPageProvider extends $Notifier<DetailPageProviderState> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref =
         this.ref as $Ref<DetailPageProviderState, DetailPageProviderState>;
     final element =
@@ -60,6 +59,6 @@ abstract class _$DetailPageProvider extends $Notifier<DetailPageProviderState> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

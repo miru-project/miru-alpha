@@ -10,12 +10,12 @@ part of 'network_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(watch)
-const watchProvider = WatchFamily._();
+final watchProvider = WatchFamily._();
 
 final class WatchProvider
     extends $FunctionalProvider<AsyncValue<Object>, Object, FutureOr<Object>>
     with $FutureModifier<Object>, $FutureProvider<Object> {
-  const WatchProvider._({
+  WatchProvider._({
     required WatchFamily super.from,
     required (String, String, ExtensionType) super.argument,
   }) : super(
@@ -66,7 +66,7 @@ final class WatchFamily extends $Family
           FutureOr<Object>,
           (String, String, ExtensionType)
         > {
-  const WatchFamily._()
+  WatchFamily._()
     : super(
         retry: null,
         name: r'watchProvider',
@@ -83,7 +83,7 @@ final class WatchFamily extends $Family
 }
 
 @ProviderFor(fetchExtensionRepo)
-const fetchExtensionRepoProvider = FetchExtensionRepoProvider._();
+final fetchExtensionRepoProvider = FetchExtensionRepoProvider._();
 
 final class FetchExtensionRepoProvider
     extends
@@ -95,7 +95,7 @@ final class FetchExtensionRepoProvider
     with
         $FutureModifier<List<ExtensionRepo>>,
         $FutureProvider<List<ExtensionRepo>> {
-  const FetchExtensionRepoProvider._()
+  FetchExtensionRepoProvider._()
     : super(
         from: null,
         argument: null,
@@ -125,7 +125,7 @@ String _$fetchExtensionRepoHash() =>
     r'e1c3954fff31bd40d183be48b9627acd38de1ecc';
 
 @ProviderFor(fetchExtensionDetail)
-const fetchExtensionDetailProvider = FetchExtensionDetailFamily._();
+final fetchExtensionDetailProvider = FetchExtensionDetailFamily._();
 
 final class FetchExtensionDetailProvider
     extends
@@ -135,7 +135,7 @@ final class FetchExtensionDetailProvider
           FutureOr<ExtensionDetail>
         >
     with $FutureModifier<ExtensionDetail>, $FutureProvider<ExtensionDetail> {
-  const FetchExtensionDetailProvider._({
+  FetchExtensionDetailProvider._({
     required FetchExtensionDetailFamily super.from,
     required (String, String) super.argument,
   }) : super(
@@ -185,7 +185,7 @@ String _$fetchExtensionDetailHash() =>
 final class FetchExtensionDetailFamily extends $Family
     with
         $FunctionalFamilyOverride<FutureOr<ExtensionDetail>, (String, String)> {
-  const FetchExtensionDetailFamily._()
+  FetchExtensionDetailFamily._()
     : super(
         retry: null,
         name: r'fetchExtensionDetailProvider',
@@ -202,7 +202,7 @@ final class FetchExtensionDetailFamily extends $Family
 }
 
 @ProviderFor(fetchExtensionLatest)
-const fetchExtensionLatestProvider = FetchExtensionLatestFamily._();
+final fetchExtensionLatestProvider = FetchExtensionLatestFamily._();
 
 final class FetchExtensionLatestProvider
     extends
@@ -214,7 +214,7 @@ final class FetchExtensionLatestProvider
     with
         $FutureModifier<List<ExtensionListItem>>,
         $FutureProvider<List<ExtensionListItem>> {
-  const FetchExtensionLatestProvider._({
+  FetchExtensionLatestProvider._({
     required FetchExtensionLatestFamily super.from,
     required (String, int) super.argument,
   }) : super(
@@ -267,7 +267,7 @@ final class FetchExtensionLatestFamily extends $Family
           FutureOr<List<ExtensionListItem>>,
           (String, int)
         > {
-  const FetchExtensionLatestFamily._()
+  FetchExtensionLatestFamily._()
     : super(
         retry: null,
         name: r'fetchExtensionLatestProvider',
@@ -284,7 +284,7 @@ final class FetchExtensionLatestFamily extends $Family
 }
 
 @ProviderFor(fetchExtensionSearch)
-const fetchExtensionSearchProvider = FetchExtensionSearchFamily._();
+final fetchExtensionSearchProvider = FetchExtensionSearchFamily._();
 
 final class FetchExtensionSearchProvider
     extends
@@ -296,7 +296,7 @@ final class FetchExtensionSearchProvider
     with
         $FutureModifier<List<ExtensionListItem>>,
         $FutureProvider<List<ExtensionListItem>> {
-  const FetchExtensionSearchProvider._({
+  FetchExtensionSearchProvider._({
     required FetchExtensionSearchFamily super.from,
     required (String, String, int, {Map<String, ExtensionFilter>? filter})
     super.argument,
@@ -358,7 +358,7 @@ final class FetchExtensionSearchFamily extends $Family
           FutureOr<List<ExtensionListItem>>,
           (String, String, int, {Map<String, ExtensionFilter>? filter})
         > {
-  const FetchExtensionSearchFamily._()
+  FetchExtensionSearchFamily._()
     : super(
         retry: null,
         name: r'fetchExtensionSearchProvider',
@@ -382,7 +382,7 @@ final class FetchExtensionSearchFamily extends $Family
 }
 
 @ProviderFor(fetchExtensionSearchLatest)
-const fetchExtensionSearchLatestProvider = FetchExtensionSearchLatestFamily._();
+final fetchExtensionSearchLatestProvider = FetchExtensionSearchLatestFamily._();
 
 final class FetchExtensionSearchLatestProvider
     extends
@@ -394,7 +394,7 @@ final class FetchExtensionSearchLatestProvider
     with
         $FutureModifier<List<ExtensionListItem>>,
         $FutureProvider<List<ExtensionListItem>> {
-  const FetchExtensionSearchLatestProvider._({
+  FetchExtensionSearchLatestProvider._({
     required FetchExtensionSearchLatestFamily super.from,
     required (
       String,
@@ -467,7 +467,7 @@ final class FetchExtensionSearchLatestFamily extends $Family
           FutureOr<List<ExtensionListItem>>,
           (String, int, {String? query, Map<String, ExtensionFilter>? filter})
         > {
-  const FetchExtensionSearchLatestFamily._()
+  FetchExtensionSearchLatestFamily._()
     : super(
         retry: null,
         name: r'fetchExtensionSearchLatestProvider',

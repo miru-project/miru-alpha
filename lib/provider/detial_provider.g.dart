@@ -10,10 +10,10 @@ part of 'detial_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(Detial)
-const detialProvider = DetialProvider._();
+final detialProvider = DetialProvider._();
 
 final class DetialProvider extends $NotifierProvider<Detial, DetialState> {
-  const DetialProvider._()
+  DetialProvider._()
     : super(
         from: null,
         argument: null,
@@ -40,14 +40,13 @@ final class DetialProvider extends $NotifierProvider<Detial, DetialState> {
   }
 }
 
-String _$detialHash() => r'f4e75d566bdc18e147959d2646dc533299ecbaab';
+String _$detialHash() => r'c67e402a3fb944b6efbcc6deabccbf887dd45abb';
 
 abstract class _$Detial extends $Notifier<DetialState> {
   DetialState build();
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<DetialState, DetialState>;
     final element =
         ref.element
@@ -57,6 +56,6 @@ abstract class _$Detial extends $Notifier<DetialState> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

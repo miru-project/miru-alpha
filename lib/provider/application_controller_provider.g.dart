@@ -10,11 +10,11 @@ part of 'application_controller_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(ApplicationController)
-const applicationControllerProvider = ApplicationControllerProvider._();
+final applicationControllerProvider = ApplicationControllerProvider._();
 
 final class ApplicationControllerProvider
     extends $NotifierProvider<ApplicationController, ApplicationState> {
-  const ApplicationControllerProvider._()
+  ApplicationControllerProvider._()
     : super(
         from: null,
         argument: null,
@@ -49,7 +49,6 @@ abstract class _$ApplicationController extends $Notifier<ApplicationState> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<ApplicationState, ApplicationState>;
     final element =
         ref.element
@@ -59,6 +58,6 @@ abstract class _$ApplicationController extends $Notifier<ApplicationState> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

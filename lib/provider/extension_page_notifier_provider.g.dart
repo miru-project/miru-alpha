@@ -10,11 +10,11 @@ part of 'extension_page_notifier_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(ExtensionPageNotifier)
-const extensionPageProvider = ExtensionPageNotifierProvider._();
+final extensionPageProvider = ExtensionPageNotifierProvider._();
 
 final class ExtensionPageNotifierProvider
     extends $NotifierProvider<ExtensionPageNotifier, ExtensionPageModel> {
-  const ExtensionPageNotifierProvider._()
+  ExtensionPageNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -49,7 +49,6 @@ abstract class _$ExtensionPageNotifier extends $Notifier<ExtensionPageModel> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<ExtensionPageModel, ExtensionPageModel>;
     final element =
         ref.element
@@ -59,6 +58,6 @@ abstract class _$ExtensionPageNotifier extends $Notifier<ExtensionPageModel> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

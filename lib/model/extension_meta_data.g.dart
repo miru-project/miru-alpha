@@ -20,6 +20,7 @@ ExtensionMeta _$ExtensionMetaFromJson(Map<String, dynamic> json) =>
       tags: json['tags'] as List<dynamic>? ?? [],
       api: json['api'] as String? ?? '',
       type: _extensionTypeFromJson(json['type'] as String),
+      error: json['error'] as String?,
     );
 
 Map<String, dynamic> _$ExtensionMetaToJson(ExtensionMeta instance) =>
@@ -36,6 +37,7 @@ Map<String, dynamic> _$ExtensionMetaToJson(ExtensionMeta instance) =>
       'tags': instance.tags,
       'api': instance.api,
       'type': _$ExtensionTypeEnumMap[instance.type]!,
+      'error': instance.error,
     };
 
 const _$ExtensionTypeEnumMap = {

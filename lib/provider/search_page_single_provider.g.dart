@@ -10,11 +10,11 @@ part of 'search_page_single_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(SearchPageSingleProvider)
-const searchPageSingleProviderProvider = SearchPageSingleProviderProvider._();
+final searchPageSingleProviderProvider = SearchPageSingleProviderProvider._();
 
 final class SearchPageSingleProviderProvider
     extends $NotifierProvider<SearchPageSingleProvider, SingleSearchPageState> {
-  const SearchPageSingleProviderProvider._()
+  SearchPageSingleProviderProvider._()
     : super(
         from: null,
         argument: null,
@@ -50,7 +50,6 @@ abstract class _$SearchPageSingleProvider
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<SingleSearchPageState, SingleSearchPageState>;
     final element =
         ref.element
@@ -60,6 +59,6 @@ abstract class _$SearchPageSingleProvider
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

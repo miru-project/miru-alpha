@@ -10,11 +10,11 @@ part of 'main_provider.dart';
 // ignore_for_file: type=lint, type=warning
 
 @ProviderFor(MainNotifier)
-const mainProvider = MainNotifierProvider._();
+final mainProvider = MainNotifierProvider._();
 
 final class MainNotifierProvider
     extends $NotifierProvider<MainNotifier, MainPageState> {
-  const MainNotifierProvider._()
+  MainNotifierProvider._()
     : super(
         from: null,
         argument: null,
@@ -48,7 +48,6 @@ abstract class _$MainNotifier extends $Notifier<MainPageState> {
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build();
     final ref = this.ref as $Ref<MainPageState, MainPageState>;
     final element =
         ref.element
@@ -58,6 +57,6 @@ abstract class _$MainNotifier extends $Notifier<MainPageState> {
               Object?,
               Object?
             >;
-    element.handleValue(ref, created);
+    element.handleCreate(ref, build);
   }
 }

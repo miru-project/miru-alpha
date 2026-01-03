@@ -63,17 +63,8 @@ class Core {
     }
   }
 
-  static Future<void> startNativeMiruCore(
-    String configPath,
-    // RootIsolateToken rootIsolateToken,
-  ) async {
+  static Future<void> startNativeMiruCore(String configPath) async {
     late final ffi.DynamicLibrary lib;
-    // if (Platform.isAndroid) {
-    //   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-    //   final platform = MethodChannel('com.miru.alpha/miru_core');
-    //   await platform.invokeMethod('InitAAR', configPath);
-    //   return;
-    // }
     if (Platform.isWindows) {
       lib = ffi.DynamicLibrary.open('miru_core.dll');
     } else if (Platform.isLinux) {
@@ -90,23 +81,16 @@ class Core {
           .cast<ffi.Char>();
       final core = MiruCore(lib);
       core.initDyLib(configPathPointer);
-      // final error = res.cast<Utf8>().toDartString();
-      // debugger();
-      // CoreNetwork.setPort(port.toString());
     });
   }
 
   static Future<void> loadMiruCore(String configPath) async {
     if (Platform.isAndroid) {
-      // BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
       final platform = MethodChannel('com.miru.alpha/miru_core');
       await platform.invokeMethod('InitAAR', configPath);
       return;
     }
-    // final statefulIsolate = TailoredStatefulIsolate<String, Future<void>>();
-    // statefulIsolate.compute(startNativeMiruCore, configPath);
     Isolate.run(() => startNativeMiruCore(configPath));
-    // startNativeMiruCore(configPath);
     return;
   }
 }

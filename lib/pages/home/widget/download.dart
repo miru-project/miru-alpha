@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/miru_core/proto/common.pb.dart' as common;
+import 'package:miru_app_new/miru_core/proto/generate/common.pb.dart' as common;
 import 'package:miru_app_new/provider/download_provider.dart';
 import 'package:miru_app_new/provider/watch/main_provider.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';

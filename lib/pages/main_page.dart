@@ -363,7 +363,10 @@ class _MainPageState extends ConsumerState<MainPage>
                   const DragWindows(),
                   const FDivider(),
                 ],
-                Expanded(child: widget.child ?? const SizedBox()),
+                FTheme(
+                  data: themeData,
+                  child: Expanded(child: widget.child ?? const SizedBox()),
+                ),
               ],
             ),
           ),
