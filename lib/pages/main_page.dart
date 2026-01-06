@@ -314,43 +314,49 @@ class _MainPageState extends ConsumerState<MainPage>
               ),
             ),
             children: [
-              FSidebarGroup(
-                label: const Text('Overview'),
-                children: [
-                  for (var i = 0; i < _fIconNavItem.length; i++) ...[
-                    FSidebarItem(
-                      initiallyExpanded: true,
-                      label: Text(_fIconNavItem[i].text),
-                      icon: Icon(_fIconNavItem[i].icon),
-                      onPress: () {
-                        // widget.child.goBranch(i);
-                        if (_fIconNavItem[i].page != null) {
-                          context.go(_fIconNavItem[i].page!);
-                        }
+              HookBuilder(
+                builder: (context) {
+                  final selectedIndex = useState("");
+                  return FSidebarGroup(
+                    label: const Text('Overview'),
+                    children: [
+                      for (var i = 0; i < _fIconNavItem.length; i++) ...[
+                        FSidebarItem(
+                          initiallyExpanded: true,
+                          label: Text(_fIconNavItem[i].text),
+                          icon: Icon(_fIconNavItem[i].icon),
+                          onPress: () {
+                            // widget.child.goBranch(i);
+                            if (_fIconNavItem[i].page != null) {
+                              context.go(_fIconNavItem[i].page!);
+                            }
 
-                        c.selectIndex(i);
-                      },
-                      selected: controller.selectedIndex == i,
-                      children: _fIconNavItem[i].subItems != null
-                          ? _fIconNavItem[i].subItems!
-                                .map(
-                                  (e) => FSidebarItem(
-                                    // selected: ,
-                                    label: Text(e.text),
-                                    icon: Icon(e.icon),
-                                    onPress: () {
-                                      if (e.page != null) {
-                                        context.go(e.page!);
-                                      }
-                                      c.selectIndex(i);
-                                    },
-                                  ),
-                                )
-                                .toList()
-                          : [],
-                    ),
-                  ],
-                ],
+                            c.selectIndex(i);
+                          },
+                          selected: controller.selectedIndex == i,
+                          children: _fIconNavItem[i].subItems != null
+                              ? _fIconNavItem[i].subItems!
+                                    .map(
+                                      (e) => FSidebarItem(
+                                        selected: e.text == selectedIndex.value,
+                                        label: Text(e.text),
+                                        icon: Icon(e.icon),
+                                        onPress: () {
+                                          if (e.page != null) {
+                                            context.go(e.page!);
+                                          }
+                                          c.selectIndex(i);
+                                          selectedIndex.value = e.text;
+                                        },
+                                      ),
+                                    )
+                                    .toList()
+                              : [],
+                        ),
+                      ],
+                    ],
+                  );
+                },
               ),
             ],
           ),

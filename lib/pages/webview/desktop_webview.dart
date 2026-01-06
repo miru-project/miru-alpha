@@ -6,8 +6,7 @@ import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 
-Future<void> openWebview(ExtensionMeta ext) async {
-  final url = ext.webSite;
+Future<void> openWebview(ExtensionMeta ext, [String? url]) async {
   final webview =
       await WebviewWindow.create(
           configuration: CreateConfiguration(
@@ -18,7 +17,7 @@ Future<void> openWebview(ExtensionMeta ext) async {
             // userDataFolderWindows: await _getWebViewPath(),
           ),
         )
-        ..launch(url);
+        ..launch(url ?? ext.webSite);
   final timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
     try {
       final cookies = await webview.getAllCookies();
@@ -31,7 +30,7 @@ Future<void> openWebview(ExtensionMeta ext) async {
         cookie += "${c.name}=${c.value}; ";
       }
       // logger.info('Cookies: $cookie');
-      await MiruCoreEndpoint.setCookie(cookie, url);
+      await MiruCoreEndpoint.setCookie(cookie, url ?? ext.webSite);
     } catch (e, stack) {
       logger.info('getAllCookies error: $e');
       logger.info(stack);

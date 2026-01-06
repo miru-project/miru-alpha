@@ -28,16 +28,16 @@ class DownloadUtils {
 
       String finalFileName = filter(title);
       if (finalFileName.isEmpty) finalFileName = "download_$taskId";
-      
+
       String extension = isHls ? ".mp4" : p.extension(currentPath);
       if (extension.isEmpty && !isHls) extension = ".mp4";
-      
+
       final targetPath = p.join(targetDir, "$finalFileName$extension");
 
       if (isHls) {
         logger.info("Converting HLS segments to MP4: $targetPath");
         FFMpegUtils.combineTsToMp4(segments, targetPath);
-        
+
         // Remove segments after conversion
         for (var segment in segments) {
           final file = File(segment);
@@ -47,22 +47,23 @@ class DownloadUtils {
         }
         // Also remove the directory if it's empty
         if (segments.isNotEmpty) {
-           final dir = File(segments.first).parent;
-           if (await dir.exists() && (await dir.list().isEmpty)) {
-             await dir.delete();
-           }
+          final dir = File(segments.first).parent;
+          if (await dir.exists() && (await dir.list().isEmpty)) {
+            await dir.delete();
+          }
         }
       } else {
+        // if (currentPath.isEmpty) return targetPath;
         logger.info("Moving file to host: $currentPath -> $targetPath");
         final sourceFile = File(currentPath);
         if (await sourceFile.exists()) {
           await sourceFile.copy(targetPath);
           await sourceFile.delete();
-          
+
           // Try to remove parent dir if empty
           final dir = sourceFile.parent;
           if (await dir.exists() && (await dir.list().isEmpty)) {
-             await dir.delete();
+            await dir.delete();
           }
         }
       }

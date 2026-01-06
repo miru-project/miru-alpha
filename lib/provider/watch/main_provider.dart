@@ -8,12 +8,15 @@ class MainPageState {
   List<int> selectedGroups;
   String searchText;
   List<History> history;
-
+  List<FavoriateGroup> favoriateGroups;
+  List<Favorite> favorites;
   MainPageState({
     this.selectedIndex = 0,
     this.selectedGroups = const [],
     this.searchText = '',
     this.history = const [],
+    this.favoriateGroups = const [],
+    this.favorites = const [],
   });
 
   MainPageState copyWith({
@@ -21,12 +24,16 @@ class MainPageState {
     List<int>? selectedGroups,
     String? searchText,
     List<History>? history,
+    List<FavoriateGroup>? favoriateGroups,
+    List<Favorite>? favorites,
   }) {
     return MainPageState(
       selectedIndex: selectedIndex ?? this.selectedIndex,
       selectedGroups: selectedGroups ?? this.selectedGroups,
       searchText: searchText ?? this.searchText,
       history: history ?? this.history,
+      favoriateGroups: favoriateGroups ?? this.favoriateGroups,
+      favorites: favorites ?? this.favorites,
     );
   }
 }
@@ -36,8 +43,17 @@ class MainNotifier extends _$MainNotifier {
   @override
   MainPageState build() {
     Future.microtask(() async {
-      final history = await DatabaseService.getHistoriesByType();
-      state = state.copyWith(history: history);
+      await Future.wait([
+        DatabaseService.getAllFavoriteGroup(),
+        DatabaseService.getAllFavorite(),
+        DatabaseService.getHistoriesByType(),
+      ]).then((value) {
+        state = state.copyWith(
+          history: value[2] as List<History>,
+          favoriateGroups: value[0] as List<FavoriateGroup>,
+          favorites: value[1] as List<Favorite>,
+        );
+      });
     });
     return MainPageState();
   }
@@ -62,6 +78,50 @@ class MainNotifier extends _$MainNotifier {
 
   void addHistory(History history) {
     state = state.copyWith(history: [history, ...state.history]);
+  }
+
+  void removeHistory(History history) {
+    state = state.copyWith(
+      history: state.history.where((e) => e.id != history.id).toList(),
+    );
+  }
+
+  void updateFavorite(Favorite favorite) {
+    state = state.copyWith(
+      favorites: state.favorites.where((e) => e.id != favorite.id).toList(),
+    );
+  }
+
+  void updateFavoriteGroup(FavoriateGroup favoriateGroup) {
+    state = state.copyWith(
+      favoriateGroups: state.favoriateGroups
+          .where((e) => e.id != favoriateGroup.id)
+          .toList(),
+    );
+  }
+
+  void addFavorite(Favorite favorite) {
+    state = state.copyWith(favorites: [favorite, ...state.favorites]);
+  }
+
+  void addFavoriteGroup(FavoriateGroup favoriateGroup) {
+    state = state.copyWith(
+      favoriateGroups: [favoriateGroup, ...state.favoriateGroups],
+    );
+  }
+
+  void removeFavorite(Favorite favorite) {
+    state = state.copyWith(
+      favorites: state.favorites.where((e) => e.id != favorite.id).toList(),
+    );
+  }
+
+  void removeFavoriteGroup(FavoriateGroup favoriateGroup) {
+    state = state.copyWith(
+      favoriateGroups: state.favoriateGroups
+          .where((e) => e.id != favoriateGroup.id)
+          .toList(),
+    );
   }
 
   Future<void> refreshHistory() async {

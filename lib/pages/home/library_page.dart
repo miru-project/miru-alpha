@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:forui_hooks/forui_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/pages/download_page.dart';
 import 'package:miru_app_new/pages/favorite/favorite_page_desktop_layout.dart';
@@ -16,11 +15,6 @@ import 'package:miru_app_new/widgets/index.dart';
 // shell scaffold for tab navigation in history / home / favorite / download
 class MiruMobileShellScaffold extends HookWidget {
   const MiruMobileShellScaffold({super.key});
-
-  Widget _buildlib() {
-    return FTileGroup(children: []);
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = useTabController(initialLength: 4);
@@ -103,7 +97,6 @@ class MobileLibraryPage extends HookConsumerWidget {
         const FavoritesHeader(padding: EdgeInsets.symmetric(horizontal: 16)),
         const SliverToBoxAdapter(child: SizedBox(height: 10)),
         FavoritesGrid(
-          history: history,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           crossAxisCount: (MediaQuery.of(context).size.width ~/ 160).clamp(
             2,
@@ -125,7 +118,7 @@ class DesktopLibraryPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
-    final history = ref.watch(mainProvider).history;
+    final history = ref.watch(mainProvider.select((e) => e.history));
     return CustomScrollView(
       key: const PageStorageKey('LibraryPageScrollDesktop'),
       slivers: [
@@ -144,15 +137,14 @@ class DesktopLibraryPage extends HookConsumerWidget {
           ),
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 40)),
-        const DownloadsText(padding: EdgeInsets.symmetric(horizontal: 40)),
+        // const DownloadsText(padding: EdgeInsets.symmetric(horizontal: 40)),
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
-        DownloadsList(padding: const EdgeInsets.symmetric(horizontal: 40)),
+        // DownloadsList(padding: const EdgeInsets.symmetric(horizontal: 40)),
         const SliverToBoxAdapter(child: SizedBox(height: 40)),
-        const FavoritesHeader(padding: EdgeInsets.symmetric(horizontal: 40)),
+        // const FavoritesHeader(padding: EdgeInsets.symmetric(horizontal: 40)),
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
         FavoritesGrid(
-          history: history,
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 0),
           crossAxisCount: (MediaQuery.of(context).size.width ~/ 250).clamp(
             2,
             10,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/provider/watch/main_provider.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/model/index.dart';
@@ -97,6 +98,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
     });
 
     super.build(context);
+    final meta = ref.read(extensionPageProvider).metaData;
     return PlatformWidget(
       desktopWidget: MiruScaffold(
         mobileHeader: SnapSheetHeader(title: 'Home'),
@@ -113,23 +115,25 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
                   ),
 
                   itemBuilder: (context, index) {
+                    final favorite = fav[index];
                     return MiruDesktopGridTile(
-                      title: fav[index].title,
-                      subtitle: fav[index].package,
-                      imageUrl: fav[index].cover,
+                      title: favorite.title,
+                      subtitle:
+                          meta
+                              .where((e) => e.packageName == favorite.package)
+                              .firstOrNull
+                              ?.name ??
+                          'Package Not Found',
+                      imageUrl: favorite.cover,
                       onTap: () {
-                        final extensionIsExist = ExtensionUtils.runtimes
-                            .containsKey(fav[index].package);
-                        if (extensionIsExist) {
-                          context.push(
-                            '/search/detail',
-                            extra: DetailParam(
-                              meta:
-                                  ExtensionUtils.runtimes[fav[index].package]!,
-                              url: fav[index].url,
-                            ),
-                          );
-                        }
+                        final extMeta = meta
+                            .where((e) => e.packageName == favorite.package)
+                            .firstOrNull;
+                        if (extMeta == null) return;
+                        context.push(
+                          '/search/single/detail',
+                          extra: DetailParam(meta: extMeta, url: favorite.url),
+                        );
                       },
                     );
                   },

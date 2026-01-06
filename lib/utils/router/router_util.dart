@@ -33,7 +33,7 @@ class ParamCache {
 
 class RouterUtil {
   static Page getPage({required Widget child, required GoRouterState state}) {
-    return MaterialPage(key: state.pageKey, child: child);
+    return NoTransitionPage<void>(key: state.pageKey, child: child);
   }
 
   static Route<void> createRoute(Widget page) {

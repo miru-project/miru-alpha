@@ -1,259 +1,247 @@
-import 'dart:async';
-import 'dart:io';
 
-import 'package:desktop_webview_window/desktop_webview_window.dart';
-import 'package:extended_image/extended_image.dart';
-import 'package:flutter/material.dart';
-import 'package:forui/forui.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/pages/detail/widget/desktop_detail_item_box.dart';
-import 'package:miru_app_new/provider/detial_provider.dart';
 
-import 'package:miru_app_new/widgets/index.dart';
 
-class DesktopDetail extends ConsumerWidget {
-  const DesktopDetail({
-    super.key,
-    this.data,
-    this.detailUrl,
-    required this.season,
-    required this.desc,
-    required this.isLoading,
-    required this.ep,
-    required this.extensionMeta,
-    // required this.cast,
-  });
-  final Widget desc;
-  final bool isLoading;
-  final Widget ep;
-  final Widget season;
-  // final Widget cast;
-  final ExtensionMeta extensionMeta;
-  final String? detailUrl;
-  final ExtensionDetail? data;
+// class DesktopDetail extends ConsumerWidget {
+//   const DesktopDetail({
+//     super.key,
+//     this.data,
+//     this.detailUrl,
+//     required this.season,
+//     required this.desc,
+//     required this.isLoading,
+//     required this.ep,
+//     required this.extensionMeta,
+//     // required this.cast,
+//   });
+//   final Widget desc;
+//   final bool isLoading;
+//   final Widget ep;
+//   final Widget season;
+//   // final Widget cast;
+//   final ExtensionMeta extensionMeta;
+//   final String? detailUrl;
+//   final ExtensionDetail? data;
 
-  static const _gloablDesktopPadding = 30.0;
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final snapShot =
-        ref.watch(detialProvider).detailState ?? const AsyncValue.loading();
-    return CustomScrollView(
-      slivers: [
-        // SliverPersistentHeader(
-        //   pinned: true,
-        //   delegate: DetailHeaderDelegate(
-        //     detailUrl: detailUrl,
-        //     maxExt: _maxExtDesktop,
-        //     minExt: _minExtDesktop,
-        //     clampMax: _clampMaxDesktop,
-        //     meta: extensionMeta,
-        //     isLoading: isLoading,
-        //     detail: data,
-        //   ),
-        // ),
-        SliverList.list(
-          children: [
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.all(_gloablDesktopPadding),
-              child: MaxWidth(
-                maxWidth: 1500,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        children: [
-                          DesktopDetailItemBox(
-                            title: 'Season',
-                            padding: _gloablDesktopPadding,
-                            child: season,
-                          ),
-                          const SizedBox(height: 20),
-                          DesktopDetailItemBox(
-                            needExpand: false,
-                            title: 'Description',
-                            padding: _gloablDesktopPadding,
-                            child: desc,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 50),
-                    Expanded(
-                      flex: 6,
-                      child: Column(
-                        children: [
-                          if (snapShot.hasValue &&
-                              snapShot.value?.episodes != null)
-                            FTabs(
-                              children: snapShot.value!.episodes!
-                                  .map(
-                                    (e) => FTabEntry(
-                                      label: Text(e.title),
-                                      child: DesktopDetailItemBox(
-                                        title: 'Episode',
-                                        padding: _gloablDesktopPadding,
-                                        child: ep,
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
+//   static const _gloablDesktopPadding = 30.0;
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final snapShot =
+//         ref.watch(detialProvider).detailState ?? const AsyncValue.loading();
+//     return CustomScrollView(
+//       slivers: [
+//         // SliverPersistentHeader(
+//         //   pinned: true,
+//         //   delegate: DetailHeaderDelegate(
+//         //     detailUrl: detailUrl,
+//         //     maxExt: _maxExtDesktop,
+//         //     minExt: _minExtDesktop,
+//         //     clampMax: _clampMaxDesktop,
+//         //     meta: extensionMeta,
+//         //     isLoading: isLoading,
+//         //     detail: data,
+//         //   ),
+//         // ),
+//         SliverList.list(
+//           children: [
+//             const SizedBox(height: 20),
+//             Padding(
+//               padding: const EdgeInsets.all(_gloablDesktopPadding),
+//               child: MaxWidth(
+//                 maxWidth: 1500,
+//                 child: Row(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     Expanded(
+//                       flex: 2,
+//                       child: Column(
+//                         children: [
+//                           DesktopDetailItemBox(
+//                             title: 'Season',
+//                             padding: _gloablDesktopPadding,
+//                             child: season,
+//                           ),
+//                           const SizedBox(height: 20),
+//                           DesktopDetailItemBox(
+//                             needExpand: false,
+//                             title: 'Description',
+//                             padding: _gloablDesktopPadding,
+//                             child: desc,
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                     const SizedBox(width: 50),
+//                     Expanded(
+//                       flex: 6,
+//                       child: Column(
+//                         children: [
+//                           if (snapShot.hasValue &&
+//                               snapShot.value?.episodes != null)
+//                             FTabs(
+//                               children: snapShot.value!.episodes!
+//                                   .map(
+//                                     (e) => FTabEntry(
+//                                       label: Text(e.title),
+//                                       child: DesktopDetailItemBox(
+//                                         title: 'Episode',
+//                                         padding: _gloablDesktopPadding,
+//                                         child: ep,
+//                                       ),
+//                                     ),
+//                                   )
+//                                   .toList(),
+//                             ),
 
-                          const SizedBox(height: 20),
-                          // DetailItemBox(
-                          //   padding: _gloablDesktopPadding,
-                          //   title: 'Cast & Rating',
-                          //   child: cast,
-                          // ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
+//                           const SizedBox(height: 20),
+//                           // DetailItemBox(
+//                           //   padding: _gloablDesktopPadding,
+//                           //   title: 'Cast & Rating',
+//                           //   child: cast,
+//                           // ),
+//                         ],
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ],
+//     );
+//   }
+// }
 
-class MobileDetail extends StatelessWidget {
-  const MobileDetail({
-    super.key,
-    this.data,
-    this.addition = _default,
-    this.detailUrl,
-    required this.desc,
-    required this.isLoading,
-    required this.ep,
-    required this.meta,
-  });
-  final Widget desc;
-  final bool isLoading;
-  final Widget ep;
-  final ExtensionMeta meta;
-  final ExtensionDetail? data;
-  final Widget Function(Widget child) addition;
-  final String? detailUrl;
-  static const _globalMobilePadding = 20.0;
-  static Widget _default(Widget child) => child;
-  @override
-  Widget build(context) {
-    return CustomScrollView(
-      slivers: [
-        // SliverPersistentHeader(
-        //   pinned: true,
-        //   delegate: DetailHeaderDelegate(
-        //     maxExt: _maxExtMobile,
-        //     minExt: _minExtMobile,
-        //     clampMax: _clampMaxMobile,
-        //     detailUrl: detailUrl,
-        //     meta: meta,
-        //     isLoading: false,
-        //     detail: data,
-        //   ),
-        // ),
-        SliverList.list(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(_globalMobilePadding),
-              child: addition(
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DesktopDetailItemBox(
-                      title: 'Description',
-                      isMobile: true,
-                      needExpand: false,
-                      padding: _globalMobilePadding,
-                      child: desc,
-                    ),
-                    const SizedBox(height: 20),
-                    DesktopDetailItemBox(
-                      title: 'Episode',
-                      isMobile: true,
-                      padding: _globalMobilePadding,
-                      child: ep,
-                    ),
-                    const SizedBox(height: 150),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
+// class MobileDetail extends StatelessWidget {
+//   const MobileDetail({
+//     super.key,
+//     this.data,
+//     this.addition = _default,
+//     this.detailUrl,
+//     required this.desc,
+//     required this.isLoading,
+//     required this.ep,
+//     required this.meta,
+//   });
+//   final Widget desc;
+//   final bool isLoading;
+//   final Widget ep;
+//   final ExtensionMeta meta;
+//   final ExtensionDetail? data;
+//   final Widget Function(Widget child) addition;
+//   final String? detailUrl;
+//   static const _globalMobilePadding = 20.0;
+//   static Widget _default(Widget child) => child;
+//   @override
+//   Widget build(context) {
+//     return CustomScrollView(
+//       slivers: [
+//         // SliverPersistentHeader(
+//         //   pinned: true,
+//         //   delegate: DetailHeaderDelegate(
+//         //     maxExt: _maxExtMobile,
+//         //     minExt: _minExtMobile,
+//         //     clampMax: _clampMaxMobile,
+//         //     detailUrl: detailUrl,
+//         //     meta: meta,
+//         //     isLoading: false,
+//         //     detail: data,
+//         //   ),
+//         // ),
+//         SliverList.list(
+//           children: [
+//             Padding(
+//               padding: const EdgeInsets.all(_globalMobilePadding),
+//               child: addition(
+//                 Column(
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     DesktopDetailItemBox(
+//                       title: 'Description',
+//                       isMobile: true,
+//                       needExpand: false,
+//                       padding: _globalMobilePadding,
+//                       child: desc,
+//                     ),
+//                     const SizedBox(height: 20),
+//                     DesktopDetailItemBox(
+//                       title: 'Episode',
+//                       isMobile: true,
+//                       padding: _globalMobilePadding,
+//                       child: ep,
+//                     ),
+//                     const SizedBox(height: 150),
+//                   ],
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ],
+//     );
+//   }
+// }
 
-class LoadingWidget extends StatelessWidget {
-  const LoadingWidget({
-    super.key,
-    this.header,
-    required this.lineCount,
-    this.lineSeperate,
-    this.lineheight,
-    this.padding,
-  });
-  final Widget? header;
-  final int lineCount;
-  final double? lineheight;
-  final double? lineSeperate;
-  final EdgeInsetsGeometry? padding;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: padding ?? const EdgeInsets.all(20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (header != null) header!,
-          // Shimmer.fromColors(
-          //   // baseColor: context
-          //   //     .moonTheme!
-          //   //     .segmentedControlTheme
-          //   //     .colors
-          //   //     .backgroundColor
-          //   //     .withAlpha(50),
-          //   // highlightColor: context
-          //   //     .moonTheme!
-          //   //     .segmentedControlTheme
-          //   //     .colors
-          //   //     .backgroundColor
-          //   //     .withAlpha(100),
-          //   child: ,
-          // ),
-          Column(
-            children: List.generate(
-              lineCount,
-              (index) => Column(
-                children: [
-                  SizedBox(height: lineSeperate ?? 20),
-                  Container(
-                    height: lineheight ?? 10,
-                    decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.circular(90),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// class LoadingWidget extends StatelessWidget {
+//   const LoadingWidget({
+//     super.key,
+//     this.header,
+//     required this.lineCount,
+//     this.lineSeperate,
+//     this.lineheight,
+//     this.padding,
+//   });
+//   final Widget? header;
+//   final int lineCount;
+//   final double? lineheight;
+//   final double? lineSeperate;
+//   final EdgeInsetsGeometry? padding;
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: padding ?? const EdgeInsets.all(20),
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.start,
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           if (header != null) header!,
+//           // Shimmer.fromColors(
+//           //   // baseColor: context
+//           //   //     .moonTheme!
+//           //   //     .segmentedControlTheme
+//           //   //     .colors
+//           //   //     .backgroundColor
+//           //   //     .withAlpha(50),
+//           //   // highlightColor: context
+//           //   //     .moonTheme!
+//           //   //     .segmentedControlTheme
+//           //   //     .colors
+//           //   //     .backgroundColor
+//           //   //     .withAlpha(100),
+//           //   child: ,
+//           // ),
+//           Column(
+//             children: List.generate(
+//               lineCount,
+//               (index) => Column(
+//                 children: [
+//                   SizedBox(height: lineSeperate ?? 20),
+//                   Container(
+//                     height: lineheight ?? 10,
+//                     decoration: BoxDecoration(
+//                       color: Colors.grey,
+//                       borderRadius: BorderRadius.circular(90),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 // class _DetailSideWidgetMobile extends ConsumerWidget {
 //   const _DetailSideWidgetMobile({
@@ -992,85 +980,85 @@ class LoadingWidget extends StatelessWidget {
 //   }
 // }
 
-class DesktopWebView extends StatelessWidget {
-  const DesktopWebView({
-    super.key,
-    required this.meta,
-    this.detailUrl,
-    this.detail,
-  });
-  final String? detailUrl;
-  final ExtensionDetail? detail;
-  final ExtensionMeta meta;
-  void onTap() async {
-    final url = meta.webSite + detailUrl!;
-    final webview =
-        await WebviewWindow.create(
-            configuration: CreateConfiguration(
-              windowHeight: 1280,
-              windowWidth: 720,
-              title: "ExampleTestWindow",
-              titleBarTopPadding: Platform.isMacOS ? 20 : 0,
-              // userDataFolderWindows: await _getWebViewPath(),
-            ),
-          )
-          ..launch(url);
-    final timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
-      try {
-        final cookies = await webview.getAllCookies();
+// class DesktopWebView extends StatelessWidget {
+//   const DesktopWebView({
+//     super.key,
+//     required this.meta,
+//     this.detailUrl,
+//     this.detail,
+//   });
+//   final String? detailUrl;
+//   final ExtensionDetail? detail;
+//   final ExtensionMeta meta;
+//   void onTap() async {
+//     final url = meta.webSite + detailUrl!;
+//     final webview =
+//         await WebviewWindow.create(
+//             configuration: CreateConfiguration(
+//               windowHeight: 1280,
+//               windowWidth: 720,
+//               title: "ExampleTestWindow",
+//               titleBarTopPadding: Platform.isMacOS ? 20 : 0,
+//               // userDataFolderWindows: await _getWebViewPath(),
+//             ),
+//           )
+//           ..launch(url);
+//     final timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+//       try {
+//         final cookies = await webview.getAllCookies();
 
-        if (cookies.isEmpty) {
-          debugPrint('⚠️ no cookies found');
-        }
+//         if (cookies.isEmpty) {
+//           debugPrint('⚠️ no cookies found');
+//         }
 
-        // final cookieString = cookies.map((e) => '${e.name}=${e.value}').toList().join(';');
-        // extensionService.setcookie(cookieString);
-      } catch (e, stack) {
-        debugPrint('getAllCookies error: $e');
-        debugPrintStack(stackTrace: stack);
-      }
-    });
-    webview.onClose.whenComplete(() async {
-      debugPrint("on close");
-      timer.cancel();
+//         // final cookieString = cookies.map((e) => '${e.name}=${e.value}').toList().join(';');
+//         // extensionService.setcookie(cookieString);
+//       } catch (e, stack) {
+//         debugPrint('getAllCookies error: $e');
+//         debugPrintStack(stackTrace: stack);
+//       }
+//     });
+//     webview.onClose.whenComplete(() async {
+//       debugPrint("on close");
+//       timer.cancel();
 
-      // timer.cancel();
-    });
-  }
+//       // timer.cancel();
+//     });
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraint) => Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: PlatformWidget(
-              mobileWidget: ExtendedImage.network(
-                detail?.cover ?? '',
-                width: 150,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
-              desktopWidget: ExtendedImage.network(
-                detail?.cover ?? '',
-                width: 200,
-                height: 300,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(width: 40),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return LayoutBuilder(
+//       builder: (context, constraint) => Row(
+//         mainAxisAlignment: MainAxisAlignment.start,
+//         children: [
+//           Container(
+//             decoration: BoxDecoration(
+//               color: Colors.white,
+//               borderRadius: BorderRadius.circular(10),
+//             ),
+//             clipBehavior: Clip.antiAlias,
+//             child: PlatformWidget(
+//               mobileWidget: ExtendedImage.network(
+//                 detail?.cover ?? '',
+//                 width: 150,
+//                 height: 200,
+//                 fit: BoxFit.cover,
+//               ),
+//               desktopWidget: ExtendedImage.network(
+//                 detail?.cover ?? '',
+//                 width: 200,
+//                 height: 300,
+//                 fit: BoxFit.cover,
+//               ),
+//             ),
+//           ),
+//           const SizedBox(width: 40),
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 // class _DesktopLoadingWidgetExtended extends StatelessWidget {
 //   @override

@@ -117,16 +117,19 @@ class SearchGridView extends HookConsumerWidget {
           if (isLoading.value && index >= result.length) {
             return const MiruGridTileLoadingBox();
           }
-          return MiruDesktopGridTile(
-            onTap: () {
-              context.push(
-                '/search/single/detail',
-                extra: DetailParam(meta: meta, url: result[index].url),
-              );
-            },
-            title: result[index].title,
-            imageUrl: result[index].cover,
-            subtitle: result[index].update ?? '',
+          return Hero(
+            tag: 'search-card',
+            child: MiruDesktopGridTile(
+              onTap: () {
+                context.push(
+                  '/search/single/detail',
+                  extra: DetailParam(meta: meta, url: result[index].url),
+                );
+              },
+              title: result[index].title,
+              imageUrl: result[index].cover,
+              subtitle: result[index].update ?? '',
+            ),
           );
         },
         itemCount: isLoading.value

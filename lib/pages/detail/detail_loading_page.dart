@@ -7,8 +7,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/pages/detail/desktop_loaded_page.dart';
 import 'package:miru_app_new/pages/detail/mobile_loaded_page.dart';
-import 'package:miru_app_new/pages/detail/widget/favorite_dialog.dart';
-import 'package:miru_app_new/pages/detail/widget/mobile_detail_tabs.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
@@ -16,6 +14,7 @@ import 'package:miru_app_new/widgets/animted_icon/heart.dart';
 
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:miru_app_new/widgets/index.dart';
+import './widget/index.dart';
 
 class DetailLoadingPage extends StatefulHookConsumerWidget {
   const DetailLoadingPage({super.key, required this.meta, required this.url});

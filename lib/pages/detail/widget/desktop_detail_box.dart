@@ -2,25 +2,31 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
-
+import 'package:miru_app_new/pages/detail/widget/index.dart';
+import 'package:miru_app_new/pages/webview/desktop_webview.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
+import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
-
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
-import 'package:miru_app_new/pages/detail/widget/download_button.dart';
-import 'package:miru_app_new/pages/detail/widget/favorite_dialog.dart';
+import 'package:miru_app_new/widgets/core/image_widget.dart';
 
 class DetailDesktopBox extends HookWidget {
   const DetailDesktopBox({
     super.key,
     required this.detail,
+    required this.coverUrl,
     required this.meta,
     required this.detailUrl,
+    required this.isTablet,
   });
   final ExtensionDetail detail;
+  final String coverUrl;
   final ExtensionMeta meta;
   final String detailUrl;
+  final bool isTablet;
   @override
   Widget build(BuildContext context) {
     return AnimatedBox(
@@ -30,7 +36,7 @@ class DetailDesktopBox extends HookWidget {
             borderRadius: BorderRadius.circular(12),
             image: DecorationImage(
               fit: BoxFit.fitWidth,
-              image: ExtendedNetworkImageProvider(detail.cover ?? ''),
+              image: ExtendedNetworkImageProvider(coverUrl),
               colorFilter: ColorFilter.mode(
                 Colors.black.withAlpha(200), // optional dark overlay
                 BlendMode.darken,
@@ -57,18 +63,48 @@ class DetailDesktopBox extends HookWidget {
                   },
                 ),
                 const SizedBox(height: 10),
-                Padding(
-                  padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-                  child: Text(
-                    detail.title,
-                    maxLines: 2,
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      overflow: TextOverflow.ellipsis,
+                if (isTablet)
+                  SizedBox(
+                    height: 200,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return Row(
+                          children: [
+                            DesktopDetailImageView(
+                              detail: detail,
+                              coverUrl: coverUrl,
+                            ),
+                            const SizedBox(width: 25),
+                            SizedBox(
+                              width: constraints.maxWidth - 300,
+                              child: Text(
+                                detail.title,
+                                maxLines: 3,
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  )
+                else
+                  Padding(
+                    padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
+                    child: Text(
+                      detail.title,
+                      maxLines: 2,
+                      style: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
-                ),
                 const SizedBox(height: 25),
                 FAccordion(
                   style: (style) {
@@ -137,7 +173,16 @@ class DetailDesktopBox extends HookWidget {
                     FButton(
                       style: FButtonStyle.outline(),
                       suffix: Icon(FIcons.globe),
-                      onPress: () {},
+                      onPress: () {
+                        if (DeviceUtil.isMobile) {
+                          context.push(
+                            '/mobileWebView',
+                            extra: WebviewParam(meta: meta, url: detailUrl),
+                          );
+                          return;
+                        }
+                        openWebview(meta, detailUrl);
+                      },
                       child: Text("WebView"),
                     ),
                   ],

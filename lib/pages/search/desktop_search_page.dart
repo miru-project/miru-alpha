@@ -7,7 +7,7 @@ import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/store/storage_index.dart';
 import 'package:miru_app_new/widgets/core/inner_card.dart';
-import 'package:miru_app_new/pages/search/widget/search_filter_card.dart';
+import 'package:miru_app_new/widgets/core/search_filter_card.dart';
 import 'package:miru_app_new/pages/search/widget/desktop_search_list_tile.dart';
 
 class DesktopSearchPage extends HookConsumerWidget {

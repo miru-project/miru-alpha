@@ -60,12 +60,12 @@ class DeviceUtil {
   static Y platformWidgetFunction<T, Y>({
     required Y Function(T buildchild) mobile,
     required Y Function(T buildchild) desktop,
-    required T child,
+    required T function,
   }) {
     if (Platform.isAndroid || Platform.isIOS) {
-      return mobile(child);
+      return mobile(function);
     }
-    return desktop(child);
+    return desktop(function);
   }
 
   // Widget for device specific by checking platform

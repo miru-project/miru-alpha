@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
+import 'package:miru_app_new/provider/watch/main_provider.dart';
+import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
 
@@ -37,22 +40,20 @@ class FavoritesHeader extends StatelessWidget {
   }
 }
 
-class FavoritesGrid extends StatelessWidget {
+class FavoritesGrid extends ConsumerWidget {
   const FavoritesGrid({
-    required this.history,
     required this.padding,
     required this.crossAxisCount,
     required this.childAspectRatio,
     super.key,
   });
-
-  final List<History> history;
   final EdgeInsetsGeometry padding;
   final int crossAxisCount;
   final double childAspectRatio;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favorite = ref.watch(mainProvider).favorites;
     return SliverPadding(
       padding: padding,
       sliver: SliverGrid(
@@ -63,14 +64,14 @@ class FavoritesGrid extends StatelessWidget {
           mainAxisSpacing: 16,
         ),
         delegate: SliverChildBuilderDelegate((context, index) {
-          if (index >= history.length) return null;
-          final item = history[index];
+          if (index >= favorite.length) return null;
+          final item = favorite[index];
           return FavoriteCard(
             key: ValueKey(item.url),
             item: item,
             aspectRatio: childAspectRatio,
           );
-        }, childCount: history.length > 4 ? 4 : history.length),
+        }, childCount: favorite.length > 4 ? 4 : favorite.length),
       ),
     );
   }
@@ -83,12 +84,21 @@ class FavoriteCard extends ConsumerWidget {
     required this.aspectRatio,
   });
 
-  final History item;
+  final Favorite item;
   final double aspectRatio;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    //# TODO volume controll and episode
     return AnimatedBox(
+      onTap: () {
+        final meta = ref.read(extensionPageProvider).metaData;
+        final extMeta = meta.where((e) => e.packageName == item.package).first;
+        context.push(
+          '/search/single/detail',
+          extra: DetailParam(meta: extMeta, url: item.url),
+        );
+      },
       child: Column(
         crossAxisAlignment: .start,
         mainAxisSize: .max,
@@ -117,7 +127,7 @@ class FavoriteCard extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            item.episodeTitle,
+            item.title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 12, color: Colors.grey[400]),
