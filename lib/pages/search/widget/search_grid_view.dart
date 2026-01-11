@@ -1,8 +1,8 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:grpc/grpc.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
@@ -79,7 +79,7 @@ class SearchGridView extends HookConsumerWidget {
             }
             isLoading.value = false;
           } catch (e) {
-            if (e is DioException) {
+            if (e is GrpcError) {
               iconsMessageToast(
                 "Failed to get ${c.query.isEmpty ? "latest" : "search"} on ${meta.name} \n${e.message} ",
                 FIcons.octagonX,
@@ -136,8 +136,7 @@ class SearchGridView extends HookConsumerWidget {
             ? result.length + remainLoading
             : result.length,
       ),
-      mobileWidget: MiruGridView(
-        // paddingHeightOffest: 50,
+      mobileWidget: MiruGridView.mobile(
         scrollController: scrollController,
         mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisSpacing: 10,
@@ -145,10 +144,7 @@ class SearchGridView extends HookConsumerWidget {
           crossAxisCount: axisCnt,
           childAspectRatio: 0.65,
         ),
-        desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: axisCnt,
-          childAspectRatio: 0.7,
-        ),
+
         itemBuilder: (context, index) {
           if (isLoading.value && index >= result.length) {
             return const MiruGridTileLoadingBox();

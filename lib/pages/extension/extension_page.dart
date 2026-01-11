@@ -176,6 +176,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                   constraints: constraints,
                 ),
                 mobileWidget: EasyRefresh(
+                  header: const ForuiHeader(),
                   scrollController: scrollController,
                   onRefresh: () async {
                     await extNotifier.reloadRepos();

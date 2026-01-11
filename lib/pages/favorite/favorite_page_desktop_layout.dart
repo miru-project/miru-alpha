@@ -1,11 +1,12 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/provider/watch/main_provider.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
 import 'package:miru_app_new/widgets/index.dart';
@@ -161,23 +162,20 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
             mainAxisSpacing: 8,
           ),
           itemBuilder: (context, index) {
+            final favorite = fav[index];
+            final ExtensionMeta? ext = meta.firstWhereOrNull(
+              (element) => element.packageName == favorite.package,
+            );
             return MiruMobileTile(
-              title: fav[index].title,
-              subtitle: fav[index].package,
-              imageUrl: fav[index].cover,
+              title: favorite.title,
+              subtitle: ext?.name ?? 'Package Not Found',
+              imageUrl: favorite.cover,
               onTap: () {
-                final extensionIsExist = ExtensionUtils.runtimes.containsKey(
-                  fav[index].package,
+                if (ext == null) return;
+                context.push(
+                  '/search/single/detail',
+                  extra: DetailParam(meta: ext, url: favorite.url),
                 );
-                if (extensionIsExist) {
-                  context.push(
-                    '/search/detail',
-                    extra: DetailParam(
-                      meta: ExtensionUtils.runtimes[fav[index].package]!,
-                      url: fav[index].url,
-                    ),
-                  );
-                }
               },
             );
           },

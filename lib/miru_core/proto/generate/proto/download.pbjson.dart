@@ -149,24 +149,24 @@ const DownloadRequest$json = {
     {'1': 'url', '3': 1, '4': 1, '5': 9, '10': 'url'},
     {'1': 'download_path', '3': 2, '4': 1, '5': 9, '10': 'downloadPath'},
     {
-      '1': 'header',
+      '1': 'headers',
       '3': 3,
       '4': 3,
       '5': 11,
-      '6': '.miru.DownloadRequest.HeaderEntry',
-      '10': 'header'
+      '6': '.miru.DownloadRequest.HeadersEntry',
+      '10': 'headers'
     },
     {'1': 'media_type', '3': 4, '4': 1, '5': 9, '10': 'mediaType'},
     {'1': 'package', '3': 5, '4': 1, '5': 9, '10': 'package'},
     {'1': 'key', '3': 6, '4': 1, '5': 9, '10': 'key'},
     {'1': 'title', '3': 7, '4': 1, '5': 9, '10': 'title'},
   ],
-  '3': [DownloadRequest_HeaderEntry$json],
+  '3': [DownloadRequest_HeadersEntry$json],
 };
 
 @$core.Deprecated('Use downloadRequestDescriptor instead')
-const DownloadRequest_HeaderEntry$json = {
-  '1': 'HeaderEntry',
+const DownloadRequest_HeadersEntry$json = {
+  '1': 'HeadersEntry',
   '2': [
     {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
     {'1': 'value', '3': 2, '4': 1, '5': 9, '10': 'value'},
@@ -177,11 +177,11 @@ const DownloadRequest_HeaderEntry$json = {
 /// Descriptor for `DownloadRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List downloadRequestDescriptor = $convert.base64Decode(
     'Cg9Eb3dubG9hZFJlcXVlc3QSEAoDdXJsGAEgASgJUgN1cmwSIwoNZG93bmxvYWRfcGF0aBgCIA'
-    'EoCVIMZG93bmxvYWRQYXRoEjkKBmhlYWRlchgDIAMoCzIhLm1pcnUuRG93bmxvYWRSZXF1ZXN0'
-    'LkhlYWRlckVudHJ5UgZoZWFkZXISHQoKbWVkaWFfdHlwZRgEIAEoCVIJbWVkaWFUeXBlEhgKB3'
-    'BhY2thZ2UYBSABKAlSB3BhY2thZ2USEAoDa2V5GAYgASgJUgNrZXkSFAoFdGl0bGUYByABKAlS'
-    'BXRpdGxlGjkKC0hlYWRlckVudHJ5EhAKA2tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGAIgASgJUg'
-    'V2YWx1ZToCOAE=');
+    'EoCVIMZG93bmxvYWRQYXRoEjwKB2hlYWRlcnMYAyADKAsyIi5taXJ1LkRvd25sb2FkUmVxdWVz'
+    'dC5IZWFkZXJzRW50cnlSB2hlYWRlcnMSHQoKbWVkaWFfdHlwZRgEIAEoCVIJbWVkaWFUeXBlEh'
+    'gKB3BhY2thZ2UYBSABKAlSB3BhY2thZ2USEAoDa2V5GAYgASgJUgNrZXkSFAoFdGl0bGUYByAB'
+    'KAlSBXRpdGxlGjoKDEhlYWRlcnNFbnRyeRIQCgNrZXkYASABKAlSA2tleRIUCgV2YWx1ZRgCIA'
+    'EoCVIFdmFsdWU6AjgB');
 
 @$core.Deprecated('Use downloadResponseDescriptor instead')
 const DownloadResponse$json = {

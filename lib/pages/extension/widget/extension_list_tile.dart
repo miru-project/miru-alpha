@@ -53,7 +53,7 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
 
                   description: Row(
                     children: [
-                      Text(widget.author),
+                      Text(widget.type),
                       if (widget.isNSFW)
                         const Text(
                           ' • NSFW',

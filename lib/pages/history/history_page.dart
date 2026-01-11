@@ -10,6 +10,7 @@ import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
 import 'package:go_router/go_router.dart';
+import 'package:miru_app_new/widgets/platform_widget.dart';
 
 class HistoryPage extends StatefulHookConsumerWidget {
   const HistoryPage({super.key});
@@ -37,53 +38,83 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
     super.build(context);
     final history = ref.watch(mainProvider).history;
     historyLen = history.length;
-    return CustomScrollView(
-      slivers: [
-        const SliverPadding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          sliver: SliverToBoxAdapter(
-            child: Text(
-              "History",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
-            ),
-          ),
+    return PlatformWidget(
+      mobileWidget: MiruGridView.mobile(
+        mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: DeviceUtil.getWidth(context) ~/ 150,
+          childAspectRatio: 0.65,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
         ),
-        SliverPadding(
-          padding: const EdgeInsets.all(15.0),
-          sliver: SliverGrid(
-            gridDelegate: DeviceUtil.device(
-              mobile: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: DeviceUtil.getWidth(context) ~/ 110,
-                childAspectRatio: 0.6,
-              ),
-              desktop: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 180,
-                childAspectRatio: 0.65,
-              ),
-              context: context,
-            ),
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final item = history[index];
-              return MiruDesktopGridTile(
-                title: item.title,
-                subtitle: item.episodeTitle,
-                imageUrl: item.cover,
-                onTap: () {
-                  final meta = ref.read(extensionPageProvider).metaData;
-                  final ExtensionMeta? ext = meta.firstWhereOrNull(
-                    (element) => element.packageName == item.package,
-                  );
-                  if (ext == null) return;
-                  context.push(
-                    '/search/detail',
-                    extra: DetailParam(meta: ext, url: item.detailUrl),
-                  );
-                },
+        itemBuilder: (context, index) {
+          final item = history[index];
+          return MiruMobileTile(
+            title: item.title,
+            subtitle: item.episodeTitle,
+            imageUrl: item.cover,
+            onTap: () {
+              final meta = ref.read(extensionPageProvider).metaData;
+              final ExtensionMeta? ext = meta.firstWhereOrNull(
+                (element) => element.packageName == item.package,
               );
-            }, childCount: history.length),
+              if (ext == null) return;
+              context.push(
+                '/search/detail',
+                extra: DetailParam(meta: ext, url: item.detailUrl),
+              );
+            },
+          );
+        },
+        itemCount: history.length,
+      ),
+      desktopWidget: CustomScrollView(
+        slivers: [
+          const SliverPadding(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            sliver: SliverToBoxAdapter(
+              child: Text(
+                "History",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+              ),
+            ),
           ),
-        ),
-      ],
+          SliverPadding(
+            padding: const EdgeInsets.all(15.0),
+            sliver: SliverGrid(
+              gridDelegate: DeviceUtil.device(
+                mobile: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: DeviceUtil.getWidth(context) ~/ 110,
+                  childAspectRatio: 0.6,
+                ),
+                desktop: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 180,
+                  childAspectRatio: 0.65,
+                ),
+                context: context,
+              ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final item = history[index];
+                return MiruDesktopGridTile(
+                  title: item.title,
+                  subtitle: item.episodeTitle,
+                  imageUrl: item.cover,
+                  onTap: () {
+                    final meta = ref.read(extensionPageProvider).metaData;
+                    final ExtensionMeta? ext = meta.firstWhereOrNull(
+                      (element) => element.packageName == item.package,
+                    );
+                    if (ext == null) return;
+                    context.push(
+                      '/search/single/detail',
+                      extra: DetailParam(meta: ext, url: item.detailUrl),
+                    );
+                  },
+                );
+              }, childCount: history.length),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -26,88 +26,85 @@ class DownloadItem extends ConsumerWidget {
       ),
     );
 
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Row(
-        children: [
-          // Thumbnail
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: ImageWidget(
-              errChild: Container(
-                width: 60,
-                height: 60,
-                color: context.theme.colors.muted,
-                child: const Icon(FIcons.cloudAlert, size: 20),
-              ),
-              imageUrl: matchingHistory.cover,
+    return Row(
+      children: [
+        // Thumbnail
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: ImageWidget(
+            errChild: Container(
               width: 60,
               height: 60,
-              fit: BoxFit.cover,
+              color: context.theme.colors.muted,
+              child: const Icon(FIcons.cloudAlert, size: 20),
             ),
+            imageUrl: matchingHistory.cover,
+            width: 60,
+            height: 60,
+            fit: BoxFit.cover,
           ),
+        ),
 
-          const SizedBox(width: 12),
+        const SizedBox(width: 12),
 
-          // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  task.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
+        // Info
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                task.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '${task.status} • ${task.progress}/${task.total}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${task.status} • ${task.progress}/${task.total}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+              ),
+              if (isDownloading) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(child: FDeterminateProgress(value: progress)),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${(progress * 100).toInt()}%',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[400]),
+                    ),
+                  ],
                 ),
-                if (isDownloading) ...[
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(child: FDeterminateProgress(value: progress)),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${(progress * 100).toInt()}%',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-                      ),
-                    ],
-                  ),
-                ],
               ],
-            ),
+            ],
           ),
+        ),
 
-          const SizedBox(width: 12),
+        const SizedBox(width: 12),
 
-          // Action button
-          FButton.icon(
-            onPress: () => ref
-                .read(downloadsProvider.notifier)
-                .sendAction(
-                  context,
-                  task.taskId.toString(),
-                  task.status == 'Paused' ? 'resume' : 'pause',
-                ),
-            style: FButtonStyle.outline(),
-            child: Icon(
-              task.status == 'Paused'
-                  ? Icons.play_arrow
-                  : (isDownloading ? Icons.pause : Icons.check),
-              size: 16,
-            ),
+        // Action button
+        FButton.icon(
+          onPress: () => ref
+              .read(downloadProvider.notifier)
+              .sendAction(
+                context,
+                task.taskId.toString(),
+                task.status == 'Paused' ? 'resume' : 'pause',
+              ),
+          style: FButtonStyle.outline(),
+          child: Icon(
+            task.status == 'Paused'
+                ? Icons.play_arrow
+                : (isDownloading ? Icons.pause : Icons.check),
+            size: 16,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -118,13 +115,11 @@ class DownloadsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final activeDownloads = ref.watch(downloadsProvider);
+    final downloadState = ref.watch(downloadProvider);
 
-    return activeDownloads.when(
-      data: (tasks) {
-        final activeTasks = tasks
-            .where((t) => t.status != 'Completed' && t.status != 'Failed')
-            .toList();
+    return downloadState.when(
+      data: (data) {
+        final activeTasks = data.active;
         if (activeTasks.isEmpty) {
           return const SliverToBoxAdapter(
             child: Padding(

@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:forui_hooks/forui_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/pages/download_page.dart';
+import 'package:miru_app_new/pages/download/download_page.dart';
 import 'package:miru_app_new/pages/favorite/favorite_page_desktop_layout.dart';
 import 'package:miru_app_new/pages/history/history_page.dart';
 import 'package:miru_app_new/pages/home/widget/continue_watch.dart';
@@ -22,23 +22,10 @@ class MiruMobileShellScaffold extends HookWidget {
     final index = useState(0);
     return MiruScaffold(
       mobileHeader: switch (index.value) {
-        0 => SnapSheetHeader(
-          padding: EdgeInsets.fromLTRB(16, 10, 16, 10),
-          title: 'Your Library',
-          description: 'Pick up where you left off or manage your downloads.',
-        ),
-        1 => SnapSheetHeader(
-          padding: EdgeInsets.fromLTRB(16, 10, 16, 10),
-          title: 'History',
-        ),
-        2 => SnapSheetHeader(
-          padding: EdgeInsets.fromLTRB(16, 10, 16, 10),
-          title: 'Favorite',
-        ),
-        3 => SnapSheetHeader(
-          padding: EdgeInsets.fromLTRB(16, 10, 16, 10),
-          title: 'Download',
-        ),
+        0 => SnapSheetHeader(title: 'Library'),
+        1 => SnapSheetHeader(title: 'History'),
+        2 => SnapSheetHeader(title: 'Favorite'),
+        3 => SnapSheetHeader(title: 'Download'),
         _ => const SizedBox.shrink(),
       },
       body: TabBarView(

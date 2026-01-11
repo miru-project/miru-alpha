@@ -19,6 +19,7 @@ class MiruScaffold extends StatefulHookConsumerWidget {
     this.scrollController,
     this.resizeToAvoidBottomInset = false,
     this.topSafeArea = true,
+    this.childPad = true,
   }) : assert(desktopBody != null || mobileBody != null || body != null);
   final List<Widget> snapSheet;
   final ScrollController? scrollController;
@@ -29,6 +30,7 @@ class MiruScaffold extends StatefulHookConsumerWidget {
   final Widget? mobileBody;
   final Widget? desktopBody;
   final Widget? body;
+  final bool childPad;
   @override
   ConsumerState<MiruScaffold> createState() => _MiruScaffoldState();
 }
@@ -109,6 +111,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           ),
         ),
         child: FScaffold(
+          childPad: widget.childPad,
           resizeToAvoidBottomInset: false,
           child: widget.mobileBody ?? widget.body!,
         ),
@@ -139,6 +142,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
               Expanded(
                 child: (isMobileTitleOnTop && widget.snapSheet.isEmpty)
                     ? FScaffold(
+                        childPad: widget.childPad,
                         resizeToAvoidBottomInset:
                             widget.resizeToAvoidBottomInset,
                         child: widget.mobileBody ?? widget.body!,

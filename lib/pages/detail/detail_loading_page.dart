@@ -46,7 +46,7 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
     Future.microtask(
       () => ref
           .read(detialProvider.notifier)
-          .fetchDetail(widget.meta.packageName, widget.url),
+          .initDetail(widget.meta.packageName, widget.url),
     );
     super.initState();
   }
@@ -104,11 +104,7 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
                 style: FButtonStyle.ghost(),
                 onPress: () {
                   if (favorite != null) {
-                    DatabaseService.deleteFavorite(
-                      widget.meta.packageName,
-                      widget.url,
-                    );
-                    ref.read(detialProvider.notifier).putFavorite(null);
+                    ref.read(detialProvider.notifier).removeFavorite(favorite);
                     return;
                   }
                   showDialog(

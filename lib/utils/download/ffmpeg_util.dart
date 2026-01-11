@@ -26,7 +26,7 @@ class FFMpegUtils {
     openlib();
   }
 
-  static void combineTsToMp4(List<String> inputFile, String outputName) {
+  static void combineToMp4(List<String> inputFile, String outputName) {
     final processFile = [outputName, ...inputFile];
     final inputFilesUtf8 = processFile.map((f) => f.toNativeUtf8()).toList();
     final array = calloc<Pointer<Utf8>>(processFile.length);

@@ -49,6 +49,7 @@ class MobileDetailSilverlist extends ConsumerWidget {
                       child: Text("Play"),
                     ),
                   ),
+                  SizedBox(width: 10),
                   Expanded(
                     child: DownloadButton(
                       style: FButtonStyle.secondary(),

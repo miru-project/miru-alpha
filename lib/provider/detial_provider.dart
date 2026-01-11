@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
+import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
-import 'package:miru_app_new/widgets/core/toast.dart';
 
 part 'detial_provider.g.dart';
 
@@ -28,8 +28,8 @@ class DetialState {
   }) {
     return DetialState(
       selectedGroup: selectedGroup ?? this.selectedGroup,
-      history: history ?? this.history,
-      favorite: favorite ?? this.favorite,
+      history: history,
+      favorite: favorite,
       detailState: detailState ?? this.detailState,
     );
   }
@@ -50,6 +50,11 @@ class Detial extends _$Detial {
     state = state.copyWith(favorite: f);
   }
 
+  void removeFavorite(Favorite f) {
+    DatabaseService.deleteFavorite(f.package, f.url);
+    state = state.copyWith(favorite: null);
+  }
+
   void setSelectedGroup(int v) {
     state.selectedGroup.value = v;
     // update state to notify listeners
@@ -57,7 +62,7 @@ class Detial extends _$Detial {
   }
 
   /// Invalidate the fetchExtensionDetail provider so any watchers will refetch.
-  void refreshDetail(String pkg, String url) {
+  void refreshExtensionDetail(String pkg, String url) {
     ref.invalidate(fetchExtensionDetailProvider(pkg, url));
     // update state to notify listeners
     state = state.copyWith();
@@ -65,66 +70,57 @@ class Detial extends _$Detial {
 
   /// Force reload and return the fetched detail. This uses ref.refresh which
   /// re-evaluates and returns the new Future result.
-  Future<ExtensionDetail> reloadDetail(String pkg, String url) async {
-    try {
-      final res = await ref.refresh(
-        fetchExtensionDetailProvider(pkg, url).future,
-      );
-      // Upsert to DB
-      final detail = Detail.fromExtensionDetail(
-        res,
-        detailUrl: url,
-        package: pkg,
-      );
-      await MiruCoreEndpoint.upsertDbDetail(detail);
-
-      state = state.copyWith(detailState: AsyncValue.data(res));
-      return res;
-    } catch (e) {
-      showSimpleToast("Update failed: $e");
-      rethrow;
-    }
+  /// Force reload and return the fetched detail.
+  Future<void> reloadDetail(String pkg, String url) async {
+    ref.invalidate(fetchExtensionDetailProvider(pkg, url));
+    await fetchDetailFromExtension(pkg, url);
   }
 
-  /// Fetch detail (without invalidating). Updates `detailState` and notifies listeners.
-  Future<void> fetchDetail(String pkg, String url) async {
-    // 1. Try to fetch from DB
-    final dbDetail = await MiruCoreEndpoint.getDbDetail(pkg, url);
-    if (dbDetail != null) {
-      state = state.copyWith(
-        detailState: AsyncValue.data(dbDetail.toExtensionDetail()),
-      );
-    } else {
-      state = state.copyWith(detailState: const AsyncValue.loading());
-    }
-
-    // 2. Fetch from Extension
+  Future<Detail?> fetchDetailFromExtension(String pkg, String url) async {
     try {
       final data = await ref.read(
         fetchExtensionDetailProvider(pkg, url).future,
       );
 
-      // 3. Upsert to DB if success
-      // If we had old DB data, we should probably preserve 'downloaded' list.
-      // But for simplicity as per "replace the old db entry", we create new one.
       final newDetail = Detail.fromExtensionDetail(
         data,
         detailUrl: url,
         package: pkg,
-        downloaded: dbDetail?.downloaded ?? [],
       );
       await MiruCoreEndpoint.upsertDbDetail(newDetail);
 
       state = state.copyWith(detailState: AsyncValue.data(data));
     } catch (e, st) {
-      if (dbDetail != null) {
-        // 4. Show snackbar if error and we have DB data
-        showSimpleToast("Fetch failed, showing cached data: $e");
-      } else {
-        state = state.copyWith(
-          detailState: AsyncValue<ExtensionDetail>.error(e, st),
-        );
-      }
+      state = state.copyWith(
+        detailState: AsyncValue<ExtensionDetail>.error(e, st),
+      );
+    }
+    return null;
+  }
+
+  Future<Detail?> fetchDetailFromDb(String pkg, String url) async {
+    final dbDetail = await MiruCoreEndpoint.getDbDetail(pkg, url);
+    if (dbDetail != null) {
+      state = state.copyWith(
+        detailState: AsyncValue.data(dbDetail.toExtensionDetail()),
+      );
+      return dbDetail;
+    } else {
+      state = state.copyWith(detailState: const AsyncValue.loading());
+      return null;
+    }
+  }
+
+  /// Fetch detail (without invalidating). Updates `detailState` and notifies listeners.
+  Future<void> initDetail(String pkg, String url) async {
+    // 1. Try to fetch from DB
+    final detail = await fetchDetailFromDb(pkg, url);
+    if (detail != null) {
+      return;
+    }
+    // 2. Fetch from Extension
+    if (detail == null) {
+      await fetchDetailFromExtension(pkg, url);
     }
   }
 }

@@ -196,5 +196,6 @@ class DatabaseService {
         ..url = detailUrl
         ..package = package,
     );
+    logger.info('deleteFavorite $detailUrl $package');
   }
 }

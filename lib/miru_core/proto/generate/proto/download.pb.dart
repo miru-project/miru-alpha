@@ -449,7 +449,7 @@ class DownloadRequest extends $pb.GeneratedMessage {
   factory DownloadRequest({
     $core.String? url,
     $core.String? downloadPath,
-    $core.Iterable<$core.MapEntry<$core.String, $core.String>>? header,
+    $core.Iterable<$core.MapEntry<$core.String, $core.String>>? headers,
     $core.String? mediaType,
     $core.String? package,
     $core.String? key,
@@ -458,7 +458,7 @@ class DownloadRequest extends $pb.GeneratedMessage {
     final result = create();
     if (url != null) result.url = url;
     if (downloadPath != null) result.downloadPath = downloadPath;
-    if (header != null) result.header.addEntries(header);
+    if (headers != null) result.headers.addEntries(headers);
     if (mediaType != null) result.mediaType = mediaType;
     if (package != null) result.package = package;
     if (key != null) result.key = key;
@@ -481,8 +481,8 @@ class DownloadRequest extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'url')
     ..aOS(2, _omitFieldNames ? '' : 'downloadPath')
-    ..m<$core.String, $core.String>(3, _omitFieldNames ? '' : 'header',
-        entryClassName: 'DownloadRequest.HeaderEntry',
+    ..m<$core.String, $core.String>(3, _omitFieldNames ? '' : 'headers',
+        entryClassName: 'DownloadRequest.HeadersEntry',
         keyFieldType: $pb.PbFieldType.OS,
         valueFieldType: $pb.PbFieldType.OS,
         packageName: const $pb.PackageName('miru'))
@@ -530,7 +530,7 @@ class DownloadRequest extends $pb.GeneratedMessage {
   void clearDownloadPath() => $_clearField(2);
 
   @$pb.TagNumber(3)
-  $pb.PbMap<$core.String, $core.String> get header => $_getMap(2);
+  $pb.PbMap<$core.String, $core.String> get headers => $_getMap(2);
 
   @$pb.TagNumber(4)
   $core.String get mediaType => $_getSZ(3);

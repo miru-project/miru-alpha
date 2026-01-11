@@ -1,19 +1,20 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/pages/detail/widget/index.dart';
 import 'package:miru_app_new/pages/webview/desktop_webview.dart';
+import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
-import 'package:miru_app_new/widgets/core/image_widget.dart';
+import 'package:miru_app_new/widgets/animted_icon/heart.dart';
 
-class DetailDesktopBox extends HookWidget {
+class DetailDesktopBox extends HookConsumerWidget {
   const DetailDesktopBox({
     super.key,
     required this.detail,
@@ -28,7 +29,10 @@ class DetailDesktopBox extends HookWidget {
   final String detailUrl;
   final bool isTablet;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favorite = ref.watch(
+      detialProvider.select((value) => value.favorite),
+    );
     return AnimatedBox(
       child: FCard.raw(
         child: Container(
@@ -152,17 +156,35 @@ class DetailDesktopBox extends HookWidget {
                     const SizedBox(width: 15),
                     FButton(
                       style: FButtonStyle.secondary(),
-                      suffix: Icon(FIcons.heart),
+                      suffix: HeartButton(
+                        size: 22,
+                        activeColor: context.theme.colors.primary,
+                        inactiveColor: context.theme.colors.primary,
+                        isLiked: favorite != null,
+                      ),
                       onPress: () {
+                        if (favorite != null) {
+                          ref
+                              .read(detialProvider.notifier)
+                              .removeFavorite(favorite);
+                          return;
+                        }
                         showDialog(
                           context: context,
                           builder: (context) => FavoriteDialog(
                             meta: meta,
                             detailUrl: detailUrl,
                             detail: detail,
-                            onSuccess: () {
-                              // Trigger rebuild to update "Favorited" badge
-                              (context as Element).markNeedsBuild();
+                            onSuccess: () async {
+                              // Refresh favorite state after dialog closes
+                              final favorite =
+                                  await DatabaseService.getFavoriteByPackageAndUrl(
+                                    meta.packageName,
+                                    detailUrl,
+                                  );
+                              ref
+                                  .read(detialProvider.notifier)
+                                  .putFavorite(favorite);
                             },
                           ),
                         );

@@ -101,4 +101,4 @@ The basic stage contains necessary components for apps to run at minimum functio
 - [ ] support epub
 - [ ] support Torrent 
 - [ ] Page view
-
+- [ ] Integrate TTS (KokoroTTS)

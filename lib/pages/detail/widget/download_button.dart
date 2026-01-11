@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 import 'package:miru_app_new/model/extension_meta_data.dart';
@@ -9,6 +10,7 @@ import 'package:miru_app_new/utils/core/miru_directory.dart';
 import 'package:miru_app_new/widgets/core/toast.dart';
 import 'package:path/path.dart' as p;
 import 'package:miru_app_new/utils/core/log.dart';
+import 'package:miru_app_new/provider/download_provider.dart';
 
 class DownloadButton extends StatelessWidget {
   const DownloadButton({
@@ -50,17 +52,19 @@ class DownloadButton extends StatelessWidget {
   }
 }
 
-class _DownloadDialog extends StatefulWidget {
+class _DownloadDialog extends ConsumerStatefulWidget {
   const _DownloadDialog(this.detail, this.meta, this.animation);
   final ExtensionDetail detail;
   final ExtensionMeta meta;
   final Animation<double> animation;
   @override
-  State<_DownloadDialog> createState() => _DownloadDialogState();
+  ConsumerState<_DownloadDialog> createState() => _DownloadDialogState();
 }
 
-class _DownloadDialogState extends State<_DownloadDialog>
+class _DownloadDialogState extends ConsumerState<_DownloadDialog>
     with TickerProviderStateMixin {
+  final Map<String, bool> _loadingTasks = {};
+
   Future<void> _startDownload({
     required String url,
     required String title,
@@ -151,32 +155,102 @@ class _DownloadDialogState extends State<_DownloadDialog>
                   return FTabEntry(
                     label: Text(group.title),
                     child: FTileGroup.builder(
-                      // shrinkWrap: true,
                       count: group.urls.length,
                       tileBuilder: (context, index) {
                         final url = group.urls[index];
+                        final key =
+                            "${widget.meta.packageName}_${group.title}_${url.name}";
+
+                        // Use select to optimize rebuilds
+                        final progress = ref.watch(
+                          downloadProvider.select((s) {
+                            final active = s.value?.active ?? [];
+                            try {
+                              return active.firstWhere(
+                                (element) => element.key == key,
+                              );
+                            } catch (_) {
+                              return null;
+                            }
+                          }),
+                        );
+
+                        final history = ref.watch(
+                          downloadProvider.select((s) {
+                            final history = s.value?.history ?? [];
+                            try {
+                              return history.firstWhere(
+                                (element) => element.key == key,
+                              );
+                            } catch (_) {
+                              return null;
+                            }
+                          }),
+                        );
+
+                        final isLoading = _loadingTasks[key] ?? false;
+                        final isDownloaded = history != null;
+
                         return FTile(
                           title: Text(url.name),
-                          onPress: () async {
-                            final videoWatch =
-                                await MiruCoreEndpoint.watch(
-                                      url.url,
-                                      widget.meta.packageName,
-                                      widget.meta.type,
-                                    )
-                                    as ExtensionBangumiWatch?;
+                          subtitle: progress != null
+                              ? Text(
+                                  "${progress.status} - ${(progress.progress / (progress.total == 0 ? 1 : progress.total) * 100).toStringAsFixed(1)}%",
+                                )
+                              : (isDownloaded
+                                    ? const Text("Downloaded")
+                                    : null),
+                          suffix: isLoading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: FCircularProgress(),
+                                )
+                              : (progress != null || isDownloaded
+                                    ? Icon(
+                                        FIcons.check,
+                                        color: context.theme.colors.primary,
+                                      )
+                                    : null),
+                          onPress: isLoading
+                              ? null
+                              : () async {
+                                  setState(() {
+                                    _loadingTasks[key] = true;
+                                  });
+                                  try {
+                                    final videoWatch =
+                                        await MiruCoreEndpoint.watch(
+                                              url.url,
+                                              widget.meta.packageName,
+                                              widget.meta.type,
+                                            )
+                                            as ExtensionBangumiWatch?;
 
-                            if (videoWatch == null) return;
-                            await _startDownload(
-                              type: videoWatch.type,
-                              url: videoWatch.url,
-                              title:
-                                  "${widget.detail.title}-${group.title}-${url.name}",
-                              key:
-                                  "${widget.meta.packageName}_${group.title}_${url.name}",
-                              headers: videoWatch.headers ?? {},
-                            );
-                          },
+                                    if (videoWatch == null) {
+                                      if (mounted) {
+                                        showSimpleToast(
+                                          'Failed to fetch video URL',
+                                        );
+                                      }
+                                      return;
+                                    }
+                                    await _startDownload(
+                                      type: videoWatch.type,
+                                      url: videoWatch.url,
+                                      title:
+                                          "${widget.detail.title}-${group.title}-${url.name}",
+                                      key: key,
+                                      headers: videoWatch.headers ?? {},
+                                    );
+                                  } finally {
+                                    if (mounted) {
+                                      setState(() {
+                                        _loadingTasks[key] = false;
+                                      });
+                                    }
+                                  }
+                                },
                         );
                       },
                     ),
