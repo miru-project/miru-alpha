@@ -5,14 +5,17 @@ import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
 
-class DesktopDetailImageView extends StatelessWidget {
+class DetailImageView extends StatelessWidget {
   final ExtensionDetail detail;
   final String coverUrl;
-  const DesktopDetailImageView({
+  final Widget? child;
+  const DetailImageView({
     super.key,
     required this.detail,
     required this.coverUrl,
+    this.child,
   });
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBox(
@@ -35,7 +38,7 @@ class DesktopDetailImageView extends StatelessWidget {
                   ),
                   Center(
                     child: Hero(
-                      tag: 'search-card',
+                      tag: 'detail-card',
                       child: ExtendedImage.network(
                         mode: .gesture,
                         coverUrl,
@@ -63,14 +66,12 @@ class DesktopDetailImageView extends StatelessWidget {
         );
       },
       child: Hero(
-        tag: 'search-card',
+        tag: 'detail-card',
         child: FCard.raw(
           child: ClipRRect(
-            // borderRadius: BorderRadius.circular(),
-            child: ImageWidget.defaultErr(
-              title: detail.title,
-              imageUrl: coverUrl,
-            ),
+            child:
+                child ??
+                ImageWidget.defaultErr(title: detail.title, imageUrl: coverUrl),
           ),
         ),
       ),

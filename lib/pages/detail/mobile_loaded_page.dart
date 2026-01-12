@@ -5,6 +5,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/pages/detail/widget/desktop_detail_image_view.dart';
 import 'package:miru_app_new/pages/detail/widget/mobile_detail_silverlist.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
@@ -47,11 +48,15 @@ class MobileLoadedPage extends HookConsumerWidget {
                     SizedBox(
                       width: 120,
                       height: 180,
-                      child: ImageWidget(
-                        imageUrl: detail.cover,
-                        fit: BoxFit.fitHeight,
-                        errChild: FCard.raw(
-                          child: Center(child: Icon(FIcons.cloudAlert)),
+                      child: DetailImageView(
+                        detail: detail,
+                        coverUrl: detail.cover ?? '',
+                        child: ImageWidget(
+                          imageUrl: detail.cover ?? '',
+                          fit: BoxFit.fitHeight,
+                          errChild: FCard.raw(
+                            child: Center(child: Icon(FIcons.cloudAlert)),
+                          ),
                         ),
                       ),
                     ),

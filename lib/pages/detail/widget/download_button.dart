@@ -82,7 +82,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
           package: widget.meta.packageName,
           title: title,
           key: key,
-        )..header.addAll(headers),
+        )..headers.addAll(headers),
       );
 
       if (res.variantSummary.isNotEmpty) {

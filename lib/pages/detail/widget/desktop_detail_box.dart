@@ -74,10 +74,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                       builder: (context, constraints) {
                         return Row(
                           children: [
-                            DesktopDetailImageView(
-                              detail: detail,
-                              coverUrl: coverUrl,
-                            ),
+                            DetailImageView(detail: detail, coverUrl: coverUrl),
                             const SizedBox(width: 25),
                             SizedBox(
                               width: constraints.maxWidth - 300,

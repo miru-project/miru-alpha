@@ -89,7 +89,6 @@ class FavoriteCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    //# TODO volume controll and episode
     return AnimatedBox(
       onTap: () {
         final meta = ref.read(extensionPageProvider).metaData;

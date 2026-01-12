@@ -123,10 +123,7 @@ class DesktopLoadedPage extends HookWidget {
                     flex: 3,
                     child: Column(
                       children: [
-                        DesktopDetailImageView(
-                          detail: detail,
-                          coverUrl: coverUrl,
-                        ),
+                        DetailImageView(detail: detail, coverUrl: coverUrl),
                         const SizedBox(height: 30),
                         AnimatedBox(
                           child: OutterCard(

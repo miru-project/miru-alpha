@@ -67,7 +67,13 @@ class _MobileExtensionModal extends HookConsumerWidget {
           extNotifier.filterByMediaType(val);
         },
       ),
-      'Repo': CatEntry(title: 'Repository', items: ['WIP'], onpress: (val) {}),
+      'Repo': CatEntry(
+        title: 'Repository',
+        items: extNotifier.repoNames(),
+        onpress: (val) {
+          extNotifier.filterByRepo(val);
+        },
+      ),
     };
     return Listener(
       behavior: HitTestBehavior.translucent,
