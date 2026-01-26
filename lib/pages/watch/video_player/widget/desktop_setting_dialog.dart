@@ -81,7 +81,7 @@ class DesktopSettingDialog extends HookConsumerWidget {
         itemCount: controller.subtitlesRaw.length,
         itemBuilder: (context, int index) => FButton(
           onPress: () {
-            notifer.setSelectedIndex(index);
+            notifer.setSubSelectedIndex(index);
             context.pop();
           },
           suffix: Text('${controller.subtitlesRaw[index].language}'),

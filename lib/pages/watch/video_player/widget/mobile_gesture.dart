@@ -24,6 +24,7 @@ class MobileGestureOverlay extends HookConsumerWidget {
     final currentVolume = useState(0.0);
     final isSeeking = useState(false);
     final isBrightness = useState(false);
+    final isVolume = useState(false);
 
     final dragDuration = useState(Duration.zero);
     final dragPosition = useState(Duration.zero);
@@ -36,6 +37,24 @@ class MobileGestureOverlay extends HookConsumerWidget {
           OutlineText(
             text:
                 '${dragDuration.value.inMinutes}:${(dragDuration.value.inSeconds % 60).toString().padLeft(2, '0')} / ${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}',
+            color: context.theme.colors.foreground,
+            fontSize: 40,
+            fontWeight: .bold,
+            strokeWidth: 2,
+            outlineColor: context.theme.colors.background,
+          ),
+        if (isBrightness.value)
+          OutlineText(
+            text: '${(currentBrightness.value * 100).round()}%',
+            color: context.theme.colors.foreground,
+            fontSize: 40,
+            fontWeight: .bold,
+            strokeWidth: 2,
+            outlineColor: context.theme.colors.background,
+          ),
+        if (isVolume.value)
+          OutlineText(
+            text: '${(currentVolume.value * 100).round()}%',
             color: context.theme.colors.foreground,
             fontSize: 40,
             fontWeight: .bold,
@@ -69,7 +88,10 @@ class MobileGestureOverlay extends HookConsumerWidget {
           onVerticalDragStart: (details) {
             isBrightness.value =
                 details.localPosition.dx <
-                MediaQuery.of(context).size.width / 2;
+                MediaQuery.of(context).size.width / 5;
+            isVolume.value =
+                details.localPosition.dx >
+                MediaQuery.of(context).size.width * 4 / 5;
           },
           // 左右两边上下滑动
           onVerticalDragUpdate: (details) {
@@ -83,22 +105,21 @@ class MobileGestureOverlay extends HookConsumerWidget {
               ScreenBrightness().setApplicationScreenBrightness(
                 currentBrightness.value,
               );
+              return;
             }
             // 如果是右边调节音量
-            else {
+            if (isVolume.value) {
               currentVolume.value = (currentVolume.value - add).clamp(0, 1);
-              // VolumeController.setVolume(_currentVolume);
               VolumeController.instance.setVolume(currentVolume.value);
+              return;
             }
-            // _isAdjusting = true;
-            // setState(() {});
           },
           onHorizontalDragStart: (details) {
             dragPosition.value = position;
           },
           onVerticalDragEnd: (details) {
-            // _isAdjusting = false;
-            // setState(() {});
+            isBrightness.value = false;
+            isVolume.value = false;
           },
           // 左右滑动
           onHorizontalDragUpdate: (details) {
@@ -121,17 +142,12 @@ class MobileGestureOverlay extends HookConsumerWidget {
             c.seek(dragPosition.value);
             isSeeking.value = false;
             dragDuration.value = Duration.zero;
-            // setState(() {});
           },
           onLongPressStart: (details) {
-            // _isLongPress = true;
             c.setSpeed(3);
-            // setState(() {});
           },
           onLongPressEnd: (details) {
-            c.setSpeed(ref.read(vidPr.select((s) => s.speed)));
-            // _isLongPress = false;
-            // setState(() {});
+            c.setSpeed(1);
           },
           child: child,
         ),

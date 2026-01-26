@@ -70,6 +70,7 @@ class MobileDetailSilverlist extends ConsumerWidget {
                 );
 
                 return FTileGroup.builder(
+                  physics: NeverScrollableScrollPhysics(),
                   divider: .full,
                   label: Row(
                     children: [

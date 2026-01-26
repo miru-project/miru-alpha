@@ -135,4 +135,8 @@ class EpisodeNotifier extends _$EpisodeNotifier {
     this.imageUrl = imageUrl;
     this.detailUrl = detailUrl;
   }
+
+  int get epLength => state.epGroup[state.selectedGroupIndex].urls.length;
+  int get selectedIndex => state.selectedEpisodeIndex;
+  int get selectedGroupIndex => state.selectedGroupIndex;
 }

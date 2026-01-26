@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/pages/watch/video_player/widget/main_player_button.dart';
-import 'package:miru_app_new/pages/watch/video_player/widget/mobile_setting_sheet.dart';
+import 'package:miru_app_new/pages/watch/video_player/widget/player_button.dart';
+
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
@@ -30,18 +30,6 @@ class PlayerHeader extends ConsumerStatefulWidget {
 }
 
 class _HeaderState extends ConsumerState<PlayerHeader> {
-  bool _isAlwaysOnTop = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if (!DeviceUtil.isMobile) {
-      WindowManager.instance.isAlwaysOnTop().then((value) {
-        _isAlwaysOnTop = value;
-      });
-    }
-  }
-
   Widget buildcontent(EpisodeNotifierState epNotifier) {
     return FLabel(
       axis: Axis.vertical,
@@ -88,41 +76,12 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
                     : DragToMoveArea(child: buildcontent(epNotifier)),
               ),
               // 置顶
-              if (!DeviceUtil.isMobile) ...[
-                PlayerButton(
-                  onPressed: () {
-                    WindowManager.instance.setAlwaysOnTop(!_isAlwaysOnTop);
-                    setState(() {
-                      _isAlwaysOnTop = !_isAlwaysOnTop;
-                    });
-                  },
-                  icon: _isAlwaysOnTop
-                      ? Icons.push_pin_outlined
-                      : Icons.push_pin,
-                ),
-                const SizedBox(width: 10),
-                PlayerButton(
-                  onPressed: () {
-                    WindowManager.instance.minimize();
-                  },
-                  icon: FIcons.minus,
-                ),
-              ],
-              const SizedBox(width: 10),
               if (!DeviceUtil.isMobile)
                 PlayerButton(onPressed: widget.onClose, icon: FIcons.x)
               else ...[
                 PlayerButton(
                   onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (context) => MobileVideoSheet(
-                        vidPr: widget.vidPr,
-                        epProvdier: widget.episodeProvider,
-                      ),
-                    );
+                    ref.read(widget.vidPr.notifier).toggleSettings();
                   },
                   icon: FIcons.settings,
                 ),

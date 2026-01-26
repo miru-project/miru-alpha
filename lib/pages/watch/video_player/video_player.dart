@@ -5,6 +5,7 @@ import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/pages/watch/video_player/widget/mobile_gesture.dart';
 import 'package:miru_app_new/pages/watch/video_player/widget/player_scaffold.dart';
+import 'package:miru_app_new/pages/watch/video_player/widget/side_settings_menu.dart';
 import 'package:miru_app_new/pages/watch/video_player/widget/subtitle.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
@@ -47,28 +48,104 @@ class MiruVideoPlayer extends ConsumerWidget {
         Consumer(
           builder: (context, ref, child) {
             final ratio = ref.watch(vidProvider.select((s) => s.ratio));
-            return Center(
-              child: AspectRatio(
-                aspectRatio: ratio == 0
-                    ? screenRatio.width / screenRatio.height
-                    : ratio,
-                child: VideoPlayer(
-                  ref.read(vidProvider.notifier).vidController,
+            final showSettings = ref.watch(
+              vidProvider.select((s) => s.showSettings),
+            );
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              padding: EdgeInsets.only(
+                right: showSettings
+                    ? (DeviceUtil.isMobileLayout(context)
+                          ? MediaQuery.of(context).size.width * 0.3
+                          : 400.0)
+                    : 0,
+              ),
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: ratio == 0
+                      ? screenRatio.width / screenRatio.height
+                      : ratio,
+                  child: VideoPlayer(
+                    ref.read(vidProvider.notifier).vidController,
+                  ),
                 ),
               ),
             );
           },
         ),
         //subtitle text
-        VideoPlayerSubtitle(vidProvider: vidProvider),
+        Consumer(
+          builder: (context, ref, child) {
+            final showSettings = ref.watch(
+              vidProvider.select((s) => s.showSettings),
+            );
+            return AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              left: 0,
+              right: showSettings
+                  ? (DeviceUtil.isMobileLayout(context)
+                        ? MediaQuery.of(context).size.width * 0.3
+                        : 400.0)
+                  : 0,
+              top: 0,
+              bottom: 0,
+              child: VideoPlayerSubtitle(vidProvider: vidProvider),
+            );
+          },
+        ),
         //player controls ui
-        _VideoPlayer(
-          vidPr: vidProvider,
-          epProvider: epProvider,
-          hasOriented: hasOriented,
-          meta: meta,
-          name: name,
-          url: url,
+        Consumer(
+          builder: (context, ref, child) {
+            final showSettings = ref.watch(
+              vidProvider.select((s) => s.showSettings),
+            );
+            return AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              left: 0,
+              right: showSettings
+                  ? (DeviceUtil.isMobileLayout(context)
+                        ? MediaQuery.of(context).size.width * 0.3
+                        : 400.0)
+                  : 0,
+              top: 0,
+              bottom: 0,
+              child: _VideoPlayer(
+                vidPr: vidProvider,
+                epProvider: epProvider,
+                hasOriented: hasOriented,
+                meta: meta,
+                name: name,
+                url: url,
+              ),
+            );
+          },
+        ),
+        // Side Settings Menu
+        Consumer(
+          builder: (context, ref, child) {
+            final showSettings = ref.watch(
+              vidProvider.select((s) => s.showSettings),
+            );
+            final width = DeviceUtil.isMobileLayout(context)
+                ? MediaQuery.of(context).size.width * 0.3
+                : 400.0;
+            return AnimatedPositioned(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              top: 0,
+              bottom: 0,
+              right: showSettings ? 0 : -width,
+              width: width,
+              child: SideSettingsMenu(
+                vidPr: vidProvider,
+                epProvdier: epProvider,
+                width: width,
+              ),
+            );
+          },
         ),
       ],
     );

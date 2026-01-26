@@ -24,6 +24,7 @@ class VideoPlayerTickState {
   final bool isShowSubtitle;
   final String currentSubtitle;
   final bool showControls;
+  final bool showSettings;
   final Map<String, String> qualityMap;
   final double ratio;
   VideoPlayerTickState({
@@ -41,6 +42,7 @@ class VideoPlayerTickState {
     this.ratio = 0.0,
     this.currentSubtitle = '',
     this.showControls = false,
+    this.showSettings = false,
   });
 
   VideoPlayerTickState copyWith({
@@ -57,6 +59,7 @@ class VideoPlayerTickState {
     List<Subtitle>? subtitles,
     bool? isShowSubtitle,
     bool? showControls,
+    bool? showSettings,
     int? selectedGroupIndex,
     int? selectedEpisodeIndex,
     String? name,
@@ -80,6 +83,7 @@ class VideoPlayerTickState {
       ratio: ratio ?? this.ratio,
       qualityMap: qualityMap ?? this.qualityMap,
       showControls: showControls ?? this.showControls,
+      showSettings: showSettings ?? this.showSettings,
     );
   }
 }
@@ -278,7 +282,7 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     return subtitle.text;
   }
 
-  void setSelectedIndex(int index) {
+  void setSubSelectedIndex(int index) {
     state = state.copyWith(selectedSubtitleIndex: index, isShowSubtitle: true);
     SubtitleUtil.parseVttSubtitles(state.subtitlesRaw[index].url).then((value) {
       setSubtitles(value, index);
@@ -305,4 +309,8 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
   int get length => state.subtitles.length;
   List<Subtitle> get subtitles => state.subtitles;
   int get selectedIndex => state.selectedSubtitleIndex;
+
+  void toggleSettings() {
+    state = state.copyWith(showSettings: !state.showSettings);
+  }
 }

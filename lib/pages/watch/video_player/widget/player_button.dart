@@ -10,7 +10,7 @@ class PlayerButton extends StatelessWidget {
     required this.icon,
     this.size,
   });
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final IconData icon;
   final double? size;
   @override

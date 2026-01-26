@@ -100,48 +100,58 @@ class MobileSearchPage extends HookConsumerWidget {
               ),
             ),
           SliverToBoxAdapter(child: SizedBox(height: 20)),
-          SliverToBoxAdapter(
-            child: FTileGroup(
-              label: Text('Extension'),
-              description: Text('Extensions that already installed'),
-              children: List.generate(metaData.length, (index) {
-                final ext = metaData[index];
-                return FTile(
-                  onPress: () {
-                    context.push(
-                      '/search/single',
-                      extra: SearchPageParam(meta: ext),
-                    );
-                  },
-                  title: Text(ext.name),
-                  prefix: SizedBox(
-                    height: 40,
-                    width: 40,
-                    child: ImageWidget(imageUrl: ext.icon ?? ""),
-                  ),
-                  suffix: FButton.icon(
-                    selected: true,
+          if (metaData.isNotEmpty)
+            SliverToBoxAdapter(
+              child: FTileGroup(
+                label: Text('Extension'),
+                description: Text('Extensions that already installed'),
+                children: List.generate(metaData.length, (index) {
+                  final ext = metaData[index];
+                  return FTile(
                     onPress: () {
-                      final newSet = {...pinnedExtensions.value};
-                      if (newSet.contains(ext.packageName)) {
-                        newSet.remove(ext.packageName);
-                      } else {
-                        newSet.add(ext.packageName);
-                      }
-                      pinnedExtensions.value = newSet;
-                      MiruSettings.setSettingSync(
-                        SettingKey.pinnedExtension,
-                        newSet.toString(),
+                      context.push(
+                        '/search/single',
+                        extra: SearchPageParam(meta: ext),
                       );
                     },
-                    child: pinnedExtensions.value.contains(ext.packageName)
-                        ? Icon(FIcons.pinOff)
-                        : Icon(FIcons.pin),
-                  ),
-                );
-              }),
+                    title: Text(ext.name),
+                    prefix: SizedBox(
+                      height: 40,
+                      width: 40,
+                      child: ImageWidget(imageUrl: ext.icon ?? ""),
+                    ),
+                    suffix: FButton.icon(
+                      selected: true,
+                      onPress: () {
+                        final newSet = {...pinnedExtensions.value};
+                        if (newSet.contains(ext.packageName)) {
+                          newSet.remove(ext.packageName);
+                        } else {
+                          newSet.add(ext.packageName);
+                        }
+                        pinnedExtensions.value = newSet;
+                        MiruSettings.setSettingSync(
+                          SettingKey.pinnedExtension,
+                          newSet.toString(),
+                        );
+                      },
+                      child: pinnedExtensions.value.contains(ext.packageName)
+                          ? Icon(FIcons.pinOff)
+                          : Icon(FIcons.pin),
+                    ),
+                  );
+                }),
+              ),
+            )
+          else
+            SliverToBoxAdapter(
+              child: Center(
+                child: Text(
+                  'No extensions installed',
+                  style: TextStyle(fontWeight: .bold, fontSize: 20),
+                ),
+              ),
             ),
-          ),
           SliverToBoxAdapter(child: SizedBox(height: 200)),
         ],
       ),

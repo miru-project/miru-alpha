@@ -1,15 +1,16 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+
 import 'package:forui/forui.dart';
 import 'package:forui_hooks/forui_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/pages/watch/video_player/widget/main_player_button.dart';
+import 'package:miru_app_new/pages/watch/video_player/widget/player_button.dart';
+import 'package:miru_app_new/pages/watch/video_player/widget/desktop_player_widget.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
 import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/widgets/core/inner_card.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'package:miru_app_new/pages/watch/video_player/widget/desktop_setting_dialog.dart';
+
 import 'package:miru_app_new/pages/watch/video_player/widget/seek_bar.dart';
 
 class DesktopPlayerFooter extends StatelessWidget {
@@ -31,9 +32,12 @@ class DesktopPlayerFooter extends StatelessWidget {
             background: context.theme.colors.background.withAlpha(230),
           ),
           typography: overrideTheme.typography,
-          style: context.theme.style,
+          style: context.theme.style.copyWith(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ).call,
         child: Blur(
+          borderRadius: BorderRadius.circular(10),
           child: Padding(
             padding: EdgeInsetsGeometry.symmetric(vertical: 10, horizontal: 15),
             child: Column(
@@ -58,69 +62,14 @@ class DesktopPlayerFooterMenu extends HookConsumerWidget {
   });
   final VideoPlayerNotifierProvider vidPr;
   final EpisodeNotifierProvider epProvdier;
-  void showDialog(BuildContext context, int index) {
-    showFDialog(
-      useRootNavigator: false,
-      routeStyle: context.theme.dialogRouteStyle
-          .copyWith(
-            barrierFilter: (animation) => ImageFilter.compose(
-              outer: ImageFilter.blur(
-                sigmaX: animation * 5,
-                sigmaY: animation * 5,
-              ),
-              inner: ColorFilter.mode(
-                context.theme.colors.barrier,
-                BlendMode.srcOver,
-              ),
-            ),
-          )
-          .call,
-      context: context,
-      builder: (context, style, animation) {
-        return DesktopSettingDialog(
-          initialIndex: index,
-          vidPr: vidPr,
-          epProvdier: epProvdier,
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final speedPopOverController = useFPopoverController();
-    // final isSubtitlesToggled = useState(false);
 
-    final isPlaying = ref.watch(vidPr.select((value) => value.isPlaying));
-    final position = ref.watch(vidPr.select((value) => value.position));
-    final duration = ref.watch(vidPr.select((value) => value.duration));
     final speed = ref.watch(vidPr.select((value) => value.speed));
-    final c = ref.read(vidPr.notifier);
     return Row(
       children: [
-        Row(
-          children: [
-            PlayerButton(onPressed: () {}, icon: FIcons.skipBack),
-            if (isPlaying)
-              PlayerButton(onPressed: c.pause, icon: FIcons.pause)
-            else
-              PlayerButton(onPressed: c.play, icon: FIcons.play),
-            PlayerButton(onPressed: () {}, icon: FIcons.skipForward),
-            const SizedBox(width: 10),
-            // 播放进度
-            Text(
-              '${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')}',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(width: 10),
-            const Text('/'),
-            const SizedBox(width: 10),
-            Text(
-              '${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
+        DesktopPlayerWidget(vidPr: vidPr, epProvdier: epProvdier),
         Spacer(),
         Row(
           children: [
@@ -144,14 +93,14 @@ class DesktopPlayerFooterMenu extends HookConsumerWidget {
             ),
             const SizedBox(width: 10),
             PlayerButton(
-              onPressed: () => showDialog(context, 1),
+              onPressed: () => ref.read(vidPr.notifier).toggleSettings(),
               icon: FIcons.captions,
             ),
             // 播放列表
             PlayerButton(
               icon: FIcons.listVideo,
               onPressed: () {
-                showDialog(context, 0);
+                ref.read(vidPr.notifier).toggleSettings(); // Open sidebar
               },
             ),
           ],

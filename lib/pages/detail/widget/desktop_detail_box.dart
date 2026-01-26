@@ -53,19 +53,7 @@ class DetailDesktopBox extends HookConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                FutureBuilder(
-                  future: DatabaseService.isFavorite(
-                    package: meta.packageName,
-                    url: detailUrl,
-                  ),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done &&
-                        snapshot.data == true) {
-                      return FBadge(child: Text('Favorited'));
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+                if (favorite != null) FBadge(child: Text('Favorited')),
                 const SizedBox(height: 10),
                 if (isTablet)
                   SizedBox(

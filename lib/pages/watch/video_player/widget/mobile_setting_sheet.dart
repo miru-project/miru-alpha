@@ -107,7 +107,7 @@ class MobileVideoSheet extends HookConsumerWidget {
                   title: Text(controller.subtitlesRaw[index].title),
                   subtitle: Text('${controller.subtitlesRaw[index].language}'),
                   onPress: () {
-                    notifer.setSelectedIndex(index);
+                    notifer.setSubSelectedIndex(index);
                     context.pop();
                   },
                 );

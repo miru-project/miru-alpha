@@ -22,6 +22,7 @@ import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
 import 'package:miru_app_new/utils/router/router_util.dart';
 import 'package:miru_app_new/widgets/core/toast.dart';
 import 'package:miru_app_new/widgets/error.dart';
+import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() {
@@ -165,10 +166,11 @@ class App extends ConsumerStatefulWidget {
 class _App extends ConsumerState<App> {
   @override
   void initState() {
+    VolumeController.instance.showSystemUI = false;
     super.initState();
     registerWith(
       options: {
-        'platforms': ['windows', 'linux'],
+        'platforms': ['windows', 'linux', 'macos', 'android', 'ios'],
         'video.decoders': ['D3D11', 'NVDEC', 'FFmpeg'],
         'player': {'buffer': '2000+600000'},
       },
