@@ -479,7 +479,7 @@ class SafeFSidebar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (header != null) header!,
+          header ?? SizedBox(),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -489,7 +489,7 @@ class SafeFSidebar extends StatelessWidget {
               ),
             ),
           ),
-          if (footer != null) footer!,
+          footer ?? SizedBox(),
         ],
       ),
     );

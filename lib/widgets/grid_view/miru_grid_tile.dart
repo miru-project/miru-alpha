@@ -28,7 +28,7 @@ class MiruDesktopGridTile extends HookWidget {
     return AnimatedBox(
       onTap: onTap,
       child: SizedBox(
-        // width: width ?? 200,
+        width: width,
         height: height,
         child: FCard.raw(
           child: Column(

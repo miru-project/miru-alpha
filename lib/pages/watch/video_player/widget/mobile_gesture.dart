@@ -20,8 +20,16 @@ class MobileGestureOverlay extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentBrightness = useState(0.0);
     final currentVolume = useState(0.0);
+    final currentBrightness = useState(0.0);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      VolumeController.instance.getVolume().then((value) {
+        currentVolume.value = value;
+      });
+      ScreenBrightness().system.then((value) {
+        currentBrightness.value = value;
+      });
+    });
     final isSeeking = useState(false);
     final isBrightness = useState(false);
     final isVolume = useState(false);
