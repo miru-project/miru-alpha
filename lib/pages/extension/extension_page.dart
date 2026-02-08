@@ -122,16 +122,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     return MiruScaffold(
       scrollController: scrollController,
       snappingSheetController: _snappingController,
-      mobileHeader: SnapSheetHeader(
-        title: 'Extension',
-        trailings: [
-          FButton.icon(
-            style: FButtonStyle.ghost(),
-            onPress: () {},
-            child: Icon(FIcons.earth),
-          ),
-        ],
-      ),
+      mobileHeader: SnapSheetHeader(title: 'Extension'),
       snapSheet: DeviceUtil.isMobileLayout(context)
           ? <Widget>[
               FCard.raw(

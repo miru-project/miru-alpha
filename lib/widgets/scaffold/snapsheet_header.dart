@@ -5,16 +5,12 @@ class SnapSheetHeader extends StatelessWidget {
   const SnapSheetHeader({
     super.key,
     required this.title,
-    this.trailings,
-    this.leading,
     this.description,
     this.padding,
   });
 
   final String title;
   final String? description;
-  final List<Widget>? leading;
-  final List<Widget>? trailings;
   final EdgeInsetsGeometry? padding;
   @override
   Widget build(BuildContext context) {

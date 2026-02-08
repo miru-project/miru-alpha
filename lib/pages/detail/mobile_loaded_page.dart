@@ -49,7 +49,7 @@ class MobileLoadedPage extends HookConsumerWidget {
                   children: [
                     SizedBox(width: 10),
                     SizedBox(
-                      width: 120,
+                      width: 130,
                       height: 180,
                       child: DetailImageView(
                         detail: detail,

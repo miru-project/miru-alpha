@@ -1,19 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/miru_core/network.dart';
+import 'package:miru_app_new/pages/search/global_search.dart';
 import 'package:miru_app_new/pages/webview/desktop_webview.dart';
-import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/provider/search_page_provider.dart';
 import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/utils/store/storage_index.dart';
 import 'package:miru_app_new/widgets/core/inner_card.dart';
 import 'package:miru_app_new/widgets/core/search_filter_card.dart';
 import 'package:miru_app_new/pages/search/widget/desktop_search_list_tile.dart';
-import 'package:miru_app_new/widgets/grid_view/miru_grid_tile.dart';
 
 class DesktopSearchPage extends HookConsumerWidget {
   const DesktopSearchPage({super.key});
@@ -29,85 +25,7 @@ class DesktopSearchPage extends HookConsumerWidget {
     return Stack(
       children: [
         if (searchQuery.value.isNotEmpty)
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return SizedBox(
-                height: constraints.maxHeight,
-                child: ListView.builder(
-                  padding: .symmetric(vertical: 200),
-                  itemBuilder: (context, index) {
-                    final snapshot = ref.watch(
-                      fetchExtensionSearchLatestProvider.call(
-                        existedPinnedExtensions.elementAt(index),
-                        1,
-                        query: searchQuery.value,
-                      ),
-                    );
-                    final meta = metaData
-                        .where(
-                          (ext) =>
-                              ext.packageName ==
-                              existedPinnedExtensions.elementAt(index),
-                        )
-                        .first;
-
-                    return Column(
-                      crossAxisAlignment: .start,
-                      children: [
-                        FButton(
-                          mainAxisSize: .min,
-                          style: FButtonStyle.ghost(),
-                          onPress: () {},
-                          suffix: Icon(FIcons.chevronRight),
-                          child: Text(
-                            meta.name,
-                            style: TextStyle(fontWeight: .bold, fontSize: 20),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        snapshot.when(
-                          data: (data) {
-                            return SizedBox(
-                              height: 330,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemBuilder: (context, index) {
-                                  final ext = data.elementAt(index);
-                                  return MiruDesktopGridTile(
-                                    onTap: () {
-                                      context.push(
-                                        '/search/single/detail',
-                                        extra: DetailParam(
-                                          meta: meta,
-                                          url: ext.url,
-                                        ),
-                                      );
-                                    },
-                                    width: 200,
-                                    title: ext.title,
-                                    subtitle: ext.update ?? '',
-                                    imageUrl: ext.cover,
-                                  );
-                                },
-                                itemCount: data.length,
-                              ),
-                            );
-                          },
-                          error: (error, stack) {
-                            return Center(child: Text('Error: $error'));
-                          },
-                          loading: () {
-                            return const Center(child: FCircularProgress());
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                  itemCount: existedPinnedExtensions.length,
-                ),
-              );
-            },
-          )
+          GlobalSearch(searchQuery: searchQuery.value, isMobile: false)
         else
           CustomScrollView(
             slivers: [

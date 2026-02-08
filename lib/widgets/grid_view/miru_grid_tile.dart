@@ -126,32 +126,17 @@ class MiruMobileTile extends StatelessWidget {
     // if (imageUrl == null) {
     //   return _TextTile(title: title, subtitle: subtitle);
     // }
-    return GestureDetector(
-      onTap: onTap,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Image fills the area
-          if (imageUrl == null)
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: context.theme.cardStyle.decoration.borderRadius,
-              ),
-
-              child: Center(
-                child: Text(
-                  title,
-                  softWrap: true,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                ),
-              ),
-            )
-          else
-            ImageWidget(
-              imageUrl: imageUrl!,
-              fit: BoxFit.cover,
-              errChild: Container(
+    return SizedBox(
+      width: width,
+      height: height,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Image fills the area
+            if (imageUrl == null)
+              Container(
                 decoration: BoxDecoration(
                   color: Colors.red,
                   borderRadius: context.theme.cardStyle.decoration.borderRadius,
@@ -164,61 +149,84 @@ class MiruMobileTile extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                   ),
                 ),
-              ),
-            ),
+              )
+            else
+              ImageWidget(
+                imageUrl: imageUrl!,
+                fit: BoxFit.cover,
+                errChild: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius:
+                        context.theme.cardStyle.decoration.borderRadius,
+                  ),
 
-          // Bottom gradient shadow
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: 80,
-            child: IgnorePointer(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withAlpha(200)],
+                  child: Center(
+                    child: Text(
+                      title,
+                      softWrap: true,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            // Bottom gradient shadow
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 80,
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Colors.black.withAlpha(200)],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Align(
-            alignment: AlignmentGeometry.bottomLeft,
-            child: Padding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-              child: subtitle.isEmpty
-                  ? Padding(
-                      padding: EdgeInsetsGeometry.symmetric(
-                        horizontal: 5,
-                        vertical: 5,
+            Align(
+              alignment: AlignmentGeometry.bottomLeft,
+              child: Padding(
+                padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
+                child: subtitle.isEmpty
+                    ? Padding(
+                        padding: EdgeInsetsGeometry.symmetric(
+                          horizontal: 5,
+                          vertical: 5,
+                        ),
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 13, color: Colors.white),
+                        ),
+                      )
+                    : FLabel(
+                        description: Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        axis: Axis.vertical,
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      child: Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 13, color: Colors.white),
-                      ),
-                    )
-                  : FLabel(
-                      description: Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      axis: Axis.vertical,
-                      child: Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

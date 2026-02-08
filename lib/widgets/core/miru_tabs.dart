@@ -139,7 +139,7 @@ class _MiruTabState extends State<_MiruTab> {
 
   @override
   Widget build(BuildContext _) => FFocusedOutline(
-    style: widget.style.focusedOutlineStyle,
+    style: widget.style.focusedOutlineStyle.call,
     focused: _focused,
     child: Tab(height: widget.style.height, child: widget.label),
   );
