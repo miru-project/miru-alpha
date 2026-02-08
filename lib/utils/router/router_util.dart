@@ -5,6 +5,7 @@ import 'package:miru_app_new/pages/download/download_page.dart';
 import 'package:miru_app_new/pages/home/library_page.dart';
 import 'package:miru_app_new/pages/license/license_page.dart';
 import 'package:miru_app_new/pages/watch/load_entry.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import '../../../pages/anilist_webview.dart';
@@ -180,10 +181,17 @@ class RouterUtil {
             ],
           ),
         ],
-        pageBuilder: (context, state, navigationShell) => getPage(
-          state: state,
-          child: MainPage(child: navigationShell),
-        ),
+        pageBuilder: (context, state, navigationShell) {
+          if (DeviceUtil.isMobileLayout(context) &&
+              (state.fullPath?.split('/') ?? []).length > 2 &&
+              state.fullPath?.contains('settings') == false) {
+            return getPage(state: state, child: navigationShell);
+          }
+          return getPage(
+            state: state,
+            child: MainPage(child: navigationShell),
+          );
+        },
       ),
     ],
   );

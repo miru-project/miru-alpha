@@ -238,9 +238,6 @@ class DesktopSearchPage extends HookConsumerWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: FTextField(
-                    onTapOutside: (event) {
-                      logger.info('Tap outside');
-                    },
                     clearable: (value) => value.text.isNotEmpty,
                     onSubmit: (value) {
                       searchQuery.value = value;

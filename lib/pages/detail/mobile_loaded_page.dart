@@ -25,6 +25,9 @@ class MobileLoadedPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
+    final favorite = ref.watch(
+      detialProvider.select((value) => value.favorite),
+    );
     return EasyRefresh(
       header: const ForuiHeader(),
       onRefresh: () async {
@@ -85,16 +88,8 @@ class MobileLoadedPage extends HookConsumerWidget {
                               ),
                             ),
                             SizedBox(height: 10),
-                            Wrap(
-                              spacing: 10,
-                              children: [
-                                FBadge(child: Text('Favgroup 1')),
-                                FBadge(
-                                  style: FBadgeStyle.secondary(),
-                                  child: Text('Favgroup 2'),
-                                ),
-                              ],
-                            ),
+                            if (favorite != null)
+                              Wrap(spacing: 10, children: []),
                           ],
                         ),
                       ),

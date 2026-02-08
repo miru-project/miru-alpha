@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
-import 'package:forui_hooks/forui_hooks.dart';
+import 'package:miru_app_new/widgets/core/miru_tabs.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/pages/download/download_page.dart';
 import 'package:miru_app_new/pages/favorite/favorite_page_desktop_layout.dart';
@@ -17,19 +17,30 @@ class MiruMobileShellScaffold extends HookWidget {
   const MiruMobileShellScaffold({super.key});
   @override
   Widget build(BuildContext context) {
-    final controller = useTabController(initialLength: 4);
-    final tabcontoller = useFTabController(length: 4);
-    final index = useState(0);
+    final tabController = useTabController(initialLength: 4);
     return MiruScaffold(
-      mobileHeader: switch (index.value) {
-        0 => SnapSheetHeader(title: 'Library'),
-        1 => SnapSheetHeader(title: 'History'),
-        2 => SnapSheetHeader(title: 'Favorite'),
-        3 => SnapSheetHeader(title: 'Download'),
-        _ => const SizedBox.shrink(),
-      },
+      mobileHeader: HookBuilder(
+        builder: (context) {
+          final index = useState(tabController.index);
+          useEffect(() {
+            tabController.addListener(() {
+              if (tabController.indexIsChanging) {
+                index.value = tabController.index;
+              }
+            });
+            return null;
+          }, []);
+          return switch (index.value) {
+            0 => SnapSheetHeader(title: 'Library'),
+            1 => SnapSheetHeader(title: 'History'),
+            2 => SnapSheetHeader(title: 'Favorite'),
+            3 => SnapSheetHeader(title: 'Download'),
+            _ => const SizedBox.shrink(),
+          };
+        },
+      ),
       body: TabBarView(
-        controller: controller,
+        controller: tabController,
         children: [
           MobileLibraryPage(),
           HistoryPage(),
@@ -38,20 +49,36 @@ class MiruMobileShellScaffold extends HookWidget {
         ],
       ),
       snapSheet: [
-        FTabs(
-          control: .managed(
-            controller: tabcontoller,
-            onChange: (value) {
-              controller.animateTo(value);
-              index.value = value;
-            },
-          ),
-          children: [
-            FTabEntry(label: Icon(FIcons.libraryBig), child: Placeholder()),
-            FTabEntry(label: Icon(FIcons.history), child: Placeholder()),
-            FTabEntry(label: Icon(FIcons.heart), child: Placeholder()),
-            FTabEntry(label: Icon(FIcons.download), child: Placeholder()),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.85,
+              child: MiruTabs(
+                controller: tabController,
+                onChanged: (value) {
+                  tabController.animateTo(value);
+                },
+                children: [
+                  FTabEntry(
+                    label: Icon(FIcons.libraryBig),
+                    child: const Placeholder(),
+                  ),
+                  FTabEntry(
+                    label: Icon(FIcons.history),
+                    child: const Placeholder(),
+                  ),
+                  FTabEntry(
+                    label: Icon(FIcons.heart),
+                    child: const Placeholder(),
+                  ),
+                  FTabEntry(
+                    label: Icon(FIcons.download),
+                    child: const Placeholder(),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ],
     );

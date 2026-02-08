@@ -189,9 +189,19 @@ class _ContinueWatchingCard extends ConsumerWidget {
       onTap: () {
         final meta = ref.read(extensionPageProvider).metaData;
         final extMeta = meta.where((e) => e.packageName == item.package).first;
-        context.push(
-          '/search/single/detail',
-          extra: DetailParam(meta: extMeta, url: item.detailUrl),
+        context.push<WatchParams>(
+          "/watch",
+          extra: WatchParams(
+            name: item.title,
+            detailImageUrl: item.cover ?? '',
+            selectedEpisodeIndex: 0,
+            selectedGroupIndex: 0,
+            epGroup: [],
+            detailUrl: item.url,
+            url: item.url,
+            meta: extMeta,
+            type: extMeta.type,
+          ),
         );
       },
       child: ClipRRect(

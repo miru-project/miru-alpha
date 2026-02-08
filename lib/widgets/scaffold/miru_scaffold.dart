@@ -61,18 +61,18 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           SnappingPosition.pixels(
             positionPixels: 190,
             snappingCurve: Curves.easeOutExpo,
-            snappingDuration: Duration(seconds: 1),
+            snappingDuration: Duration(milliseconds: 50),
             grabbingContentOffset: GrabbingContentOffset.top,
           ),
           SnappingPosition.factor(
             snappingCurve: Curves.elasticOut,
-            snappingDuration: Duration(milliseconds: 1750),
+            snappingDuration: Duration(milliseconds: 50),
             positionFactor: 0.5,
           ),
           SnappingPosition.factor(
             grabbingContentOffset: GrabbingContentOffset.bottom,
             snappingCurve: Curves.easeInExpo,
-            snappingDuration: Duration(seconds: 1),
+            snappingDuration: Duration(milliseconds: 50),
             positionFactor: 0.9,
           ),
         ],

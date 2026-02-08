@@ -48,19 +48,9 @@ class MobileRepoDialog extends HookConsumerWidget {
                   hint: 'Official Repo',
                   validator: (val) =>
                       (val?.isEmpty ?? false) ? 'Name cannot be empty' : null,
-                  style: (style) => MobileFTextFieldStyle.textFieldStyle(
-                    colors: context.theme.colors,
-                    typography: context.theme.typography,
-                    style: context.theme.style,
-                  ),
                 ),
                 SizedBox(height: 10),
                 FTextFormField(
-                  style: (style) => MobileFTextFieldStyle.textFieldStyle(
-                    colors: context.theme.colors,
-                    typography: context.theme.typography,
-                    style: context.theme.style,
-                  ),
                   control: FTextFieldControl.managed(
                     initial: TextEditingValue(text: url.value),
                     onChange: (value) => url.value = value.text,

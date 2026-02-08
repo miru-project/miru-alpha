@@ -114,6 +114,12 @@ class MobileSearchPage extends HookConsumerWidget {
                         extra: SearchPageParam(meta: ext),
                       );
                     },
+                    subtitle: Row(
+                      children: [
+                        Text(ext.version),
+                        Text(ext.description ?? ""),
+                      ],
+                    ),
                     title: Text(ext.name),
                     prefix: SizedBox(
                       height: 40,

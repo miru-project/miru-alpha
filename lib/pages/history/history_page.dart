@@ -59,7 +59,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
               );
               if (ext == null) return;
               context.push(
-                '/search/detail',
+                '/search/single/detail',
                 extra: DetailParam(meta: ext, url: item.detailUrl),
               );
             },

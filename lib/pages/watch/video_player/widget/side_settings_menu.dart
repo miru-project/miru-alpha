@@ -19,7 +19,6 @@ class SideSettingsMenu extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = useState(0);
     final epController = ref.watch(epProvdier);
     final epNotifier = ref.read(epProvdier.notifier);
     final controller = ref.read(vidPr);
