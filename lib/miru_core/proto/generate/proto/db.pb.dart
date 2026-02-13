@@ -1973,6 +1973,131 @@ class PutHistoryResponse extends $pb.GeneratedMessage {
   $1.History ensureHistory() => $_ensure(0);
 }
 
+class GetHistoryByPackageAndDetailUrlRequest extends $pb.GeneratedMessage {
+  factory GetHistoryByPackageAndDetailUrlRequest({
+    $core.String? package,
+    $core.String? detailUrl,
+  }) {
+    final result = create();
+    if (package != null) result.package = package;
+    if (detailUrl != null) result.detailUrl = detailUrl;
+    return result;
+  }
+
+  GetHistoryByPackageAndDetailUrlRequest._();
+
+  factory GetHistoryByPackageAndDetailUrlRequest.fromBuffer(
+          $core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetHistoryByPackageAndDetailUrlRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetHistoryByPackageAndDetailUrlRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'package')
+    ..aOS(2, _omitFieldNames ? '' : 'detailUrl')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetHistoryByPackageAndDetailUrlRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetHistoryByPackageAndDetailUrlRequest copyWith(
+          void Function(GetHistoryByPackageAndDetailUrlRequest) updates) =>
+      super.copyWith((message) =>
+              updates(message as GetHistoryByPackageAndDetailUrlRequest))
+          as GetHistoryByPackageAndDetailUrlRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetHistoryByPackageAndDetailUrlRequest create() =>
+      GetHistoryByPackageAndDetailUrlRequest._();
+  @$core.override
+  GetHistoryByPackageAndDetailUrlRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetHistoryByPackageAndDetailUrlRequest getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<
+          GetHistoryByPackageAndDetailUrlRequest>(create);
+  static GetHistoryByPackageAndDetailUrlRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get package => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set package($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasPackage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPackage() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get detailUrl => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set detailUrl($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasDetailUrl() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDetailUrl() => $_clearField(2);
+}
+
+class GetHistoryByPackageAndDetailUrlResponse extends $pb.GeneratedMessage {
+  factory GetHistoryByPackageAndDetailUrlResponse({
+    $core.Iterable<$1.History>? history,
+  }) {
+    final result = create();
+    if (history != null) result.history.addAll(history);
+    return result;
+  }
+
+  GetHistoryByPackageAndDetailUrlResponse._();
+
+  factory GetHistoryByPackageAndDetailUrlResponse.fromBuffer(
+          $core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetHistoryByPackageAndDetailUrlResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetHistoryByPackageAndDetailUrlResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..pPM<$1.History>(1, _omitFieldNames ? '' : 'history',
+        subBuilder: $1.History.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetHistoryByPackageAndDetailUrlResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetHistoryByPackageAndDetailUrlResponse copyWith(
+          void Function(GetHistoryByPackageAndDetailUrlResponse) updates) =>
+      super.copyWith((message) =>
+              updates(message as GetHistoryByPackageAndDetailUrlResponse))
+          as GetHistoryByPackageAndDetailUrlResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetHistoryByPackageAndDetailUrlResponse create() =>
+      GetHistoryByPackageAndDetailUrlResponse._();
+  @$core.override
+  GetHistoryByPackageAndDetailUrlResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetHistoryByPackageAndDetailUrlResponse getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<
+          GetHistoryByPackageAndDetailUrlResponse>(create);
+  static GetHistoryByPackageAndDetailUrlResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<$1.History> get history => $_getList(0);
+}
+
 class DeleteHistoryByPackageAndUrlRequest extends $pb.GeneratedMessage {
   factory DeleteHistoryByPackageAndUrlRequest({
     $core.String? package,

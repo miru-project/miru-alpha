@@ -33,7 +33,7 @@ class OutterCard extends StatelessWidget {
                       title,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                        fontSize: 22,
                       ),
                     ),
                     trailing!,

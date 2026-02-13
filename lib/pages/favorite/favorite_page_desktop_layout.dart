@@ -112,13 +112,14 @@ class _FavoritePageState extends ConsumerState<FavoritePage>
                 builder: (context, fav, _) => GridView.builder(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 220,
-                    childAspectRatio: 0.7,
+                    childAspectRatio: 0.6,
                   ),
 
                   itemBuilder: (context, index) {
                     final favorite = fav[index];
                     return MiruDesktopGridTile(
                       title: favorite.title,
+                      titleMaxline: 2,
                       subtitle:
                           meta
                               .where((e) => e.packageName == favorite.package)

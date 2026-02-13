@@ -1,8 +1,7 @@
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/provider/watch/main_provider.dart';
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/utils/store/database_service.dart';
+import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'epidsode_provider.g.dart';
 
@@ -38,13 +37,11 @@ class EpisodeNotifierState {
 
 @riverpod
 class EpisodeNotifier extends _$EpisodeNotifier {
-  @override
+  static int progress = 1;
+  static int totalProgress = 1;
   late String imageUrl;
-  @override
   late String package;
-  @override
   late ExtensionType type;
-  @override
   late String detailUrl;
   late EpisodeNotifierState _capturedState;
 
@@ -55,66 +52,44 @@ class EpisodeNotifier extends _$EpisodeNotifier {
   }
 
   @override
-  EpisodeNotifierState build(
-    int groupIndex,
-    int episodeIndex,
-    List<ExtensionEpisodeGroup> epGroup,
-    String name,
-    bool flag,
-    String imageUrl,
-    String detailUrl,
-    ExtensionType type,
-    String package,
-  ) {
-    this.imageUrl = imageUrl;
-    this.package = package;
-    this.type = type;
-    this.detailUrl = detailUrl;
+  EpisodeNotifierState build(WatchParams param) {
+    imageUrl = param.detailImageUrl;
+    package = param.meta.packageName;
+    type = param.type;
+    detailUrl = param.detailUrl;
 
     final initialState = EpisodeNotifierState(
-      epGroup: epGroup,
-      flag: flag,
-      name: name,
-      selectedGroupIndex: groupIndex,
-      selectedEpisodeIndex: episodeIndex,
+      epGroup: param.epGroup ?? [],
+      name: param.name,
+      selectedGroupIndex: param.selectedGroupIndex,
+      selectedEpisodeIndex: param.selectedEpisodeIndex,
     );
     _capturedState = initialState;
 
-    ref.onDispose(() {
-      final s = _capturedState;
-      // Run async operation decoupled from the synchronous dispose cycle
-      Future(() async {
-        try {
-          final history = History(
-            title: s.name,
-            package: this.package,
-            type: this.type.toString(),
-            episodeGroupId: s.selectedGroupIndex,
-            episodeId: s.selectedEpisodeIndex,
-            progress: s.selectedEpisodeIndex,
-            cover: this.imageUrl,
-            totalProgress: s.epGroup[s.selectedGroupIndex].urls.length,
-            episodeTitle: s
-                .epGroup[s.selectedGroupIndex]
-                .urls[s.selectedEpisodeIndex]
-                .name,
-            url: s
-                .epGroup[s.selectedGroupIndex]
-                .urls[s.selectedEpisodeIndex]
-                .url,
-            detailUrl: this.detailUrl,
-            date: DateTime.now(),
-          );
-          await DatabaseService.putHistory(history);
-          ref.read(mainProvider.notifier).addHistory(history);
-          ref.read(detialProvider.notifier).putHistory(history);
-        } catch (e) {
-          logger.info(e);
-        }
-      });
-    });
+    // ref.onDispose(() );
 
     return initialState;
+  }
+
+  void saveHistory() {
+    final s = _capturedState;
+    final ep = s.epGroup[s.selectedGroupIndex].urls[s.selectedEpisodeIndex];
+    final history = History(
+      title: s.name,
+      package: package,
+      type: type.toString(),
+      episodeGroupId: s.selectedGroupIndex,
+      episodeId: s.selectedEpisodeIndex,
+      progress: progress,
+      cover: imageUrl,
+      totalProgress: totalProgress,
+      episodeTitle: ep.name,
+      url: ep.url,
+      detailUrl: detailUrl,
+      date: DateTime.now(),
+    );
+    ref.read(mainProvider.notifier).registerHistory(history);
+    ref.read(detialProvider.notifier).putHistory(history);
   }
 
   void selectEpisode(int groupIndex, int episodeIndex) {

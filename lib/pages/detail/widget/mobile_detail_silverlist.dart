@@ -140,7 +140,7 @@ class MobileDetailSilverlist extends ConsumerWidget {
                             selectedEpisodeIndex: idx,
                             selectedGroupIndex: selectedGpIndex,
                             epGroup: detail.episodes,
-                            detailUrl: item.url,
+                            detailUrl: detailUrl,
                             url: item.url,
                             meta: meta,
                             type: meta.type,

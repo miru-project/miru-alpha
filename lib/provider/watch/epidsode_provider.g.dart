@@ -16,18 +16,7 @@ final class EpisodeNotifierProvider
     extends $NotifierProvider<EpisodeNotifier, EpisodeNotifierState> {
   EpisodeNotifierProvider._({
     required EpisodeNotifierFamily super.from,
-    required (
-      int,
-      int,
-      List<ExtensionEpisodeGroup>,
-      String,
-      bool,
-      String,
-      String,
-      ExtensionType,
-      String,
-    )
-    super.argument,
+    required WatchParams super.argument,
   }) : super(
          retry: null,
          name: r'episodeProvider',
@@ -43,7 +32,7 @@ final class EpisodeNotifierProvider
   String toString() {
     return r'episodeProvider'
         ''
-        '$argument';
+        '($argument)';
   }
 
   @$internal
@@ -69,7 +58,7 @@ final class EpisodeNotifierProvider
   }
 }
 
-String _$episodeNotifierHash() => r'98c7f53ad8f7a044092feaaaa1a40d0a3657f78a';
+String _$episodeNotifierHash() => r'25388eb093b4858039fdd6a6bfd8e77ec68fbe74';
 
 final class EpisodeNotifierFamily extends $Family
     with
@@ -78,17 +67,7 @@ final class EpisodeNotifierFamily extends $Family
           EpisodeNotifierState,
           EpisodeNotifierState,
           EpisodeNotifierState,
-          (
-            int,
-            int,
-            List<ExtensionEpisodeGroup>,
-            String,
-            bool,
-            String,
-            String,
-            ExtensionType,
-            String,
-          )
+          WatchParams
         > {
   EpisodeNotifierFamily._()
     : super(
@@ -99,70 +78,18 @@ final class EpisodeNotifierFamily extends $Family
         isAutoDispose: true,
       );
 
-  EpisodeNotifierProvider call(
-    int groupIndex,
-    int episodeIndex,
-    List<ExtensionEpisodeGroup> epGroup,
-    String name,
-    bool flag,
-    String imageUrl,
-    String detailUrl,
-    ExtensionType type,
-    String package,
-  ) => EpisodeNotifierProvider._(
-    argument: (
-      groupIndex,
-      episodeIndex,
-      epGroup,
-      name,
-      flag,
-      imageUrl,
-      detailUrl,
-      type,
-      package,
-    ),
-    from: this,
-  );
+  EpisodeNotifierProvider call(WatchParams param) =>
+      EpisodeNotifierProvider._(argument: param, from: this);
 
   @override
   String toString() => r'episodeProvider';
 }
 
 abstract class _$EpisodeNotifier extends $Notifier<EpisodeNotifierState> {
-  late final _$args =
-      ref.$arg
-          as (
-            int,
-            int,
-            List<ExtensionEpisodeGroup>,
-            String,
-            bool,
-            String,
-            String,
-            ExtensionType,
-            String,
-          );
-  int get groupIndex => _$args.$1;
-  int get episodeIndex => _$args.$2;
-  List<ExtensionEpisodeGroup> get epGroup => _$args.$3;
-  String get name => _$args.$4;
-  bool get flag => _$args.$5;
-  String get imageUrl => _$args.$6;
-  String get detailUrl => _$args.$7;
-  ExtensionType get type => _$args.$8;
-  String get package => _$args.$9;
+  late final _$args = ref.$arg as WatchParams;
+  WatchParams get param => _$args;
 
-  EpisodeNotifierState build(
-    int groupIndex,
-    int episodeIndex,
-    List<ExtensionEpisodeGroup> epGroup,
-    String name,
-    bool flag,
-    String imageUrl,
-    String detailUrl,
-    ExtensionType type,
-    String package,
-  );
+  EpisodeNotifierState build(WatchParams param);
   @$mustCallSuper
   @override
   void runBuild() {
@@ -175,19 +102,6 @@ abstract class _$EpisodeNotifier extends $Notifier<EpisodeNotifierState> {
               Object?,
               Object?
             >;
-    element.handleCreate(
-      ref,
-      () => build(
-        _$args.$1,
-        _$args.$2,
-        _$args.$3,
-        _$args.$4,
-        _$args.$5,
-        _$args.$6,
-        _$args.$7,
-        _$args.$8,
-        _$args.$9,
-      ),
-    );
+    element.handleCreate(ref, () => build(_$args));
   }
 }

@@ -583,6 +583,44 @@ final $typed_data.Uint8List putHistoryResponseDescriptor = $convert.base64Decode
     'ChJQdXRIaXN0b3J5UmVzcG9uc2USJwoHaGlzdG9yeRgBIAEoCzINLm1pcnUuSGlzdG9yeVIHaG'
     'lzdG9yeQ==');
 
+@$core
+    .Deprecated('Use getHistoryByPackageAndDetailUrlRequestDescriptor instead')
+const GetHistoryByPackageAndDetailUrlRequest$json = {
+  '1': 'GetHistoryByPackageAndDetailUrlRequest',
+  '2': [
+    {'1': 'package', '3': 1, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'detail_url', '3': 2, '4': 1, '5': 9, '10': 'detailUrl'},
+  ],
+};
+
+/// Descriptor for `GetHistoryByPackageAndDetailUrlRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getHistoryByPackageAndDetailUrlRequestDescriptor =
+    $convert.base64Decode(
+        'CiZHZXRIaXN0b3J5QnlQYWNrYWdlQW5kRGV0YWlsVXJsUmVxdWVzdBIYCgdwYWNrYWdlGAEgAS'
+        'gJUgdwYWNrYWdlEh0KCmRldGFpbF91cmwYAiABKAlSCWRldGFpbFVybA==');
+
+@$core
+    .Deprecated('Use getHistoryByPackageAndDetailUrlResponseDescriptor instead')
+const GetHistoryByPackageAndDetailUrlResponse$json = {
+  '1': 'GetHistoryByPackageAndDetailUrlResponse',
+  '2': [
+    {
+      '1': 'history',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.History',
+      '10': 'history'
+    },
+  ],
+};
+
+/// Descriptor for `GetHistoryByPackageAndDetailUrlResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getHistoryByPackageAndDetailUrlResponseDescriptor =
+    $convert.base64Decode(
+        'CidHZXRIaXN0b3J5QnlQYWNrYWdlQW5kRGV0YWlsVXJsUmVzcG9uc2USJwoHaGlzdG9yeRgBIA'
+        'MoCzINLm1pcnUuSGlzdG9yeVIHaGlzdG9yeQ==');
+
 @$core.Deprecated('Use deleteHistoryByPackageAndUrlRequestDescriptor instead')
 const DeleteHistoryByPackageAndUrlRequest$json = {
   '1': 'DeleteHistoryByPackageAndUrlRequest',

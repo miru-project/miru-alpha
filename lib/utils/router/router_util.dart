@@ -60,7 +60,7 @@ class RouterUtil {
 
     builder: (context, state) {
       final extra = ParamCache.getDetailParam(state.extra as DetailParam);
-      return DetailLoadingPage(meta: extra.meta, url: extra.url);
+      return DetailLoadingPage(meta: extra.meta, detailUrl: extra.url);
     },
   );
   static final appRouter = GoRouter(

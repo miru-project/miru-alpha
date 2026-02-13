@@ -1,3 +1,4 @@
+import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -76,8 +77,12 @@ class MainNotifier extends _$MainNotifier {
     state = state.copyWith(history: updateValue);
   }
 
-  void addHistory(History history) {
-    state = state.copyWith(history: [history, ...state.history]);
+  void registerHistory(History history) {
+    DatabaseService.putHistory(history);
+    Future.microtask(() {
+      state = state.copyWith(history: [history, ...state.history]);
+      logger.info('register history ${history.title}');
+    });
   }
 
   void removeHistory(History history) {

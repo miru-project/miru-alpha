@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/forui.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/pages/detail/widget/desktop_detail_episode_card.dart';
@@ -73,6 +74,11 @@ class DesktopLoadedPage extends HookWidget {
                         AnimatedBox(
                           child: OutterCard(
                             title: 'Tracking',
+                            trailing: FButton(
+                              style: FButtonStyle.ghost(),
+                              onPress: () {},
+                              child: Text('Sync'),
+                            ),
                             child: Center(child: Text("anilist")),
                           ),
                         ),

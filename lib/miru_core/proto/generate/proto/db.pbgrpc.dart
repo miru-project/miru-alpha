@@ -147,6 +147,15 @@ class DbServiceClient extends $grpc.Client {
         options: options);
   }
 
+  $grpc.ResponseFuture<$0.GetHistoryByPackageAndDetailUrlResponse>
+      getHistoryByPackageAndDetailUrl(
+    $0.GetHistoryByPackageAndDetailUrlRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$getHistoryByPackageAndDetailUrl, request,
+        options: options);
+  }
+
   $grpc.ResponseFuture<$0.PutHistoryResponse> putHistory(
     $0.PutHistoryRequest request, {
     $grpc.CallOptions? options,
@@ -257,6 +266,13 @@ class DbServiceClient extends $grpc.Client {
       '/miru.DbService/GetHistoryByPackageAndUrl',
       ($0.GetHistoryByPackageAndUrlRequest value) => value.writeToBuffer(),
       $0.GetHistoryByPackageAndUrlResponse.fromBuffer);
+  static final _$getHistoryByPackageAndDetailUrl = $grpc.ClientMethod<
+          $0.GetHistoryByPackageAndDetailUrlRequest,
+          $0.GetHistoryByPackageAndDetailUrlResponse>(
+      '/miru.DbService/GetHistoryByPackageAndDetailUrl',
+      ($0.GetHistoryByPackageAndDetailUrlRequest value) =>
+          value.writeToBuffer(),
+      $0.GetHistoryByPackageAndDetailUrlResponse.fromBuffer);
   static final _$putHistory =
       $grpc.ClientMethod<$0.PutHistoryRequest, $0.PutHistoryResponse>(
           '/miru.DbService/PutHistory',
@@ -420,6 +436,16 @@ abstract class DbServiceBase extends $grpc.Service {
         ($core.List<$core.int> value) =>
             $0.GetHistoryByPackageAndUrlRequest.fromBuffer(value),
         ($0.GetHistoryByPackageAndUrlResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GetHistoryByPackageAndDetailUrlRequest,
+            $0.GetHistoryByPackageAndDetailUrlResponse>(
+        'GetHistoryByPackageAndDetailUrl',
+        getHistoryByPackageAndDetailUrl_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.GetHistoryByPackageAndDetailUrlRequest.fromBuffer(value),
+        ($0.GetHistoryByPackageAndDetailUrlResponse value) =>
+            value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.PutHistoryRequest, $0.PutHistoryResponse>(
         'PutHistory',
         putHistory_Pre,
@@ -591,6 +617,18 @@ abstract class DbServiceBase extends $grpc.Service {
 
   $async.Future<$0.GetHistoryByPackageAndUrlResponse> getHistoryByPackageAndUrl(
       $grpc.ServiceCall call, $0.GetHistoryByPackageAndUrlRequest request);
+
+  $async.Future<$0.GetHistoryByPackageAndDetailUrlResponse>
+      getHistoryByPackageAndDetailUrl_Pre(
+          $grpc.ServiceCall $call,
+          $async.Future<$0.GetHistoryByPackageAndDetailUrlRequest>
+              $request) async {
+    return getHistoryByPackageAndDetailUrl($call, await $request);
+  }
+
+  $async.Future<$0.GetHistoryByPackageAndDetailUrlResponse>
+      getHistoryByPackageAndDetailUrl($grpc.ServiceCall call,
+          $0.GetHistoryByPackageAndDetailUrlRequest request);
 
   $async.Future<$0.PutHistoryResponse> putHistory_Pre($grpc.ServiceCall $call,
       $async.Future<$0.PutHistoryRequest> $request) async {

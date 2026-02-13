@@ -9,27 +9,27 @@ part 'detial_provider.g.dart';
 
 class DetialState {
   final ValueNotifier<int> selectedGroup;
-  final History? history;
+  final List<History> historyList;
   final Favorite? favorite;
   final AsyncValue<ExtensionDetail>? detailState;
 
   DetialState({
     required this.selectedGroup,
-    this.history,
+    this.historyList = const [],
     this.favorite,
     this.detailState,
   });
 
   DetialState copyWith({
     ValueNotifier<int>? selectedGroup,
-    History? history,
+    List<History>? historyList,
     Favorite? favorite,
     AsyncValue<ExtensionDetail>? detailState,
   }) {
     return DetialState(
       selectedGroup: selectedGroup ?? this.selectedGroup,
-      history: history,
-      favorite: favorite,
+      historyList: historyList ?? this.historyList,
+      favorite: favorite ?? this.favorite,
       detailState: detailState ?? this.detailState,
     );
   }
@@ -42,8 +42,12 @@ class Detial extends _$Detial {
     return DetialState(selectedGroup: ValueNotifier<int>(0));
   }
 
-  void putHistory(History? h) {
-    state = state.copyWith(history: h);
+  void putHistoryList(List<History> l) {
+    state = state.copyWith(historyList: l);
+  }
+
+  void putHistory(History h) {
+    state = state.copyWith(historyList: [...state.historyList, h]);
   }
 
   void putFavorite(Favorite? f) {
@@ -57,20 +61,14 @@ class Detial extends _$Detial {
 
   void setSelectedGroup(int v) {
     state.selectedGroup.value = v;
-    // update state to notify listeners
     state = state.copyWith();
   }
 
-  /// Invalidate the fetchExtensionDetail provider so any watchers will refetch.
   void refreshExtensionDetail(String pkg, String url) {
     ref.invalidate(fetchExtensionDetailProvider(pkg, url));
-    // update state to notify listeners
     state = state.copyWith();
   }
 
-  /// Force reload and return the fetched detail. This uses ref.refresh which
-  /// re-evaluates and returns the new Future result.
-  /// Force reload and return the fetched detail.
   Future<void> reloadDetail(String pkg, String url) async {
     ref.invalidate(fetchExtensionDetailProvider(pkg, url));
     await fetchDetailFromExtension(pkg, url);
@@ -111,14 +109,11 @@ class Detial extends _$Detial {
     }
   }
 
-  /// Fetch detail (without invalidating). Updates `detailState` and notifies listeners.
   Future<void> initDetail(String pkg, String url) async {
-    // 1. Try to fetch from DB
     final detail = await fetchDetailFromDb(pkg, url);
     if (detail != null) {
       return;
     }
-    // 2. Fetch from Extension
     if (detail == null) {
       await fetchDetailFromExtension(pkg, url);
     }

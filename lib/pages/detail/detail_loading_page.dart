@@ -17,9 +17,13 @@ import 'package:miru_app_new/widgets/index.dart';
 import './widget/index.dart';
 
 class DetailLoadingPage extends StatefulHookConsumerWidget {
-  const DetailLoadingPage({super.key, required this.meta, required this.url});
+  const DetailLoadingPage({
+    super.key,
+    required this.meta,
+    required this.detailUrl,
+  });
   final ExtensionMeta meta;
-  final String url;
+  final String detailUrl;
 
   @override
   createState() => _DetailLoadPageState();
@@ -29,24 +33,22 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
   @override
   void initState() {
     Future.microtask(() async {
-      final history = await DatabaseService.getHistoryByPackageAndUrl(
+      final historyList = await DatabaseService.getHistoryByPackageAndDetailUrl(
         widget.meta.packageName,
-        widget.url,
+        widget.detailUrl,
       );
-      ref.read(detialProvider.notifier).putHistory(history);
+      ref.read(detialProvider.notifier).putHistoryList(historyList);
 
-      // Fetch favorite state
       final favorite = await DatabaseService.getFavoriteByPackageAndUrl(
         widget.meta.packageName,
-        widget.url,
+        widget.detailUrl,
       );
       ref.read(detialProvider.notifier).putFavorite(favorite);
     });
-    // Trigger detail fetch via DetialProvider so UI doesn't depend directly on the fetch provider
     Future.microtask(
       () => ref
           .read(detialProvider.notifier)
-          .initDetail(widget.meta.packageName, widget.url),
+          .initDetail(widget.meta.packageName, widget.detailUrl),
     );
     super.initState();
   }
@@ -64,7 +66,7 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
           MobileDetailTabs(
             detail: detial,
             meta: widget.meta,
-            detailUrl: widget.url,
+            detailUrl: widget.detailUrl,
           ),
         ],
         mobileHeader: Padding(
@@ -84,14 +86,16 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
                   ),
                 ),
               ),
-              // FSelectMenuTile(title: Text(detail.episodes.toString()), menu: []),
               Spacer(),
               FButton.icon(
                 style: FButtonStyle.ghost(),
                 onPress: () {
                   context.push(
                     '/mobileWebView',
-                    extra: WebviewParam(meta: widget.meta, url: widget.url),
+                    extra: WebviewParam(
+                      meta: widget.meta,
+                      url: widget.detailUrl,
+                    ),
                   );
                 },
                 child: Icon(
@@ -111,14 +115,14 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
                     context: context,
                     builder: (context) => FavoriteDialog(
                       meta: widget.meta,
-                      detailUrl: widget.url,
+                      detailUrl: widget.detailUrl,
                       detail: detial,
                       onSuccess: () async {
                         // Refresh favorite state after dialog closes
                         final favorite =
                             await DatabaseService.getFavoriteByPackageAndUrl(
                               widget.meta.packageName,
-                              widget.url,
+                              widget.detailUrl,
                             );
                         ref.read(detialProvider.notifier).putFavorite(favorite);
                       },
@@ -138,12 +142,12 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
         desktopBody: DesktopLoadedPage(
           detail: detial,
           meta: widget.meta,
-          detailUrl: widget.url,
+          detailUrl: widget.detailUrl,
         ),
         mobileBody: MobileLoadedPage(
           detail: detial,
           meta: widget.meta,
-          detailUrl: widget.url,
+          detailUrl: widget.detailUrl,
         ),
       ),
       error: (err, stack) => ErrorDisplay.grpc(err: err, stack: stack),

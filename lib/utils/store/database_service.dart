@@ -87,21 +87,33 @@ class DatabaseService {
     return response.histories.map((e) => History.fromProto(e)).toList();
   }
 
-  static Future<History?> getHistoryByPackageAndUrl(
+  static Future<List<History>> getHistoryByPackageAndDetailUrl(
     String package,
-    String url,
+    String detailUrl,
   ) async {
-    try {
-      final response = await client.getHistoryByPackageAndUrl(
-        proto.GetHistoryByPackageAndUrlRequest()
-          ..package = package
-          ..url = url,
-      );
-      return History.fromProto(response.history);
-    } catch (e) {
-      return null;
-    }
+    final response = await client.getHistoryByPackageAndDetailUrl(
+      proto.GetHistoryByPackageAndDetailUrlRequest()
+        ..package = package
+        ..detailUrl = detailUrl,
+    );
+    return response.history.map((e) => History.fromProto(e)).toList();
   }
+
+  // static Future<History?> getHistoryByPackageAndUrl(
+  //   String package,
+  //   String url,
+  // ) async {
+  //   try {
+  //     final response = await client.getHistoryByPackageAndUrl(
+  //       proto.GetHistoryByPackageAndUrlRequest()
+  //         ..package = package
+  //         ..url = url,
+  //     );
+  //     return History.fromProto(response.history);
+  //   } catch (e) {
+  //     return null;
+  //   }
+  // }
 
   static Future<void> putHistory(History history) async {
     await client.putHistory(

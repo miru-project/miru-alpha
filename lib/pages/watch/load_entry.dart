@@ -24,29 +24,28 @@ class WatchLoadEntry extends StatefulHookConsumerWidget {
 class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
   late double maxHeight;
   late double maxWidth;
+  late EpisodeNotifier _episodeNotifier;
+  late EpisodeNotifierProvider _epProvider;
   bool _hasOriented = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _epProvider = episodeProvider(widget.param);
+    _episodeNotifier = ref.read(_epProvider.notifier);
+  }
+
   @override
   void dispose() {
     if (_hasOriented) {
       SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     }
+    _episodeNotifier.saveHistory();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final epProvider = episodeProvider(
-      widget.param.selectedGroupIndex,
-      widget.param.selectedEpisodeIndex,
-      widget.param.epGroup ?? [],
-      widget.param.name,
-      false,
-      widget.param.detailImageUrl,
-      widget.param.detailUrl,
-      widget.param.type,
-      widget.param.meta.packageName,
-    );
-
     maxWidth = DeviceUtil.getWidth(context);
     maxHeight = DeviceUtil.getHeight(context);
 
@@ -54,7 +53,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
       _hasOriented = true;
       SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
     }
-    final epNotifier = ref.watch(epProvider);
+    final epNotifier = ref.watch(_epProvider);
     if (epNotifier.epGroup.isEmpty) {
       return Center(
         child: Column(
@@ -94,7 +93,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     url: url,
                     meta: meta,
                     hasOriented: _hasOriented,
-                    epProvider: epProvider,
+                    epProvider: _epProvider,
                     torrent: data.torrent,
                   );
                 case ExtensionType.manga:
@@ -105,7 +104,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     url: url,
                     meta: meta,
                     // detailImageUrl: extra.detailImageUrl,
-                    epProvider: epProvider,
+                    epProvider: _epProvider,
                   );
                 default:
                   final data = value as ExtensionFikushonWatch;
@@ -114,7 +113,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     name: extra.name,
                     detailImageUrl: extra.detailImageUrl,
                     value: data,
-                    epProvider: epProvider,
+                    epProvider: _epProvider,
                     url: url,
                   );
               }

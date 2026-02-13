@@ -14,6 +14,7 @@ class MiruDesktopGridTile extends HookWidget {
     this.width,
     this.onTap,
     this.height,
+    this.titleMaxline = 1,
   });
   final String? imageUrl;
   final String title;
@@ -22,6 +23,7 @@ class MiruDesktopGridTile extends HookWidget {
   final double? height;
   final double? width;
   final Widget? stackLabel;
+  final int titleMaxline;
   @override
   Widget build(BuildContext context) {
     // no local hover state required for this simplified tile
@@ -69,7 +71,7 @@ class MiruDesktopGridTile extends HookWidget {
               ),
               const SizedBox(height: 8),
               SizedBox(
-                height: 50,
+                height: titleMaxline == 1 ? 50 : 80,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: FLabel(
@@ -81,7 +83,7 @@ class MiruDesktopGridTile extends HookWidget {
                     axis: Axis.vertical,
                     child: Text(
                       title,
-                      maxLines: 1,
+                      maxLines: titleMaxline,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
