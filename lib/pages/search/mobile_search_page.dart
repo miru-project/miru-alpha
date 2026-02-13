@@ -145,7 +145,16 @@ class MobileSearchPage extends HookConsumerWidget {
                           subtitle: Row(
                             children: [
                               Text(ext.version),
-                              Text(ext.description ?? ""),
+                              if (ext.description != null &&
+                                  ext.description!.isNotEmpty) ...[
+                                Text(" • "),
+                                Expanded(
+                                  child: Text(
+                                    ext.description!,
+                                    overflow: .ellipsis,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                           title: Text(ext.name),

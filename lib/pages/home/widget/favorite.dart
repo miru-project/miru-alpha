@@ -30,7 +30,7 @@ class FavoritesHeader extends StatelessWidget {
               onPress: () {
                 context.go("/home/favorite");
               },
-              style: FButtonStyle.outline(),
+              style: FButtonStyle.ghost(),
               child: const Text('View All'),
             ),
           ],
@@ -120,7 +120,7 @@ class FavoriteCard extends ConsumerWidget {
           const SizedBox(height: 12),
           Text(
             item.title,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           ),

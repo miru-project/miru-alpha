@@ -77,7 +77,7 @@ class EpisodeNotifier extends _$EpisodeNotifier {
     final history = History(
       title: s.name,
       package: package,
-      type: type.toString(),
+      type: type.name,
       episodeGroupId: s.selectedGroupIndex,
       episodeId: s.selectedEpisodeIndex,
       progress: progress,
@@ -88,8 +88,10 @@ class EpisodeNotifier extends _$EpisodeNotifier {
       detailUrl: detailUrl,
       date: DateTime.now(),
     );
-    ref.read(mainProvider.notifier).registerHistory(history);
-    ref.read(detialProvider.notifier).putHistory(history);
+    Future.microtask(() {
+      ref.read(mainProvider.notifier).registerHistory(history);
+      ref.read(detialProvider.notifier).putHistory(history);
+    });
   }
 
   void selectEpisode(int groupIndex, int episodeIndex) {

@@ -197,7 +197,7 @@ class _ContinueWatchingCard extends ConsumerWidget {
             selectedEpisodeIndex: 0,
             selectedGroupIndex: 0,
             epGroup: [],
-            detailUrl: item.url,
+            detailUrl: item.detailUrl,
             url: item.url,
             meta: extMeta,
             type: extMeta.type,

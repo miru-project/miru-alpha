@@ -25,7 +25,7 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = useState(0);
-    final history = ref.watch(
+    final historyList = ref.watch(
       detialProvider.select((value) => value.historyList),
     );
 
@@ -57,7 +57,7 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
           for (final item in ep[selected.value].urls)
             Builder(
               builder: (context) {
-                final h = history.firstWhereOrNull(
+                final h = historyList.firstWhereOrNull(
                   (element) => element.url == item.url,
                 );
                 final isWatched =
