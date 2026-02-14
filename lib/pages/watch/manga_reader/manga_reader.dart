@@ -24,12 +24,22 @@ class MiruMangaReader extends HookConsumerWidget {
     required this.url,
     required this.epProvider,
     // required this.detailImageUrl,
-  });
-  final ExtensionMangaWatch value;
+  }) : localPath = null;
+
+  const MiruMangaReader.local({
+    super.key,
+    required this.name,
+    required this.meta,
+    required this.epProvider,
+    required this.localPath,
+  }) : url = null,
+       value = null;
+  final ExtensionMangaWatch? value;
   final String name;
   final ExtensionMeta meta;
-  final String url;
+  final String? url;
   final EpisodeNotifierProvider epProvider;
+  final String? localPath;
   // final String detailImageUrl;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -70,7 +80,6 @@ class MiruMangaReader extends HookConsumerWidget {
     ];
     final readView = _MiruMangaReadView(
       data: value,
-      detailUrl: url,
       epProvider: epProvider,
       mangaProvider: mangaProvider,
       meta: meta,
@@ -137,16 +146,12 @@ class MiruMangaReader extends HookConsumerWidget {
 class _MiruMangaReadView extends StatefulHookConsumerWidget {
   const _MiruMangaReadView({
     required this.data,
-    // required this.detailImageUrl,
-    required this.detailUrl,
     required this.epProvider,
     required this.mangaProvider,
     required this.meta,
     required this.name,
   });
-  final ExtensionMangaWatch data;
-  // final String detailImageUrl;
-  final String detailUrl;
+  final ExtensionMangaWatch? data;
   final EpisodeNotifierProvider epProvider;
   final MangaReaderProvider mangaProvider;
   final ExtensionMeta meta;
@@ -163,7 +168,7 @@ class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
 
   @override
   Widget build(BuildContext context) {
-    final item = widget.data.urls;
+    final item = widget.data?.urls;
     final mode = ref.watch(widget.mangaProvider.select((e) => e.readMode));
     final c = ref.read(widget.mangaProvider.notifier);
 
@@ -172,8 +177,9 @@ class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
         return ExtendedImageGesturePageView.builder(
           reverse: mode == MangaReadMode.rightToLeft,
           controller: c.pageController,
-          itemBuilder: (context, index) => MangaImage(imageUrl: item[index]),
-          itemCount: item.length,
+          itemBuilder: (context, index) =>
+              MangaImage(imageUrl: item?[index] ?? ''),
+          itemCount: item?.length,
           onPageChanged: (index) {
             c.setPageNumber(index);
           },
@@ -218,9 +224,9 @@ class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
                       physics: isZoom
                           ? const NeverScrollableScrollPhysics()
                           : null,
-                      itemCount: item.length,
+                      itemCount: item?.length ?? 0,
                       itemBuilder: (context, index) {
-                        return MangaImage(imageUrl: item[index]);
+                        return MangaImage(imageUrl: item?[index] ?? '');
                       },
                     ),
                   ),

@@ -14,34 +14,47 @@ import 'package:video_player/video_player.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MiruVideoPlayer extends ConsumerWidget {
+  const MiruVideoPlayer.local({
+    super.key,
+    required this.name,
+    required this.localPath,
+    required this.meta,
+    required this.epProvider,
+    required this.hasOriented,
+  }) : value = null,
+       torrent = null,
+       mediaUrl = null;
+
   const MiruVideoPlayer({
     super.key,
     required this.name,
     required this.value,
-    required this.url,
     required this.meta,
     required this.epProvider,
     required this.hasOriented,
+    required this.mediaUrl,
     this.torrent,
-  });
-  final ExtensionBangumiWatch value;
+  }) : localPath = null;
+
+  final ExtensionBangumiWatch? value;
   final String name;
   final ExtensionMeta meta;
-  final String url;
+  final String? mediaUrl;
   final EpisodeNotifierProvider epProvider;
   final bool hasOriented;
   final ExtensionBangumiWatchTorrent? torrent;
+  final String? localPath;
   @override
   Widget build(context, WidgetRef ref) {
     final screenRatio = MediaQuery.of(context).size;
     final vidProvider = videoPlayerProvider(
-      value.url,
-      subtitlesRaw: value.subtitles,
-      headers: value.headers,
+      value?.url,
+      subtitlesRaw: value?.subtitles,
+      headers: value?.headers,
       torrent: torrent,
+      localPath: localPath,
     );
 
-    // return VideoPlayer(ref.read(vidProvider.notifier).vidController);
     return Stack(
       children: [
         //video player
@@ -118,7 +131,6 @@ class MiruVideoPlayer extends ConsumerWidget {
                 hasOriented: hasOriented,
                 meta: meta,
                 name: name,
-                url: url,
               ),
             );
           },
@@ -159,14 +171,12 @@ class _VideoPlayer extends StatefulHookConsumerWidget {
     required this.hasOriented,
     required this.meta,
     required this.name,
-    required this.url,
   });
   final VideoPlayerNotifierProvider vidPr;
   final EpisodeNotifierProvider epProvider;
   final bool hasOriented;
   final ExtensionMeta meta;
   final String name;
-  final String url;
   @override
   _DesktopVideoPlayerState createState() => _DesktopVideoPlayerState();
 }

@@ -14,21 +14,32 @@ part 'download_provider.g.dart';
 class DownloadState {
   final List<proto.Download> history;
   final List<proto.DownloadProgress> active;
+  final int page;
+  final bool hasMore;
 
-  DownloadState({this.history = const [], this.active = const []});
+  DownloadState({
+    this.history = const [],
+    this.active = const [],
+    this.page = 1,
+    this.hasMore = true,
+  });
 
   DownloadState copyWith({
     List<proto.Download>? history,
     List<proto.DownloadProgress>? active,
+    int? page,
+    bool? hasMore,
   }) {
     return DownloadState(
       history: history ?? this.history,
       active: active ?? this.active,
+      page: page ?? this.page,
+      hasMore: hasMore ?? this.hasMore,
     );
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class DownloadNotifier extends _$DownloadNotifier {
   StreamSubscription? _subscription;
   final Set<String> _processedTasks = {};
@@ -54,8 +65,11 @@ class DownloadNotifier extends _$DownloadNotifier {
   }
 
   Future<void> _fetchInitialData() async {
+    const pageSize = 20;
     final historyFuture = MiruGrpcClient.downloadClient.getAllDownloads(
-      proto.GetAllDownloadsRequest(),
+      proto.GetAllDownloadsRequest()
+        ..page = 1
+        ..pageSize = pageSize,
     );
     final statusFuture = MiruGrpcClient.downloadClient.getDownloadStatus(
       proto.GetDownloadStatusRequest(),
@@ -71,6 +85,8 @@ class DownloadNotifier extends _$DownloadNotifier {
         active: statusRes.downloadStatus.values
             .where((e) => e.status == 'Downloading' || e.status == 'Paused')
             .toList(),
+        page: 1,
+        hasMore: historyRes.downloads.length >= pageSize,
       ),
     );
 
@@ -105,14 +121,67 @@ class DownloadNotifier extends _$DownloadNotifier {
 
   Future<void> _refreshHistory() async {
     try {
+      final currentState = state.value;
+      if (currentState == null) return;
+
+      const pageSize = 20;
       final res = await MiruGrpcClient.downloadClient.getAllDownloads(
-        proto.GetAllDownloadsRequest(),
+        proto.GetAllDownloadsRequest()
+          ..page = 1
+          ..pageSize = pageSize,
       );
-      state.whenData((currentState) {
-        state = AsyncData(currentState.copyWith(history: res.downloads));
-      });
+      state = AsyncData(
+        currentState.copyWith(
+          history: res.downloads,
+          page: 1,
+          hasMore: res.downloads.length >= pageSize,
+        ),
+      );
     } catch (e) {
       logger.severe("Failed to refresh history: $e");
+    }
+  }
+
+  Future<void> loadMoreHistory() async {
+    try {
+      final currentState = state.value;
+      if (currentState == null || !currentState.hasMore) return;
+
+      const pageSize = 20;
+      final nextPage = currentState.page + 1;
+      final res = await MiruGrpcClient.downloadClient.getAllDownloads(
+        proto.GetAllDownloadsRequest()
+          ..page = nextPage
+          ..pageSize = pageSize,
+      );
+
+      state = AsyncData(
+        currentState.copyWith(
+          history: [...currentState.history, ...res.downloads],
+          page: nextPage,
+          hasMore: res.downloads.length >= pageSize,
+        ),
+      );
+    } catch (e) {
+      logger.severe("Failed to load more history: $e");
+    }
+  }
+
+  Future<List<proto.Download>> getDownloadsByPackageAndDetailUrl(
+    String package,
+    String detailUrl,
+  ) async {
+    try {
+      final res = await MiruGrpcClient.downloadClient
+          .getDownloadsByPackageAndDetailUrl(
+            proto.GetDownloadsByPackageAndDetailUrlRequest()
+              ..package = package
+              ..detailUrl = detailUrl,
+          );
+      return res.downloads;
+    } catch (e) {
+      logger.severe("Failed to get downloads by package and detail url: $e");
+      return [];
     }
   }
 

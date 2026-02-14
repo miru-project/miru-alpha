@@ -17,11 +17,12 @@ final class VideoPlayerNotifierProvider
   VideoPlayerNotifierProvider._({
     required VideoPlayerNotifierFamily super.from,
     required (
-      String, {
+      String?, {
       List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
       Map<String, String>? headers,
       Size? initialRatio,
       ExtensionBangumiWatchTorrent? torrent,
+      String? localPath,
     })
     super.argument,
   }) : super(
@@ -66,7 +67,7 @@ final class VideoPlayerNotifierProvider
 }
 
 String _$videoPlayerNotifierHash() =>
-    r'ffebb06e74380af2ca5f500df7ffe7c528675dc1';
+    r'6b8f0ac7f254172567ed0550047f85009ee5fd12';
 
 final class VideoPlayerNotifierFamily extends $Family
     with
@@ -76,11 +77,12 @@ final class VideoPlayerNotifierFamily extends $Family
           VideoPlayerTickState,
           VideoPlayerTickState,
           (
-            String, {
+            String?, {
             List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
             Map<String, String>? headers,
             Size? initialRatio,
             ExtensionBangumiWatchTorrent? torrent,
+            String? localPath,
           })
         > {
   VideoPlayerNotifierFamily._()
@@ -93,18 +95,20 @@ final class VideoPlayerNotifierFamily extends $Family
       );
 
   VideoPlayerNotifierProvider call(
-    String url, {
+    String? mediaUrl, {
     List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
     Map<String, String>? headers,
     Size? initialRatio,
     ExtensionBangumiWatchTorrent? torrent,
+    String? localPath,
   }) => VideoPlayerNotifierProvider._(
     argument: (
-      url,
+      mediaUrl,
       subtitlesRaw: subtitlesRaw,
       headers: headers,
       initialRatio: initialRatio,
       torrent: torrent,
+      localPath: localPath,
     ),
     from: this,
   );
@@ -117,24 +121,27 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
   late final _$args =
       ref.$arg
           as (
-            String, {
+            String?, {
             List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
             Map<String, String>? headers,
             Size? initialRatio,
             ExtensionBangumiWatchTorrent? torrent,
+            String? localPath,
           });
-  String get url => _$args.$1;
+  String? get mediaUrl => _$args.$1;
   List<ExtensionBangumiWatchSubtitle>? get subtitlesRaw => _$args.subtitlesRaw;
   Map<String, String>? get headers => _$args.headers;
   Size? get initialRatio => _$args.initialRatio;
   ExtensionBangumiWatchTorrent? get torrent => _$args.torrent;
+  String? get localPath => _$args.localPath;
 
   VideoPlayerTickState build(
-    String url, {
+    String? mediaUrl, {
     List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
     Map<String, String>? headers,
     Size? initialRatio,
     ExtensionBangumiWatchTorrent? torrent,
+    String? localPath,
   });
   @$mustCallSuper
   @override
@@ -156,6 +163,7 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
         headers: _$args.headers,
         initialRatio: _$args.initialRatio,
         torrent: _$args.torrent,
+        localPath: _$args.localPath,
       ),
     );
   }

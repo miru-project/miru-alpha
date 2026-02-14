@@ -13,21 +13,28 @@ import 'package:miru_app_new/widgets/index.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class MiruNovelReader extends StatefulHookConsumerWidget {
+  const MiruNovelReader.local({
+    super.key,
+    required this.name,
+    required this.meta,
+    required this.epProvider,
+    required this.detailImageUrl,
+    required this.localPath,
+  }) : value = null;
   const MiruNovelReader({
     super.key,
     required this.value,
     required this.name,
     required this.meta,
-    required this.url,
     required this.epProvider,
     required this.detailImageUrl,
-  });
-  final ExtensionFikushonWatch value;
+  }) : localPath = null;
+  final ExtensionFikushonWatch? value;
   final String name;
   final ExtensionMeta meta;
-  final String url;
   final EpisodeNotifierProvider epProvider;
   final String detailImageUrl;
+  final String? localPath;
   @override
   createState() => _MiruNovelReaderState();
 }
@@ -43,7 +50,10 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
 
   @override
   Widget build(BuildContext context) {
-    final novelProvider = novelReaderProvider(widget.value.content);
+    final novelProvider = novelReaderProvider(
+      widget.value?.content,
+      widget.localPath,
+    );
     return MiruScaffold(
       scrollController: scrollController,
       mobileHeader: SnapSheetNested.back(title: widget.name),
@@ -76,7 +86,7 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
         data: widget.value,
         meta: widget.meta,
         imgUrl: widget.detailImageUrl,
-        detailUrl: widget.url,
+        // detailUrl: widget.detailUrl,
         epProvider: widget.epProvider,
         novelProvider: novelProvider,
       ),
@@ -89,14 +99,12 @@ class _MiruNovelReadView extends StatefulHookConsumerWidget {
     required this.data,
     required this.meta,
     required this.imgUrl,
-    required this.detailUrl,
     required this.epProvider,
     required this.novelProvider,
   });
-  final ExtensionFikushonWatch data;
+  final ExtensionFikushonWatch? data;
   final ExtensionMeta meta;
   final String imgUrl;
-  final String detailUrl;
   final EpisodeNotifierProvider epProvider;
   final NovelReaderProvider novelProvider;
 
@@ -107,26 +115,26 @@ class _MiruNovelReadView extends StatefulHookConsumerWidget {
 class _MiruNovelReadViewState extends ConsumerState<_MiruNovelReadView> {
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(widget.novelProvider.notifier)
-        ..setContent(widget.data.content)
-        ..initListener();
+    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    //   ref.read(widget.novelProvider.notifier)
+    //     ..setContent(widget.data.content)
+    //     ..initListener();
 
-      ref
-          .read(widget.epProvider.notifier)
-          .putInformation(
-            widget.meta.type,
-            widget.meta.packageName,
-            widget.imgUrl,
-            widget.detailUrl,
-          );
-    });
+    //   ref
+    //       .read(widget.epProvider.notifier)
+    //       .putInformation(
+    //         widget.meta.type,
+    //         widget.meta.packageName,
+    //         widget.imgUrl,
+    //         widget.detailUrl,
+    //       );
+    // });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final item = widget.data.content;
+    final item = widget.data?.content ?? [];
     final c = ref.watch(widget.novelProvider.notifier);
     return ScrollablePositionedList.builder(
       scrollOffsetController: c.scrollOffsetController,

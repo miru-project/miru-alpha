@@ -16,7 +16,7 @@ final class NovelReaderProvider
     extends $NotifierProvider<NovelReader, NovelReaderState> {
   NovelReaderProvider._({
     required NovelReaderFamily super.from,
-    required List<String> super.argument,
+    required (List<String>?, String?) super.argument,
   }) : super(
          retry: null,
          name: r'novelReaderProvider',
@@ -32,7 +32,7 @@ final class NovelReaderProvider
   String toString() {
     return r'novelReaderProvider'
         ''
-        '($argument)';
+        '$argument';
   }
 
   @$internal
@@ -58,7 +58,7 @@ final class NovelReaderProvider
   }
 }
 
-String _$novelReaderHash() => r'ae5f6ac06b488300754b1369e046cc170a290e31';
+String _$novelReaderHash() => r'a6f744ed1c0bab02dae82caf5683c6cad4c6e311';
 
 final class NovelReaderFamily extends $Family
     with
@@ -67,7 +67,7 @@ final class NovelReaderFamily extends $Family
           NovelReaderState,
           NovelReaderState,
           NovelReaderState,
-          List<String>
+          (List<String>?, String?)
         > {
   NovelReaderFamily._()
     : super(
@@ -78,18 +78,19 @@ final class NovelReaderFamily extends $Family
         isAutoDispose: true,
       );
 
-  NovelReaderProvider call(List<String> content) =>
-      NovelReaderProvider._(argument: content, from: this);
+  NovelReaderProvider call(List<String>? content, String? localPath) =>
+      NovelReaderProvider._(argument: (content, localPath), from: this);
 
   @override
   String toString() => r'novelReaderProvider';
 }
 
 abstract class _$NovelReader extends $Notifier<NovelReaderState> {
-  late final _$args = ref.$arg as List<String>;
-  List<String> get content => _$args;
+  late final _$args = ref.$arg as (List<String>?, String?);
+  List<String>? get content => _$args.$1;
+  String? get localPath => _$args.$2;
 
-  NovelReaderState build(List<String> content);
+  NovelReaderState build(List<String>? content, String? localPath);
   @$mustCallSuper
   @override
   void runBuild() {
@@ -102,6 +103,6 @@ abstract class _$NovelReader extends $Notifier<NovelReaderState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, () => build(_$args));
+    element.handleCreate(ref, () => build(_$args.$1, _$args.$2));
   }
 }

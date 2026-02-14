@@ -1159,7 +1159,7 @@ class Download extends $pb.GeneratedMessage {
   factory Download({
     $core.int? id,
     $core.Iterable<$core.String>? url,
-    $core.String? headers,
+    $core.Iterable<$core.MapEntry<$core.String, $core.String>>? headers,
     $core.String? package,
     $core.Iterable<$core.int>? progress,
     $core.String? key,
@@ -1168,11 +1168,13 @@ class Download extends $pb.GeneratedMessage {
     $core.String? status,
     $core.String? savePath,
     $core.String? date,
+    $core.String? downloadUrl,
+    $core.String? detailUrl,
   }) {
     final result = create();
     if (id != null) result.id = id;
     if (url != null) result.url.addAll(url);
-    if (headers != null) result.headers = headers;
+    if (headers != null) result.headers.addEntries(headers);
     if (package != null) result.package = package;
     if (progress != null) result.progress.addAll(progress);
     if (key != null) result.key = key;
@@ -1181,6 +1183,8 @@ class Download extends $pb.GeneratedMessage {
     if (status != null) result.status = status;
     if (savePath != null) result.savePath = savePath;
     if (date != null) result.date = date;
+    if (downloadUrl != null) result.downloadUrl = downloadUrl;
+    if (detailUrl != null) result.detailUrl = detailUrl;
     return result;
   }
 
@@ -1199,7 +1203,11 @@ class Download extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..aI(1, _omitFieldNames ? '' : 'id')
     ..pPS(2, _omitFieldNames ? '' : 'url')
-    ..aOS(3, _omitFieldNames ? '' : 'headers')
+    ..m<$core.String, $core.String>(3, _omitFieldNames ? '' : 'headers',
+        entryClassName: 'Download.HeadersEntry',
+        keyFieldType: $pb.PbFieldType.OS,
+        valueFieldType: $pb.PbFieldType.OS,
+        packageName: const $pb.PackageName('miru'))
     ..aOS(4, _omitFieldNames ? '' : 'package')
     ..p<$core.int>(5, _omitFieldNames ? '' : 'progress', $pb.PbFieldType.K3)
     ..aOS(6, _omitFieldNames ? '' : 'key')
@@ -1208,6 +1216,8 @@ class Download extends $pb.GeneratedMessage {
     ..aOS(9, _omitFieldNames ? '' : 'status')
     ..aOS(10, _omitFieldNames ? '' : 'savePath')
     ..aOS(11, _omitFieldNames ? '' : 'date')
+    ..aOS(12, _omitFieldNames ? '' : 'downloadUrl')
+    ..aOS(13, _omitFieldNames ? '' : 'detailUrl')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -1241,13 +1251,7 @@ class Download extends $pb.GeneratedMessage {
   $pb.PbList<$core.String> get url => $_getList(1);
 
   @$pb.TagNumber(3)
-  $core.String get headers => $_getSZ(2);
-  @$pb.TagNumber(3)
-  set headers($core.String value) => $_setString(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasHeaders() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearHeaders() => $_clearField(3);
+  $pb.PbMap<$core.String, $core.String> get headers => $_getMap(2);
 
   @$pb.TagNumber(4)
   $core.String get package => $_getSZ(3);
@@ -1314,6 +1318,24 @@ class Download extends $pb.GeneratedMessage {
   $core.bool hasDate() => $_has(10);
   @$pb.TagNumber(11)
   void clearDate() => $_clearField(11);
+
+  @$pb.TagNumber(12)
+  $core.String get downloadUrl => $_getSZ(11);
+  @$pb.TagNumber(12)
+  set downloadUrl($core.String value) => $_setString(11, value);
+  @$pb.TagNumber(12)
+  $core.bool hasDownloadUrl() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearDownloadUrl() => $_clearField(12);
+
+  @$pb.TagNumber(13)
+  $core.String get detailUrl => $_getSZ(12);
+  @$pb.TagNumber(13)
+  set detailUrl($core.String value) => $_setString(12, value);
+  @$pb.TagNumber(13)
+  $core.bool hasDetailUrl() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearDetailUrl() => $_clearField(13);
 }
 
 /// Torrent

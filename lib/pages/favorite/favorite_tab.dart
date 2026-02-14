@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/user_data.dart';
-import 'package:miru_app_new/provider/watch/main_provider.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/widgets/core/miru_tabs.dart';
 
@@ -49,8 +48,6 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
       }
       errorText.value = null;
     });
-
-    final selected = ref.watch(mainProvider).selectedGroups;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),

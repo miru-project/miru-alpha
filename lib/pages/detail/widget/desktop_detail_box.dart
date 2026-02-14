@@ -137,6 +137,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                       isIcon: false,
                       detail: detail,
                       meta: meta,
+                      detailUrl: detailUrl,
                     ),
                     const SizedBox(width: 15),
                     FButton(

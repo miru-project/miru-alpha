@@ -21,7 +21,10 @@ class SettingBaseTile extends StatelessWidget {
             child: FLabel(
               axis: Axis.vertical,
               description: Text(subtitle),
-              child: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(
+                title,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
             ),
           ),
           const SizedBox(width: 12),

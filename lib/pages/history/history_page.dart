@@ -11,6 +11,7 @@ import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/widgets/platform_widget.dart';
+import 'package:forui/forui.dart';
 
 class HistoryPage extends StatefulHookConsumerWidget {
   const HistoryPage({super.key});
@@ -113,6 +114,19 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
               }, childCount: history.length),
             ),
           ),
+          if (ref.watch(mainProvider).historyHasMore)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Center(
+                  child: FButton(
+                    onPress: () =>
+                        ref.read(mainProvider.notifier).loadMoreHistory(),
+                    child: const Text("Load More"),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

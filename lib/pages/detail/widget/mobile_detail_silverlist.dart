@@ -65,6 +65,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                       isIcon: false,
                       detail: detail,
                       meta: meta,
+                      detailUrl: detailUrl,
                     ),
                   ),
                 ],
@@ -150,10 +151,21 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                   ),
                   title: Text(item.name),
                   onPress: () {
+                    final donwloadList = ref.watch(
+                      detialProvider.select((value) => value.downloadList),
+                    );
+                    final savePath = donwloadList
+                        .firstWhereOrNull(
+                          (element) =>
+                              element.key ==
+                              "${detail.title}-${detail.episodes?[selectedGpIndex].title}-${item.name}",
+                        )
+                        ?.savePath;
                     context.push<WatchParams>(
                       "/watch",
                       extra: WatchParams(
                         name: detail.title,
+                        savePath: savePath,
                         detailImageUrl: detail.cover ?? '',
                         selectedEpisodeIndex: idx,
                         selectedGroupIndex: selectedGpIndex,

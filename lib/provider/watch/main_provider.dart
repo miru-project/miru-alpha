@@ -11,6 +11,8 @@ class MainPageState {
   List<History> history;
   List<FavoriateGroup> favoriateGroups;
   List<Favorite> favorites;
+  int historyPage;
+  bool historyHasMore;
   MainPageState({
     this.selectedIndex = 0,
     this.selectedGroups = const [],
@@ -18,6 +20,8 @@ class MainPageState {
     this.history = const [],
     this.favoriateGroups = const [],
     this.favorites = const [],
+    this.historyPage = 1,
+    this.historyHasMore = true,
   });
 
   MainPageState copyWith({
@@ -27,6 +31,8 @@ class MainPageState {
     List<History>? history,
     List<FavoriateGroup>? favoriateGroups,
     List<Favorite>? favorites,
+    int? historyPage,
+    bool? historyHasMore,
   }) {
     return MainPageState(
       selectedIndex: selectedIndex ?? this.selectedIndex,
@@ -35,6 +41,8 @@ class MainPageState {
       history: history ?? this.history,
       favoriateGroups: favoriateGroups ?? this.favoriateGroups,
       favorites: favorites ?? this.favorites,
+      historyPage: historyPage ?? this.historyPage,
+      historyHasMore: historyHasMore ?? this.historyHasMore,
     );
   }
 }
@@ -44,15 +52,19 @@ class MainNotifier extends _$MainNotifier {
   @override
   MainPageState build() {
     Future.microtask(() async {
+      const pageSize = 20;
       await Future.wait([
         DatabaseService.getAllFavoriteGroup(),
         DatabaseService.getAllFavorite(),
-        DatabaseService.getHistoriesByType(),
+        DatabaseService.getHistoriesByType(page: 1, pageSize: pageSize),
       ]).then((value) {
+        final history = value[2] as List<History>;
         state = state.copyWith(
-          history: value[2] as List<History>,
+          history: history,
           favoriateGroups: value[0] as List<FavoriateGroup>,
           favorites: value[1] as List<Favorite>,
+          historyPage: 1,
+          historyHasMore: history.length >= pageSize,
         );
       });
     });
@@ -130,7 +142,30 @@ class MainNotifier extends _$MainNotifier {
   }
 
   Future<void> refreshHistory() async {
-    final history = await DatabaseService.getHistoriesByType();
-    state = state.copyWith(history: history);
+    const pageSize = 20;
+    final history = await DatabaseService.getHistoriesByType(
+      page: 1,
+      pageSize: pageSize,
+    );
+    state = state.copyWith(
+      history: history,
+      historyPage: 1,
+      historyHasMore: history.length >= pageSize,
+    );
+  }
+
+  Future<void> loadMoreHistory() async {
+    if (!state.historyHasMore) return;
+    const pageSize = 20;
+    final nextPage = state.historyPage + 1;
+    final history = await DatabaseService.getHistoriesByType(
+      page: nextPage,
+      pageSize: pageSize,
+    );
+    state = state.copyWith(
+      history: [...state.history, ...history],
+      historyPage: nextPage,
+      historyHasMore: history.length >= pageSize,
+    );
   }
 }

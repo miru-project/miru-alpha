@@ -114,6 +114,18 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
                       download: downloadState.history[index],
                     ),
                   ),
+                  if (downloadState.hasMore)
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Center(
+                        child: FButton(
+                          onPress: () => ref
+                              .read(downloadProvider.notifier)
+                              .loadMoreHistory(),
+                          child: const Text("Load More"),
+                        ),
+                      ),
+                    ),
                 ],
               );
             },

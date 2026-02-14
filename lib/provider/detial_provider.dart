@@ -4,18 +4,22 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
+import 'package:miru_app_new/provider/download_provider.dart';
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 
 part 'detial_provider.g.dart';
 
 class DetialState {
   final ValueNotifier<int> selectedGroup;
   final List<History> historyList;
+  final List<proto.Download> downloadList;
   final Favorite? favorite;
   final AsyncValue<ExtensionDetail>? detailState;
 
   DetialState({
     required this.selectedGroup,
     this.historyList = const [],
+    this.downloadList = const [],
     this.favorite,
     this.detailState,
   });
@@ -23,12 +27,14 @@ class DetialState {
   DetialState copyWith({
     ValueNotifier<int>? selectedGroup,
     List<History>? historyList,
+    List<proto.Download>? downloadList,
     Favorite? favorite,
     AsyncValue<ExtensionDetail>? detailState,
   }) {
     return DetialState(
       selectedGroup: selectedGroup ?? this.selectedGroup,
       historyList: historyList ?? this.historyList,
+      downloadList: downloadList ?? this.downloadList,
       favorite: favorite ?? this.favorite,
       detailState: detailState ?? this.detailState,
     );
@@ -110,10 +116,20 @@ class Detial extends _$Detial {
   }
 
   Future<void> initDetail(String pkg, String url) async {
-    final detail = await fetchDetailFromDb(pkg, url);
-    if (detail != null) {
-      return;
-    }
+    final futures = await Future.wait([
+      fetchDetailFromDb(pkg, url),
+      DatabaseService.getHistoryByPackageAndDetailUrl(pkg, url),
+      ref
+          .read(downloadProvider.notifier)
+          .getDownloadsByPackageAndDetailUrl(pkg, url),
+    ]);
+
+    final detail = futures[0] as Detail?;
+    final history = futures[1] as List<History>;
+    final downloads = futures[2] as List<proto.Download>;
+
+    state = state.copyWith(historyList: history, downloadList: downloads);
+
     if (detail == null) {
       await fetchDetailFromExtension(pkg, url);
     }

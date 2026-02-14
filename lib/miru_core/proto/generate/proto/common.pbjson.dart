@@ -249,7 +249,14 @@ const Download$json = {
   '2': [
     {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
     {'1': 'url', '3': 2, '4': 3, '5': 9, '10': 'url'},
-    {'1': 'headers', '3': 3, '4': 1, '5': 9, '10': 'headers'},
+    {
+      '1': 'headers',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.Download.HeadersEntry',
+      '10': 'headers'
+    },
     {'1': 'package', '3': 4, '4': 1, '5': 9, '10': 'package'},
     {'1': 'progress', '3': 5, '4': 3, '5': 5, '10': 'progress'},
     {'1': 'key', '3': 6, '4': 1, '5': 9, '10': 'key'},
@@ -258,16 +265,32 @@ const Download$json = {
     {'1': 'status', '3': 9, '4': 1, '5': 9, '10': 'status'},
     {'1': 'save_path', '3': 10, '4': 1, '5': 9, '10': 'savePath'},
     {'1': 'date', '3': 11, '4': 1, '5': 9, '10': 'date'},
+    {'1': 'download_url', '3': 12, '4': 1, '5': 9, '10': 'downloadUrl'},
+    {'1': 'detail_url', '3': 13, '4': 1, '5': 9, '10': 'detailUrl'},
   ],
+  '3': [Download_HeadersEntry$json],
+};
+
+@$core.Deprecated('Use downloadDescriptor instead')
+const Download_HeadersEntry$json = {
+  '1': 'HeadersEntry',
+  '2': [
+    {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    {'1': 'value', '3': 2, '4': 1, '5': 9, '10': 'value'},
+  ],
+  '7': {'7': true},
 };
 
 /// Descriptor for `Download`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List downloadDescriptor = $convert.base64Decode(
-    'CghEb3dubG9hZBIOCgJpZBgBIAEoBVICaWQSEAoDdXJsGAIgAygJUgN1cmwSGAoHaGVhZGVycx'
-    'gDIAEoCVIHaGVhZGVycxIYCgdwYWNrYWdlGAQgASgJUgdwYWNrYWdlEhoKCHByb2dyZXNzGAUg'
-    'AygFUghwcm9ncmVzcxIQCgNrZXkYBiABKAlSA2tleRIUCgV0aXRsZRgHIAEoCVIFdGl0bGUSHQ'
-    'oKbWVkaWFfdHlwZRgIIAEoCVIJbWVkaWFUeXBlEhYKBnN0YXR1cxgJIAEoCVIGc3RhdHVzEhsK'
-    'CXNhdmVfcGF0aBgKIAEoCVIIc2F2ZVBhdGgSEgoEZGF0ZRgLIAEoCVIEZGF0ZQ==');
+    'CghEb3dubG9hZBIOCgJpZBgBIAEoBVICaWQSEAoDdXJsGAIgAygJUgN1cmwSNQoHaGVhZGVycx'
+    'gDIAMoCzIbLm1pcnUuRG93bmxvYWQuSGVhZGVyc0VudHJ5UgdoZWFkZXJzEhgKB3BhY2thZ2UY'
+    'BCABKAlSB3BhY2thZ2USGgoIcHJvZ3Jlc3MYBSADKAVSCHByb2dyZXNzEhAKA2tleRgGIAEoCV'
+    'IDa2V5EhQKBXRpdGxlGAcgASgJUgV0aXRsZRIdCgptZWRpYV90eXBlGAggASgJUgltZWRpYVR5'
+    'cGUSFgoGc3RhdHVzGAkgASgJUgZzdGF0dXMSGwoJc2F2ZV9wYXRoGAogASgJUghzYXZlUGF0aB'
+    'ISCgRkYXRlGAsgASgJUgRkYXRlEiEKDGRvd25sb2FkX3VybBgMIAEoCVILZG93bmxvYWRVcmwS'
+    'HQoKZGV0YWlsX3VybBgNIAEoCVIJZGV0YWlsVXJsGjoKDEhlYWRlcnNFbnRyeRIQCgNrZXkYAS'
+    'ABKAlSA2tleRIUCgV2YWx1ZRgCIAEoCVIFdmFsdWU6AjgB');
 
 @$core.Deprecated('Use torrentResultDescriptor instead')
 const TorrentResult$json = {

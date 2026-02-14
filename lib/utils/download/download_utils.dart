@@ -21,7 +21,11 @@ class DownloadUtils {
 
     FFMpegUtils.combineToMp4(segments, targetPath);
 
-    updateStatus(taskId: taskId, status: "Converted");
+    await updateStatus(
+      taskId: taskId,
+      status: "Converted",
+      savePath: targetPath,
+    );
 
     // Remove segments after conversion
     for (var segment in segments) {
@@ -68,10 +72,15 @@ class DownloadUtils {
   static Future<void> updateStatus({
     required String taskId,
     required String status,
+    String? savePath,
   }) async {
     try {
       await MiruGrpcClient.downloadClient.updateDownloadStatus(
-        UpdateDownloadStatusRequest(taskId: int.parse(taskId), status: status),
+        UpdateDownloadStatusRequest(
+          taskId: int.parse(taskId),
+          status: status,
+          savePath: savePath,
+        ),
       );
     } catch (e) {
       logger.severe("Failed to update status to $status: $e");
@@ -115,7 +124,11 @@ class DownloadUtils {
             await dir.delete();
           }
         }
-        updateStatus(taskId: taskId, status: "Converted");
+        await updateStatus(
+          taskId: taskId,
+          status: "Converted",
+          savePath: targetPath,
+        );
       }
 
       return targetPath;

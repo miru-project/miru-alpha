@@ -80,9 +80,16 @@ class DatabaseService {
   }
 
   // History
-  static Future<List<History>> getHistoriesByType({String? type}) async {
+  static Future<List<History>> getHistoriesByType({
+    String? type,
+    int? page,
+    int? pageSize,
+  }) async {
     final response = await client.getHistoriesByType(
-      proto.GetHistoriesByTypeRequest()..type = type ?? '',
+      proto.GetHistoriesByTypeRequest()
+        ..type = type ?? ''
+        ..page = page ?? 0
+        ..pageSize = pageSize ?? 0,
     );
     return response.histories.map((e) => History.fromProto(e)).toList();
   }
@@ -163,11 +170,15 @@ class DatabaseService {
   static Future<List<History>> getHistorysFiltered({
     String? type,
     DateTime? beforeDate,
+    int? page,
+    int? pageSize,
   }) async {
     final response = await client.getHistorysFiltered(
       proto.GetHistorysFilteredRequest()
         ..type = type ?? ''
-        ..beforeDate = beforeDate?.toIso8601String() ?? '',
+        ..beforeDate = beforeDate?.toIso8601String() ?? ''
+        ..page = page ?? 0
+        ..pageSize = pageSize ?? 0,
     );
     return response.histories.map((e) => History.fromProto(e)).toList();
   }

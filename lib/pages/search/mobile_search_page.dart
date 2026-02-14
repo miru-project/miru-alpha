@@ -32,7 +32,6 @@ class MobileSearchPage extends HookConsumerWidget {
           const Spacer(),
           HookBuilder(
             builder: (context) {
-              final pinned = useState(false);
               return FButton.icon(
                 style: FButtonStyle.ghost(),
                 onPress: () {},

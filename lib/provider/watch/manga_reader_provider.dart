@@ -50,15 +50,15 @@ class MangaReader extends _$MangaReader {
   MangaReaderState build(
     int epIndex,
     int total,
-    ExtensionMangaWatch data, {
+    ExtensionMangaWatch? data, {
     Map<String, String>? headers,
   }) {
     final readMode = MiruSettings.getSettingSync<MangaReadMode>(
       SettingKey.mangaReadingMode,
     );
     final initState = MangaReaderState(
-      content: data.urls,
-      totalPage: data.urls.length,
+      content: data?.urls ?? [],
+      totalPage: data?.urls.length ?? 0,
       readMode: readMode,
     );
     ref.onDispose(() {

@@ -13,6 +13,7 @@ import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/error.dart';
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 
 class WatchLoadEntry extends StatefulHookConsumerWidget {
   const WatchLoadEntry({super.key, required this.param});
@@ -77,20 +78,52 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
     return Consumer(
       builder: (context, ref, child) {
         final snapshot = ref.watch(
-          watchProvider(url, meta.packageName, meta.type),
+          watchProvider(
+            url,
+            widget.param.detailUrl,
+            meta.packageName,
+            meta.type,
+          ),
         );
         return FTheme(
           data: ref.watch(applicationControllerProvider).themeData,
           child: snapshot.when(
             data: (value) {
               final extra = widget.param;
+              if (value is proto.Download) {
+                switch (extra.type) {
+                  case ExtensionType.bangumi:
+                    return MiruVideoPlayer.local(
+                      name: extra.name,
+                      meta: meta,
+                      epProvider: _epProvider,
+                      hasOriented: _hasOriented,
+                      localPath: value.savePath,
+                    );
+                  case ExtensionType.manga:
+                    return MiruMangaReader.local(
+                      name: extra.name,
+                      meta: meta,
+                      epProvider: _epProvider,
+                      localPath: value.savePath,
+                    );
+                  default:
+                    return MiruNovelReader.local(
+                      localPath: value.savePath,
+                      name: extra.name,
+                      meta: meta,
+                      epProvider: _epProvider,
+                      detailImageUrl: extra.detailImageUrl,
+                    );
+                }
+              }
               switch (extra.type) {
                 case ExtensionType.bangumi:
                   final data = value as ExtensionBangumiWatch;
                   return MiruVideoPlayer(
                     name: extra.name,
                     value: data,
-                    url: url,
+                    mediaUrl: url,
                     meta: meta,
                     hasOriented: _hasOriented,
                     epProvider: _epProvider,
@@ -114,7 +147,6 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     detailImageUrl: extra.detailImageUrl,
                     value: data,
                     epProvider: _epProvider,
-                    url: url,
                   );
               }
             },

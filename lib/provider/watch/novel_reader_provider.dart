@@ -48,11 +48,11 @@ class NovelReader extends _$NovelReader {
   bool isAdjusting = false;
 
   @override
-  NovelReaderState build(List<String> content) {
+  NovelReaderState build(List<String>? content, String? localPath) {
     final readMode = MiruSettings.getSettingSync<NovelReadMode>(
       SettingKey.novelReadingMode,
     );
-    final state = NovelReaderState(content: content, readMode: readMode);
+    final state = NovelReaderState(content: content ?? [], readMode: readMode);
     return state;
   }
 

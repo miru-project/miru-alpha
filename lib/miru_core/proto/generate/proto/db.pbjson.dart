@@ -478,13 +478,16 @@ const GetHistoriesByTypeRequest$json = {
   '1': 'GetHistoriesByTypeRequest',
   '2': [
     {'1': 'type', '3': 1, '4': 1, '5': 9, '10': 'type'},
+    {'1': 'page', '3': 2, '4': 1, '5': 5, '10': 'page'},
+    {'1': 'page_size', '3': 3, '4': 1, '5': 5, '10': 'pageSize'},
   ],
 };
 
 /// Descriptor for `GetHistoriesByTypeRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List getHistoriesByTypeRequestDescriptor =
     $convert.base64Decode(
-        'ChlHZXRIaXN0b3JpZXNCeVR5cGVSZXF1ZXN0EhIKBHR5cGUYASABKAlSBHR5cGU=');
+        'ChlHZXRIaXN0b3JpZXNCeVR5cGVSZXF1ZXN0EhIKBHR5cGUYASABKAlSBHR5cGUSEgoEcGFnZR'
+        'gCIAEoBVIEcGFnZRIbCglwYWdlX3NpemUYAyABKAVSCHBhZ2VTaXpl');
 
 @$core.Deprecated('Use getHistoriesByTypeResponseDescriptor instead')
 const GetHistoriesByTypeResponse$json = {
@@ -506,42 +509,6 @@ final $typed_data.Uint8List getHistoriesByTypeResponseDescriptor =
     $convert.base64Decode(
         'ChpHZXRIaXN0b3JpZXNCeVR5cGVSZXNwb25zZRIrCgloaXN0b3JpZXMYASADKAsyDS5taXJ1Lk'
         'hpc3RvcnlSCWhpc3Rvcmllcw==');
-
-@$core.Deprecated('Use getHistoryByPackageAndUrlRequestDescriptor instead')
-const GetHistoryByPackageAndUrlRequest$json = {
-  '1': 'GetHistoryByPackageAndUrlRequest',
-  '2': [
-    {'1': 'package', '3': 1, '4': 1, '5': 9, '10': 'package'},
-    {'1': 'url', '3': 2, '4': 1, '5': 9, '10': 'url'},
-  ],
-};
-
-/// Descriptor for `GetHistoryByPackageAndUrlRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getHistoryByPackageAndUrlRequestDescriptor =
-    $convert.base64Decode(
-        'CiBHZXRIaXN0b3J5QnlQYWNrYWdlQW5kVXJsUmVxdWVzdBIYCgdwYWNrYWdlGAEgASgJUgdwYW'
-        'NrYWdlEhAKA3VybBgCIAEoCVIDdXJs');
-
-@$core.Deprecated('Use getHistoryByPackageAndUrlResponseDescriptor instead')
-const GetHistoryByPackageAndUrlResponse$json = {
-  '1': 'GetHistoryByPackageAndUrlResponse',
-  '2': [
-    {
-      '1': 'history',
-      '3': 1,
-      '4': 1,
-      '5': 11,
-      '6': '.miru.History',
-      '10': 'history'
-    },
-  ],
-};
-
-/// Descriptor for `GetHistoryByPackageAndUrlResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getHistoryByPackageAndUrlResponseDescriptor =
-    $convert.base64Decode(
-        'CiFHZXRIaXN0b3J5QnlQYWNrYWdlQW5kVXJsUmVzcG9uc2USJwoHaGlzdG9yeRgBIAEoCzINLm'
-        '1pcnUuSGlzdG9yeVIHaGlzdG9yeQ==');
 
 @$core.Deprecated('Use putHistoryRequestDescriptor instead')
 const PutHistoryRequest$json = {
@@ -678,6 +645,8 @@ const GetHistorysFilteredRequest$json = {
   '2': [
     {'1': 'type', '3': 1, '4': 1, '5': 9, '10': 'type'},
     {'1': 'before_date', '3': 2, '4': 1, '5': 9, '10': 'beforeDate'},
+    {'1': 'page', '3': 3, '4': 1, '5': 5, '10': 'page'},
+    {'1': 'page_size', '3': 4, '4': 1, '5': 5, '10': 'pageSize'},
   ],
 };
 
@@ -685,7 +654,8 @@ const GetHistorysFilteredRequest$json = {
 final $typed_data.Uint8List getHistorysFilteredRequestDescriptor =
     $convert.base64Decode(
         'ChpHZXRIaXN0b3J5c0ZpbHRlcmVkUmVxdWVzdBISCgR0eXBlGAEgASgJUgR0eXBlEh8KC2JlZm'
-        '9yZV9kYXRlGAIgASgJUgpiZWZvcmVEYXRl');
+        '9yZV9kYXRlGAIgASgJUgpiZWZvcmVEYXRlEhIKBHBhZ2UYAyABKAVSBHBhZ2USGwoJcGFnZV9z'
+        'aXplGAQgASgFUghwYWdlU2l6ZQ==');
 
 @$core.Deprecated('Use getHistorysFilteredResponseDescriptor instead')
 const GetHistorysFilteredResponse$json = {

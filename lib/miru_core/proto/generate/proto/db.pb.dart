@@ -1623,9 +1623,13 @@ class GetFavoriteGroupsByFavoriteResponse extends $pb.GeneratedMessage {
 class GetHistoriesByTypeRequest extends $pb.GeneratedMessage {
   factory GetHistoriesByTypeRequest({
     $core.String? type,
+    $core.int? page,
+    $core.int? pageSize,
   }) {
     final result = create();
     if (type != null) result.type = type;
+    if (page != null) result.page = page;
+    if (pageSize != null) result.pageSize = pageSize;
     return result;
   }
 
@@ -1643,6 +1647,8 @@ class GetHistoriesByTypeRequest extends $pb.GeneratedMessage {
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'type')
+    ..aI(2, _omitFieldNames ? '' : 'page')
+    ..aI(3, _omitFieldNames ? '' : 'pageSize')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -1673,6 +1679,24 @@ class GetHistoriesByTypeRequest extends $pb.GeneratedMessage {
   $core.bool hasType() => $_has(0);
   @$pb.TagNumber(1)
   void clearType() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get page => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set page($core.int value) => $_setSignedInt32(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasPage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPage() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get pageSize => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set pageSize($core.int value) => $_setSignedInt32(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasPageSize() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPageSize() => $_clearField(3);
 }
 
 class GetHistoriesByTypeResponse extends $pb.GeneratedMessage {
@@ -1724,139 +1748,6 @@ class GetHistoriesByTypeResponse extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $pb.PbList<$1.History> get histories => $_getList(0);
-}
-
-class GetHistoryByPackageAndUrlRequest extends $pb.GeneratedMessage {
-  factory GetHistoryByPackageAndUrlRequest({
-    $core.String? package,
-    $core.String? url,
-  }) {
-    final result = create();
-    if (package != null) result.package = package;
-    if (url != null) result.url = url;
-    return result;
-  }
-
-  GetHistoryByPackageAndUrlRequest._();
-
-  factory GetHistoryByPackageAndUrlRequest.fromBuffer(
-          $core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory GetHistoryByPackageAndUrlRequest.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'GetHistoryByPackageAndUrlRequest',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
-      createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'package')
-    ..aOS(2, _omitFieldNames ? '' : 'url')
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetHistoryByPackageAndUrlRequest clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetHistoryByPackageAndUrlRequest copyWith(
-          void Function(GetHistoryByPackageAndUrlRequest) updates) =>
-      super.copyWith(
-              (message) => updates(message as GetHistoryByPackageAndUrlRequest))
-          as GetHistoryByPackageAndUrlRequest;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static GetHistoryByPackageAndUrlRequest create() =>
-      GetHistoryByPackageAndUrlRequest._();
-  @$core.override
-  GetHistoryByPackageAndUrlRequest createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static GetHistoryByPackageAndUrlRequest getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<GetHistoryByPackageAndUrlRequest>(
-          create);
-  static GetHistoryByPackageAndUrlRequest? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get package => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set package($core.String value) => $_setString(0, value);
-  @$pb.TagNumber(1)
-  $core.bool hasPackage() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearPackage() => $_clearField(1);
-
-  @$pb.TagNumber(2)
-  $core.String get url => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set url($core.String value) => $_setString(1, value);
-  @$pb.TagNumber(2)
-  $core.bool hasUrl() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearUrl() => $_clearField(2);
-}
-
-class GetHistoryByPackageAndUrlResponse extends $pb.GeneratedMessage {
-  factory GetHistoryByPackageAndUrlResponse({
-    $1.History? history,
-  }) {
-    final result = create();
-    if (history != null) result.history = history;
-    return result;
-  }
-
-  GetHistoryByPackageAndUrlResponse._();
-
-  factory GetHistoryByPackageAndUrlResponse.fromBuffer(
-          $core.List<$core.int> data,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromBuffer(data, registry);
-  factory GetHistoryByPackageAndUrlResponse.fromJson($core.String json,
-          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
-      create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'GetHistoryByPackageAndUrlResponse',
-      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
-      createEmptyInstance: create)
-    ..aOM<$1.History>(1, _omitFieldNames ? '' : 'history',
-        subBuilder: $1.History.create)
-    ..hasRequiredFields = false;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetHistoryByPackageAndUrlResponse clone() => deepCopy();
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  GetHistoryByPackageAndUrlResponse copyWith(
-          void Function(GetHistoryByPackageAndUrlResponse) updates) =>
-      super.copyWith((message) =>
-              updates(message as GetHistoryByPackageAndUrlResponse))
-          as GetHistoryByPackageAndUrlResponse;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static GetHistoryByPackageAndUrlResponse create() =>
-      GetHistoryByPackageAndUrlResponse._();
-  @$core.override
-  GetHistoryByPackageAndUrlResponse createEmptyInstance() => create();
-  @$core.pragma('dart2js:noInline')
-  static GetHistoryByPackageAndUrlResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<GetHistoryByPackageAndUrlResponse>(
-          create);
-  static GetHistoryByPackageAndUrlResponse? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $1.History get history => $_getN(0);
-  @$pb.TagNumber(1)
-  set history($1.History value) => $_setField(1, value);
-  @$pb.TagNumber(1)
-  $core.bool hasHistory() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearHistory() => $_clearField(1);
-  @$pb.TagNumber(1)
-  $1.History ensureHistory() => $_ensure(0);
 }
 
 class PutHistoryRequest extends $pb.GeneratedMessage {
@@ -2326,10 +2217,14 @@ class GetHistorysFilteredRequest extends $pb.GeneratedMessage {
   factory GetHistorysFilteredRequest({
     $core.String? type,
     $core.String? beforeDate,
+    $core.int? page,
+    $core.int? pageSize,
   }) {
     final result = create();
     if (type != null) result.type = type;
     if (beforeDate != null) result.beforeDate = beforeDate;
+    if (page != null) result.page = page;
+    if (pageSize != null) result.pageSize = pageSize;
     return result;
   }
 
@@ -2348,6 +2243,8 @@ class GetHistorysFilteredRequest extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'type')
     ..aOS(2, _omitFieldNames ? '' : 'beforeDate')
+    ..aI(3, _omitFieldNames ? '' : 'page')
+    ..aI(4, _omitFieldNames ? '' : 'pageSize')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -2388,6 +2285,24 @@ class GetHistorysFilteredRequest extends $pb.GeneratedMessage {
   $core.bool hasBeforeDate() => $_has(1);
   @$pb.TagNumber(2)
   void clearBeforeDate() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get page => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set page($core.int value) => $_setSignedInt32(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasPage() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearPage() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get pageSize => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set pageSize($core.int value) => $_setSignedInt32(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasPageSize() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearPageSize() => $_clearField(4);
 }
 
 class GetHistorysFilteredResponse extends $pb.GeneratedMessage {

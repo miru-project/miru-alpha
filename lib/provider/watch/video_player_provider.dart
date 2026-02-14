@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/miru_core/grpc_client.dart';
 import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
@@ -117,28 +118,20 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
   VideoPlayerController get videoPlayerController => vidController;
   @override
   VideoPlayerTickState build(
-    String url, {
+    String? mediaUrl, {
     List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
     Map<String, String>? headers,
     Size? initialRatio,
     ExtensionBangumiWatchTorrent? torrent,
+    String? localPath,
   }) {
     defaultSize = initialRatio ?? const Size(0, 0);
-    String streamUrl = url;
-    // handle torrent url
-    if (torrent != null) {
-      for (var file in torrent.files) {
-        final ext = file.split('.').last;
-        if (videoExtensions.contains(ext)) {
-          streamUrl =
-              '${CoreNetwork.baseUrl}/torrent/data/${torrent.infoHash}/${Uri.encodeComponent(file)}';
-          break;
-        }
-      }
-    }
-    vidController = VideoPlayerController.networkUrl(
-      Uri.parse(streamUrl),
-      httpHeaders: headers ?? const {},
+    String streamUrl = mediaUrl ?? '';
+    vidController = _getController(
+      streamUrl,
+      headers ?? const {},
+      torrent,
+      localPath,
     );
     final initialState = VideoPlayerTickState(
       subtitlesRaw: subtitlesRaw ?? const [],
@@ -146,19 +139,33 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
       ratio: vidController.value.aspectRatio,
     );
 
-    Future.microtask(() => _init(url, headers ?? const {}));
-    ref.onDispose(() {
-      _hideTimer?.cancel();
-      vidController.removeListener(_updatePosition);
-      vidController.dispose();
-      if (torrent != null) {
-        MiruGrpcClient.downloadClient.deleteTorrent(
-          proto.DeleteTorrentRequest()..infoHash = torrent.infoHash,
-        );
-      }
-    });
-
+    Future.microtask(() => _init(mediaUrl, headers ?? const {}));
     return initialState;
+  }
+
+  VideoPlayerController _getController(
+    String url,
+    Map<String, String> headers,
+    ExtensionBangumiWatchTorrent? torrent,
+    String? localPath,
+  ) {
+    if (localPath != null) {
+      return VideoPlayerController.file(File(localPath));
+    }
+    if (torrent != null) {
+      for (var file in torrent.files) {
+        final ext = file.split('.').last;
+        if (videoExtensions.contains(ext)) {
+          url =
+              '${CoreNetwork.baseUrl}/torrent/data/${torrent.infoHash}/${Uri.encodeComponent(file)}';
+          break;
+        }
+      }
+    }
+    return VideoPlayerController.networkUrl(
+      Uri.parse(url),
+      httpHeaders: headers,
+    );
   }
 
   Timer? _hideTimer;
@@ -176,7 +183,17 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     }
   }
 
-  void _init(String url, Map<String, String> headers) {
+  void _init(String? url, Map<String, String> headers) {
+    ref.onDispose(() {
+      _hideTimer?.cancel();
+      vidController.removeListener(_updatePosition);
+      vidController.dispose();
+      if (torrent != null) {
+        MiruGrpcClient.downloadClient.deleteTorrent(
+          proto.DeleteTorrentRequest()..infoHash = torrent!.infoHash,
+        );
+      }
+    });
     vidController.initialize().then((_) {
       vidController.addListener(_updatePosition);
       vidController.play();
@@ -187,7 +204,8 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
         buffered: vidController.value.buffered,
       );
     });
-    if (torrent != null) {
+    // Don't  get quality when using torrent or local file
+    if (torrent != null || url == null || localPath != null) {
       return;
     }
     getQuality(url, headers).then((val) {

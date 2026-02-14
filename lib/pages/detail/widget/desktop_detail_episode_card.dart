@@ -74,6 +74,16 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
                   child: FButton.raw(
                     style: FButtonStyle.outline(),
                     onPress: () {
+                      final donwloadList = ref.watch(
+                        detialProvider.select((value) => value.downloadList),
+                      );
+                      final savePath = donwloadList
+                          .firstWhereOrNull(
+                            (element) =>
+                                element.key ==
+                                "${detail.title}-${ep[selected.value].title}-${item.name}",
+                          )
+                          ?.savePath;
                       context.push(
                         '/watch',
                         extra: WatchParams(
@@ -87,6 +97,7 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
                           epGroup: detail.episodes,
                           detailUrl: detailUrl,
                           url: item.url,
+                          savePath: savePath,
                           meta: meta,
                           type: meta.type,
                         ),

@@ -11,9 +11,11 @@ class WatchParams {
     required this.name,
     required this.detailImageUrl,
     required this.detailUrl,
+    required this.savePath,
     required this.epGroup,
   });
   final ExtensionMeta meta;
+  // Watch Url
   final String url;
   final List<ExtensionEpisodeGroup>? epGroup;
   final int selectedGroupIndex;
@@ -22,6 +24,7 @@ class WatchParams {
   final String detailUrl;
   final ExtensionType type;
   final String name;
+  final String? savePath;
 }
 
 class DetailParam {

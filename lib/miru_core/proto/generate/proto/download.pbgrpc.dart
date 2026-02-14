@@ -81,6 +81,24 @@ class DownloadServiceClient extends $grpc.Client {
     return $createUnaryCall(_$deleteDownload, request, options: options);
   }
 
+  $grpc.ResponseFuture<$0.GetDownloadsByPackageAndDetailUrlResponse>
+      getDownloadsByPackageAndDetailUrl(
+    $0.GetDownloadsByPackageAndDetailUrlRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$getDownloadsByPackageAndDetailUrl, request,
+        options: options);
+  }
+
+  $grpc.ResponseFuture<$0.GetDownloadByPackageWatchUrlDetailUrlResponse>
+      getDownloadByPackageWatchUrlDetailUrl(
+    $0.GetDownloadByPackageWatchUrlDetailUrlRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$getDownloadByPackageWatchUrlDetailUrl, request,
+        options: options);
+  }
+
   /// Torrent
   $grpc.ResponseFuture<$0.ListTorrentResponse> listTorrent(
     $0.ListTorrentRequest request, {
@@ -154,6 +172,20 @@ class DownloadServiceClient extends $grpc.Client {
           '/miru.DownloadService/DeleteDownload',
           ($0.DeleteDownloadRequest value) => value.writeToBuffer(),
           $0.DeleteDownloadResponse.fromBuffer);
+  static final _$getDownloadsByPackageAndDetailUrl = $grpc.ClientMethod<
+          $0.GetDownloadsByPackageAndDetailUrlRequest,
+          $0.GetDownloadsByPackageAndDetailUrlResponse>(
+      '/miru.DownloadService/GetDownloadsByPackageAndDetailUrl',
+      ($0.GetDownloadsByPackageAndDetailUrlRequest value) =>
+          value.writeToBuffer(),
+      $0.GetDownloadsByPackageAndDetailUrlResponse.fromBuffer);
+  static final _$getDownloadByPackageWatchUrlDetailUrl = $grpc.ClientMethod<
+          $0.GetDownloadByPackageWatchUrlDetailUrlRequest,
+          $0.GetDownloadByPackageWatchUrlDetailUrlResponse>(
+      '/miru.DownloadService/GetDownloadByPackageWatchUrlDetailUrl',
+      ($0.GetDownloadByPackageWatchUrlDetailUrlRequest value) =>
+          value.writeToBuffer(),
+      $0.GetDownloadByPackageWatchUrlDetailUrlResponse.fromBuffer);
   static final _$listTorrent =
       $grpc.ClientMethod<$0.ListTorrentRequest, $0.ListTorrentResponse>(
           '/miru.DownloadService/ListTorrent',
@@ -247,6 +279,27 @@ abstract class DownloadServiceBase extends $grpc.Service {
         ($core.List<$core.int> value) =>
             $0.DeleteDownloadRequest.fromBuffer(value),
         ($0.DeleteDownloadResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GetDownloadsByPackageAndDetailUrlRequest,
+            $0.GetDownloadsByPackageAndDetailUrlResponse>(
+        'GetDownloadsByPackageAndDetailUrl',
+        getDownloadsByPackageAndDetailUrl_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.GetDownloadsByPackageAndDetailUrlRequest.fromBuffer(value),
+        ($0.GetDownloadsByPackageAndDetailUrlResponse value) =>
+            value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<
+            $0.GetDownloadByPackageWatchUrlDetailUrlRequest,
+            $0.GetDownloadByPackageWatchUrlDetailUrlResponse>(
+        'GetDownloadByPackageWatchUrlDetailUrl',
+        getDownloadByPackageWatchUrlDetailUrl_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.GetDownloadByPackageWatchUrlDetailUrlRequest.fromBuffer(value),
+        ($0.GetDownloadByPackageWatchUrlDetailUrlResponse value) =>
+            value.writeToBuffer()));
     $addMethod(
         $grpc.ServiceMethod<$0.ListTorrentRequest, $0.ListTorrentResponse>(
             'ListTorrent',
@@ -351,6 +404,30 @@ abstract class DownloadServiceBase extends $grpc.Service {
 
   $async.Future<$0.DeleteDownloadResponse> deleteDownload(
       $grpc.ServiceCall call, $0.DeleteDownloadRequest request);
+
+  $async.Future<$0.GetDownloadsByPackageAndDetailUrlResponse>
+      getDownloadsByPackageAndDetailUrl_Pre(
+          $grpc.ServiceCall $call,
+          $async.Future<$0.GetDownloadsByPackageAndDetailUrlRequest>
+              $request) async {
+    return getDownloadsByPackageAndDetailUrl($call, await $request);
+  }
+
+  $async.Future<$0.GetDownloadsByPackageAndDetailUrlResponse>
+      getDownloadsByPackageAndDetailUrl($grpc.ServiceCall call,
+          $0.GetDownloadsByPackageAndDetailUrlRequest request);
+
+  $async.Future<$0.GetDownloadByPackageWatchUrlDetailUrlResponse>
+      getDownloadByPackageWatchUrlDetailUrl_Pre(
+          $grpc.ServiceCall $call,
+          $async.Future<$0.GetDownloadByPackageWatchUrlDetailUrlRequest>
+              $request) async {
+    return getDownloadByPackageWatchUrlDetailUrl($call, await $request);
+  }
+
+  $async.Future<$0.GetDownloadByPackageWatchUrlDetailUrlResponse>
+      getDownloadByPackageWatchUrlDetailUrl($grpc.ServiceCall call,
+          $0.GetDownloadByPackageWatchUrlDetailUrlRequest request);
 
   $async.Future<$0.ListTorrentResponse> listTorrent_Pre($grpc.ServiceCall $call,
       $async.Future<$0.ListTorrentRequest> $request) async {

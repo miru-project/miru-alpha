@@ -17,7 +17,7 @@ final class WatchProvider
     with $FutureModifier<Object>, $FutureProvider<Object> {
   WatchProvider._({
     required WatchFamily super.from,
-    required (String, String, ExtensionType) super.argument,
+    required (String, String, String, ExtensionType) super.argument,
   }) : super(
          retry: null,
          name: r'watchProvider',
@@ -43,8 +43,8 @@ final class WatchProvider
 
   @override
   FutureOr<Object> create(Ref ref) {
-    final argument = this.argument as (String, String, ExtensionType);
-    return watch(ref, argument.$1, argument.$2, argument.$3);
+    final argument = this.argument as (String, String, String, ExtensionType);
+    return watch(ref, argument.$1, argument.$2, argument.$3, argument.$4);
   }
 
   @override
@@ -58,13 +58,13 @@ final class WatchProvider
   }
 }
 
-String _$watchHash() => r'c8ae404747f5cd7bd42b7fc8b844333c8f9a7c7e';
+String _$watchHash() => r'eb74354da537b97dcca5c995438199ab8d370e11';
 
 final class WatchFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<Object>,
-          (String, String, ExtensionType)
+          (String, String, String, ExtensionType)
         > {
   WatchFamily._()
     : super(
@@ -75,8 +75,12 @@ final class WatchFamily extends $Family
         isAutoDispose: true,
       );
 
-  WatchProvider call(String url, String pkg, ExtensionType type) =>
-      WatchProvider._(argument: (url, pkg, type), from: this);
+  WatchProvider call(
+    String watchUrl,
+    String detailUrl,
+    String pkg,
+    ExtensionType type,
+  ) => WatchProvider._(argument: (watchUrl, detailUrl, pkg, type), from: this);
 
   @override
   String toString() => r'watchProvider';

@@ -16,7 +16,7 @@ final class MangaReaderProvider
     extends $NotifierProvider<MangaReader, MangaReaderState> {
   MangaReaderProvider._({
     required MangaReaderFamily super.from,
-    required (int, int, ExtensionMangaWatch, {Map<String, String>? headers})
+    required (int, int, ExtensionMangaWatch?, {Map<String, String>? headers})
     super.argument,
   }) : super(
          retry: null,
@@ -59,7 +59,7 @@ final class MangaReaderProvider
   }
 }
 
-String _$mangaReaderHash() => r'6c8bbc2dd5dac8329ebe747a99df1a6a548a0ca4';
+String _$mangaReaderHash() => r'4c632978c633302ac36b79fa1a21514e4b3b3286';
 
 final class MangaReaderFamily extends $Family
     with
@@ -68,7 +68,7 @@ final class MangaReaderFamily extends $Family
           MangaReaderState,
           MangaReaderState,
           MangaReaderState,
-          (int, int, ExtensionMangaWatch, {Map<String, String>? headers})
+          (int, int, ExtensionMangaWatch?, {Map<String, String>? headers})
         > {
   MangaReaderFamily._()
     : super(
@@ -82,7 +82,7 @@ final class MangaReaderFamily extends $Family
   MangaReaderProvider call(
     int epIndex,
     int total,
-    ExtensionMangaWatch data, {
+    ExtensionMangaWatch? data, {
     Map<String, String>? headers,
   }) => MangaReaderProvider._(
     argument: (epIndex, total, data, headers: headers),
@@ -96,16 +96,16 @@ final class MangaReaderFamily extends $Family
 abstract class _$MangaReader extends $Notifier<MangaReaderState> {
   late final _$args =
       ref.$arg
-          as (int, int, ExtensionMangaWatch, {Map<String, String>? headers});
+          as (int, int, ExtensionMangaWatch?, {Map<String, String>? headers});
   int get epIndex => _$args.$1;
   int get total => _$args.$2;
-  ExtensionMangaWatch get data => _$args.$3;
+  ExtensionMangaWatch? get data => _$args.$3;
   Map<String, String>? get headers => _$args.headers;
 
   MangaReaderState build(
     int epIndex,
     int total,
-    ExtensionMangaWatch data, {
+    ExtensionMangaWatch? data, {
     Map<String, String>? headers,
   });
   @$mustCallSuper

@@ -192,6 +192,7 @@ class _ContinueWatchingCard extends ConsumerWidget {
         context.push<WatchParams>(
           "/watch",
           extra: WatchParams(
+            savePath: null,
             name: item.title,
             detailImageUrl: item.cover ?? '',
             selectedEpisodeIndex: 0,

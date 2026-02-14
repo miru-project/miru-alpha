@@ -163,15 +163,12 @@ class MiruCoreEndpoint {
     switch (type) {
       case ExtensionType.bangumi:
         final result = ExtensionBangumiWatch.fromJson(data);
-        // result.headers ??= await _defaultHeaders;
         return result;
       case ExtensionType.manga:
         final result = ExtensionMangaWatch.fromJson(data);
-        // result.headers ??= await _defaultHeaders;
         return result;
       case ExtensionType.fikushon:
         final result = ExtensionFikushonWatch.fromJson(data);
-        // result.headers ??= await _defaultHeaders;
         return result;
       default:
         throw (Exception('Unknown media type'));

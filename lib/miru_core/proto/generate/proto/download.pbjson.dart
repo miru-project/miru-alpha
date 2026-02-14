@@ -160,6 +160,8 @@ const DownloadRequest$json = {
     {'1': 'package', '3': 5, '4': 1, '5': 9, '10': 'package'},
     {'1': 'key', '3': 6, '4': 1, '5': 9, '10': 'key'},
     {'1': 'title', '3': 7, '4': 1, '5': 9, '10': 'title'},
+    {'1': 'detail_url', '3': 8, '4': 1, '5': 9, '10': 'detailUrl'},
+    {'1': 'watch_url', '3': 9, '4': 1, '5': 9, '10': 'watchUrl'},
   ],
   '3': [DownloadRequest_HeadersEntry$json],
 };
@@ -180,8 +182,9 @@ final $typed_data.Uint8List downloadRequestDescriptor = $convert.base64Decode(
     'EoCVIMZG93bmxvYWRQYXRoEjwKB2hlYWRlcnMYAyADKAsyIi5taXJ1LkRvd25sb2FkUmVxdWVz'
     'dC5IZWFkZXJzRW50cnlSB2hlYWRlcnMSHQoKbWVkaWFfdHlwZRgEIAEoCVIJbWVkaWFUeXBlEh'
     'gKB3BhY2thZ2UYBSABKAlSB3BhY2thZ2USEAoDa2V5GAYgASgJUgNrZXkSFAoFdGl0bGUYByAB'
-    'KAlSBXRpdGxlGjoKDEhlYWRlcnNFbnRyeRIQCgNrZXkYASABKAlSA2tleRIUCgV2YWx1ZRgCIA'
-    'EoCVIFdmFsdWU6AjgB');
+    'KAlSBXRpdGxlEh0KCmRldGFpbF91cmwYCCABKAlSCWRldGFpbFVybBIbCgl3YXRjaF91cmwYCS'
+    'ABKAlSCHdhdGNoVXJsGjoKDEhlYWRlcnNFbnRyeRIQCgNrZXkYASABKAlSA2tleRIUCgV2YWx1'
+    'ZRgCIAEoCVIFdmFsdWU6AjgB');
 
 @$core.Deprecated('Use downloadResponseDescriptor instead')
 const DownloadResponse$json = {
@@ -209,11 +212,17 @@ final $typed_data.Uint8List downloadResponseDescriptor = $convert.base64Decode(
 @$core.Deprecated('Use getAllDownloadsRequestDescriptor instead')
 const GetAllDownloadsRequest$json = {
   '1': 'GetAllDownloadsRequest',
+  '2': [
+    {'1': 'page', '3': 1, '4': 1, '5': 5, '10': 'page'},
+    {'1': 'page_size', '3': 2, '4': 1, '5': 5, '10': 'pageSize'},
+  ],
 };
 
 /// Descriptor for `GetAllDownloadsRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List getAllDownloadsRequestDescriptor =
-    $convert.base64Decode('ChZHZXRBbGxEb3dubG9hZHNSZXF1ZXN0');
+    $convert.base64Decode(
+        'ChZHZXRBbGxEb3dubG9hZHNSZXF1ZXN0EhIKBHBhZ2UYASABKAVSBHBhZ2USGwoJcGFnZV9zaX'
+        'plGAIgASgFUghwYWdlU2l6ZQ==');
 
 @$core.Deprecated('Use getAllDownloadsResponseDescriptor instead')
 const GetAllDownloadsResponse$json = {
@@ -260,6 +269,86 @@ const DeleteDownloadResponse$json = {
 final $typed_data.Uint8List deleteDownloadResponseDescriptor =
     $convert.base64Decode(
         'ChZEZWxldGVEb3dubG9hZFJlc3BvbnNlEhgKB21lc3NhZ2UYASABKAlSB21lc3NhZ2U=');
+
+@$core.Deprecated(
+    'Use getDownloadsByPackageAndDetailUrlRequestDescriptor instead')
+const GetDownloadsByPackageAndDetailUrlRequest$json = {
+  '1': 'GetDownloadsByPackageAndDetailUrlRequest',
+  '2': [
+    {'1': 'package', '3': 1, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'detail_url', '3': 2, '4': 1, '5': 9, '10': 'detailUrl'},
+  ],
+};
+
+/// Descriptor for `GetDownloadsByPackageAndDetailUrlRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getDownloadsByPackageAndDetailUrlRequestDescriptor =
+    $convert.base64Decode(
+        'CihHZXREb3dubG9hZHNCeVBhY2thZ2VBbmREZXRhaWxVcmxSZXF1ZXN0EhgKB3BhY2thZ2UYAS'
+        'ABKAlSB3BhY2thZ2USHQoKZGV0YWlsX3VybBgCIAEoCVIJZGV0YWlsVXJs');
+
+@$core.Deprecated(
+    'Use getDownloadsByPackageAndDetailUrlResponseDescriptor instead')
+const GetDownloadsByPackageAndDetailUrlResponse$json = {
+  '1': 'GetDownloadsByPackageAndDetailUrlResponse',
+  '2': [
+    {
+      '1': 'downloads',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.Download',
+      '10': 'downloads'
+    },
+  ],
+};
+
+/// Descriptor for `GetDownloadsByPackageAndDetailUrlResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List
+    getDownloadsByPackageAndDetailUrlResponseDescriptor = $convert.base64Decode(
+        'CilHZXREb3dubG9hZHNCeVBhY2thZ2VBbmREZXRhaWxVcmxSZXNwb25zZRIsCglkb3dubG9hZH'
+        'MYASADKAsyDi5taXJ1LkRvd25sb2FkUglkb3dubG9hZHM=');
+
+@$core.Deprecated(
+    'Use getDownloadByPackageWatchUrlDetailUrlRequestDescriptor instead')
+const GetDownloadByPackageWatchUrlDetailUrlRequest$json = {
+  '1': 'GetDownloadByPackageWatchUrlDetailUrlRequest',
+  '2': [
+    {'1': 'package', '3': 1, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'watch_url', '3': 2, '4': 1, '5': 9, '10': 'watchUrl'},
+    {'1': 'detail_url', '3': 3, '4': 1, '5': 9, '10': 'detailUrl'},
+  ],
+};
+
+/// Descriptor for `GetDownloadByPackageWatchUrlDetailUrlRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List
+    getDownloadByPackageWatchUrlDetailUrlRequestDescriptor =
+    $convert.base64Decode(
+        'CixHZXREb3dubG9hZEJ5UGFja2FnZVdhdGNoVXJsRGV0YWlsVXJsUmVxdWVzdBIYCgdwYWNrYW'
+        'dlGAEgASgJUgdwYWNrYWdlEhsKCXdhdGNoX3VybBgCIAEoCVIId2F0Y2hVcmwSHQoKZGV0YWls'
+        'X3VybBgDIAEoCVIJZGV0YWlsVXJs');
+
+@$core.Deprecated(
+    'Use getDownloadByPackageWatchUrlDetailUrlResponseDescriptor instead')
+const GetDownloadByPackageWatchUrlDetailUrlResponse$json = {
+  '1': 'GetDownloadByPackageWatchUrlDetailUrlResponse',
+  '2': [
+    {
+      '1': 'download',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.Download',
+      '10': 'download'
+    },
+  ],
+};
+
+/// Descriptor for `GetDownloadByPackageWatchUrlDetailUrlResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List
+    getDownloadByPackageWatchUrlDetailUrlResponseDescriptor =
+    $convert.base64Decode(
+        'Ci1HZXREb3dubG9hZEJ5UGFja2FnZVdhdGNoVXJsRGV0YWlsVXJsUmVzcG9uc2USKgoIZG93bm'
+        'xvYWQYASABKAsyDi5taXJ1LkRvd25sb2FkUghkb3dubG9hZA==');
 
 @$core.Deprecated('Use listTorrentRequestDescriptor instead')
 const ListTorrentRequest$json = {
@@ -382,6 +471,18 @@ const UpdateDownloadStatusRequest$json = {
   '2': [
     {'1': 'task_id', '3': 1, '4': 1, '5': 5, '10': 'taskId'},
     {'1': 'status', '3': 2, '4': 1, '5': 9, '10': 'status'},
+    {
+      '1': 'save_path',
+      '3': 3,
+      '4': 1,
+      '5': 9,
+      '9': 0,
+      '10': 'savePath',
+      '17': true
+    },
+  ],
+  '8': [
+    {'1': '_save_path'},
   ],
 };
 
@@ -389,7 +490,8 @@ const UpdateDownloadStatusRequest$json = {
 final $typed_data.Uint8List updateDownloadStatusRequestDescriptor =
     $convert.base64Decode(
         'ChtVcGRhdGVEb3dubG9hZFN0YXR1c1JlcXVlc3QSFwoHdGFza19pZBgBIAEoBVIGdGFza0lkEh'
-        'YKBnN0YXR1cxgCIAEoCVIGc3RhdHVz');
+        'YKBnN0YXR1cxgCIAEoCVIGc3RhdHVzEiAKCXNhdmVfcGF0aBgDIAEoCUgAUghzYXZlUGF0aIgB'
+        'AUIMCgpfc2F2ZV9wYXRo');
 
 @$core.Deprecated('Use updateDownloadStatusResponseDescriptor instead')
 const UpdateDownloadStatusResponse$json = {

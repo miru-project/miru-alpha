@@ -1,24 +1,45 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_hls_parser/flutter_hls_parser.dart';
+import 'package:miru_app_new/miru_core/grpc_client.dart';
 import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/network/index.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_app_new/model/index.dart';
-
+import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
 part 'network_provider.g.dart';
 
 @riverpod
 Future<Object> watch(
   Ref ref,
-  String url,
+  String watchUrl,
+  String detailUrl,
   String pkg,
   ExtensionType type,
 ) async {
-  return await MiruCoreEndpoint.watch(url, pkg, type);
+  try {
+    final downloaded = await MiruGrpcClient.downloadClient
+        .getDownloadByPackageWatchUrlDetailUrl(
+          proto.GetDownloadByPackageWatchUrlDetailUrlRequest(
+            package: pkg,
+            watchUrl: watchUrl,
+            detailUrl: detailUrl,
+          ),
+        );
+    final savePath = downloaded.download.savePath;
+    final isExists = File(savePath).existsSync();
+    if (isExists) {
+      return downloaded.download;
+    }
+    throw Exception('Download file not found');
+  } catch (e) {
+    final result = await MiruCoreEndpoint.watch(watchUrl, pkg, type);
+    return result;
+  }
 }
 
 @riverpod
