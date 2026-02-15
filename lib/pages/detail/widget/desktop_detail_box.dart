@@ -10,7 +10,6 @@ import 'package:miru_app_new/pages/webview/desktop_webview.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
-import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 import 'package:miru_app_new/widgets/animted_icon/heart.dart';
 
@@ -164,16 +163,10 @@ class DetailDesktopBox extends HookConsumerWidget {
                             meta: meta,
                             detailUrl: detailUrl,
                             detail: detail,
-                            onSuccess: () async {
-                              // Refresh favorite state after dialog closes
-                              final favorite =
-                                  await DatabaseService.getFavoriteByPackageAndUrl(
-                                    meta.packageName,
-                                    detailUrl,
-                                  );
+                            onSuccess: (fav, favGrp) async {
                               ref
                                   .read(detialProvider.notifier)
-                                  .putFavorite(favorite);
+                                  .putFavorite(fav);
                             },
                           ),
                         );

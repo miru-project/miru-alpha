@@ -83,42 +83,35 @@ class ContinueWatchingSection extends HookConsumerWidget {
                     height: 220,
                     child: Stack(
                       children: [
-                        Padding(
-                          padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
-                          child: ListView.builder(
-                            controller: scrollController,
-                            scrollDirection: Axis.horizontal,
-                            itemCount: history.length > 10
-                                ? 10
-                                : history.length,
-                            itemBuilder: (context, index) {
-                              final item = history[index];
-                              return Padding(
-                                padding: index == 0
-                                    ? const EdgeInsets.only(left: 16)
-                                    : EdgeInsetsGeometry.zero,
-                                child: MouseRegion(
-                                  onHover: (_) {
-                                    insideHover = true;
-                                    ishover.value =
-                                        !insideHover && outsideHover;
-                                  },
-                                  onExit: (_) {
-                                    insideHover = false;
-                                    ishover.value =
-                                        !insideHover && outsideHover;
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(right: 16),
-                                    child: _ContinueWatchingCard(
-                                      key: ValueKey(item.url),
-                                      item: item,
-                                    ),
+                        ListView.builder(
+                          controller: scrollController,
+                          scrollDirection: Axis.horizontal,
+                          itemCount: history.length > 10 ? 10 : history.length,
+                          itemBuilder: (context, index) {
+                            final item = history[index];
+                            return Padding(
+                              padding: index == 0
+                                  ? const EdgeInsets.only(left: 16)
+                                  : EdgeInsetsGeometry.zero,
+                              child: MouseRegion(
+                                onHover: (_) {
+                                  insideHover = true;
+                                  ishover.value = !insideHover && outsideHover;
+                                },
+                                onExit: (_) {
+                                  insideHover = false;
+                                  ishover.value = !insideHover && outsideHover;
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 16),
+                                  child: _ContinueWatchingCard(
+                                    key: ValueKey(item.url),
+                                    item: item,
                                   ),
                                 ),
-                              );
-                            },
-                          ),
+                              ),
+                            );
+                          },
                         ),
 
                         // Left Arrow
@@ -232,7 +225,6 @@ class _ContinueWatchingCard extends ConsumerWidget {
                     },
                   ),
                 ),
-                // const SizedBox(height: 16),
                 SizedBox(
                   height: 4,
                   child: FDeterminateProgress(value: progress),

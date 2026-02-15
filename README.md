@@ -4,16 +4,19 @@ A rework version of [miru_app](github.com/miru-project/miru-app)
 
 ## Getting Started
 
-The project currently work in progress. To download the latest dev build, go to [github actions](https://github.com/miru-project/miru-alpha/actions)
+The project currently work in progress. To download the latest dev build, go to
+[github actions](https://github.com/miru-project/miru-alpha/actions)
 
 ## Build
 
-This project uses a GitHub Actions workflow to build artifacts for Android, Windows and Linux. The sections below document how the CI builds match those local steps so you can reproduce the outputs locally.
+This project uses a GitHub Actions workflow to build artifacts for Android,
+Windows and Linux. The sections below document how the CI builds match those
+local steps so you can reproduce the outputs locally.
 
 ### Prerequisites
 
-- Flutter (Flutter 3.35.4 stable). Install and ensure `flutter` is on PATH.
-- Go ( Go 1.25.1). Install and ensure `go` is on PATH.
+- Flutter (Flutter 3.41.1 stable). Install and ensure `flutter` is on PATH.
+- Go ( Go 1.25.7). Install and ensure `go` is on PATH.
 
 ### Linux
 
@@ -25,12 +28,13 @@ ninja-build, build-essential, libasound2-dev, libgtk-3-dev, libwebkit2gtk-4.1-0,
 
 ### Android
 
-Go to  `projectPath/src/miru_core/miru-core/binary` and run the following command.
+Go to `projectPath/src/miru_core/miru-core/binary` and run the following
+command.
 
 ```bash
 go get golang.org/x/mobile/cmd/gomobile #for the first time
 gomobile init  #for the first time
-gomobile bind -ldflags="-s -w" -o ../../android/libmiru-core.aar -target=android -androidapi 21
+make build-android
 ```
 
 ## Progress and Future work
@@ -38,9 +42,11 @@ gomobile bind -ldflags="-s -w" -o ../../android/libmiru-core.aar -target=android
 The plan has split into two stage basic (`2.0.0`) and advanced.
 
 ### Basic
-The basic stage contains necessary components for apps to run at minimum functionality.
 
-####  Miru Core (backend)
+The basic stage contains necessary components for apps to run at minimum
+functionality.
+
+#### Miru Core (backend)
 
 ##### Js Runtime (goja) V1
 
@@ -55,43 +61,51 @@ The basic stage contains necessary components for apps to run at minimum functio
 
 ##### Readview
 
-- [x] Video player 
+- [x] Video player
 - [x] Manga reader
-- [ ] Novel reader 
-##### Extension 
+- [ ] Novel reader
+
+##### Extension
+
 - [x] Search and install
+
 ### Advanced
 
-####  Miru Core (backend)
-- [x] Torrent support 
+#### Miru Core (backend)
+
+- [x] Torrent support
+
 ##### Backup
+
 - [x] webdav
+
 ##### Downloader
 
 - [x] Mp4
 - [x] Hls
-- [ ] Torrent 
+- [ ] Torrent
 - [ ] Manga
 - [ ] Novel
 
 ##### DB
- - [ ] Favorite 
- - [ ] History
+
+- [ ] Favorite
+- [ ] History
 
 #### App
 
-- [ ] Anilist support 
+- [ ] Anilist support
 - [ ] Devtool
 - [ ] Search filter
 
-##### Download 
+##### Download
 
 - [ ] UI
-- [x] FFmpeg 
+- [x] FFmpeg
 
 ##### Video player
 
-##### Manga Reader 
+##### Manga Reader
 
 - [ ] infinite scroll
 - [ ] support Tortent
@@ -99,6 +113,6 @@ The basic stage contains necessary components for apps to run at minimum functio
 ##### Novel reader
 
 - [ ] support epub
-- [ ] support Torrent 
+- [ ] support Torrent
 - [ ] Page view
 - [ ] Integrate TTS (KokoroTTS)

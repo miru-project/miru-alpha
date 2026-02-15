@@ -106,22 +106,6 @@ class DatabaseService {
     return response.history.map((e) => History.fromProto(e)).toList();
   }
 
-  // static Future<History?> getHistoryByPackageAndUrl(
-  //   String package,
-  //   String url,
-  // ) async {
-  //   try {
-  //     final response = await client.getHistoryByPackageAndUrl(
-  //       proto.GetHistoryByPackageAndUrlRequest()
-  //         ..package = package
-  //         ..url = url,
-  //     );
-  //     return History.fromProto(response.history);
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // }
-
   static Future<void> putHistory(History history) async {
     await client.putHistory(
       proto.PutHistoryRequest()..history = history.toProto(),
@@ -213,12 +197,12 @@ class DatabaseService {
     return Favorite.fromProto(response.favorite);
   }
 
-  static Future<void> deleteFavorite(String detailUrl, String package) async {
+  static Future<void> deleteFavorite(String url, String package) async {
     await client.deleteFavorite(
       proto.DeleteFavoriteRequest()
-        ..url = detailUrl
+        ..url = url
         ..package = package,
     );
-    logger.info('deleteFavorite $detailUrl $package');
+    logger.info('deleteFavorite $url $package');
   }
 }

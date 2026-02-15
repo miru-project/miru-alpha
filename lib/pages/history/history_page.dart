@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -62,6 +63,30 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
               context.push(
                 '/search/single/detail',
                 extra: DetailParam(meta: ext, url: item.detailUrl),
+              );
+            },
+            onLongPress: () {
+              showFSheet(
+                context: context,
+                style: .delta(
+                  barrierFilter: (value) =>
+                      ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                ),
+                builder: (context) => Consumer(
+                  builder: (context, ref, child) => FTileGroup(
+                    children: [
+                      FTile(
+                        prefix: Icon(FIcons.bookX),
+                        title: Text('Remove  History'),
+                        onPress: () {
+                          ref.read(mainProvider.notifier).removeHistory(item);
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                side: .btt,
               );
             },
           );

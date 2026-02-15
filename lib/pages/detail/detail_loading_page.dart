@@ -117,14 +117,8 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
                       meta: widget.meta,
                       detailUrl: widget.detailUrl,
                       detail: detial,
-                      onSuccess: () async {
-                        // Refresh favorite state after dialog closes
-                        final favorite =
-                            await DatabaseService.getFavoriteByPackageAndUrl(
-                              widget.meta.packageName,
-                              widget.detailUrl,
-                            );
-                        ref.read(detialProvider.notifier).putFavorite(favorite);
+                      onSuccess: (fav, groups) {
+                        ref.read(detialProvider.notifier).putFavorite(fav);
                       },
                     ),
                   );

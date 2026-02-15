@@ -4,7 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:miru_app_new/widgets/core/miru_tabs.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/pages/download/download_page.dart';
-import 'package:miru_app_new/pages/favorite/favorite_page_desktop_layout.dart';
+import 'package:miru_app_new/pages/favorite/favorite_page_layout.dart';
 import 'package:miru_app_new/pages/history/history_page.dart';
 import 'package:miru_app_new/pages/home/widget/continue_watch.dart';
 import 'package:miru_app_new/pages/home/widget/download.dart';

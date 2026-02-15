@@ -101,6 +101,7 @@ class MainNotifier extends _$MainNotifier {
     state = state.copyWith(
       history: state.history.where((e) => e.id != history.id).toList(),
     );
+    DatabaseService.deleteHistoryByPackageAndUrl(history.package, history.url);
   }
 
   void updateFavorite(Favorite favorite) {
@@ -131,6 +132,7 @@ class MainNotifier extends _$MainNotifier {
     state = state.copyWith(
       favorites: state.favorites.where((e) => e.id != favorite.id).toList(),
     );
+    DatabaseService.deleteFavorite(favorite.url, favorite.package);
   }
 
   void removeFavoriteGroup(FavoriateGroup favoriateGroup) {
@@ -167,5 +169,56 @@ class MainNotifier extends _$MainNotifier {
       historyPage: nextPage,
       historyHasMore: history.length >= pageSize,
     );
+  }
+
+  void refreshFavoritesAndGroup() async {
+    final futures = await Future.wait([
+      DatabaseService.getAllFavoriteGroup(),
+      DatabaseService.getAllFavorite(),
+    ]);
+    state = state.copyWith(
+      favoriateGroups: futures[0] as List<FavoriateGroup>,
+      favorites: futures[1] as List<Favorite>,
+    );
+  }
+
+  List<Favorite> filterBySearch(List<Favorite> fav) {
+    final search = state.searchText;
+    if (search.isEmpty) {
+      return fav;
+    }
+    return fav
+        .where(
+          (element) =>
+              element.title.toLowerCase().contains(search.toLowerCase()),
+        )
+        .toList();
+  }
+
+  List<Favorite> filterFavoriteByGroup(List<Favorite> fav) {
+    final selected = state.selectedGroups;
+
+    // If no group selected, show all favorites
+    List<Favorite> result;
+    if (selected.isEmpty) {
+      result = fav;
+    } else {
+      final List<FavoriateGroup> selectedFavGroup = [];
+      for (int index in selected) {
+        if (index < state.favoriateGroups.length) {
+          selectedFavGroup.add(state.favoriateGroups[index]);
+        }
+      }
+
+      final Set<int> allowedFavIds = {};
+      for (final group in selectedFavGroup) {
+        allowedFavIds.addAll(group.favorites.map((e) => e.id));
+      }
+
+      result = fav.where((f) => allowedFavIds.contains(f.id)).toList();
+    }
+
+    // Apply search filter
+    return filterBySearch(result);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:miru_app_new/provider/watch/main_provider.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_app_new/miru_core/network.dart';
@@ -58,11 +59,15 @@ class Detial extends _$Detial {
 
   void putFavorite(Favorite? f) {
     state = state.copyWith(favorite: f);
+    if (f != null) {
+      ref.read(mainProvider.notifier).addFavorite(f);
+    }
   }
 
   void removeFavorite(Favorite f) {
     DatabaseService.deleteFavorite(f.package, f.url);
     state = state.copyWith(favorite: null);
+    ref.read(mainProvider.notifier).removeFavorite(f);
   }
 
   void setSelectedGroup(int v) {

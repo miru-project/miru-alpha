@@ -9,7 +9,7 @@ import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import '../../../pages/anilist_webview.dart';
-import '../../pages/favorite/favorite_page_desktop_layout.dart';
+import '../../pages/favorite/favorite_page_layout.dart';
 import '../../pages/history/history_page.dart';
 import '../../../pages/index.dart';
 import '../../../pages/main_page.dart';

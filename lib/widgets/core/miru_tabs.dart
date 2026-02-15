@@ -90,6 +90,7 @@ class _MiruTabsState extends State<MiruTabs>
               dividerColor: Colors.transparent,
               dividerHeight: 0,
               splashFactory: NoSplash.splashFactory,
+              labelColor: context.theme.colors.foreground,
             ),
           ),
           SizedBox(height: style.spacing),

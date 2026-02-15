@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -114,11 +115,13 @@ class MiruMobileTile extends StatelessWidget {
     this.width,
     this.onTap,
     this.height,
+    this.onLongPress,
   });
   final String? imageUrl;
   final String title;
   final String subtitle;
   final void Function()? onTap;
+  final void Function()? onLongPress;
   final double? height;
   final double? width;
   final Widget? stackLabel;
@@ -133,6 +136,7 @@ class MiruMobileTile extends StatelessWidget {
       height: height,
       child: GestureDetector(
         onTap: onTap,
+        onLongPress: onLongPress,
         child: Stack(
           fit: StackFit.expand,
           children: [

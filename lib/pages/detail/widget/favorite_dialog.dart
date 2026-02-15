@@ -19,7 +19,7 @@ class FavoriteDialog extends HookConsumerWidget {
   final String detailUrl;
   final ExtensionDetail detail;
   final ExtensionMeta meta;
-  final VoidCallback onSuccess;
+  final void Function(Favorite, List<FavoriateGroup>) onSuccess;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -97,7 +97,7 @@ class FavoriteDialog extends HookConsumerWidget {
           await DatabaseService.putFavoriteByIndex(groupsToUpdate);
         }
 
-        onSuccess();
+        onSuccess(fav, groupsToUpdate);
         if (context.mounted) Navigator.of(context).pop();
         if (context.mounted) showSimpleToast("Favorites updated");
       } catch (e) {
