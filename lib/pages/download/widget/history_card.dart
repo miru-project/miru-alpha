@@ -31,7 +31,7 @@ class DownloadHistoryCard extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FButton.icon(
-            style: FButtonStyle.destructive(),
+            variant: .destructive,
             onPress: () async {
               await MiruGrpcClient.downloadClient.deleteDownload(
                 proto.DeleteDownloadRequest()..id = download.id,

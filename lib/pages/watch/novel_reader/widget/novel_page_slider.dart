@@ -38,7 +38,7 @@ class NovelMobileSliderState extends ConsumerState<NovelPageSlider> {
     return Row(
       children: [
         FButton.icon(
-          style: FButtonStyle.ghost(),
+          variant: .ghost,
           onPress: epState.selectedEpisodeIndex != 0
               ? () {
                   epNotifier.selectEpisode(
@@ -102,7 +102,7 @@ class NovelMobileSliderState extends ConsumerState<NovelPageSlider> {
         Text(readerState.totalPage.toString()),
         const SizedBox(width: 10),
         FButton.icon(
-          style: FButtonStyle.ghost(),
+          variant: .ghost,
           onPress:
               epState.selectedEpisodeIndex <
                   epState.epGroup[epState.selectedGroupIndex].urls.length - 1

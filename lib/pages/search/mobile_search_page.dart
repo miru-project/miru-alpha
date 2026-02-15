@@ -33,7 +33,7 @@ class MobileSearchPage extends HookConsumerWidget {
           HookBuilder(
             builder: (context) {
               return FButton.icon(
-                style: FButtonStyle.ghost(),
+                variant: .ghost,
                 onPress: () {},
                 child: Icon(FIcons.pin, size: 24),
               );

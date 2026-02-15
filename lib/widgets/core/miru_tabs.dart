@@ -90,8 +90,6 @@ class _MiruTabsState extends State<MiruTabs>
               dividerColor: Colors.transparent,
               dividerHeight: 0,
               splashFactory: NoSplash.splashFactory,
-              labelStyle: style.selectedLabelTextStyle,
-              unselectedLabelStyle: style.unselectedLabelTextStyle,
             ),
           ),
           SizedBox(height: style.spacing),
@@ -139,7 +137,7 @@ class _MiruTabState extends State<_MiruTab> {
 
   @override
   Widget build(BuildContext _) => FFocusedOutline(
-    style: widget.style.focusedOutlineStyle.call,
+    style: widget.style.focusedOutlineStyle,
     focused: _focused,
     child: Tab(height: widget.style.height, child: widget.label),
   );

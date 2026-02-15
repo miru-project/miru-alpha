@@ -96,18 +96,21 @@ class DetailDesktopBox extends HookConsumerWidget {
                   ),
                 const SizedBox(height: 25),
                 FAccordion(
-                  style: (style) {
-                    return FAccordionStyle(
-                      titleTextStyle: style.titleTextStyle,
-                      childTextStyle: style.childTextStyle,
-                      iconStyle: style.iconStyle,
-                      focusedOutlineStyle: style.focusedOutlineStyle,
-                      dividerStyle: style.dividerStyle.copyWith(
-                        color: Colors.transparent,
-                      ),
-                      tappableStyle: style.tappableStyle,
-                    );
-                  },
+                  style: .delta(
+                    dividerStyle: .delta(color: Colors.transparent),
+                  ),
+                  // style: (style) {
+                  //   return FAccordionStyle(
+                  //     titleTextStyle: style.titleTextStyle,
+                  //     childTextStyle: style.childTextStyle,
+                  //     iconStyle: style.iconStyle,
+                  //     focusedOutlineStyle: style.focusedOutlineStyle,
+                  //     dividerStyle: style.dividerStyle.copyWith(
+                  //       color: Colors.transparent,
+                  //     ),
+                  //     tappableStyle: style.tappableStyle,
+                  //   );
+                  // },
                   children: [
                     FAccordionItem(
                       initiallyExpanded: true,
@@ -133,7 +136,7 @@ class DetailDesktopBox extends HookConsumerWidget {
 
                     SizedBox(width: 15),
                     DownloadButton(
-                      style: FButtonStyle.secondary(),
+                      varient: .secondary,
                       isIcon: false,
                       detail: detail,
                       meta: meta,
@@ -141,7 +144,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                     ),
                     const SizedBox(width: 15),
                     FButton(
-                      style: FButtonStyle.secondary(),
+                      variant: .secondary,
                       suffix: HeartButton(
                         size: 22,
                         activeColor: context.theme.colors.primary,
@@ -179,7 +182,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                     ),
                     SizedBox(width: 15),
                     FButton(
-                      style: FButtonStyle.outline(),
+                      variant: .outline,
                       suffix: Icon(FIcons.globe),
                       onPress: () {
                         if (DeviceUtil.isMobile) {

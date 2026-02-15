@@ -68,6 +68,9 @@ class ApplicationController extends _$ApplicationController {
       case AccentColors.zinc:
         themeData = isLight ? FThemes.zinc.light : FThemes.zinc.dark;
         break;
+      case AccentColors.neutral:
+        themeData = isLight ? FThemes.neutral.light : FThemes.neutral.dark;
+        break;
       case AccentColors.slate:
         themeData = isLight ? FThemes.slate.light : FThemes.slate.dark;
         break;

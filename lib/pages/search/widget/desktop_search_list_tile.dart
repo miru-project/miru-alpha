@@ -43,7 +43,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
               ),
               actions: [
                 FButton(
-                  style: FButtonStyle.outline(),
+                  variant: .outline,
                   onPress: () => Navigator.of(context).pop(),
                   child: const Text('Cancel'),
                 ),

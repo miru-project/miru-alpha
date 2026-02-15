@@ -25,7 +25,7 @@ class DetailImageView extends StatelessWidget {
             opaque: false,
             transitionDuration: const Duration(milliseconds: 500),
             pageBuilder: (context, animation, secondaryAnimation) => FScaffold(
-              scaffoldStyle: (style) => style.copyWith(
+              scaffoldStyle: .delta(
                 backgroundColor: context.theme.colors.background.withAlpha(100),
               ),
               child: Stack(

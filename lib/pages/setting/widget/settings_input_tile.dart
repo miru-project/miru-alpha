@@ -46,7 +46,7 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
                   //       )
                   // })
                   FDialog(
-                    style: style.call,
+                    style: style,
                     animation: animation,
                     title: const Text('TMDB Api keys'),
                     body: Column(
@@ -67,7 +67,7 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
                     ),
                     actions: [
                       FButton(
-                        style: FButtonStyle.outline(),
+                        variant: .outline,
                         onPress: () => Navigator.of(context).pop(),
                         child: const Text('Cancel'),
                       ),

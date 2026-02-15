@@ -123,10 +123,10 @@ class ExtensionGridTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final badges = tags
-        .map((e) => FBadge(style: FBadgeStyle.outline(), child: Text(e)))
+        .map((e) => FBadge(variant: .outline, child: Text(e)))
         .toList();
     if (isNSFW) {
-      badges.add(FBadge(style: FBadgeStyle.destructive(), child: Text('NSFW')));
+      badges.add(FBadge(variant: .destructive, child: Text('NSFW')));
     }
     return Center(
       child: SizedBox(
@@ -166,12 +166,9 @@ class ExtensionGridTile extends StatelessWidget {
                     FLabel(
                       label: Row(
                         children: [
-                          FBadge(
-                            style: FBadgeStyle.secondary(),
-                            child: Text(version),
-                          ),
+                          FBadge(variant: .secondary, child: Text(version)),
                           SizedBox(width: 5),
-                          FBadge(child: Text(type)),
+                          FBadge(variant: .secondary, child: Text(type)),
                         ],
                       ),
                       axis: Axis.vertical,
@@ -198,7 +195,7 @@ class ExtensionGridTile extends StatelessWidget {
                       Expanded(
                         child: FButton(
                           onPress: () {},
-                          style: FButtonStyle.secondary(),
+                          variant: .secondary,
                           prefix: Icon(FIcons.cog),
                           child: Text('Configure'),
                         ),

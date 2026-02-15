@@ -56,13 +56,18 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
   Widget build(BuildContext context) {
     final epNotifier = ref.watch(widget.episodeProvider);
     return FCard.raw(
-      style: FCardStyle.inherit(
-        colors: context.theme.colors.copyWith(
-          background: context.theme.colors.background.withAlpha(200),
+      style: .delta(
+        decoration: .delta(
+          color: context.theme.colors.background.withAlpha(200),
         ),
-        typography: context.theme.typography,
-        style: context.theme.style,
-      ).call,
+      ),
+      //  FCardStyle.inherit(
+      //   colors: context.theme.colors.copyWith(
+      //     background: context.theme.colors.background.withAlpha(200),
+      //   ),
+      //   typography: context.theme.typography,
+      //   style: context.theme.style,
+      // ).call,
       child: Blur(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),

@@ -45,7 +45,7 @@ class DesktopSettingDialog extends HookConsumerWidget {
                 epController.epGroup[index].urls.length,
                 (i) => FButton(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  style: FButtonStyle.ghost(),
+                  variant: .ghost,
                   child: Text(
                     epController.epGroup[index].urls[i].name,
                     style: TextStyle(),
@@ -65,7 +65,7 @@ class DesktopSettingDialog extends HookConsumerWidget {
         itemBuilder: (context, index) {
           final item = controller.qualityMap.keys.toList()[index];
           return FButton(
-            style: FButtonStyle.ghost(),
+            variant: .ghost,
             mainAxisAlignment: MainAxisAlignment.start,
             onPress: () {
               notifer.changeVideoQuality(controller.qualityMap[item]!);

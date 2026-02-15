@@ -27,7 +27,7 @@ class MobileRepoDialog extends HookConsumerWidget {
       context: context,
       removeBottom: true,
       child: FDialog(
-        style: style,
+        style: .delta(),
         animation: animation,
         direction: Axis.horizontal,
         title: const Text('Add Repo?', style: TextStyle(fontSize: 25)),
@@ -81,7 +81,7 @@ class MobileRepoDialog extends HookConsumerWidget {
             child: const Text('Save'),
           ),
           FButton(
-            style: FButtonStyle.outline(),
+            variant: .outline,
             onPress: () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
           ),
@@ -93,14 +93,14 @@ class MobileRepoDialog extends HookConsumerWidget {
 
 class RepoDialog extends HookConsumerWidget {
   const RepoDialog({super.key, required this.style, required this.animation});
-  final FDialogStyle Function(FDialogStyle)? style;
+  final FDialogStyleDelta style;
   final Animation<double> animation;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final name = useState('');
     final url = useState('');
     return FDialog(
-      style: style?.call,
+      style: style,
       animation: animation,
       direction: Axis.horizontal,
       title: const Text('Add Repo?'),
@@ -153,7 +153,7 @@ class RepoDialog extends HookConsumerWidget {
           child: const Text('Save'),
         ),
         FButton(
-          style: FButtonStyle.outline(),
+          variant: .outline,
           onPress: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
@@ -216,25 +216,21 @@ class SettingExtension extends HookConsumerWidget {
     Set<String> selected,
   ) {
     showFDialog(
-      routeStyle: context.theme.dialogRouteStyle
-          .copyWith(
-            barrierFilter: (animation) => ImageFilter.compose(
+      routeStyle: .delta(
+        barrierFilter: () =>
+            (animation) => ImageFilter.compose(
               outer: ImageFilter.blur(
                 sigmaX: animation * 5,
                 sigmaY: animation * 5,
               ),
-              inner: ColorFilter.mode(
-                context.theme.colors.barrier,
-                BlendMode.srcOver,
-              ),
+              inner: ColorFilter.mode(context.theme.colors.barrier, .srcOver),
             ),
-          )
-          .call,
+      ),
       context: context,
       builder: (context, style, animation) {
         return FDialog(
           direction: Axis.horizontal,
-          style: style.call,
+          style: style,
           animation: animation,
           title: const Text('Are you absolutely sure?'),
           body: Text('Remove ${selected.toString()} from repo?'),
@@ -255,7 +251,7 @@ class SettingExtension extends HookConsumerWidget {
               child: const Text('Continue'),
             ),
             FButton(
-              style: FButtonStyle.outline(),
+              variant: .outline,
               onPress: () => Navigator.of(context).pop(),
               child: const Text('Cancel'),
             ),
@@ -358,26 +354,24 @@ class SettingExtension extends HookConsumerWidget {
                       ],
                       FButton(
                         onPress: () => showFDialog(
-                          routeStyle: context.theme.dialogRouteStyle
-                              .copyWith(
-                                barrierFilter: (animation) =>
-                                    ImageFilter.compose(
-                                      outer: ImageFilter.blur(
-                                        sigmaX: animation * 5,
-                                        sigmaY: animation * 5,
-                                      ),
-                                      inner: ColorFilter.mode(
-                                        context.theme.colors.barrier,
-                                        BlendMode.srcOver,
-                                      ),
-                                    ),
-                              )
-                              .call,
+                          routeStyle: .delta(
+                            barrierFilter: () =>
+                                (animation) => ImageFilter.compose(
+                                  outer: ImageFilter.blur(
+                                    sigmaX: animation * 5,
+                                    sigmaY: animation * 5,
+                                  ),
+                                  inner: ColorFilter.mode(
+                                    context.theme.colors.barrier,
+                                    .srcOver,
+                                  ),
+                                ),
+                          ),
                           context: context,
                           builder: (context, style, animation) {
                             return RepoDialog(
                               animation: animation,
-                              style: style.call,
+                              style: style,
                             );
                           },
                         ),

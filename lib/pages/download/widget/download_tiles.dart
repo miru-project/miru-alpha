@@ -38,7 +38,7 @@ class DownloadProcessTile extends ConsumerWidget {
                   ),
                 ),
                 FButton.icon(
-                  style: FButtonStyle.ghost(),
+                  variant: .ghost,
                   onPress: () => ref
                       .read(downloadProvider.notifier)
                       .sendAction(
@@ -53,7 +53,7 @@ class DownloadProcessTile extends ConsumerWidget {
                   ),
                 ),
                 FButton.icon(
-                  style: FButtonStyle.ghost(),
+                  variant: .ghost,
                   onPress: () => ref
                       .read(downloadProvider.notifier)
                       .sendAction(
@@ -122,7 +122,7 @@ class DownloadHistoryTile extends ConsumerWidget {
                   ),
                 ),
                 FButton.icon(
-                  style: FButtonStyle.ghost(),
+                  variant: .ghost,
                   onPress: () async {
                     await MiruGrpcClient.downloadClient.deleteDownload(
                       DeleteDownloadRequest()..id = download.id,

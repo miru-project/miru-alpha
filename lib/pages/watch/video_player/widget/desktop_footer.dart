@@ -7,7 +7,6 @@ import 'package:miru_app_new/pages/watch/video_player/widget/player_button.dart'
 import 'package:miru_app_new/pages/watch/video_player/widget/desktop_player_widget.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
-import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/widgets/core/inner_card.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
@@ -27,15 +26,13 @@ class DesktopPlayerFooter extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: (FCard.raw(
-        style: FCardStyle.inherit(
-          colors: context.theme.colors.copyWith(
-            background: context.theme.colors.background.withAlpha(230),
-          ),
-          typography: overrideTheme.typography,
-          style: context.theme.style.copyWith(
+        style: .delta(
+          decoration: .delta(
             borderRadius: BorderRadius.circular(10),
+            color: context.theme.colors.background.withAlpha(230),
           ),
-        ).call,
+        ),
+
         child: Blur(
           borderRadius: BorderRadius.circular(10),
           child: Padding(

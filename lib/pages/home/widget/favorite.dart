@@ -30,7 +30,7 @@ class FavoritesHeader extends StatelessWidget {
               onPress: () {
                 context.go("/home/favorite");
               },
-              style: FButtonStyle.ghost(),
+              variant: .ghost,
               child: const Text('View All'),
             ),
           ],

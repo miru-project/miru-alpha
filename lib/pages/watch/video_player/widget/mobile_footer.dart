@@ -4,7 +4,6 @@ import 'package:forui/forui.dart';
 import 'package:miru_app_new/pages/watch/video_player/widget/player_button.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/video_player_provider.dart';
-import 'package:miru_app_new/utils/theme/theme.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:miru_app_new/pages/watch/video_player/widget/seek_bar.dart';
 
@@ -25,13 +24,20 @@ class MobilePlayerFooter extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: (FCard.raw(
-        style: FCardStyle.inherit(
-          colors: context.theme.colors.copyWith(
-            background: context.theme.colors.background.withAlpha(100),
+        style: .delta(
+          decoration: .delta(
+            borderRadius: BorderRadius.circular(10),
+            color: context.theme.colors.background.withAlpha(230),
           ),
-          typography: overrideTheme.typography,
-          style: context.theme.style,
-        ).call,
+        ),
+
+        //  FCardStyle.inherit(
+        //   colors: context.theme.colors.copyWith(
+        //     background: context.theme.colors.background.withAlpha(100),
+        //   ),
+        //   typography: overrideTheme.typography,
+        //   style: context.theme.style,
+        // ).call,
         child: Blur(
           child: Padding(
             padding: EdgeInsetsGeometry.symmetric(horizontal: 15),

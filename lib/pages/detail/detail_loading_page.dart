@@ -88,7 +88,7 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
               ),
               Spacer(),
               FButton.icon(
-                style: FButtonStyle.ghost(),
+                variant: .ghost,
                 onPress: () {
                   context.push(
                     '/mobileWebView',
@@ -105,7 +105,7 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
                 ),
               ),
               FButton.icon(
-                style: FButtonStyle.ghost(),
+                variant: .ghost,
                 onPress: () {
                   if (favorite != null) {
                     ref.read(detialProvider.notifier).removeFavorite(favorite);

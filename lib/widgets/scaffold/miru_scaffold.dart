@@ -80,11 +80,18 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           childScrollController: scrollController,
           draggable: (details) => true,
           child: FCard.raw(
-            style: (style) => style.copyWith(
-              decoration: BoxDecoration(
+            style: .delta(
+              decoration: .delta(
                 color: context.theme.colors.background.withAlpha(150),
               ),
             ),
+            //  FCardStyle.inherit(
+            //   colors: context.theme.colors.copyWith(
+            //     background: context.theme.colors.background.withAlpha(150),
+            //   ),
+            //   typography: context.theme.typography,
+            //   style: context.theme.style,
+            // ).call,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: BackdropFilter(

@@ -31,7 +31,7 @@ class DownloadProgressCard extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FButton.icon(
-            style: FButtonStyle.secondary(),
+            variant: .secondary,
             onPress: () => ref
                 .read(downloadProvider.notifier)
                 .sendAction(
@@ -45,7 +45,7 @@ class DownloadProgressCard extends ConsumerWidget {
           ),
           const SizedBox(width: 8),
           FButton.icon(
-            style: FButtonStyle.destructive(),
+            variant: .destructive,
             onPress: () => ref
                 .read(downloadProvider.notifier)
                 .sendAction(context, task.taskId.toString(), 'cancel'),

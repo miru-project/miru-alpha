@@ -96,7 +96,7 @@ class DownloadItem extends ConsumerWidget {
                 task.taskId.toString(),
                 task.status == 'Paused' ? 'resume' : 'pause',
               ),
-          style: FButtonStyle.outline(),
+          variant: .outline,
           child: Icon(
             task.status == 'Paused'
                 ? Icons.play_arrow

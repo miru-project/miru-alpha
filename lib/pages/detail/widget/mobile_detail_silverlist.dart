@@ -61,7 +61,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                   SizedBox(width: 10),
                   Expanded(
                     child: DownloadButton(
-                      style: FButtonStyle.secondary(),
+                      varient: .secondary,
                       isIcon: false,
                       detail: detail,
                       meta: meta,
@@ -110,7 +110,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                             color: context.theme.colors.primary,
                           ),
                           mainAxisAlignment: .start,
-                          style: FButtonStyle.ghost(),
+                          variant: .ghost,
                           onPress: () {
                             controller.toggle();
                           },
@@ -125,7 +125,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                   ),
                   Spacer(),
                   FButton.icon(
-                    style: FButtonStyle.ghost(),
+                    variant: .ghost,
                     onPress: () {
                       isReverse.value = !isReverse.value;
                     },
@@ -145,7 +145,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                 );
                 return FTile(
                   suffix: FButton.icon(
-                    style: FButtonStyle.ghost(),
+                    variant: .ghost,
                     onPress: () {},
                     child: Icon(FIcons.arrowDownToLine),
                   ),

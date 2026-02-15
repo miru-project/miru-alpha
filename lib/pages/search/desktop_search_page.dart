@@ -91,7 +91,7 @@ class DesktopSearchPage extends HookConsumerWidget {
                         trailing: Row(
                           children: [
                             FButton.icon(
-                              style: FButtonStyle.ghost(),
+                              variant: .ghost,
                               onPress: () => openWebview(ext),
                               child: Icon(FIcons.globe),
                             ),

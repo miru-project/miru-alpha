@@ -156,7 +156,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                   err: error,
                   stack: trace,
                   prefix: FButton(
-                    style: FButtonStyle.ghost(),
+                    variant: .ghost,
                     prefix: Icon(FIcons.undo2),
                     onPress: () {
                       context.pop();

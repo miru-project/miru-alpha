@@ -136,7 +136,7 @@ class GlobalSearch extends HookConsumerWidget {
                     SizedBox(height: 10),
                     FButton(
                       mainAxisSize: .min,
-                      style: FButtonStyle.ghost(),
+                      variant: .ghost,
                       onPress: () {
                         context.push(
                           '/search/single',

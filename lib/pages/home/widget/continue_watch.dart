@@ -136,7 +136,7 @@ class ContinueWatchingSection extends HookConsumerWidget {
                                     curve: Curves.easeInOut,
                                   );
                                 },
-                                style: FButtonStyle.outline(),
+                                variant: .outline,
                                 child: const Icon(FIcons.chevronLeft),
                               ),
                             ),
@@ -157,7 +157,7 @@ class ContinueWatchingSection extends HookConsumerWidget {
                                     curve: Curves.easeInOut,
                                   );
                                 },
-                                style: FButtonStyle.outline(),
+                                variant: .outline,
                                 child: const Icon(FIcons.chevronRight),
                               ),
                             ),

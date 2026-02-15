@@ -1,6 +1,17 @@
 import 'package:forui/forui.dart';
 
-enum AccentColors { zinc, slate, red, rose, orange, green, blue, yellow, violet }
+enum AccentColors {
+  zinc,
+  neutral,
+  slate,
+  red,
+  rose,
+  orange,
+  green,
+  blue,
+  yellow,
+  violet,
+}
 
 final overrideTheme = FThemes.zinc.dark;
 
@@ -15,6 +26,7 @@ class ThemeUtils {
     'blue': AccentColors.blue,
     'yellow': AccentColors.yellow,
     'violet': AccentColors.violet,
+    'neutral': AccentColors.neutral,
   };
 
   static final accentToBright = <AccentColors, FThemeData>{
@@ -27,6 +39,7 @@ class ThemeUtils {
     AccentColors.blue: FThemes.blue.light,
     AccentColors.yellow: FThemes.yellow.light,
     AccentColors.violet: FThemes.violet.light,
+    AccentColors.neutral: FThemes.neutral.light,
   };
 
   static final accentToDark = <AccentColors, FThemeData>{
@@ -39,5 +52,6 @@ class ThemeUtils {
     AccentColors.blue: FThemes.blue.dark,
     AccentColors.yellow: FThemes.yellow.dark,
     AccentColors.violet: FThemes.violet.dark,
+    AccentColors.neutral: FThemes.neutral.dark,
   };
 }

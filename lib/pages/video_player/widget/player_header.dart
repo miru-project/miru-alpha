@@ -66,13 +66,11 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
   Widget build(BuildContext context) {
     final epNotifier = ref.watch(widget.episodeProvider);
     return FCard.raw(
-      style: FCardStyle.inherit(
-        colors: context.theme.colors.copyWith(
-          background: context.theme.colors.background.withAlpha(200),
+      style: .delta(
+        decoration: .delta(
+          color: context.theme.colors.background.withAlpha(200),
         ),
-        typography: context.theme.typography,
-        style: context.theme.style,
-      ).call,
+      ),
       child: Blur(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
@@ -113,23 +111,22 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
                 PlayerButton(
                   onPressed: () {
                     showFDialog(
-                      routeStyle: context.theme.dialogRouteStyle
-                          .copyWith(
-                            barrierFilter: (animation) => ImageFilter.compose(
+                      routeStyle: .delta(
+                        barrierFilter: () =>
+                            (animation) => ImageFilter.compose(
                               outer: ImageFilter.blur(
                                 sigmaX: animation * 5,
                                 sigmaY: animation * 5,
                               ),
                               inner: ColorFilter.mode(
                                 context.theme.colors.barrier,
-                                BlendMode.srcOver,
+                                .srcOver,
                               ),
                             ),
-                          )
-                          .call,
+                      ),
                       context: context,
                       builder: (context, style, animation) => FDialog(
-                        style: style.call,
+                        style: style,
                         animation: animation,
                         title: const Text('Are you absolutely sure?'),
                         body: const Text(
@@ -141,7 +138,7 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
                             child: const Text('Continue'),
                           ),
                           FButton(
-                            style: FButtonStyle.outline(),
+                            variant: .outline,
                             onPress: () => Navigator.of(context).pop(),
                             child: const Text('Cancel'),
                           ),

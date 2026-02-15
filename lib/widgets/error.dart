@@ -90,7 +90,7 @@ class ErrorDisplay extends StatelessWidget {
                       hover: true,
                       tipBuilder: (context, controller) => const Text('Reload'),
                       child: FButton.icon(
-                        style: FButtonStyle.outline(),
+                        variant: FButtonVariant.outline,
                         onPress: onRefresh,
                         child: const Icon(FIcons.refreshCcw),
                       ),

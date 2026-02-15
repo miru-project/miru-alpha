@@ -159,9 +159,7 @@ class FavoriteDialog extends HookConsumerWidget {
                           }
                         },
                         child: FBadge(
-                          style: isSelected
-                              ? FBadgeStyle.primary()
-                              : FBadgeStyle.outline(),
+                          variant: isSelected ? .android : .outline,
                           child: Text(group.name),
                         ),
                       );
@@ -189,7 +187,7 @@ class FavoriteDialog extends HookConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         FButton(
-                          style: FButtonStyle.ghost(),
+                          variant: .ghost,
                           onPress: () => isCreatingGroup.value = false,
                           child: const Icon(FIcons.x),
                         ),
@@ -197,7 +195,7 @@ class FavoriteDialog extends HookConsumerWidget {
                     )
                   else
                     FButton(
-                      style: FButtonStyle.outline(),
+                      variant: .outline,
                       onPress: () => isCreatingGroup.value = true,
                       child: const Text("Create New Tag"),
                     ),
@@ -206,7 +204,7 @@ class FavoriteDialog extends HookConsumerWidget {
             ),
       actions: [
         FButton(
-          style: FButtonStyle.outline(),
+          variant: .ghost,
           onPress: () => Navigator.of(context).pop(),
           child: const Text("Cancel"),
         ),

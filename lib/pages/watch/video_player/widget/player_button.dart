@@ -16,7 +16,7 @@ class PlayerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FButton.icon(
-      style: FButtonStyle.ghost(),
+      variant: FButtonVariant.ghost,
       onPress: onPressed,
       child: Icon(icon, size: size),
     );

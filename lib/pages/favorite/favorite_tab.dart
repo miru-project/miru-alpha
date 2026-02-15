@@ -4,7 +4,6 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/user_data.dart';
 import 'package:miru_app_new/utils/store/database_service.dart';
-import 'package:miru_app_new/widgets/core/miru_tabs.dart';
 
 class FavoriteTab extends StatefulHookConsumerWidget {
   const FavoriteTab({super.key, this.onGroupChanged});
@@ -63,7 +62,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
               const Spacer(),
               if (!isCreating.value)
                 FButton(
-                  style: FButtonStyle.outline(),
+                  variant: .outline,
                   onPress: () {
                     isCreating.value = true;
                     textController.clear();
@@ -87,12 +86,14 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
               SizedBox(
                 width: 400,
                 height: 60,
-                child: MiruTabs(
+                child: FTabs(
+                  scrollable: false,
+                  physics: null,
                   children: [
-                    FTabEntry(label: Text('All'), child: Text('ALL')),
-                    FTabEntry(label: Text('Video'), child: Text('Video')),
-                    FTabEntry(label: Text('Manga'), child: Text('Manga')),
-                    FTabEntry(label: Text('Novel'), child: Text('Novel')),
+                    FTabEntry(label: Text('All'), child: SizedBox.shrink()),
+                    FTabEntry(label: Text('Video'), child: SizedBox.shrink()),
+                    FTabEntry(label: Text('Manga'), child: SizedBox.shrink()),
+                    FTabEntry(label: Text('Novel'), child: SizedBox.shrink()),
                   ],
                 ),
               ),
@@ -121,7 +122,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                   const SizedBox(width: 10),
                   FButton(
                     onPress: () {},
-                    style: FButtonStyle.outline(),
+                    variant: .outline,
                     prefix: Icon(FIcons.listFilter),
                     child: Text('More filter'),
                   ),

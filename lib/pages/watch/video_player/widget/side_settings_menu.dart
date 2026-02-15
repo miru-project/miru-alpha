@@ -44,8 +44,7 @@ class SideSettingsMenu extends HookConsumerWidget {
                       vertical: 5,
                     ),
                     child: FAccordion(
-                      style: (style) =>
-                          style.copyWith(childPadding: EdgeInsets.zero),
+                      style: .delta(childPadding: EdgeInsets.zero),
                       children: [
                         FAccordionItem(
                           title: Text(epController.epGroup[index].title),

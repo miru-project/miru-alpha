@@ -51,7 +51,7 @@ class MobileVideoSheet extends HookConsumerWidget {
                       child: Padding(
                         padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
                         child: FAccordion(
-                          style: (style) => style.copyWith(childPadding: .zero),
+                          style: .delta(childPadding: .zero),
                           children: [
                             FAccordionItem(
                               title: Text(epController.epGroup[index].title),
@@ -123,14 +123,20 @@ class MobileVideoSheet extends HookConsumerWidget {
 
         return Blur(
           child: FCard.raw(
-            style: (style) => style.copyWith(
-              decoration: BoxDecoration(
-                color: context.theme.colors.background.withAlpha(150),
-                borderRadius: style.decoration.borderRadius,
-                border: style.decoration.border,
-                shape: style.decoration.shape,
+            style: .delta(
+              decoration: .delta(
+                color: context.theme.colors.background.withAlpha(230),
               ),
             ),
+
+            // (style) => style.copyWith(
+            //   decoration: BoxDecoration(
+            //     color: context.theme.colors.background.withAlpha(150),
+            //     borderRadius: style.decoration.borderRadius,
+            //     border: style.decoration.border,
+            //     shape: style.decoration.shape,
+            //   ),
+            // ),
             child: Column(
               children: [
                 const SizedBox(height: 10),
@@ -153,9 +159,7 @@ class MobileVideoSheet extends HookConsumerWidget {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: FButton(
-                          style: isSelected
-                              ? FButtonStyle.primary()
-                              : FButtonStyle.ghost(),
+                          variant: isSelected ? null : .ghost,
                           onPress: () => selectedIndex.value = index,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,

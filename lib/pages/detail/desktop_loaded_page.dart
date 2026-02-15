@@ -75,7 +75,7 @@ class DesktopLoadedPage extends HookWidget {
                           child: OutterCard(
                             title: 'Tracking',
                             trailing: FButton(
-                              style: FButtonStyle.ghost(),
+                              variant: .ghost,
                               onPress: () {},
                               child: Text('Sync'),
                             ),

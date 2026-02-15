@@ -37,7 +37,7 @@ class EpisodeSelect extends HookConsumerWidget {
               color: context.theme.colors.primary,
             ),
             mainAxisAlignment: .start,
-            style: FButtonStyle.ghost(),
+            variant: FButtonVariant.ghost,
             onPress: () {
               controller.toggle();
             },

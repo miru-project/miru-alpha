@@ -19,27 +19,27 @@ class DownloadButton extends StatelessWidget {
     required this.isIcon,
     required this.detail,
     required this.meta,
-    this.style,
+    this.varient,
     required this.detailUrl,
   });
 
   final bool isIcon;
   final ExtensionDetail detail;
   final ExtensionMeta meta;
-  final dynamic style;
+  final FButtonVariant? varient;
   final String detailUrl;
 
   @override
   Widget build(BuildContext context) {
     if (isIcon) {
       return FButton.icon(
-        style: style ?? FButtonStyle.secondary(),
+        variant: varient ?? FButtonVariant.secondary,
         onPress: () => onTap(context),
         child: Icon(FIcons.download),
       );
     }
     return FButton(
-      style: style ?? FButtonStyle.secondary(),
+      variant: varient ?? .secondary,
       prefix: Icon(FIcons.download),
       onPress: () => onTap(context),
       child: const Text('Download'),
@@ -127,7 +127,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
             ),
             actions: [
               FButton(
-                style: FButtonStyle.outline(),
+                variant: .outline,
                 onPress: () => Navigator.of(context).pop(),
                 child: const Text('Cancel'),
               ),
@@ -267,7 +267,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
             ),
       actions: [
         FButton(
-          style: FButtonStyle.outline(),
+          variant: .outline,
           onPress: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),

@@ -143,9 +143,9 @@ class _EntryLoadingState extends State<EntryLoadingState> {
               ),
               const SizedBox(height: 5),
               FCircularProgress.pinwheel(
-                style: context.theme.circularProgressStyle
-                    .copyWith(iconStyle: IconThemeData(size: 20))
-                    .call,
+                style: context.theme.circularProgressStyle.copyWith(
+                  iconStyle: IconThemeDataDelta.delta(size: 20),
+                ),
               ),
               Text("Address: ${Core.host}:${Core.port}"),
               const SizedBox(height: 20),

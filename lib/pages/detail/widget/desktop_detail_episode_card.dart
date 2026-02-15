@@ -72,7 +72,7 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: FButton.raw(
-                    style: FButtonStyle.outline(),
+                    variant: .outline,
                     onPress: () {
                       final donwloadList = ref.watch(
                         detialProvider.select((value) => value.downloadList),
