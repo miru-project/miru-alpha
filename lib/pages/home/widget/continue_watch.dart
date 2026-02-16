@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 
@@ -20,22 +21,23 @@ class ContinueWatchingSection extends HookConsumerWidget {
   final List<History> history;
   final ScrollController scrollController;
   final double horizontalTitlePadding;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final canScrollLeft = useState(false);
-    final canScrollRight = useState(true);
-
+    final canScrollRight = useState(false);
+    final isMobile = DeviceUtil.isMobileLayout(context);
     void updateScrollButtons() {
       canScrollLeft.value = scrollController.offset > 0;
       canScrollRight.value =
           scrollController.offset < scrollController.position.maxScrollExtent;
     }
 
-    useEffect(() {
-      scrollController.addListener(updateScrollButtons);
-      return () => scrollController.removeListener(updateScrollButtons);
-    }, [scrollController]);
+    if (!isMobile) {
+      useEffect(() {
+        scrollController.addListener(updateScrollButtons);
+        return () => scrollController.removeListener(updateScrollButtons);
+      }, [scrollController]);
+    }
 
     final ishover = useState(false);
     bool insideHover = false;

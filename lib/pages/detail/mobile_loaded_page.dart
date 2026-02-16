@@ -7,6 +7,7 @@ import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/pages/detail/widget/desktop_detail_image_view.dart';
 import 'package:miru_app_new/pages/detail/widget/mobile_detail_silverlist.dart';
+import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/widgets/index.dart';
@@ -17,29 +18,32 @@ class MobileLoadedPage extends HookConsumerWidget {
     required this.detail,
     required this.meta,
     required this.detailUrl,
+    required this.detailPr,
   });
-  final ExtensionDetail detail;
+  final Detail detail;
   final ExtensionMeta meta;
   final String detailUrl;
+  final DetialProvider detailPr;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
-    final favorite = ref.watch(
-      detialProvider.select((value) => value.favorite),
-    );
+    final favGrp = ref.watch(detailPr.select((value) => value.favoriateGroup));
+    final EdgeInsets padding = MediaQuery.paddingOf(context);
     return EasyRefresh(
       header: const ForuiHeader(),
       onRefresh: () async {
-        await ref
-            .read(detialProvider.notifier)
-            .reloadDetail(meta.packageName, detailUrl);
+        ref.invalidate(fetchDetailProvider);
+        ref.read(fetchDetailProvider(meta.packageName, detailUrl, force: true));
       },
       scrollController: scrollController,
       child: CustomScrollView(
         controller: scrollController,
         cacheExtent: 20,
         slivers: [
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(8, (8 + padding.top), 8, 0),
+          ),
           SliverToBoxAdapter(
             child: Column(
               children: [
@@ -88,8 +92,13 @@ class MobileLoadedPage extends HookConsumerWidget {
                               ),
                             ),
                             SizedBox(height: 10),
-                            if (favorite != null)
-                              Wrap(spacing: 10, children: []),
+                            if (favGrp != null)
+                              Wrap(
+                                spacing: 10,
+                                children: favGrp
+                                    .map((e) => FBadge(child: Text(e.name)))
+                                    .toList(),
+                              ),
                           ],
                         ),
                       ),
@@ -103,6 +112,7 @@ class MobileLoadedPage extends HookConsumerWidget {
             detail: detail,
             meta: meta,
             detailUrl: detailUrl,
+            detailPr: detailPr,
           ),
           SliverToBoxAdapter(child: SizedBox(height: 300)),
         ],

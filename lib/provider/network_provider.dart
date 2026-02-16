@@ -48,14 +48,42 @@ Future<List<ExtensionRepo>> fetchExtensionRepo(Ref ref) async {
   return result;
 }
 
+Future<Detail?> fetchDetailFromExtension(String pkg, String url) async {
+  final data = await MiruCoreEndpoint.detail(pkg, url);
+
+  final newDetail = Detail.fromExtensionDetail(
+    data,
+    detailUrl: url,
+    package: pkg,
+  );
+  await MiruCoreEndpoint.upsertDbDetail(newDetail);
+  return newDetail;
+}
+
+Future<Detail?> fetchDetailFromDb(String pkg, String url) async {
+  final dbDetail = await MiruCoreEndpoint.getDbDetail(pkg, url);
+  if (dbDetail != null) {
+    return dbDetail;
+  } else {
+    return null;
+  }
+}
+
 @riverpod
-Future<ExtensionDetail> fetchExtensionDetail(
+Future<Detail> fetchDetail(
   Ref ref,
   String pkg,
-  String url,
-) async {
-  final result = await MiruCoreEndpoint.detail(pkg, url);
-  return result;
+  String url, {
+  bool force = false,
+}) async {
+  if (force) {
+    final detail = await fetchDetailFromExtension(pkg, url);
+    return detail!;
+  }
+  final detail =
+      await fetchDetailFromDb(pkg, url) ??
+      await fetchDetailFromExtension(pkg, url);
+  return detail!;
 }
 
 @riverpod

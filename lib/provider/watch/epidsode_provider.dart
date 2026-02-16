@@ -44,6 +44,7 @@ class EpisodeNotifier extends _$EpisodeNotifier {
   late ExtensionType type;
   late String detailUrl;
   late EpisodeNotifierState _capturedState;
+  late DetialProvider? detailPr;
 
   @override
   set state(EpisodeNotifierState value) {
@@ -57,6 +58,7 @@ class EpisodeNotifier extends _$EpisodeNotifier {
     package = param.meta.packageName;
     type = param.type;
     detailUrl = param.detailUrl;
+    detailPr = param.detailPr;
 
     final initialState = EpisodeNotifierState(
       epGroup: param.epGroup ?? [],
@@ -90,7 +92,9 @@ class EpisodeNotifier extends _$EpisodeNotifier {
     );
     Future.microtask(() {
       ref.read(mainProvider.notifier).registerHistory(history);
-      ref.read(detialProvider.notifier).putHistory(history);
+      if (detailPr == null) return;
+      // Put the history to detail for update the history list
+      ref.read(detailPr!.notifier).putHistory(history);
     });
   }
 

@@ -25,12 +25,13 @@ class CompassIcon extends StatelessWidget {
         width: size,
         height: size,
         // Ensure the rotation happens within a square container
-        child: Animate(target: isTriggered ? 1.0 : 0.0).custom(
-          duration: 1400.ms,
+        child: Animate(target: isTriggered ? 0.0 : 1.0).custom(
+          duration: 600.ms,
           curve: Curves.easeInOut,
           builder: (context, value, child) {
-            // Map 0.0 -> 1.0 to rotation degrees: [0, 95, 75, -20, 0]
-            double angleInDegrees = _calculateRotation(value);
+            // Map 0.0 (Triggered) -> 45 degrees
+            // Map 1.0 (Untriggered) -> 0 degrees
+            double angleInDegrees = (1.0 - value) * 45;
             double angleInRadians = angleInDegrees * (math.pi / 180);
 
             return CustomPaint(
@@ -44,19 +45,6 @@ class CompassIcon extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  /// Replicates the keyframe logic from React: [0, 95, 75, -20, 0]
-  double _calculateRotation(double t) {
-    if (t <= 0.25) {
-      return lerpDouble(0, 95, t / 0.25);
-    } else if (t <= 0.50) {
-      return lerpDouble(95, 75, (t - 0.25) / 0.25);
-    } else if (t <= 0.75) {
-      return lerpDouble(75, -20, (t - 0.50) / 0.25);
-    } else {
-      return lerpDouble(-20, 0, (t - 0.75) / 0.25);
-    }
   }
 
   double lerpDouble(num a, num b, double t) => a + (b - a) * t;

@@ -1,5 +1,6 @@
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/provider/detial_provider.dart';
 
 class WatchParams {
   const WatchParams({
@@ -13,6 +14,7 @@ class WatchParams {
     required this.detailUrl,
     required this.savePath,
     required this.epGroup,
+    this.detailPr,
   });
   final ExtensionMeta meta;
   // Watch Url
@@ -25,6 +27,7 @@ class WatchParams {
   final ExtensionType type;
   final String name;
   final String? savePath;
+  final DetialProvider? detailPr;
 }
 
 class DetailParam {

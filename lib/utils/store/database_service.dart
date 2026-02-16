@@ -181,7 +181,7 @@ class DatabaseService {
 
   static Future<Favorite> putFavorite(
     String detailUrl,
-    ExtensionDetail? detail,
+    Detail? detail,
     String package,
     ExtensionType type,
   ) async {

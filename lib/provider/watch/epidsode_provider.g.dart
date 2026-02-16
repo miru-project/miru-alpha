@@ -58,7 +58,7 @@ final class EpisodeNotifierProvider
   }
 }
 
-String _$episodeNotifierHash() => r'00c609f6fcfc2d4e8137b35fb6e4e7c667af2a54';
+String _$episodeNotifierHash() => r'f85e058921e45725505d103ed742cf033c415422';
 
 final class EpisodeNotifierFamily extends $Family
     with

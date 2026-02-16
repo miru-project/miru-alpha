@@ -6,7 +6,7 @@ import 'package:miru_app_new/widgets/amination/animated_box.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
 
 class DetailImageView extends StatelessWidget {
-  final ExtensionDetail detail;
+  final Detail detail;
   final String coverUrl;
   final Widget? child;
   const DetailImageView({

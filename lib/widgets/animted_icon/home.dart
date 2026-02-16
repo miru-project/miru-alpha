@@ -21,18 +21,10 @@ class HomeIcon extends StatelessWidget {
         "M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z";
     const String doorPath = "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8";
 
-    return Animate(
-      target: isTriggered ? 1.0 : 0.0,
-      // Optional: Add onComplete to reset state if managed externally
-    ).custom(
-      duration: 800.ms, // Increased duration slightly for a smoother loop
+    return Animate(target: isTriggered ? 0.0 : 1.0).custom(
+      duration: 400.ms,
       curve: Curves.easeInOut,
       builder: (context, value, child) {
-        // --- LOOP LOGIC: 1 -> 0 -> 1 ---
-        // When value is 0.0 or 1.0, progress is 1.0 (Full)
-        // When value is 0.5, progress is 0.0 (Empty)
-        double loopProgress = (value - 0.5).abs() * 2;
-
         return Center(
           child: SizedBox(
             width: size,
@@ -42,7 +34,7 @@ class HomeIcon extends StatelessWidget {
                 houseData: housePath,
                 doorData: doorPath,
                 color: color,
-                animationProgress: loopProgress,
+                animationProgress: value,
               ),
             ),
           ),

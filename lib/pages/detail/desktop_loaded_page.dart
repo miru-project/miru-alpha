@@ -4,6 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/pages/detail/widget/desktop_detail_episode_card.dart';
+import 'package:miru_app_new/provider/detial_provider.dart';
 
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 import 'package:miru_app_new/widgets/core/outter_card.dart';
@@ -11,14 +12,16 @@ import 'package:miru_app_new/pages/detail/widget/index.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
 class DesktopLoadedPage extends HookWidget {
-  final ExtensionDetail detail;
+  final Detail detail;
   final ExtensionMeta meta;
   final String detailUrl;
+  final DetialProvider detailPr;
   const DesktopLoadedPage({
     super.key,
     required this.detail,
     required this.meta,
     required this.detailUrl,
+    required this.detailPr,
   });
   @override
   Widget build(BuildContext context) {
@@ -41,6 +44,7 @@ class DesktopLoadedPage extends HookWidget {
                       DetailDesktopBox(
                         isTablet: isTablet,
                         detail: detail,
+                        detailPr: detailPr,
                         meta: meta,
                         detailUrl: detailUrl,
                         coverUrl: coverUrl,
@@ -57,6 +61,7 @@ class DesktopLoadedPage extends HookWidget {
                           detail: detail,
                           ep: ep,
                           meta: meta,
+                          detailPr: detailPr,
                           detailUrl: detailUrl,
                         ),
                     ],

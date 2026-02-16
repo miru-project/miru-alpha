@@ -21,17 +21,17 @@ class DetailDesktopBox extends HookConsumerWidget {
     required this.meta,
     required this.detailUrl,
     required this.isTablet,
+    required this.detailPr,
   });
-  final ExtensionDetail detail;
+  final Detail detail;
   final String coverUrl;
   final ExtensionMeta meta;
   final String detailUrl;
   final bool isTablet;
+  final DetialProvider detailPr;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final favorite = ref.watch(
-      detialProvider.select((value) => value.favorite),
-    );
+    final favorite = ref.watch(detailPr.select((value) => value.favorite));
     return AnimatedBox(
       child: FCard.raw(
         child: Container(
@@ -152,9 +152,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                       ),
                       onPress: () {
                         if (favorite != null) {
-                          ref
-                              .read(detialProvider.notifier)
-                              .removeFavorite(favorite);
+                          ref.read(detailPr.notifier).removeFavorite(favorite);
                           return;
                         }
                         showDialog(
@@ -164,9 +162,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                             detailUrl: detailUrl,
                             detail: detail,
                             onSuccess: (fav, favGrp) async {
-                              ref
-                                  .read(detialProvider.notifier)
-                                  .putFavorite(fav);
+                              ref.read(detailPr.notifier).putFavorite(fav);
                             },
                           ),
                         );

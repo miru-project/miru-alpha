@@ -26,13 +26,6 @@ class FavoritesHeader extends StatelessWidget {
               'Your Favorites',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            FButton(
-              onPress: () {
-                context.go("/home/favorite");
-              },
-              variant: .ghost,
-              child: const Text('View All'),
-            ),
           ],
         ),
       ),

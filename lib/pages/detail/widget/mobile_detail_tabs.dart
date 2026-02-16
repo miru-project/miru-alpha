@@ -10,7 +10,7 @@ class MobileDetailTabs extends StatelessWidget {
     required this.meta,
     required this.detailUrl,
   });
-  final ExtensionDetail detail;
+  final Detail detail;
   final ExtensionMeta meta;
   final String detailUrl;
 

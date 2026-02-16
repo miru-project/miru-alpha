@@ -72,7 +72,13 @@ void main() {
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      SystemChrome.setEnabledSystemUIMode(.immersive);
+      // SystemChrome.setSystemUIOverlayStyle(
+      //   const SystemUiOverlayStyle(
+      //     statusBarColor: Colors.transparent,
+      //     systemNavigationBarColor: Colors.transparent,
+      //   ),
+      // );
       if (kReleaseMode) _bindErrorWidget();
 
       runApp(

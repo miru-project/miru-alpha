@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_app_new/widgets/core/miru_tabs.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -61,11 +62,34 @@ class MiruMobileShellScaffold extends HookWidget {
                 children: [
                   FTabEntry(
                     label: Icon(FIcons.libraryBig),
-                    child: const Placeholder(),
+                    child: FTileGroup(
+                      label: Text('Tracking'),
+                      children: [
+                        FTile(
+                          prefix: SvgPicture.string(
+                            '<svg fill="#000000" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M6.361 2.943 0 21.056h4.942l1.077-3.133H11.4l1.052 3.133H22.9c.71 0 1.1-.392 1.1-1.101V17.53c0-.71-.39-1.101-1.1-1.101h-6.483V4.045c0-.71-.392-1.102-1.101-1.102h-2.422c-.71 0-1.101.392-1.101 1.102v1.064l-.758-2.166zm2.324 5.948 1.688 5.018H7.144z"></path></g></svg>',
+                            colorFilter: .mode(
+                              context.theme.colors.foreground,
+                              .srcIn,
+                            ),
+                          ),
+                          title: Text('Anilist'),
+                          suffix: Icon(FIcons.chevronRight),
+                        ),
+                      ],
+                    ),
                   ),
                   FTabEntry(
                     label: Icon(FIcons.history),
-                    child: const Placeholder(),
+                    child: Column(
+                      children: [
+                        FTextField(
+                          onTapOutside: (event) {
+                            FocusScope.of(context).unfocus();
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                   FTabEntry(
                     label: Icon(FIcons.heart),
@@ -95,7 +119,7 @@ class MobileLibraryPage extends HookConsumerWidget {
     return CustomScrollView(
       key: const PageStorageKey('LibraryPageScrollMobile'),
       slivers: [
-        // const _Header(padding: EdgeInsets.fromLTRB(16, 20, 16, 10)),
+        const SliverToBoxAdapter(child: SizedBox(height: 30)),
         SliverToBoxAdapter(
           child: ContinueWatchingSection(
             history: history,

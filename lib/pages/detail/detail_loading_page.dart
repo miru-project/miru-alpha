@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -8,8 +6,8 @@ import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/pages/detail/desktop_loaded_page.dart';
 import 'package:miru_app_new/pages/detail/mobile_loaded_page.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
+import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
-import 'package:miru_app_new/utils/store/database_service.dart';
 import 'package:miru_app_new/widgets/animted_icon/heart.dart';
 
 import 'package:miru_app_new/widgets/error.dart';
@@ -31,35 +29,12 @@ class DetailLoadingPage extends StatefulHookConsumerWidget {
 
 class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
   @override
-  void initState() {
-    Future.microtask(() async {
-      final historyList = await DatabaseService.getHistoryByPackageAndDetailUrl(
-        widget.meta.packageName,
-        widget.detailUrl,
-      );
-      ref.read(detialProvider.notifier).putHistoryList(historyList);
-
-      final favorite = await DatabaseService.getFavoriteByPackageAndUrl(
-        widget.meta.packageName,
-        widget.detailUrl,
-      );
-      ref.read(detialProvider.notifier).putFavorite(favorite);
-    });
-    Future.microtask(
-      () => ref
-          .read(detialProvider.notifier)
-          .initDetail(widget.meta.packageName, widget.detailUrl),
-    );
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final detial =
-        ref.watch(detialProvider).detailState ?? const AsyncValue.loading();
-    final favorite = ref.watch(
-      detialProvider.select((value) => value.favorite),
+    final detailPr = detialProvider(widget.detailUrl, meta: widget.meta);
+    final detial = ref.watch(
+      fetchDetailProvider(widget.meta.packageName, widget.detailUrl),
     );
+    final favorite = ref.watch(detailPr.select((value) => value.favorite));
     return detial.when(
       data: (detial) => MiruScaffold(
         snapSheet: [
@@ -108,7 +83,7 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
                 variant: .ghost,
                 onPress: () {
                   if (favorite != null) {
-                    ref.read(detialProvider.notifier).removeFavorite(favorite);
+                    ref.read(detailPr.notifier).removeFavorite(favorite);
                     return;
                   }
                   showDialog(
@@ -118,7 +93,8 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
                       detailUrl: widget.detailUrl,
                       detail: detial,
                       onSuccess: (fav, groups) {
-                        ref.read(detialProvider.notifier).putFavorite(fav);
+                        ref.read(detailPr.notifier).putFavorite(fav);
+                        ref.read(detailPr.notifier).putFavoriteGroup(groups);
                       },
                     ),
                   );
@@ -136,10 +112,12 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
         desktopBody: DesktopLoadedPage(
           detail: detial,
           meta: widget.meta,
+          detailPr: detailPr,
           detailUrl: widget.detailUrl,
         ),
         mobileBody: MobileLoadedPage(
           detail: detial,
+          detailPr: detailPr,
           meta: widget.meta,
           detailUrl: widget.detailUrl,
         ),

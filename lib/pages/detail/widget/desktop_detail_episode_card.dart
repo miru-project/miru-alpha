@@ -11,22 +11,24 @@ import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/core/outter_card.dart';
 
 class DesktopDetailEpisodeCard extends HookConsumerWidget {
-  final ExtensionDetail detail;
+  final Detail detail;
   final ExtensionMeta meta;
   final String detailUrl;
   final List<ExtensionEpisodeGroup> ep;
+  final DetialProvider detailPr;
   const DesktopDetailEpisodeCard({
     super.key,
     required this.detail,
     required this.meta,
     required this.detailUrl,
     required this.ep,
+    required this.detailPr,
   });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = useState(0);
     final historyList = ref.watch(
-      detialProvider.select((value) => value.historyList),
+      detailPr.select((value) => value.historyList),
     );
 
     return OutterCard(
@@ -75,7 +77,7 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
                     variant: .outline,
                     onPress: () {
                       final donwloadList = ref.watch(
-                        detialProvider.select((value) => value.downloadList),
+                        detailPr.select((value) => value.downloadList),
                       );
                       final savePath = donwloadList
                           .firstWhereOrNull(
@@ -87,6 +89,7 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
                       context.push(
                         '/watch',
                         extra: WatchParams(
+                          detailPr: detailPr,
                           name: detail.title,
                           detailImageUrl: detail.cover ?? '',
                           selectedEpisodeIndex: detail

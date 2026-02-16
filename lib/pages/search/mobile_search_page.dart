@@ -8,12 +8,10 @@ import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/utils/store/storage_index.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
-import 'package:miru_app_new/widgets/scaffold/miru_scaffold.dart';
-import 'package:miru_app_new/widgets/scaffold/snapsheet_header.dart';
+import 'package:miru_app_new/widgets/index.dart';
 
 class MobileSearchPage extends HookConsumerWidget {
   const MobileSearchPage({super.key});
-  static const _categories = ['Type', 'Language', 'Extension'];
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final metaData = ref.watch(extensionPageProvider).metaData;
@@ -24,7 +22,6 @@ class MobileSearchPage extends HookConsumerWidget {
       return pinnedExtensions.value.contains(ext.packageName);
     });
     final searchQuery = useState('');
-
     return MiruScaffold(
       mobileHeader: Row(
         children: [
@@ -56,6 +53,9 @@ class MobileSearchPage extends HookConsumerWidget {
             },
           ),
           clearable: (value) => value.text.isNotEmpty,
+          onTapOutside: (event) {
+            FocusScope.of(context).unfocus();
+          },
           hint: "Search by Keyword",
           prefixBuilder: (context, style, states) => Padding(
             padding: EdgeInsetsGeometry.only(left: 12, right: 10),
@@ -64,19 +64,29 @@ class MobileSearchPage extends HookConsumerWidget {
         ),
         SizedBox(height: 10),
         FTabs(
-          children: List.generate(
-            _categories.length,
-            (index) => FTabEntry(
-              label: Text(_categories[index]),
-              child: Placeholder(),
+          children: [
+            FTabEntry(
+              label: Text('Type'),
+              child: CategoryMultiGroup(
+                items: ['Bangumi', 'Manga', 'Novel'],
+                onpress: (val) {},
+              ),
             ),
-          ),
+            FTabEntry(
+              label: Text('Language'),
+              child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
+            ),
+            FTabEntry(
+              label: Text('Extension'),
+              child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
+            ),
+          ],
         ),
       ],
       body: searchQuery.value.isEmpty
           ? CustomScrollView(
               slivers: [
-                // SliverToBoxAdapter(child: SizedBox(height: 150)),
+                SliverToBoxAdapter(child: SizedBox(height: 30)),
                 if (containedPinned.isNotEmpty)
                   SliverToBoxAdapter(
                     child: FTileGroup(

@@ -128,53 +128,47 @@ final class FetchExtensionRepoProvider
 String _$fetchExtensionRepoHash() =>
     r'e1c3954fff31bd40d183be48b9627acd38de1ecc';
 
-@ProviderFor(fetchExtensionDetail)
-final fetchExtensionDetailProvider = FetchExtensionDetailFamily._();
+@ProviderFor(fetchDetail)
+final fetchDetailProvider = FetchDetailFamily._();
 
-final class FetchExtensionDetailProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<ExtensionDetail>,
-          ExtensionDetail,
-          FutureOr<ExtensionDetail>
-        >
-    with $FutureModifier<ExtensionDetail>, $FutureProvider<ExtensionDetail> {
-  FetchExtensionDetailProvider._({
-    required FetchExtensionDetailFamily super.from,
-    required (String, String) super.argument,
+final class FetchDetailProvider
+    extends $FunctionalProvider<AsyncValue<Detail>, Detail, FutureOr<Detail>>
+    with $FutureModifier<Detail>, $FutureProvider<Detail> {
+  FetchDetailProvider._({
+    required FetchDetailFamily super.from,
+    required (String, String, {bool force}) super.argument,
   }) : super(
          retry: null,
-         name: r'fetchExtensionDetailProvider',
+         name: r'fetchDetailProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$fetchExtensionDetailHash();
+  String debugGetCreateSourceHash() => _$fetchDetailHash();
 
   @override
   String toString() {
-    return r'fetchExtensionDetailProvider'
+    return r'fetchDetailProvider'
         ''
         '$argument';
   }
 
   @$internal
   @override
-  $FutureProviderElement<ExtensionDetail> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  $FutureProviderElement<Detail> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
 
   @override
-  FutureOr<ExtensionDetail> create(Ref ref) {
-    final argument = this.argument as (String, String);
-    return fetchExtensionDetail(ref, argument.$1, argument.$2);
+  FutureOr<Detail> create(Ref ref) {
+    final argument = this.argument as (String, String, {bool force});
+    return fetchDetail(ref, argument.$1, argument.$2, force: argument.force);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is FetchExtensionDetailProvider && other.argument == argument;
+    return other is FetchDetailProvider && other.argument == argument;
   }
 
   @override
@@ -183,26 +177,28 @@ final class FetchExtensionDetailProvider
   }
 }
 
-String _$fetchExtensionDetailHash() =>
-    r'e22aa8d5a0f262643785e6cdbeaae6832990a0ea';
+String _$fetchDetailHash() => r'07b53478697ff31642efce886b317436b4ad5c84';
 
-final class FetchExtensionDetailFamily extends $Family
+final class FetchDetailFamily extends $Family
     with
-        $FunctionalFamilyOverride<FutureOr<ExtensionDetail>, (String, String)> {
-  FetchExtensionDetailFamily._()
+        $FunctionalFamilyOverride<
+          FutureOr<Detail>,
+          (String, String, {bool force})
+        > {
+  FetchDetailFamily._()
     : super(
         retry: null,
-        name: r'fetchExtensionDetailProvider',
+        name: r'fetchDetailProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  FetchExtensionDetailProvider call(String pkg, String url) =>
-      FetchExtensionDetailProvider._(argument: (pkg, url), from: this);
+  FetchDetailProvider call(String pkg, String url, {bool force = false}) =>
+      FetchDetailProvider._(argument: (pkg, url, force: force), from: this);
 
   @override
-  String toString() => r'fetchExtensionDetailProvider';
+  String toString() => r'fetchDetailProvider';
 }
 
 @ProviderFor(fetchExtensionLatest)

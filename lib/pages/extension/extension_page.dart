@@ -25,10 +25,12 @@ class CatEntry {
   final String title;
   final List<String> items;
   final void Function(String) onpress;
+  final String? initialValue;
   const CatEntry({
     required this.title,
     required this.items,
     required this.onpress,
+    this.initialValue,
   });
 }
 
@@ -41,6 +43,7 @@ class _MobileExtensionModal extends HookConsumerWidget {
     final extNotifier = ref.read(extensionPageProvider.notifier);
     final catentry = <String, CatEntry>{
       'Status': CatEntry(
+        initialValue: 'ALL',
         title: 'Status',
         items: ['ALL', 'Installed', 'Not installed'],
         onpress: (val) {
@@ -48,6 +51,7 @@ class _MobileExtensionModal extends HookConsumerWidget {
         },
       ),
       'Type': CatEntry(
+        initialValue: 'ALL',
         title: 'Type',
         items: ['ALL', 'Video', 'Manga', 'Novel'],
         onpress: (val) {
@@ -90,6 +94,7 @@ class _MobileExtensionModal extends HookConsumerWidget {
             label: Text(entry),
             child: CategoryGroup(
               items: catentry[entry]?.items ?? [],
+              initialValue: catentry[entry]?.initialValue,
               onpress: catentry[entry]?.onpress ?? (String val) {},
             ),
           );

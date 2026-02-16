@@ -24,7 +24,7 @@ class DownloadButton extends StatelessWidget {
   });
 
   final bool isIcon;
-  final ExtensionDetail detail;
+  final Detail detail;
   final ExtensionMeta meta;
   final FButtonVariant? varient;
   final String detailUrl;
@@ -57,7 +57,7 @@ class DownloadButton extends StatelessWidget {
 
 class _DownloadDialog extends ConsumerStatefulWidget {
   const _DownloadDialog(this.detail, this.meta, this.animation, this.detailUrl);
-  final ExtensionDetail detail;
+  final Detail detail;
   final ExtensionMeta meta;
   final Animation<double> animation;
   final String detailUrl;

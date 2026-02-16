@@ -79,7 +79,7 @@ class MiruSettings {
     SettingKey.maxConnection: "3",
     SettingKey.showDeleteExtensionDialog: "true",
     SettingKey.pinnedExtension: {}.toString(),
-    SettingKey.showPageNumber: "true",
+    SettingKey.showPageNumber: "false",
     SettingKey.novelReadingMode: "webToon",
     SettingKey.downloadPath: "",
   };

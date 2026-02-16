@@ -157,23 +157,13 @@ class DownloadsText extends StatelessWidget {
     return SliverToBoxAdapter(
       child: Padding(
         padding: padding,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Downloads',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            Row(
-              children: [
-                Icon(FIcons.download, color: Colors.grey[400], size: 20),
-              ],
-            ),
-          ],
+        child: const Text(
+          'Downloads',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
       ),
     );

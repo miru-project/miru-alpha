@@ -83,108 +83,106 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
     return MiruScaffold(
       mobileHeader: SnapSheetHeader(title: 'Settings'),
       desktopBody: selected(widget.selected, context),
-      mobileBody: SingleChildScrollView(
-        child: Column(
-          children: [
-            FTileGroup(
-              label: Text("General Settings"),
-              description: const Text('Personalize your experience'),
-              children: [
-                FTile(
-                  prefix: Icon(FIcons.menu),
-                  title: const Text('General'),
-                  suffix: Icon(FIcons.chevronRight),
-                  subtitle: Text('Language, Theme, etc.'),
-                  onPress: () {
-                    _pushtoPage(
-                      context,
-                      SettingScaffold(
-                        title: 'General',
-                        child: SettingGeneral(isMobileLayout: true),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            FTileGroup(
-              label: Text('Network Settings'),
-              children: [
-                FTile(
-                  prefix: Icon(FIcons.blocks),
-                  title: const Text('Extension'),
-                  subtitle: const Text('repos'),
-                  // details: const Text('Forus Labs (5G)'),
-                  suffix: Icon(FIcons.chevronRight),
-                  onPress: () {
-                    _pushtoPage(
-                      context,
-                      SettingScaffold(
-                        title: 'Repo Settings',
-                        child: SettingExtension(isMobile: true),
-                      ),
-                    );
-                  },
-                ),
-                FTile(
-                  prefix: Icon(FIcons.serverCog),
-                  title: const Text('Miru Core Settings'),
-                  subtitle: const Text('network, download'),
-                  // details: const Text('Forus Labs (5G)'),
-                  suffix: Icon(FIcons.chevronRight),
-                  onPress: () {
-                    _pushtoPage(
-                      context,
-                      SettingScaffold(
-                        title: 'Miru Core',
-                        child: SettingMiruCore(isMobileLayout: true),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            FTileGroup(
-              label: Text("Watch Settings"),
-              // description: const Text('Personalize your experience'),
-              children: [
-                FTile(
-                  prefix: Icon(FIcons.tv),
-                  title: const Text('Video Player'),
-                  subtitle: const Text('player setting'),
-                  // details: const Text('Forus Labs (5G)'),
-                  suffix: Icon(FIcons.chevronRight),
-                  onPress: () {},
-                ),
-                FTile(
-                  prefix: Icon(FIcons.bookOpen),
-                  title: const Text('Readers'),
-                  subtitle: const Text('Novels, Manga ...'),
-                  // details: const Text('Forus Labs (5G)'),
-                  suffix: Icon(FIcons.chevronRight),
-                  onPress: () {},
-                ),
-              ],
-            ),
-            FTileGroup(
-              label: Text("About"),
-              // description: const Text('Personalize your experience'),
-              children: [
-                FTile(
-                  prefix: Icon(FIcons.code),
-                  title: const Text('Licenses'),
-                  // details: const Text('Forus Labs (5G)'),
-                  suffix: Icon(FIcons.chevronRight),
-                  onPress: () {
-                    context.push('/license');
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
+      mobileBody: ListView(
+        children: [
+          FTileGroup(
+            label: Text("General Settings"),
+            description: const Text('Personalize your experience'),
+            children: [
+              FTile(
+                prefix: Icon(FIcons.menu),
+                title: const Text('General'),
+                suffix: Icon(FIcons.chevronRight),
+                subtitle: Text('Language, Theme, etc.'),
+                onPress: () {
+                  _pushtoPage(
+                    context,
+                    SettingScaffold(
+                      title: 'General',
+                      child: SettingGeneral(isMobileLayout: true),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          FTileGroup(
+            label: Text('Network Settings'),
+            children: [
+              FTile(
+                prefix: Icon(FIcons.blocks),
+                title: const Text('Extension'),
+                subtitle: const Text('repos'),
+                // details: const Text('Forus Labs (5G)'),
+                suffix: Icon(FIcons.chevronRight),
+                onPress: () {
+                  _pushtoPage(
+                    context,
+                    SettingScaffold(
+                      title: 'Repo Settings',
+                      child: SettingExtension(isMobile: true),
+                    ),
+                  );
+                },
+              ),
+              FTile(
+                prefix: Icon(FIcons.serverCog),
+                title: const Text('Miru Core Settings'),
+                subtitle: const Text('network, download'),
+                // details: const Text('Forus Labs (5G)'),
+                suffix: Icon(FIcons.chevronRight),
+                onPress: () {
+                  _pushtoPage(
+                    context,
+                    SettingScaffold(
+                      title: 'Miru Core',
+                      child: SettingMiruCore(isMobileLayout: true),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          FTileGroup(
+            label: Text("Watch Settings"),
+            // description: const Text('Personalize your experience'),
+            children: [
+              FTile(
+                prefix: Icon(FIcons.tv),
+                title: const Text('Video Player'),
+                subtitle: const Text('player setting'),
+                // details: const Text('Forus Labs (5G)'),
+                suffix: Icon(FIcons.chevronRight),
+                onPress: () {},
+              ),
+              FTile(
+                prefix: Icon(FIcons.bookOpen),
+                title: const Text('Readers'),
+                subtitle: const Text('Novels, Manga ...'),
+                // details: const Text('Forus Labs (5G)'),
+                suffix: Icon(FIcons.chevronRight),
+                onPress: () {},
+              ),
+            ],
+          ),
+          FTileGroup(
+            label: Text("About"),
+            // description: const Text('Personalize your experience'),
+            children: [
+              FTile(
+                prefix: Icon(FIcons.code),
+                title: const Text('Licenses'),
+                // details: const Text('Forus Labs (5G)'),
+                suffix: Icon(FIcons.chevronRight),
+                onPress: () {
+                  context.push('/license');
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

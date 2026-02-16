@@ -17,7 +17,7 @@ class FavoriteDialog extends HookConsumerWidget {
   });
 
   final String detailUrl;
-  final ExtensionDetail detail;
+  final Detail detail;
   final ExtensionMeta meta;
   final void Function(Favorite, List<FavoriateGroup>) onSuccess;
 

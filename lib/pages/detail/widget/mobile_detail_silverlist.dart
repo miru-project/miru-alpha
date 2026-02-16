@@ -13,14 +13,16 @@ import 'package:miru_app_new/provider/detial_provider.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 
 class MobileDetailSilverlist extends HookConsumerWidget {
-  final ExtensionDetail detail;
+  final Detail detail;
   final ExtensionMeta meta;
   final String detailUrl;
+  final DetialProvider detailPr;
   const MobileDetailSilverlist({
     super.key,
     required this.detail,
     required this.meta,
     required this.detailUrl,
+    required this.detailPr,
   });
 
   @override
@@ -32,7 +34,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
     final selectedGpIndex = ref.watch(
       detailPageProviderProvider.select((e) => e.epGroupIdx),
     );
-    final historyList = ref.watch(detialProvider.select((s) => s.historyList));
+    final historyList = ref.watch(detailPr.select((s) => s.historyList));
 
     if (detail.episodes?.isEmpty ?? true) {
       return SliverToBoxAdapter(child: SizedBox(child: Text('No Episodes')));
@@ -152,7 +154,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                   title: Text(item.name),
                   onPress: () {
                     final donwloadList = ref.watch(
-                      detialProvider.select((value) => value.downloadList),
+                      detailPr.select((value) => value.downloadList),
                     );
                     final savePath = donwloadList
                         .firstWhereOrNull(
@@ -164,6 +166,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                     context.push<WatchParams>(
                       "/watch",
                       extra: WatchParams(
+                        detailPr: detailPr,
                         name: detail.title,
                         savePath: savePath,
                         detailImageUrl: detail.cover ?? '',
