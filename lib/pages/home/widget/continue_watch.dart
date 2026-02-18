@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
+import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
@@ -175,24 +176,65 @@ class _ContinueWatchingCard extends ConsumerWidget {
 
   final History item;
 
+  // Check the detail saved in db has the same information as the history
+  // If not, return (-1, -1)
+
+  (int, int) checkEpisode(
+    Detail detail,
+    String historyUrl,
+    int historyEpId,
+    int historyGroupId,
+  ) {
+    final urlFromDetail =
+        detail.episodes?[historyGroupId].urls[historyEpId].url;
+    if (urlFromDetail == null) {
+      return (-1, -1);
+    }
+    if (urlFromDetail == historyUrl) {
+      return (historyEpId, historyGroupId);
+    }
+    for (int i = 0; i < detail.episodes!.length; i++) {
+      for (int j = 0; j < detail.episodes![i].urls.length; j++) {
+        if (detail.episodes![i].urls[j].url == historyUrl) {
+          return (j, i);
+        }
+      }
+    }
+    return (-1, -1);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Calculate progress (mock data - replace with actual progress)
     final progress = (item.progress / item.totalProgress).clamp(0.0, 1.0);
 
     return AnimatedBox(
-      onTap: () {
+      onTap: () async {
         final meta = ref.read(extensionPageProvider).metaData;
         final extMeta = meta.where((e) => e.packageName == item.package).first;
+        final detail = await fetchDetailFromDb(item.package, item.detailUrl);
+        if (detail == null || !context.mounted) {
+          return;
+        }
+        final (epId, groupId) = checkEpisode(
+          detail,
+          item.url,
+          item.episodeId,
+          item.episodeGroupId,
+        );
+        if (epId == -1 || groupId == -1) {
+          return;
+        }
+
         context.push<WatchParams>(
           "/watch",
           extra: WatchParams(
             savePath: null,
             name: item.title,
             detailImageUrl: item.cover ?? '',
-            selectedEpisodeIndex: 0,
-            selectedGroupIndex: 0,
-            epGroup: [],
+            selectedEpisodeIndex: epId,
+            selectedGroupIndex: groupId,
+            epGroup: detail.episodes,
             detailUrl: item.detailUrl,
             url: item.url,
             meta: extMeta,

@@ -6,7 +6,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/provider/watch/main_provider.dart';
+import 'package:miru_app_new/provider/favorite_page_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
@@ -26,17 +26,15 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
     final meta = ref.watch(
       extensionPageProvider.select((state) => state.metaData),
     );
-    final fav = ref.watch(mainProvider.select((state) => state.favorites));
+    final fav = ref.watch(
+      favoritePageProvider.select((state) => state.filteredFavorites),
+    );
     return PlatformWidget(
       desktopWidget: MiruScaffold(
         mobileHeader: SnapSheetHeader(title: 'Home'),
         body: Column(
           children: [
-            FavoriteTab(
-              onGroupChanged: ref
-                  .read(mainProvider.notifier)
-                  .refreshFavoritesAndGroup,
-            ),
+            FavoriteTab(),
             Expanded(
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -119,7 +117,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                         title: Text('Remove  Favorite'),
                         onPress: () {
                           ref
-                              .read(mainProvider.notifier)
+                              .read(favoritePageProvider.notifier)
                               .removeFavorite(favorite);
                           Navigator.pop(context);
                         },

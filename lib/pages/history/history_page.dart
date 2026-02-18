@@ -107,16 +107,9 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
           SliverPadding(
             padding: const EdgeInsets.all(15.0),
             sliver: SliverGrid(
-              gridDelegate: DeviceUtil.device(
-                mobile: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: DeviceUtil.getWidth(context) ~/ 110,
-                  childAspectRatio: 0.6,
-                ),
-                desktop: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 180,
-                  childAspectRatio: 0.65,
-                ),
-                context: context,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 220,
+                childAspectRatio: 0.6,
               ),
               delegate: SliverChildBuilderDelegate((context, index) {
                 final item = history[index];
@@ -124,6 +117,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
                   title: item.title,
                   subtitle: item.episodeTitle,
                   imageUrl: item.cover,
+                  titleMaxline: 2,
                   onTap: () {
                     final meta = ref.read(extensionPageProvider).metaData;
                     final ExtensionMeta? ext = meta.firstWhereOrNull(
@@ -139,19 +133,6 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
               }, childCount: history.length),
             ),
           ),
-          if (ref.watch(mainProvider).historyHasMore)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Center(
-                  child: FButton(
-                    onPress: () =>
-                        ref.read(mainProvider.notifier).loadMoreHistory(),
-                    child: const Text("Load More"),
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );

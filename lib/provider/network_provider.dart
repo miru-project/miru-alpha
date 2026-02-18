@@ -60,8 +60,8 @@ Future<Detail?> fetchDetailFromExtension(String pkg, String url) async {
   return newDetail;
 }
 
-Future<Detail?> fetchDetailFromDb(String pkg, String url) async {
-  final dbDetail = await MiruCoreEndpoint.getDbDetail(pkg, url);
+Future<Detail?> fetchDetailFromDb(String pkg, String detailUrl) async {
+  final dbDetail = await MiruCoreEndpoint.getDbDetail(pkg, detailUrl);
   if (dbDetail != null) {
     return dbDetail;
   } else {

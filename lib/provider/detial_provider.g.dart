@@ -57,7 +57,7 @@ final class DetialProvider extends $NotifierProvider<Detial, DetialState> {
   }
 }
 
-String _$detialHash() => r'd193685a69ec8c551cdc2012ccaec1634d7e1357';
+String _$detialHash() => r'b5906eab4cc50b7063e5717981e7a16b6b68b057';
 
 final class DetialFamily extends $Family
     with

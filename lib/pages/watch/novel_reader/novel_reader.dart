@@ -3,12 +3,11 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/pages/watch/novel_reader/widget/novel_page_setting.dart';
-import 'package:miru_app_new/pages/watch/novel_reader/widget/novel_page_slider.dart';
-import 'package:miru_app_new/pages/watch/novel_reader/widget/novel_setting_general.dart';
-import 'package:miru_app_new/pages/watch/widget/episodes_select.dart';
+import 'package:miru_app_new/pages/watch/novel_reader/widget/novel_side_sheet.dart';
 import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
 import 'package:miru_app_new/provider/watch/novel_reader_provider.dart';
+import 'package:miru_app_new/utils/core/device_util.dart';
+import 'package:miru_app_new/widgets/core/image_widget.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -57,38 +56,44 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
     return MiruScaffold(
       scrollController: scrollController,
       mobileHeader: SnapSheetNested.back(title: widget.name),
-      snapSheet: <Widget>[
-        NovelPageSlider(
+      snapSheet: [
+        NovelSideSheet(
           epProvider: widget.epProvider,
           novelProvider: novelProvider,
         ),
-        FTabs(
+      ],
+      body: DeviceUtil.deviceWidget(
+        mobile: _MiruNovelReadView(
+          data: widget.value,
+          meta: widget.meta,
+          imgUrl: widget.detailImageUrl,
+          // detailUrl: widget.detailUrl,
+          epProvider: widget.epProvider,
+          novelProvider: novelProvider,
+        ),
+        desktop: Row(
           children: [
-            FTabEntry(
-              label: Icon(FIcons.tableOfContents),
-              child: Center(
-                child: EpisodeSelect(epProvider: widget.epProvider),
+            Expanded(
+              child: _MiruNovelReadView(
+                data: widget.value,
+                meta: widget.meta,
+                imgUrl: widget.detailImageUrl,
+                // detailUrl: widget.detailUrl,
+                epProvider: widget.epProvider,
+                novelProvider: novelProvider,
               ),
             ),
-            FTabEntry(label: Icon(FIcons.book), child: NovelPageSetting()),
-            FTabEntry(
-              label: Icon(FIcons.alignHorizontalJustifyEnd),
-              child: const Center(child: Text('Alignment Settings')),
-            ),
-            FTabEntry(
-              label: Icon(FIcons.settings),
-              child: NovelSettingGeneral(),
+            FDivider(axis: .vertical),
+            SizedBox(
+              width: 400,
+              child: NovelSideSheet(
+                epProvider: widget.epProvider,
+                novelProvider: novelProvider,
+              ),
             ),
           ],
         ),
-      ],
-      body: _MiruNovelReadView(
-        data: widget.value,
-        meta: widget.meta,
-        imgUrl: widget.detailImageUrl,
-        // detailUrl: widget.detailUrl,
-        epProvider: widget.epProvider,
-        novelProvider: novelProvider,
+        context: context,
       ),
     );
   }
@@ -114,26 +119,8 @@ class _MiruNovelReadView extends StatefulHookConsumerWidget {
 
 class _MiruNovelReadViewState extends ConsumerState<_MiruNovelReadView> {
   @override
-  void initState() {
-    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-    //   ref.read(widget.novelProvider.notifier)
-    //     ..setContent(widget.data.content)
-    //     ..initListener();
-
-    //   ref
-    //       .read(widget.epProvider.notifier)
-    //       .putInformation(
-    //         widget.meta.type,
-    //         widget.meta.packageName,
-    //         widget.imgUrl,
-    //         widget.detailUrl,
-    //       );
-    // });
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final urlRegex = RegExp(r'^https?:\/\/.+$');
     final item = widget.data?.content ?? [];
     final c = ref.watch(widget.novelProvider.notifier);
     return ScrollablePositionedList.builder(
@@ -143,6 +130,10 @@ class _MiruNovelReadViewState extends ConsumerState<_MiruNovelReadView> {
       scrollOffsetListener: c.scrollOffsetListener,
       itemCount: item.length,
       itemBuilder: (context, index) {
+        final i = item[index];
+        if (i.startsWith(urlRegex)) {
+          return SizedBox(height: 300, child: ImageWidget(imageUrl: i));
+        }
         return SelectableText.rich(
           TextSpan(
             text: item[index],

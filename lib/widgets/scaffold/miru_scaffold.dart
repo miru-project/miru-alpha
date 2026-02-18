@@ -66,7 +66,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
       grabbingContentOffset: GrabbingContentOffset.bottom,
       snappingCurve: Curves.easeInExpo,
       snappingDuration: Duration(milliseconds: 50),
-      positionFactor: 0.9,
+      positionFactor: 1,
     ),
   ];
   // mobile sheet
@@ -95,16 +95,17 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
                   sigmaY: 10,
                   tileMode: TileMode.mirror,
                 ),
-                child: ListView(
-                  shrinkWrap: true,
+                child: CustomScrollView(
                   controller: scrollController,
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 60),
-                  children: [
-                    _GrabbingWidget(),
+                  slivers: [
+                    SliverToBoxAdapter(child: _GrabbingWidget()),
                     if (!isMobileTitleOnTop && widget.mobileHeader != null)
-                      widget.mobileHeader!,
-                    SizedBox(height: 10),
-                    if (widget.snapSheet.isNotEmpty) ...widget.snapSheet,
+                      SliverToBoxAdapter(child: widget.mobileHeader!),
+                    SliverToBoxAdapter(child: SizedBox(height: 10)),
+                    if (widget.snapSheet.isNotEmpty)
+                      ...widget.snapSheet.map(
+                        (e) => SliverToBoxAdapter(child: e),
+                      ),
                   ],
                 ),
               ),

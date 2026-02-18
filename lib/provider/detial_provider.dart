@@ -64,7 +64,7 @@ class Detial extends _$Detial {
         .firstOrNull;
     final favoriateGroup = ref
         .read(mainProvider)
-        .favoriateGroups
+        .favoriteGroups
         .where(
           (e) => e.favorites.any(
             (f) => f.package == packageName && f.url == detailUrl,

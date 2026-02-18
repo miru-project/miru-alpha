@@ -9,19 +9,17 @@ class MainPageState {
   List<int> selectedGroups;
   String searchText;
   List<History> history;
-  List<FavoriateGroup> favoriateGroups;
+  List<FavoriateGroup> favoriteGroups;
   List<Favorite> favorites;
   int historyPage;
-  bool historyHasMore;
   MainPageState({
     this.selectedIndex = 0,
     this.selectedGroups = const [],
     this.searchText = '',
     this.history = const [],
-    this.favoriateGroups = const [],
+    this.favoriteGroups = const [],
     this.favorites = const [],
     this.historyPage = 1,
-    this.historyHasMore = true,
   });
 
   MainPageState copyWith({
@@ -29,7 +27,7 @@ class MainPageState {
     List<int>? selectedGroups,
     String? searchText,
     List<History>? history,
-    List<FavoriateGroup>? favoriateGroups,
+    List<FavoriateGroup>? favoriteGroups,
     List<Favorite>? favorites,
     int? historyPage,
     bool? historyHasMore,
@@ -39,10 +37,9 @@ class MainPageState {
       selectedGroups: selectedGroups ?? this.selectedGroups,
       searchText: searchText ?? this.searchText,
       history: history ?? this.history,
-      favoriateGroups: favoriateGroups ?? this.favoriateGroups,
+      favoriteGroups: favoriteGroups ?? this.favoriteGroups,
       favorites: favorites ?? this.favorites,
       historyPage: historyPage ?? this.historyPage,
-      historyHasMore: historyHasMore ?? this.historyHasMore,
     );
   }
 }
@@ -61,7 +58,7 @@ class MainNotifier extends _$MainNotifier {
         final history = value[2] as List<History>;
         state = state.copyWith(
           history: history,
-          favoriateGroups: value[0] as List<FavoriateGroup>,
+          favoriteGroups: value[0] as List<FavoriateGroup>,
           favorites: value[1] as List<Favorite>,
           historyPage: 1,
           historyHasMore: history.length >= pageSize,
@@ -79,10 +76,6 @@ class MainNotifier extends _$MainNotifier {
 
   void setSelectedGroups(List<int> groups) {
     state = state.copyWith(selectedGroups: groups);
-  }
-
-  void setSearchText(String text) {
-    state = state.copyWith(searchText: text);
   }
 
   void updateHistory(List<History> updateValue) {
@@ -112,7 +105,7 @@ class MainNotifier extends _$MainNotifier {
 
   void updateFavoriteGroup(FavoriateGroup favoriateGroup) {
     state = state.copyWith(
-      favoriateGroups: state.favoriateGroups
+      favoriteGroups: state.favoriteGroups
           .where((e) => e.id != favoriateGroup.id)
           .toList(),
     );
@@ -124,7 +117,7 @@ class MainNotifier extends _$MainNotifier {
 
   void addFavoriteGroup(FavoriateGroup favoriateGroup) {
     state = state.copyWith(
-      favoriateGroups: [favoriateGroup, ...state.favoriateGroups],
+      favoriteGroups: [favoriateGroup, ...state.favoriteGroups],
     );
   }
 
@@ -137,7 +130,7 @@ class MainNotifier extends _$MainNotifier {
 
   void removeFavoriteGroup(FavoriateGroup favoriateGroup) {
     state = state.copyWith(
-      favoriateGroups: state.favoriateGroups
+      favoriteGroups: state.favoriteGroups
           .where((e) => e.id != favoriateGroup.id)
           .toList(),
     );
@@ -156,28 +149,13 @@ class MainNotifier extends _$MainNotifier {
     );
   }
 
-  Future<void> loadMoreHistory() async {
-    if (!state.historyHasMore) return;
-    const pageSize = 20;
-    final nextPage = state.historyPage + 1;
-    final history = await DatabaseService.getHistoriesByType(
-      page: nextPage,
-      pageSize: pageSize,
-    );
-    state = state.copyWith(
-      history: [...state.history, ...history],
-      historyPage: nextPage,
-      historyHasMore: history.length >= pageSize,
-    );
-  }
-
   void refreshFavoritesAndGroup() async {
     final futures = await Future.wait([
       DatabaseService.getAllFavoriteGroup(),
       DatabaseService.getAllFavorite(),
     ]);
     state = state.copyWith(
-      favoriateGroups: futures[0] as List<FavoriateGroup>,
+      favoriteGroups: futures[0] as List<FavoriateGroup>,
       favorites: futures[1] as List<Favorite>,
     );
   }
@@ -205,8 +183,8 @@ class MainNotifier extends _$MainNotifier {
     } else {
       final List<FavoriateGroup> selectedFavGroup = [];
       for (int index in selected) {
-        if (index < state.favoriateGroups.length) {
-          selectedFavGroup.add(state.favoriateGroups[index]);
+        if (index < state.favoriteGroups.length) {
+          selectedFavGroup.add(state.favoriteGroups[index]);
         }
       }
 

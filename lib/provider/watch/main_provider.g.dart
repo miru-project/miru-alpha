@@ -41,7 +41,7 @@ final class MainNotifierProvider
   }
 }
 
-String _$mainNotifierHash() => r'85874b7945c32f98efb45facf0ccf426708a6348';
+String _$mainNotifierHash() => r'9c8045fdb0d97efeb165c55086d7ddde1d2fcacb';
 
 abstract class _$MainNotifier extends $Notifier<MainPageState> {
   MainPageState build();
