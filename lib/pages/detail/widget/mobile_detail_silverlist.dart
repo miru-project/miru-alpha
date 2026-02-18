@@ -198,7 +198,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
         ExtensionType.values.firstWhereOrNull(
           (e) => e.name == h.type || e.toString() == h.type,
         ) ??
-        ExtensionType.unknown;
+        ExtensionType.all;
     switch (type) {
       case ExtensionType.manga:
         return "${h.progress}/${h.totalProgress}";

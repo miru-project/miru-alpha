@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'model.g.dart';
 
-enum ExtensionType { manga, bangumi, fikushon, unknown }
+enum ExtensionType { manga, bangumi, fikushon, all }
 
 enum ExtensionWatchBangumiType { hls, mp4, torrent, magnet }
 
@@ -143,10 +143,16 @@ class ExtensionEpisodeGroup {
 
 @JsonSerializable()
 class ExtensionEpisode {
-  ExtensionEpisode({required this.name, required this.url});
+  ExtensionEpisode({
+    required this.name,
+    required this.url,
+    this.update,
+    this.description,
+  });
   final String name;
   final String url;
-
+  final DateTime? update;
+  final String? description;
   factory ExtensionEpisode.fromJson(Map<String, dynamic> json) =>
       _$ExtensionEpisodeFromJson(json);
 

@@ -8,8 +8,8 @@ ExtensionType _extensionTypeFromJson(String value) {
     'manga' => ExtensionType.manga,
     'fikushon' => ExtensionType.fikushon,
     'bangumi' => ExtensionType.bangumi,
-    'unknown' => ExtensionType.unknown,
-    _ => ExtensionType.unknown,
+    'unknown' => ExtensionType.all,
+    _ => ExtensionType.all,
   };
 }
 

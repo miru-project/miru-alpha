@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
+import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/core/outter_card.dart';
 
@@ -35,6 +36,18 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
       title: 'Episodes',
       trailing: Row(
         children: [
+          FButton(
+            suffix: Icon(FIcons.rotateCcw),
+            variant: .outline,
+            onPress: () {
+              ref.invalidate(fetchDetailProvider);
+              ref.read(
+                fetchDetailProvider(meta.packageName, detailUrl, force: true),
+              );
+            },
+            child: Text('Refresh'),
+          ),
+          SizedBox(width: 10),
           SizedBox(
             width: 180,
             child: FSelect<int>(

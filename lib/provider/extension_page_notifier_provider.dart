@@ -1,6 +1,5 @@
 import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/utils/extension/extension_utils.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/network/github_network.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -53,7 +52,7 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
     final initial = ExtensionPageModel(
       fetchedRepo: const [],
       extensionList: const [],
-      installedPackages: ExtensionUtils.runtimes.keys.toList(),
+      installedPackages: const [],
       metaData: const [],
       update: null,
       loading: false,

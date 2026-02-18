@@ -40,7 +40,7 @@ const _$ExtensionTypeEnumMap = {
   ExtensionType.manga: 'manga',
   ExtensionType.bangumi: 'bangumi',
   ExtensionType.fikushon: 'fikushon',
-  ExtensionType.unknown: 'unknown',
+  ExtensionType.all: 'all',
 };
 
 ExtensionFilter _$ExtensionFilterFromJson(Map<String, dynamic> json) =>
@@ -119,10 +119,22 @@ Map<String, dynamic> _$ExtensionEpisodeGroupToJson(
 ) => <String, dynamic>{'title': instance.title, 'urls': instance.urls};
 
 ExtensionEpisode _$ExtensionEpisodeFromJson(Map<String, dynamic> json) =>
-    ExtensionEpisode(name: json['name'] as String, url: json['url'] as String);
+    ExtensionEpisode(
+      name: json['name'] as String,
+      url: json['url'] as String,
+      update: json['update'] == null
+          ? null
+          : DateTime.parse(json['update'] as String),
+      description: json['description'] as String?,
+    );
 
 Map<String, dynamic> _$ExtensionEpisodeToJson(ExtensionEpisode instance) =>
-    <String, dynamic>{'name': instance.name, 'url': instance.url};
+    <String, dynamic>{
+      'name': instance.name,
+      'url': instance.url,
+      'update': instance.update?.toIso8601String(),
+      'description': instance.description,
+    };
 
 Detail _$DetailFromJson(Map<String, dynamic> json) => Detail(
   id: (json['id'] as num?)?.toInt(),

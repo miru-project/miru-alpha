@@ -44,5 +44,5 @@ const _$ExtensionTypeEnumMap = {
   ExtensionType.manga: 'manga',
   ExtensionType.bangumi: 'bangumi',
   ExtensionType.fikushon: 'fikushon',
-  ExtensionType.unknown: 'unknown',
+  ExtensionType.all: 'all',
 };

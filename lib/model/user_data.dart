@@ -89,7 +89,7 @@ class History {
 extension HistoryExtension on History {
   ExtensionType get extensionType => ExtensionType.values.firstWhere(
     (e) => e.name == type || e.toString() == type,
-    orElse: () => ExtensionType.unknown,
+    orElse: () => ExtensionType.all,
   );
 
   set extensionType(ExtensionType value) {
