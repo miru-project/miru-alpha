@@ -9,8 +9,8 @@ import 'package:miru_app_new/pages/extension/widget/extension_tile.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
 import 'package:miru_app_new/pages/extension/widget/clearable_select.dart';
 
-class ExtensionDesktopGridView extends HookConsumerWidget {
-  const ExtensionDesktopGridView({
+class ExtensionView extends HookConsumerWidget {
+  const ExtensionView({
     super.key,
     required this.extensionsWithRepo,
     required this.constraints,

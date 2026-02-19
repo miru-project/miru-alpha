@@ -489,3 +489,35 @@ class ExtensionBangumiWatchTorrentFileTreeFile {
   Map<String, dynamic> toJson() =>
       _$ExtensionBangumiWatchTorrentFileTreeFileToJson(this);
 }
+
+@JsonSerializable()
+class ExtensionRepo {
+  final List<GithubExtension> extensions;
+  final String name;
+  final String url;
+
+  ExtensionRepo({
+    required this.extensions,
+    required this.name,
+    required this.url,
+  });
+
+  factory ExtensionRepo.fromJson(Map<String, dynamic> json) =>
+      _$ExtensionRepoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ExtensionRepoToJson(this);
+}
+
+@JsonSerializable()
+class RepoConfig {
+  final String link;
+  final String name;
+  final int id;
+
+  RepoConfig({required this.link, required this.name, required this.id});
+
+  factory RepoConfig.fromJson(Map<String, dynamic> json) =>
+      _$RepoConfigFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RepoConfigToJson(this);
+}

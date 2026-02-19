@@ -5,6 +5,7 @@ import 'package:forui/forui.dart';
 import 'package:forui_hooks/forui_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/miru_core/network.dart';
+import 'package:miru_app_new/model/model.dart';
 import 'package:miru_app_new/provider/setting_page_provider.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/widgets/core/outter_card.dart';
@@ -168,11 +169,11 @@ class SettingExtension extends HookConsumerWidget {
   List<Widget> buildRepoSetting(
     ValueNotifier<bool> selectAll,
     ValueNotifier<Set<String>> selected,
-    List<Map<String, dynamic>> repos,
+    List<RepoConfig> repos,
   ) {
     return repos.map((repo) {
-      final name = repo['name']?.toString() ?? 'Untitled';
-      final url = repo['link']?.toString() ?? '';
+      final name = repo.name;
+      final url = repo.link;
       return Column(
         children: [
           Row(
@@ -273,15 +274,14 @@ class SettingExtension extends HookConsumerWidget {
             loading: () => const Center(child: FCircularProgress()),
             error: (err, st) => Text('Error loading repos: $err'),
             data: (repos) {
-              final repoList = repos.whereType<Map<String, dynamic>>().toList();
               // final selectController = useFSelectGroupController<String>();
               return FTileGroup(
                 // selectController: selectController,
                 label: Text('Repo Management'),
                 children: [
-                  ...repoList.map((repo) {
-                    final name = repo['name']?.toString() ?? 'Untitled';
-                    final url = repo['link']?.toString() ?? '';
+                  ...repos.map((repo) {
+                    final name = repo.name;
+                    final url = repo.link;
 
                     return FTile(
                       prefix: selected.value.contains(url)
@@ -383,16 +383,13 @@ class SettingExtension extends HookConsumerWidget {
               loading: () => const Center(child: FCircularProgress()),
               error: (err, st) => Text('Error loading repos: $err'),
               data: (repos) {
-                final repoList = repos
-                    .whereType<Map<String, dynamic>>()
-                    .toList();
                 if (isMobile) {
                   final selectController = useFMultiValueNotifier<String>();
                   return FSelectTileGroup(
                     control: .managed(controller: selectController),
-                    children: repoList.map((repo) {
-                      final name = repo['name']?.toString() ?? 'Untitled';
-                      final url = repo['link']?.toString() ?? '';
+                    children: repos.map((repo) {
+                      final name = repo.name;
+                      final url = repo.link;
                       return FSelectTile(
                         title: Text(name),
                         value: url,
@@ -415,10 +412,7 @@ class SettingExtension extends HookConsumerWidget {
                               selectAll.value = value;
                               if (value) {
                                 for (var repo in repos) {
-                                  final url =
-                                      (repo is Map && repo['url'] != null)
-                                      ? repo['url'].toString()
-                                      : '';
+                                  final url = repo.link;
                                   selected.value = Set.from(selected.value)
                                     ..add(url);
                                 }
@@ -460,7 +454,7 @@ class SettingExtension extends HookConsumerWidget {
                       )
                     else
                       ...buildSeparators(
-                        buildRepoSetting(selectAll, selected, repoList),
+                        buildRepoSetting(selectAll, selected, repos),
                       ),
                   ],
                 );

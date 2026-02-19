@@ -409,3 +409,32 @@ Map<String, dynamic> _$ExtensionBangumiWatchTorrentFileTreeFileToJson(
   'Length': instance.length,
   'PiecesRoot': instance.piecesRoot,
 };
+
+ExtensionRepo _$ExtensionRepoFromJson(Map<String, dynamic> json) =>
+    ExtensionRepo(
+      extensions: (json['extensions'] as List<dynamic>)
+          .map((e) => GithubExtension.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      name: json['name'] as String,
+      url: json['url'] as String,
+    );
+
+Map<String, dynamic> _$ExtensionRepoToJson(ExtensionRepo instance) =>
+    <String, dynamic>{
+      'extensions': instance.extensions,
+      'name': instance.name,
+      'url': instance.url,
+    };
+
+RepoConfig _$RepoConfigFromJson(Map<String, dynamic> json) => RepoConfig(
+  link: json['link'] as String,
+  name: json['name'] as String,
+  id: (json['id'] as num).toInt(),
+);
+
+Map<String, dynamic> _$RepoConfigToJson(RepoConfig instance) =>
+    <String, dynamic>{
+      'link': instance.link,
+      'name': instance.name,
+      'id': instance.id,
+    };

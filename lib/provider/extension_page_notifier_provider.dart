@@ -2,6 +2,7 @@ import 'package:miru_app_new/miru_core/network.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/utils/network/github_network.dart';
+import 'package:miru_app_new/model/model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'extension_page_notifier_provider.g.dart';
 
@@ -12,12 +13,14 @@ class ExtensionPageModel {
   final List<String> installedPackages;
   final List<ExtensionMeta> metaData;
   final DateTime? update;
+  final int sourceIndex;
 
   const ExtensionPageModel({
     required this.fetchedRepo,
     required this.extensionList,
     required this.installedPackages,
     required this.metaData,
+    required this.sourceIndex,
     this.update,
     this.loading = false,
   });
@@ -29,6 +32,7 @@ class ExtensionPageModel {
     List<String>? installedPackages,
     List<ExtensionMeta>? metaData,
     DateTime? update,
+    int? sourceIndex,
   }) {
     return ExtensionPageModel(
       fetchedRepo: fetchedRepo ?? this.fetchedRepo,
@@ -37,6 +41,7 @@ class ExtensionPageModel {
       installedPackages: installedPackages ?? this.installedPackages,
       metaData: metaData ?? this.metaData,
       update: update ?? this.update,
+      sourceIndex: sourceIndex ?? this.sourceIndex,
     );
   }
 }
@@ -56,6 +61,7 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
       metaData: const [],
       update: null,
       loading: false,
+      sourceIndex: 0,
     );
     return initial;
   }
@@ -127,8 +133,6 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
         return;
       }
     }
-    // state = state.copyWith(extensionList: filtered);
-    // ExtensionPageState.instance.update(state);
   }
 
   void filterByRepo(String repoName) {
@@ -174,23 +178,6 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
         state = state.copyWith(extensionList: List.from(state.fetchedRepo));
         return;
     }
-    // final filteredExtensions = state.fetchedRepo
-    //     .expand((repo) => repo.extensions)
-    //     .where(
-    //       (ext) =>
-    //           (val == 0 && state.installedPackages.contains(ext.package)) ||
-    //           (val == 1 && !state.installedPackages.contains(ext.package)),
-    //     )
-    //     .toList();
-    // state = state.copyWith(
-    //   extensionList: [
-    //     ExtensionRepo(
-    //       extensions: filteredExtensions,
-    //       name: 'filtered',
-    //       url: '',
-    //     ),
-    //   ],
-    // );
   }
 
   void filterByMediaType(String type) {

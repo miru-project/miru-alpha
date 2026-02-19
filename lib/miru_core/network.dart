@@ -236,14 +236,17 @@ class MiruCoreEndpoint {
     );
   }
 
-  static Future<dynamic> getRepos() async {
+  static Future<List<RepoConfig>> getRepoLists() async {
     final response = await MiruGrpcClient.repoClient.getRepos(
       proto.GetReposRequest(),
     );
-    return jsonDecode(response.data);
+    final List<dynamic> data = jsonDecode(response.data);
+    return data
+        .map((e) => RepoConfig.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
-  static Future<dynamic> fetchRepoList() async {
+  static Future<dynamic> fetchRepos() async {
     final response = await MiruGrpcClient.repoClient.fetchRepoList(
       proto.FetchRepoListRequest(),
     );

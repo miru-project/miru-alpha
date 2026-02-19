@@ -72,12 +72,6 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
               style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ),
-          // Expanded(
-          //   child: Text(
-          //     widget.type,
-          //     style: const TextStyle(fontSize: 14, color: Colors.grey),
-          //   ),
-          // ),
           if (widget.isInstalled)
             FButton.icon(
               onPress: widget.onUninstall,

@@ -157,7 +157,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
               }
 
               return PlatformWidget(
-                desktopWidget: ExtensionDesktopGridView(
+                desktopWidget: ExtensionView(
                   extensionsWithRepo: extensionsWithRepo,
                   constraints: constraints,
                 ),
