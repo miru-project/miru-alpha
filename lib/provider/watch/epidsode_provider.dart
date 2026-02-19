@@ -1,6 +1,6 @@
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/detial_provider.dart';
-import 'package:miru_app_new/provider/watch/main_provider.dart';
+import 'package:miru_app_new/provider/history_page_provider.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'epidsode_provider.g.dart';
@@ -91,7 +91,7 @@ class EpisodeNotifier extends _$EpisodeNotifier {
       date: DateTime.now(),
     );
     Future.microtask(() {
-      ref.read(mainProvider.notifier).registerHistory(history);
+      ref.read(historyPageProvider.notifier).addHistory(history);
       if (detailPr == null) return;
       // Put the history to detail for update the history list
       ref.read(detailPr!.notifier).putHistory(history);

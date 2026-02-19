@@ -14,7 +14,11 @@ void showSimpleToast(String title, [int duration = 3]) {
   );
 }
 
-void iconsMessageToast(String title, IconData icon, [int duration = 3]) {
+void iconsMessageToast({
+  required String title,
+  required IconData icon,
+  int duration = 3,
+}) {
   final ctx = RouterUtil.rootNavigatorKey.currentContext;
   if (ctx == null) return;
   showFToast(

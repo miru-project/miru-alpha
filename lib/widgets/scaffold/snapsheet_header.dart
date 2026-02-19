@@ -7,23 +7,32 @@ class SnapSheetHeader extends StatelessWidget {
     required this.title,
     this.description,
     this.padding,
+    this.suffix = const <Widget>[],
   });
 
   final String title;
   final String? description;
   final EdgeInsetsGeometry? padding;
+  final List<Widget> suffix;
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: context.theme.scaffoldStyle.headerDecoration,
       child: Padding(
-        padding: padding ?? EdgeInsetsGeometry.only(left: 12, bottom: 6),
+        padding:
+            padding ?? EdgeInsetsGeometry.only(left: 12, bottom: 6, right: 10),
         child: FLabel(
           axis: .vertical,
           description: (description != null) ? Text(description!) : null,
-          child: Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+          child: Row(
+            mainAxisAlignment: .spaceBetween,
+            children: [
+              Text(
+                title,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+              ),
+              Row(children: suffix),
+            ],
           ),
         ),
       ),

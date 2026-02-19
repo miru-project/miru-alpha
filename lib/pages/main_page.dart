@@ -162,66 +162,54 @@ class _MainPageState extends ConsumerState<MainPage>
       child: PlatformWidget(
         mobileWidget: Column(
           children: [
-            if (!DeviceUtil.isMobile) DragWindows(),
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
+            Expanded(child: widget.child ?? const SizedBox()),
+            FBottomNavigationBar(
+              index: controller.selectedIndex,
+              onChange: (value) {
+                if (widget.child != null) {
+                  widget.child!.goBranch(value);
+                }
+                c.selectIndex(value);
+                selected.value = value;
+              },
+              children: [
+                FBottomNavigationBarItem(
+                  label: Text(_navItems[0].text),
+                  icon: HomeIcon(
+                    color: selected.value == 0
+                        ? themeData.colors.primary
+                        : themeData.colors.mutedForeground,
+                    isTriggered: selected.value == 0,
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    Expanded(child: widget.child ?? const SizedBox()),
-                    FBottomNavigationBar(
-                      index: controller.selectedIndex,
-                      onChange: (value) {
-                        if (widget.child != null) {
-                          widget.child!.goBranch(value);
-                        }
-                        c.selectIndex(value);
-                        selected.value = value;
-                      },
-                      children: [
-                        FBottomNavigationBarItem(
-                          label: Text(_navItems[0].text),
-                          icon: HomeIcon(
-                            color: selected.value == 0
-                                ? themeData.colors.primary
-                                : themeData.colors.mutedForeground,
-                            isTriggered: selected.value == 0,
-                          ),
-                        ),
-                        FBottomNavigationBarItem(
-                          label: Text(_navItems[1].text),
-                          icon: CompassIcon(
-                            color: selected.value == 1
-                                ? themeData.colors.primary
-                                : themeData.colors.mutedForeground,
-                            isTriggered: selected.value == 1,
-                          ),
-                        ),
-                        FBottomNavigationBarItem(
-                          label: Text(_navItems[2].text),
-                          icon: BlocksPathLoopIcon(
-                            color: selected.value == 2
-                                ? themeData.colors.primary
-                                : themeData.colors.mutedForeground,
-                            isTriggered: selected.value == 2,
-                          ),
-                        ),
-                        FBottomNavigationBarItem(
-                          label: Text(_navItems[3].text),
-                          icon: SettingsIcon(
-                            color: selected.value == 3
-                                ? themeData.colors.primary
-                                : themeData.colors.mutedForeground,
-                            isTriggered: selected.value == 3,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                FBottomNavigationBarItem(
+                  label: Text(_navItems[1].text),
+                  icon: CompassIcon(
+                    color: selected.value == 1
+                        ? themeData.colors.primary
+                        : themeData.colors.mutedForeground,
+                    isTriggered: selected.value == 1,
+                  ),
                 ),
-              ),
+                FBottomNavigationBarItem(
+                  label: Text(_navItems[2].text),
+                  icon: BlocksPathLoopIcon(
+                    color: selected.value == 2
+                        ? themeData.colors.primary
+                        : themeData.colors.mutedForeground,
+                    isTriggered: selected.value == 2,
+                  ),
+                ),
+                FBottomNavigationBarItem(
+                  label: Text(_navItems[3].text),
+                  icon: SettingsIcon(
+                    color: selected.value == 3
+                        ? themeData.colors.primary
+                        : themeData.colors.mutedForeground,
+                    isTriggered: selected.value == 3,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

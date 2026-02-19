@@ -6,17 +6,18 @@ class MiruTabs extends StatefulWidget {
   final int initialIndex;
   final FTabsStyle Function(FTabsStyle style)? style;
   final TabController? controller;
+  final ScrollPhysics? physics;
   const MiruTabs({
     super.key,
     required this.children,
     this.initialIndex = 0,
     this.style,
     this.controller,
+    this.physics,
     this.onChanged,
   });
 
   final ValueChanged<int>? onChanged;
-
   @override
   State<MiruTabs> createState() => _MiruTabsState();
 }
@@ -102,6 +103,7 @@ class _MiruTabsState extends State<MiruTabs>
               ),
               child: TabBarView(
                 controller: _controller,
+                physics: widget.physics,
                 children: widget.children.map((e) => e.child).toList(),
               ),
             ),

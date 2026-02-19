@@ -20,7 +20,7 @@ final class FavoritePageNotifierProvider
         argument: null,
         retry: null,
         name: r'favoritePageProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -42,7 +42,7 @@ final class FavoritePageNotifierProvider
 }
 
 String _$favoritePageNotifierHash() =>
-    r'130f2c47f073f5b75a00c7c09cea4ee7a8859c35';
+    r'b6b2cd1b22bdbb9228f51fcefa68450bc47d2ccc';
 
 abstract class _$FavoritePageNotifier extends $Notifier<FavoritePageState> {
   FavoritePageState build();

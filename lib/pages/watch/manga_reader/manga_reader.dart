@@ -57,25 +57,28 @@ class MiruMangaReader extends HookConsumerWidget {
     final controls = [
       MangaPageSlider(epProvider: epProvider, mangaProvider: mangaProvider),
       const SizedBox(height: 10),
-      FTabs(
-        children: [
-          FTabEntry(
-            label: Icon(FIcons.tableOfContents),
-            child: Center(child: EpisodeSelect(epProvider: epProvider)),
-          ),
-          FTabEntry(
-            label: Icon(FIcons.book),
-            child: MangaPageSetting(mangaProvider: mangaProvider),
-          ),
-          FTabEntry(
-            label: Icon(FIcons.alignHorizontalJustifyEnd),
-            child: const Center(child: Text('Alignment Settings')),
-          ),
-          FTabEntry(
-            label: Icon(FIcons.settings),
-            child: MangaSettingGeneral(mangaProvider: mangaProvider),
-          ),
-        ],
+      Padding(
+        padding: .symmetric(horizontal: 10),
+        child: FTabs(
+          children: [
+            FTabEntry(
+              label: Icon(FIcons.tableOfContents),
+              child: EpisodeSelect(epProvider: epProvider),
+            ),
+            FTabEntry(
+              label: Icon(FIcons.book),
+              child: MangaPageSetting(mangaProvider: mangaProvider),
+            ),
+            FTabEntry(
+              label: Icon(FIcons.alignHorizontalJustifyEnd),
+              child: const Center(child: Text('Alignment Settings')),
+            ),
+            FTabEntry(
+              label: Icon(FIcons.settings),
+              child: MangaSettingGeneral(mangaProvider: mangaProvider),
+            ),
+          ],
+        ),
       ),
     ];
     final readView = _MiruMangaReadView(

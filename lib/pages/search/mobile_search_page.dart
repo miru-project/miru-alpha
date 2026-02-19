@@ -40,47 +40,53 @@ class MobileSearchPage extends HookConsumerWidget {
         ],
       ),
       snapSheet: [
-        FTextField(
-          maxLines: 1,
-          onSubmit: (value) {
-            searchQuery.value = value;
-          },
-          control: .managed(
-            onChange: (value) {
-              if (value.text.isEmpty) {
-                searchQuery.value = value.text;
-              }
+        Padding(
+          padding: .symmetric(horizontal: 10),
+          child: FTextField(
+            maxLines: 1,
+            onSubmit: (value) {
+              searchQuery.value = value;
             },
-          ),
-          clearable: (value) => value.text.isNotEmpty,
-          onTapOutside: (event) {
-            FocusScope.of(context).unfocus();
-          },
-          hint: "Search by Keyword",
-          prefixBuilder: (context, style, states) => Padding(
-            padding: EdgeInsetsGeometry.only(left: 12, right: 10),
-            child: Icon(FIcons.search),
+            control: .managed(
+              onChange: (value) {
+                if (value.text.isEmpty) {
+                  searchQuery.value = value.text;
+                }
+              },
+            ),
+            clearable: (value) => value.text.isNotEmpty,
+            // onTapOutside: (event) {
+            //   FocusScope.of(context).unfocus();
+            // },
+            hint: "Search by Keywords ...",
+            prefixBuilder: (context, style, states) => Padding(
+              padding: EdgeInsetsGeometry.only(left: 12, right: 10),
+              child: Icon(FIcons.search),
+            ),
           ),
         ),
         SizedBox(height: 10),
-        FTabs(
-          children: [
-            FTabEntry(
-              label: Text('Type'),
-              child: CategoryMultiGroup(
-                items: ['Bangumi', 'Manga', 'Novel'],
-                onpress: (val) {},
+        Padding(
+          padding: .symmetric(horizontal: 10),
+          child: FTabs(
+            children: [
+              FTabEntry(
+                label: Text('Type'),
+                child: CategoryMultiGroup(
+                  items: ['Bangumi', 'Manga', 'Novel'],
+                  onpress: (val) {},
+                ),
               ),
-            ),
-            FTabEntry(
-              label: Text('Language'),
-              child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
-            ),
-            FTabEntry(
-              label: Text('Extension'),
-              child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
-            ),
-          ],
+              FTabEntry(
+                label: Text('Language'),
+                child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
+              ),
+              FTabEntry(
+                label: Text('Extension'),
+                child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
+              ),
+            ],
+          ),
         ),
       ],
       body: searchQuery.value.isEmpty

@@ -15,7 +15,7 @@ class FavoriteTab extends StatefulHookConsumerWidget {
 }
 
 class _FavoriteTabState extends ConsumerState<FavoriteTab> {
-  final ValueNotifier<List<FavoriateGroup>> favGroup = ValueNotifier([]);
+  final ValueNotifier<List<FavoriteGroup>> favGroup = ValueNotifier([]);
 
   @override
   void initState() {
@@ -90,19 +90,16 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                   scrollable: false,
                   physics: null,
                   onPress: (value) {
-                    late final ExtensionType? type;
+                    final Set<ExtensionType> type = {};
                     switch (value) {
-                      case 0:
-                        type = null;
-                        break;
                       case 1:
-                        type = ExtensionType.bangumi;
+                        type.add(ExtensionType.bangumi);
                         break;
                       case 2:
-                        type = ExtensionType.manga;
+                        type.add(ExtensionType.manga);
                         break;
                       case 3:
-                        type = ExtensionType.fikushon;
+                        type.add(ExtensionType.fikushon);
                         break;
                     }
                     ref

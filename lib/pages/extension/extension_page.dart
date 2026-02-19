@@ -4,16 +4,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/utils/core/log.dart';
 import 'package:miru_app_new/pages/extension/widget/extension_desktop_grid_view.dart';
 import 'package:miru_app_new/pages/extension/widget/extension_tile.dart';
 import 'package:miru_app_new/widgets/index.dart';
 
-import 'package:snapping_sheet_2/snapping_sheet.dart';
 import '../../model/index.dart';
-
-final SnappingSheetController _snappingController = SnappingSheetController();
 
 class ExtensionPage extends StatefulHookConsumerWidget {
   const ExtensionPage({super.key});
@@ -79,27 +74,18 @@ class _MobileExtensionModal extends HookConsumerWidget {
         },
       ),
     };
-    return Listener(
-      behavior: HitTestBehavior.translucent,
-      onPointerDown: (_) {
-        logger.info(_snappingController.currentPosition.toString());
-        if (_snappingController.currentPosition < 200) {
-          _snappingController.setSnappingSheetPosition(400);
-        }
-      },
-      child: FTabs(
-        children: List.generate(categories.length, (index) {
-          final entry = categories[index];
-          return FTabEntry(
-            label: Text(entry),
-            child: CategoryGroup(
-              items: catentry[entry]?.items ?? [],
-              initialValue: catentry[entry]?.initialValue,
-              onpress: catentry[entry]?.onpress ?? (String val) {},
-            ),
-          );
-        }),
-      ),
+    return FTabs(
+      children: List.generate(categories.length, (index) {
+        final entry = categories[index];
+        return FTabEntry(
+          label: Text(entry),
+          child: CategoryGroup(
+            items: catentry[entry]?.items ?? [],
+            initialValue: catentry[entry]?.initialValue,
+            onpress: catentry[entry]?.onpress ?? (String val) {},
+          ),
+        );
+      }),
     );
   }
 }
@@ -126,29 +112,27 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
 
     return MiruScaffold(
       scrollController: scrollController,
-      snappingSheetController: _snappingController,
       mobileHeader: SnapSheetHeader(title: 'Extension'),
-      snapSheet: DeviceUtil.isMobileLayout(context)
-          ? <Widget>[
-              FCard.raw(
-                child: FTextField(
-                  maxLines: 1,
-                  control: .managed(
-                    onChange: (value) {
-                      extNotifier.filterByName(value.text);
-                    },
-                  ),
-                  hint: "Search by Name or Tags ...",
-                  prefixBuilder: (context, style, states) => Padding(
-                    padding: EdgeInsetsGeometry.only(left: 12, right: 10),
-                    child: Icon(FIcons.search),
-                  ),
-                ),
-              ),
-              SizedBox(height: 10),
-              _MobileExtensionModal(),
-            ]
-          : <Widget>[],
+      snapSheet: <Widget>[
+        Padding(
+          padding: .symmetric(horizontal: 10),
+          child: FTextField(
+            maxLines: 1,
+            control: .managed(
+              onChange: (value) {
+                extNotifier.filterByName(value.text);
+              },
+            ),
+            hint: "Search by Name or Tags ...",
+            prefixBuilder: (context, style, states) => Padding(
+              padding: EdgeInsetsGeometry.only(left: 12, right: 10),
+              child: Icon(FIcons.search),
+            ),
+          ),
+        ),
+        SizedBox(height: 10),
+        _MobileExtensionModal(),
+      ],
       body: Consumer(
         builder: (context, ref, child) {
           final extensionList = ref.watch(

@@ -1,12 +1,10 @@
-import 'dart:async';
 import 'dart:ui';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/provider/watch/main_provider.dart';
-import 'package:miru_app_new/utils/store/database_service.dart';
+import 'package:miru_app_new/provider/history_page_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/grid_view/index.dart';
@@ -26,19 +24,13 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
   get wantKeepAlive => true;
 
   int historyLen = 0;
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() async {
-      final history = await DatabaseService.getHistoriesByType();
-      ref.read(mainProvider.notifier).updateHistory(history);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final history = ref.watch(mainProvider).history;
+    final history = ref.watch(
+      historyPageProvider.select((e) => e.filteredHistory),
+    );
     historyLen = history.length;
     return PlatformWidget(
       mobileWidget: MiruGridView.mobile(
@@ -79,7 +71,9 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
                         prefix: Icon(FIcons.bookX),
                         title: Text('Remove  History'),
                         onPress: () {
-                          ref.read(mainProvider.notifier).removeHistory(item);
+                          ref
+                              .read(historyPageProvider.notifier)
+                              .deleteHistory(item);
                           Navigator.pop(context);
                         },
                       ),

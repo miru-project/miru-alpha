@@ -110,19 +110,28 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                       ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                 ),
                 builder: (context) => Consumer(
-                  builder: (context, ref, child) => FTileGroup(
-                    children: [
-                      FTile(
-                        prefix: Icon(FIcons.heartMinus),
-                        title: Text('Remove  Favorite'),
-                        onPress: () {
-                          ref
-                              .read(favoritePageProvider.notifier)
-                              .removeFavorite(favorite);
-                          Navigator.pop(context);
-                        },
+                  builder: (context, ref, child) => FCard.raw(
+                    child: Padding(
+                      padding: .only(top: 10, left: 10, right: 10, bottom: 20),
+                      child: FTileGroup(
+                        label: Padding(
+                          padding: .only(left: 6),
+                          child: Text(favorite.title),
+                        ),
+                        children: [
+                          FTile(
+                            prefix: Icon(FIcons.heartMinus),
+                            title: Text('Remove  Favorite'),
+                            onPress: () {
+                              ref
+                                  .read(favoritePageProvider.notifier)
+                                  .deleteFavorite(favorite);
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
                 side: .btt,

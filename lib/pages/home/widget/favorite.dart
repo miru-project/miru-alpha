@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/provider/watch/main_provider.dart';
+import 'package:miru_app_new/provider/favorite_page_provider.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/amination/animated_box.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
@@ -46,7 +46,7 @@ class FavoritesGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final favorite = ref.watch(mainProvider).favorites;
+    final favorite = ref.watch(favoritePageProvider).favorites;
     return SliverPadding(
       padding: padding,
       sliver: SliverGrid(

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/provider/watch/main_provider.dart';
+import 'package:miru_app_new/provider/favorite_page_provider.dart';
+import 'package:miru_app_new/provider/history_page_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/provider/download_provider.dart';
@@ -13,8 +14,7 @@ class DetialState {
   final List<History> historyList;
   final List<proto.Download> downloadList;
   final Favorite? favorite;
-  final List<FavoriateGroup>? favoriateGroup;
-  // final AsyncValue<ExtensionDetail>? detailState;
+  final List<FavoriteGroup>? favoriateGroup;
 
   DetialState({
     required this.selectedGroup,
@@ -22,7 +22,6 @@ class DetialState {
     this.downloadList = const [],
     this.favorite,
     this.favoriateGroup,
-    // this.detailState,
   });
 
   DetialState copyWith({
@@ -30,8 +29,7 @@ class DetialState {
     List<History>? historyList,
     List<proto.Download>? downloadList,
     Favorite? favorite,
-    List<FavoriateGroup>? favoriateGroup,
-    // AsyncValue<ExtensionDetail>? detailState,
+    List<FavoriteGroup>? favoriateGroup,
   }) {
     return DetialState(
       selectedGroup: selectedGroup ?? this.selectedGroup,
@@ -39,7 +37,6 @@ class DetialState {
       downloadList: downloadList ?? this.downloadList,
       favorite: favorite ?? this.favorite,
       favoriateGroup: favoriateGroup ?? this.favoriateGroup,
-      // detailState: detailState ?? this.detailState,
     );
   }
 }
@@ -53,17 +50,17 @@ class Detial extends _$Detial {
 
   DetialState _init(String packageName, String detailUrl) {
     final historyList = ref
-        .read(mainProvider)
+        .read(historyPageProvider)
         .history
         .where((e) => e.package == packageName && e.detailUrl == detailUrl)
         .toList();
     final favorite = ref
-        .read(mainProvider)
+        .read(favoritePageProvider)
         .favorites
         .where((e) => e.package == packageName && e.url == detailUrl)
         .firstOrNull;
     final favoriateGroup = ref
-        .read(mainProvider)
+        .read(favoritePageProvider)
         .favoriteGroups
         .where(
           (e) => e.favorites.any(
@@ -79,7 +76,7 @@ class Detial extends _$Detial {
       favoriateGroup: favoriateGroup,
     );
 
-    // query db
+    // query db LEAVE FOR FUTURE USE
     //   Future.microtask(() async {
     //   final historyList = await DatabaseService.getHistoryByPackageAndDetailUrl(
     //     packageName,
@@ -100,10 +97,6 @@ class Detial extends _$Detial {
     // });
   }
 
-  // void putHistoryList(List<History> l) {
-  //   state = state.copyWith(historyList: l);
-  // }
-
   void putHistory(History h) {
     state = state.copyWith(historyList: [...state.historyList, h]);
   }
@@ -111,11 +104,11 @@ class Detial extends _$Detial {
   void putFavorite(Favorite? f) {
     state = state.copyWith(favorite: f);
     if (f != null) {
-      ref.read(mainProvider.notifier).addFavorite(f);
+      ref.read(favoritePageProvider.notifier).addFavorite(f);
     }
   }
 
-  void putFavoriteGroup(List<FavoriateGroup>? f) {
+  void putFavoriteGroup(List<FavoriteGroup>? f) {
     state = state.copyWith(favoriateGroup: f);
   }
 
@@ -128,51 +121,6 @@ class Detial extends _$Detial {
     state.selectedGroup.value = v;
     state = state.copyWith();
   }
-
-  // void refreshExtensionDetail(String pkg, String url) {
-  //   ref.invalidate(fetchExtensionDetailProvider(pkg, url));
-  //   state = state.copyWith();
-  // }
-
-  // Future<void> reloadDetail(String pkg, String url) async {
-  //   ref.invalidate(fetchExtensionDetailProvider(pkg, url));
-  //   await fetchDetailFromExtension(pkg, url);
-  // }
-
-  // Future<Detail?> fetchDetailFromExtension(String pkg, String url) async {
-  //   try {
-  //     final data = await ref.read(
-  //       fetchExtensionDetailProvider(pkg, url).future,
-  //     );
-
-  //     final newDetail = Detail.fromExtensionDetail(
-  //       data,
-  //       detailUrl: url,
-  //       package: pkg,
-  //     );
-  //     await MiruCoreEndpoint.upsertDbDetail(newDetail);
-
-  //     state = state.copyWith(detailState: AsyncValue.data(data));
-  //   } catch (e, st) {
-  //     state = state.copyWith(
-  //       detailState: AsyncValue<ExtensionDetail>.error(e, st),
-  //     );
-  //   }
-  //   return null;
-  // }
-
-  // Future<Detail?> fetchDetailFromDb(String pkg, String url) async {
-  //   final dbDetail = await MiruCoreEndpoint.getDbDetail(pkg, url);
-  //   if (dbDetail != null) {
-  //     state = state.copyWith(
-  //       detailState: AsyncValue.data(dbDetail.toExtensionDetail()),
-  //     );
-  //     return dbDetail;
-  //   } else {
-  //     state = state.copyWith(detailState: const AsyncValue.loading());
-  //     return null;
-  //   }
-  // }
 
   Future<void> initDetail(String pkg, String url) async {
     final downloads = await ref

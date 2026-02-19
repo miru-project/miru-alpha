@@ -58,8 +58,8 @@ Map<String, dynamic> _$FavoriteToJson(Favorite instance) => <String, dynamic>{
   'date': instance.date.toIso8601String(),
 };
 
-FavoriateGroup _$FavoriateGroupFromJson(Map<String, dynamic> json) =>
-    FavoriateGroup(
+FavoriteGroup _$FavoriteGroupFromJson(Map<String, dynamic> json) =>
+    FavoriteGroup(
       id: json['id'] == null ? 0 : _parseInt(json['id']),
       name: json['name'] as String,
       date: DateTime.parse(json['date'] as String),
@@ -70,7 +70,7 @@ FavoriateGroup _$FavoriateGroupFromJson(Map<String, dynamic> json) =>
           const [],
     );
 
-Map<String, dynamic> _$FavoriateGroupToJson(FavoriateGroup instance) =>
+Map<String, dynamic> _$FavoriteGroupToJson(FavoriteGroup instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,

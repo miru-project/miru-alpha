@@ -4,6 +4,21 @@ part 'model.g.dart';
 
 enum ExtensionType { manga, bangumi, fikushon, all }
 
+ExtensionType? stringToExtensionType(String type) {
+  switch (type) {
+    case 'bangumi' || 'video' || 'Bangumi' || 'Video':
+      return ExtensionType.bangumi;
+    case 'manga' || 'Manga':
+      return ExtensionType.manga;
+    case 'fikushon' || 'novel' || 'Fikushon' || 'Novel':
+      return ExtensionType.fikushon;
+    case 'all':
+      return ExtensionType.all;
+    default:
+      return null;
+  }
+}
+
 enum ExtensionWatchBangumiType { hls, mp4, torrent, magnet }
 
 enum ExtensionLogLevel { info, error }

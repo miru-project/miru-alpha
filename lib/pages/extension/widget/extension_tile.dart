@@ -18,7 +18,11 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
     ExtensionPageNotifier notifier,
   ) async {
     await notifier.installPackage(data.package, repoUrl);
-    iconsMessageToast("Installed ${data.name}", FIcons.blocks, 1);
+    iconsMessageToast(
+      title: "Installed ${data.name}",
+      icon: FIcons.blocks,
+      duration: 1,
+    );
   }
 
   void onuninstall(
@@ -27,7 +31,11 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
     ExtensionPageNotifier notifier,
   ) async {
     await notifier.uninstallPackage(data.package);
-    iconsMessageToast("Uninstalled ${data.name}", FIcons.blocks, 1);
+    iconsMessageToast(
+      title: "Uninstalled ${data.name}",
+      icon: FIcons.blocks,
+      duration: 1,
+    );
   }
 
   @override

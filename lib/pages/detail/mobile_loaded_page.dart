@@ -1,4 +1,5 @@
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -77,18 +78,43 @@ class MobileLoadedPage extends HookConsumerWidget {
                           children: [
                             FLabel(
                               axis: Axis.vertical,
-                              description: Text(
-                                "${meta.name} * ${meta.type.name}",
-                                style: TextStyle(height: 1.3),
+                              description: Row(
+                                children: [
+                                  Icon(switch (meta.type) {
+                                    ExtensionType.manga => FIcons.book,
+                                    ExtensionType.bangumi => FIcons.film,
+                                    ExtensionType.fikushon => FIcons.bookText,
+                                    ExtensionType.all => FIcons.rows3,
+                                  }),
+                                  Text(' • '),
+                                  FTappable(
+                                    onPress: () {},
+                                    child: Row(
+                                      children: [
+                                        if (meta.icon != null)
+                                          ExtendedImage.network(
+                                            meta.icon!,
+                                            width: 20,
+                                            height: 20,
+                                          ),
+                                        SizedBox(width: 4),
+                                        Text(meta.name),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                              child: Text(
-                                detail.title,
-                                style: TextStyle(
-                                  height: 1.2,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
+                              child: FTappable(
+                                onPress: () {},
+                                child: Text(
+                                  detail.title,
+                                  style: TextStyle(
+                                    height: 1.2,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22,
+                                  ),
+                                  maxLines: 3,
                                 ),
-                                maxLines: 3,
                               ),
                             ),
                             SizedBox(height: 10),

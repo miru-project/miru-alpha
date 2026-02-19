@@ -92,10 +92,7 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
                       meta: widget.meta,
                       detailUrl: widget.detailUrl,
                       detail: detial,
-                      onSuccess: (fav, groups) {
-                        ref.read(detailPr.notifier).putFavorite(fav);
-                        ref.read(detailPr.notifier).putFavoriteGroup(groups);
-                      },
+                      detailPr: detailPr,
                     ),
                   );
                 },

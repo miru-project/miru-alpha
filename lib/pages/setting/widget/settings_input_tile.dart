@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
@@ -32,51 +34,37 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
         onPress: () {
           showFDialog(
             context: context,
-            builder: (context, style, animation) => SingleChildScrollView(
-              child:
-                  // FDialog.raw(builder: (context,style){
-                  //            return  FTextField(
-                  //         // style: context.theme.textFieldStyle.copyWith(
-                  //         //   border: FWidgetStateMap(),
-                  //         // ),
-                  //         label: const Text('Username'),
-                  //         hint: 'JaneDoe',
-                  //         description: const Text('Please enter your username.'),
-                  //         maxLines: 1,
-                  //       )
-                  // })
-                  FDialog(
-                    style: style,
-                    animation: animation,
-                    title: const Text('TMDB Api keys'),
-                    body: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FTextField(
-                          // style: context.theme.textFieldStyle.copyWith(
-                          //   border: FWidgetStateMap(),
-                          // ),
-                          label: const Text('Username'),
-                          hint: 'JaneDoe',
-                          description: const Text(
-                            'Please enter your username.',
-                          ),
-                          maxLines: 1,
-                        ),
-                      ],
+            routeStyle: .delta(
+              barrierFilter: () =>
+                  (animation) => ImageFilter.compose(
+                    outer: ImageFilter.blur(
+                      sigmaX: animation * 5,
+                      sigmaY: animation * 5,
                     ),
-                    actions: [
-                      FButton(
-                        variant: .outline,
-                        onPress: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
-                      ),
-                      FButton(
-                        onPress: () => Navigator.of(context).pop(),
-                        child: const Text('Confirm'),
-                      ),
-                    ],
+                    inner: ColorFilter.mode(
+                      context.theme.colors.barrier,
+                      .srcOver,
+                    ),
                   ),
+            ),
+            builder: (context, style, animation) => FDialog(
+              style: style,
+              animation: animation,
+              title: const Text('TMDB Api keys (WIP)'),
+              body: Form(child: FTextField(hint: 'Enter your TMDB Api keys')),
+              actions: [
+                FButton(
+                  size: .sm,
+                  child: const Text('Confirm'),
+                  onPress: () => Navigator.of(context).pop(),
+                ),
+                FButton(
+                  size: .sm,
+                  variant: .outline,
+                  child: const Text('Cancel'),
+                  onPress: () => Navigator.of(context).pop(),
+                ),
+              ],
             ),
           );
         },

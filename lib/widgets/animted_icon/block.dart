@@ -118,7 +118,11 @@ class _PathPainter extends CustomPainter {
     Path path = parseSvgPathData(pathData);
 
     // Scale SVG 24x24 to widget size
-    final matrix = Matrix4.identity()..scale(size.width / 24, size.height / 24);
+    final matrix = Matrix4.diagonal3Values(
+      size.width / 24,
+      size.height / 24,
+      1.0,
+    );
     path = path.transform(matrix.storage);
 
     final paint = Paint()

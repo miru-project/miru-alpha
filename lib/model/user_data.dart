@@ -164,7 +164,7 @@ class EnumToString {
 }
 
 @JsonSerializable()
-class FavoriateGroup {
+class FavoriteGroup {
   @JsonKey(fromJson: _parseInt)
   int id;
 
@@ -172,20 +172,20 @@ class FavoriateGroup {
   List<Favorite> favorites;
   DateTime date;
 
-  FavoriateGroup({
+  FavoriteGroup({
     this.id = 0,
     required this.name,
     required this.date,
     this.favorites = const [],
   });
 
-  factory FavoriateGroup.fromJson(Map<String, dynamic> json) =>
-      _$FavoriateGroupFromJson(json);
+  factory FavoriteGroup.fromJson(Map<String, dynamic> json) =>
+      _$FavoriteGroupFromJson(json);
 
-  Map<String, dynamic> toJson() => _$FavoriateGroupToJson(this);
+  Map<String, dynamic> toJson() => _$FavoriteGroupToJson(this);
 
-  static FavoriateGroup fromProto(proto.FavoriteGroup p) {
-    return FavoriateGroup(
+  static FavoriteGroup fromProto(proto.FavoriteGroup p) {
+    return FavoriteGroup(
       id: p.id,
       name: p.name,
       date: DateTime.parse(p.date),

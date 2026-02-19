@@ -81,8 +81,9 @@ class SearchGridView extends HookConsumerWidget {
           } catch (e) {
             if (e is GrpcError) {
               iconsMessageToast(
-                "Failed to get ${c.query.isEmpty ? "latest" : "search"} on ${meta.name} \n${e.message} ",
-                FIcons.octagonX,
+                title:
+                    "Failed to get ${c.query.isEmpty ? "latest" : "search"} on ${meta.name} \n${e.message} ",
+                icon: FIcons.octagonX,
               );
             }
           }

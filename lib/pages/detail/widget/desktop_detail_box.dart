@@ -98,18 +98,6 @@ class DetailDesktopBox extends HookConsumerWidget {
                   style: .delta(
                     dividerStyle: .delta(color: Colors.transparent),
                   ),
-                  // style: (style) {
-                  //   return FAccordionStyle(
-                  //     titleTextStyle: style.titleTextStyle,
-                  //     childTextStyle: style.childTextStyle,
-                  //     iconStyle: style.iconStyle,
-                  //     focusedOutlineStyle: style.focusedOutlineStyle,
-                  //     dividerStyle: style.dividerStyle.copyWith(
-                  //       color: Colors.transparent,
-                  //     ),
-                  //     tappableStyle: style.tappableStyle,
-                  //   );
-                  // },
                   children: [
                     FAccordionItem(
                       initiallyExpanded: true,
@@ -161,9 +149,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                             meta: meta,
                             detailUrl: detailUrl,
                             detail: detail,
-                            onSuccess: (fav, favGrp) async {
-                              ref.read(detailPr.notifier).putFavorite(fav);
-                            },
+                            detailPr: detailPr,
                           ),
                         );
                       },

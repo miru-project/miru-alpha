@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/foundation.dart';
 
 class AnimatedBox extends HookWidget {
   const AnimatedBox({required this.child, this.onTap, super.key})
@@ -20,9 +21,9 @@ class AnimatedBox extends HookWidget {
       cursor: SystemMouseCursors.click,
       onEnter: (_) => isHovered.value = true,
       onExit: (_) => isHovered.value = false,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: onTap,
+      child: FTappable(
+        behavior: .translucent,
+        onPress: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOut,

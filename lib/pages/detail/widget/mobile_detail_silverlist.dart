@@ -180,9 +180,15 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                       ),
                     );
                   },
-                  subtitle: h != null
-                      ? Row(children: [Text(progressIndicator(h))])
-                      : SizedBox(),
+                  subtitle: (h == null && item.update == null)
+                      ? SizedBox.shrink()
+                      : Row(
+                          children: [
+                            Text(dateFormatter(item.update)),
+                            Text(' • '),
+                            h != null ? Text(progressIndicator(h)) : SizedBox(),
+                          ],
+                        ),
                 );
               },
               count: selectGroup.length,
@@ -193,6 +199,34 @@ class MobileDetailSilverlist extends HookConsumerWidget {
     );
   }
 
+  String dateFormatter(DateTime? date) {
+    if (date == null) return "";
+    final now = DateTime.now();
+    final diff = now.difference(date);
+    if (diff.inDays == 0) {
+      if (diff.inHours == 0) {
+        if (diff.inMinutes == 0) {
+          return "Just now";
+        }
+        return "${diff.inMinutes} minutes ago";
+      }
+      return "${diff.inHours} hours ago";
+    }
+    if (diff.inDays == 1) {
+      return "Yesterday";
+    }
+    if (diff.inDays < 7) {
+      return "${diff.inDays} days ago";
+    }
+    if (diff.inDays < 30) {
+      return "${diff.inDays ~/ 7} weeks ago";
+    }
+    if (diff.inDays < 365) {
+      return "${diff.inDays ~/ 30} months ago";
+    }
+    return "${diff.inDays ~/ 365} years ago";
+  }
+
   String progressIndicator(History h) {
     final type =
         ExtensionType.values.firstWhereOrNull(
@@ -201,7 +235,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
         ExtensionType.all;
     switch (type) {
       case ExtensionType.manga:
-        return "${h.progress}/${h.totalProgress}";
+        return "${h.progress} page / ${h.totalProgress} page";
       case ExtensionType.bangumi:
         final dur = Duration(seconds: h.progress);
         final totalDur = Duration(seconds: h.totalProgress);

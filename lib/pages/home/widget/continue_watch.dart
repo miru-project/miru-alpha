@@ -4,8 +4,10 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/index.dart';
+import 'package:miru_app_new/model/model.dart';
+import 'package:miru_app_new/model/user_data.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
+import 'package:miru_app_new/provider/history_page_provider.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
@@ -13,13 +15,10 @@ import 'package:miru_app_new/widgets/amination/animated_box.dart';
 
 class ContinueWatchingSection extends HookConsumerWidget {
   const ContinueWatchingSection({
-    required this.history,
     required this.scrollController,
     required this.horizontalTitlePadding,
     super.key,
   });
-
-  final List<History> history;
   final ScrollController scrollController;
   final double horizontalTitlePadding;
   @override
@@ -27,6 +26,9 @@ class ContinueWatchingSection extends HookConsumerWidget {
     final canScrollLeft = useState(false);
     final canScrollRight = useState(false);
     final isMobile = DeviceUtil.isMobileLayout(context);
+    final history = ref.watch(
+      historyPageProvider.select((e) => e.filteredHistory),
+    );
     void updateScrollButtons() {
       canScrollLeft.value = scrollController.offset > 0;
       canScrollRight.value =

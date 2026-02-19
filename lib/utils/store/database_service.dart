@@ -28,29 +28,48 @@ class DatabaseService {
     }
   }
 
-  static Future<void> putFavoriteByIndex(List<FavoriateGroup> groups) async {
+  static Future<void> putFavoriteByIndex(List<FavoriteGroup> groups) async {
+    logger.info('putFavoriteByIndex $groups.map((e) => e.name)}');
     await client.putFavoriteByIndex(
       proto.PutFavoriteByIndexRequest()
         ..groups.addAll(groups.map((e) => e.toProto())),
     );
   }
 
+  static Future<Favorite> putFavorite(
+    String detailUrl,
+    Detail? detail,
+    String package,
+    ExtensionType type,
+  ) async {
+    logger.info('putFavorite $detailUrl $package $type');
+    final response = await client.putFavorite(
+      proto.PutFavoriteRequest()
+        ..url = detailUrl
+        ..cover = detail?.cover ?? ''
+        ..package = package
+        ..title = detail?.title ?? ''
+        ..type = type.toString().split('.').last,
+    );
+    return Favorite.fromProto(response.favorite);
+  }
+
   // Favorite Groups
-  static Future<List<FavoriateGroup>> getFavoriteGroupsById(int id) async {
+  static Future<List<FavoriteGroup>> getFavoriteGroupsById(int id) async {
     final response = await client.getFavoriteGroupsById(
       proto.GetFavoriteGroupsByIdRequest()..id = id,
     );
-    return response.groups.map((e) => FavoriateGroup.fromProto(e)).toList();
+    return response.groups.map((e) => FavoriteGroup.fromProto(e)).toList();
   }
 
-  static Future<List<FavoriateGroup>> getAllFavoriteGroup() async {
+  static Future<List<FavoriteGroup>> getAllFavoriteGroup() async {
     final response = await client.getAllFavoriteGroup(
       proto.GetAllFavoriteGroupRequest(),
     );
-    return response.groups.map((e) => FavoriateGroup.fromProto(e)).toList();
+    return response.groups.map((e) => FavoriteGroup.fromProto(e)).toList();
   }
 
-  static Future<FavoriateGroup> putFavoriteGroup(
+  static Future<FavoriteGroup> putFavoriteGroup(
     String name, [
     List<int> items = const [],
   ]) async {
@@ -59,7 +78,7 @@ class DatabaseService {
         ..name = name
         ..items.addAll(items),
     );
-    return FavoriateGroup.fromProto(response.group);
+    return FavoriteGroup.fromProto(response.group);
   }
 
   static Future<void> renameFavoriteGroup(
@@ -167,7 +186,7 @@ class DatabaseService {
     return response.histories.map((e) => History.fromProto(e)).toList();
   }
 
-  static Future<List<FavoriateGroup>> getFavoriteGroupsByFavorite(
+  static Future<List<FavoriteGroup>> getFavoriteGroupsByFavorite(
     String package,
     String url,
   ) async {
@@ -176,25 +195,7 @@ class DatabaseService {
         ..package = package
         ..url = url,
     );
-    return response.groups.map((e) => FavoriateGroup.fromProto(e)).toList();
-  }
-
-  static Future<Favorite> putFavorite(
-    String detailUrl,
-    Detail? detail,
-    String package,
-    ExtensionType type,
-  ) async {
-    logger.info('putFavorite $detailUrl $package $type');
-    final response = await client.putFavorite(
-      proto.PutFavoriteRequest()
-        ..url = detailUrl
-        ..cover = detail?.cover ?? ''
-        ..package = package
-        ..title = detail?.title ?? ''
-        ..type = type.toString().split('.').last,
-    );
-    return Favorite.fromProto(response.favorite);
+    return response.groups.map((e) => FavoriteGroup.fromProto(e)).toList();
   }
 
   static Future<void> deleteFavorite(String url, String package) async {

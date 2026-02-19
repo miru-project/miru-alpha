@@ -59,7 +59,7 @@ final class MangaReaderProvider
   }
 }
 
-String _$mangaReaderHash() => r'4c632978c633302ac36b79fa1a21514e4b3b3286';
+String _$mangaReaderHash() => r'3bb202929ddc68a3a70f7ade08fea42bdd809c1b';
 
 final class MangaReaderFamily extends $Family
     with

@@ -3,7 +3,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/miru_core/proto/proto.dart' as common;
 import 'package:miru_app_new/provider/download_provider.dart';
-import 'package:miru_app_new/provider/watch/main_provider.dart';
+import 'package:miru_app_new/provider/history_page_provider.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
 
 class DownloadItem extends ConsumerWidget {
@@ -17,7 +17,7 @@ class DownloadItem extends ConsumerWidget {
     final isDownloading = task.status != 'Completed' && task.status != 'Failed';
 
     // Try to find matching history item for cover
-    final history = ref.watch(mainProvider).history;
+    final history = ref.watch(historyPageProvider).history;
     final matchingHistory = history.firstWhere(
       (h) => h.package == task.package && task.title.contains(h.title),
       orElse: () => history.firstWhere(

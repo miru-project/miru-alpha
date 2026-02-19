@@ -90,13 +90,23 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
               borderRadius: BorderRadius.circular(10),
               child: BackdropFilter(
                 // enabled: false,
-                filter: ImageFilter.blur(
-                  sigmaX: 10,
-                  sigmaY: 10,
-                  tileMode: TileMode.mirror,
+                filter: ImageFilter.compose(
+                  outer: ColorFilter.mode(
+                    context.theme.colors.barrier,
+                    .srcOver,
+                  ),
+                  inner: ImageFilter.compose(
+                    outer: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    inner: ColorFilter.mode(
+                      context.theme.colors.primary.withAlpha(25),
+                      .srcOver,
+                    ),
+                  ),
                 ),
                 child: CustomScrollView(
+                  keyboardDismissBehavior: .onDrag,
                   controller: scrollController,
+                  physics: const NeverScrollableScrollPhysics(),
                   slivers: [
                     SliverToBoxAdapter(child: _GrabbingWidget()),
                     if (!isMobileTitleOnTop && widget.mobileHeader != null)
@@ -114,7 +124,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
         ),
         child: FScaffold(
           childPad: widget.childPad,
-          resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+          // resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
           child: widget.mobileBody ?? widget.body!,
         ),
       ),
@@ -135,7 +145,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
             if (isMobileTitleOnTop)
               Padding(
                 padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).viewInsets.top + 20,
+                  // top: MediaQuery.of(context).viewInsets.top + 20,
                   left: 12,
                   right: 12,
                 ),
@@ -145,7 +155,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
               child: (isMobileTitleOnTop && widget.snapSheet.isEmpty)
                   ? FScaffold(
                       childPad: widget.childPad,
-                      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+                      // resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
                       child: widget.mobileBody ?? widget.body!,
                     )
                   : sheet(isMobileTitleOnTop),
