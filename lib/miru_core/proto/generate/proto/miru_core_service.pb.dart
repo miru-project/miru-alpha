@@ -15,6 +15,7 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'common.pb.dart' as $1;
+import 'db_model.pb.dart' as $2;
 
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
 
@@ -62,7 +63,7 @@ class HelloMiruResponse extends $pb.GeneratedMessage {
     $core.Iterable<$core.MapEntry<$core.int, $1.DownloadProgress>>?
         downloadStatus,
     $1.TorrentStats? torrent,
-    $core.Iterable<$1.History>? history,
+    $core.Iterable<$2.History>? history,
   }) {
     final result = create();
     if (extensionMeta != null) result.extensionMeta.addAll(extensionMeta);
@@ -99,8 +100,8 @@ class HelloMiruResponse extends $pb.GeneratedMessage {
         packageName: const $pb.PackageName('miru'))
     ..aOM<$1.TorrentStats>(3, _omitFieldNames ? '' : 'torrent',
         subBuilder: $1.TorrentStats.create)
-    ..pPM<$1.History>(4, _omitFieldNames ? '' : 'history',
-        subBuilder: $1.History.create)
+    ..pPM<$2.History>(4, _omitFieldNames ? '' : 'history',
+        subBuilder: $2.History.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -140,7 +141,7 @@ class HelloMiruResponse extends $pb.GeneratedMessage {
   $1.TorrentStats ensureTorrent() => $_ensure(2);
 
   @$pb.TagNumber(4)
-  $pb.PbList<$1.History> get history => $_getList(3);
+  $pb.PbList<$2.History> get history => $_getList(3);
 }
 
 const $core.bool _omitFieldNames =

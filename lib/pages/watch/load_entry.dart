@@ -39,7 +39,12 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
   @override
   void dispose() {
     if (_hasOriented) {
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+      Future.microtask(() async {
+        await Future.delayed(const Duration(microseconds: 100));
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+        ]);
+      });
     }
     _episodeNotifier.saveHistory();
     super.dispose();
@@ -52,7 +57,12 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
 
     if (maxWidth < maxHeight && widget.param.type == ExtensionType.bangumi) {
       _hasOriented = true;
-      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
+      Future.microtask(() async {
+        await Future.delayed(const Duration(microseconds: 100));
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+        ]);
+      });
     }
     final epNotifier = ref.watch(_epProvider);
     if (epNotifier.epGroup.isEmpty) {

@@ -1,46 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/model/extension_meta_data.dart';
 import 'package:miru_app_new/pages/search/widget/desktop_search_filter_box.dart';
 import 'package:miru_app_new/provider/network_provider.dart';
 import 'package:miru_app_new/provider/search_page_single_provider.dart';
+import 'package:miru_app_new/utils/hook/sheet_controller.dart';
 import 'package:miru_app_new/utils/setting_dir_index.dart';
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'package:miru_app_new/pages/search/widget/search_grid_loading.dart';
 import 'package:miru_app_new/pages/search/widget/search_grid_view.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
-class SearchPageSingleView extends StatefulHookConsumerWidget {
+class SearchPageSingleView extends HookConsumerWidget {
   const SearchPageSingleView({super.key, this.query, required this.meta});
   final String? query;
   final ExtensionMeta meta;
   @override
-  createState() => _SearchPageSingleViewState();
-}
-
-class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
-    with TickerProviderStateMixin {
-  late final _scrollController = ScrollController();
-  late TabController tabController;
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(context) {
+  Widget build(context, ref) {
     final showPageNumber = MiruSettings.getSettingSync<bool>(
       SettingKey.showPageNumber,
     );
+    final sheetController = useSheetController();
+    final scrollController = useScrollController();
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: MiruScaffold(
-        // resizeToAvoidBottomInset: true,
+        sheetController: sheetController,
         mobileHeader: Padding(
           padding: EdgeInsetsGeometry.only(bottom: 10),
           child: Row(
@@ -62,7 +52,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.meta.name,
+                    meta.name,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: showPageNumber ? 20 : 22,
@@ -89,14 +79,23 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
           ),
         ),
         snapSheet: [
-          FCard.raw(
+          Padding(
+            padding: .symmetric(horizontal: 10),
             child: FTextField(
+              onTap: () {
+                if (((sheetController.value ?? 190.0).toInt() - 190).abs() <
+                    2) {
+                  sheetController.animateTo(
+                    SheetOffset.proportionalToViewport(.5),
+                  );
+                }
+              },
               autofocus: false,
               maxLines: 1,
               onSubmit: (value) {
                 ref.invalidate(
                   fetchExtensionSearchLatestProvider.call(
-                    widget.meta.packageName,
+                    meta.packageName,
                     1,
                     query: value,
                   ),
@@ -120,7 +119,7 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
             );
             final snapshot = ref.watch(
               fetchExtensionSearchLatestProvider.call(
-                widget.meta.packageName,
+                meta.packageName,
                 1,
                 query: query,
               ),
@@ -132,17 +131,17 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
                   desktopWidget: Stack(
                     children: [
                       SearchGridView(
-                        meta: widget.meta,
-                        scrollController: _scrollController,
+                        meta: meta,
+                        scrollController: scrollController,
                         cons: cons,
                         res: data,
                       ),
-                      DesktopSearchSingleFilterBox(meta: widget.meta),
+                      DesktopSearchSingleFilterBox(meta: meta),
                     ],
                   ),
                   mobileWidget: SearchGridView(
-                    meta: widget.meta,
-                    scrollController: _scrollController,
+                    meta: meta,
+                    scrollController: scrollController,
                     cons: cons,
                     res: data,
                   ),
@@ -152,10 +151,10 @@ class _SearchPageSingleViewState extends ConsumerState<SearchPageSingleView>
               error: (err, stack) => ErrorDisplay.grpc(err: err, stack: stack),
               loading: () => PlatformWidget(
                 mobileWidget: MobileSeachGridLoadingWidget(
-                  scrollController: _scrollController,
+                  scrollController: scrollController,
                 ),
                 desktopWidget: SearchGridLoadingWidget(
-                  scrollController: _scrollController,
+                  scrollController: scrollController,
                 ),
               ),
             );

@@ -6,7 +6,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
 import 'package:miru_app_new/pages/extension/widget/extension_desktop_grid_view.dart';
 import 'package:miru_app_new/pages/extension/widget/extension_tile.dart';
+import 'package:miru_app_new/utils/hook/sheet_controller.dart';
 import 'package:miru_app_new/widgets/index.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../../model/index.dart';
 
@@ -102,7 +104,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     final extNotifier = ref.read(extensionPageProvider.notifier);
 
     final scrollController = useScrollController();
-
+    final sheetController = useSheetController();
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         extNotifier.loadRepos();
@@ -111,12 +113,20 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     }, const []);
 
     return MiruScaffold(
+      sheetController: sheetController,
       scrollController: scrollController,
       mobileHeader: SnapSheetHeader(title: 'Extension'),
       snapSheet: <Widget>[
         Padding(
           padding: .symmetric(horizontal: 10),
           child: FTextField(
+            onTap: () {
+              if (((sheetController.value ?? 190.0).toInt() - 190).abs() < 2) {
+                sheetController.animateTo(
+                  SheetOffset.proportionalToViewport(.5),
+                );
+              }
+            },
             maxLines: 1,
             control: .managed(
               onChange: (value) {

@@ -6,6 +6,7 @@ import 'package:miru_app_new/model/index.dart';
 import 'package:miru_app_new/pages/home/widget/mobile_add_favgroup_dialog.dart';
 import 'package:miru_app_new/provider/favorite_page_provider.dart';
 import 'package:miru_app_new/provider/history_page_provider.dart';
+import 'package:miru_app_new/utils/hook/sheet_controller.dart';
 import 'package:miru_app_new/widgets/core/miru_tabs.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/pages/download/download_page.dart';
@@ -17,6 +18,8 @@ import 'package:miru_app_new/pages/home/widget/favorite.dart';
 import 'package:miru_app_new/widgets/core/toast.dart';
 import 'package:miru_app_new/widgets/index.dart';
 import 'dart:ui';
+
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 // shell scaffold for tab navigation in history / home / favorite / download
 class MiruMobileShellScaffold extends StatefulHookWidget {
@@ -31,8 +34,15 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
     with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
+    final sheetController = useSheetController();
     final tabController = useTabController(initialLength: 4);
     return MiruScaffold(
+      sheetController: sheetController,
+      snappingOffsets: const [
+        AbsoluteSheetOffset(190),
+        ProportionalToViewportSheetOffset(0.55),
+        ProportionalToViewportSheetOffset(1.0),
+      ],
       mobileHeader: HookBuilder(
         builder: (context) {
           final index = useState(tabController.index);
@@ -180,6 +190,17 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                               builder: (context, ref, child) {
                                 final input = useState('');
                                 return FTextField(
+                                  onTap: () {
+                                    if (((sheetController.value ?? 190.0)
+                                                    .toInt() -
+                                                190)
+                                            .abs() <
+                                        2) {
+                                      sheetController.animateTo(
+                                        SheetOffset.proportionalToViewport(.55),
+                                      );
+                                    }
+                                  },
                                   control: .managed(
                                     onChange: (value) {
                                       input.value = value.text;
@@ -246,6 +267,17 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                               builder: (context, ref, child) {
                                 final input = useState('');
                                 return FTextField(
+                                  onTap: () {
+                                    if (((sheetController.value ?? 190.0)
+                                                    .toInt() -
+                                                190)
+                                            .abs() <
+                                        2) {
+                                      sheetController.animateTo(
+                                        SheetOffset.proportionalToViewport(.55),
+                                      );
+                                    }
+                                  },
                                   control: .managed(
                                     onChange: (value) {
                                       input.value = value.text;

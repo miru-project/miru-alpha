@@ -14,7 +14,7 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
-import 'common.pb.dart' as $1;
+import 'extension_model.pb.dart' as $1;
 
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
 
@@ -340,7 +340,7 @@ class DetailRequest extends $pb.GeneratedMessage {
 
 class DetailResponse extends $pb.GeneratedMessage {
   factory DetailResponse({
-    $core.String? data,
+    $1.ExtensionDetail? data,
   }) {
     final result = create();
     if (data != null) result.data = data;
@@ -360,7 +360,8 @@ class DetailResponse extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'DetailResponse',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'data')
+    ..aOM<$1.ExtensionDetail>(1, _omitFieldNames ? '' : 'data',
+        subBuilder: $1.ExtensionDetail.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -383,13 +384,15 @@ class DetailResponse extends $pb.GeneratedMessage {
   static DetailResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get data => $_getSZ(0);
+  $1.ExtensionDetail get data => $_getN(0);
   @$pb.TagNumber(1)
-  set data($core.String value) => $_setString(0, value);
+  set data($1.ExtensionDetail value) => $_setField(1, value);
   @$pb.TagNumber(1)
   $core.bool hasData() => $_has(0);
   @$pb.TagNumber(1)
   void clearData() => $_clearField(1);
+  @$pb.TagNumber(1)
+  $1.ExtensionDetail ensureData() => $_ensure(0);
 }
 
 class WatchRequest extends $pb.GeneratedMessage {
@@ -458,12 +461,20 @@ class WatchRequest extends $pb.GeneratedMessage {
   void clearUrl() => $_clearField(2);
 }
 
+enum WatchResponse_Data { bangumi, manga, fikushon, raw, notSet }
+
 class WatchResponse extends $pb.GeneratedMessage {
   factory WatchResponse({
-    $core.String? data,
+    $1.ExtensionBangumiWatch? bangumi,
+    $1.ExtensionMangaWatch? manga,
+    $1.ExtensionFikushonWatch? fikushon,
+    $core.String? raw,
   }) {
     final result = create();
-    if (data != null) result.data = data;
+    if (bangumi != null) result.bangumi = bangumi;
+    if (manga != null) result.manga = manga;
+    if (fikushon != null) result.fikushon = fikushon;
+    if (raw != null) result.raw = raw;
     return result;
   }
 
@@ -476,11 +487,26 @@ class WatchResponse extends $pb.GeneratedMessage {
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
+  static const $core.Map<$core.int, WatchResponse_Data>
+      _WatchResponse_DataByTag = {
+    1: WatchResponse_Data.bangumi,
+    2: WatchResponse_Data.manga,
+    3: WatchResponse_Data.fikushon,
+    4: WatchResponse_Data.raw,
+    0: WatchResponse_Data.notSet
+  };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'WatchResponse',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'data')
+    ..oo(0, [1, 2, 3, 4])
+    ..aOM<$1.ExtensionBangumiWatch>(1, _omitFieldNames ? '' : 'bangumi',
+        subBuilder: $1.ExtensionBangumiWatch.create)
+    ..aOM<$1.ExtensionMangaWatch>(2, _omitFieldNames ? '' : 'manga',
+        subBuilder: $1.ExtensionMangaWatch.create)
+    ..aOM<$1.ExtensionFikushonWatch>(3, _omitFieldNames ? '' : 'fikushon',
+        subBuilder: $1.ExtensionFikushonWatch.create)
+    ..aOS(4, _omitFieldNames ? '' : 'raw')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -503,13 +529,57 @@ class WatchResponse extends $pb.GeneratedMessage {
   static WatchResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get data => $_getSZ(0);
+  @$pb.TagNumber(2)
+  @$pb.TagNumber(3)
+  @$pb.TagNumber(4)
+  WatchResponse_Data whichData() => _WatchResponse_DataByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(1)
-  set data($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(2)
+  @$pb.TagNumber(3)
+  @$pb.TagNumber(4)
+  void clearData() => $_clearField($_whichOneof(0));
+
   @$pb.TagNumber(1)
-  $core.bool hasData() => $_has(0);
+  $1.ExtensionBangumiWatch get bangumi => $_getN(0);
   @$pb.TagNumber(1)
-  void clearData() => $_clearField(1);
+  set bangumi($1.ExtensionBangumiWatch value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasBangumi() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearBangumi() => $_clearField(1);
+  @$pb.TagNumber(1)
+  $1.ExtensionBangumiWatch ensureBangumi() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $1.ExtensionMangaWatch get manga => $_getN(1);
+  @$pb.TagNumber(2)
+  set manga($1.ExtensionMangaWatch value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasManga() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearManga() => $_clearField(2);
+  @$pb.TagNumber(2)
+  $1.ExtensionMangaWatch ensureManga() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  $1.ExtensionFikushonWatch get fikushon => $_getN(2);
+  @$pb.TagNumber(3)
+  set fikushon($1.ExtensionFikushonWatch value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasFikushon() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFikushon() => $_clearField(3);
+  @$pb.TagNumber(3)
+  $1.ExtensionFikushonWatch ensureFikushon() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  $core.String get raw => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set raw($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasRaw() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearRaw() => $_clearField(4);
 }
 
 /// Extension Management

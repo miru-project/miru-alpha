@@ -127,7 +127,7 @@ class SearchGridView extends HookConsumerWidget {
             },
             title: result[index].title,
             imageUrl: result[index].cover,
-            subtitle: result[index].update ?? '',
+            subtitle: result[index].update,
           );
         },
         itemCount: isLoading.value
@@ -156,7 +156,7 @@ class SearchGridView extends HookConsumerWidget {
             },
             title: result[index].title,
             imageUrl: result[index].cover,
-            subtitle: result[index].update ?? '',
+            subtitle: result[index].update,
           );
         },
         itemCount: isLoading.value

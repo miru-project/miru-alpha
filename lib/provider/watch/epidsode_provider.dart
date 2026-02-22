@@ -37,7 +37,7 @@ class EpisodeNotifierState {
 
 @riverpod
 class EpisodeNotifier extends _$EpisodeNotifier {
-  static int progress = 1;
+  static int progress = 0;
   static int totalProgress = 1;
   late String imageUrl;
   late String package;

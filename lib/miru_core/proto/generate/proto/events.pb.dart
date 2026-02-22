@@ -15,6 +15,7 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'common.pb.dart' as $1;
+import 'db_model.pb.dart' as $2;
 
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
 
@@ -276,7 +277,7 @@ class ExtensionEvent extends $pb.GeneratedMessage {
 
 class HistoryEvent extends $pb.GeneratedMessage {
   factory HistoryEvent({
-    $core.Iterable<$1.History>? history,
+    $core.Iterable<$2.History>? history,
   }) {
     final result = create();
     if (history != null) result.history.addAll(history);
@@ -296,8 +297,8 @@ class HistoryEvent extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'HistoryEvent',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
-    ..pPM<$1.History>(1, _omitFieldNames ? '' : 'history',
-        subBuilder: $1.History.create)
+    ..pPM<$2.History>(1, _omitFieldNames ? '' : 'history',
+        subBuilder: $2.History.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -320,7 +321,7 @@ class HistoryEvent extends $pb.GeneratedMessage {
   static HistoryEvent? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $pb.PbList<$1.History> get history => $_getList(0);
+  $pb.PbList<$2.History> get history => $_getList(0);
 }
 
 const $core.bool _omitFieldNames =

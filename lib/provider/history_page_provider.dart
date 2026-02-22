@@ -38,8 +38,12 @@ class HistoryPageNotifier extends _$HistoryPageNotifier {
   void addHistory(History history) {
     DatabaseService.putHistory(history);
     Future.microtask(() {
-      state = state.copyWith(history: [history, ...state.history]);
-      logger.info('register history ${history.title}');
+      try {
+        state = state.copyWith(history: [history, ...state.history]);
+        logger.info('register history ${history.title}');
+      } catch (e) {
+        logger.severe('register history ${history.title} failed: $e');
+      }
     });
   }
 

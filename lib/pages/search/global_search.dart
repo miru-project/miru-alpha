@@ -40,7 +40,7 @@ class GlobalSearch extends HookConsumerWidget {
                 },
                 width: 200,
                 title: ext.title,
-                subtitle: ext.update ?? '',
+                subtitle: ext.update,
                 imageUrl: ext.cover,
               );
             },
@@ -81,7 +81,7 @@ class GlobalSearch extends HookConsumerWidget {
                   },
                   width: 130,
                   title: ext.title,
-                  subtitle: ext.update ?? '',
+                  subtitle: ext.update,
                   imageUrl: ext.cover,
                 ),
               );

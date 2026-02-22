@@ -84,7 +84,7 @@ class DesktopSettingDialog extends HookConsumerWidget {
             notifer.setSubSelectedIndex(index);
             context.pop();
           },
-          suffix: Text('${controller.subtitlesRaw[index].language}'),
+          suffix: Text(controller.subtitlesRaw[index].language),
           child: Text(controller.subtitlesRaw[index].title),
         ),
       ),

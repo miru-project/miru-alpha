@@ -26,7 +26,7 @@ import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() {
-  runZonedGuarded(
+  runZonedGuarded<void>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
@@ -73,12 +73,6 @@ void main() {
         DeviceOrientation.landscapeRight,
       ]);
       SystemChrome.setEnabledSystemUIMode(.immersive);
-      // SystemChrome.setSystemUIOverlayStyle(
-      //   const SystemUiOverlayStyle(
-      //     statusBarColor: Colors.transparent,
-      //     systemNavigationBarColor: Colors.transparent,
-      //   ),
-      // );
       if (kReleaseMode) _bindErrorWidget();
 
       runApp(

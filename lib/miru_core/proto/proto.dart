@@ -15,3 +15,4 @@ export 'generate/proto/network.pb.dart';
 export 'generate/proto/network.pbgrpc.dart';
 export 'generate/proto/events.pb.dart';
 export 'generate/proto/events.pbgrpc.dart';
+export 'generate/proto/db_model.pb.dart';

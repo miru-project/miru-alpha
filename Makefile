@@ -18,4 +18,4 @@ build_runner_watch:
 	@echo "Runner built!"
 # build android shared library
 build-android:
-	cd src/miru_core/miru-core/binary && gomobile bind -ldflags="-s -w -checklinkname=0" -o ../../android/libmiru-core.aar -target=android -androidapi 28 
+	cd src/miru_core/miru-core/binary && gomobile bind -tags nosqlite -ldflags="-s -w -checklinkname=0" -o ../../android/libmiru-core.aar -target=android -androidapi 28 

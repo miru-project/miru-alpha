@@ -180,11 +180,11 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                       ),
                     );
                   },
-                  subtitle: (h == null && item.update == null)
+                  subtitle: (h == null && item.update.isEmpty)
                       ? SizedBox.shrink()
                       : Row(
                           children: [
-                            Text(dateFormatter(item.update)),
+                            Text(dateFormatter(DateTime.tryParse(item.update))),
                             Text(' • '),
                             h != null ? Text(progressIndicator(h)) : SizedBox(),
                           ],

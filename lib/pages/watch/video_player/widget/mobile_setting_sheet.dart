@@ -51,7 +51,7 @@ class MobileVideoSheet extends HookConsumerWidget {
                       child: Padding(
                         padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
                         child: FAccordion(
-                          style: .delta(childPadding: .zero),
+                          style: .delta(childPadding: .value(.all(0))),
                           children: [
                             FAccordionItem(
                               title: Text(epController.epGroup[index].title),
@@ -105,7 +105,7 @@ class MobileVideoSheet extends HookConsumerWidget {
               tileBuilder: (context, index) {
                 return FTile(
                   title: Text(controller.subtitlesRaw[index].title),
-                  subtitle: Text('${controller.subtitlesRaw[index].language}'),
+                  subtitle: Text(controller.subtitlesRaw[index].language),
                   onPress: () {
                     notifer.setSubSelectedIndex(index);
                     context.pop();

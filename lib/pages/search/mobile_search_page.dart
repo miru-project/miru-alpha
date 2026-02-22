@@ -5,10 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/pages/search/global_search.dart';
 import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
+import 'package:miru_app_new/utils/hook/sheet_controller.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/utils/store/storage_index.dart';
 import 'package:miru_app_new/widgets/core/image_widget.dart';
 import 'package:miru_app_new/widgets/index.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 class MobileSearchPage extends HookConsumerWidget {
   const MobileSearchPage({super.key});
@@ -22,7 +24,9 @@ class MobileSearchPage extends HookConsumerWidget {
       return pinnedExtensions.value.contains(ext.packageName);
     });
     final searchQuery = useState('');
+    final sheetController = useSheetController();
     return MiruScaffold(
+      sheetController: sheetController,
       mobileHeader: Row(
         children: [
           const SnapSheetHeader(title: 'Search'),
@@ -43,6 +47,13 @@ class MobileSearchPage extends HookConsumerWidget {
         Padding(
           padding: .symmetric(horizontal: 10),
           child: FTextField(
+            onTap: () {
+              if (((sheetController.value ?? 190.0).toInt() - 190).abs() < 2) {
+                sheetController.animateTo(
+                  SheetOffset.proportionalToViewport(.5),
+                );
+              }
+            },
             maxLines: 1,
             onSubmit: (value) {
               searchQuery.value = value;

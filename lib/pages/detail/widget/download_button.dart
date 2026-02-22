@@ -240,13 +240,20 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                           return;
                                         }
                                         await _startDownload(
-                                          type: videoWatch.type,
+                                          type: ExtensionWatchBangumiType.values
+                                              .firstWhere(
+                                                (e) =>
+                                                    e.name == videoWatch.type,
+                                                orElse: () =>
+                                                    ExtensionWatchBangumiType
+                                                        .hls,
+                                              ),
                                           watchUrl: url.url,
                                           url: videoWatch.url,
                                           title:
                                               "${widget.detail.title}-${group.title}-${url.name}",
                                           key: key,
-                                          headers: videoWatch.headers ?? {},
+                                          headers: videoWatch.headers,
                                         );
                                       } finally {
                                         if (mounted) {

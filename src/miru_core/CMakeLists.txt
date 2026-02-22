@@ -35,12 +35,12 @@ endif()
 add_custom_command(
 OUTPUT ${GO_OUTPUT}
 COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/${FOLDER_NAME}
-COMMAND go build -o ${GO_OUTPUT} "-ldflags=${LD_FLAG}" -trimpath -buildmode=c-shared main.go
+COMMAND go build -tags nosqlite -o ${GO_OUTPUT} "-ldflags=${LD_FLAG}" -trimpath -buildmode=c-shared main.go
 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/miru-core
 COMMENT "Building Go shared library"
 VERBATIM
 )
-message(STATUS "go build -o ${GO_OUTPUT} -ldflags=\"${LD_FLAG}\" -trimpath -buildmode=c-shared main.go")
+message(STATUS "go build -tags nosqlite -o ${GO_OUTPUT} -ldflags=\"${LD_FLAG}\" -trimpath -buildmode=c-shared main.go")
 add_custom_target(
     miru_core_build ALL
     DEPENDS ${GO_OUTPUT}

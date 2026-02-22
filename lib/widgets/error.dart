@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:grpc/grpc.dart';
@@ -84,16 +85,37 @@ class ErrorDisplay extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
-                    child: FTooltip(
-                      hoverEnterDuration: Duration(milliseconds: 300),
-                      hover: true,
-                      tipBuilder: (context, controller) => const Text('Reload'),
-                      child: FButton.icon(
-                        variant: FButtonVariant.outline,
-                        onPress: onRefresh,
-                        child: const Icon(FIcons.refreshCcw),
-                      ),
+                    padding: .symmetric(horizontal: 10),
+                    child: Row(
+                      children: [
+                        FTooltip(
+                          hoverEnterDuration: Duration(milliseconds: 300),
+                          hover: true,
+                          tipBuilder: (context, controller) =>
+                              const Text('Reload'),
+                          child: FButton.icon(
+                            variant: FButtonVariant.outline,
+                            onPress: onRefresh,
+                            child: const Icon(FIcons.refreshCcw),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        FTooltip(
+                          hoverEnterDuration: Duration(milliseconds: 300),
+                          hover: true,
+                          tipBuilder: (context, controller) =>
+                              const Text('Copy'),
+                          child: FButton.icon(
+                            variant: FButtonVariant.outline,
+                            onPress: () {
+                              Clipboard.setData(
+                                ClipboardData(text: errContent),
+                              );
+                            },
+                            child: const Icon(FIcons.copy),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

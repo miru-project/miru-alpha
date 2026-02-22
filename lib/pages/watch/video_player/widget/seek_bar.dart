@@ -14,9 +14,7 @@ class SeekBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final vidLen = useState(
-      ref.read(vidPr.select((s) => s.duration)).inMilliseconds,
-    );
+    final vidLen = ref.watch(vidPr.select((s) => s.duration)).inMilliseconds;
     final sliderValue = useState<double>(
       ref.read(vidPr.select((s) => s.position.inMilliseconds.toDouble())),
     );
@@ -27,11 +25,7 @@ class SeekBar extends HookConsumerWidget {
     // the user isn't actively dragging the thumb.
     ref.listen<Duration>(vidPr.select((s) => s.position), (previous, next) {
       if (isSliderDraggingRef.value) return;
-      final dur = ref.read(vidPr.select((s) => s.duration));
-      vidLen.value = dur.inMilliseconds;
-      sliderValue.value = vidLen.value == 0
-          ? 0.0
-          : next.inMilliseconds.toDouble();
+      sliderValue.value = vidLen == 0 ? 0.0 : next.inMilliseconds.toDouble();
     });
 
     return Material(
@@ -55,8 +49,8 @@ class SeekBar extends HookConsumerWidget {
             secondaryTrackValue: buffered.isNotEmpty
                 ? buffered.last.end.inMilliseconds.toDouble()
                 : 0.0,
-            max: vidLen.value.toDouble(),
-            value: sliderValue.value.clamp(0.0, vidLen.value.toDouble()),
+            max: vidLen.toDouble(),
+            value: sliderValue.value.clamp(0.0, vidLen.toDouble()),
             onChangeStart: (value) {
               isSliderDraggingRef.value = true;
             },

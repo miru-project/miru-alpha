@@ -1,6 +1,21 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:miru_app_new/miru_core/proto/generate/proto/extension_model.pb.dart'
+    as pb_extension;
 
 part 'model.g.dart';
+
+typedef ExtensionListItem = pb_extension.ExtensionListItem;
+typedef ExtensionDetail = pb_extension.ExtensionDetail;
+typedef ExtensionFilter = pb_extension.ExtensionFilter;
+typedef ExtensionEpisodeGroup = pb_extension.ExtensionEpisodeGroup;
+typedef ExtensionEpisode = pb_extension.ExtensionEpisode;
+typedef ExtensionBangumiWatch = pb_extension.ExtensionBangumiWatch;
+typedef ExtensionMangaWatch = pb_extension.ExtensionMangaWatch;
+typedef ExtensionFikushonWatch = pb_extension.ExtensionFikushonWatch;
+typedef ExtensionBangumiWatchTorrent =
+    pb_extension.ExtensionBangumiWatchTorrent;
+typedef ExtensionBangumiWatchSubtitle =
+    pb_extension.ExtensionBangumiWatchSubtitle;
 
 enum ExtensionType { manga, bangumi, fikushon, all }
 
@@ -78,103 +93,8 @@ class Extension {
   Map<String, dynamic> toJson() => _$ExtensionToJson(this);
 }
 
-@JsonSerializable()
-class ExtensionFilter {
-  ExtensionFilter({
-    required this.title,
-    required this.min,
-    required this.max,
-    required this.defaultOption,
-    required this.options,
-  });
-  final String title;
-  final int min;
-  final int max;
-  @JsonKey(name: "default")
-  final String defaultOption;
-  final Map<String, String> options;
+// Redundant models removed. Use generated proto models instead.
 
-  factory ExtensionFilter.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionFilterFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ExtensionFilterToJson(this);
-}
-
-@JsonSerializable()
-class ExtensionListItem {
-  ExtensionListItem({
-    required this.title,
-    required this.url,
-    this.cover,
-    this.update,
-    this.headers,
-  });
-
-  final String title;
-  final String url;
-  final String? cover;
-  final String? update;
-  late Map<String, String>? headers;
-
-  factory ExtensionListItem.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionListItemFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ExtensionListItemToJson(this);
-}
-
-@JsonSerializable()
-class ExtensionDetail {
-  ExtensionDetail({
-    required this.title,
-    this.cover,
-    this.desc,
-    this.episodes,
-    this.headers,
-  });
-
-  final String title;
-  final String? cover;
-  final String? desc;
-  final List<ExtensionEpisodeGroup>? episodes;
-  late Map<String, String>? headers;
-
-  factory ExtensionDetail.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionDetailFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ExtensionDetailToJson(this);
-}
-
-@JsonSerializable()
-class ExtensionEpisodeGroup {
-  ExtensionEpisodeGroup({required this.title, required this.urls});
-  final String title;
-  final List<ExtensionEpisode> urls;
-
-  factory ExtensionEpisodeGroup.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionEpisodeGroupFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ExtensionEpisodeGroupToJson(this);
-}
-
-@JsonSerializable()
-class ExtensionEpisode {
-  ExtensionEpisode({
-    required this.name,
-    required this.url,
-    this.update,
-    this.description,
-  });
-  final String name;
-  final String url;
-  final DateTime? update;
-  final String? description;
-  factory ExtensionEpisode.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionEpisodeFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ExtensionEpisodeToJson(this);
-}
-
-@JsonSerializable()
 class Detail {
   final int? id;
   final String title;
@@ -198,9 +118,43 @@ class Detail {
     required this.package,
   });
 
-  factory Detail.fromJson(Map<String, dynamic> json) => _$DetailFromJson(json);
+  factory Detail.fromJson(Map<String, dynamic> json) {
+    return Detail(
+      id: json['id'] as int?,
+      title: json['title'] as String,
+      cover: json['cover'] as String?,
+      desc: json['desc'] as String?,
+      episodes: json['episodes'] != null
+          ? (json['episodes'] as List)
+                .map((e) => ExtensionEpisodeGroup()..mergeFromProto3Json(e))
+                .toList()
+          : null,
+      headers: json['headers'] != null
+          ? (json['headers'] as Map<String, dynamic>).map(
+              (k, v) => MapEntry(k, v.toString()),
+            )
+          : null,
+      downloaded:
+          (json['downloaded'] as List?)?.map((e) => e as String).toList() ??
+          const [],
+      detailUrl: json['detailUrl'] as String,
+      package: json['package'] as String,
+    );
+  }
 
-  Map<String, dynamic> toJson() => _$DetailToJson(this);
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'cover': cover,
+      'desc': desc,
+      'episodes': episodes?.map((e) => e.toProto3Json()).toList(),
+      'headers': headers,
+      'downloaded': downloaded,
+      'detailUrl': detailUrl,
+      'package': package,
+    };
+  }
 
   factory Detail.fromExtensionDetail(
     ExtensionDetail extensionDetail, {
@@ -221,87 +175,6 @@ class Detail {
       package: package,
     );
   }
-
-  ExtensionDetail toExtensionDetail() {
-    return ExtensionDetail(
-      title: title,
-      cover: cover,
-      desc: desc,
-      episodes: episodes,
-      headers: headers,
-    );
-  }
-}
-
-@JsonSerializable()
-class ExtensionBangumiWatch extends BaseWatch {
-  ExtensionBangumiWatch({
-    required this.type,
-    required this.url,
-    this.subtitles,
-    this.headers,
-    this.audioTrack,
-    this.torrent,
-  });
-  final ExtensionWatchBangumiType type;
-  final String url;
-  final List<ExtensionBangumiWatchSubtitle>? subtitles;
-  late Map<String, String>? headers;
-  late String? audioTrack;
-  final ExtensionBangumiWatchTorrent? torrent;
-  factory ExtensionBangumiWatch.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionBangumiWatchFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ExtensionBangumiWatchToJson(this);
-}
-
-@JsonSerializable()
-class ExtensionBangumiWatchSubtitle {
-  final String? language;
-  final String title;
-  final String url;
-  ExtensionBangumiWatchSubtitle({
-    required this.title,
-    required this.url,
-    this.language,
-  });
-
-  factory ExtensionBangumiWatchSubtitle.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionBangumiWatchSubtitleFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ExtensionBangumiWatchSubtitleToJson(this);
-}
-
-abstract class BaseWatch {}
-
-@JsonSerializable()
-class ExtensionMangaWatch extends BaseWatch {
-  ExtensionMangaWatch({required this.urls, this.headers});
-
-  final List<String> urls;
-  late Map<String, String>? headers;
-
-  factory ExtensionMangaWatch.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionMangaWatchFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ExtensionMangaWatchToJson(this);
-}
-
-@JsonSerializable()
-class ExtensionFikushonWatch extends BaseWatch {
-  final List<String> content;
-  final String title;
-  final String? subtitle;
-  ExtensionFikushonWatch({
-    required this.content,
-    required this.title,
-    this.subtitle,
-  });
-
-  factory ExtensionFikushonWatch.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionFikushonWatchFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ExtensionFikushonWatchToJson(this);
 }
 
 @JsonSerializable()
@@ -392,102 +265,6 @@ class GithubExtension {
 
 bool _boolFromString(dynamic value) {
   return value.toString() == "true";
-}
-
-@JsonSerializable()
-class ExtensionBangumiWatchTorrent {
-  ExtensionBangumiWatchTorrent({
-    required this.infoHash,
-    required this.detail,
-    required this.files,
-  });
-
-  final String infoHash;
-  final ExtensionBangumiWatchTorrentDetail detail;
-  final List<String> files;
-
-  factory ExtensionBangumiWatchTorrent.fromJson(Map<String, dynamic> json) =>
-      _$ExtensionBangumiWatchTorrentFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ExtensionBangumiWatchTorrentToJson(this);
-}
-
-@JsonSerializable()
-class ExtensionBangumiWatchTorrentDetail {
-  ExtensionBangumiWatchTorrentDetail({
-    required this.pieceLength,
-    required this.pieces,
-    required this.name,
-    this.nameUtf8,
-    required this.length,
-    this.private,
-    this.source,
-    this.files,
-    this.metaVersion,
-    this.fileTree,
-  });
-
-  @JsonKey(name: "PieceLength")
-  final int? pieceLength;
-  @JsonKey(name: "Pieces")
-  final String? pieces;
-  @JsonKey(name: "Name")
-  final String? name;
-  @JsonKey(name: "NameUtf8")
-  final String? nameUtf8;
-  @JsonKey(name: "Length")
-  final int? length;
-  @JsonKey(name: "Private")
-  final dynamic private;
-  @JsonKey(name: "Source")
-  final String? source;
-  @JsonKey(name: "Files")
-  final List<dynamic>? files;
-  @JsonKey(name: "MetaVersion")
-  final int? metaVersion;
-  @JsonKey(name: "FileTree")
-  final ExtensionBangumiWatchTorrentFileTree? fileTree;
-
-  factory ExtensionBangumiWatchTorrentDetail.fromJson(
-    Map<String, dynamic> json,
-  ) => _$ExtensionBangumiWatchTorrentDetailFromJson(json);
-
-  Map<String, dynamic> toJson() =>
-      _$ExtensionBangumiWatchTorrentDetailToJson(this);
-}
-
-@JsonSerializable()
-class ExtensionBangumiWatchTorrentFileTree {
-  ExtensionBangumiWatchTorrentFileTree({this.file, this.dir});
-
-  @JsonKey(name: "File")
-  final ExtensionBangumiWatchTorrentFileTreeFile? file;
-  @JsonKey(name: "Dir")
-  final dynamic dir;
-
-  factory ExtensionBangumiWatchTorrentFileTree.fromJson(
-    Map<String, dynamic> json,
-  ) => _$ExtensionBangumiWatchTorrentFileTreeFromJson(json);
-
-  Map<String, dynamic> toJson() =>
-      _$ExtensionBangumiWatchTorrentFileTreeToJson(this);
-}
-
-@JsonSerializable()
-class ExtensionBangumiWatchTorrentFileTreeFile {
-  ExtensionBangumiWatchTorrentFileTreeFile({this.length, this.piecesRoot});
-
-  @JsonKey(name: "Length")
-  final int? length;
-  @JsonKey(name: "PiecesRoot")
-  final String? piecesRoot;
-
-  factory ExtensionBangumiWatchTorrentFileTreeFile.fromJson(
-    Map<String, dynamic> json,
-  ) => _$ExtensionBangumiWatchTorrentFileTreeFileFromJson(json);
-
-  Map<String, dynamic> toJson() =>
-      _$ExtensionBangumiWatchTorrentFileTreeFileToJson(this);
 }
 
 @JsonSerializable()

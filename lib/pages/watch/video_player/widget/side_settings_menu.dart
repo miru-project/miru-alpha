@@ -44,7 +44,7 @@ class SideSettingsMenu extends HookConsumerWidget {
                       vertical: 5,
                     ),
                     child: FAccordion(
-                      style: .delta(childPadding: EdgeInsets.zero),
+                      style: .delta(childPadding: .add(.all(0))),
                       children: [
                         FAccordionItem(
                           title: Text(epController.epGroup[index].title),
@@ -129,7 +129,7 @@ class SideSettingsMenu extends HookConsumerWidget {
         tileBuilder: (context, index) {
           return FTile(
             title: Text(controller.subtitlesRaw[index].title),
-            subtitle: Text('${controller.subtitlesRaw[index].language}'),
+            subtitle: Text(controller.subtitlesRaw[index].language),
             onPress: () {
               notifier.setSubSelectedIndex(index);
               notifier.toggleSettings();

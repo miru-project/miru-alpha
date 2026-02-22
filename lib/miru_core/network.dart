@@ -7,6 +7,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:miru_app_new/miru_core/grpc_client.dart';
 import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
+import 'package:miru_app_new/miru_core/proto/generate/proto/extension_model.pb.dart'
+    as pb_extension;
 
 late final Dio dio;
 
@@ -115,7 +117,7 @@ class MiruCoreEndpoint {
       package: p.package,
       episodes: p.hasEpisodes()
           ? (jsonDecode(p.episodes) as List)
-                .map((e) => ExtensionEpisodeGroup.fromJson(e))
+                .map((e) => ExtensionEpisodeGroup()..mergeFromProto3Json(e))
                 .toList()
           : null,
       headers: p.hasHeaders()
@@ -124,6 +126,22 @@ class MiruCoreEndpoint {
             )
           : null,
     );
+  }
+
+  static Future<List<Detail>> getDetailsByPackage(String package) async {
+    final response = await MiruGrpcClient.dbClient.getDetail(
+      proto.GetDetailRequest()..package = package,
+    );
+    // This assumes getDetail returns a single response, but the UI expects a list?
+    // Actually the original code had getDetailsByPackage returning List<Detail>.
+    // Let's check proto service definition.
+    return [
+      Detail.fromExtensionDetail(
+        pb_extension.ExtensionDetail.fromJson(response.detail.episodes),
+        detailUrl: response.detail.detailUrl,
+        package: response.detail.package,
+      ),
+    ];
   }
 
   static Future<Detail?> getDbDetail(String pkg, String url) async {
@@ -143,91 +161,92 @@ class MiruCoreEndpoint {
         detailUrl: detail.detailUrl,
         package: detail.package,
         downloaded: detail.downloaded,
-        episodes: detail.episodes != null ? jsonEncode(detail.episodes) : null,
+        episodes: detail.episodes != null
+            ? jsonEncode(detail.episodes!.map((e) => e.toProto3Json()).toList())
+            : null,
         headers: detail.headers != null ? jsonEncode(detail.headers) : null,
       ),
     );
     return _detailFromProto(response.detail);
   }
 
-  static Future<Object> watch(
+  static Future<dynamic> watch(
     String url,
     String pkg,
     ExtensionType type,
   ) async {
     final response = await MiruGrpcClient.extensionClient.watch(
-      proto.WatchRequest(url: url, pkg: pkg),
+      proto.WatchRequest(pkg: pkg, url: url),
     );
-    final data = jsonDecode(response.data);
 
-    switch (type) {
-      case ExtensionType.bangumi:
-        final result = ExtensionBangumiWatch.fromJson(data);
-        return result;
-      case ExtensionType.manga:
-        final result = ExtensionMangaWatch.fromJson(data);
-        return result;
-      case ExtensionType.fikushon:
-        final result = ExtensionFikushonWatch.fromJson(data);
-        return result;
-      default:
-        throw (Exception('Unknown media type'));
+    if (response.hasBangumi()) return response.bangumi;
+    if (response.hasManga()) return response.manga;
+    if (response.hasFikushon()) return response.fikushon;
+
+    if (response.hasRaw()) {
+      final data = jsonDecode(response.raw);
+      switch (type) {
+        case ExtensionType.bangumi:
+          return ExtensionBangumiWatch()..mergeFromProto3Json(data);
+        case ExtensionType.manga:
+          return ExtensionMangaWatch()..mergeFromProto3Json(data);
+        case ExtensionType.fikushon:
+          return ExtensionFikushonWatch()..mergeFromProto3Json(data);
+        default:
+          throw (Exception('Unknown media type'));
+      }
     }
+    throw (Exception('Empty watch response'));
   }
 
-  static Future<Map<String, ExtensionFilter>> createFilter(
+  static Future<Map<String, pb_extension.ExtensionFilter>> createFilter(
     String pkg, {
     Map<String, List<String>>? filter,
   }) async {
     throw UnimplementedError('createFilter method not implemented');
   }
 
-  static Future<ExtensionDetail> detail(String pkg, String url) async {
+  static Future<Detail> detail(String pkg, String url) async {
     final response = await MiruGrpcClient.extensionClient.detail(
       proto.DetailRequest(pkg: pkg, url: url),
     );
 
-    return ExtensionDetail.fromJson(jsonDecode(response.data));
+    return Detail.fromExtensionDetail(
+      response.data,
+      detailUrl: url,
+      package: pkg,
+    );
   }
 
-  static Future<List<ExtensionListItem>> search(
+  static Future<List<pb_extension.ExtensionListItem>> search(
     String pkg,
     String kw,
     int page, {
-    Map<String, ExtensionFilter>? filter,
+    Map<String, pb_extension.ExtensionFilter>? filter,
   }) async {
     final response = await MiruGrpcClient.extensionClient.search(
       proto.SearchRequest(
         pkg: pkg,
         kw: kw,
         page: page,
-        filter: filter != null ? jsonEncode(filter) : "",
+        filter: filter != null
+            ? jsonEncode(filter.map((k, v) => MapEntry(k, v.toProto3Json())))
+            : "",
       ),
     );
 
-    return response.items.map((e) {
-      return ExtensionListItem(
-        title: e.title,
-        url: e.url,
-        cover: e.cover,
-        update: e.update,
-      );
-    }).toList();
+    return response.items;
   }
 
-  static Future<List<ExtensionListItem>> latest(String pkg, int page) async {
+  static Future<List<pb_extension.ExtensionListItem>> latest(
+    String pkg,
+    int page,
+  ) async {
     final response = await MiruGrpcClient.extensionClient.latest(
       proto.LatestRequest(pkg: pkg, page: page),
     );
 
-    return response.items.map((e) {
-      return ExtensionListItem(
-        title: e.title,
-        url: e.url,
-        cover: e.cover,
-        update: e.update,
-      );
-    }).toList();
+    return response.items;
   }
 
   static Future<void> setRepo(String repoUrl, String name) async {

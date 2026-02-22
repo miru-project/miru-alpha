@@ -5,7 +5,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/provider/application_controller_provider.dart';
 import 'package:miru_app_new/widgets/index.dart';
-import 'package:snapping_sheet_2/snapping_sheet.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 
 class MiruScaffold extends StatefulHookConsumerWidget {
   const MiruScaffold({
@@ -14,120 +14,129 @@ class MiruScaffold extends StatefulHookConsumerWidget {
     this.mobileBody,
     this.body,
     this.snapSheet = const [],
-    this.snappingSheetController,
+    this.sheetController,
     this.mobileHeader,
     this.scrollController,
     this.resizeToAvoidBottomInset = false,
-    this.snappingPositions,
+    this.snappingOffsets,
     this.childPad = true,
   }) : assert(desktopBody != null || mobileBody != null || body != null);
+
   final List<Widget> snapSheet;
   final ScrollController? scrollController;
-  final SnappingSheetController? snappingSheetController;
+  final SheetController? sheetController;
   final Widget? mobileHeader;
   final bool resizeToAvoidBottomInset;
   final Widget? mobileBody;
   final Widget? desktopBody;
   final Widget? body;
   final bool childPad;
-  final List<SnappingPosition>? snappingPositions;
+
+  /// Custom snap offsets. Defaults to [190px, 50%, 100%].
+  final List<SheetOffset>? snappingOffsets;
+
   @override
   ConsumerState<MiruScaffold> createState() => _MiruScaffoldState();
 }
 
 class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
   late ScrollController scrollController;
+  late SheetController _sheetController;
+
   @override
   void dispose() {
     scrollController.dispose();
+    if (widget.sheetController == null) {
+      _sheetController.dispose();
+    }
     super.dispose();
   }
 
   @override
-  initState() {
+  void initState() {
     scrollController = widget.scrollController ?? ScrollController();
-
+    _sheetController = widget.sheetController ?? SheetController();
     super.initState();
   }
 
-  List<SnappingPosition> get _defaultSheetPosition => const [
-    SnappingPosition.pixels(
-      positionPixels: 190,
-      snappingCurve: Curves.easeOutExpo,
-      snappingDuration: Duration(milliseconds: 50),
-      grabbingContentOffset: GrabbingContentOffset.top,
-    ),
-    SnappingPosition.factor(
-      snappingCurve: Curves.elasticOut,
-      snappingDuration: Duration(milliseconds: 50),
-      positionFactor: 0.5,
-    ),
-    SnappingPosition.factor(
-      grabbingContentOffset: GrabbingContentOffset.bottom,
-      snappingCurve: Curves.easeInExpo,
-      snappingDuration: Duration(milliseconds: 50),
-      positionFactor: 1,
-    ),
+  List<SheetOffset> get _defaultSnappingOffsets => const [
+    AbsoluteSheetOffset(190),
+    ProportionalToViewportSheetOffset(0.5),
+    ProportionalToViewportSheetOffset(1.0),
   ];
+
   // mobile sheet
-  Widget sheet(bool isMobileTitleOnTop) {
-    return Blur(
-      blurDensity: 10,
-      child: SnappingSheet(
-        lockOverflowDrag: true,
-        controller: widget.snappingSheetController,
-        snappingPositions: widget.snappingPositions ?? _defaultSheetPosition,
-        sheetBelow: SnappingSheetContent(
-          childScrollController: scrollController,
-          draggable: (details) => true,
-          child: FCard.raw(
-            style: .delta(
-              decoration: .delta(
-                color: context.theme.colors.background.withAlpha(150),
-              ),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: BackdropFilter(
-                // enabled: false,
-                filter: ImageFilter.compose(
-                  outer: ColorFilter.mode(
-                    context.theme.colors.barrier,
-                    .srcOver,
-                  ),
-                  inner: ImageFilter.compose(
-                    outer: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    inner: ColorFilter.mode(
-                      context.theme.colors.primary.withAlpha(25),
-                      .srcOver,
+  Widget _buildSheet(bool isMobileTitleOnTop) {
+    final snaps = widget.snappingOffsets ?? _defaultSnappingOffsets;
+    return Stack(
+      children: [
+        // Background body fills all available space
+        Positioned.fill(
+          child: FScaffold(
+            childPad: widget.childPad,
+            child: widget.mobileBody ?? widget.body!,
+          ),
+        ),
+        SheetViewport(
+          child: Sheet(
+            controller: _sheetController,
+            initialOffset: snaps.first,
+            snapGrid: MultiSnapGrid(snaps: snaps),
+            physics: const BouncingSheetPhysics(),
+            shrinkChildToAvoidDynamicOverlap: true,
+            child: SheetKeyboardDismissible(
+              dismissBehavior: const DragDownSheetKeyboardDismissBehavior(),
+              child: Blur(
+                blurDensity: 10,
+                child: FCard.raw(
+                  style: .delta(
+                    decoration: .delta(
+                      color: context.theme.colors.background.withAlpha(150),
                     ),
                   ),
-                ),
-                child: CustomScrollView(
-                  keyboardDismissBehavior: .onDrag,
-                  controller: scrollController,
-                  physics: const NeverScrollableScrollPhysics(),
-                  slivers: [
-                    SliverToBoxAdapter(child: _GrabbingWidget()),
-                    if (!isMobileTitleOnTop && widget.mobileHeader != null)
-                      SliverToBoxAdapter(child: widget.mobileHeader!),
-                    SliverToBoxAdapter(child: SizedBox(height: 10)),
-                    if (widget.snapSheet.isNotEmpty)
-                      ...widget.snapSheet.map(
-                        (e) => SliverToBoxAdapter(child: e),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(10),
+                    ),
+                    child: BackdropFilter(
+                      filter: ImageFilter.compose(
+                        outer: ColorFilter.mode(
+                          context.theme.colors.barrier,
+                          BlendMode.srcOver,
+                        ),
+                        inner: ImageFilter.compose(
+                          outer: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          inner: ColorFilter.mode(
+                            context.theme.colors.primary.withAlpha(25),
+                            BlendMode.srcOver,
+                          ),
+                        ),
                       ),
-                  ],
+                      child: CustomScrollView(
+                        controller: scrollController,
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        physics: const NeverScrollableScrollPhysics(),
+                        slivers: [
+                          SliverToBoxAdapter(child: _GrabbingWidget()),
+                          if (!isMobileTitleOnTop &&
+                              widget.mobileHeader != null)
+                            SliverToBoxAdapter(child: widget.mobileHeader!),
+                          const SliverToBoxAdapter(child: SizedBox(height: 10)),
+                          if (widget.snapSheet.isNotEmpty)
+                            ...widget.snapSheet.map(
+                              (e) => SliverToBoxAdapter(child: e),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
         ),
-        child: FScaffold(
-          childPad: widget.childPad,
-          // resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-          child: widget.mobileBody ?? widget.body!,
-        ),
-      ),
+      ],
     );
   }
 
@@ -144,21 +153,16 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           children: [
             if (isMobileTitleOnTop)
               Padding(
-                padding: EdgeInsets.only(
-                  // top: MediaQuery.of(context).viewInsets.top + 20,
-                  left: 12,
-                  right: 12,
-                ),
+                padding: const EdgeInsets.only(left: 12, right: 12),
                 child: widget.mobileHeader,
               ),
             Expanded(
               child: (isMobileTitleOnTop && widget.snapSheet.isEmpty)
                   ? FScaffold(
                       childPad: widget.childPad,
-                      // resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
                       child: widget.mobileBody ?? widget.body!,
                     )
-                  : sheet(isMobileTitleOnTop),
+                  : _buildSheet(isMobileTitleOnTop),
             ),
           ],
         ),

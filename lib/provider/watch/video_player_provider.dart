@@ -188,7 +188,7 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
       _hideTimer?.cancel();
       vidController.removeListener(_updatePosition);
       vidController.dispose();
-      if (torrent != null) {
+      if (torrent?.infoHash.isNotEmpty ?? false) {
         MiruGrpcClient.downloadClient.deleteTorrent(
           proto.DeleteTorrentRequest()..infoHash = torrent!.infoHash,
         );

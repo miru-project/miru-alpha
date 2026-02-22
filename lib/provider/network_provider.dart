@@ -51,13 +51,8 @@ Future<List<ExtensionRepo>> fetchExtensionRepo(Ref ref) async {
 Future<Detail?> fetchDetailFromExtension(String pkg, String url) async {
   final data = await MiruCoreEndpoint.detail(pkg, url);
 
-  final newDetail = Detail.fromExtensionDetail(
-    data,
-    detailUrl: url,
-    package: pkg,
-  );
-  await MiruCoreEndpoint.upsertDbDetail(newDetail);
-  return newDetail;
+  await MiruCoreEndpoint.upsertDbDetail(data);
+  return data;
 }
 
 Future<Detail?> fetchDetailFromDb(String pkg, String detailUrl) async {

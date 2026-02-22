@@ -101,13 +101,21 @@ final $typed_data.Uint8List detailRequestDescriptor = $convert.base64Decode(
 const DetailResponse$json = {
   '1': 'DetailResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 9, '10': 'data'},
+    {
+      '1': 'data',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionDetail',
+      '10': 'data'
+    },
   ],
 };
 
 /// Descriptor for `DetailResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List detailResponseDescriptor =
-    $convert.base64Decode('Cg5EZXRhaWxSZXNwb25zZRISCgRkYXRhGAEgASgJUgRkYXRh');
+final $typed_data.Uint8List detailResponseDescriptor = $convert.base64Decode(
+    'Cg5EZXRhaWxSZXNwb25zZRIpCgRkYXRhGAEgASgLMhUubWlydS5FeHRlbnNpb25EZXRhaWxSBG'
+    'RhdGE=');
 
 @$core.Deprecated('Use watchRequestDescriptor instead')
 const WatchRequest$json = {
@@ -126,13 +134,46 @@ final $typed_data.Uint8List watchRequestDescriptor = $convert.base64Decode(
 const WatchResponse$json = {
   '1': 'WatchResponse',
   '2': [
-    {'1': 'data', '3': 1, '4': 1, '5': 9, '10': 'data'},
+    {
+      '1': 'bangumi',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionBangumiWatch',
+      '9': 0,
+      '10': 'bangumi'
+    },
+    {
+      '1': 'manga',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionMangaWatch',
+      '9': 0,
+      '10': 'manga'
+    },
+    {
+      '1': 'fikushon',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionFikushonWatch',
+      '9': 0,
+      '10': 'fikushon'
+    },
+    {'1': 'raw', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'raw'},
+  ],
+  '8': [
+    {'1': 'data'},
   ],
 };
 
 /// Descriptor for `WatchResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List watchResponseDescriptor =
-    $convert.base64Decode('Cg1XYXRjaFJlc3BvbnNlEhIKBGRhdGEYASABKAlSBGRhdGE=');
+final $typed_data.Uint8List watchResponseDescriptor = $convert.base64Decode(
+    'Cg1XYXRjaFJlc3BvbnNlEjcKB2Jhbmd1bWkYASABKAsyGy5taXJ1LkV4dGVuc2lvbkJhbmd1bW'
+    'lXYXRjaEgAUgdiYW5ndW1pEjEKBW1hbmdhGAIgASgLMhkubWlydS5FeHRlbnNpb25NYW5nYVdh'
+    'dGNoSABSBW1hbmdhEjoKCGZpa3VzaG9uGAMgASgLMhwubWlydS5FeHRlbnNpb25GaWt1c2hvbl'
+    'dhdGNoSABSCGZpa3VzaG9uEhIKA3JhdxgEIAEoCUgAUgNyYXdCBgoEZGF0YQ==');
 
 @$core.Deprecated('Use downloadExtensionRequestDescriptor instead')
 const DownloadExtensionRequest$json = {
