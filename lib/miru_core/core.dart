@@ -23,7 +23,6 @@ class Core {
 
   static Future<void> ensureInitialized() async {
     await CoreNetwork.ensureInitialized();
-    await loadMiruCore(configLoc);
     await CoreNetwork.waitForServerLoaded();
     await MiruSettings.ensureInitialized();
   }
@@ -84,13 +83,14 @@ class Core {
     });
   }
 
-  static Future<void> loadMiruCore(String configPath) async {
+  static Future<void> loadMiruCore() async {
+    final location = configLoc;
     if (Platform.isAndroid) {
       final platform = MethodChannel('com.miru.alpha/miru_core');
-      await platform.invokeMethod('InitAAR', configPath);
+      await platform.invokeMethod('InitAAR', location);
       return;
     }
-    Isolate.run(() => startNativeMiruCore(configPath));
+    Isolate.run(() => startNativeMiruCore(location));
     return;
   }
 }

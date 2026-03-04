@@ -130,61 +130,62 @@ class DesktopSearchPage extends HookConsumerWidget {
               ),
             ],
           ),
-
-        SizedBox(
-          height: 75,
-          child: SearchFilterCard(
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 250,
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Text('Pinned Only'),
+        SearchFilterCard(
+          child: Row(
+            children: [
+              FTooltip(
+                tipBuilder: (context, controller) =>
+                    Text('Search with pinned extensions'),
+                child: HookBuilder(
+                  builder: (context) {
+                    final variant = useState(FButtonVariant.windows);
+                    return FButton.icon(
+                      variant: variant.value,
+                      onPress: () {
+                        variant.value = variant.value == FButtonVariant.windows
+                            ? FButtonVariant.outline
+                            : FButtonVariant.windows;
+                      },
+                      child: Icon(
+                        variant.value == FButtonVariant.windows
+                            ? FIcons.pin
+                            : FIcons.pinOff,
                       ),
-                      FSwitch(),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Text('All'),
-                      ),
-                      FDivider(axis: Axis.vertical),
-                    ],
-                  ),
+                    );
+                  },
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FTextField(
-                    clearable: (value) => value.text.isNotEmpty,
-                    onSubmit: (value) {
-                      searchQuery.value = value;
-                    },
-                    prefixBuilder: (context, style, states) {
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 4),
-                        child: Icon(FIcons.search),
-                      );
-                    },
-                    suffixBuilder: (context, style, states) {
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 4.0, right: 8),
-                        child: FBadge(child: Text('↵')),
-                      );
-                    },
-                    contextMenuBuilder: (context, editableTextState) {
-                      return Column(
-                        children: [
-                          Text('Custom Context Menu'),
-                          // Add more context menu items here
-                        ],
-                      );
-                    },
-                    hint: 'Search globally',
-                  ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: FTextField(
+                  clearable: (value) => value.text.isNotEmpty,
+                  onSubmit: (value) {
+                    searchQuery.value = value;
+                  },
+                  prefixBuilder: (context, style, states) {
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 4),
+                      child: Icon(FIcons.search),
+                    );
+                  },
+                  suffixBuilder: (context, style, states) {
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 4.0, right: 8),
+                      child: FBadge(child: Text('↵')),
+                    );
+                  },
+                  contextMenuBuilder: (context, editableTextState) {
+                    return Column(
+                      children: [
+                        Text('Custom Context Menu'),
+                        // Add more context menu items here
+                      ],
+                    );
+                  },
+                  hint: 'Search globally',
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],

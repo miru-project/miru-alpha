@@ -101,7 +101,7 @@ class SearchGridView extends HookConsumerWidget {
         : cons.maxWidth ~/ 200;
     final remain = result.length % axisCnt;
     final remainLoading = remain == 0 ? axisCnt : axisCnt - remain;
-
+    final addPadCnt = remainLoading + 2;
     return PlatformWidget(
       desktopWidget: MiruGridView(
         paddingHeightOffest: 50,
@@ -118,21 +118,24 @@ class SearchGridView extends HookConsumerWidget {
           if (isLoading.value && index >= result.length) {
             return const MiruGridTileLoadingBox();
           }
-          return MiruDesktopGridTile(
-            onTap: () {
-              context.push(
-                '/search/single/detail',
-                extra: DetailParam(meta: meta, url: result[index].url),
-              );
-            },
-            title: result[index].title,
-            imageUrl: result[index].cover,
-            subtitle: result[index].update,
-          );
+          if (result.length > index) {
+            return MiruDesktopGridTile(
+              onTap: () {
+                context.push(
+                  '/search/single/detail',
+                  extra: DetailParam(meta: meta, url: result[index].url),
+                );
+              },
+              title: result[index].title,
+              imageUrl: result[index].cover,
+              subtitle: result[index].update,
+            );
+          }
+          return Container();
         },
         itemCount: isLoading.value
             ? result.length + remainLoading
-            : result.length,
+            : result.length + addPadCnt,
       ),
       mobileWidget: MiruGridView.mobile(
         scrollController: scrollController,
@@ -147,21 +150,24 @@ class SearchGridView extends HookConsumerWidget {
           if (isLoading.value && index >= result.length) {
             return const MiruGridTileLoadingBox();
           }
-          return MiruMobileTile(
-            onTap: () {
-              context.push(
-                '/search/single/detail',
-                extra: DetailParam(meta: meta, url: result[index].url),
-              );
-            },
-            title: result[index].title,
-            imageUrl: result[index].cover,
-            subtitle: result[index].update,
-          );
+          if (result.length > index) {
+            return MiruMobileTile(
+              onTap: () {
+                context.push(
+                  '/search/single/detail',
+                  extra: DetailParam(meta: meta, url: result[index].url),
+                );
+              },
+              title: result[index].title,
+              imageUrl: result[index].cover,
+              subtitle: result[index].update,
+            );
+          }
+          return Container();
         },
         itemCount: isLoading.value
             ? result.length + remainLoading
-            : result.length,
+            : result.length + addPadCnt,
       ),
     );
   }

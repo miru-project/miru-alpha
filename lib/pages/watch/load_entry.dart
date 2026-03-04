@@ -14,6 +14,7 @@ import 'package:miru_app_new/utils/core/device_util.dart';
 import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/widgets/error.dart';
 import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class WatchLoadEntry extends StatefulHookConsumerWidget {
   const WatchLoadEntry({super.key, required this.param});
@@ -34,10 +35,12 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
     super.initState();
     _epProvider = episodeProvider(widget.param);
     _episodeNotifier = ref.read(_epProvider.notifier);
+    WakelockPlus.enable();
   }
 
   @override
   void dispose() {
+    WakelockPlus.disable();
     if (_hasOriented) {
       Future.microtask(() async {
         await Future.delayed(const Duration(microseconds: 100));

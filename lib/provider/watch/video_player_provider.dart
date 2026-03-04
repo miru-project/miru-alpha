@@ -284,6 +284,10 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     vidController.seekTo(position);
   }
 
+  void seekBy(int seconds) {
+    seek(state.position + Duration(seconds: seconds));
+  }
+
   void setSpeed(double speed) {
     vidController.setPlaybackSpeed(speed);
     state = state.copyWith(speed: speed);

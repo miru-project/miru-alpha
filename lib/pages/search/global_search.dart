@@ -105,7 +105,7 @@ class GlobalSearch extends HookConsumerWidget {
     final existedPinnedExtensions = ref.watch(
       searchPageProvider.select((e) => e.existedPinnedExtensions),
     );
-    final listPadding = isMobile ? 0.0 : 200.0;
+    final listPadding = isMobile ? 0.0 : 70.0;
     return LayoutBuilder(
       builder: (context, constraints) {
         return SizedBox(
@@ -129,7 +129,7 @@ class GlobalSearch extends HookConsumerWidget {
                   .first;
 
               return SizedBox(
-                height: isMobile ? 265.0 : 360.0,
+                height: isMobile ? 265.0 : 400.0,
                 child: Column(
                   crossAxisAlignment: .start,
                   children: [

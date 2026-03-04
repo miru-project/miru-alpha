@@ -80,13 +80,18 @@ class CoreNetwork {
   }
 
   static Future<void> waitForServerLoaded() async {
+    int failedCount = 0;
     while (true) {
       try {
         await MiruGrpcClient.coreClient.helloMiru(proto.HelloMiruRequest());
         logger.info('Miru core loaded (gRPC)');
         return;
       } catch (e) {
+        if (failedCount == 1) {
+          await Core.loadMiruCore();
+        }
         await Future.delayed(const Duration(milliseconds: 100));
+        failedCount++;
       }
     }
   }
@@ -170,6 +175,15 @@ class MiruCoreEndpoint {
     return _detailFromProto(response.detail);
   }
 
+  static ExtensionBangumiWatchTorrent _handleTorrent(
+    Map<String, dynamic> data,
+    String mediaType,
+  ) {
+    if (mediaType != "torrent") return ExtensionBangumiWatchTorrent();
+    return ExtensionBangumiWatchTorrent()
+      ..mergeFromProto3Json(data["torrent"], ignoreUnknownFields: true);
+  }
+
   static Future<dynamic> watch(
     String url,
     String pkg,
@@ -178,25 +192,23 @@ class MiruCoreEndpoint {
     final response = await MiruGrpcClient.extensionClient.watch(
       proto.WatchRequest(pkg: pkg, url: url),
     );
-
-    if (response.hasBangumi()) return response.bangumi;
-    if (response.hasManga()) return response.manga;
-    if (response.hasFikushon()) return response.fikushon;
-
-    if (response.hasRaw()) {
-      final data = jsonDecode(response.raw);
-      switch (type) {
-        case ExtensionType.bangumi:
-          return ExtensionBangumiWatch()..mergeFromProto3Json(data);
-        case ExtensionType.manga:
-          return ExtensionMangaWatch()..mergeFromProto3Json(data);
-        case ExtensionType.fikushon:
-          return ExtensionFikushonWatch()..mergeFromProto3Json(data);
-        default:
-          throw (Exception('Unknown media type'));
-      }
+    final data = jsonDecode(response.raw);
+    final String mediaType = data["type"] ?? "";
+    switch (type) {
+      case ExtensionType.bangumi:
+        final watch = ExtensionBangumiWatch()
+          ..mergeFromProto3Json(data, ignoreUnknownFields: true);
+        watch.torrent = _handleTorrent(data, mediaType);
+        return watch;
+      case ExtensionType.manga:
+        return ExtensionMangaWatch()
+          ..mergeFromProto3Json(data, ignoreUnknownFields: true);
+      case ExtensionType.fikushon:
+        return ExtensionFikushonWatch()
+          ..mergeFromProto3Json(data, ignoreUnknownFields: true);
+      default:
+        throw (Exception('Unknown media type'));
     }
-    throw (Exception('Empty watch response'));
   }
 
   static Future<Map<String, pb_extension.ExtensionFilter>> createFilter(

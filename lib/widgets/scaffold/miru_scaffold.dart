@@ -83,7 +83,6 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
             initialOffset: snaps.first,
             snapGrid: MultiSnapGrid(snaps: snaps),
             physics: const BouncingSheetPhysics(),
-            shrinkChildToAvoidDynamicOverlap: true,
             child: SheetKeyboardDismissible(
               dismissBehavior: const DragDownSheetKeyboardDismissBehavior(),
               child: Blur(
