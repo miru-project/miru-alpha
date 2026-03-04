@@ -5,7 +5,7 @@ import 'package:miru_app_new/utils/router/router_util.dart';
 
 void showSimpleToast(String title, [int duration = 3]) {
   final ctx = RouterUtil.rootNavigatorKey.currentContext;
-  if (ctx == null) return;
+  if (ctx == null || !ctx.mounted) return;
   showFToast(
     duration: Duration(seconds: duration),
     context: ctx,

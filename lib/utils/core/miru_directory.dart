@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:miru_app_new/utils/core/log.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
@@ -95,31 +93,31 @@ class MiruDirectory {
     return dir;
   }
 
-  static Future<String?> createMoviesFolder(String folderName) async {
-    // Check permissions first
-    if (Platform.isAndroid) {
-      final hasPermission = await requestMediaAccess(MediaType.videos);
-      if (!hasPermission) {
-        logger.info("No permission to access movies directory");
-        return null;
-      }
-    }
+  // static Future<String?> createMoviesFolder(String folderName) async {
+  //   // Check permissions first
+  //   if (Platform.isAndroid) {
+  //     final hasPermission = await requestMediaAccess(MediaType.videos);
+  //     if (!hasPermission) {
+  //       logger.info("No permission to access movies directory");
+  //       return null;
+  //     }
+  //   }
 
-    try {
-      // Create the Movies/folderName directory
-      final targetDir = Directory(
-        path.join('/storage/emulated/0/Movies', folderName),
-      );
-      if (!await targetDir.exists()) {
-        await targetDir.create(recursive: true);
-      }
+  //   try {
+  //     // Create the Movies/folderName directory
+  //     final targetDir = Directory(
+  //       path.join('/storage/emulated/0/Movies', folderName),
+  //     );
+  //     if (!await targetDir.exists()) {
+  //       await targetDir.create(recursive: true);
+  //     }
 
-      return targetDir.path;
-    } catch (e) {
-      logger.info("Failed to create folder in Movies directory: $e");
-      return null;
-    }
-  }
+  //     return targetDir.path;
+  //   } catch (e) {
+  //     logger.info("Failed to create folder in Movies directory: $e");
+  //     return null;
+  //   }
+  // }
 }
 
 enum MediaType { images, videos, audio, all }

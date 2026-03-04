@@ -25,11 +25,38 @@ import 'package:miru_app_new/widgets/error.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
-void main() {
+void main() async {
+  await MiruDirectory.ensureInitialized();
+  MiruLog.ensureInitialized();
+
   runZonedGuarded<void>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
+      bool errPrint(Object error, StackTrace stack) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showSimpleToast(error.toString());
+        });
+        logger.severe('Uncaught error: $error');
+        logger.severe(stack.toString());
+        return false;
+      }
+
+      Widget errFunc(FlutterErrorDetails details) {
+        errPrint(details.exception, details.stack ?? StackTrace.empty);
+        return ErrorDisplay(
+          err: details.exception,
+          stack: details.stack ?? StackTrace.current,
+        );
+      }
+
+      void bindErrorWidget() {
+        ErrorWidget.builder = errFunc;
+        FlutterError.onError = errFunc;
+        PlatformDispatcher.instance.onError = errPrint;
+      }
+
+      bindErrorWidget();
       if (!(Platform.isAndroid || Platform.isIOS || kIsWeb)) {
         await windowManager.ensureInitialized();
         WindowOptions windowOptions = const WindowOptions(
@@ -44,10 +71,7 @@ void main() {
           await windowManager.focus();
         });
       }
-
       FFMpegUtils.ensureInitialized();
-      await MiruDirectory.ensureInitialized();
-      MiruLog.ensureInitialized();
       Core.loadConfig();
       if (Platform.isMacOS) {
         await WindowManipulator.initialize(enableWindowDelegate: true);
@@ -73,7 +97,6 @@ void main() {
         DeviceOrientation.landscapeRight,
       ]);
       SystemChrome.setEnabledSystemUIMode(.immersive);
-      if (kReleaseMode) _bindErrorWidget();
 
       runApp(
         ProviderScope(
@@ -84,22 +107,10 @@ void main() {
     },
     (error, stack) {
       showSimpleToast(error.toString());
-      debugPrint('Uncaught error: $error');
-      debugPrint(stack.toString());
+      logger.severe('Uncaught error: $error');
+      logger.severe(stack.toString());
     },
   );
-}
-
-Widget _func(FlutterErrorDetails details) {
-  return ErrorDisplay(
-    err: details.exception,
-    stack: details.stack ?? StackTrace.current,
-  );
-}
-
-void _bindErrorWidget() {
-  ErrorWidget.builder = _func;
-  FlutterError.onError = _func;
 }
 
 class EntryLoadingState extends StatefulHookWidget {

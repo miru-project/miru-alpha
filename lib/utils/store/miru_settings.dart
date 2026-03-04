@@ -96,6 +96,14 @@ class MiruSettings {
     setSetting(key, value);
   }
 
+  static T? getStting<T>(String key) {
+    final value = _settingsCache[key];
+    if (value == null) {
+      return null;
+    }
+    return convertStringToObj<T>(value);
+  }
+
   static T getSettingSync<T>(String key) {
     final value = _settingsCache[key];
     if (value == null) {

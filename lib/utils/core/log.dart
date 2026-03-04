@@ -1,10 +1,11 @@
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import '../store/storage_index.dart';
 
-final logger = Logger('Miru');
+final logger = Logger('Miru_alpha');
 
 class MiruLog {
   static final logFilePath = path.join(MiruDirectory.getDirectory, 'miru.log');
@@ -17,11 +18,11 @@ class MiruLog {
             '${record.loggerName} ${record.level.name} ${record.time}: ${record.message} ${record.error ?? ''} ${record.stackTrace ?? ''}';
         debugPrint(log);
         // if (kReleaseMode) {
-        //   Future.microtask(() => writeLogToFile(log)).catchError((e, s) {
-        //     // Use debugPrint here to avoid triggering logger again.
-        //     debugPrint('Failed to write log to file: $e');
-        //     debugPrint(s.toString());
-        //   });
+        Future.microtask(() => writeLogToFile(log)).catchError((e, s) {
+          // Use debugPrint here to avoid triggering logger again.
+          debugPrint('Failed to write log to file: $e');
+          debugPrint(s.toString());
+        });
         // }
       } catch (e, s) {
         debugPrint('Logging listener error: $e');
@@ -31,14 +32,14 @@ class MiruLog {
   }
 
   // 写入日志到文件
-  // static void writeLogToFile(String log) {
-  //   if (!MiruSettings.getSettingSync<bool>(SettingKey.saveLog)) {
-  //     return;
-  //   }
-  //   final file = File(logFilePath);
-  //   file.writeAsStringSync('$log\n', mode: FileMode.append);
-  //   if (file.lengthSync() > 1024 * 1024 * 10) {
-  //     file.deleteSync();
-  //   }
-  // }
+  static void writeLogToFile(String log) {
+    if (!(MiruSettings.getStting<bool>(SettingKey.saveLog) ?? true)) {
+      return;
+    }
+    final file = File(logFilePath);
+    file.writeAsStringSync('$log\n', mode: FileMode.append);
+    if (file.lengthSync() > 1024 * 1024 * 10) {
+      file.deleteSync();
+    }
+  }
 }
