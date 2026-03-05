@@ -11,10 +11,50 @@ class FFMpegUtils {
   static late DynamicLibrary _lib;
 
   static void openlib() {
-    if (Platform.isAndroid || Platform.isLinux) {
-      _lib = DynamicLibrary.open('libffmpeg_merge.so');
-    } else {
-      _lib = DynamicLibrary.open('ffmpeg_merge.dll');
+    if (Platform.isMacOS || Platform.isFuchsia) {
+      return;
+    }
+
+    String libName = Platform.isWindows
+        ? 'ffmpeg_merge.dll'
+        : 'libffmpeg_merge.so';
+
+    try {
+      // Try default loading first
+      _lib = DynamicLibrary.open(libName);
+    } catch (e) {
+      if (Platform.isWindows) {
+        // Diagnostic: Check if the file actually exists in the app root
+        final exeFolder = File(Platform.resolvedExecutable).parent.path;
+        final dllPath = '$exeFolder\\$libName';
+
+        if (File(dllPath).existsSync()) {
+          // If the file exists but fails to load with 126, it's a MISSING DEPENDENCY
+          stderr.writeln(
+            'FFMpegUtils: $libName exists at $dllPath but failed to load (Error 126).',
+          );
+          stderr.writeln(
+            'This usually means a dependent DLL (e.g., avcodec-*.dll, avutil-*.dll, or MinGW runtimes) is missing from the application folder.',
+          );
+
+          // Try loading with absolute path as a fallback
+          try {
+            _lib = DynamicLibrary.open(dllPath);
+          } catch (e2) {
+            stderr.writeln(
+              'FFMpegUtils: Failed to load even with absolute path: $e2',
+            );
+            rethrow;
+          }
+        } else {
+          stderr.writeln(
+            'FFMpegUtils: $libName NOT found in executable directory: $exeFolder',
+          );
+          rethrow;
+        }
+      } else {
+        rethrow;
+      }
     }
     start = _lib.lookupFunction<StartNative, Start>('start');
   }
