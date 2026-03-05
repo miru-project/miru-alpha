@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:ffi/ffi.dart';
+import '../core/log.dart';
 
 typedef StartNative = Int32 Function(Int32 num, Pointer<Pointer<Utf8>> files);
 typedef Start = int Function(int num, Pointer<Pointer<Utf8>> files);
@@ -9,6 +10,8 @@ typedef Start = int Function(int num, Pointer<Pointer<Utf8>> files);
 class FFMpegUtils {
   static late Start start;
   static late DynamicLibrary _lib;
+  static bool _isInitialized = false;
+  static bool get isAvailable => _isInitialized;
 
   static void openlib() {
     if (Platform.isMacOS || Platform.isFuchsia) {
@@ -20,53 +23,83 @@ class FFMpegUtils {
         : 'libffmpeg_merge.so';
 
     try {
-      // Try default loading first
+      if (Platform.isWindows) {
+        final exeFolder = File(Platform.resolvedExecutable).parent.path;
+
+        // 1. Load identified FFmpeg dependencies in order
+        // Based on objdump: avutil, avcodec, avformat are direct deps
+        final depPrefixes = ['avutil', 'avcodec', 'avformat'];
+        final allFiles = Directory(exeFolder).listSync();
+
+        for (var prefix in depPrefixes) {
+          try {
+            final depFile = allFiles.firstWhere(
+              (f) =>
+                  f.path.toLowerCase().contains(prefix.toLowerCase()) &&
+                  f.path.endsWith('.dll'),
+            );
+            logger.info('Pre-loading dependency: ${depFile.path}');
+            DynamicLibrary.open(depFile.path);
+          } catch (_) {}
+        }
+
+        // 2. Check for MSVC Runtime (Common cause of Error 126)
+        final runtimeDeps = [
+          'msvcp140.dll',
+          'vcruntime140.dll',
+          'vcruntime140_1.dll',
+        ];
+        for (var runtime in runtimeDeps) {
+          try {
+            DynamicLibrary.open(runtime);
+          } catch (_) {
+            logger.severe(
+              'CRITICAL: Missing Visual C++ Runtime: $runtime. Please install Microsoft Visual C++ Redistributable.',
+            );
+          }
+        }
+      }
+
+      // 2. Now load the main library
       _lib = DynamicLibrary.open(libName);
+      start = _lib.lookupFunction<StartNative, Start>('start');
+      _isInitialized = true;
     } catch (e) {
       if (Platform.isWindows) {
-        // Diagnostic: Check if the file actually exists in the app root
         final exeFolder = File(Platform.resolvedExecutable).parent.path;
         final dllPath = '$exeFolder\\$libName';
 
         if (File(dllPath).existsSync()) {
-          // If the file exists but fails to load with 126, it's a MISSING DEPENDENCY
-          stderr.writeln(
-            'FFMpegUtils: $libName exists at $dllPath but failed to load (Error 126).',
-          );
-          stderr.writeln(
-            'This usually means a dependent DLL (e.g., avcodec-*.dll, avutil-*.dll, or MinGW runtimes) is missing from the application folder.',
+          logger.severe('$libName exists but failed to load (Error 126).');
+          logger.severe(
+            'REQUIRED: You MUST include the FFmpeg core DLLs (avcodec, avformat, etc.) in the app folder.',
           );
 
-          // Try loading with absolute path as a fallback
           try {
             _lib = DynamicLibrary.open(dllPath);
+            start = _lib.lookupFunction<StartNative, Start>('start');
+            _isInitialized = true;
           } catch (e2) {
-            stderr.writeln(
-              'FFMpegUtils: Failed to load even with absolute path: $e2',
+            logger.severe(
+              'Failed to load even with absolute path. Feature disabled.',
             );
-            rethrow;
           }
         } else {
-          stderr.writeln(
-            'FFMpegUtils: $libName NOT found in executable directory: $exeFolder',
-          );
-          rethrow;
+          logger.severe('$libName NOT found. Feature disabled.');
         }
-      } else {
-        rethrow;
       }
     }
-    start = _lib.lookupFunction<StartNative, Start>('start');
   }
 
   static void ensureInitialized() {
-    if (Platform.isMacOS || Platform.isFuchsia) {
-      return;
-    }
+    if (_isInitialized) return;
     openlib();
   }
 
   static void combineToMp4(List<String> inputFile, String outputName) {
+    if (!_isInitialized) {
+      throw Exception('FFMpegUtils is not available on this system.');
+    }
     final processFile = [outputName, ...inputFile];
     final inputFilesUtf8 = processFile.map((f) => f.toNativeUtf8()).toList();
     final array = calloc<Pointer<Utf8>>(processFile.length);
