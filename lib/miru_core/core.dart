@@ -64,23 +64,63 @@ class Core {
 
   static Future<void> startNativeMiruCore(String configPath) async {
     late final ffi.DynamicLibrary lib;
-    if (Platform.isWindows) {
-      lib = ffi.DynamicLibrary.open('miru_core.dll');
-    } else if (Platform.isLinux) {
-      lib = ffi.DynamicLibrary.open('libmiru_core.so');
-    } else {
-      throw UnsupportedError(
-        'Unsupported platform: ${Platform.operatingSystem}',
-      );
-    }
+    final libName = Platform.isWindows ? 'miru_core.dll' : 'libmiru_core.so';
 
-    using((Arena arena) {
-      final configPathPointer = configPath
-          .toNativeUtf8(allocator: arena)
-          .cast<ffi.Char>();
-      final core = MiruCore(lib);
-      core.initDyLib(configPathPointer);
-    });
+    try {
+      if (Platform.isWindows || Platform.isLinux) {
+        final exeFolder = File(Platform.resolvedExecutable).parent.path;
+
+        final depPrefixes = Platform.isWindows
+            ? ['libgcc_s', 'libstdc++-6']
+            : ['libgcc_s', 'libstdc++'];
+
+        final allFiles = Directory(exeFolder).listSync();
+
+        for (var prefix in depPrefixes) {
+          try {
+            final depFile = allFiles.firstWhere(
+              (f) =>
+                  f.path.toLowerCase().contains(prefix.toLowerCase()) &&
+                  (f.path.endsWith('.dll') || f.path.endsWith('.so')),
+            );
+            logger.info('Pre-loading dependency: ${depFile.path}');
+            ffi.DynamicLibrary.open(depFile.path);
+          } catch (_) {}
+        }
+      }
+
+      // 2. Load the main library
+      try {
+        lib = ffi.DynamicLibrary.open(libName);
+      } catch (e) {
+        if (Platform.isWindows) {
+          final exeFolder = File(Platform.resolvedExecutable).parent.path;
+          final dllPath = p.join(exeFolder, libName);
+          if (File(dllPath).existsSync()) {
+            logger.severe('$libName exists but failed to load (Error 126).');
+            logger.severe('Attempting load with absolute path...');
+            lib = ffi.DynamicLibrary.open(dllPath);
+          } else {
+            logger.severe('$libName NOT found in $exeFolder');
+            rethrow;
+          }
+        } else {
+          rethrow;
+        }
+      }
+
+      using((Arena arena) {
+        final configPathPointer = configPath
+            .toNativeUtf8(allocator: arena)
+            .cast<ffi.Char>();
+        final core = MiruCore(lib);
+        core.initDyLib(configPathPointer);
+      });
+    } catch (e, s) {
+      logger.severe('Error: $e');
+      logger.severe(s.toString());
+      exit(1);
+    }
   }
 
   static Future<void> loadMiruCore() async {
