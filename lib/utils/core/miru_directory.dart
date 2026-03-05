@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 class MiruDirectory {
   static late final Directory _appDocDir;
@@ -17,7 +17,7 @@ class MiruDirectory {
     _mirDonwloadDir = await getDownloadsDirectory() ?? _cacheDir;
 
     if (Platform.isAndroid) {
-      await _requestMediaPermissions();
+      // await _requestMediaPermissions();
       // For Android, we don't necessarily want to use the hardcoded Movies path anymore
       // if we're moving towards user-specified SAF paths.
       // But we still need a default.
@@ -44,40 +44,40 @@ class MiruDirectory {
     return tempDir.path;
   }
 
-  static Future<bool> _requestMediaPermissions() async {
-    if (!Platform.isAndroid) return true;
+  // static Future<bool> _requestMediaPermissions() async {
+  //   if (!Platform.isAndroid) return true;
 
-    // For Android 13+ (API level 33+)
-    if (await Permission.photos.request().isGranted &&
-        await Permission.videos.request().isGranted) {
-      return true;
-    }
+  //   // For Android 13+ (API level 33+)
+  //   if (await Permission.photos.request().isGranted &&
+  //       await Permission.videos.request().isGranted) {
+  //     return true;
+  //   }
 
-    // For Android 10-12 (API level 29-32)
-    if (await Permission.storage.request().isGranted) {
-      return true;
-    }
+  //   // For Android 10-12 (API level 29-32)
+  //   if (await Permission.storage.request().isGranted) {
+  //     return true;
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
 
-  static Future<bool> requestMediaAccess(MediaType type) async {
-    if (!Platform.isAndroid) return true;
+  // static Future<bool> requestMediaAccess(MediaType type) async {
+  //   if (!Platform.isAndroid) return true;
 
-    switch (type) {
-      case MediaType.images:
-        return await Permission.photos.request().isGranted;
-      case MediaType.videos:
-        return await Permission.videos.request().isGranted;
-      case MediaType.audio:
-        return await Permission.audio.request().isGranted;
-      case MediaType.all:
-        final photos = await Permission.photos.request().isGranted;
-        final videos = await Permission.videos.request().isGranted;
-        final audio = await Permission.audio.request().isGranted;
-        return photos && videos && audio;
-    }
-  }
+  //   switch (type) {
+  //     case MediaType.images:
+  //       return await Permission.photos.request().isGranted;
+  //     case MediaType.videos:
+  //       return await Permission.videos.request().isGranted;
+  //     case MediaType.audio:
+  //       return await Permission.audio.request().isGranted;
+  //     case MediaType.all:
+  //       final photos = await Permission.photos.request().isGranted;
+  //       final videos = await Permission.videos.request().isGranted;
+  //       final audio = await Permission.audio.request().isGranted;
+  //       return photos && videos && audio;
+  //   }
+  // }
 
   static String get getDirectory => _miruDir(_appDocDir);
 
@@ -92,32 +92,6 @@ class MiruDirectory {
     Directory(dir).createSync(recursive: true);
     return dir;
   }
-
-  // static Future<String?> createMoviesFolder(String folderName) async {
-  //   // Check permissions first
-  //   if (Platform.isAndroid) {
-  //     final hasPermission = await requestMediaAccess(MediaType.videos);
-  //     if (!hasPermission) {
-  //       logger.info("No permission to access movies directory");
-  //       return null;
-  //     }
-  //   }
-
-  //   try {
-  //     // Create the Movies/folderName directory
-  //     final targetDir = Directory(
-  //       path.join('/storage/emulated/0/Movies', folderName),
-  //     );
-  //     if (!await targetDir.exists()) {
-  //       await targetDir.create(recursive: true);
-  //     }
-
-  //     return targetDir.path;
-  //   } catch (e) {
-  //     logger.info("Failed to create folder in Movies directory: $e");
-  //     return null;
-  //   }
-  // }
 }
 
 enum MediaType { images, videos, audio, all }
