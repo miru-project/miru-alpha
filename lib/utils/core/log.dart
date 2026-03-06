@@ -9,7 +9,7 @@ final logger = Logger('Miru_alpha');
 
 class MiruLog {
   static final logFilePath = path.join(MiruDirectory.getDirectory, 'miru.log');
-
+  static bool hasInit = false;
   static void ensureInitialized() {
     Logger.root.level = Level.ALL;
     Logger.root.onRecord.listen((record) {
@@ -29,6 +29,7 @@ class MiruLog {
         debugPrint(s.toString());
       }
     });
+    hasInit = true;
   }
 
   // 写入日志到文件
