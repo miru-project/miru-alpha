@@ -25,35 +25,17 @@ class ClearableSelect extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Padding(
-            //   padding: EdgeInsetsGeometry.only(left: 5),
-            //   child: Text(
-            //     title,
-            //     style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-            //   ),
-            // ),
-            // const SizedBox(height: 5),
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 200, maxHeight: 59),
+              constraints: const BoxConstraints(maxWidth: 200, maxHeight: 65),
               child: FSelect(
                 label: Text(
                   title,
                   // style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                 ),
                 control: .managed(initial: initialValue, onChange: onChange),
-
-                // initialValue: initialValue,
-                // onChange: onChange,
-                // style:
-                //     FSelectStyle.inherit(
-                //       colors: context.theme.colors,
-                //       typography: overrideTheme.typography,
-                //       style: context.theme.style,
-                //     ).call,
                 hint: hintText,
                 clearable: true,
                 items: {for (final item in items) item: item},
-                // children: [for (final item in items) FSelectItem(item, item)],
               ),
             ),
           ],

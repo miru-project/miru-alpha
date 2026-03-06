@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_webview_window
+  flutter_inappwebview_linux
   fvp
   screen_retriever_linux
   volume_controller

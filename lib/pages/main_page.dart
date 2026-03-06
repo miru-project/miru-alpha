@@ -257,46 +257,49 @@ class _MainPageState extends ConsumerState<MainPage>
             ),
             footer: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: FCard.raw(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 16,
-                  ),
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      FAvatar.raw(
-                        child: Icon(
-                          FIcons.userRound,
-                          size: 18,
-                          color: context.theme.colors.mutedForeground,
+              child: FTappable(
+                onPress: () {},
+                child: FCard.raw(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 16,
+                    ),
+                    child: Row(
+                      spacing: 10,
+                      children: [
+                        FAvatar.raw(
+                          child: Icon(
+                            FIcons.userRound,
+                            size: 18,
+                            color: context.theme.colors.mutedForeground,
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 2,
-                          children: [
-                            Text(
-                              'WebDav(WIP)',
-                              style: context.theme.typography.sm.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: context.theme.colors.foreground,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 2,
+                            children: [
+                              Text(
+                                'WebDav',
+                                style: context.theme.typography.sm.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: context.theme.colors.foreground,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              'Signin',
-                              style: context.theme.typography.xs.copyWith(
-                                color: context.theme.colors.mutedForeground,
+                              Text(
+                                'Signin',
+                                style: context.theme.typography.xs.copyWith(
+                                  color: context.theme.colors.mutedForeground,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

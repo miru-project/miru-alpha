@@ -188,18 +188,17 @@ class ExtensionGridTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: FButton(
-                          onPress: () {},
-                          variant: .secondary,
-                          prefix: Icon(FIcons.cog),
-                          child: Text('Configure'),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: FButton(
                           onPress: onUninstall,
                           prefix: Icon(FIcons.trash2),
                           child: Text('Uninstall'),
+                        ),
+                      ),
+                      FTooltip(
+                        tipBuilder: (context, controller) => Text('Settings'),
+                        child: FButton.icon(
+                          variant: .secondary,
+                          onPress: () {},
+                          child: Icon(FIcons.cog),
                         ),
                       ),
                     ],
