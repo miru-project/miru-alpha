@@ -10,14 +10,16 @@ final logger = Logger('Miru_alpha');
 
 class MiruLog {
   static final logFilePath = path.join(MiruDirectory.getDirectory, 'miru.log');
+  static final defaultLogFilePath = path.join(
+    MiruDirectory.appSupportDirectory,
+    'miru.log',
+  );
   static bool hasInit = false;
 
   // Write log to the dir that contains the executable file
   static void defaultError(Object error, StackTrace stack) {
-    final exePath = Platform.resolvedExecutable;
-    final exeDir = p.dirname(exePath);
     File(
-      path.join(exeDir, 'miru.log'),
+      defaultLogFilePath,
     ).writeAsStringSync('${error.toString()}\n${stack.toString()}');
   }
 

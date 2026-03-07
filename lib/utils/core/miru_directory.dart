@@ -78,6 +78,7 @@ class MiruDirectory {
   //       return photos && videos && audio;
   //   }
   // }
+  static String get appSupportDirectory => _miruDir(_appSupportDir);
 
   static String get getDirectory => _miruDir(_appDocDir);
 
@@ -88,9 +89,15 @@ class MiruDirectory {
   static String get getMoviesDirectory => _miruDir(_moviesDir);
 
   static String _miruDir(Directory directory) {
-    final dir = path.join(directory.path, 'miru');
-    Directory(dir).createSync(recursive: true);
-    return dir;
+    try {
+      final dir = path.join(directory.path, 'miru');
+      Directory(dir).createSync(recursive: true);
+      return dir;
+    } catch (e) {
+      final dir = path.join(path.dirname(_appSupportDir.path), 'miru');
+      Directory(dir).createSync(recursive: true);
+      return dir;
+    }
   }
 }
 
