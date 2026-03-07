@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_app_new/pages/search/global_search.dart';
-import 'package:miru_app_new/pages/webview/desktop_webview.dart';
 import 'package:miru_app_new/provider/search_page_provider.dart';
 import 'package:miru_app_new/utils/core/log.dart';
+import 'package:miru_app_new/utils/router/page_entry.dart';
 import 'package:miru_app_new/utils/store/storage_index.dart';
 import 'package:miru_app_new/widgets/core/inner_card.dart';
 import 'package:miru_app_new/widgets/core/search_filter_card.dart';
@@ -92,7 +93,15 @@ class DesktopSearchPage extends HookConsumerWidget {
                           children: [
                             FButton.icon(
                               variant: .ghost,
-                              onPress: () => openWebview(ext),
+                              onPress: () {
+                                context.push(
+                                  '/mobileWebView',
+                                  extra: WebviewParam(
+                                    meta: ext,
+                                    url: ext.webSite,
+                                  ),
+                                );
+                              },
                               child: Icon(FIcons.globe),
                             ),
                             SizedBox(width: 8),

@@ -233,15 +233,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.12"
-  desktop_webview_window:
-    dependency: "direct main"
-    description:
-      path: "packages/desktop_webview_window"
-      ref: HEAD
-      resolved-ref: "7801fc582ecf5a7351632887891ecf309a7b2583"
-      url: "https://github.com/wgh136/flutter_desktop_webview"
-    source: git
-    version: "0.2.4"
   device_info_plus:
     dependency: "direct main"
     description:
@@ -504,10 +495,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_svg
-      sha256: "87fbd7c534435b6c5d9d98b01e1fd527812b82e68ddd8bd35fc45ed0fa8f0a95"
+      sha256: "1ded017b39c8e15c8948ea855070a5ff8ff8b3d5e83f3446e02d6bb12add7ad9"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.3"
+    version: "2.2.4"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -618,10 +609,10 @@ packages:
     dependency: transitive
     description:
       name: hooks
-      sha256: "7a08a0d684cb3b8fb604b78455d5d352f502b68079f7b80b831c62220ab0a4f6"
+      sha256: e79ed1e8e1929bc6ecb6ec85f0cb519c887aa5b423705ded0d0f2d9226def388
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1"
+    version: "1.0.2"
   hooks_riverpod:
     dependency: "direct main"
     description:
@@ -818,10 +809,10 @@ packages:
     dependency: transitive
     description:
       name: native_toolchain_c
-      sha256: "89e83885ba09da5fdf2cdacc8002a712ca238c28b7f717910b34bcd27b0d03ac"
+      sha256: "92b2ca62c8bd2b8d2f267cdfccf9bfbdb7322f778f8f91b3ce5b5cda23a3899f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.4"
+    version: "0.17.5"
   navigator_resizable:
     dependency: transitive
     description:

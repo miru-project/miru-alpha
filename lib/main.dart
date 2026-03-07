@@ -8,7 +8,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:fvp/fvp.dart';
-import 'package:path/path.dart' as p;
 import 'package:macos_window_utils/macos/ns_window_button_type.dart';
 import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_app_new/miru_core/core.dart';
@@ -106,9 +105,7 @@ void main() async {
     },
     (error, stack) {
       if (!MiruLog.hasInit) {
-        String exePath = Platform.resolvedExecutable;
-        String exeDir = p.dirname(exePath);
-        File("$exeDir/miru.log").writeAsStringSync(error.toString());
+        MiruLog.defaultError(error, stack);
       }
       showSimpleToast(error.toString());
       logger.severe('Uncaught error: $error');

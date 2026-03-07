@@ -55,10 +55,6 @@ dependencies:
   easy_refresh: ^3.4.0
   flutter_hls_parser: ^2.0.1
   scrollable_positioned_list: ^0.3.8
-  desktop_webview_window:
-    git:
-      url: https://github.com/wgh136/flutter_desktop_webview
-      path: packages/desktop_webview_window
   flutter_i18n: ^0.37.0
   flutter_inappwebview: ^6.2.0-beta.3
   device_info_plus: ^12.1.0
@@ -79,7 +75,6 @@ dependencies:
   vector_math: ^2.2.0
   smooth_sheets: ^0.17.0
   wakelock_plus: ^1.4.0
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -4,31 +4,46 @@ import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import '../store/storage_index.dart';
+import 'package:path/path.dart' as p;
 
 final logger = Logger('Miru_alpha');
 
 class MiruLog {
   static final logFilePath = path.join(MiruDirectory.getDirectory, 'miru.log');
   static bool hasInit = false;
+
+  // Write log to the dir that contains the executable file
+  static void defaultError(Object error, StackTrace stack) {
+    final exePath = Platform.resolvedExecutable;
+    final exeDir = p.dirname(exePath);
+    File(
+      path.join(exeDir, 'miru.log'),
+    ).writeAsStringSync('${error.toString()}\n${stack.toString()}');
+  }
+
+  static void _recordLog(LogRecord record) {
+    try {
+      final log =
+          '${record.loggerName} ${record.level.name} ${record.time}: ${record.message} ${record.error ?? ''} ${record.stackTrace ?? ''}';
+      debugPrint(log);
+      // if (kReleaseMode) {
+      Future.microtask(() => writeLogToFile(log)).catchError((e, s) {
+        // Use debugPrint here to avoid triggering logger again.
+        debugPrint('Failed to write log to file: $e');
+        debugPrint(s.toString());
+        defaultError(e, s);
+      });
+      // }
+    } catch (e, s) {
+      debugPrint('Logging listener error: $e');
+      debugPrint(s.toString());
+      defaultError(e, s);
+    }
+  }
+
   static void ensureInitialized() {
     Logger.root.level = Level.ALL;
-    Logger.root.onRecord.listen((record) {
-      try {
-        final log =
-            '${record.loggerName} ${record.level.name} ${record.time}: ${record.message} ${record.error ?? ''} ${record.stackTrace ?? ''}';
-        debugPrint(log);
-        // if (kReleaseMode) {
-        Future.microtask(() => writeLogToFile(log)).catchError((e, s) {
-          // Use debugPrint here to avoid triggering logger again.
-          debugPrint('Failed to write log to file: $e');
-          debugPrint(s.toString());
-        });
-        // }
-      } catch (e, s) {
-        debugPrint('Logging listener error: $e');
-        debugPrint(s.toString());
-      }
-    });
+    Logger.root.onRecord.listen(_recordLog);
     hasInit = true;
   }
 
