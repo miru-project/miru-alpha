@@ -122,7 +122,7 @@ jobs:
     steps:
 
       - name: Install Dependencies
-        run: pacman -Sy --noconfirm gtk3 wpewebkit git clang cmake ninja
+        run: pacman -Sy --noconfirm gtk3 wpewebkit git clang cmake ninja jq
 
       - name: Checkout
         uses: actions/checkout@v4
