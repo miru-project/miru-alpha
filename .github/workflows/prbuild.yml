@@ -124,6 +124,10 @@ jobs:
       - name: Install Dependencies
         run: pacman -Sy --noconfirm gtk3 wpewebkit git clang cmake ninja jq
 
+      - name: Config Git to Trust All Repositories
+        run: |
+          git config --global --add safe.directory '*'
+          
       - name: Checkout
         uses: actions/checkout@v4
 
