@@ -1,6 +1,6 @@
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/provider/detial_provider.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/provider/detial_provider.dart';
 
 class WatchParams {
   const WatchParams({

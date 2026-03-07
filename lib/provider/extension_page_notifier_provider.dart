@@ -1,8 +1,8 @@
-import 'package:miru_app_new/miru_core/network.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/utils/network/github_network.dart';
-import 'package:miru_app_new/model/model.dart';
+import 'package:miru_alpha/miru_core/network.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/network/github_network.dart';
+import 'package:miru_alpha/model/model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'extension_page_notifier_provider.g.dart';
 

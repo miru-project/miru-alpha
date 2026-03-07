@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/pages/download/widget/index.dart';
-import 'package:miru_app_new/provider/download_provider.dart';
-import 'package:miru_app_new/widgets/error.dart';
+import 'package:miru_alpha/pages/download/widget/index.dart';
+import 'package:miru_alpha/provider/download_provider.dart';
+import 'package:miru_alpha/widgets/error.dart';
 
 class MobileDownloadPage extends StatelessWidget {
   const MobileDownloadPage({super.key});

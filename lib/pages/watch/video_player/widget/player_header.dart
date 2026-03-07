@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/pages/watch/video_player/widget/player_button.dart';
+import 'package:miru_alpha/pages/watch/video_player/widget/player_button.dart';
 
-import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
-import 'package:miru_app_new/provider/watch/video_player_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
+import 'package:miru_alpha/provider/watch/video_player_provider.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/widgets/index.dart';
 import 'package:window_manager/window_manager.dart';
 
 class PlayerHeader extends ConsumerStatefulWidget {

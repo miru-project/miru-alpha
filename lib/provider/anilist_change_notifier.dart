@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/utils/setting_dir_index.dart';
-import 'package:miru_app_new/utils/tracking/anilist_provider.dart';
+import 'package:miru_alpha/utils/setting_dir_index.dart';
+import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class AnilistPageNotifier with ChangeNotifier {

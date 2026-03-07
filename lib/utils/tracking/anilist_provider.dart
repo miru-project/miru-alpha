@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:miru_app_new/miru_core/network.dart';
-// import 'package:miru_app_new/utils/network/request.dart';
+import 'package:miru_alpha/miru_core/network.dart';
+// import 'package:miru_alpha/utils/network/request.dart';
 import '../core/i18n.dart';
-import 'package:miru_app_new/utils/setting_dir_index.dart';
+import 'package:miru_alpha/utils/setting_dir_index.dart';
 
 enum AnilistType { anime, manga }
 

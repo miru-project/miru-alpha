@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:forui/theme.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:miru_app_new/pages/watch/video_player/widget/seek_bar_thumb.dart';
-import 'package:miru_app_new/provider/watch/video_player_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
+import 'package:miru_alpha/pages/watch/video_player/widget/seek_bar_thumb.dart';
+import 'package:miru_alpha/provider/watch/video_player_provider.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
 
-import 'package:miru_app_new/utils/core/log.dart';
+import 'package:miru_alpha/utils/core/log.dart';
 
 class SeekBar extends HookConsumerWidget {
   const SeekBar({super.key, required this.vidPr});

@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:miru_app_new/miru_core/proto/generate/proto/extension_model.pb.dart'
+import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
     as pb_extension;
 
 part 'model.g.dart';

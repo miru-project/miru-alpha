@@ -1,4 +1,4 @@
-package com.miru.alpha
+package miru.alpha
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -6,7 +6,7 @@ import io.flutter.plugin.common.MethodChannel
 import binary.AndroidLib
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.miru.alpha/miru_core"
+    private val CHANNEL = "miru.alpha/miru_core"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)

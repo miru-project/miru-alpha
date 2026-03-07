@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/miru_core/proto/proto.dart';
-import 'package:miru_app_new/provider/download_provider.dart';
-import 'package:miru_app_new/miru_core/grpc_client.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart';
+import 'package:miru_alpha/provider/download_provider.dart';
+import 'package:miru_alpha/miru_core/grpc_client.dart';
 
 class DownloadProcessTile extends ConsumerWidget {
   const DownloadProcessTile({super.key, required this.progress});

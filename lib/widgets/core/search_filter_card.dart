@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/widgets/core/blur.dart';
+import 'package:miru_alpha/widgets/core/blur.dart';
 
 class SearchFilterCard extends StatelessWidget {
   final Widget child;

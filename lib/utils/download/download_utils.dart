@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:path/path.dart' as p;
-import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/proto.dart';
+import 'package:miru_alpha/utils/download/ffmpeg_util.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart';
 
 class DownloadUtils {
   static String filter(String path) {

@@ -2,9 +2,9 @@
 // import 'dart:io';
 
 // import 'package:desktop_webview_window/desktop_webview_window.dart';
-// import 'package:miru_app_new/miru_core/network.dart';
-// import 'package:miru_app_new/model/extension_meta_data.dart';
-// import 'package:miru_app_new/utils/core/log.dart';
+// import 'package:miru_alpha/miru_core/network.dart';
+// import 'package:miru_alpha/model/extension_meta_data.dart';
+// import 'package:miru_alpha/utils/core/log.dart';
 
 // Future<void> openWebview(ExtensionMeta ext, [String? url]) async {
 //   final webview =

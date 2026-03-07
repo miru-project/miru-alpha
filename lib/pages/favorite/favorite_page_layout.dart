@@ -4,15 +4,15 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/provider/favorite_page_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
-import 'package:miru_app_new/widgets/grid_view/index.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/provider/favorite_page_provider.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/widgets/grid_view/index.dart';
+import 'package:miru_alpha/widgets/index.dart';
 import 'package:go_router/go_router.dart';
-import 'package:miru_app_new/pages/favorite/favorite_tab.dart';
+import 'package:miru_alpha/pages/favorite/favorite_tab.dart';
 
 class FavoritePage extends ConsumerStatefulWidget {
   const FavoritePage({super.key});

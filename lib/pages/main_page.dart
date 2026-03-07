@@ -7,19 +7,19 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/provider/application_controller_provider.dart';
-import 'package:miru_app_new/provider/main_controller_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/utils/core/i18n.dart';
-import 'package:miru_app_new/widgets/animted_icon/block.dart';
-import 'package:miru_app_new/widgets/animted_icon/compass.dart';
-import 'package:miru_app_new/widgets/animted_icon/home.dart';
-import 'package:miru_app_new/widgets/animted_icon/settings_cog.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/provider/main_controller_provider.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/widgets/animted_icon/block.dart';
+import 'package:miru_alpha/widgets/animted_icon/compass.dart';
+import 'package:miru_alpha/widgets/animted_icon/home.dart';
+import 'package:miru_alpha/widgets/animted_icon/settings_cog.dart';
+import 'package:miru_alpha/widgets/index.dart';
 
 import '../model/setting_items.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:miru_app_new/utils/store/miru_settings.dart';
+import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:file_picker/file_picker.dart';
 
 class MainPage extends StatefulHookConsumerWidget {

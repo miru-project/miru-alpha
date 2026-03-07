@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/pages/search/widget/desktop_search_filter_box.dart';
-import 'package:miru_app_new/provider/network_provider.dart';
-import 'package:miru_app_new/provider/search_page_single_provider.dart';
-import 'package:miru_app_new/utils/hook/sheet_controller.dart';
-import 'package:miru_app_new/utils/setting_dir_index.dart';
-import 'package:miru_app_new/widgets/error.dart';
-import 'package:miru_app_new/widgets/index.dart';
-import 'package:miru_app_new/pages/search/widget/search_grid_loading.dart';
-import 'package:miru_app_new/pages/search/widget/search_grid_view.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/pages/search/widget/desktop_search_filter_box.dart';
+import 'package:miru_alpha/provider/network_provider.dart';
+import 'package:miru_alpha/provider/search_page_single_provider.dart';
+import 'package:miru_alpha/utils/hook/sheet_controller.dart';
+import 'package:miru_alpha/utils/setting_dir_index.dart';
+import 'package:miru_alpha/widgets/error.dart';
+import 'package:miru_alpha/widgets/index.dart';
+import 'package:miru_alpha/pages/search/widget/search_grid_loading.dart';
+import 'package:miru_alpha/pages/search/widget/search_grid_view.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 class SearchPageSingleView extends HookConsumerWidget {

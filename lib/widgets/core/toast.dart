@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forui/theme.dart';
 import 'package:forui/widgets/toast.dart';
-import 'package:miru_app_new/utils/router/router_util.dart';
+import 'package:miru_alpha/utils/router/router_util.dart';
 
 void showSimpleToast(String title, [int duration = 3]) {
   final ctx = RouterUtil.rootNavigatorKey.currentContext;

@@ -1,9 +1,8 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-import 'package:miru_app_new/widgets/amination/animated_box.dart';
-import 'package:miru_app_new/widgets/core/inner_card.dart';
+import 'package:miru_alpha/widgets/amination/animated_box.dart';
+import 'package:miru_alpha/widgets/core/inner_card.dart';
 
 class DesktopDetailItemBox extends HookWidget {
   const DesktopDetailItemBox({

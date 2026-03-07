@@ -6,10 +6,10 @@ import 'dart:isolate';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
 
-import 'package:miru_app_new/generated_bindings.dart';
-import 'package:miru_app_new/miru_core/network.dart';
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/utils/store/storage_index.dart';
+import 'package:miru_alpha/generated_bindings.dart';
+import 'package:miru_alpha/miru_core/network.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/store/storage_index.dart';
 import 'package:path/path.dart' as p;
 import 'dart:convert';
 
@@ -126,7 +126,7 @@ class Core {
   static Future<void> loadMiruCore() async {
     final location = configLoc;
     if (Platform.isAndroid) {
-      final platform = MethodChannel('com.miru.alpha/miru_core');
+      final platform = MethodChannel('miru.alpha/miru_core');
       await platform.invokeMethod('InitAAR', location);
       return;
     }

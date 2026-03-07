@@ -5,12 +5,12 @@ import 'package:forui/forui.dart';
 import 'package:forui_hooks/forui_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/pages/detail/widget/download_button.dart';
-import 'package:miru_app_new/provider/detail_page_provider.dart';
-import 'package:miru_app_new/provider/detial_provider.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/pages/detail/widget/download_button.dart';
+import 'package:miru_alpha/provider/detail_page_provider.dart';
+import 'package:miru_alpha/provider/detial_provider.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
 
 class MobileDetailSilverlist extends HookConsumerWidget {
   final Detail detail;

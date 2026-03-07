@@ -1,6 +1,6 @@
 import 'package:grpc/grpc.dart';
-import 'package:miru_app_new/miru_core/core.dart';
-import 'package:miru_app_new/miru_core/proto/proto.dart';
+import 'package:miru_alpha/miru_core/core.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart';
 
 class MiruGrpcClient {
   static ClientChannel? _channel;

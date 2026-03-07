@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/pages/setting/widget/setting_base_tile.dart';
+import 'package:miru_alpha/pages/setting/widget/setting_base_tile.dart';
 
 class SettingsInputTile extends StatelessWidget with FTileMixin {
   const SettingsInputTile({

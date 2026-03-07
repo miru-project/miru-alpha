@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/widgets/amination/animated_box.dart';
-import 'package:miru_app_new/widgets/core/image_widget.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/widgets/amination/animated_box.dart';
+import 'package:miru_alpha/widgets/core/image_widget.dart';
 
 class DetailImageView extends StatelessWidget {
   final Detail detail;

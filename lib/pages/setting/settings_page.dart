@@ -3,12 +3,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
-import 'package:miru_app_new/pages/setting/setting_core.dart';
-import 'package:miru_app_new/pages/setting/setting_general.dart';
-import 'package:miru_app_new/pages/setting/widget/setting_scaffold.dart';
-import 'package:miru_app_new/utils/router/router_util.dart';
+import 'package:miru_alpha/pages/setting/setting_core.dart';
+import 'package:miru_alpha/pages/setting/setting_general.dart';
+import 'package:miru_alpha/pages/setting/widget/setting_scaffold.dart';
+import 'package:miru_alpha/utils/router/router_util.dart';
 import 'setting_extension.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/widgets/index.dart';
 import '../../model/setting_items.dart';
 
 class SettingsPage extends HookWidget {

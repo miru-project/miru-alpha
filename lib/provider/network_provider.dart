@@ -4,13 +4,13 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_hls_parser/flutter_hls_parser.dart';
-import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/network.dart';
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/utils/network/index.dart';
+import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:miru_alpha/miru_core/network.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/network/index.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 part 'network_provider.g.dart';
 
 @riverpod

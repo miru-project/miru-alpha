@@ -1,6 +1,6 @@
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/utils/store/database_service.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'history_page_provider.g.dart';
 

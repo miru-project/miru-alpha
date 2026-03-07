@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/model.dart';
-import 'package:miru_app_new/model/user_data.dart';
-import 'package:miru_app_new/provider/favorite_page_provider.dart';
-import 'package:miru_app_new/utils/store/database_service.dart';
+import 'package:miru_alpha/model/model.dart';
+import 'package:miru_alpha/model/user_data.dart';
+import 'package:miru_alpha/provider/favorite_page_provider.dart';
+import 'package:miru_alpha/utils/store/database_service.dart';
 
 class FavoriteTab extends StatefulHookConsumerWidget {
   const FavoriteTab({super.key});

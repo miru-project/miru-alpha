@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/model.dart';
-import 'package:miru_app_new/pages/setting/widget/index.dart';
-import 'package:miru_app_new/provider/watch/manga_reader_provider.dart';
-import 'package:miru_app_new/utils/setting_dir_index.dart';
+import 'package:miru_alpha/model/model.dart';
+import 'package:miru_alpha/pages/setting/widget/index.dart';
+import 'package:miru_alpha/provider/watch/manga_reader_provider.dart';
+import 'package:miru_alpha/utils/setting_dir_index.dart';
 
 class MangaSettingGeneral extends ConsumerWidget {
   const MangaSettingGeneral({super.key, required this.mangaProvider});

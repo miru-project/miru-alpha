@@ -1,11 +1,11 @@
 import 'package:flutter/widgets.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/provider/favorite_page_provider.dart';
-import 'package:miru_app_new/provider/history_page_provider.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/provider/favorite_page_provider.dart';
+import 'package:miru_alpha/provider/history_page_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/provider/download_provider.dart';
-import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/provider/download_provider.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 
 part 'detial_provider.g.dart';
 

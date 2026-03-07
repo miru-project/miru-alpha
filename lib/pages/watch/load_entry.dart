@@ -3,17 +3,17 @@ import 'package:forui/forui.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/pages/watch/manga_reader/manga_reader.dart';
-import 'package:miru_app_new/pages/watch/novel_reader/novel_reader.dart';
-import 'package:miru_app_new/pages/watch/video_player/video_player.dart';
-import 'package:miru_app_new/provider/application_controller_provider.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/provider/network_provider.dart';
-import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
-import 'package:miru_app_new/widgets/error.dart';
-import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/pages/watch/manga_reader/manga_reader.dart';
+import 'package:miru_alpha/pages/watch/novel_reader/novel_reader.dart';
+import 'package:miru_alpha/pages/watch/video_player/video_player.dart';
+import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/provider/network_provider.dart';
+import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/widgets/error.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class WatchLoadEntry extends StatefulHookConsumerWidget {

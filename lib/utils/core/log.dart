@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import '../store/storage_index.dart';
-import 'package:path/path.dart' as p;
 
 final logger = Logger('Miru_alpha');
 

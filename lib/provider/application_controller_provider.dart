@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/theme.dart';
-import 'package:miru_app_new/utils/theme/theme.dart';
+import 'package:miru_alpha/utils/theme/theme.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../utils/setting_dir_index.dart';
 part 'application_controller_provider.g.dart';

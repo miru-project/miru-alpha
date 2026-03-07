@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/model/model.dart';
-import 'package:miru_app_new/provider/network_provider.dart';
-import 'package:miru_app_new/provider/search_page_provider.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
-import 'package:miru_app_new/widgets/error.dart';
-import 'package:miru_app_new/widgets/grid_view/miru_grid_tile.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/model/model.dart';
+import 'package:miru_alpha/provider/network_provider.dart';
+import 'package:miru_alpha/provider/search_page_provider.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/widgets/error.dart';
+import 'package:miru_alpha/widgets/grid_view/miru_grid_tile.dart';
 
 class GlobalSearch extends HookConsumerWidget {
   const GlobalSearch({

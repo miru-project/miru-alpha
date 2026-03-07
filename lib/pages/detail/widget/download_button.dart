@@ -2,16 +2,16 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/miru_core/network.dart';
-import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/utils/core/miru_directory.dart';
-import 'package:miru_app_new/widgets/core/toast.dart';
+import 'package:miru_alpha/miru_core/network.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:miru_alpha/utils/core/miru_directory.dart';
+import 'package:miru_alpha/widgets/core/toast.dart';
 import 'package:path/path.dart' as p;
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/provider/download_provider.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/provider/download_provider.dart';
 
 class DownloadButton extends StatelessWidget {
   const DownloadButton({

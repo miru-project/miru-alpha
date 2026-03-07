@@ -3,13 +3,13 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
-import 'package:miru_app_new/utils/store/storage_index.dart';
-import 'package:miru_app_new/widgets/amination/animated_box.dart';
-import 'package:miru_app_new/widgets/core/toast.dart';
-import 'package:miru_app_new/widgets/core/image_widget.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/utils/store/storage_index.dart';
+import 'package:miru_alpha/widgets/amination/animated_box.dart';
+import 'package:miru_alpha/widgets/core/toast.dart';
+import 'package:miru_alpha/widgets/core/image_widget.dart';
 
 class DesktopSearchListTile extends HookConsumerWidget {
   const DesktopSearchListTile({super.key, required this.ext, this.trailing});

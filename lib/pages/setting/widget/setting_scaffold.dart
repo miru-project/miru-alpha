@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/widgets/index.dart';
 
 class SettingScaffold extends StatelessWidget {
   const SettingScaffold({super.key, required this.child, required this.title});
