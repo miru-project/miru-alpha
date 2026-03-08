@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:miru_alpha/utils/core/i18n.dart';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
     );
     return PlatformWidget(
       desktopWidget: MiruScaffold(
-        mobileHeader: SnapSheetHeader(title: 'Home'),
+        mobileHeader: SnapSheetHeader(title: 'home'.i18n),
         body: Column(
           children: [
             FavoriteTab(),
@@ -52,7 +53,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                             .where((e) => e.packageName == favorite.package)
                             .firstOrNull
                             ?.name ??
-                        'Package Not Found',
+                        'package_not_found'.i18n,
                     imageUrl: favorite.cover,
                     onTap: () {
                       final extMeta = meta
@@ -93,7 +94,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
           );
           return MiruMobileTile(
             title: favorite.title,
-            subtitle: ext?.name ?? 'Package Not Found',
+            subtitle: ext?.name ?? 'package_not_found'.i18n,
             imageUrl: favorite.cover,
             onTap: () {
               if (ext == null) return;
@@ -121,7 +122,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                         children: [
                           FTile(
                             prefix: Icon(FIcons.heartMinus),
-                            title: Text('Remove  Favorite'),
+                            title: Text('remove_favorite'.i18n),
                             onPress: () {
                               ref
                                   .read(favoritePageProvider.notifier)

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as common;
@@ -63,7 +64,7 @@ class DownloadItem extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${task.status} • ${task.progress}/${task.total}',
+                '${task.status.toLowerCase().i18n} • ${task.progress}/${task.total}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 12, color: Colors.grey[400]),
@@ -121,10 +122,10 @@ class DownloadsList extends ConsumerWidget {
       data: (data) {
         final activeTasks = data.active;
         if (activeTasks.isEmpty) {
-          return const SliverToBoxAdapter(
+          return SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40),
-              child: Text("No active downloads"),
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Text("no_active_downloads".i18n),
             ),
           );
         }
@@ -143,7 +144,7 @@ class DownloadsList extends ConsumerWidget {
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (e, s) =>
-          SliverToBoxAdapter(child: Text("Error loading downloads: $e")),
+          SliverToBoxAdapter(child: Text("${'error_loading_downloads'.i18n}: $e")),
     );
   }
 }
@@ -157,9 +158,9 @@ class DownloadsText extends StatelessWidget {
     return SliverToBoxAdapter(
       child: Padding(
         padding: padding,
-        child: const Text(
-          'Downloads',
-          style: TextStyle(
+        child: Text(
+          'downloads'.i18n,
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.white,

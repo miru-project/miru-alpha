@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -34,8 +35,8 @@ class DesktopSearchPage extends HookConsumerWidget {
               if (existedPinnedExtensions.isNotEmpty)
                 SliverToBoxAdapter(
                   child: InnerCard(
-                    title: 'Pinned',
-                    subtitle: 'Pinned extensions ',
+                    title: 'extension.pinned',
+                    subtitle: 'extension.pinned_extensions',
                     child: ListView.builder(
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
@@ -81,8 +82,8 @@ class DesktopSearchPage extends HookConsumerWidget {
               SliverToBoxAdapter(child: SizedBox(height: 20)),
               SliverToBoxAdapter(
                 child: InnerCard(
-                  title: 'Extension',
-                  subtitle: 'Extensions that already installed',
+                  title: 'extension',
+                  subtitle: 'extension.extensions_installed_desc',
                   child: ListView.builder(
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
@@ -144,7 +145,7 @@ class DesktopSearchPage extends HookConsumerWidget {
             children: [
               FTooltip(
                 tipBuilder: (context, controller) =>
-                    Text('Search with pinned extensions'),
+                    Text('extension.search_with_pinned_extensions'.i18n),
                 child: HookBuilder(
                   builder: (context) {
                     final variant = useState(FButtonVariant.windows);
@@ -186,12 +187,12 @@ class DesktopSearchPage extends HookConsumerWidget {
                   contextMenuBuilder: (context, editableTextState) {
                     return Column(
                       children: [
-                        Text('Custom Context Menu'),
+                        Text('custom_context_menu'.i18n),
                         // Add more context menu items here
                       ],
                     );
                   },
-                  hint: 'Search globally',
+                  hint: 'search_globally'.i18n,
                 ),
               ),
             ],

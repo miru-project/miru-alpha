@@ -55,6 +55,7 @@ class RouterUtil {
   }
 
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
+  static final rootKey = GlobalKey<NavigatorState>();
   static final GoRoute _buildDetail = GoRoute(
     path: 'detail',
 

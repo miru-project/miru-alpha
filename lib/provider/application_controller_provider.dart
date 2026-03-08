@@ -11,11 +11,13 @@ class ApplicationState {
   final FThemeData themeData;
   final ThemeMode themeMode;
   final bool isMobileTitleOnTop;
+  final String language;
   ApplicationState({
     required this.themeText,
     required this.accentColor,
     required this.themeData,
     required this.themeMode,
+    required this.language,
     this.isMobileTitleOnTop = true,
   });
 
@@ -25,6 +27,7 @@ class ApplicationState {
     FThemeData? themeData,
     ThemeMode? themeMode,
     bool? isMobileTitleOnTop,
+    String? language,
   }) {
     return ApplicationState(
       themeData: themeData ?? this.themeData,
@@ -32,6 +35,7 @@ class ApplicationState {
       accentColor: accentColor ?? this.accentColor,
       themeMode: themeMode ?? this.themeMode,
       isMobileTitleOnTop: isMobileTitleOnTop ?? this.isMobileTitleOnTop,
+      language: language ?? this.language,
     );
   }
 }
@@ -49,6 +53,7 @@ class ApplicationController extends _$ApplicationController {
     final isMobileTitleOnTop = MiruSettings.getSettingSync<bool>(
       SettingKey.mobiletitleIsonTop,
     );
+    final language = MiruSettings.getSettingSync<String>(SettingKey.language);
     final themeData = currentThemeData(themeText, accentColor);
 
     return ApplicationState(
@@ -57,6 +62,7 @@ class ApplicationController extends _$ApplicationController {
       themeData: themeData,
       themeMode: ThemeMode.system,
       isMobileTitleOnTop: isMobileTitleOnTop,
+      language: language,
     );
   }
 
@@ -96,7 +102,19 @@ class ApplicationController extends _$ApplicationController {
         themeData = isLight ? FThemes.violet.light : FThemes.violet.dark;
         break;
     }
-    return themeData;
+    return FThemeData(
+      colors: themeData.colors,
+      typography: themeData.typography.copyWith(
+        base: TextStyle(
+          fontFamilyFallback: <String>[
+            'Noto Sans CJK SC',
+            'Noto Sans CJK JP',
+            'Noto Sans CJK KR',
+            'Noto Color Emoji',
+          ],
+        ),
+      ),
+    );
   }
 
   void changeAccentColor(String color) {
@@ -129,5 +147,10 @@ class ApplicationController extends _$ApplicationController {
       isOnTop.toString(),
     );
     state = state.copyWith(isMobileTitleOnTop: isOnTop);
+  }
+
+  void changeLanguage(String language) {
+    MiruSettings.setSettingSync(SettingKey.language, language);
+    state = state.copyWith(language: language);
   }
 }

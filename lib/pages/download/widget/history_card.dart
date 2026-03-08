@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 
 import 'package:miru_alpha/provider/download_provider.dart';
 
@@ -17,12 +18,12 @@ class DownloadHistoryCard extends ConsumerWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Package: ${download.package}"),
-          Text("Status: ${download.status}"),
-          Text("Date: ${download.date}"),
+          Text("${"package".i18n}: ${download.package}"),
+          Text("${"status".i18n}: ${download.status}"),
+          Text("${"date".i18n}: ${download.date}"),
           if (download.savePath.isNotEmpty)
             Text(
-              "Saved to: ${download.savePath}",
+              "${"saved_to".i18n}: ${download.savePath}",
               overflow: TextOverflow.ellipsis,
             ),
         ],

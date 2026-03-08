@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/pages/watch/novel_reader/widget/novel_page_setting.dart';
 import 'package:miru_alpha/pages/watch/novel_reader/widget/novel_page_slider.dart';
@@ -32,7 +33,7 @@ class NovelSideSheet extends StatelessWidget {
             FTabEntry(label: Icon(FIcons.book), child: NovelPageSetting()),
             FTabEntry(
               label: Icon(FIcons.alignHorizontalJustifyEnd),
-              child: const Center(child: Text('Alignment Settings')),
+              child: Center(child: Text('novel_reader.alignment_settings'.i18n)),
             ),
             FTabEntry(
               label: Icon(FIcons.settings),

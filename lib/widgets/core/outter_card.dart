@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 
 class OutterCard extends StatelessWidget {
@@ -21,7 +22,7 @@ class OutterCard extends StatelessWidget {
           padding: EdgeInsetsGeometry.symmetric(horizontal: 10, vertical: 10),
           child: trailing == null
               ? Text(
-                  title,
+                  title.i18n,
                   style: context.theme.typography.xl2.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -30,7 +31,7 @@ class OutterCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      title,
+                      title.i18n,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 22,

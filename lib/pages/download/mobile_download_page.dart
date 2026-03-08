@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/pages/download/widget/index.dart';
@@ -31,9 +32,9 @@ class MobileFinishedDownloadSection extends ConsumerWidget {
       error: (e, s) => ErrorDisplay.grpc(err: e, stack: s),
       data: (data) {
         final downloads = data.history;
-        if (downloads.isEmpty) return const Text("No download history");
+        if (downloads.isEmpty) return Text("no_download_history".i18n);
         return FTileGroup.builder(
-          label: const Text("Downloads History"),
+          label: Text("downloads_history".i18n),
           count: downloads.length,
           tileBuilder: (context, index) {
             final item = downloads[index];

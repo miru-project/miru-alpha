@@ -5,9 +5,9 @@ import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/pages/setting/setting_core.dart';
 import 'package:miru_alpha/pages/setting/setting_general.dart';
-import 'package:miru_alpha/pages/setting/widget/setting_scaffold.dart';
 import 'package:miru_alpha/utils/router/router_util.dart';
 import 'setting_extension.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/widgets/index.dart';
 import '../../model/setting_items.dart';
 
@@ -17,23 +17,8 @@ class SettingsPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final select = useState(SideBarName.general);
-    // Widget sideBarTile(String name, SideBarName selected) {
-    //   return Column(
-    //     children: [
-    //       SideBarListTile(
-    //         title: name,
-    //         selected: select.value == selected,
-    //         onPressed: () {
-    //           select.value = selected;
-    //         },
-    //       ),
-    //       const SizedBox(height: 8),
-    //     ],
-    //   );
-    // }
-
     return MiruScaffold(
-      mobileHeader: const SnapSheetHeader(title: 'Settings'),
+      mobileHeader: SnapSheetHeader(title: 'settings'.i18n),
       body: SettingPage(selected: select.value),
     );
   }
@@ -50,10 +35,10 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
   Widget selected(SideBarName name, BuildContext context) {
     switch (name) {
       case SideBarName.general:
-        return SettingScaffold(title: 'General', child: SettingGeneral());
+        return SettingScaffold(title: 'general'.i18n, child: SettingGeneral());
       case SideBarName.extension:
         return SettingScaffold(
-          title: 'Repo Settings',
+          title: 'repo_settings'.i18n,
           child: SettingExtension(),
         );
       case SideBarName.player:
@@ -81,24 +66,24 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return MiruScaffold(
-      mobileHeader: SnapSheetHeader(title: 'Settings'),
+      mobileHeader: SnapSheetHeader(title: 'settings'.i18n),
       desktopBody: selected(widget.selected, context),
       mobileBody: ListView(
         children: [
           FTileGroup(
-            label: Text("General Settings"),
-            description: const Text('Personalize your experience'),
+            label: Text("general_settings".i18n),
+            description: Text('personalize_experience'.i18n),
             children: [
               FTile(
                 prefix: Icon(FIcons.menu),
-                title: const Text('General'),
+                title: Text('general'.i18n),
                 suffix: Icon(FIcons.chevronRight),
-                subtitle: Text('Language, Theme, etc.'),
+                subtitle: Text('language_theme_etc'.i18n),
                 onPress: () {
                   _pushtoPage(
                     context,
                     SettingScaffold(
-                      title: 'General',
+                      title: 'general'.i18n,
                       child: SettingGeneral(isMobileLayout: true),
                     ),
                   );
@@ -108,19 +93,19 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
           ),
           const SizedBox(height: 10),
           FTileGroup(
-            label: Text('Network Settings'),
+            label: Text('network_settings'.i18n),
             children: [
               FTile(
                 prefix: Icon(FIcons.blocks),
-                title: const Text('Extension'),
-                subtitle: const Text('repos'),
+                title: Text('extension'.i18n),
+                subtitle: Text('repos'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {
                   _pushtoPage(
                     context,
                     SettingScaffold(
-                      title: 'Repo Settings',
+                      title: 'repo_settings'.i18n,
                       child: SettingExtension(isMobile: true),
                     ),
                   );
@@ -128,15 +113,15 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
               ),
               FTile(
                 prefix: Icon(FIcons.serverCog),
-                title: const Text('Miru Core Settings'),
-                subtitle: const Text('network, download'),
+                title: Text('miru_core_settings'.i18n),
+                subtitle: Text('network_download'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {
                   _pushtoPage(
                     context,
                     SettingScaffold(
-                      title: 'Miru Core',
+                      title: 'miru_core'.i18n,
                       child: SettingMiruCore(isMobileLayout: true),
                     ),
                   );
@@ -146,21 +131,21 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
           ),
           const SizedBox(height: 10),
           FTileGroup(
-            label: Text("Watch Settings"),
+            label: Text("watch_settings".i18n),
             // description: const Text('Personalize your experience'),
             children: [
               FTile(
                 prefix: Icon(FIcons.tv),
-                title: const Text('Video Player'),
-                subtitle: const Text('player setting'),
+                title: Text('video_player'.i18n),
+                subtitle: Text('player_setting'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {},
               ),
               FTile(
                 prefix: Icon(FIcons.bookOpen),
-                title: const Text('Readers'),
-                subtitle: const Text('Novels, Manga ...'),
+                title: Text('readers'.i18n),
+                subtitle: Text('novels_manga'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {},
@@ -168,12 +153,12 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
             ],
           ),
           FTileGroup(
-            label: Text("About"),
+            label: Text("about".i18n),
             // description: const Text('Personalize your experience'),
             children: [
               FTile(
                 prefix: Icon(FIcons.code),
-                title: const Text('Licenses'),
+                title: Text('licenses'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/index.dart';
@@ -68,40 +69,50 @@ class ExtensionView extends HookConsumerWidget {
                         Row(
                           children: [
                             ClearableSelect(
-                              hintText: 'ALL',
-                              title: "Type",
-                              items: ['Video', 'Manga', 'Novel'],
+                              hintText: 'all'.i18n.toUpperCase(),
+                              title: "type".i18n,
+                              items: ['video'.i18n, 'manga'.i18n, 'novel'.i18n],
                               onChange: (val) {
-                                switch (val) {
-                                  case 'Video':
-                                    val = 'bangumi';
-                                    break;
-                                  case 'Manga':
-                                    val = 'manga';
-                                    break;
-                                  case 'Novel':
-                                    val = 'fikushon';
-                                    break;
-                                  default:
-                                    val = 'ALL';
+                                if (val == 'video'.i18n) {
+                                  val = 'bangumi';
+                                } else if (val == 'manga'.i18n) {
+                                  val = 'manga';
+                                } else if (val == 'novel'.i18n) {
+                                  val = 'fikushon';
+                                } else {
+                                  val = 'ALL';
                                 }
                                 extNotifier.filterByMediaType(val);
+                                // ... wait, the logic needs to stay same for the notifier.
+                                // I should keep the logic keys separate from display titles.
+                                // But ClearableSelect labels depend on items.
                               },
                             ),
                             ClearableSelect(
                               // initialValue: 'ALL',
-                              hintText: 'ALL',
-                              title: "Installed",
-                              items: ['ALL', 'Installed', 'Not Installed'],
+                              hintText: 'all'.i18n.toUpperCase(),
+                              title: "extension.installed".i18n,
+                              items: [
+                                'all'.i18n.toUpperCase(),
+                                'extension.installed'.i18n,
+                                'extension.not_installed'.i18n
+                              ],
                               onChange: (val) {
-                                extNotifier.filterByInstalled(val ?? 'ALL');
+                                if (val == 'extension.installed'.i18n) {
+                                  val = 'Installed';
+                                } else if (val == 'extension.not_installed'.i18n) {
+                                  val = 'Not Installed';
+                                } else {
+                                  val = 'ALL';
+                                }
+                                extNotifier.filterByInstalled(val);
                               },
                             ),
                             Row(
                               children: [
                                 ClearableSelect(
-                                  hintText: 'ALL',
-                                  title: "Repository",
+                                  hintText: 'all'.i18n.toUpperCase(),
+                                  title: "extension-repo.repository".i18n,
                                   items: extNotifier.repoNames(),
                                   onChange: (val) {
                                     extNotifier.selectRepoByName(val ?? '');
@@ -112,7 +123,7 @@ class ExtensionView extends HookConsumerWidget {
                                   padding: const EdgeInsets.only(top: 20),
                                   child: FTooltip(
                                     tipBuilder: (context, controller) {
-                                      return const Text('Reload Repositories');
+                                      return Text('extension-repo.reload'.i18n);
                                     },
                                     child: FButton.icon(
                                       onPress: () async {
@@ -136,7 +147,7 @@ class ExtensionView extends HookConsumerWidget {
                                 //   style: overrideTheme.style,
                                 // ).call,
                                 label: Text(
-                                  'Search extensions ',
+                                  'extension.search_extensions'.i18n,
                                   style: TextStyle(fontSize: 14),
                                 ),
 
@@ -150,7 +161,7 @@ class ExtensionView extends HookConsumerWidget {
                                     child: Icon(FIcons.search, size: 16),
                                   );
                                 },
-                                hint: "Search by Name or Tags ...",
+                                hint: "extension.search_hint".i18n,
                                 control: .managed(
                                   controller: textController,
                                   onChange: (value) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -72,9 +73,9 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
       return Center(
         child: Column(
           children: [
-            const Text('Error: No episodes found'),
+            Text('no_episodes_found'.i18n),
             FButton.icon(
-              child: const Text('back'),
+              child: Text('back'.i18n),
               onPress: () {
                 context.pop();
               },
@@ -174,7 +175,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     onPress: () {
                       context.pop();
                     },
-                    child: Text('Return'),
+                    child: Text('return_text'.i18n),
                   ),
                 ),
               ),

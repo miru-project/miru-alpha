@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:forui/forui.dart';
@@ -56,13 +57,13 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
           }, []);
           return switch (index.value) {
             0 => SnapSheetHeader(
-              title: 'Library',
+              title: 'library'.i18n,
               suffix: [
                 FButton.icon(
                   variant: .ghost,
                   onPress: () {
                     iconsMessageToast(
-                      title: 'Web Dav sync (WIP)',
+                      title: 'web_dav_sync_wip'.i18n,
                       icon: FIcons.construction,
                     );
                   },
@@ -70,9 +71,9 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                 ),
               ],
             ),
-            1 => SnapSheetHeader(title: 'History'),
+            1 => SnapSheetHeader(title: 'history'.i18n),
             2 => SnapSheetHeader(
-              title: 'Favorite',
+              title: 'favorite'.i18n,
               suffix: [
                 FTappable(
                   onPress: () {
@@ -108,7 +109,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                         ),
                       );
                       if (favGrp.isEmpty) {
-                        return FBadge(child: Text('All'));
+                        return FBadge(child: Text('all'.i18n));
                       }
                       return Wrap(
                         spacing: 3,
@@ -122,7 +123,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                 ),
               ],
             ),
-            3 => SnapSheetHeader(title: 'Download'),
+            3 => SnapSheetHeader(title: 'download'.i18n),
             _ => const SizedBox.shrink(),
           };
         },
@@ -156,7 +157,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                       child: Padding(
                         padding: .symmetric(horizontal: 10),
                         child: FTileGroup(
-                          label: Text('Tracking'),
+                          label: Text('tracking'.i18n),
                           children: [
                             FTile(
                               prefix: SvgPicture.string(
@@ -166,11 +167,11 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                                   .srcIn,
                                 ),
                               ),
-                              title: Text('Anilist'),
+                              title: Text('anilist'.i18n),
                               suffix: Icon(FIcons.chevronRight),
                               onPress: () {
                                 iconsMessageToast(
-                                  title: 'WIP',
+                                  title: 'wip'.i18n,
                                   icon: FIcons.construction,
                                 );
                               },
@@ -224,7 +225,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                                         ),
                                         child: Icon(FIcons.history),
                                       ),
-                                  hint: 'Search for Histories...',
+                                  hint: 'search_for_histories'.i18n,
                                 );
                               },
                             ),
@@ -234,9 +235,9 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                               return Padding(
                                 padding: .symmetric(horizontal: 10),
                                 child: CategoryMultiGroup(
-                                  title: 'Type',
-                                  initialValue: {'Video', 'Manga', 'Novel'},
-                                  items: ['Video', 'Manga', 'Novel'],
+                                  title: 'type',
+                                  initialValue: {'video', 'manga', 'novel'},
+                                  items: ['video', 'manga', 'novel'],
                                   onpress: (val) {
                                     final Set<ExtensionType> type = {};
                                     for (var element in val) {
@@ -301,7 +302,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                                         ),
                                         child: Icon(FIcons.heart),
                                       ),
-                                  hint: 'Search for Favorites...',
+                                  hint: 'search_for_favorites'.i18n,
                                   // onTapOutside: (event) {
                                   //   FocusScope.of(context).unfocus();
                                   // },
@@ -314,9 +315,9 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                               return Padding(
                                 padding: .symmetric(horizontal: 10),
                                 child: CategoryMultiGroup(
-                                  title: 'Type',
-                                  initialValue: {'Video', 'Manga', 'Novel'},
-                                  items: ['Video', 'Manga', 'Novel'],
+                                  title: 'type'.i18n,
+                                  initialValue: {'video', 'manga', 'novel'},
+                                  items: ['video', 'manga', 'novel'],
                                   onpress: (val) {
                                     final Set<ExtensionType> type = {};
                                     for (var element in val) {
@@ -402,8 +403,8 @@ class DesktopLibraryPage extends HookConsumerWidget {
         SliverToBoxAdapter(
           child: SnapSheetHeader(
             padding: EdgeInsets.fromLTRB(40, 40, 40, 20),
-            title: 'Your Library',
-            description: 'Pick up where you left off or manage your downloads.',
+            title: 'your_library'.i18n,
+            description: 'library_description'.i18n,
           ),
         ),
         SliverToBoxAdapter(

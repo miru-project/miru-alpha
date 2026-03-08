@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/pages/setting/widget/setting_base_tile.dart';
 
 class SettingsInputTile extends StatelessWidget with FTileMixin {
@@ -28,8 +29,8 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
   Widget build(BuildContext context) {
     if (isMobileLayout) {
       return FTile(
-        title: Text(title),
-        subtitle: Text(subtitle),
+        title: Text(title.i18n),
+        subtitle: Text(subtitle.i18n),
         details: Text(initialValue),
         onPress: () {
           showFDialog(
@@ -50,18 +51,18 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
             builder: (context, style, animation) => FDialog(
               style: style,
               animation: animation,
-              title: const Text('TMDB Api keys (WIP)'),
-              body: Form(child: FTextField(hint: 'Enter your TMDB Api keys')),
+              title: Text('tmdb_api_key_wip'.i18n),
+              body: Form(child: FTextField(hint: 'enter_tmdb_api_key'.i18n)),
               actions: [
                 FButton(
                   size: .sm,
-                  child: const Text('Confirm'),
+                  child: Text('confirm'.i18n),
                   onPress: () => Navigator.of(context).pop(),
                 ),
                 FButton(
                   size: .sm,
                   variant: .outline,
-                  child: const Text('Cancel'),
+                  child: Text('cancel'.i18n),
                   onPress: () => Navigator.of(context).pop(),
                 ),
               ],

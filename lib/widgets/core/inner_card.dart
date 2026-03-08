@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 
 class InnerCard extends StatelessWidget {
@@ -27,9 +28,9 @@ class InnerCard extends StatelessWidget {
               child: Row(
                 children: [
                   FLabel(
-                    description: subtitle == null ? null : Text(subtitle!),
+                    description: subtitle == null ? null : Text(subtitle!.i18n),
                     axis: Axis.vertical,
-                    child: Text(title),
+                    child: Text(title.i18n),
                   ),
                   if (trailing != null) ...[Spacer(), trailing!],
                 ],

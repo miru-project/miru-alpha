@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:forui/widgets/label.dart';
+import 'package:forui/forui.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 
-class SettingBaseTile extends StatelessWidget {
+class SettingBaseTile extends StatelessWidget with FTileMixin {
   const SettingBaseTile({
     super.key,
+    this.subtitle,
     required this.title,
-    required this.subtitle,
     required this.child,
   });
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final Widget child;
   @override
   Widget build(BuildContext context) {
@@ -20,9 +21,9 @@ class SettingBaseTile extends StatelessWidget {
           Expanded(
             child: FLabel(
               axis: Axis.vertical,
-              description: Text(subtitle),
+              description: subtitle == null ? null : Text(subtitle!.i18n),
               child: Text(
-                title,
+                title.i18n,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ),

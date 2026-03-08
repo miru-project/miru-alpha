@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -26,10 +27,10 @@ class DesktopSearchListTile extends HookConsumerWidget {
             return FDialog(
               animation: animation,
               direction: Axis.horizontal,
-              title: Text('Uninstall ${ext.name}?'),
+              title: Text('extension.uninstall_confirm'.fill({'name': ext.name})),
               body: FCheckbox(
-                label: const Text(
-                  'Do not show again  this dialog when try to uninstall',
+                label: Text(
+                  'extension.do_not_show_again'.i18n,
                 ),
 
                 value: checkboxVal.value,
@@ -45,7 +46,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
                 FButton(
                   variant: .outline,
                   onPress: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
+                  child: Text('cancel'.i18n),
                 ),
                 FButton(
                   onPress: () {
@@ -53,7 +54,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
                     notifier.uninstallPackage(ext.packageName);
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Continue'),
+                  child: Text('continue_text'.i18n),
                 ),
               ],
             );
@@ -68,10 +69,10 @@ class DesktopSearchListTile extends HookConsumerWidget {
     final res = await notifier.uninstallPackage(ext.packageName);
 
     if (res != null) {
-      showSimpleToast("Uninstall Success");
+      showSimpleToast("extension.uninstall_success".i18n);
       return;
     }
-    showSimpleToast("Install Failed: \n  $res");
+    showSimpleToast("${"extension.uninstall_failed".i18n}: \n  $res");
   }
 
   @override
@@ -92,7 +93,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
               ),
               FTile(
                 prefix: const Icon(FIcons.trash),
-                title: const Text('Uninstall'),
+                title: Text('extension.uninstall'.i18n),
                 onPress: () {
                   // final context = RouterUtil.rootNavigatorKey.currentContext;
                   // if (context == null) return;
@@ -109,7 +110,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
               ),
               FTile(
                 prefix: const Icon(FIcons.bolt),
-                title: const Text("Setting (WIP)"),
+                title: Text("extension.setting_wip".i18n),
                 onPress: () {},
               ),
             ],

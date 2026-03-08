@@ -50,31 +50,31 @@ class _MainPageState extends ConsumerState<MainPage>
   // late TabController _tabController;
   late final MainController c;
   static const List<NavItem> _navItems = [
-    NavItem(text: 'Home', icon: Icons.home_outlined),
-    NavItem(text: 'Search', icon: Icons.explore_outlined),
-    NavItem(text: 'Extension', icon: Icons.extension_outlined),
-    NavItem(text: 'Settings', icon: Icons.settings_outlined),
+    NavItem(text: 'home', icon: Icons.home_outlined),
+    NavItem(text: 'search', icon: Icons.explore_outlined),
+    NavItem(text: 'extension.name', icon: Icons.extension_outlined),
+    NavItem(text: 'settings', icon: Icons.settings_outlined),
   ];
 
   static final List<FIconNavItem> _fIconNavItem = [
-    FIconNavItem(text: 'Home', icon: FIcons.house, page: "/home"),
-    FIconNavItem(text: 'History', icon: FIcons.history, page: "/home/history"),
+    FIconNavItem(text: 'home', icon: FIcons.house, page: "/home"),
+    FIconNavItem(text: 'history', icon: FIcons.history, page: "/home/history"),
     FIconNavItem(
-      text: 'Favorite',
+      text: 'favorite.name',
       icon: FIcons.bookHeart,
       page: "/home/favorite",
     ),
     // FIconNavItem(text: 'Tracking', icon: Icons.extension_outlined, selectIcon: Icons.extension),
     // FIconNavItem(text: 'Settings', icon: FIcons.settings, selectIcon: Icons.settings),
     FIconNavItem(
-      text: 'Download',
+      text: 'download',
       icon: FIcons.download,
       page: "/home/download",
     ),
-    FIconNavItem(text: 'Search', icon: FIcons.search, page: "/search"),
-    FIconNavItem(text: 'Extension', icon: FIcons.blocks, page: "/extension"),
+    FIconNavItem(text: 'search', icon: FIcons.search, page: "/search"),
+    FIconNavItem(text: 'extension', icon: FIcons.blocks, page: "/extension"),
     FIconNavItem(
-      text: 'Settings',
+      text: 'settings',
       icon: FIcons.settings,
       subItems: _fIconSettingSubItem,
     ),
@@ -91,11 +91,22 @@ class _MainPageState extends ConsumerState<MainPage>
     SideBarName.about: FIcons.inbox,
     SideBarName.tracking: FIcons.arrowUpDown,
   };
+  static const sideBarTranslationMap = <SideBarName, String>{
+    SideBarName.general: 'general',
+    SideBarName.extension: 'extension.name',
+    SideBarName.player: 'player',
+    SideBarName.miruCore: 'miru_core',
+    SideBarName.reader: 'reader',
+    SideBarName.advanced: 'advanced',
+    SideBarName.about: 'about',
+    SideBarName.tracking: 'tracking',
+    SideBarName.download: 'download',
+  };
 
   static final List<FIconNavItem> _fIconSettingSubItem = [
     for (var item in SideBarName.values)
       FIconNavItem(
-        text: item.name[0].toUpperCase() + item.name.substring(1),
+        text: sideBarTranslationMap[item]!,
         icon: sideBarIconMap[item]!,
         page: "/settings/${item.name}",
       ),
@@ -128,11 +139,8 @@ class _MainPageState extends ConsumerState<MainPage>
           showFDialog(
             context: context,
             builder: (context, _, _) => FDialog(
-              title: const Text('Download Directory'),
-              body: const Text(
-                'Please select a target directory for your downloads. '
-                'On Android, this will use the Storage Access Framework.',
-              ),
+              title: Text('download_directory'.i18n),
+              body: Text('select_download_directory'.i18n),
               actions: [
                 FButton(
                   onPress: () async {
@@ -146,7 +154,7 @@ class _MainPageState extends ConsumerState<MainPage>
                       if (context.mounted) Navigator.of(context).pop();
                     }
                   },
-                  child: const Text('Select Directory'),
+                  child: Text('select_directory'.i18n),
                 ),
               ],
             ),
@@ -174,7 +182,7 @@ class _MainPageState extends ConsumerState<MainPage>
               },
               children: [
                 FBottomNavigationBarItem(
-                  label: Text(_navItems[0].text),
+                  label: Text(_navItems[0].text.i18n),
                   icon: HomeIcon(
                     color: selected.value == 0
                         ? themeData.colors.primary
@@ -183,7 +191,7 @@ class _MainPageState extends ConsumerState<MainPage>
                   ),
                 ),
                 FBottomNavigationBarItem(
-                  label: Text(_navItems[1].text),
+                  label: Text(_navItems[1].text.i18n),
                   icon: CompassIcon(
                     color: selected.value == 1
                         ? themeData.colors.primary
@@ -192,7 +200,7 @@ class _MainPageState extends ConsumerState<MainPage>
                   ),
                 ),
                 FBottomNavigationBarItem(
-                  label: Text(_navItems[2].text),
+                  label: Text(_navItems[2].text.i18n),
                   icon: BlocksPathLoopIcon(
                     color: selected.value == 2
                         ? themeData.colors.primary
@@ -201,7 +209,7 @@ class _MainPageState extends ConsumerState<MainPage>
                   ),
                 ),
                 FBottomNavigationBarItem(
-                  label: Text(_navItems[3].text),
+                  label: Text(_navItems[3].text.i18n),
                   icon: SettingsIcon(
                     color: selected.value == 3
                         ? themeData.colors.primary
@@ -227,7 +235,7 @@ class _MainPageState extends ConsumerState<MainPage>
                     child: Row(
                       children: [
                         Text(
-                          "Miru",
+                          "miru".i18n,
                           style: TextStyle(
                             fontSize: 30,
                             fontWeight: FontWeight.bold,
@@ -240,7 +248,7 @@ class _MainPageState extends ConsumerState<MainPage>
                             top: 15,
                           ),
                           child: Text(
-                            "Alpha",
+                            "alpha".i18n,
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
@@ -281,7 +289,7 @@ class _MainPageState extends ConsumerState<MainPage>
                             spacing: 2,
                             children: [
                               Text(
-                                'WebDav',
+                                'webdav'.i18n,
                                 style: context.theme.typography.sm.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: context.theme.colors.foreground,
@@ -289,7 +297,7 @@ class _MainPageState extends ConsumerState<MainPage>
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                'Signin',
+                                'signin'.i18n,
                                 style: context.theme.typography.xs.copyWith(
                                   color: context.theme.colors.mutedForeground,
                                 ),
@@ -309,12 +317,19 @@ class _MainPageState extends ConsumerState<MainPage>
                 builder: (context) {
                   final selectedIndex = useState("");
                   return FSidebarGroup(
-                    label: const Text('Overview'),
+                    label: Text(
+                      'overview'.i18n,
+                      style: TextStyle(
+                        // fontFamily: 'Noto Sans CJK TC', // Be explicit
+                        fontWeight: FontWeight.w400,
+                        textBaseline: TextBaseline.alphabetic,
+                      ),
+                    ),
                     children: [
                       for (var i = 0; i < _fIconNavItem.length; i++) ...[
                         FSidebarItem(
                           initiallyExpanded: true,
-                          label: Text(_fIconNavItem[i].text),
+                          label: Text(_fIconNavItem[i].text.i18n),
                           icon: Icon(_fIconNavItem[i].icon),
                           onPress: () {
                             // widget.child.goBranch(i);
@@ -330,7 +345,7 @@ class _MainPageState extends ConsumerState<MainPage>
                                     .map(
                                       (e) => FSidebarItem(
                                         selected: e.text == selectedIndex.value,
-                                        label: Text(e.text),
+                                        label: Text(e.text.i18n),
                                         icon: Icon(e.icon),
                                         onPress: () {
                                           if (e.page != null) {

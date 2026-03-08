@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:forui_hooks/forui_hooks.dart';
@@ -32,12 +33,12 @@ class CategoryGroup extends HookWidget {
           onpress(value.first);
         },
       ),
-      label: title == null ? null : Text(title!),
+      label: title == null ? null : Text(title!.i18n),
 
       children: List.generate(
         items.length,
         (index) =>
-            FSelectTile<String>(title: Text(items[index]), value: items[index]),
+            FSelectTile<String>(title: Text(items[index].i18n), value: items[index]),
       ),
     );
   }
@@ -72,12 +73,12 @@ class CategoryMultiGroup extends HookWidget {
           onpress(value);
         },
       ),
-      label: title == null ? null : Text(title!),
+      label: title == null ? null : Text(title!.i18n),
 
       children: List.generate(
         items.length,
         (index) =>
-            FSelectTile<String>(title: Text(items[index]), value: items[index]),
+            FSelectTile<String>(title: Text(items[index].i18n), value: items[index]),
       ),
     );
   }

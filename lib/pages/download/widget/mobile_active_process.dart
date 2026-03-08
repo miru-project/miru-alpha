@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
 import 'package:miru_alpha/widgets/error.dart';
@@ -13,7 +14,7 @@ class MobileActiveDownloadSection extends ConsumerWidget {
     final state = ref.watch(downloadProvider);
     return state.when(
       data: (data) => FTileGroup.builder(
-        label: const Text("Active Tasks"),
+        label: Text("active_tasks".i18n),
         count: data.active.length,
         tileBuilder: (context, index) {
           final item = data.active[index];

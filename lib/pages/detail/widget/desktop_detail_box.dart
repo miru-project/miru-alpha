@@ -1,4 +1,5 @@
 import 'package:extended_image/extended_image.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -50,7 +51,7 @@ class DetailDesktopBox extends HookConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (favorite != null) FBadge(child: Text('Favorited')),
+                if (favorite != null) FBadge(child: Text('favorited'.i18n)),
                 const SizedBox(height: 10),
                 if (isTablet)
                   SizedBox(
@@ -99,9 +100,9 @@ class DetailDesktopBox extends HookConsumerWidget {
                   children: [
                     FAccordionItem(
                       initiallyExpanded: true,
-                      title: Text("Description"),
+                      title: Text("extension.description".i18n),
                       child: Text(
-                        detail.desc ?? "Currently no description ... ",
+                        detail.desc ?? "no_description".i18n,
                         style: TextStyle(
                           fontSize: 15,
                           color: context.theme.colors.mutedForeground,
@@ -116,7 +117,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                     FButton(
                       suffix: Icon(FIcons.play),
                       onPress: () {},
-                      child: Text("Play"),
+                      child: Text("video_player.play".i18n),
                     ),
 
                     SizedBox(width: 15),
@@ -151,7 +152,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                           ),
                         );
                       },
-                      child: Text("Favorite"),
+                      child: Text("favorite.title".i18n),
                     ),
                     SizedBox(width: 15),
                     FButton(
@@ -163,7 +164,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                           extra: WebviewParam(meta: meta, url: detailUrl),
                         );
                       },
-                      child: Text("WebView"),
+                      child: Text("webview".i18n),
                     ),
                   ],
                 ),

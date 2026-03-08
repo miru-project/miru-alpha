@@ -1,5 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/widgets/core/image_widget.dart';
 
@@ -55,8 +56,8 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
                     children: [
                       Text(widget.type),
                       if (widget.isNSFW)
-                        const Text(
-                          ' • NSFW',
+                        Text(
+                          ' • ${'extension.nsfw'.i18n}',
                           style: TextStyle(color: Colors.red),
                         ),
                     ],
@@ -120,7 +121,7 @@ class ExtensionGridTile extends StatelessWidget {
         .map((e) => FBadge(variant: .outline, child: Text(e)))
         .toList();
     if (isNSFW) {
-      badges.add(FBadge(variant: .destructive, child: Text('NSFW')));
+      badges.add(FBadge(variant: .destructive, child: Text('extension.nsfw'.i18n)));
     }
     return Center(
       child: SizedBox(
@@ -190,11 +191,11 @@ class ExtensionGridTile extends StatelessWidget {
                         child: FButton(
                           onPress: onUninstall,
                           prefix: Icon(FIcons.trash2),
-                          child: Text('Uninstall'),
+                          child: Text('extension.uninstall'.i18n),
                         ),
                       ),
                       FTooltip(
-                        tipBuilder: (context, controller) => Text('Settings'),
+                        tipBuilder: (context, controller) => Text('settings'.i18n),
                         child: FButton.icon(
                           variant: .secondary,
                           onPress: () {},
@@ -207,7 +208,7 @@ class ExtensionGridTile extends StatelessWidget {
                   FButton(
                     onPress: onInstall,
                     prefix: Icon(FIcons.download),
-                    child: Text('Install'),
+                    child: Text('install'.i18n),
                   ),
               ],
             ),

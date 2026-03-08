@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -69,7 +70,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
                     children: [
                       FTile(
                         prefix: Icon(FIcons.bookX),
-                        title: Text('Remove  History'),
+                        title: Text('remove_history'.i18n),
                         onPress: () {
                           ref
                               .read(historyPageProvider.notifier)
@@ -89,12 +90,12 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
       ),
       desktopWidget: CustomScrollView(
         slivers: [
-          const SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             sliver: SliverToBoxAdapter(
               child: Text(
-                "History",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                "history".i18n,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
               ),
             ),
           ),

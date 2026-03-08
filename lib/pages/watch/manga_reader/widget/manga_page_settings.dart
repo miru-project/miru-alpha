@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/model.dart';
@@ -12,12 +13,12 @@ class MangaPageSetting extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FTileGroup(
-      label: Text('Page Settings'),
+      label: Text('manga_reader.page_settings'.i18n),
       children: [
         SettingsRadiosTile(
           isMobileLayout: true,
-          title: 'ReadMode',
-          subtitle: 'ReadMode',
+          title: 'manga_reader.read_mode'.i18n,
+          subtitle: 'manga_reader.read_mode'.i18n,
           radios: MangaReadMode.values.map((e) => e.name).toList(),
           value: MiruSettings.getSettingSync(SettingKey.mangaReadingMode),
           onChanged: (val) {

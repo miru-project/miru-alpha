@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/pages/setting/widget/setting_base_tile.dart';
 
 class SettingsRadiosTile extends HookWidget with FTileMixin {
@@ -52,15 +53,19 @@ class SettingsRadiosTile extends HookWidget with FTileMixin {
           if (val.isEmpty) {
             val.add(selected.value);
           }
-          return Text(val.first.toString());
+          return Text(val.first.toString().i18n);
         },
-        subtitle: Text(subtitle),
+        subtitle: Text(subtitle.i18n),
         menu: (entry == null)
-            ? radios.map((e) => FSelectTile(title: Text(e), value: e)).toList()
+            ? radios
+                  .map((e) => FSelectTile(title: Text(e.i18n), value: e))
+                  .toList()
             : entry!
-                  .map((e) => FSelectTile(title: Text(e.title), value: e.value))
+                  .map(
+                    (e) => FSelectTile(title: Text(e.title.i18n), value: e.value),
+                  )
                   .toList(),
-        title: Text(title),
+        title: Text(title.i18n),
       );
     }
     return SettingBaseTile(
@@ -76,8 +81,8 @@ class SettingsRadiosTile extends HookWidget with FTileMixin {
           },
         ),
         items: (entry == null)
-            ? {for (final item in radios) item: item}
-            : {for (final e in entry!) e.value: e.title},
+            ? {for (final item in radios) item.i18n: item}
+            : {for (final e in entry!) e.title.i18n: e.value},
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/pages/watch/video_player/widget/player_button.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/widgets/index.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -128,19 +129,19 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
                       builder: (context, style, animation) => FDialog(
                         style: style,
                         animation: animation,
-                        title: const Text('Are you absolutely sure?'),
-                        body: const Text(
-                          'This action cannot be undone. This will permanently delete your account and remove your data from our servers.',
+                        title: Text('video_player.settings_placeholder_title'.i18n),
+                        body: Text(
+                          'video_player.settings_placeholder_body'.i18n,
                         ),
                         actions: [
                           FButton(
                             onPress: () => Navigator.of(context).pop(),
-                            child: const Text('Continue'),
+                             child: Text('continue_text'.i18n),
                           ),
                           FButton(
                             variant: .outline,
                             onPress: () => Navigator.of(context).pop(),
-                            child: const Text('Cancel'),
+                             child: Text('cancel'.i18n),
                           ),
                         ],
                       ),

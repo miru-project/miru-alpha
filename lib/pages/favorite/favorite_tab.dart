@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -56,8 +57,11 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
           Row(
             children: [
               Text(
-                "Favorites",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                "favorite.title".i18n,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                ),
               ),
               const Spacer(),
               if (!isCreating.value)
@@ -68,12 +72,12 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                     textController.clear();
                     textFieldKey.value = UniqueKey();
                   },
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(FIcons.plus),
-                      SizedBox(width: 4),
-                      Text("New Tag"),
+                      const Icon(FIcons.plus),
+                      const SizedBox(width: 4),
+                      Text("new_tag".i18n),
                     ],
                   ),
                 ),
@@ -107,10 +111,44 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                         .filterWithType(type);
                   },
                   children: [
-                    FTabEntry(label: Text('All'), child: SizedBox.shrink()),
-                    FTabEntry(label: Text('Video'), child: SizedBox.shrink()),
-                    FTabEntry(label: Text('Manga'), child: SizedBox.shrink()),
-                    FTabEntry(label: Text('Novel'), child: SizedBox.shrink()),
+                    FTabEntry(
+                      label: Text(
+                        'all'.i18n,
+                        textHeightBehavior: TextHeightBehavior(
+                          applyHeightToFirstAscent: false,
+                          applyHeightToLastDescent: false,
+                        ),
+                      ),
+                      child: SizedBox.shrink(),
+                    ),
+                    FTabEntry(
+                      label: Text(
+                        'video'.i18n,
+                        textHeightBehavior: TextHeightBehavior(
+                          applyHeightToFirstAscent: false,
+                          applyHeightToLastDescent: false,
+                        ),
+                      ),
+                      child: SizedBox.shrink(),
+                    ),
+                    FTabEntry(
+                      label: Text('manga'.i18n),
+                      child: SizedBox.shrink(),
+                    ),
+                    FTabEntry(
+                      label: Text(
+                        'novel'.i18n,
+                        style: TextStyle(
+                          textBaseline: .ideographic,
+                          fontWeight: .w400,
+                        ),
+                        // textHeightBehavior: TextHeightBehavior(
+                        //   applyHeightToFirstAscent: false,
+                        //   applyHeightToLastDescent: false,
+                        // ),
+                      ),
+                      child: SizedBox.shrink(),
+                    ),
                   ],
                 ),
               ),
@@ -149,13 +187,13 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                       prefixBuilder: (context, style, states) => Padding(
                         padding: const .only(left: 14, right: 8),
                         child: Text(
-                          "Sort:",
+                          "sort_by".i18n,
                           style: style.emptyTextStyle.copyWith(
                             color: context.theme.colors.foreground,
                           ),
                         ),
                       ),
-                      hint: 'Time',
+                      hint: 'time'.i18n,
                       format: (s) => s,
                       children: [
                         for (final sort in [
@@ -165,7 +203,10 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                           'Month',
                           'Year',
                         ])
-                          FSelectItem(title: Text(sort), value: sort),
+                          FSelectItem(
+                            title: Text(sort.toLowerCase().i18n),
+                            value: sort,
+                          ),
                       ],
                     ),
                   ),
@@ -174,7 +215,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                     onPress: () {},
                     variant: .outline,
                     prefix: Icon(FIcons.listFilter),
-                    child: Text('More filter'),
+                    child: Text('more_filter'.i18n),
                   ),
                 ],
               ),

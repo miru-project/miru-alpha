@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/favorite_page_provider.dart';
@@ -32,13 +33,13 @@ class MobileAddFAVDialog extends ConsumerWidget {
             crossAxisAlignment: .start,
             mainAxisSize: .min,
             children: [
-              const Text(
-                'Manage Tags',
-                style: TextStyle(fontWeight: .bold, fontSize: 19),
+              Text(
+                'favorite.manage_tags'.i18n,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
               ),
               SizedBox(height: 5),
               Text(
-                'Organize your group by creating and managing favorite groups.',
+                'favorite.manage_tags_desc'.i18n,
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.2,
@@ -55,8 +56,8 @@ class MobileAddFAVDialog extends ConsumerWidget {
                           newFavGroupName = value.text;
                         },
                       ),
-                      label: Text('Add a new favorite group'),
-                      hint: 'Enter group name...',
+                      label: Text('favorite.add_new_group'.i18n),
+                      hint: 'favorite.enter_group_name'.i18n,
                     ),
                   ),
                   SizedBox(width: 10),
@@ -76,9 +77,9 @@ class MobileAddFAVDialog extends ConsumerWidget {
               ),
               SizedBox(height: 20),
               Text(
-                'CURRENT GROUPS',
+                'favorite.current_groups'.i18n,
                 style: TextStyle(
-                  fontWeight: .w500,
+                  fontWeight: FontWeight.w500,
                   fontSize: 15,
                   color: context.theme.colors.mutedForeground,
                 ),

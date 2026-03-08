@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -42,7 +43,7 @@ class DownloadButton extends StatelessWidget {
       variant: varient ?? .secondary,
       prefix: Icon(FIcons.download),
       onPress: () => onTap(context),
-      child: const Text('Download'),
+      child: Text('download'.i18n),
     );
   }
 
@@ -99,7 +100,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
           context: context,
           builder: (context, _, animation) => FDialog(
             animation: animation,
-            title: const Text('Select Resolution'),
+            title: Text('select_resolution'.i18n),
             body: SizedBox(
               width: 300,
               height: 300,
@@ -129,7 +130,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
               FButton(
                 variant: .outline,
                 onPress: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
+                child: Text('cancel'.i18n),
               ),
             ],
           ),
@@ -137,13 +138,13 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
         return;
       }
 
-      showSimpleToast('Download started');
+      showSimpleToast('download_started'.i18n);
       if (mounted) {
         Navigator.of(context).pop();
       }
     } catch (e) {
       logger.severe('Failed to start download: $e');
-      showSimpleToast('Failed to start download: $e');
+      showSimpleToast('${'failed_to_start_download'.i18n}: $e');
     }
   }
 
@@ -152,9 +153,9 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
     final episodes = widget.detail.episodes;
     return FDialog(
       animation: widget.animation,
-      title: const Text('Download'),
+      title: Text('download'.i18n),
       body: episodes == null || episodes.isEmpty
-          ? const Text('No episodes available')
+          ? Text('no_episodes'.i18n)
           : SizedBox(
               width: 500,
               height: 400,
@@ -202,7 +203,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                       "${progress.status} - ${(progress.progress / (progress.total == 0 ? 1 : progress.total) * 100).toStringAsFixed(1)}%",
                                     )
                                   : (isDownloaded
-                                        ? const Text("Downloaded")
+                                        ? Text("downloaded".i18n)
                                         : null),
                               suffix: isLoading
                                   ? const SizedBox(
@@ -234,7 +235,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                         if (videoWatch == null) {
                                           if (mounted) {
                                             showSimpleToast(
-                                              'Failed to fetch video URL',
+                                              'failed_to_fetch_video_url'.i18n,
                                             );
                                           }
                                           return;
@@ -276,7 +277,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
         FButton(
           variant: .outline,
           onPress: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text('cancel'.i18n),
         ),
       ],
     );

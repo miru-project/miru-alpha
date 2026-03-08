@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/widgets/index.dart';
 
@@ -22,7 +23,7 @@ class _MiruLicensePageState extends State<MiruLicensePage> {
   @override
   Widget build(BuildContext context) {
     return MiruScaffold(
-      mobileHeader: SnapSheetNested.back(title: 'License'),
+      mobileHeader: SnapSheetNested.back(title: 'licenses'.i18n),
       body: FutureBuilder<List<LicenseEntry>>(
         future: _licensesFuture,
         builder: (context, snapshot) {
@@ -31,11 +32,11 @@ class _MiruLicensePageState extends State<MiruLicensePage> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('${'error'.i18n}: ${snapshot.error}'));
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No licenses found'));
+            return Center(child: Text('no_licenses_found'.i18n));
           }
 
           final licenses = snapshot.data!;
@@ -61,7 +62,7 @@ class _MiruLicensePageState extends State<MiruLicensePage> {
 
               return FTile(
                 title: Text(packageName),
-                subtitle: Text('${paragraphs.length} paragraphs'),
+                subtitle: Text('${paragraphs.length} ${'paragraphs'.i18n}'),
                 onPress: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(

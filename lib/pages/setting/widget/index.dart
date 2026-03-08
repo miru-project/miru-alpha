@@ -1,5 +1,6 @@
 export 'settings_input_tile.dart';
 export 'settings_toggle_tile.dart';
 export 'settings_radios_tile.dart';
-export 'setting_dialog.dart';
 export 'setting_group.dart';
+export 'setting_scaffold.dart';
+export 'setting_base_tile.dart';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/widgets/core/outter_card.dart';
 
 class SettingGroup extends StatelessWidget {
@@ -18,10 +19,10 @@ class SettingGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isMobileLayout) {
-      return FTileGroup(label: Text(title), children: children);
+      return FTileGroup(label: Text(title.i18n), children: children);
     }
     return OutterCard(
-      title: title,
+      title: title.i18n,
       trailing: trailing,
       child: Column(children: _withDividers(children)),
     );

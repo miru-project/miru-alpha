@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/widgets/index.dart';
 
 class SettingScaffold extends StatelessWidget {
@@ -11,7 +12,7 @@ class SettingScaffold extends StatelessWidget {
     return MiruScaffold(
       resizeToAvoidBottomInset: false,
       mobileHeader: SnapSheetNested(
-        title: title,
+        title: title.i18n,
         prefix: [
           GestureDetector(
             onTap: () {

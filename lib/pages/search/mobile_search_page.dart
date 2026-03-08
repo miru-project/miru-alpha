@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -29,7 +30,7 @@ class MobileSearchPage extends HookConsumerWidget {
       sheetController: sheetController,
       mobileHeader: Row(
         children: [
-          const SnapSheetHeader(title: 'Search'),
+          SnapSheetHeader(title: 'search'.i18n),
           const Spacer(),
           HookBuilder(
             builder: (context) {
@@ -69,7 +70,7 @@ class MobileSearchPage extends HookConsumerWidget {
             // onTapOutside: (event) {
             //   FocusScope.of(context).unfocus();
             // },
-            hint: "Search by Keywords ...",
+            hint: "search_by_keywords".i18n,
             prefixBuilder: (context, style, states) => Padding(
               padding: EdgeInsetsGeometry.only(left: 12, right: 10),
               child: Icon(FIcons.search),
@@ -82,18 +83,18 @@ class MobileSearchPage extends HookConsumerWidget {
           child: FTabs(
             children: [
               FTabEntry(
-                label: Text('Type'),
+                label: Text('type'.i18n),
                 child: CategoryMultiGroup(
-                  items: ['Bangumi', 'Manga', 'Novel'],
+                  items: ['bangumi', 'manga', 'novel'],
                   onpress: (val) {},
                 ),
               ),
               FTabEntry(
-                label: Text('Language'),
+                label: Text('language'.i18n),
                 child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
               ),
               FTabEntry(
-                label: Text('Extension'),
+                label: Text('extension'.i18n),
                 child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
               ),
             ],
@@ -107,8 +108,8 @@ class MobileSearchPage extends HookConsumerWidget {
                 if (containedPinned.isNotEmpty)
                   SliverToBoxAdapter(
                     child: FTileGroup(
-                      label: Text('Pinned'),
-                      description: Text('Pinned extensions '),
+                      label: Text('extension.pinned'.i18n),
+                      description: Text('extension.pinned_extensions'.i18n),
                       children: List.generate(containedPinned.length, (index) {
                         {
                           final ext = containedPinned.elementAt(index);
@@ -157,8 +158,8 @@ class MobileSearchPage extends HookConsumerWidget {
                 if (metaData.isNotEmpty)
                   SliverToBoxAdapter(
                     child: FTileGroup(
-                      label: Text('Extension'),
-                      description: Text('Extensions that already installed'),
+                      label: Text('extension'.i18n),
+                      description: Text('extension.extensions_installed_desc'.i18n),
                       children: List.generate(metaData.length, (index) {
                         final ext = metaData[index];
                         return FTile(
@@ -217,8 +218,8 @@ class MobileSearchPage extends HookConsumerWidget {
                   SliverToBoxAdapter(
                     child: Center(
                       child: Text(
-                        'No extensions installed',
-                        style: TextStyle(fontWeight: .bold, fontSize: 20),
+                        'extension.no_extensions_installed'.i18n,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                       ),
                     ),
                   ),

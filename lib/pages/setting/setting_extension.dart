@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -31,7 +32,7 @@ class MobileRepoDialog extends HookConsumerWidget {
         style: .delta(),
         animation: animation,
         direction: Axis.horizontal,
-        title: const Text('Add Repo?', style: TextStyle(fontSize: 25)),
+        title: Text('extension-repo.add_repo'.i18n, style: TextStyle(fontSize: 25)),
         body: Padding(
           padding: EdgeInsetsGeometry.only(top: 20, bottom: 10),
           child: Form(
@@ -39,15 +40,15 @@ class MobileRepoDialog extends HookConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 FTextFormField(
-                  label: Text('Name'),
+                  label: Text('name'.i18n),
                   control: FTextFieldControl.managed(
                     initial: TextEditingValue(text: name.value),
                     onChange: (value) => name.value = value.text,
                   ),
                   autovalidateMode: AutovalidateMode.always,
-                  hint: 'Official Repo',
+                  hint: 'extension-repo.official_repo'.i18n,
                   validator: (val) =>
-                      (val?.isEmpty ?? false) ? 'Name cannot be empty' : null,
+                      (val?.isEmpty ?? false) ? 'extension-repo.name_cannot_be_empty'.i18n : null,
                 ),
                 SizedBox(height: 10),
                 FTextFormField(
@@ -55,12 +56,12 @@ class MobileRepoDialog extends HookConsumerWidget {
                     initial: TextEditingValue(text: url.value),
                     onChange: (value) => url.value = value.text,
                   ),
-                  label: Text('Repo URL'),
+                  label: Text('extension-repo.url'.i18n),
                   hint: 'https://miru-repo.0n0.dev/index.json',
                   autovalidateMode: AutovalidateMode.always,
                   validator: (value) => (value?.contains('.json') ?? false)
                       ? null
-                      : 'Repo url must contain .json extension.',
+                      : 'extension-repo.url_validation_error'.i18n,
                 ),
               ],
             ),
@@ -79,12 +80,12 @@ class MobileRepoDialog extends HookConsumerWidget {
                     }
                     Navigator.of(context).pop();
                   },
-            child: const Text('Save'),
+            child: Text('save'.i18n),
           ),
           FButton(
             variant: .outline,
             onPress: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text('cancel'.i18n),
           ),
         ],
       ),
@@ -104,7 +105,7 @@ class RepoDialog extends HookConsumerWidget {
       style: style,
       animation: animation,
       direction: Axis.horizontal,
-      title: const Text('Add Repo?'),
+      title: Text('extension-repo.add_repo'.i18n),
       body: Form(
         child: Padding(
           padding: EdgeInsetsGeometry.all(10),
@@ -115,11 +116,11 @@ class RepoDialog extends HookConsumerWidget {
                   initial: TextEditingValue(text: name.value),
                   onChange: (value) => name.value = value.text,
                 ),
-                label: Text('Name'),
+                label: Text('name'.i18n),
                 autovalidateMode: AutovalidateMode.always,
-                hint: 'Official Repo',
+                hint: 'extension-repo.official_repo'.i18n,
                 validator: (val) =>
-                    (val?.isEmpty ?? false) ? 'Name cannot be empty' : null,
+                    (val?.isEmpty ?? false) ? 'extension-repo.name_cannot_be_empty'.i18n : null,
               ),
               const SizedBox(height: 10),
               FTextFormField(
@@ -127,12 +128,12 @@ class RepoDialog extends HookConsumerWidget {
                   initial: TextEditingValue(text: url.value),
                   onChange: (value) => url.value = value.text,
                 ),
-                label: Text('Repo URL'),
+                label: Text('extension-repo.url'.i18n),
                 hint: 'https://miru-repo.0n0.dev/index.json',
                 autovalidateMode: AutovalidateMode.always,
                 validator: (value) => (value?.contains('.json') ?? false)
                     ? null
-                    : 'Repo url must contain .json extension.',
+                    : 'extension-repo.url_validation_error'.i18n,
               ),
             ],
           ),
@@ -151,12 +152,12 @@ class RepoDialog extends HookConsumerWidget {
                   }
                   Navigator.of(context).pop();
                 },
-          child: const Text('Save'),
+          child: Text('save'.i18n),
         ),
         FButton(
           variant: .outline,
           onPress: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text('cancel'.i18n),
         ),
       ],
     );
@@ -233,8 +234,11 @@ class SettingExtension extends HookConsumerWidget {
           direction: Axis.horizontal,
           style: style,
           animation: animation,
-          title: const Text('Are you absolutely sure?'),
-          body: Text('Remove ${selected.toString()} from repo?'),
+          body: Text(
+            'extension-repo.remove_confirm_with_name'.fill({
+              'name': selected.toString(),
+            }),
+          ),
           actions: [
             FButton(
               onPress: () async {
@@ -249,12 +253,12 @@ class SettingExtension extends HookConsumerWidget {
                 ref.read(extensionRepoProvider);
                 Navigator.of(context).pop();
               },
-              child: const Text('Continue'),
+              child: Text('continue_text'.i18n),
             ),
             FButton(
               variant: .outline,
               onPress: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text('cancel'.i18n),
             ),
           ],
         );
@@ -272,12 +276,12 @@ class SettingExtension extends HookConsumerWidget {
         if (isMobile)
           reposAsync.when(
             loading: () => const Center(child: FCircularProgress()),
-            error: (err, st) => Text('Error loading repos: $err'),
+            error: (err, st) => Text('extension-repo.load_error'.fill({'error': err.toString()})),
             data: (repos) {
               // final selectController = useFSelectGroupController<String>();
               return FTileGroup(
                 // selectController: selectController,
-                label: Text('Repo Management'),
+                label: Text('extension-repo.management'.i18n),
                 children: [
                   ...repos.map((repo) {
                     final name = repo.name;
@@ -306,7 +310,7 @@ class SettingExtension extends HookConsumerWidget {
                   }),
                   if (selected.value.isEmpty)
                     FTile(
-                      title: Text('Add'),
+                      title: Text('add'.i18n),
                       prefix: Icon(FIcons.plus),
                       onPress: () {
                         showFDialog(
@@ -322,7 +326,7 @@ class SettingExtension extends HookConsumerWidget {
                     )
                   else
                     FTile(
-                      title: Text('Remove'),
+                      title: Text('extension.uninstall'.i18n),
                       prefix: Icon(FIcons.trash),
                       onPress: () {
                         showRepoRemoveDialog(context, ref, selected.value);
@@ -336,7 +340,7 @@ class SettingExtension extends HookConsumerWidget {
           )
         else
           OutterCard(
-            title: 'Repo Management',
+            title: 'extension-repo.management',
             trailing: isMobile
                 ? null
                 : Row(
@@ -348,7 +352,7 @@ class SettingExtension extends HookConsumerWidget {
                             ref,
                             selected.value,
                           ),
-                          child: const Text('Remove'),
+                          child: Text('extension.uninstall'.i18n),
                         ),
                         SizedBox(width: 10),
                       ],
@@ -375,13 +379,13 @@ class SettingExtension extends HookConsumerWidget {
                             );
                           },
                         ),
-                        child: const Text('Add'),
+                        child: Text('add'.i18n),
                       ),
                     ],
                   ),
             child: reposAsync.when(
               loading: () => const Center(child: FCircularProgress()),
-              error: (err, st) => Text('Error loading repos: $err'),
+              error: (err, st) => Text('extension-repo.load_error'.fill({'error': err.toString()})),
               data: (repos) {
                 if (isMobile) {
                   final selectController = useFMultiValueNotifier<String>();
@@ -426,7 +430,7 @@ class SettingExtension extends HookConsumerWidget {
                         Expanded(
                           flex: 2,
                           child: Text(
-                            "name",
+                            "name".i18n,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: context.theme.colors.mutedForeground,
@@ -437,7 +441,7 @@ class SettingExtension extends HookConsumerWidget {
                         Expanded(
                           flex: 3,
                           child: Text(
-                            "url",
+                            "extension-repo.url".i18n,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: context.theme.colors.mutedForeground,
@@ -448,9 +452,9 @@ class SettingExtension extends HookConsumerWidget {
                     ),
                     FDivider(),
                     if (repos.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text('No extension repositories found.'),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text('extension-repo.no_repos_found'.i18n),
                       )
                     else
                       ...buildSeparators(

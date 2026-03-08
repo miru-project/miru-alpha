@@ -1,4 +1,5 @@
 import 'package:extended_image/extended_image.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -71,7 +72,7 @@ class MiruMangaReader extends HookConsumerWidget {
             ),
             FTabEntry(
               label: Icon(FIcons.alignHorizontalJustifyEnd),
-              child: const Center(child: Text('Alignment Settings')),
+              child: Center(child: Text('manga_reader.alignment_settings'.i18n)),
             ),
             FTabEntry(
               label: Icon(FIcons.settings),

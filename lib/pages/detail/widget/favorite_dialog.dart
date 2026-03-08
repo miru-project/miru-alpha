@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -77,7 +78,7 @@ class FavoriteDialog extends HookConsumerWidget {
         ref.read(detailPr.notifier).putFavoriteGroup(groupsToUpdate);
         ref.read(favoritePageProvider.notifier).refreshFavoritesAndGroup();
         if (context.mounted) Navigator.of(context).pop();
-        if (context.mounted) showSimpleToast("Favorites updated");
+        if (context.mounted) showSimpleToast("favorites_updated".i18n);
       } catch (e) {
         debugPrint("Error saving favorite: $e");
         if (context.mounted) showSimpleToast("Error saving: $e");
@@ -104,14 +105,14 @@ class FavoriteDialog extends HookConsumerWidget {
     }
 
     return FDialog(
-      title: const Text("Add to Favorites"),
+      title: Text("add_to_favorites".i18n),
       body: Padding(
         padding: EdgeInsetsGeometry.only(top: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Select tags/groups for this item:"),
+            Text("select_tags_groups".i18n),
             const SizedBox(height: 10),
             Wrap(
               spacing: 3,
@@ -150,11 +151,11 @@ class FavoriteDialog extends HookConsumerWidget {
                         onChange: (val) =>
                             newGroupNameController.text = val.text,
                       ),
-                      hint: "Group Name",
+                      hint: "group_name".i18n,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  FButton(onPress: handleCreateGroup, child: const Text("Add")),
+                  FButton(onPress: handleCreateGroup, child: Text("add".i18n)),
                   const SizedBox(width: 8),
                   FButton(
                     variant: .ghost,
@@ -167,7 +168,7 @@ class FavoriteDialog extends HookConsumerWidget {
               FButton(
                 variant: .outline,
                 onPress: () => isCreatingGroup.value = true,
-                child: const Text("Create New Tag"),
+                child: Text("create_new_tag".i18n),
               ),
           ],
         ),
@@ -176,9 +177,9 @@ class FavoriteDialog extends HookConsumerWidget {
         FButton(
           variant: .ghost,
           onPress: () => Navigator.of(context).pop(),
-          child: const Text("Cancel"),
+          child: Text("cancel".i18n),
         ),
-        FButton(onPress: handleSave, child: const Text("Save")),
+        FButton(onPress: handleSave, child: Text("save".i18n)),
       ],
     );
   }

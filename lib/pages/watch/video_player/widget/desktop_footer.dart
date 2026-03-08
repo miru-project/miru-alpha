@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 
 import 'package:forui/forui.dart';
 import 'package:forui_hooks/forui_hooks.dart';
@@ -77,7 +78,7 @@ class DesktopPlayerFooterMenu extends HookConsumerWidget {
                 controller: speedPopOverController,
               ),
               popoverBuilder: (context, ctrller) => InnerCard(
-                title: "Adjust playback speed",
+                title: 'video_player.adjust_speed'.i18n,
                 child: SizedBox(
                   width: 200,
                   child: FItemGroup(maxHeight: 150, children: []),

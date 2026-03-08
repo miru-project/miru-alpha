@@ -4,8 +4,10 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:fvp/fvp.dart';
 import 'package:macos_window_utils/macos/ns_window_button_type.dart';
@@ -150,7 +152,9 @@ class _EntryLoadingState extends State<EntryLoadingState> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Initializing Miru core",
+                _initialized
+                    ? "initializing_miru_core".i18n
+                    : "Initializing Miru core...",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
               ),
               const SizedBox(height: 5),
@@ -213,6 +217,7 @@ class _App extends ConsumerState<App> {
       data: c.themeData,
       child: FToaster(
         child: MaterialApp.router(
+          key: ValueKey(c.language),
           theme: ThemeData(
             useMaterial3: true,
             // pageTransitionsTheme: const PageTransitionsTheme(
@@ -225,8 +230,15 @@ class _App extends ConsumerState<App> {
             // ),
           ),
           themeMode: c.themeMode,
-          title: 'Miru',
+          title: 'Miru Alpha',
+          localizationsDelegates: [
+            I18nUtils.flutterI18nDelegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           routerConfig: RouterUtil.appRouter,
+          supportedLocales: const [Locale('en'), Locale('zh')],
           // debugShowCheckedModeBanner: false,
         ),
       ),

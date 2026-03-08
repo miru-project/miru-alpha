@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_alpha/pages/download/mobile_download_page.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
@@ -43,10 +44,10 @@ class DownloadPage extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Downloads", style: context.theme.typography.xl2),
+            Text("download".i18n, style: context.theme.typography.xl2),
             FTooltip(
               tipBuilder: (context, controller) =>
-                  const Text("Select Download Directory"),
+                  Text("select_download_directory_tip".i18n),
               child: FButton.icon(
                 onPress: () async {
                   String? result = await FilePicker.platform.getDirectoryPath();
@@ -66,7 +67,7 @@ class DownloadPage extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
-              "Path: $downloadPath",
+              "${"path".i18n}: $downloadPath",
               style: context.theme.typography.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
@@ -101,14 +102,14 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
                 children: [
                   if (activeTasks.isNotEmpty)
                     FTileGroup.builder(
-                      label: const Text("Active Tasks"),
+                      label: Text("active_tasks".i18n),
                       count: activeTasks.length,
                       tileBuilder: (context, index) =>
                           DownloadProcessTile(progress: activeTasks[index]),
                     ),
                   const SizedBox(height: 24),
                   FTileGroup.builder(
-                    label: const Text("Downloads History"),
+                    label: Text("downloads_history".i18n),
                     count: downloadState.history.length,
                     tileBuilder: (context, index) => DownloadHistoryTile(
                       download: downloadState.history[index],
@@ -122,7 +123,7 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
                           onPress: () => ref
                               .read(downloadProvider.notifier)
                               .loadMoreHistory(),
-                          child: const Text("Load More"),
+                          child: Text("load_more".i18n),
                         ),
                       ),
                     ),

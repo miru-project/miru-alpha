@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
@@ -52,7 +53,7 @@ class DesktopLoadedPage extends HookWidget {
                       const SizedBox(height: 30),
                       if (ep.isEmpty)
                         DesktopDetailItemBox(
-                          title: 'No Episode',
+                          title: 'no_episodes_found'.i18n,
                           padding: 20,
                           child: SizedBox.expand(),
                         )
@@ -78,13 +79,13 @@ class DesktopLoadedPage extends HookWidget {
                         const SizedBox(height: 30),
                         AnimatedBox(
                           child: OutterCard(
-                            title: 'Tracking',
+                            title: 'tracking'.i18n,
                             trailing: FButton(
                               variant: .ghost,
                               onPress: () {},
-                              child: Text('Sync'),
+                              child: Text('sync'.i18n),
                             ),
-                            child: Center(child: Text("anilist")),
+                            child: Center(child: Text("anilist".i18n)),
                           ),
                         ),
                       ],

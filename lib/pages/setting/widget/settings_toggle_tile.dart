@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/pages/setting/widget/setting_base_tile.dart';
 
 class SettingsToggleTile extends HookWidget with FTileMixin {
@@ -28,8 +29,8 @@ class SettingsToggleTile extends HookWidget with FTileMixin {
     final val = useState(value);
     if (isMobileLayout) {
       return FTile(
-        title: Text(title),
-        subtitle: Text(subtitle),
+        title: Text(title.i18n),
+        subtitle: Text(subtitle.i18n),
         suffix: FSwitch(
           value: val.value,
           onChange: (value) {

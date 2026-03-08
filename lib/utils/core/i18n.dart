@@ -26,14 +26,22 @@ class I18nUtils {
 
   // 切换语言
   static Future changeLanguage(String locale) async {
-    await FlutterI18n.refresh(
-      RouterUtil.rootNavigatorKey.currentContext!,
-      Locale(locale),
-    );
+    final context = RouterUtil.rootNavigatorKey.currentState?.overlay?.context;
+    if (context == null) return;
+    await FlutterI18n.refresh(context, Locale(locale));
   }
 }
 
 extension I18nString on String {
-  String get i18n =>
-      FlutterI18n.translate(RouterUtil.rootNavigatorKey.currentContext!, this);
+  String get i18n {
+    final context = RouterUtil.rootNavigatorKey.currentContext;
+    if (context == null) return this;
+    return FlutterI18n.translate(context, this);
+  }
+
+  String fill(Map<String, String> params) {
+    final context = RouterUtil.rootNavigatorKey.currentContext;
+    if (context == null) return this;
+    return FlutterI18n.translate(context, this, translationParams: params);
+  }
 }
