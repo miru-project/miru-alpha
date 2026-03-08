@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/widgets/core/image_widget.dart';
+import 'package:miru_alpha/widgets/core/image_widget.dart';
 
 class MobileMangaLoading extends StatelessWidget {
   const MobileMangaLoading({super.key});

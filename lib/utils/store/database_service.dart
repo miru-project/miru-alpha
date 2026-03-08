@@ -1,7 +1,7 @@
-import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/core/log.dart';
+import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/utils/core/log.dart';
 
 class DatabaseService {
   static proto.DbServiceClient get client => MiruGrpcClient.dbClient;

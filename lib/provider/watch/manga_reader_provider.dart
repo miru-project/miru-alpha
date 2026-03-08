@@ -1,8 +1,8 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/model/model.dart';
-import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
-import 'package:miru_app_new/utils/setting_dir_index.dart';
+import 'package:miru_alpha/model/model.dart';
+import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
+import 'package:miru_alpha/utils/setting_dir_index.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 

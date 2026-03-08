@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/provider/network_provider.dart';
-import 'package:miru_app_new/provider/search_page_single_provider.dart';
-import 'package:miru_app_new/widgets/core/search_filter_card.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/provider/network_provider.dart';
+import 'package:miru_alpha/provider/search_page_single_provider.dart';
+import 'package:miru_alpha/widgets/core/search_filter_card.dart';
 
 class DesktopSearchSingleFilterBox extends HookConsumerWidget {
   const DesktopSearchSingleFilterBox({super.key, required this.meta});

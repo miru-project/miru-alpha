@@ -1,5 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:miru_app_new/model/model.dart';
+import 'package:miru_alpha/model/model.dart';
 
 part 'extension_meta_data.g.dart';
 

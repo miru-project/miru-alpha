@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/widgets/index.dart';
 
 class MiruListView extends StatelessWidget {
   const MiruListView({

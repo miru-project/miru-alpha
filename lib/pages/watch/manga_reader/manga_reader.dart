@@ -2,17 +2,17 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/pages/watch/manga_reader/widget/manag_image.dart';
-import 'package:miru_app_new/pages/watch/widget/episodes_select.dart';
-import 'package:miru_app_new/pages/watch/manga_reader/widget/manga_page_settings.dart';
-import 'package:miru_app_new/pages/watch/manga_reader/widget/manga_page_slider.dart';
-import 'package:miru_app_new/pages/watch/manga_reader/widget/manga_general_settings.dart';
-import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
-import 'package:miru_app_new/provider/watch/manga_reader_provider.dart';
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/pages/watch/manga_reader/widget/manag_image.dart';
+import 'package:miru_alpha/pages/watch/widget/episodes_select.dart';
+import 'package:miru_alpha/pages/watch/manga_reader/widget/manga_page_settings.dart';
+import 'package:miru_alpha/pages/watch/manga_reader/widget/manga_page_slider.dart';
+import 'package:miru_alpha/pages/watch/manga_reader/widget/manga_general_settings.dart';
+import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
+import 'package:miru_alpha/provider/watch/manga_reader_provider.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/widgets/index.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class MiruMangaReader extends HookConsumerWidget {

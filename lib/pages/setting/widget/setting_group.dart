@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/widgets/core/outter_card.dart';
+import 'package:miru_alpha/widgets/core/outter_card.dart';
 
 class SettingGroup extends StatelessWidget {
   const SettingGroup({

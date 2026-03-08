@@ -1,12 +1,12 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/pages/watch/video_player/widget/player_button.dart';
-import 'package:miru_app_new/pages/watch/video_player/widget/mobile_footer.dart';
-import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
-import 'package:miru_app_new/provider/watch/video_player_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/pages/watch/video_player/widget/desktop_footer.dart';
-import 'package:miru_app_new/pages/watch/video_player/widget/player_header.dart';
+import 'package:miru_alpha/pages/watch/video_player/widget/player_button.dart';
+import 'package:miru_alpha/pages/watch/video_player/widget/mobile_footer.dart';
+import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
+import 'package:miru_alpha/provider/watch/video_player_provider.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/pages/watch/video_player/widget/desktop_footer.dart';
+import 'package:miru_alpha/pages/watch/video_player/widget/player_header.dart';
 
 class PlayerScaffold extends ConsumerWidget {
   const PlayerScaffold({

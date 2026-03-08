@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/provider/watch/video_player_provider.dart';
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/widgets/core/outline_text.dart';
+import 'package:miru_alpha/provider/watch/video_player_provider.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/widgets/core/outline_text.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:volume_controller/volume_controller.dart';

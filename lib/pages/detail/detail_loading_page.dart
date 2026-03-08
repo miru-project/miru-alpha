@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/pages/detail/desktop_loaded_page.dart';
-import 'package:miru_app_new/pages/detail/mobile_loaded_page.dart';
-import 'package:miru_app_new/provider/detial_provider.dart';
-import 'package:miru_app_new/provider/network_provider.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
-import 'package:miru_app_new/widgets/animted_icon/heart.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/pages/detail/desktop_loaded_page.dart';
+import 'package:miru_alpha/pages/detail/mobile_loaded_page.dart';
+import 'package:miru_alpha/provider/detial_provider.dart';
+import 'package:miru_alpha/provider/network_provider.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/widgets/animted_icon/heart.dart';
 
-import 'package:miru_app_new/widgets/error.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/widgets/error.dart';
+import 'package:miru_alpha/widgets/index.dart';
 import './widget/index.dart';
 
 class DetailLoadingPage extends StatefulHookConsumerWidget {

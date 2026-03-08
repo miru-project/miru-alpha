@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/widgets/core/toast.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/widgets/core/toast.dart';
+import 'package:miru_alpha/widgets/index.dart';
 
 class ExtensionTile extends HookConsumerWidget with FTileMixin {
   final GithubExtension data;

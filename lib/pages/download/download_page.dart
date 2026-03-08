@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:miru_app_new/pages/download/mobile_download_page.dart';
-import 'package:miru_app_new/utils/store/miru_settings.dart';
+import 'package:miru_alpha/pages/download/mobile_download_page.dart';
+import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/widgets/index.dart';
 import 'package:forui/forui.dart';
 import './widget/index.dart';
-import 'package:miru_app_new/provider/application_controller_provider.dart';
-import 'package:miru_app_new/widgets/error.dart';
-import 'package:miru_app_new/provider/download_provider.dart';
+import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/widgets/error.dart';
+import 'package:miru_alpha/provider/download_provider.dart';
 
 class DownloadPage extends ConsumerWidget {
   const DownloadPage({super.key});

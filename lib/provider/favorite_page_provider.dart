@@ -1,6 +1,6 @@
-import 'package:miru_app_new/model/model.dart';
-import 'package:miru_app_new/model/user_data.dart';
-import 'package:miru_app_new/utils/store/database_service.dart';
+import 'package:miru_alpha/model/model.dart';
+import 'package:miru_alpha/model/user_data.dart';
+import 'package:miru_alpha/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'favorite_page_provider.g.dart';
 

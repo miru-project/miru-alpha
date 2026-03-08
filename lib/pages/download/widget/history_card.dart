@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:forui/forui.dart';
 
-import 'package:miru_app_new/provider/download_provider.dart';
+import 'package:miru_alpha/provider/download_provider.dart';
 
 class DownloadHistoryCard extends ConsumerWidget {
   final proto.Download download;

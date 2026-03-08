@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/model/model.dart';
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/model/model.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 
 class MiruSettings {
   static Map<String, String> _settingsCache = {};

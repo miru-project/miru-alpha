@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/pages/extension/widget/extension_desktop_grid_view.dart';
-import 'package:miru_app_new/pages/extension/widget/extension_tile.dart';
-import 'package:miru_app_new/utils/hook/sheet_controller.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/pages/extension/widget/extension_desktop_grid_view.dart';
+import 'package:miru_alpha/pages/extension/widget/extension_tile.dart';
+import 'package:miru_alpha/utils/hook/sheet_controller.dart';
+import 'package:miru_alpha/widgets/index.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 import '../../model/index.dart';

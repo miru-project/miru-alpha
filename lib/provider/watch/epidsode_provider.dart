@@ -1,7 +1,7 @@
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/provider/detial_provider.dart';
-import 'package:miru_app_new/provider/history_page_provider.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/provider/detial_provider.dart';
+import 'package:miru_alpha/provider/history_page_provider.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'epidsode_provider.g.dart';
 

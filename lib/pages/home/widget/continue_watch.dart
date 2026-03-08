@@ -4,14 +4,14 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/model.dart';
-import 'package:miru_app_new/model/user_data.dart';
-import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/provider/history_page_provider.dart';
-import 'package:miru_app_new/provider/network_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
-import 'package:miru_app_new/widgets/amination/animated_box.dart';
+import 'package:miru_alpha/model/model.dart';
+import 'package:miru_alpha/model/user_data.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/provider/history_page_provider.dart';
+import 'package:miru_alpha/provider/network_provider.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/widgets/amination/animated_box.dart';
 
 class ContinueWatchingSection extends HookConsumerWidget {
   const ContinueWatchingSection({

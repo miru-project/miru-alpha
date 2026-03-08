@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/pages/watch/video_player/widget/seek_bar_thumb.dart';
-import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
-import 'package:miru_app_new/provider/watch/manga_reader_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
+import 'package:miru_alpha/pages/watch/video_player/widget/seek_bar_thumb.dart';
+import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
+import 'package:miru_alpha/provider/watch/manga_reader_provider.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
 
 class MangaPageSlider extends StatefulHookConsumerWidget {
   const MangaPageSlider({

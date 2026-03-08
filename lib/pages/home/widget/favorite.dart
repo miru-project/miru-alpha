@@ -3,12 +3,12 @@ import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/provider/favorite_page_provider.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
-import 'package:miru_app_new/widgets/amination/animated_box.dart';
-import 'package:miru_app_new/widgets/core/image_widget.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/provider/favorite_page_provider.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/widgets/amination/animated_box.dart';
+import 'package:miru_alpha/widgets/core/image_widget.dart';
 
 class FavoritesHeader extends StatelessWidget {
   const FavoritesHeader({required this.padding, super.key});

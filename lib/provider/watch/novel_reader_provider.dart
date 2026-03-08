@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/utils/store/storage_index.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/utils/store/storage_index.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 

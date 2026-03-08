@@ -1,7 +1,7 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/widgets/core/image_widget.dart';
+import 'package:miru_alpha/widgets/core/image_widget.dart';
 
 class ExtensionListTile extends StatefulWidget {
   const ExtensionListTile({
@@ -188,18 +188,17 @@ class ExtensionGridTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: FButton(
-                          onPress: () {},
-                          variant: .secondary,
-                          prefix: Icon(FIcons.cog),
-                          child: Text('Configure'),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: FButton(
                           onPress: onUninstall,
                           prefix: Icon(FIcons.trash2),
                           child: Text('Uninstall'),
+                        ),
+                      ),
+                      FTooltip(
+                        tipBuilder: (context, controller) => Text('Settings'),
+                        child: FButton.icon(
+                          variant: .secondary,
+                          onPress: () {},
+                          child: Icon(FIcons.cog),
                         ),
                       ),
                     ],

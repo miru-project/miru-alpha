@@ -3,15 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/model/index.dart';
-import 'package:miru_app_new/pages/detail/widget/index.dart';
-import 'package:miru_app_new/pages/webview/desktop_webview.dart';
-import 'package:miru_app_new/provider/detial_provider.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/utils/router/page_entry.dart';
-import 'package:miru_app_new/widgets/amination/animated_box.dart';
-import 'package:miru_app_new/widgets/animted_icon/heart.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/pages/detail/widget/index.dart';
+import 'package:miru_alpha/provider/detial_provider.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/widgets/amination/animated_box.dart';
+import 'package:miru_alpha/widgets/animted_icon/heart.dart';
 
 class DetailDesktopBox extends HookConsumerWidget {
   const DetailDesktopBox({
@@ -160,14 +158,10 @@ class DetailDesktopBox extends HookConsumerWidget {
                       variant: .outline,
                       suffix: Icon(FIcons.globe),
                       onPress: () {
-                        if (DeviceUtil.isMobile) {
-                          context.push(
-                            '/mobileWebView',
-                            extra: WebviewParam(meta: meta, url: detailUrl),
-                          );
-                          return;
-                        }
-                        openWebview(meta, detailUrl);
+                        context.push(
+                          '/mobileWebView',
+                          extra: WebviewParam(meta: meta, url: detailUrl),
+                        );
                       },
                       child: Text("WebView"),
                     ),

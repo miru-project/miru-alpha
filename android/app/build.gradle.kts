@@ -29,7 +29,7 @@ val keyPasswordRef: String? = System.getenv("KEY_PASSWORD") ?: getApiKey("keyPas
 
 
 android {
-    namespace = "com.miru.alpha"
+    namespace = "miru.alpha"
     compileSdk = 36
     ndkVersion = "27.0.12077973"
 
@@ -44,7 +44,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.miru.alpha"
+        applicationId = "miru.alpha"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 28

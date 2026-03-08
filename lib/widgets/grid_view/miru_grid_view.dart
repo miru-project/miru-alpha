@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:miru_app_new/utils/core/device_util.dart';
-import 'package:miru_app_new/widgets/index.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/widgets/index.dart';
 
 class MiruGridView extends StatelessWidget {
   const MiruGridView({

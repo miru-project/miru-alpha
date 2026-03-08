@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:miru_app_new/miru_core/grpc_client.dart';
-import 'package:miru_app_new/miru_core/proto/proto.dart' as proto;
-import 'package:miru_app_new/utils/core/log.dart';
+import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/utils/core/log.dart';
 
 class MiruEventService {
   static final MiruEventService _instance = MiruEventService._internal();

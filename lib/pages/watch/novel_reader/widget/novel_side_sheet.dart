@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_app_new/pages/watch/novel_reader/widget/novel_page_setting.dart';
-import 'package:miru_app_new/pages/watch/novel_reader/widget/novel_page_slider.dart';
-import 'package:miru_app_new/pages/watch/novel_reader/widget/novel_setting_general.dart';
-import 'package:miru_app_new/pages/watch/widget/episodes_select.dart';
-import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
-import 'package:miru_app_new/provider/watch/novel_reader_provider.dart';
+import 'package:miru_alpha/pages/watch/novel_reader/widget/novel_page_setting.dart';
+import 'package:miru_alpha/pages/watch/novel_reader/widget/novel_page_slider.dart';
+import 'package:miru_alpha/pages/watch/novel_reader/widget/novel_setting_general.dart';
+import 'package:miru_alpha/pages/watch/widget/episodes_select.dart';
+import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
+import 'package:miru_alpha/provider/watch/novel_reader_provider.dart';
 
 class NovelSideSheet extends StatelessWidget {
   const NovelSideSheet({

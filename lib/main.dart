@@ -8,30 +8,28 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:fvp/fvp.dart';
-
 import 'package:macos_window_utils/macos/ns_window_button_type.dart';
 import 'package:macos_window_utils/window_manipulator.dart';
-import 'package:miru_app_new/miru_core/core.dart';
-import 'package:miru_app_new/model/extension_meta_data.dart';
-import 'package:miru_app_new/provider/application_controller_provider.dart';
-import 'package:miru_app_new/miru_core/event_service.dart';
-import 'package:miru_app_new/provider/extension_page_notifier_provider.dart';
-import 'package:miru_app_new/utils/core/log.dart';
-import 'package:miru_app_new/utils/core/miru_directory.dart';
-import 'package:miru_app_new/utils/download/ffmpeg_util.dart';
-import 'package:miru_app_new/utils/router/router_util.dart';
-import 'package:miru_app_new/widgets/core/toast.dart';
-import 'package:miru_app_new/widgets/error.dart';
+import 'package:miru_alpha/miru_core/core.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/miru_core/event_service.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/core/miru_directory.dart';
+import 'package:miru_alpha/utils/download/ffmpeg_util.dart';
+import 'package:miru_alpha/utils/router/router_util.dart';
+import 'package:miru_alpha/widgets/core/toast.dart';
+import 'package:miru_alpha/widgets/error.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
-  await MiruDirectory.ensureInitialized();
-  MiruLog.ensureInitialized();
-
   runZonedGuarded<void>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      await MiruDirectory.ensureInitialized();
+      MiruLog.ensureInitialized();
 
       bool errPrint(Object error, StackTrace stack) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -106,6 +104,9 @@ void main() async {
       );
     },
     (error, stack) {
+      if (!MiruLog.hasInit) {
+        MiruLog.defaultError(error, stack);
+      }
       showSimpleToast(error.toString());
       logger.severe('Uncaught error: $error');
       logger.severe(stack.toString());

@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:forui_hooks/forui_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_app_new/provider/watch/epidsode_provider.dart';
+import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 
 class EpisodeSelect extends HookConsumerWidget {
   const EpisodeSelect({super.key, required this.epProvider});

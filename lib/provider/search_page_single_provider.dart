@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:miru_app_new/model/index.dart';
+import 'package:miru_alpha/model/index.dart';
 
 part 'search_page_single_provider.g.dart';
 
