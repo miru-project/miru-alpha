@@ -5,6 +5,7 @@ import 'dart:isolate';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
 
 import 'package:miru_alpha/generated_bindings.dart';
 import 'package:miru_alpha/miru_core/network.dart';
@@ -62,7 +63,14 @@ class Core {
     }
   }
 
-  static Future<void> startNativeMiruCore(String configPath) async {
+  static Future<void> startIsolateNativeMiruCore(
+    String configPath,
+    RootIsolateToken token,
+  ) async {
+    BackgroundIsolateBinaryMessenger.ensureInitialized(token);
+    await MiruDirectory.ensureInitialized();
+    MiruLog.ensureInitialized();
+    logger.info('loading miru core isolate');
     late final ffi.DynamicLibrary lib;
     final libName = Platform.isWindows ? 'miru_core.dll' : 'libmiru_core.so';
 
@@ -116,6 +124,7 @@ class Core {
         final core = MiruCore(lib);
         core.initDyLib(configPathPointer);
       });
+      logger.info('miru core isolate loaded');
     } catch (e, s) {
       logger.severe('Error: $e');
       logger.severe(s.toString());
@@ -124,13 +133,15 @@ class Core {
   }
 
   static Future<void> loadMiruCore() async {
+    logger.info('Loading Miru Core...');
     final location = configLoc;
     if (Platform.isAndroid) {
       final platform = MethodChannel('miru.alpha/miru_core');
       await platform.invokeMethod('InitAAR', location);
       return;
     }
-    Isolate.run(() => startNativeMiruCore(location));
+    final token = RootIsolateToken.instance!;
+    Isolate.run(() => startIsolateNativeMiruCore(location, token));
     return;
   }
 }

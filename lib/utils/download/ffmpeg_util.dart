@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:ffi/ffi.dart';
 import '../core/log.dart';
+import 'package:path/path.dart' as path;
 
 typedef StartNative = Int32 Function(Int32 num, Pointer<Pointer<Utf8>> files);
 typedef Start = int Function(int num, Pointer<Pointer<Utf8>> files);
@@ -67,19 +68,18 @@ class FFMpegUtils {
     } catch (e) {
       if (Platform.isWindows) {
         final exeFolder = File(Platform.resolvedExecutable).parent.path;
-        final dllPath = '$exeFolder\\$libName';
+        final dllPath = path.join(exeFolder, libName);
 
         if (File(dllPath).existsSync()) {
-          logger.severe('$libName exists but failed to load (Error 126).');
-          logger.severe(
-            'REQUIRED: You MUST include the FFmpeg core DLLs (avcodec, avformat, etc.) in the app folder.',
-          );
+          logger.severe('$libName exists but failed to load $dllPath');
+          logger.severe(e);
 
           try {
             _lib = DynamicLibrary.open(dllPath);
             start = _lib.lookupFunction<StartNative, Start>('start');
             _isInitialized = true;
           } catch (e2) {
+            logger.severe(e2);
             logger.severe(
               'Failed to load even with absolute path. Feature disabled.',
             );
