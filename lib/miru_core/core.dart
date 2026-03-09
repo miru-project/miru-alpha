@@ -14,6 +14,14 @@ import 'package:miru_alpha/utils/store/storage_index.dart';
 import 'package:path/path.dart' as p;
 import 'dart:convert';
 
+class MiruCoreIsolateData {
+  final String configPath;
+  final RootIsolateToken token;
+  final SendPort sendPort;
+
+  MiruCoreIsolateData(this.configPath, this.token, this.sendPort);
+}
+
 class Core {
   // config location
   static String configLoc = '';
@@ -64,12 +72,14 @@ class Core {
   }
 
   static Future<void> startIsolateNativeMiruCore(
-    String configPath,
-    RootIsolateToken token,
+    MiruCoreIsolateData data,
   ) async {
+    final configPath = data.configPath;
+    final token = data.token;
+    final sendPort = data.sendPort;
     BackgroundIsolateBinaryMessenger.ensureInitialized(token);
     await MiruDirectory.ensureInitialized();
-    MiruLog.ensureInitialized();
+    MiruLog.initForIsolate(sendPort);
     logger.info('loading miru core isolate');
     late final ffi.DynamicLibrary lib;
     final libName = Platform.isWindows ? 'miru_core.dll' : 'libmiru_core.so';
@@ -141,7 +151,24 @@ class Core {
       return;
     }
     final token = RootIsolateToken.instance!;
-    Isolate.run(() => startIsolateNativeMiruCore(location, token));
+    final receivePort = ReceivePort();
+    final sendPort = receivePort.sendPort;
+
+    receivePort.listen((message) {
+      if (message is Map<String, dynamic>) {
+        final level = Level.LEVELS.firstWhere(
+          (l) => l.name == message['level'],
+          orElse: () => Level.INFO,
+        );
+        // Log to the main isolate's logger
+        logger.log(level, message['message']);
+      }
+    });
+
+    await Isolate.spawn(
+      startIsolateNativeMiruCore,
+      MiruCoreIsolateData(location, token, sendPort),
+    );
     return;
   }
 }

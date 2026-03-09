@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
-project(miru_core)
+cmake_minimum_required(VERSION 3.14)
+
+set(PROJECT_NAME "miru_core")
+project(${PROJECT_NAME} LANGUAGES CXX)
+
 find_package(Git QUIET)
 if (NOT GIT_FOUND)
     message(FATAL_ERROR "Git not found")
@@ -10,61 +13,52 @@ else()
                     ERROR_QUIET)
 endif()
 
-
-
 if (WIN32)
     set(OUT "miru_core.dll")
     set(GOOS "windows")
     set(FOLDER_NAME "windows_x64")
-    set(INSTALL_PREFIX "")
 elseif (LINUX)
     set(OUT "libmiru_core.so")
     set(GOOS "linux")
     set(FOLDER_NAME "linux_x64")
-    set(INSTALL_PREFIX "/lib")
 endif()
-# Make Script for Linux
+
 set(GO_OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/${FOLDER_NAME}/${OUT})
 
-# default ldflags for go build (can be overridden via -DLD_FLAG="..." when invoking cmake)
+# Default ldflags for go build
 if (NOT DEFINED LD_FLAG)
     set(LD_FLAG "-s -w")
 endif()
 
-# build the shared library
+# Build the shared library
 add_custom_command(
-OUTPUT ${GO_OUTPUT}
-COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/${FOLDER_NAME}
-COMMAND go build -tags nosqlite -o ${GO_OUTPUT} "-ldflags=${LD_FLAG}" -trimpath -buildmode=c-shared main.go
-WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/miru-core
-COMMENT "Building Go shared library"
-VERBATIM
+    OUTPUT ${GO_OUTPUT}
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_SOURCE_DIR}/${FOLDER_NAME}
+    COMMAND go build -tags nosqlite -o ${GO_OUTPUT} "-ldflags=${LD_FLAG}" -trimpath -buildmode=c-shared main.go
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/miru-core
+    COMMENT "Building Go shared library"
+    VERBATIM
 )
-message(STATUS "go build -tags nosqlite -o ${GO_OUTPUT} -ldflags=\"${LD_FLAG}\" -trimpath -buildmode=c-shared main.go")
+
 add_custom_target(
-    miru_core_build ALL
+    ${PROJECT_NAME}_build ALL
     DEPENDS ${GO_OUTPUT}
 )
 
-# Install the library
-if (LINUX)
-    set (LIB_PATH ${CMAKE_SOURCE_DIR}/../src/miru_core/${FOLDER_NAME})
-else()
-    set (LIB_PATH ${CMAKE_SOURCE_DIR}/../src/miru_core/${FOLDER_NAME})
-endif()
-
-set (MIRU_CORE ${LIB_PATH}/${OUT})
-add_library(MIRU_CORE SHARED IMPORTED)
-set_target_properties(MIRU_CORE PROPERTIES
-    IMPORTED_LOCATION "${LIB_PATH}/${OUT}"
+# Reference-style properties
+add_library(${PROJECT_NAME} SHARED IMPORTED GLOBAL)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    IMPORTED_LOCATION "${GO_OUTPUT}"
     IMPORTED_SONAME "${OUT}"
+    OUTPUT_NAME "${PROJECT_NAME}"
 )
 
+target_compile_definitions(${PROJECT_NAME} INTERFACE DART_SHARED_LIB)
 
-install(FILES "${LIB_PATH}/${OUT}" DESTINATION "${CMAKE_INSTALL_PREFIX}${INSTALL_PREFIX}")
-
-
-
-
+# List of absolute paths to libraries that should be bundled with the application.
+set(${PROJECT_NAME}_bundled_libraries
+    ${GO_OUTPUT}
+    PARENT_SCOPE
+)
 
 message(STATUS "miru_core built")

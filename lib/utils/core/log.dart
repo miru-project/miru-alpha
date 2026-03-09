@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
@@ -45,6 +46,21 @@ class MiruLog {
   static void ensureInitialized() {
     Logger.root.level = Level.ALL;
     Logger.root.onRecord.listen(_recordLog);
+    hasInit = true;
+  }
+
+  static void initForIsolate(SendPort sendPort) {
+    Logger.root.level = Level.ALL;
+    Logger.root.onRecord.listen((record) {
+      sendPort.send({
+        'level': record.level.name,
+        'message': record.message,
+        'loggerName': record.loggerName,
+        'time': record.time.toIso8601String(),
+        'error': record.error?.toString(),
+        'stackTrace': record.stackTrace?.toString(),
+      });
+    });
     hasInit = true;
   }
 
