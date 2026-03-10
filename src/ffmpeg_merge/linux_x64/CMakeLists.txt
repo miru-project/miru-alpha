@@ -72,17 +72,12 @@ target_compile_definitions(ffmpeg_merge PRIVATE
     __STDC_FORMAT_MACROS
 )
 
-# Install rules for our library
-install(TARGETS ffmpeg_merge
-    LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
-    COMPONENT Runtime
+# List of absolute paths to libraries that should be bundled with the plugin.
+set(ffmpeg_merge_bundled_libraries
+  $<TARGET_FILE:ffmpeg_merge>
+  "${FFMPEG_LIB_PATH}"
+  PARENT_SCOPE
 )
-
-if(TARGET ffmpeg_shared)
-    # Ensure the bundled ffmpeg shared library is installed alongside our other libs
-    # and make sure our ffmpeg_merge library has an RPATH that finds sibling libraries.
-    install(FILES "${FFMPEG_LIB_PATH}" DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
-endif()
 
 # Make the ffmpeg_merge target search for shared libraries in its own directory at runtime.
 # This embeds a runpath ($ORIGIN) so the dynamic loader will look for "libffmpeg.so.8" in

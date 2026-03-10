@@ -98,7 +98,11 @@ set_target_properties(${BINARY_NAME}
 # them to the application.
 include(flutter/generated_plugins.cmake)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/ffmpeg_merge/linux_x64 ${CMAKE_BINARY_DIR}/ffmpeg_merge)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/miru_core/linux_x64 ${CMAKE_BINARY_DIR}/miru_core)
 
+list(APPEND PLUGIN_BUNDLED_LIBRARIES ${ffmpeg_merge_bundled_libraries})
+list(APPEND PLUGIN_BUNDLED_LIBRARIES ${miru_core_bundled_libraries})
 # === Installation ===
 # By default, "installing" just makes a relocatable bundle in the build
 # directory.
@@ -150,6 +154,3 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
-
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/ffmpeg_merge/linux_x64 ${CMAKE_BINARY_DIR}/lib)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/miru_core ${CMAKE_BINARY_DIR}/miru_core)
