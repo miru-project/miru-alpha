@@ -55,9 +55,36 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 target_compile_definitions(${PROJECT_NAME} INTERFACE DART_SHARED_LIB)
 
+# Define MinGW dependencies
+set(MINGW_URL "https://github.com/niXman/mingw-builds-binaries/releases/download/15.2.0-rt_v13-rev1/x86_64-15.2.0-release-posix-seh-ucrt-rt_v13-rev1.7z")
+set(MINGW_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/mingw64")
+set(MINGW_ZIP "${CMAKE_CURRENT_SOURCE_DIR}/mingw.7z")
+
+# Download and extract MinGW dependencies if not present
+if(WIN32 AND NOT EXISTS "${MINGW_ROOT}")
+    if(NOT EXISTS "${MINGW_ZIP}")
+        message(STATUS "Downloading MinGW dependencies from ${MINGW_URL}")
+        file(DOWNLOAD "${MINGW_URL}" "${MINGW_ZIP}" SHOW_PROGRESS)
+    endif()
+    message(STATUS "Extracting MinGW dependencies to ${CMAKE_CURRENT_SOURCE_DIR}...")
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E tar xf "${MINGW_ZIP}"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    )
+endif()
+
+# Identify the GCC DLLs to bundle
+set(MINGW_BIN "${MINGW_ROOT}/bin")
+set(MINGW_DLLVARS
+    "${MINGW_BIN}/libstdc++-6.dll"
+    "${MINGW_BIN}/libgcc_s_seh-1.dll"
+    "${MINGW_BIN}/libwinpthread-1.dll"
+)
+
 # List of absolute paths to libraries that should be bundled with the application.
 set(${PROJECT_NAME}_bundled_libraries
     ${GO_OUTPUT}
+    ${MINGW_DLLVARS}
     PARENT_SCOPE
 )
 
