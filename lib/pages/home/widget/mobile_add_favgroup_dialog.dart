@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/favorite_page_provider.dart';
 
-class MobileAddFAVDialog extends ConsumerWidget {
+class MobileAddFAVDialog extends HookConsumerWidget {
   final Animation<double> animation;
   final BuildContext context;
   final FDialogStyle style;
@@ -22,6 +23,7 @@ class MobileAddFAVDialog extends ConsumerWidget {
     final selectedFavGrp = ref.watch(
       favoritePageProvider.select((e) => e.selectedFavoriteGroups),
     );
+    final textController = useTextEditingController();
     String newFavGroupName = '';
     return Container(
       alignment: .topStart,
@@ -35,7 +37,10 @@ class MobileAddFAVDialog extends ConsumerWidget {
             children: [
               Text(
                 'favorite.manage_tags'.i18n,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 19,
+                ),
               ),
               SizedBox(height: 5),
               Text(
@@ -52,6 +57,7 @@ class MobileAddFAVDialog extends ConsumerWidget {
                   Expanded(
                     child: FTextField(
                       control: .managed(
+                        controller: textController,
                         onChange: (value) {
                           newFavGroupName = value.text;
                         },
@@ -69,6 +75,7 @@ class MobileAddFAVDialog extends ConsumerWidget {
                         ref
                             .read(favoritePageProvider.notifier)
                             .addFavoriteGroupbyName(newFavGroupName);
+                        textController.clear();
                       },
                       child: Icon(FIcons.plus),
                     ),

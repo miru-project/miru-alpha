@@ -2,6 +2,11 @@
   "initializing_miru_core": "Initializing Miru core",
   "home": "Home",
   "history": "History",
+  "episode": {
+    "description": "Description",
+    "tracking": "Tracking",
+    "cast": "Cast"
+  },
   "favorite": {
     "name": "Favorite",
     "title": "Favorite",
@@ -127,7 +132,6 @@
   "weeks_ago": "{weeks} weeks ago",
   "months_ago": "{months} months ago",
   "years_ago": "{years} years ago",
-  "cast": "Cast",
   "page": "page",
   "select_resolution": "Select Resolution",
   "download_started": "Download started",

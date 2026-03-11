@@ -83,9 +83,6 @@ class ExtensionView extends HookConsumerWidget {
                                   val = 'ALL';
                                 }
                                 extNotifier.filterByMediaType(val);
-                                // ... wait, the logic needs to stay same for the notifier.
-                                // I should keep the logic keys separate from display titles.
-                                // But ClearableSelect labels depend on items.
                               },
                             ),
                             ClearableSelect(
@@ -95,12 +92,16 @@ class ExtensionView extends HookConsumerWidget {
                               items: [
                                 'all'.i18n.toUpperCase(),
                                 'extension.installed'.i18n,
-                                'extension.not_installed'.i18n
+                                'extension.not_installed'.i18n,
                               ],
+                              onReset: () {
+                                extNotifier.filterByInstalled('ALL');
+                              },
                               onChange: (val) {
                                 if (val == 'extension.installed'.i18n) {
                                   val = 'Installed';
-                                } else if (val == 'extension.not_installed'.i18n) {
+                                } else if (val ==
+                                    'extension.not_installed'.i18n) {
                                   val = 'Not Installed';
                                 } else {
                                   val = 'ALL';
@@ -113,9 +114,9 @@ class ExtensionView extends HookConsumerWidget {
                                 ClearableSelect(
                                   hintText: 'all'.i18n.toUpperCase(),
                                   title: "extension-repo.repository".i18n,
-                                  items: extNotifier.repoNames(),
+                                  items: extNotifier.getRepoNames(),
                                   onChange: (val) {
-                                    extNotifier.selectRepoByName(val ?? '');
+                                    extNotifier.filterRepoByName(val ?? '');
                                   },
                                 ),
                                 const SizedBox(width: 8),
@@ -138,14 +139,8 @@ class ExtensionView extends HookConsumerWidget {
                             const SizedBox(width: 10),
                             SizedBox(
                               width: 280,
-                              height: 63,
+                              height: 66,
                               child: FTextField(
-                                // style: FTextFieldStyle.inherit(
-                                //   colors: context.theme.colors,
-                                //   typography:
-                                //       overrideTheme.typography,
-                                //   style: overrideTheme.style,
-                                // ).call,
                                 label: Text(
                                   'extension.search_extensions'.i18n,
                                   style: TextStyle(fontSize: 14),

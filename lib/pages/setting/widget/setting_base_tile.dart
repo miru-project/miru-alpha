@@ -8,12 +8,21 @@ class SettingBaseTile extends StatelessWidget with FTileMixin {
     this.subtitle,
     required this.title,
     required this.child,
+    this.isMobileLayout = false,
   });
   final String title;
   final String? subtitle;
   final Widget child;
+  final bool isMobileLayout;
   @override
   Widget build(BuildContext context) {
+    if (isMobileLayout) {
+      return FTile(
+        title: Text(title.i18n),
+        subtitle: (subtitle == null) ? null : Text(subtitle!.i18n),
+        details: child,
+      );
+    }
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 5),
       child: Row(

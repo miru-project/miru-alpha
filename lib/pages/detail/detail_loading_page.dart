@@ -53,7 +53,7 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
                   Navigator.of(context).pop();
                 },
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 12.0, top: 4),
+                  padding: const EdgeInsets.only(right: 12.0, top: 4, left: 10),
                   child: Icon(
                     FIcons.chevronLeft,
                     size: 28,

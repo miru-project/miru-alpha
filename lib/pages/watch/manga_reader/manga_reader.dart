@@ -56,7 +56,13 @@ class MiruMangaReader extends HookConsumerWidget {
       value,
     );
     final controls = [
-      MangaPageSlider(epProvider: epProvider, mangaProvider: mangaProvider),
+      Padding(
+        padding: .symmetric(horizontal: 10),
+        child: MangaPageSlider(
+          epProvider: epProvider,
+          mangaProvider: mangaProvider,
+        ),
+      ),
       const SizedBox(height: 10),
       Padding(
         padding: .symmetric(horizontal: 10),
@@ -72,7 +78,9 @@ class MiruMangaReader extends HookConsumerWidget {
             ),
             FTabEntry(
               label: Icon(FIcons.alignHorizontalJustifyEnd),
-              child: Center(child: Text('manga_reader.alignment_settings'.i18n)),
+              child: Center(
+                child: Text('manga_reader.alignment_settings'.i18n),
+              ),
             ),
             FTabEntry(
               label: Icon(FIcons.settings),

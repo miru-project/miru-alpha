@@ -94,7 +94,7 @@ class MobileSearchPage extends HookConsumerWidget {
                 child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
               ),
               FTabEntry(
-                label: Text('extension'.i18n),
+                label: Text('extension.name'.i18n),
                 child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
               ),
             ],
@@ -158,8 +158,10 @@ class MobileSearchPage extends HookConsumerWidget {
                 if (metaData.isNotEmpty)
                   SliverToBoxAdapter(
                     child: FTileGroup(
-                      label: Text('extension'.i18n),
-                      description: Text('extension.extensions_installed_desc'.i18n),
+                      label: Text('extension.name'.i18n),
+                      description: Text(
+                        'extension.extensions_installed_desc'.i18n,
+                      ),
                       children: List.generate(metaData.length, (index) {
                         final ext = metaData[index];
                         return FTile(
@@ -219,7 +221,10 @@ class MobileSearchPage extends HookConsumerWidget {
                     child: Center(
                       child: Text(
                         'extension.no_extensions_installed'.i18n,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
                       ),
                     ),
                   ),

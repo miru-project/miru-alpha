@@ -97,7 +97,7 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
             children: [
               FTile(
                 prefix: Icon(FIcons.blocks),
-                title: Text('extension'.i18n),
+                title: Text('extension.name'.i18n),
                 subtitle: Text('repos'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
@@ -136,7 +136,7 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
             children: [
               FTile(
                 prefix: Icon(FIcons.tv),
-                title: Text('video_player'.i18n),
+                title: Text('player'.i18n),
                 subtitle: Text('player_setting'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),

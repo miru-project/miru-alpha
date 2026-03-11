@@ -33,7 +33,7 @@ class SearchPageState {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class SearchPageNotifier extends _$SearchPageNotifier {
   @override
   SearchPageState build() {
@@ -51,7 +51,10 @@ class SearchPageNotifier extends _$SearchPageNotifier {
         SettingKey.pinnedExtension,
         existedPinnedExtension.toString(),
       );
-      state = state.copyWith(existedPinnedExtensions: existedPinnedExtension);
+      state = state.copyWith(
+        metaData: next,
+        existedPinnedExtensions: existedPinnedExtension,
+      );
     });
 
     return SearchPageState(

@@ -16,6 +16,7 @@ class SettingMiruCore extends HookConsumerWidget {
           title: 'information',
           children: [
             SettingBaseTile(
+              isMobileLayout: isMobileLayout,
               title: 'address'.i18n,
               child: Text(
                 Core.host,
@@ -23,6 +24,7 @@ class SettingMiruCore extends HookConsumerWidget {
               ),
             ),
             SettingBaseTile(
+              isMobileLayout: isMobileLayout,
               title: 'port'.i18n,
               child: Text(
                 Core.port,

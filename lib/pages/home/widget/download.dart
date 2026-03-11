@@ -143,8 +143,9 @@ class DownloadsList extends ConsumerWidget {
       loading: () => const SliverToBoxAdapter(
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, s) =>
-          SliverToBoxAdapter(child: Text("${'error_loading_downloads'.i18n}: $e")),
+      error: (e, s) => SliverToBoxAdapter(
+        child: Text("${'error_loading_downloads'.i18n}: $e"),
+      ),
     );
   }
 }
@@ -159,7 +160,7 @@ class DownloadsText extends StatelessWidget {
       child: Padding(
         padding: padding,
         child: Text(
-          'downloads'.i18n,
+          'download'.i18n,
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,

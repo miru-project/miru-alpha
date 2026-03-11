@@ -2,6 +2,11 @@
   "initializing_miru_core": "正在初始化 Miru 核心",
   "home": "首页",
   "history": "历史",
+  "episode": {
+    "description": "简介",
+    "tracking": "追踪",
+    "cast": "角色"
+  },
   "favorite": {
     "name": "收藏夹",
     "title": "收藏",
@@ -64,7 +69,7 @@
   "overview": "概览",
   "general": "通用",
   "player": "播放器",
-  "miru_core": "Miru 核心",
+  "miru_core": "Miru Core",
   "reader": "阅读器",
   "advanced": "高级",
   "about": "关于",

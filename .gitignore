@@ -50,7 +50,8 @@ Output/
 *.aar
 *.jar
 
-/src/miru_core/linux_x64/*
+/src/miru_core/linux_x64/libmiru_core.h
+/src/miru_core/linux_x64/libmiru_core.so
 /src/miru_core/windows_x64/*
 
 

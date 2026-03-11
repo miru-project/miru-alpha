@@ -73,7 +73,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
             ),
             1 => SnapSheetHeader(title: 'history'.i18n),
             2 => SnapSheetHeader(
-              title: 'favorite'.i18n,
+              title: 'favorite.name'.i18n,
               suffix: [
                 FTappable(
                   onPress: () {

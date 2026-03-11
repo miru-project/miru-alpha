@@ -71,18 +71,18 @@ class ContinueWatchingSection extends HookConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: horizontalTitlePadding,
-                    ),
-                    child: Text(
-                      'Continue Watching',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: EdgeInsets.symmetric(
+                  //     horizontal: horizontalTitlePadding,
+                  //   ),
+                  //   child: Text(
+                  //     'Continue Watching',
+                  //     style: TextStyle(
+                  //       fontSize: 20,
+                  //       fontWeight: FontWeight.bold,
+                  //     ),
+                  //   ),
+                  // ),
                   const SizedBox(height: 20),
                   SizedBox(
                     height: 220,

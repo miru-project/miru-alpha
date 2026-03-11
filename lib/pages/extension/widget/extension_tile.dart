@@ -12,6 +12,17 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
   final String repoUrl;
   const ExtensionTile({super.key, required this.data, required this.repoUrl});
 
+  bool isVersionGreaterThan(String newVersion, String currentVersion) {
+    List<String> currentV = currentVersion.replaceAll("v", "").split(".");
+    List<String> newV = newVersion.replaceAll("v", "").split(".");
+    bool a = false;
+    for (var i = 0; i <= 2; i++) {
+      a = int.parse(newV[i]) > int.parse(currentV[i]);
+      if (int.parse(newV[i]) != int.parse(currentV[i])) break;
+    }
+    return a;
+  }
+
   void oninstall(
     GithubExtension data,
     String repoUrl,
@@ -40,10 +51,19 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(extensionPageProvider);
+    final pkg = ref.watch(
+      extensionPageProvider.select((e) => e.installedPackages),
+    );
+    final meta = ref.watch(extensionPageProvider.select((e) => e.metaData));
     final notifier = ref.read(extensionPageProvider.notifier);
-    final isInstalled = state.installedPackages.contains(data.package);
-
+    final isInstalled = pkg.contains(data.package);
+    bool needUpdate = isInstalled;
+    if (isInstalled) {
+      needUpdate = isVersionGreaterThan(
+        data.version,
+        meta.where((e) => e.packageName == data.package).first.version,
+      );
+    }
     return DeviceUtil.deviceWidget(
       // Mobile widget
       context: context,
@@ -55,6 +75,7 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
         author: data.author,
         type: data.type,
         icon: data.icon,
+        needUpdate: needUpdate,
         onInstall: () => oninstall(data, repoUrl, notifier),
         onUninstall: () => onuninstall(data, repoUrl, notifier),
       ),

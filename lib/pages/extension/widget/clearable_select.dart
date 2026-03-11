@@ -9,12 +9,14 @@ class ClearableSelect extends StatelessWidget {
     this.hintText,
     this.onChange,
     this.initialValue,
+    this.onReset,
   });
   final String title;
   final String? hintText;
   final List<String> items;
   final Function(String? val)? onChange;
   final String? initialValue;
+  final VoidCallback? onReset;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -27,15 +29,19 @@ class ClearableSelect extends StatelessWidget {
           children: [
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 200, maxHeight: 65),
-              child: FSelect(
-                label: Text(
-                  title,
-                  // style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                ),
+              child: FSelect.rich(
+                label: Text(title),
                 control: .managed(initial: initialValue, onChange: onChange),
                 hint: hintText,
-                clearable: true,
-                items: {for (final item in items) item: item},
+                onReset: () {
+                  throw "s";
+                },
+                children: items
+                    .map((e) => FSelectItem(value: e, title: Text(e)))
+                    .toList(),
+                format: (value) {
+                  return value;
+                },
               ),
             ),
           ],

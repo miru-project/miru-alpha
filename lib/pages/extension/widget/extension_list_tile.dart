@@ -17,6 +17,7 @@ class ExtensionListTile extends StatefulWidget {
     required this.onInstall,
     required this.onUninstall,
     required this.isInstalled,
+    required this.needUpdate,
     this.tags = const [],
   });
   final bool isNSFW;
@@ -30,6 +31,7 @@ class ExtensionListTile extends StatefulWidget {
   final void Function() onInstall;
   final void Function() onUninstall;
   final bool isInstalled;
+  final bool needUpdate;
 
   @override
   State<ExtensionListTile> createState() => _ExtensionListTileState();
@@ -73,7 +75,12 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
               style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ),
-          if (widget.isInstalled)
+          if (widget.needUpdate)
+            FButton.icon(
+              onPress: widget.onInstall,
+              child: Icon(FIcons.circleFadingArrowUp),
+            )
+          else if (widget.isInstalled)
             FButton.icon(
               onPress: widget.onUninstall,
               child: Icon(FIcons.trash2),
@@ -121,7 +128,9 @@ class ExtensionGridTile extends StatelessWidget {
         .map((e) => FBadge(variant: .outline, child: Text(e)))
         .toList();
     if (isNSFW) {
-      badges.add(FBadge(variant: .destructive, child: Text('extension.nsfw'.i18n)));
+      badges.add(
+        FBadge(variant: .destructive, child: Text('extension.nsfw'.i18n)),
+      );
     }
     return Center(
       child: SizedBox(
@@ -195,7 +204,8 @@ class ExtensionGridTile extends StatelessWidget {
                         ),
                       ),
                       FTooltip(
-                        tipBuilder: (context, controller) => Text('settings'.i18n),
+                        tipBuilder: (context, controller) =>
+                            Text('settings'.i18n),
                         child: FButton.icon(
                           variant: .secondary,
                           onPress: () {},

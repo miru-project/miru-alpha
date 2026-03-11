@@ -18,9 +18,9 @@ class MobileDetailTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<String> tabTitles = [
-      'extension.description'.i18n,
-      'tracking'.i18n,
-      'cast'.i18n
+      'episode.description'.i18n,
+      'episode.tracking'.i18n,
+      'episode.cast'.i18n,
     ];
     final List<Widget> tabContent = [
       // Description
@@ -45,10 +45,8 @@ class MobileDetailTabs extends StatelessWidget {
     return FTabs(
       children: List.generate(
         tabTitles.length,
-        (index) => FTabEntry(
-          label: Text(tabTitles[index]),
-          child: tabContent[index],
-        ),
+        (index) =>
+            FTabEntry(label: Text(tabTitles[index]), child: tabContent[index]),
       ),
     );
   }

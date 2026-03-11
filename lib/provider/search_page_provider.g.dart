@@ -20,7 +20,7 @@ final class SearchPageNotifierProvider
         argument: null,
         retry: null,
         name: r'searchPageProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -42,7 +42,7 @@ final class SearchPageNotifierProvider
 }
 
 String _$searchPageNotifierHash() =>
-    r'a84e6de623a9f7b260266b01b7869d3790985452';
+    r'8fffe96245957d5e19139d720cc6e9e1def74f50';
 
 abstract class _$SearchPageNotifier extends $Notifier<SearchPageState> {
   SearchPageState build();

@@ -49,8 +49,11 @@ class ExtensionPageModel {
 @Riverpod(keepAlive: true)
 class ExtensionPageNotifier extends _$ExtensionPageNotifier {
   List<ExtensionMeta> get extMeta => state.metaData;
-  String get selectedRepoUrl => _selectedRepoUrl;
-  String _selectedRepoUrl = '';
+
+  String cacheRepoName = '';
+  String cacheQuery = '';
+  String cacheType = 'ALL';
+  String cacheInstalled = 'ALL';
 
   @override
   ExtensionPageModel build() {
@@ -66,6 +69,7 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
     return initial;
   }
 
+  // Fetch
   Future<void> loadRepos({bool force = false}) async {
     if (!force && state.fetchedRepo.isNotEmpty) return;
     // set loading
@@ -74,10 +78,10 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
       final list = await GithubNetwork.fetchRepo();
       state = state.copyWith(
         fetchedRepo: list,
-        extensionList: List.from(list),
         loading: false,
         update: DateTime.now(),
       );
+      filter();
     } catch (e) {
       logger.info('failed to load repos: $e');
       state = state.copyWith(loading: false);
@@ -88,116 +92,78 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
     await loadRepos(force: true);
   }
 
-  void setFetchedRepo(List<ExtensionRepo> list) {
-    state = state.copyWith(
-      fetchedRepo: list,
-      extensionList: List.from(list),
-      loading: false,
-    );
+  /// Return available repo names for UI selects
+  List<String> getRepoNames() => state.fetchedRepo.map((r) => r.name).toList();
+
+  /// FILTER
+  void filter() {
+    List<ExtensionRepo> repoResult = state.fetchedRepo;
+
+    if (cacheRepoName.isNotEmpty) {
+      repoResult = repoResult.where((r) => r.name == cacheRepoName).toList();
+    }
+
+    List<ExtensionRepo> finalResult = [];
+
+    for (var repo in repoResult) {
+      var exts = repo.extensions;
+
+      if (cacheType.isNotEmpty && cacheType != 'ALL') {
+        exts = exts.where((e) => e.type == cacheType.toLowerCase()).toList();
+      }
+
+      if (cacheInstalled == 'Installed') {
+        exts = exts
+            .where((e) => state.installedPackages.contains(e.package))
+            .toList();
+      } else if (cacheInstalled == 'Not installed') {
+        exts = exts
+            .where((e) => !state.installedPackages.contains(e.package))
+            .toList();
+      }
+
+      if (cacheQuery.isNotEmpty) {
+        final lower = cacheQuery.toLowerCase();
+        exts = exts.where((e) => e.name.toLowerCase().contains(lower)).toList();
+      }
+
+      if (exts.isNotEmpty ||
+          (cacheType == 'ALL' &&
+              cacheInstalled == 'ALL' &&
+              cacheQuery.isEmpty)) {
+        finalResult.add(
+          ExtensionRepo(name: repo.name, url: repo.url, extensions: exts),
+        );
+      }
+    }
+
+    state = state.copyWith(extensionList: finalResult);
   }
 
-  /// Return available repo names for UI selects
-  List<String> repoNames() => state.fetchedRepo.map((r) => r.name).toList();
-
   /// Select repository by name (don't refetch), show only that repo's extensions
-  void selectRepoByName(String repoName) {
-    if (repoName.isEmpty) {
-      state = state.copyWith(extensionList: List.from(state.fetchedRepo));
-      return;
-    }
-    final found = state.fetchedRepo.where((r) => r.name == repoName).toList();
-    state = state.copyWith(extensionList: found);
+  void filterRepoByName(String repoName) {
+    cacheRepoName = repoName;
+    filter();
   }
 
   void filterByName(String query) {
-    if (query.isEmpty) {
-      state = state.copyWith(extensionList: List.from(state.fetchedRepo));
-      return;
-    }
-    final lower = query.toLowerCase();
-    // filter repos by name or any extension name
-    for (final repo in state.fetchedRepo) {
-      if (repo.url == _selectedRepoUrl || _selectedRepoUrl.isEmpty) {
-        final filteredExtensions = repo.extensions
-            .where((ext) => ext.name.toLowerCase().contains(lower))
-            .toList();
-        state = state.copyWith(
-          extensionList: [
-            ExtensionRepo(
-              extensions: filteredExtensions,
-              name: repo.name,
-              url: repo.url,
-            ),
-          ],
-        );
-        return;
-      }
-    }
+    cacheQuery = query;
+    filter();
   }
 
   void filterByRepo(String repoName) {
-    if (repoName.isEmpty) {
-      state = state.copyWith(extensionList: List.from(state.fetchedRepo));
-      return;
-    }
-    final filtered = state.fetchedRepo
-        .where((repo) => repo.name == repoName)
-        .toList();
-    _selectedRepoUrl = filtered.isNotEmpty ? filtered.first.url : '';
-    state = state.copyWith(extensionList: filtered);
+    cacheRepoName = repoName;
+    filter();
   }
 
   void filterByInstalled(String status) {
-    switch (status) {
-      case 'ALL':
-        state = state.copyWith(extensionList: List.from(state.fetchedRepo));
-        return;
-      case 'Installed':
-        final filtered = state.fetchedRepo
-            .expand((repo) => repo.extensions)
-            .where((ext) => state.installedPackages.contains(ext.package))
-            .toList();
-        state = state.copyWith(
-          extensionList: [
-            ExtensionRepo(extensions: filtered, name: 'filtered', url: ''),
-          ],
-        );
-        return;
-      case 'Not installed':
-        final filtered = state.fetchedRepo
-            .expand((repo) => repo.extensions)
-            .where((ext) => !state.installedPackages.contains(ext.package))
-            .toList();
-        state = state.copyWith(
-          extensionList: [
-            ExtensionRepo(extensions: filtered, name: 'filtered', url: ''),
-          ],
-        );
-        return;
-      default:
-        state = state.copyWith(extensionList: List.from(state.fetchedRepo));
-        return;
-    }
+    cacheInstalled = status;
+    filter();
   }
 
   void filterByMediaType(String type) {
-    if (type.isEmpty || type == 'ALL') {
-      state = state.copyWith(extensionList: List.from(state.fetchedRepo));
-      return;
-    }
-    final filteredExtensions = state.fetchedRepo
-        .expand((repo) => repo.extensions)
-        .where((ext) => ext.type == type.toLowerCase())
-        .toList();
-    state = state.copyWith(
-      extensionList: [
-        ExtensionRepo(
-          extensions: filteredExtensions,
-          name: 'filtered',
-          url: '',
-        ),
-      ],
-    );
+    cacheType = type;
+    filter();
   }
 
   bool isInstalled(String package) => state.installedPackages.contains(package);

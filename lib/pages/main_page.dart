@@ -15,6 +15,7 @@ import 'package:miru_alpha/widgets/animted_icon/block.dart';
 import 'package:miru_alpha/widgets/animted_icon/compass.dart';
 import 'package:miru_alpha/widgets/animted_icon/home.dart';
 import 'package:miru_alpha/widgets/animted_icon/settings_cog.dart';
+import 'package:miru_alpha/widgets/core/toast.dart';
 import 'package:miru_alpha/widgets/index.dart';
 
 import '../model/setting_items.dart';
@@ -64,15 +65,17 @@ class _MainPageState extends ConsumerState<MainPage>
       icon: FIcons.bookHeart,
       page: "/home/favorite",
     ),
-    // FIconNavItem(text: 'Tracking', icon: Icons.extension_outlined, selectIcon: Icons.extension),
-    // FIconNavItem(text: 'Settings', icon: FIcons.settings, selectIcon: Icons.settings),
     FIconNavItem(
       text: 'download',
       icon: FIcons.download,
       page: "/home/download",
     ),
     FIconNavItem(text: 'search', icon: FIcons.search, page: "/search"),
-    FIconNavItem(text: 'extension', icon: FIcons.blocks, page: "/extension"),
+    FIconNavItem(
+      text: 'extension.name',
+      icon: FIcons.blocks,
+      page: "/extension",
+    ),
     FIconNavItem(
       text: 'settings',
       icon: FIcons.settings,
@@ -231,7 +234,7 @@ class _MainPageState extends ConsumerState<MainPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: EdgeInsetsGeometry.directional(start: 10),
+                    padding: .symmetric(horizontal: 10, vertical: 10),
                     child: Row(
                       children: [
                         Text(
@@ -259,7 +262,11 @@ class _MainPageState extends ConsumerState<MainPage>
                       ],
                     ),
                   ),
-                  FDivider(),
+                  FDivider(
+                    style: FDividerStyleDelta.delta(
+                      padding: EdgeInsetsGeometryDelta.value(.only(bottom: 5)),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -267,46 +274,54 @@ class _MainPageState extends ConsumerState<MainPage>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: FTappable(
                 onPress: () {},
-                child: FCard.raw(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                      horizontal: 16,
-                    ),
-                    child: Row(
-                      spacing: 10,
-                      children: [
-                        FAvatar.raw(
-                          child: Icon(
-                            FIcons.userRound,
-                            size: 18,
-                            color: context.theme.colors.mutedForeground,
+                child: FTappable(
+                  onPress: () {
+                    iconsMessageToast(
+                      title: 'wip'.i18n,
+                      icon: FIcons.construction,
+                    );
+                  },
+                  child: FCard.raw(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                      child: Row(
+                        spacing: 10,
+                        children: [
+                          FAvatar.raw(
+                            child: Icon(
+                              FIcons.userRound,
+                              size: 18,
+                              color: context.theme.colors.mutedForeground,
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 2,
-                            children: [
-                              Text(
-                                'webdav'.i18n,
-                                style: context.theme.typography.sm.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: context.theme.colors.foreground,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 2,
+                              children: [
+                                Text(
+                                  'webdav'.i18n,
+                                  style: context.theme.typography.sm.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: context.theme.colors.foreground,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Text(
-                                'signin'.i18n,
-                                style: context.theme.typography.xs.copyWith(
-                                  color: context.theme.colors.mutedForeground,
+                                Text(
+                                  'signin'.i18n,
+                                  style: context.theme.typography.xs.copyWith(
+                                    color: context.theme.colors.mutedForeground,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -373,7 +388,11 @@ class _MainPageState extends ConsumerState<MainPage>
               children: [
                 if (!DeviceUtil.isMobile) ...[
                   const DragWindows(),
-                  const FDivider(),
+                  const FDivider(
+                    style: FDividerStyleDelta.delta(
+                      padding: EdgeInsetsGeometryDelta.value(EdgeInsets.zero),
+                    ),
+                  ),
                 ],
                 FTheme(
                   data: themeData,
@@ -448,7 +467,7 @@ class BreadCrumb extends HookWidget {
                 return;
               }
             },
-            child: Text(seg.capitalize()),
+            child: Text(seg.i18n),
           ),
       ],
     );

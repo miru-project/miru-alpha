@@ -3,8 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
 import 'package:grpc/grpc.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/provider/main_controller_provider.dart';
+import 'package:miru_alpha/provider/watch/main_provider.dart';
 
-class ErrorDisplay extends StatelessWidget {
+class ErrorDisplay extends ConsumerWidget {
   final Object err;
   final StackTrace stack;
   final VoidCallback? onRefresh;
@@ -65,68 +69,73 @@ class ErrorDisplay extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Center(
       child: Padding(
         padding: EdgeInsetsGeometry.symmetric(horizontal: 30, vertical: 20),
-        child: FAccordion(
-          children: [
-            FAccordionItem(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  prefix ?? const SizedBox.shrink(),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      errTitle,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
+        child: FTheme(
+          data: ref.watch(
+            applicationControllerProvider.select((e) => e.themeData),
+          ),
+          child: FAccordion(
+            children: [
+              FAccordionItem(
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    prefix ?? const SizedBox.shrink(),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        errTitle,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: .symmetric(horizontal: 10),
-                    child: Row(
-                      children: [
-                        FTooltip(
-                          hoverEnterDuration: Duration(milliseconds: 300),
-                          hover: true,
-                          tipBuilder: (context, controller) =>
-                              const Text('Reload'),
-                          child: FButton.icon(
-                            variant: FButtonVariant.outline,
-                            onPress: onRefresh,
-                            child: const Icon(FIcons.refreshCcw),
+                    Padding(
+                      padding: .symmetric(horizontal: 10),
+                      child: Row(
+                        children: [
+                          FTooltip(
+                            hoverEnterDuration: Duration(milliseconds: 300),
+                            hover: true,
+                            tipBuilder: (context, controller) =>
+                                const Text('Reload'),
+                            child: FButton.icon(
+                              variant: FButtonVariant.outline,
+                              onPress: onRefresh,
+                              child: const Icon(FIcons.refreshCcw),
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        FTooltip(
-                          hoverEnterDuration: Duration(milliseconds: 300),
-                          hover: true,
-                          tipBuilder: (context, controller) =>
-                              const Text('Copy'),
-                          child: FButton.icon(
-                            variant: FButtonVariant.outline,
-                            onPress: () {
-                              Clipboard.setData(
-                                ClipboardData(text: errContent),
-                              );
-                            },
-                            child: const Icon(FIcons.copy),
+                          const SizedBox(width: 10),
+                          FTooltip(
+                            hoverEnterDuration: Duration(milliseconds: 300),
+                            hover: true,
+                            tipBuilder: (context, controller) =>
+                                const Text('Copy'),
+                            child: FButton.icon(
+                              variant: FButtonVariant.outline,
+                              onPress: () {
+                                Clipboard.setData(
+                                  ClipboardData(text: errContent),
+                                );
+                              },
+                              child: const Icon(FIcons.copy),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+                child: Text(
+                  errContent,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 6,
+                ),
               ),
-              child: Text(
-                errContent,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 6,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

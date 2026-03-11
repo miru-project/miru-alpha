@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/pages/extension/widget/extension_desktop_grid_view.dart';
 import 'package:miru_alpha/pages/extension/widget/extension_tile.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/hook/sheet_controller.dart';
 import 'package:miru_alpha/widgets/index.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -33,33 +34,33 @@ class CatEntry {
 
 class _MobileExtensionModal extends HookConsumerWidget {
   const _MobileExtensionModal();
-  static const categories = ['Status', 'Type', 'Repo'];
+  static const categories = ['status', 'type', 'extension-repo.repository'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final extNotifier = ref.read(extensionPageProvider.notifier);
     final catentry = <String, CatEntry>{
-      'Status': CatEntry(
+      'status': CatEntry(
         initialValue: 'ALL',
         title: 'Status',
-        items: ['ALL', 'Installed', 'Not installed'],
+        items: ['all', 'extension.installed', 'extension.not_installed'],
         onpress: (val) {
           extNotifier.filterByInstalled(val);
         },
       ),
-      'Type': CatEntry(
+      'type': CatEntry(
         initialValue: 'ALL',
         title: 'Type',
-        items: ['ALL', 'Video', 'Manga', 'Novel'],
+        items: ['all', 'video', 'manga', 'novel'],
         onpress: (val) {
           switch (val) {
-            case 'Video':
+            case 'video':
               val = 'bangumi';
               break;
-            case 'Manga':
+            case 'manga':
               val = 'manga';
               break;
-            case 'Novel':
+            case 'novel':
               val = 'fikushon';
               break;
             default:
@@ -68,9 +69,9 @@ class _MobileExtensionModal extends HookConsumerWidget {
           extNotifier.filterByMediaType(val);
         },
       ),
-      'Repo': CatEntry(
+      'extension-repo.repository': CatEntry(
         title: 'Repository',
-        items: extNotifier.repoNames(),
+        items: extNotifier.getRepoNames(),
         onpress: (val) {
           extNotifier.filterByRepo(val);
         },
@@ -80,7 +81,7 @@ class _MobileExtensionModal extends HookConsumerWidget {
       children: List.generate(categories.length, (index) {
         final entry = categories[index];
         return FTabEntry(
-          label: Text(entry),
+          label: Text(entry.i18n),
           child: CategoryGroup(
             items: catentry[entry]?.items ?? [],
             initialValue: catentry[entry]?.initialValue,
@@ -115,7 +116,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     return MiruScaffold(
       sheetController: sheetController,
       scrollController: scrollController,
-      mobileHeader: SnapSheetHeader(title: 'Extension'),
+      mobileHeader: SnapSheetHeader(title: 'extension.name'.i18n),
       snapSheet: <Widget>[
         Padding(
           padding: .symmetric(horizontal: 10),
@@ -133,7 +134,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                 extNotifier.filterByName(value.text);
               },
             ),
-            hint: "Search by Name or Tags ...",
+            hint: "extension.search_hint".i18n,
             prefixBuilder: (context, style, states) => Padding(
               padding: EdgeInsetsGeometry.only(left: 12, right: 10),
               child: Icon(FIcons.search),
