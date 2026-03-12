@@ -50,14 +50,14 @@ Output/
 *.aar
 *.jar
 
-/src/miru_core/linux_x64/libmiru_core.h
-/src/miru_core/linux_x64/libmiru_core.so
-/src/miru_core/windows_x64/*
-
+/src/miru_core/linux/libmiru_core.h
+/src/miru_core/linux/libmiru_core.so
+/src/miru_core/windows/windows_x64
+/src/miru_core/windows/mingw64
 
 # Ignore ffmpeg libraries donwloaded from github
-/src/ffmpeg_merge/windows_x64/ffmpeg-8.0-mingw-gcc-lite
-/src/ffmpeg_merge/linux_x64/ffmpeg-8.0-linux-clang-lite-lto
+/src/ffmpeg_merge/windows/ffmpeg-8.0-mingw-gcc-lite
+/src/ffmpeg_merge/linux/ffmpeg-8.0-linux-clang-lite-lto
 /src/ffmpeg_merge/android/ffmpeg-8.0-android-lite-lto
 
 *.zip
