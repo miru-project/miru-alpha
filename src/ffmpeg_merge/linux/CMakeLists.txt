@@ -43,27 +43,32 @@ set(LIBPREFIX "/lib/amd64")
 # Setup proper FFmpeg paths
 include_directories(${FFMPEG_ROOT}/include)
 
-# Path to the FFmpeg combined shared library
-set(FFMPEG_LIB_PATH "${FFMPEG_ROOT}${LIBPREFIX}/libffmpeg.so.8.0")
+# Dynamically find all libffmpeg.so files for linking and bundling
+file(GLOB FFMPEG_LIBS "${FFMPEG_ROOT}${LIBPREFIX}/libffmpeg.so*")
 
-# If the library exists, create an IMPORTED target and link against it.
-if(EXISTS "${FFMPEG_LIB_PATH}")
-    message(STATUS "Found FFmpeg library at ${FFMPEG_LIB_PATH}; creating IMPORTED target 'ffmpeg_shared'")
+# Pick a library for linking (prefer libffmpeg.so.8 or libffmpeg.so)
+if(FFMPEG_LIBS)
+    set(FFMPEG_LINK_LIB "${FFMPEG_ROOT}${LIBPREFIX}/libffmpeg.so.8")
+    if(NOT EXISTS "${FFMPEG_LINK_LIB}")
+        set(FFMPEG_LINK_LIB "${FFMPEG_ROOT}${LIBPREFIX}/libffmpeg.so")
+    endif()
+    # Fallback to the first one found if preferred names don't exist
+    if(NOT EXISTS "${FFMPEG_LINK_LIB}")
+        list(GET FFMPEG_LIBS 0 FFMPEG_LINK_LIB)
+    endif()
+
+    message(STATUS "Found FFmpeg libraries: ${FFMPEG_LIBS}")
+    message(STATUS "Linking against: ${FFMPEG_LINK_LIB}")
+
     add_library(ffmpeg_shared SHARED IMPORTED)
-
-    # Point the imported target to the actual file we found (use the full filename)
     set_target_properties(ffmpeg_shared PROPERTIES
-        IMPORTED_LOCATION "${FFMPEG_LIB_PATH}"
+        IMPORTED_LOCATION "${FFMPEG_LINK_LIB}"
         IMPORTED_SONAME "libffmpeg.so.8"
     )
-
     target_link_libraries(ffmpeg_merge PRIVATE ffmpeg_shared)
 else()
-    message(WARNING "FFmpeg library not found at ${FFMPEG_LIB_PATH}; ffmpeg_merge will not be linked against ffmpeg_shared. Ensure download/extraction succeeded if you need FFmpeg functionality.")
+    message(WARNING "No FFmpeg libraries (libffmpeg.so*) found at ${FFMPEG_ROOT}${LIBPREFIX}")
 endif()
-
-
-
 
 # Add compile definitions if needed (may help with some FFmpeg API issues)
 target_compile_definitions(ffmpeg_merge PRIVATE
@@ -75,7 +80,7 @@ target_compile_definitions(ffmpeg_merge PRIVATE
 # List of absolute paths to libraries that should be bundled with the plugin.
 set(ffmpeg_merge_bundled_libraries
   $<TARGET_FILE:ffmpeg_merge>
-  "${FFMPEG_LIB_PATH}"
+  ${FFMPEG_LIBS}
   PARENT_SCOPE
 )
 
