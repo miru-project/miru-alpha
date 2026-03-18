@@ -16,10 +16,20 @@ class SettingBaseTile extends StatelessWidget with FTileMixin {
   final bool isMobileLayout;
   @override
   Widget build(BuildContext context) {
+    var name = '$title.name'.i18n;
+    var information = '$title.information'.i18n;
+
+    // Check if the keys actually returned translated values
+    final hasProperI18n = name != '$title.name';
+    final titleText = hasProperI18n ? name : title.i18n;
+    final subtitleText = hasProperI18n && information != '$title.information'
+        ? information
+        : subtitle?.i18n;
+
     if (isMobileLayout) {
       return FTile(
-        title: Text(title.i18n),
-        subtitle: (subtitle == null) ? null : Text(subtitle!.i18n),
+        title: Text(titleText),
+        subtitle: subtitleText == null ? null : Text(subtitleText),
         details: child,
       );
     }
@@ -30,9 +40,9 @@ class SettingBaseTile extends StatelessWidget with FTileMixin {
           Expanded(
             child: FLabel(
               axis: Axis.vertical,
-              description: subtitle == null ? null : Text(subtitle!.i18n),
+              description: subtitleText == null ? null : Text(subtitleText),
               child: Text(
-                title.i18n,
+                titleText,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ),

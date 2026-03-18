@@ -79,7 +79,7 @@ class MiruMangaReader extends HookConsumerWidget {
             FTabEntry(
               label: Icon(FIcons.alignHorizontalJustifyEnd),
               child: Center(
-                child: Text('manga_reader.alignment_settings'.i18n),
+                child: Text('manga_reader.alignment_settings.name'.i18n),
               ),
             ),
             FTabEntry(

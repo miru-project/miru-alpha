@@ -2,7 +2,7 @@ enum SideBarName {
   general,
   extension,
   player,
-  miruCore,
+  network,
   reader,
   advanced,
   about,

@@ -17,12 +17,12 @@ class SettingGeneral extends HookConsumerWidget {
       children: [
         SettingGroup(
           isMobileLayout: isMobileLayout,
-          title: 'settings_labels.content',
+          title: 'settings_labels.content.name',
           children: [
             SettingsInputTile(
               isMobileLayout: isMobileLayout,
               title: "settings_labels.tmdb_api_key",
-              subtitle: 'settings_labels.tmdb_api_key_subtitle',
+              subtitle: 'settings_labels.tmdb_api_key',
               initialValue: MiruSettings.getSettingSync<String>(
                 SettingKey.tmdbKey,
               ),
@@ -33,8 +33,8 @@ class SettingGeneral extends HookConsumerWidget {
 
             SettingsRadiosTile(
               isMobileLayout: isMobileLayout,
-              title: "language",
-              subtitle: 'settings_labels.language_subtitle',
+              title: "settings_labels.language",
+              subtitle: 'settings_labels.language',
               value: MiruSettings.getSettingSync<String>(SettingKey.language),
               onChanged: (value) {
                 c.changeLanguage(value);
@@ -46,7 +46,7 @@ class SettingGeneral extends HookConsumerWidget {
             SettingsToggleTile(
               isMobileLayout: isMobileLayout,
               title: 'settings_labels.allow_nsfw',
-              subtitle: 'settings_labels.allow_nsfw_subtitle',
+              subtitle: 'settings_labels.allow_nsfw',
               value: MiruSettings.getSettingSync<bool>(SettingKey.enableNSFW),
               onChanged: (value) {
                 MiruSettings.setSettingSync(
@@ -60,12 +60,12 @@ class SettingGeneral extends HookConsumerWidget {
 
         SettingGroup(
           isMobileLayout: isMobileLayout,
-          title: 'settings_labels.appearance',
+          title: 'settings_labels.appearance.name',
           children: [
             SettingsRadiosTile.detailed(
               isMobileLayout: isMobileLayout,
               title: 'settings_labels.theme',
-              subtitle: 'settings_labels.theme_subtitle',
+              subtitle: 'settings_labels.theme',
               value: MiruSettings.getSettingSync<String>(SettingKey.theme),
               onChanged: (val) => c.changeTheme(val),
               entry: const [
@@ -89,7 +89,7 @@ class SettingGeneral extends HookConsumerWidget {
             SettingsRadiosTile(
               isMobileLayout: isMobileLayout,
               title: 'settings_labels.accent_color',
-              subtitle: 'settings_labels.accent_color_subtitle',
+              subtitle: 'settings_labels.accent_color',
               value: MiruSettings.getSettingSync<String>(
                 SettingKey.accentColor,
               ),
@@ -108,12 +108,12 @@ class SettingGeneral extends HookConsumerWidget {
         ),
         SettingGroup(
           isMobileLayout: isMobileLayout,
-          title: 'settings_labels.others',
+          title: 'settings_labels.others.name',
           children: [
             SettingsToggleTile(
               isMobileLayout: isMobileLayout,
               title: 'settings_labels.auto_update',
-              subtitle: 'settings_labels.auto_update_subtitle',
+              subtitle: 'settings_labels.auto_update',
               value: MiruSettings.getSettingSync<bool>(
                 SettingKey.autoCheckUpdate,
               ),
@@ -128,7 +128,7 @@ class SettingGeneral extends HookConsumerWidget {
             SettingsToggleTile(
               isMobileLayout: isMobileLayout,
               title: 'settings_labels.mobile_header_top',
-              subtitle: 'settings_labels.mobile_header_top_subtitle',
+              subtitle: 'settings_labels.mobile_header_top',
               value: MiruSettings.getSettingSync<bool>(
                 SettingKey.mobiletitleIsonTop,
               ),
@@ -141,7 +141,7 @@ class SettingGeneral extends HookConsumerWidget {
             SettingsToggleTile(
               isMobileLayout: isMobileLayout,
               title: 'settings_labels.show_page_number',
-              subtitle: 'settings_labels.show_page_number_subtitle',
+              subtitle: 'settings_labels.show_page_number',
               value: MiruSettings.getSettingSync<bool>(
                 SettingKey.showPageNumber,
               ),

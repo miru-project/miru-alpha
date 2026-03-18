@@ -1,7 +1,7 @@
-// import 'dart:convert';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:path/path.dart' as p;
 
 class ImageWidget extends StatelessWidget {
   const ImageWidget({
@@ -59,7 +59,7 @@ class ImageWidget extends StatelessWidget {
     if (imageUrl?.isEmpty ?? true) return buildErrchild();
     // Fallback: treat as network image
     return ExtendedImage.network(
-      imageUrl!,
+      "http://127.0.0.1:3000/proxy/${imageUrl!}",
       borderRadius: BorderRadius.circular(borderRadius),
       clipBehavior: clipBehavior,
       shape: BoxShape.rectangle,

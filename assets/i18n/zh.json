@@ -81,27 +81,38 @@
   "signin": "登录",
   "miru": "Miru",
   "alpha": "Alpha",
-  "repo_settings": "仓库设置",
-  "general_settings": "通用设置",
-  "personalize_experience": "个性化您的体验",
-  "language_theme_etc": "语言、主题等",
-  "network_settings": "网络设置",
-  "repos": "仓库",
-  "miru_core_settings": "Miru 核心设置",
-  "network_download": "网络, 下载",
-  "watch_settings": "观看设置",
-  "video_player": {
-    "title": "视频播放器",
-    "subtitle": "字幕",
-    "danmaku": "弹幕",
-    "speed": "倍速",
-    "adjust_speed": "调整播放速度",
-    "aspect_ratio": "高宽比",
-    "video_info": "视频信息",
-    "play": "播放",
-    "settings_placeholder_title": "您确定吗?",
-    "settings_placeholder_body": "此操作无法撤销。这将永久删除您的帐户并从我们的服务器中删除您的数据。"
+  "setting_general": {
+    "name": "通用设置",
+    "information": "个性化您的体验"
   },
+  "setting_extension": {
+    "name": "仓库设置",
+    "information": "仓库"
+  },
+  "setting_miru_core": {
+    "name": "Miru 核心设置",
+    "information": "网络, 下载"
+  },
+  "setting_watch": {
+    "name": "观看设置",
+    "information": "播放器设置, 阅读器 ..."
+  },
+  "setting_about": {
+    "name": "关于",
+    "information": ""
+  },
+  "video_player": {
+    "name": "视频播放器",
+    "information": "调整播放设置"
+  },
+  "danmaku": "弹幕",
+  "speed": "倍速",
+  "adjust_speed": "调整播放速度",
+  "aspect_ratio": "高宽比",
+  "video_info": "视频信息",
+  "play": "播放",
+  "settings_placeholder_title": "您确定吗?",
+  "settings_placeholder_body": "此操作无法撤销。这将永久删除您的帐户并从我们的服务器中删除您的数据。",
   "player_setting": "播放器设置",
   "readers": "阅读器",
   "novels_manga": "小说, 漫画 ...",
@@ -163,7 +174,10 @@
   "paragraphs": "段落",
   "are_you_sure": "您确定吗?",
   "continue_text": "继续",
-  "information": "信息",
+  "setting_network": {
+    "name": "设置网络",
+    "information": "信息"
+  },
   "address": "地址",
   "port": "端口",
   "no_episodes_found": "错误: 未找到剧集",
@@ -181,18 +195,48 @@
   "custom_context_menu": "自定义右键菜单",
   "anilist_login": "Anilist 登录",
   "manga_reader": {
-    "alignment_settings": "对齐设置",
-    "page_settings": "页面设置",
-    "general_settings": "通用设置",
-    "read_mode": "阅读模式"
+    "alignment_settings": {
+      "name": "对齐设置",
+      "information": ""
+    },
+    "page_settings": {
+      "name": "页面设置",
+      "information": ""
+    },
+    "general_settings": {
+      "name": "通用设置",
+      "information": ""
+    },
+    "read_mode": {
+      "name": "阅读模式",
+      "information": ""
+    }
   },
   "novel_reader": {
-    "alignment_settings": "对齐设置",
-    "page_settings": "页面设置",
-    "general_settings": "通用设置",
-    "font_size": "字体大小",
-    "line_height": "行高",
-    "font_family": "字体"
+    "alignment_settings": {
+      "name": "对齐设置",
+      "information": ""
+    },
+    "page_settings": {
+      "name": "页面设置",
+      "information": ""
+    },
+    "general_settings": {
+      "name": "通用设置",
+      "information": ""
+    },
+    "font_size": {
+      "name": "字体大小",
+      "information": ""
+    },
+    "line_height": {
+      "name": "行高",
+      "information": ""
+    },
+    "font_family": {
+      "name": "字体",
+      "information": ""
+    }
   },
   "remove_history": "移除历史",
   "remove_favorite": "取消收藏",
@@ -211,29 +255,55 @@
   "enter_tmdb_api_key": "输入您的 TMDB Api 密钥",
   "language": "语言",
   "settings_labels": {
-    "content": "内容",
-    "tmdb_api_key": "TMDB api 密钥",
-    "tmdb_api_key_subtitle": "用于 tmdb-api 的 api",
-    "allow_nsfw": "允许 NSFW",
-    "allow_nsfw_subtitle": "显示 NSFW 扩展和内容",
-    "appearance": "外观",
-    "theme": "主题",
-    "theme_subtitle": "更改应用程序主题",
+    "content": {
+      "name": "内容",
+      "information": ""
+    },
+    "tmdb_api_key": {
+      "name": "TMDB api 密钥",
+      "information": "用于 tmdb-api 的 api"
+    },
+    "allow_nsfw": {
+      "name": "允许 NSFW",
+      "information": "显示 NSFW 扩展和内容"
+    },
+    "appearance": {
+      "name": "外观",
+      "information": ""
+    },
+    "theme": {
+      "name": "主题",
+      "information": "更改应用程序主题"
+    },
     "system": "系统",
     "light": "浅色",
     "dark": "深色",
-    "accent_color": "强调颜色",
-    "accent_color_subtitle": "更改应用程序强调颜色",
-    "others": "其他",
-    "auto_update": "自动更新",
-    "auto_update_subtitle": "自动检查更新",
-    "mobile_header_top": "移动端标题始终置顶",
-    "mobile_header_top_subtitle": "使移动端应用栏标题始终置顶",
-    "show_page_number": "显示页码",
-    "show_page_number_subtitle": "在搜索/最新中显示页码",
+    "accent_color": {
+      "name": "强调颜色",
+      "information": "更改应用程序强调颜色"
+    },
+    "others": {
+      "name": "其他",
+      "information": ""
+    },
+    "auto_update": {
+      "name": "自动更新",
+      "information": "自动检查更新"
+    },
+    "mobile_header_top": {
+      "name": "移动端标题始终置顶",
+      "information": "使移动端应用栏标题始终置顶"
+    },
+    "show_page_number": {
+      "name": "显示页码",
+      "information": "在搜索/最新中显示页码"
+    },
+    "language": {
+      "name": "语言",
+      "information": "更改应用程序语言"
+    },
     "en": "英语",
     "zh": "简体中文",
-    "language_subtitle": "更改应用程序语言",
     "zinc": "锌色",
     "neutral": "中性",
     "slate": "石板色",

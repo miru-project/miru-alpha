@@ -55,7 +55,7 @@ class DesktopLoadedPage extends HookWidget {
                         DesktopDetailItemBox(
                           title: 'no_episodes_found'.i18n,
                           padding: 20,
-                          child: SizedBox.expand(),
+                          child: SizedBox(),
                         )
                       else
                         DesktopDetailEpisodeCard(

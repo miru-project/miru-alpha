@@ -8,6 +8,7 @@ import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/widgets/core/image_widget.dart';
 
 export 'library_page.dart';
 
@@ -39,10 +40,7 @@ class HomePageCarousel extends ConsumerWidget {
       child: Row(
         children: [
           Flexible(
-            child: ExtendedImage.network(
-              fit: BoxFit.fitHeight,
-              item.cover ?? '',
-            ),
+            child: ImageWidget(imageUrl: item.cover, width: 70, height: 70),
           ),
           const SizedBox(width: 15),
           SizedBox(

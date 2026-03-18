@@ -7,7 +7,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
-import 'package:miru_alpha/utils/setting_dir_index.dart';
 
 class MobileWebViewPage extends StatefulHookConsumerWidget {
   const MobileWebViewPage({
@@ -73,7 +72,7 @@ class _MobileWebViewPageState extends ConsumerState<MobileWebViewPage> {
         child: InAppWebView(
           initialUrlRequest: URLRequest(url: WebUri.uri(loadUrl.value)),
           initialSettings: InAppWebViewSettings(
-            userAgent: MiruSettings.getUASetting(),
+            // userAgent: MiruSettings.getUASetting(),
           ),
           onLoadStart: (controller, url) {
             if (url == null) return;

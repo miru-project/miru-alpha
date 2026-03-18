@@ -42,42 +42,6 @@ class CoreMessage {
 
 class CoreNetwork {
   static String get baseUrl => "http://${Core.host}:${Core.port}";
-  static Future<dynamic> requestJSON(String path) async {
-    return await dio
-        .get('$baseUrl/$path')
-        .then((response) => response.data["data"]);
-  }
-
-  static Future<dynamic> requestRaw(
-    String path, {
-    Object? data,
-    String method = 'GET',
-  }) async {
-    return await dio
-        .request(
-          '$baseUrl/$path',
-          data: data,
-          options: Options(method: method),
-        )
-        .then((response) => response.data);
-  }
-
-  static Future<CoreMessage> requestFormData(
-    String path,
-    Map<String, dynamic> data, {
-    String method = 'POST',
-  }) async {
-    final formData = FormData.fromMap(data);
-    final response = await dio.request(
-      '$baseUrl/$path',
-      data: formData,
-      options: Options(method: method, contentType: 'multipart/form-data'),
-    );
-    return CoreMessage(
-      response.data["message"]?.toString(),
-      response.data["data"],
-    );
-  }
 
   static Future<void> waitForServerLoaded() async {
     int failedCount = 0;
@@ -102,15 +66,6 @@ class CoreNetwork {
 }
 
 class MiruCoreEndpoint {
-  static String get extensionPathUrl => 'ext';
-  static String get searchUrl => '$extensionPathUrl/search';
-  static String get latestBaseUrl => '$extensionPathUrl/latest';
-  static String get detailUrl => '$extensionPathUrl/detail';
-  static String get watchUrl => '$extensionPathUrl/watch';
-  static String get downloadUrl => '$extensionPathUrl/download';
-  static String get setRepoUrl => 'ext/repo';
-  static String get repoListUrl => 'ext/repolist';
-
   static Detail _detailFromProto(proto.Detail p) {
     return Detail(
       id: p.id,

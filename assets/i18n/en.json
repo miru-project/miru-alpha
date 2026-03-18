@@ -69,7 +69,7 @@
   "overview": "Overview",
   "general": "General",
   "player": "Player",
-  "miru_core": "Miru Core",
+  "network": "Network",
   "reader": "Reader",
   "advanced": "Advanced",
   "about": "About",
@@ -81,27 +81,38 @@
   "signin": "Signin",
   "miru": "Miru",
   "alpha": "Alpha",
-  "repo_settings": "Repo Settings",
-  "general_settings": "General Settings",
-  "personalize_experience": "Personalize your experience",
-  "language_theme_etc": "Language, Theme, etc.",
-  "network_settings": "Network Settings",
-  "repos": "repos",
-  "miru_core_settings": "Miru Core Settings",
-  "network_download": "network, download",
-  "watch_settings": "Watch Settings",
-  "video_player": {
-    "title": "Video Player",
-    "subtitle": "Subtitle",
-    "danmaku": "Danmaku",
-    "speed": "Speed",
-    "adjust_speed": "Adjust playback speed",
-    "aspect_ratio": "Aspect Ratio",
-    "video_info": "Video Info",
-    "play": "Play",
-    "settings_placeholder_title": "Are you absolutely sure?",
-    "settings_placeholder_body": "This action cannot be undone. This will permanently delete your account and remove your data from our servers."
+  "setting_general": {
+    "name": "General Settings",
+    "information": "Personalize your experience"
   },
+  "setting_extension": {
+    "name": "Repo Settings",
+    "information": "repos"
+  },
+  "setting_miru_core": {
+    "name": "Miru Core Settings",
+    "information": "network, download"
+  },
+  "setting_watch": {
+    "name": "Watch Settings",
+    "information": "player, readers ..."
+  },
+  "setting_about": {
+    "name": "About",
+    "information": ""
+  },
+  "video_player": {
+    "name": "Video Player",
+    "information": "Adjust playback settings",
+    "play": "Play"
+  },
+  "danmaku": "Danmaku",
+  "speed": "Speed",
+  "adjust_speed": "Adjust playback speed",
+  "aspect_ratio": "Aspect Ratio",
+  "video_info": "Video Info",
+  "settings_placeholder_title": "Are you absolutely sure?",
+  "settings_placeholder_body": "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
   "player_setting": "player setting",
   "readers": "Readers",
   "novels_manga": "Novels, Manga ...",
@@ -163,7 +174,15 @@
   "paragraphs": "paragraphs",
   "are_you_sure": "Are you absolutely sure?",
   "continue_text": "Continue",
-  "information": "Information",
+  "setting_network": {
+    "name": "Setting Network",
+    "information": "Information"
+  },
+  "setting_proxy": {
+    "name": "Setting Proxy",
+    "information": "Information",
+    "select": "Select"
+  },
   "address": "Address",
   "port": "Port",
   "no_episodes_found": "Error: No episodes found",
@@ -181,18 +200,48 @@
   "custom_context_menu": "Custom Context Menu",
   "anilist_login": "Anilist Login",
   "manga_reader": {
-    "alignment_settings": "Alignment Settings",
-    "page_settings": "Page Settings",
-    "general_settings": "General Settings",
-    "read_mode": "Read Mode"
+    "alignment_settings": {
+      "name": "Alignment Settings",
+      "information": ""
+    },
+    "page_settings": {
+      "name": "Page Settings",
+      "information": ""
+    },
+    "general_settings": {
+      "name": "General Settings",
+      "information": ""
+    },
+    "read_mode": {
+      "name": "Read Mode",
+      "information": ""
+    }
   },
   "novel_reader": {
-    "alignment_settings": "Alignment Settings",
-    "page_settings": "Page Settings",
-    "general_settings": "General Settings",
-    "font_size": "Font Size",
-    "line_height": "Line Height",
-    "font_family": "Font Family"
+    "alignment_settings": {
+      "name": "Alignment Settings",
+      "information": ""
+    },
+    "page_settings": {
+      "name": "Page Settings",
+      "information": ""
+    },
+    "general_settings": {
+      "name": "General Settings",
+      "information": ""
+    },
+    "font_size": {
+      "name": "Font Size",
+      "information": ""
+    },
+    "line_height": {
+      "name": "Line Height",
+      "information": ""
+    },
+    "font_family": {
+      "name": "Font Family",
+      "information": ""
+    }
   },
   "remove_history": "Remove History",
   "remove_favorite": "Remove Favorite",
@@ -211,29 +260,55 @@
   "enter_tmdb_api_key": "Enter your TMDB Api keys",
   "language": "Language",
   "settings_labels": {
-    "content": "Content",
-    "tmdb_api_key": "TMDB api key",
-    "tmdb_api_key_subtitle": "api for tmdb-api",
-    "allow_nsfw": "Allow NSFW",
-    "allow_nsfw_subtitle": "Show NSFW extensions and content",
-    "appearance": "Appearance",
-    "theme": "Theme",
-    "theme_subtitle": "Change the application theme",
+    "content": {
+      "name": "Content",
+      "information": ""
+    },
+    "tmdb_api_key": {
+      "name": "TMDB api key",
+      "information": "api for tmdb-api"
+    },
+    "allow_nsfw": {
+      "name": "Allow NSFW",
+      "information": "Show NSFW extensions and content"
+    },
+    "appearance": {
+      "name": "Appearance",
+      "information": ""
+    },
+    "theme": {
+      "name": "Theme",
+      "information": "Change the application theme"
+    },
     "system": "System",
     "light": "Light",
     "dark": "Dark",
-    "accent_color": "Accent Color",
-    "accent_color_subtitle": "Change the application accent color",
-    "others": "Others",
-    "auto_update": "Auto Update",
-    "auto_update_subtitle": "Automatically check for updates",
-    "mobile_header_top": "Mobile header always on top",
-    "mobile_header_top_subtitle": "Make the app bar header always on top in mobile",
-    "show_page_number": "Show page number",
-    "show_page_number_subtitle": "Show page number in Search / Latest",
+    "accent_color": {
+      "name": "Accent Color",
+      "information": "Change the application accent color"
+    },
+    "others": {
+      "name": "Others",
+      "information": ""
+    },
+    "auto_update": {
+      "name": "Auto Update",
+      "information": "Automatically check for updates"
+    },
+    "mobile_header_top": {
+      "name": "Mobile header always on top",
+      "information": "Make the app bar header always on top in mobile"
+    },
+    "show_page_number": {
+      "name": "Show page number",
+      "information": "Show page number in Search / Latest"
+    },
+    "language": {
+      "name": "Language",
+      "information": "Change the application language"
+    },
     "en": "English",
     "zh": "Chinese",
-    "language_subtitle": "Change the application language",
     "zinc": "Zinc",
     "neutral": "Neutral",
     "slate": "Slate",

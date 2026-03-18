@@ -1,4 +1,3 @@
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -12,6 +11,7 @@ import 'package:miru_alpha/provider/network_provider.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/widgets/amination/animated_box.dart';
+import 'package:miru_alpha/widgets/core/image_widget.dart';
 
 class ContinueWatchingSection extends HookConsumerWidget {
   const ContinueWatchingSection({
@@ -254,22 +254,29 @@ class _ContinueWatchingCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: ExtendedImage.network(
-                    item.cover ?? '',
-                    borderRadius: BorderRadius.circular(10),
+                  child: ImageWidget(
+                    imageUrl: item.cover,
                     width: double.infinity,
+                    errChild: Center(child: const Icon(FIcons.cloudAlert)),
                     fit: BoxFit.cover,
-                    loadStateChanged: (state) {
-                      if (state.extendedImageLoadState == LoadState.failed) {
-                        return Container(
-                          height: 140,
-                          color: Colors.grey[800],
-                          child: const Icon(FIcons.cloudAlert),
-                        );
-                      }
-                      return null;
-                    },
+                    borderRadius: 0,
                   ),
+                  //  ExtendedImage.network(
+                  //   item.cover ?? '',
+                  //   borderRadius: BorderRadius.circular(10),
+                  //   width: double.infinity,
+                  //   fit: BoxFit.cover,
+                  //   loadStateChanged: (state) {
+                  //     if (state.extendedImageLoadState == LoadState.failed) {
+                  //       return Container(
+                  //         height: 140,
+                  //         color: Colors.grey[800],
+                  //         child: const Icon(FIcons.cloudAlert),
+                  //       );
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
                 ),
                 SizedBox(
                   height: 4,

@@ -16,6 +16,8 @@ class DetialState {
   final Favorite? favorite;
   final List<FavoriteGroup>? favoriateGroup;
 
+  static const undefined = Object();
+
   DetialState({
     required this.selectedGroup,
     this.historyList = const [],
@@ -28,15 +30,17 @@ class DetialState {
     ValueNotifier<int>? selectedGroup,
     List<History>? historyList,
     List<proto.Download>? downloadList,
-    Favorite? favorite,
-    List<FavoriteGroup>? favoriateGroup,
+    Object? favorite = undefined,
+    Object? favoriateGroup = undefined,
   }) {
     return DetialState(
       selectedGroup: selectedGroup ?? this.selectedGroup,
       historyList: historyList ?? this.historyList,
       downloadList: downloadList ?? this.downloadList,
-      favorite: favorite ?? this.favorite,
-      favoriateGroup: favoriateGroup ?? this.favoriateGroup,
+      favorite: favorite == undefined ? this.favorite : favorite as Favorite?,
+      favoriateGroup: favoriateGroup == undefined
+          ? this.favoriateGroup
+          : favoriateGroup as List<FavoriteGroup>?,
     );
   }
 }
@@ -114,7 +118,7 @@ class Detial extends _$Detial {
 
   void removeFavorite(Favorite f) {
     state = state.copyWith(favorite: null);
-    // ref.read(mainProvider.notifier).removeFavorite(f);
+    ref.read(favoritePageProvider.notifier).deleteFavorite(f);
   }
 
   void setSelectedGroup(int v) {

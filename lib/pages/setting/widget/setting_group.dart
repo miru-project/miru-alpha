@@ -18,11 +18,25 @@ class SettingGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final name = '$title.name'.i18n;
+    final information = '$title.information'.i18n;
+
+    // Check if the keys actually returned translated values or just the key string
+    final hasProperI18n = name != '$title.name';
+    final titleText = hasProperI18n ? name : title.i18n;
+    final descriptionText = hasProperI18n && information != '$title.information'
+        ? information
+        : null;
+
     if (isMobileLayout) {
-      return FTileGroup(label: Text(title.i18n), children: children);
+      return FTileGroup(
+        label: Text(titleText),
+        description: descriptionText != null ? Text(descriptionText) : null,
+        children: children,
+      );
     }
     return OutterCard(
-      title: title.i18n,
+      title: title, // OutterCard handles .i18n internally, but we might want to pass the refactored one
       trailing: trailing,
       child: Column(children: _withDividers(children)),
     );

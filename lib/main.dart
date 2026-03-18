@@ -51,6 +51,7 @@ void main() async {
       }
 
       void bindErrorWidget() {
+        if (kDebugMode) return;
         ErrorWidget.builder = errFunc;
         FlutterError.onError = errFunc;
         PlatformDispatcher.instance.onError = errPrint;

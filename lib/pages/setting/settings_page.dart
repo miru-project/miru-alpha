@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
-import 'package:miru_alpha/pages/setting/setting_core.dart';
+import 'package:miru_alpha/pages/setting/setting_network.dart';
 import 'package:miru_alpha/pages/setting/setting_general.dart';
 import 'package:miru_alpha/utils/router/router_util.dart';
 import 'setting_extension.dart';
@@ -44,8 +44,8 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
       case SideBarName.player:
         // return SettingPlayer();
         return Center();
-      case SideBarName.miruCore:
-        return SettingMiruCore();
+      case SideBarName.network:
+        return SettingNetwork();
       case SideBarName.reader:
         // return SettingReader();
         return Center();
@@ -71,14 +71,14 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
       mobileBody: ListView(
         children: [
           FTileGroup(
-            label: Text("general_settings".i18n),
-            description: Text('personalize_experience'.i18n),
+            label: Text("setting_general.name".i18n),
+            description: Text('setting_general.information'.i18n),
             children: [
               FTile(
                 prefix: Icon(FIcons.menu),
                 title: Text('general'.i18n),
                 suffix: Icon(FIcons.chevronRight),
-                subtitle: Text('language_theme_etc'.i18n),
+                subtitle: Text('setting_general.information'.i18n),
                 onPress: () {
                   _pushtoPage(
                     context,
@@ -93,19 +93,20 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
           ),
           const SizedBox(height: 10),
           FTileGroup(
-            label: Text('network_settings'.i18n),
+            label: Text('setting_extension.name'.i18n),
+            description: Text('setting_extension.information'.i18n),
             children: [
               FTile(
                 prefix: Icon(FIcons.blocks),
                 title: Text('extension.name'.i18n),
-                subtitle: Text('repos'.i18n),
+                subtitle: Text('setting_extension.information'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {
                   _pushtoPage(
                     context,
                     SettingScaffold(
-                      title: 'repo_settings'.i18n,
+                      title: 'setting_extension.name'.i18n,
                       child: SettingExtension(isMobile: true),
                     ),
                   );
@@ -113,16 +114,16 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
               ),
               FTile(
                 prefix: Icon(FIcons.serverCog),
-                title: Text('miru_core_settings'.i18n),
-                subtitle: Text('network_download'.i18n),
+                title: Text('setting_miru_core.name'.i18n),
+                subtitle: Text('setting_miru_core.information'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {
                   _pushtoPage(
                     context,
                     SettingScaffold(
-                      title: 'miru_core'.i18n,
-                      child: SettingMiruCore(isMobileLayout: true),
+                      title: 'setting_miru_core.name'.i18n,
+                      child: SettingNetwork(isMobileLayout: true),
                     ),
                   );
                 },
@@ -131,8 +132,8 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
           ),
           const SizedBox(height: 10),
           FTileGroup(
-            label: Text("watch_settings".i18n),
-            // description: const Text('Personalize your experience'),
+            label: Text("setting_watch.name".i18n),
+            description: Text('setting_watch.information'.i18n),
             children: [
               FTile(
                 prefix: Icon(FIcons.tv),
@@ -153,7 +154,7 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
             ],
           ),
           FTileGroup(
-            label: Text("about".i18n),
+            label: Text("setting_about.name".i18n),
             // description: const Text('Personalize your experience'),
             children: [
               FTile(

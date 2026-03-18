@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:miru_alpha/model/model.dart';
@@ -24,12 +23,13 @@ class MiruSettings {
   }
 
   // Update key and value in miru core by HTTP
-  static Future<void> setSetting(String key, String value) async {
+  static Future<void> setSetting(String key, dynamic value) async {
     try {
       await MiruGrpcClient.appSettingClient.setAppSetting(
         proto.SetAppSettingRequest()
-          ..settings.add(proto.AppSetting(key: key, value: value)),
+          ..settings.add(proto.AppSetting(key: key, value: value.toString())),
       );
+      _settingsCache[key] = value.toString();
     } catch (e) {
       logger.info('Failed to set setting $key to $value via gRPC: $e');
     }
@@ -65,7 +65,8 @@ class MiruSettings {
     SettingKey.windowsWebviewUA:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
     SettingKey.proxy: '',
-    SettingKey.proxyType: 'DIRECT',
+    SettingKey.proxyActivate: 'false',
+    SettingKey.proxyList: {}.toString(),
     SettingKey.saveLog: 'true',
     SettingKey.subtitleFontSize: "46.0",
     SettingKey.subtitleFontColor: Colors.white.toARGB32().toString(),
@@ -96,7 +97,7 @@ class MiruSettings {
     setSetting(key, value);
   }
 
-  static T? getStting<T>(String key) {
+  static T? getSetting<T>(String key) {
     final value = _settingsCache[key];
     if (value == null) {
       return null;
@@ -110,21 +111,6 @@ class MiruSettings {
       throw Exception('Setting $key not found');
     }
     return convertStringToObj<T>(value);
-  }
-
-  static String getUASetting() {
-    if (Platform.isAndroid) {
-      return getSettingSync<String>(SettingKey.androidWebviewUA);
-    }
-    return getSettingSync<String>(SettingKey.windowsWebviewUA);
-  }
-
-  static Future<void> setUASetting(String value) async {
-    if (Platform.isAndroid) {
-      setSettingSync(SettingKey.androidWebviewUA, value);
-    } else {
-      setSettingSync(SettingKey.windowsWebviewUA, value);
-    }
   }
 
   static T convertStringToObj<T>(String value) {
@@ -183,7 +169,6 @@ class SettingKey {
   static const androidWebviewUA = "AndroidWebviewUA";
   static const windowsWebviewUA = "WindowsWebviewUA";
   static const proxy = "Proxy";
-  static const proxyType = "ProxyType";
   static const saveLog = "SaveLog";
   static const subtitleFontSize = "SubtitleFontSize";
   static const subtitleFontWeight = "SubtitleFontWeight";
@@ -202,4 +187,6 @@ class SettingKey {
   static const showPageNumber = 'ShowPageNumber';
   static const novelReadingMode = 'NovelReadingMode';
   static const downloadPath = 'DownloadPath';
+  static const proxyActivate = 'ProxyActivate';
+  static const proxyList = 'ProxyList';
 }

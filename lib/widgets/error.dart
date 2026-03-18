@@ -5,8 +5,6 @@ import 'package:forui/forui.dart';
 import 'package:grpc/grpc.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
-import 'package:miru_alpha/provider/main_controller_provider.dart';
-import 'package:miru_alpha/provider/watch/main_provider.dart';
 
 class ErrorDisplay extends ConsumerWidget {
   final Object err;

@@ -17,8 +17,8 @@ class MangaSettingGeneral extends ConsumerWidget {
       children: [
         SettingsRadiosTile(
           isMobileLayout: true,
-          title: 'manga_reader.read_mode'.i18n,
-          subtitle: 'manga_reader.read_mode'.i18n,
+          title: 'manga_reader.read_mode.name'.i18n,
+          subtitle: 'manga_reader.read_mode.name'.i18n,
           radios: MangaReadMode.values.map((e) => e.name).toList(),
           value: MiruSettings.getSettingSync(SettingKey.mangaReadingMode),
           onChanged: (val) {
