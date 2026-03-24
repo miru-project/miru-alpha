@@ -44,35 +44,30 @@ class SnapSheetNested extends StatelessWidget {
   const SnapSheetNested({
     super.key,
     required this.title,
-    this.prefix = const <Widget>[],
-    this.suffix = const <Widget>[],
+    this.prefix,
+    this.suffix,
   });
   final String title;
-  final List<Widget> prefix;
-  final List<Widget> suffix;
+  final Widget? prefix;
+  final Widget? suffix;
 
-  const SnapSheetNested.back({
-    super.key,
-    required this.title,
-    this.suffix = const <Widget>[],
-  }) : prefix = const <Widget>[HeaderBack()];
+  const SnapSheetNested.back({super.key, required this.title, this.suffix})
+    : prefix = const HeaderBack();
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsetsGeometry.only(bottom: 10, right: 12),
       child: Row(
         children: [
-          ...prefix,
-          Flexible(
-            child: Text(
-              title,
-              maxLines: 1,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-              overflow: .ellipsis,
-            ),
+          prefix ?? const SizedBox.shrink(),
+          Text(
+            title,
+            maxLines: 1,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+            overflow: .ellipsis,
           ),
-          if (suffix.isNotEmpty) const Spacer(),
-          ...suffix,
+          Spacer(),
+          suffix ?? const SizedBox.shrink(),
         ],
       ),
     );

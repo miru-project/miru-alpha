@@ -188,7 +188,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                         padding: const .only(left: 14, right: 8),
                         child: Text(
                           "sort_by".i18n,
-                          style: style.emptyTextStyle.copyWith(
+                          style: TextStyle(
                             color: context.theme.colors.foreground,
                           ),
                         ),

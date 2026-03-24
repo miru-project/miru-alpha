@@ -10,7 +10,7 @@ class SearchFilterCard extends StatelessWidget {
     return Blur(
       child: FCard(
         style: .delta(
-          decoration: .delta(
+          decoration: .boxDelta(
             color: context.theme.colors.background.withAlpha(200),
           ),
         ),

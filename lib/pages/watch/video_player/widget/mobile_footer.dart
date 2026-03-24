@@ -25,7 +25,7 @@ class MobilePlayerFooter extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: (FCard.raw(
         style: .delta(
-          decoration: .delta(
+          decoration: .boxDelta(
             borderRadius: BorderRadius.circular(10),
             color: context.theme.colors.background.withAlpha(230),
           ),

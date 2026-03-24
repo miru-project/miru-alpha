@@ -69,7 +69,6 @@ class _MiruTabsState extends State<MiruTabs>
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.theme;
     final style =
         widget.style?.call(context.theme.tabsStyle) ?? context.theme.tabsStyle;
 
@@ -96,17 +95,22 @@ class _MiruTabsState extends State<MiruTabs>
           ),
           SizedBox(height: style.spacing),
           Expanded(
-            child: DefaultTextStyle(
-              style: theme.typography.base.copyWith(
-                fontFamily: theme.typography.defaultFontFamily,
-                color: theme.colors.foreground,
-              ),
-              child: TabBarView(
-                controller: _controller,
-                physics: widget.physics,
-                children: widget.children.map((e) => e.child).toList(),
-              ),
+            child: TabBarView(
+              controller: _controller,
+              physics: widget.physics,
+              children: widget.children.map((e) => e.child).toList(),
             ),
+            // DefaultTextStyle(
+            //   style: theme.typography.copyWith(
+            //     fontFamily: theme.typography.defaultFontFamily,
+            //     color: theme.colors.foreground,
+            //   ),
+            //   child: TabBarView(
+            //     controller: _controller,
+            //     physics: widget.physics,
+            //     children: widget.children.map((e) => e.child).toList(),
+            //   ),
+            // ),
           ),
         ],
       ),

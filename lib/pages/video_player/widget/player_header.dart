@@ -68,7 +68,7 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
     final epNotifier = ref.watch(widget.episodeProvider);
     return FCard.raw(
       style: .delta(
-        decoration: .delta(
+        decoration: .boxDelta(
           color: context.theme.colors.background.withAlpha(200),
         ),
       ),
@@ -129,19 +129,21 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
                       builder: (context, style, animation) => FDialog(
                         style: style,
                         animation: animation,
-                        title: Text('video_player.settings_placeholder_title'.i18n),
+                        title: Text(
+                          'video_player.settings_placeholder_title'.i18n,
+                        ),
                         body: Text(
                           'video_player.settings_placeholder_body'.i18n,
                         ),
                         actions: [
                           FButton(
                             onPress: () => Navigator.of(context).pop(),
-                             child: Text('continue_text'.i18n),
+                            child: Text('continue_text'.i18n),
                           ),
                           FButton(
                             variant: .outline,
                             onPress: () => Navigator.of(context).pop(),
-                             child: Text('cancel'.i18n),
+                            child: Text('cancel'.i18n),
                           ),
                         ],
                       ),

@@ -29,6 +29,7 @@ class SettingsToggleTile extends HookWidget with FTileMixin {
     final val = useState(value);
     if (isMobileLayout) {
       return FTile(
+        onPress: onTap,
         title: Text(title.i18n),
         subtitle: Text(subtitle.i18n),
         suffix: FSwitch(

@@ -83,30 +83,3 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
     );
   }
 }
-
-// class MobileSettingInputTile extends StatelessWidget with FTileMixin {
-//   const MobileSettingInputTile({
-//     super.key,
-//     required this.title,
-//     required this.subtitle,
-//     required this.initialValue,
-//     required this.onChanged,
-//     this.onTap,
-//     this.icon,
-//   });
-//   final String title;
-//   final String subtitle;
-//   final String initialValue;
-//   final void Function(String) onChanged;
-//   final void Function()? onTap;
-//   final IconData? icon;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SettingBaseTile(
-//       title: title,
-//       subtitle: subtitle,
-//       child: FTextField(onChange: onChanged, initialText: initialValue),
-//     );
-//   }
-// }

@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/utils/router/router_util.dart';
 
 enum AccentColors {
   zinc,
@@ -29,7 +31,7 @@ class ThemeUtils {
     'neutral': AccentColors.neutral,
   };
 
-  static final accentToBright = <AccentColors, FThemeData>{
+  static final accentToBright = <AccentColors, FPlatformThemeData>{
     AccentColors.zinc: FThemes.zinc.light,
     AccentColors.slate: FThemes.slate.light,
     AccentColors.red: FThemes.red.light,
@@ -42,7 +44,7 @@ class ThemeUtils {
     AccentColors.neutral: FThemes.neutral.light,
   };
 
-  static final accentToDark = <AccentColors, FThemeData>{
+  static final accentToDark = <AccentColors, FPlatformThemeData>{
     AccentColors.zinc: FThemes.zinc.dark,
     AccentColors.slate: FThemes.slate.dark,
     AccentColors.red: FThemes.red.dark,
@@ -54,4 +56,19 @@ class ThemeUtils {
     AccentColors.violet: FThemes.violet.dark,
     AccentColors.neutral: FThemes.neutral.dark,
   };
+  static FThemeData getThemeData(FPlatformThemeData theme) {
+    double width = 0;
+    if (RouterUtil.rootNavigatorKey.currentContext == null) {
+      return theme.touch;
+    }
+    width = MediaQuery.of(
+      RouterUtil.rootNavigatorKey.currentContext!,
+    ).size.width;
+    final breakpoints = theme.desktop.breakpoints;
+    return switch (width) {
+      _ when width < breakpoints.sm => theme.touch,
+      _ when width < breakpoints.lg => theme.desktop,
+      _ => theme.desktop,
+    };
+  }
 }

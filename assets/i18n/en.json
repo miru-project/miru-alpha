@@ -180,8 +180,13 @@
   },
   "setting_proxy": {
     "name": "Setting Proxy",
-    "information": "Information",
-    "select": "Select"
+    "information": "select proxy",
+    "select": "Select",
+    "add_proxy": "Add Proxy",
+    "proxy_settings": "Proxy Settings",
+    "remove_proxy_count": "Remove {count} Proxy ?",
+    "no_proxy": "No proxy",
+    "enable": "Enable"
   },
   "address": "Address",
   "port": "Port",

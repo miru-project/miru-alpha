@@ -178,6 +178,16 @@
     "name": "设置网络",
     "information": "信息"
   },
+  "setting_proxy": {
+    "name": "设置代理",
+    "information": "选择代理",
+    "select": "选择",
+    "add_proxy": "添加代理",
+    "proxy_settings": "代理设置",
+    "remove_proxy_count": "移除 {count} 个代理 ?",
+    "no_proxy": "无代理",
+    "enable": "启用"
+  },
   "address": "地址",
   "port": "端口",
   "no_episodes_found": "错误: 未找到剧集",

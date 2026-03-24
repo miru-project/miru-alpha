@@ -124,7 +124,7 @@ class MobileVideoSheet extends HookConsumerWidget {
         return Blur(
           child: FCard.raw(
             style: .delta(
-              decoration: .delta(
+              decoration: .boxDelta(
                 color: context.theme.colors.background.withAlpha(230),
               ),
             ),
@@ -159,7 +159,7 @@ class MobileVideoSheet extends HookConsumerWidget {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: FButton(
-                          variant: isSelected ? null : .ghost,
+                          variant: isSelected ? .android : .ghost,
                           onPress: () => selectedIndex.value = index,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,

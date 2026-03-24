@@ -1,7 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
-import 'package:path/path.dart' as p;
 
 class ImageWidget extends StatelessWidget {
   const ImageWidget({

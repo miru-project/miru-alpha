@@ -13,21 +13,19 @@ class SettingScaffold extends StatelessWidget {
       resizeToAvoidBottomInset: false,
       mobileHeader: SnapSheetNested(
         title: title.i18n,
-        prefix: [
-          GestureDetector(
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 12.0, top: 4, left: 10),
-              child: Icon(
-                FIcons.chevronLeft,
-                size: 28,
-                color: context.theme.colors.primary,
-              ),
+        prefix: GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(right: 12.0, top: 4, left: 10),
+            child: Icon(
+              FIcons.chevronLeft,
+              size: 28,
+              color: context.theme.colors.primary,
             ),
           ),
-        ],
+        ),
       ),
 
       snapSheet: [],

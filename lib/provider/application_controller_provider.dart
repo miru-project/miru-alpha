@@ -69,7 +69,7 @@ class ApplicationController extends _$ApplicationController {
   FThemeData currentThemeData(String themeText, AccentColors accentColor) {
     // Pick Forui theme data by accent and brightness
     final isLight = themeText == 'light';
-    FThemeData themeData;
+    FPlatformThemeData themeData;
     switch (accentColor) {
       case AccentColors.zinc:
         themeData = isLight ? FThemes.zinc.light : FThemes.zinc.dark;
@@ -102,19 +102,7 @@ class ApplicationController extends _$ApplicationController {
         themeData = isLight ? FThemes.violet.light : FThemes.violet.dark;
         break;
     }
-    return FThemeData(
-      colors: themeData.colors,
-      typography: themeData.typography.copyWith(
-        base: TextStyle(
-          fontFamilyFallback: <String>[
-            'Noto Sans CJK SC',
-            'Noto Sans CJK JP',
-            'Noto Sans CJK KR',
-            'Noto Color Emoji',
-          ],
-        ),
-      ),
-    );
+    return ThemeUtils.getThemeData(themeData);
   }
 
   void changeAccentColor(String color) {

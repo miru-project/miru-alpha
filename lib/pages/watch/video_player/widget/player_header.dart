@@ -57,7 +57,7 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
     final epNotifier = ref.watch(widget.episodeProvider);
     return FCard.raw(
       style: .delta(
-        decoration: .delta(
+        decoration: .boxDelta(
           color: context.theme.colors.background.withAlpha(200),
         ),
       ),

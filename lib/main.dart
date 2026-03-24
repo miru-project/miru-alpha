@@ -143,9 +143,9 @@ class _EntryLoadingState extends State<EntryLoadingState> {
     }
 
     return FTheme(
-      data: MediaQuery.of(context).platformBrightness == Brightness.dark
-          ? FThemes.zinc.dark
-          : FThemes.zinc.light,
+      data: MediaQuery.of(context).platformBrightness == .dark
+          ? FThemes.zinc.dark.desktop
+          : FThemes.zinc.light.desktop,
       child: FScaffold(
         child: Center(
           child: Column(
@@ -160,9 +160,7 @@ class _EntryLoadingState extends State<EntryLoadingState> {
               ),
               const SizedBox(height: 5),
               FCircularProgress.pinwheel(
-                style: context.theme.circularProgressStyle.copyWith(
-                  iconStyle: IconThemeDataDelta.delta(size: 20),
-                ),
+                style: .delta(iconStyle: .delta(size: 20)),
               ),
               Text("Address: ${Core.host}:${Core.port}"),
               const SizedBox(height: 20),

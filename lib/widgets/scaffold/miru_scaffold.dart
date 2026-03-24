@@ -89,7 +89,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
                 blurDensity: 10,
                 child: FCard.raw(
                   style: .delta(
-                    decoration: .delta(
+                    decoration: .boxDelta(
                       color: context.theme.colors.background.withAlpha(150),
                     ),
                   ),
@@ -120,7 +120,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
                           SliverToBoxAdapter(child: _GrabbingWidget()),
                           if (!isMobileTitleOnTop &&
                               widget.mobileHeader != null)
-                            SliverToBoxAdapter(child: widget.mobileHeader!),
+                            SliverToBoxAdapter(child: widget.mobileHeader),
                           const SliverToBoxAdapter(child: SizedBox(height: 10)),
                           if (widget.snapSheet.isNotEmpty)
                             ...widget.snapSheet.map(
@@ -152,7 +152,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           children: [
             if (isMobileTitleOnTop)
               Padding(
-                padding: const EdgeInsets.only(left: 12, right: 12),
+                padding: const EdgeInsets.only(left: 8, right: 5, top: 30),
                 child: widget.mobileHeader,
               ),
             Expanded(

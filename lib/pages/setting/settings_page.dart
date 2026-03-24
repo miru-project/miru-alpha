@@ -69,6 +69,7 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
       mobileHeader: SnapSheetHeader(title: 'settings'.i18n),
       desktopBody: selected(widget.selected, context),
       mobileBody: ListView(
+        padding: .only(top: 30, bottom: 80),
         children: [
           FTileGroup(
             label: Text("setting_general.name".i18n),

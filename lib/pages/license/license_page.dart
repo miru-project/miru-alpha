@@ -28,7 +28,7 @@ class _MiruLicensePageState extends State<MiruLicensePage> {
         future: _licensesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: FCircularProgress());
           }
 
           if (snapshot.hasError) {
