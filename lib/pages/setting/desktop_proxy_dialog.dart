@@ -19,7 +19,10 @@ class DesktopProxyDialog extends HookWidget {
     final proxyList = useState(
       MiruSettings.getSetting<Set<String>>(SettingKey.proxyList) ?? {},
     );
-    final selectedProxy = useState<String>('');
+    final textController = useTextEditingController();
+    final selectedProxy = useState<String>(
+      MiruSettings.getSetting<String>(SettingKey.proxy) ?? '',
+    );
     return FDialog(
       style: style,
       animation: animation,
@@ -51,6 +54,7 @@ class DesktopProxyDialog extends HookWidget {
               Expanded(
                 child: FTextField(
                   control: .managed(
+                    controller: textController,
                     onChange: (value) {
                       inputLink.value = value.text;
                     },
@@ -58,14 +62,20 @@ class DesktopProxyDialog extends HookWidget {
                   suffixBuilder: (context, style, _) => FButton.icon(
                     variant: .ghost,
                     onPress: () {
-                      final link = Uri.parse(
-                        '${selectType.value}://${inputLink.value}',
-                      );
+                      late final Uri link;
+                      try {
+                        link = Uri.parse(inputLink.value);
+                      } catch (e) {
+                        link = Uri.parse(
+                          '${selectType.value}://${inputLink.value}',
+                        );
+                      }
                       proxyList.value = {...proxyList.value, link.toString()};
                       MiruSettings.setSetting(
                         SettingKey.proxyList,
                         proxyList.value,
                       );
+                      textController.clear();
                     },
                     child: Icon(FIcons.plus),
                   ),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/utils/router/router_util.dart';
@@ -59,7 +61,11 @@ class ThemeUtils {
   static FThemeData getThemeData(FPlatformThemeData theme) {
     double width = 0;
     if (RouterUtil.rootNavigatorKey.currentContext == null) {
-      return theme.touch;
+      if (Platform.isAndroid || Platform.isIOS) {
+        return theme.touch;
+      } else {
+        return theme.desktop;
+      }
     }
     width = MediaQuery.of(
       RouterUtil.rootNavigatorKey.currentContext!,

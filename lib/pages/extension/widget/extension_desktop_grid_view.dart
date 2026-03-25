@@ -139,7 +139,7 @@ class ExtensionView extends HookConsumerWidget {
                             const SizedBox(width: 10),
                             SizedBox(
                               width: 280,
-                              height: 66,
+                              height: 68,
                               child: FTextField(
                                 label: Text(
                                   'extension.search_extensions'.i18n,

@@ -21,21 +21,18 @@ class ClearableSelect extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 200,
-      height: 63,
+      height: 68,
       child: Padding(
         padding: EdgeInsetsGeometry.symmetric(horizontal: 1),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 200, maxHeight: 65),
+              constraints: const BoxConstraints(maxWidth: 200, maxHeight: 70),
               child: FSelect.rich(
                 label: Text(title),
                 control: .managed(initial: initialValue, onChange: onChange),
                 hint: hintText,
-                onReset: () {
-                  throw "s";
-                },
                 children: items
                     .map((e) => FSelectItem(value: e, title: Text(e)))
                     .toList(),
