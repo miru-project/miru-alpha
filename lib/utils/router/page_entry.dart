@@ -47,3 +47,9 @@ class WebviewParam {
   final String url;
   const WebviewParam({required this.meta, required this.url});
 }
+
+class ExtensionSettingParam {
+  final String pkg;
+  final String name;
+  const ExtensionSettingParam({required this.pkg, required this.name});
+}

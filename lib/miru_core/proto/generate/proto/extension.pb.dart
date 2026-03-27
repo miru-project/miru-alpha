@@ -815,6 +815,236 @@ class RemoveExtensionResponse extends $pb.GeneratedMessage {
   void clearMessage() => $_clearField(1);
 }
 
+class GetExtensionSettingsRequest extends $pb.GeneratedMessage {
+  factory GetExtensionSettingsRequest({
+    $core.String? pkg,
+  }) {
+    final result = create();
+    if (pkg != null) result.pkg = pkg;
+    return result;
+  }
+
+  GetExtensionSettingsRequest._();
+
+  factory GetExtensionSettingsRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetExtensionSettingsRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetExtensionSettingsRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'pkg')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetExtensionSettingsRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetExtensionSettingsRequest copyWith(
+          void Function(GetExtensionSettingsRequest) updates) =>
+      super.copyWith(
+              (message) => updates(message as GetExtensionSettingsRequest))
+          as GetExtensionSettingsRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetExtensionSettingsRequest create() =>
+      GetExtensionSettingsRequest._();
+  @$core.override
+  GetExtensionSettingsRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetExtensionSettingsRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetExtensionSettingsRequest>(create);
+  static GetExtensionSettingsRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get pkg => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set pkg($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasPkg() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPkg() => $_clearField(1);
+}
+
+class GetExtensionSettingsResponse extends $pb.GeneratedMessage {
+  factory GetExtensionSettingsResponse({
+    $core.Iterable<$1.ExtensionSetting>? settings,
+  }) {
+    final result = create();
+    if (settings != null) result.settings.addAll(settings);
+    return result;
+  }
+
+  GetExtensionSettingsResponse._();
+
+  factory GetExtensionSettingsResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetExtensionSettingsResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetExtensionSettingsResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..pPM<$1.ExtensionSetting>(1, _omitFieldNames ? '' : 'settings',
+        subBuilder: $1.ExtensionSetting.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetExtensionSettingsResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetExtensionSettingsResponse copyWith(
+          void Function(GetExtensionSettingsResponse) updates) =>
+      super.copyWith(
+              (message) => updates(message as GetExtensionSettingsResponse))
+          as GetExtensionSettingsResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetExtensionSettingsResponse create() =>
+      GetExtensionSettingsResponse._();
+  @$core.override
+  GetExtensionSettingsResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetExtensionSettingsResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetExtensionSettingsResponse>(create);
+  static GetExtensionSettingsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<$1.ExtensionSetting> get settings => $_getList(0);
+}
+
+class SaveExtensionSettingsRequest extends $pb.GeneratedMessage {
+  factory SaveExtensionSettingsRequest({
+    $core.String? pkg,
+    $core.Iterable<$1.ExtensionSetting>? settings,
+  }) {
+    final result = create();
+    if (pkg != null) result.pkg = pkg;
+    if (settings != null) result.settings.addAll(settings);
+    return result;
+  }
+
+  SaveExtensionSettingsRequest._();
+
+  factory SaveExtensionSettingsRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory SaveExtensionSettingsRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SaveExtensionSettingsRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'pkg')
+    ..pPM<$1.ExtensionSetting>(2, _omitFieldNames ? '' : 'settings',
+        subBuilder: $1.ExtensionSetting.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SaveExtensionSettingsRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SaveExtensionSettingsRequest copyWith(
+          void Function(SaveExtensionSettingsRequest) updates) =>
+      super.copyWith(
+              (message) => updates(message as SaveExtensionSettingsRequest))
+          as SaveExtensionSettingsRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SaveExtensionSettingsRequest create() =>
+      SaveExtensionSettingsRequest._();
+  @$core.override
+  SaveExtensionSettingsRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static SaveExtensionSettingsRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SaveExtensionSettingsRequest>(create);
+  static SaveExtensionSettingsRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get pkg => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set pkg($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasPkg() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPkg() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $pb.PbList<$1.ExtensionSetting> get settings => $_getList(1);
+}
+
+class SaveExtensionSettingsResponse extends $pb.GeneratedMessage {
+  factory SaveExtensionSettingsResponse({
+    $core.String? message,
+  }) {
+    final result = create();
+    if (message != null) result.message = message;
+    return result;
+  }
+
+  SaveExtensionSettingsResponse._();
+
+  factory SaveExtensionSettingsResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory SaveExtensionSettingsResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SaveExtensionSettingsResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'message')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SaveExtensionSettingsResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SaveExtensionSettingsResponse copyWith(
+          void Function(SaveExtensionSettingsResponse) updates) =>
+      super.copyWith(
+              (message) => updates(message as SaveExtensionSettingsResponse))
+          as SaveExtensionSettingsResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SaveExtensionSettingsResponse create() =>
+      SaveExtensionSettingsResponse._();
+  @$core.override
+  SaveExtensionSettingsResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static SaveExtensionSettingsResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SaveExtensionSettingsResponse>(create);
+  static SaveExtensionSettingsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get message => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set message($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasMessage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMessage() => $_clearField(1);
+}
+
 const $core.bool _omitFieldNames =
     $core.bool.fromEnvironment('protobuf.omit_field_names');
 const $core.bool _omitMessageNames =

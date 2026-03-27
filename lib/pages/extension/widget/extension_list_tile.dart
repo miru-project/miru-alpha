@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/widgets/core/image_widget.dart';
 
 class ExtensionListTile extends StatefulWidget {
@@ -100,14 +102,15 @@ class ExtensionGridTile extends StatelessWidget {
     super.key,
     required this.name,
     required this.isNSFW,
-    this.icon,
     required this.version,
     required this.author,
     required this.type,
-    this.description,
     required this.onInstall,
     required this.onUninstall,
     required this.isInstalled,
+    required this.package,
+    this.icon,
+    this.description,
     this.tags = const [],
   });
   final bool isNSFW;
@@ -116,6 +119,7 @@ class ExtensionGridTile extends StatelessWidget {
   final String version;
   final String author;
   final String type;
+  final String package;
   final String? description;
   final List<String> tags;
   final void Function() onInstall;
@@ -196,7 +200,15 @@ class ExtensionGridTile extends StatelessWidget {
                             Text('settings'.i18n),
                         child: FButton.icon(
                           variant: .secondary,
-                          onPress: () {},
+                          onPress: () {
+                            context.push(
+                              "/extensionSettings",
+                              extra: ExtensionSettingParam(
+                                pkg: package,
+                                name: name,
+                              ),
+                            );
+                          },
                           child: Icon(FIcons.cog),
                         ),
                       ),

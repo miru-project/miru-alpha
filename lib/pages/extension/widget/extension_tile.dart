@@ -80,6 +80,7 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
         onUninstall: () => onuninstall(data, repoUrl, notifier),
       ),
       desktop: ExtensionGridTile(
+        package: data.package,
         isNSFW: data.isNsfw,
         isInstalled: isInstalled,
         name: data.name,

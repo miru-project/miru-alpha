@@ -15,6 +15,21 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use extensionSettingTypeDescriptor instead')
+const ExtensionSettingType$json = {
+  '1': 'ExtensionSettingType',
+  '2': [
+    {'1': 'input', '2': 0},
+    {'1': 'radio', '2': 1},
+    {'1': 'toggle', '2': 2},
+  ],
+};
+
+/// Descriptor for `ExtensionSettingType`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List extensionSettingTypeDescriptor = $convert.base64Decode(
+    'ChRFeHRlbnNpb25TZXR0aW5nVHlwZRIJCgVpbnB1dBAAEgkKBXJhZGlvEAESCgoGdG9nZ2xlEA'
+    'I=');
+
 @$core.Deprecated('Use extensionListItemDescriptor instead')
 const ExtensionListItem$json = {
   '1': 'ExtensionListItem',
@@ -579,3 +594,56 @@ const RepoConfig$json = {
 final $typed_data.Uint8List repoConfigDescriptor = $convert.base64Decode(
     'CgpSZXBvQ29uZmlnEhIKBGxpbmsYASABKAlSBGxpbmsSEgoEbmFtZRgCIAEoCVIEbmFtZRIOCg'
     'JpZBgDIAEoBVICaWQ=');
+
+@$core.Deprecated('Use extensionSettingDescriptor instead')
+const ExtensionSetting$json = {
+  '1': 'ExtensionSetting',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
+    {'1': 'package', '3': 2, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'title', '3': 3, '4': 1, '5': 9, '10': 'title'},
+    {'1': 'key', '3': 4, '4': 1, '5': 9, '10': 'key'},
+    {'1': 'value', '3': 5, '4': 1, '5': 9, '9': 0, '10': 'value', '17': true},
+    {'1': 'defaultValue', '3': 6, '4': 1, '5': 9, '10': 'defaultValue'},
+    {
+      '1': 'type',
+      '3': 7,
+      '4': 1,
+      '5': 14,
+      '6': '.miru.ExtensionSettingType',
+      '10': 'type'
+    },
+    {
+      '1': 'description',
+      '3': 8,
+      '4': 1,
+      '5': 9,
+      '9': 1,
+      '10': 'description',
+      '17': true
+    },
+    {
+      '1': 'options',
+      '3': 9,
+      '4': 1,
+      '5': 9,
+      '9': 2,
+      '10': 'options',
+      '17': true
+    },
+  ],
+  '8': [
+    {'1': '_value'},
+    {'1': '_description'},
+    {'1': '_options'},
+  ],
+};
+
+/// Descriptor for `ExtensionSetting`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List extensionSettingDescriptor = $convert.base64Decode(
+    'ChBFeHRlbnNpb25TZXR0aW5nEg4KAmlkGAEgASgFUgJpZBIYCgdwYWNrYWdlGAIgASgJUgdwYW'
+    'NrYWdlEhQKBXRpdGxlGAMgASgJUgV0aXRsZRIQCgNrZXkYBCABKAlSA2tleRIZCgV2YWx1ZRgF'
+    'IAEoCUgAUgV2YWx1ZYgBARIiCgxkZWZhdWx0VmFsdWUYBiABKAlSDGRlZmF1bHRWYWx1ZRIuCg'
+    'R0eXBlGAcgASgOMhoubWlydS5FeHRlbnNpb25TZXR0aW5nVHlwZVIEdHlwZRIlCgtkZXNjcmlw'
+    'dGlvbhgIIAEoCUgBUgtkZXNjcmlwdGlvbogBARIdCgdvcHRpb25zGAkgASgJSAJSB29wdGlvbn'
+    'OIAQFCCAoGX3ZhbHVlQg4KDF9kZXNjcmlwdGlvbkIKCghfb3B0aW9ucw==');

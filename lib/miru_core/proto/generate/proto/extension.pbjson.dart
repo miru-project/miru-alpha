@@ -227,3 +227,73 @@ const RemoveExtensionResponse$json = {
 final $typed_data.Uint8List removeExtensionResponseDescriptor =
     $convert.base64Decode(
         'ChdSZW1vdmVFeHRlbnNpb25SZXNwb25zZRIYCgdtZXNzYWdlGAEgASgJUgdtZXNzYWdl');
+
+@$core.Deprecated('Use getExtensionSettingsRequestDescriptor instead')
+const GetExtensionSettingsRequest$json = {
+  '1': 'GetExtensionSettingsRequest',
+  '2': [
+    {'1': 'pkg', '3': 1, '4': 1, '5': 9, '10': 'pkg'},
+  ],
+};
+
+/// Descriptor for `GetExtensionSettingsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getExtensionSettingsRequestDescriptor =
+    $convert.base64Decode(
+        'ChtHZXRFeHRlbnNpb25TZXR0aW5nc1JlcXVlc3QSEAoDcGtnGAEgASgJUgNwa2c=');
+
+@$core.Deprecated('Use getExtensionSettingsResponseDescriptor instead')
+const GetExtensionSettingsResponse$json = {
+  '1': 'GetExtensionSettingsResponse',
+  '2': [
+    {
+      '1': 'settings',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.ExtensionSetting',
+      '10': 'settings'
+    },
+  ],
+};
+
+/// Descriptor for `GetExtensionSettingsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getExtensionSettingsResponseDescriptor =
+    $convert.base64Decode(
+        'ChxHZXRFeHRlbnNpb25TZXR0aW5nc1Jlc3BvbnNlEjIKCHNldHRpbmdzGAEgAygLMhYubWlydS'
+        '5FeHRlbnNpb25TZXR0aW5nUghzZXR0aW5ncw==');
+
+@$core.Deprecated('Use saveExtensionSettingsRequestDescriptor instead')
+const SaveExtensionSettingsRequest$json = {
+  '1': 'SaveExtensionSettingsRequest',
+  '2': [
+    {'1': 'pkg', '3': 1, '4': 1, '5': 9, '10': 'pkg'},
+    {
+      '1': 'settings',
+      '3': 2,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.ExtensionSetting',
+      '10': 'settings'
+    },
+  ],
+};
+
+/// Descriptor for `SaveExtensionSettingsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List saveExtensionSettingsRequestDescriptor =
+    $convert.base64Decode(
+        'ChxTYXZlRXh0ZW5zaW9uU2V0dGluZ3NSZXF1ZXN0EhAKA3BrZxgBIAEoCVIDcGtnEjIKCHNldH'
+        'RpbmdzGAIgAygLMhYubWlydS5FeHRlbnNpb25TZXR0aW5nUghzZXR0aW5ncw==');
+
+@$core.Deprecated('Use saveExtensionSettingsResponseDescriptor instead')
+const SaveExtensionSettingsResponse$json = {
+  '1': 'SaveExtensionSettingsResponse',
+  '2': [
+    {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `SaveExtensionSettingsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List saveExtensionSettingsResponseDescriptor =
+    $convert.base64Decode(
+        'Ch1TYXZlRXh0ZW5zaW9uU2V0dGluZ3NSZXNwb25zZRIYCgdtZXNzYWdlGAEgASgJUgdtZXNzYW'
+        'dl');

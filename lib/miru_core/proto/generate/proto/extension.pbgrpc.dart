@@ -74,6 +74,20 @@ class ExtensionServiceClient extends $grpc.Client {
     return $createUnaryCall(_$removeExtension, request, options: options);
   }
 
+  $grpc.ResponseFuture<$0.GetExtensionSettingsResponse> getExtensionSettings(
+    $0.GetExtensionSettingsRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$getExtensionSettings, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.SaveExtensionSettingsResponse> saveExtensionSettings(
+    $0.SaveExtensionSettingsRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$saveExtensionSettings, request, options: options);
+  }
+
   // method descriptors
 
   static final _$search =
@@ -105,6 +119,16 @@ class ExtensionServiceClient extends $grpc.Client {
           '/miru.ExtensionService/RemoveExtension',
           ($0.RemoveExtensionRequest value) => value.writeToBuffer(),
           $0.RemoveExtensionResponse.fromBuffer);
+  static final _$getExtensionSettings = $grpc.ClientMethod<
+          $0.GetExtensionSettingsRequest, $0.GetExtensionSettingsResponse>(
+      '/miru.ExtensionService/GetExtensionSettings',
+      ($0.GetExtensionSettingsRequest value) => value.writeToBuffer(),
+      $0.GetExtensionSettingsResponse.fromBuffer);
+  static final _$saveExtensionSettings = $grpc.ClientMethod<
+          $0.SaveExtensionSettingsRequest, $0.SaveExtensionSettingsResponse>(
+      '/miru.ExtensionService/SaveExtensionSettings',
+      ($0.SaveExtensionSettingsRequest value) => value.writeToBuffer(),
+      $0.SaveExtensionSettingsResponse.fromBuffer);
 }
 
 @$pb.GrpcServiceName('miru.ExtensionService')
@@ -158,6 +182,24 @@ abstract class ExtensionServiceBase extends $grpc.Service {
         ($core.List<$core.int> value) =>
             $0.RemoveExtensionRequest.fromBuffer(value),
         ($0.RemoveExtensionResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GetExtensionSettingsRequest,
+            $0.GetExtensionSettingsResponse>(
+        'GetExtensionSettings',
+        getExtensionSettings_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.GetExtensionSettingsRequest.fromBuffer(value),
+        ($0.GetExtensionSettingsResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.SaveExtensionSettingsRequest,
+            $0.SaveExtensionSettingsResponse>(
+        'SaveExtensionSettings',
+        saveExtensionSettings_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.SaveExtensionSettingsRequest.fromBuffer(value),
+        ($0.SaveExtensionSettingsResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.SearchResponse> search_Pre(
@@ -209,4 +251,22 @@ abstract class ExtensionServiceBase extends $grpc.Service {
 
   $async.Future<$0.RemoveExtensionResponse> removeExtension(
       $grpc.ServiceCall call, $0.RemoveExtensionRequest request);
+
+  $async.Future<$0.GetExtensionSettingsResponse> getExtensionSettings_Pre(
+      $grpc.ServiceCall $call,
+      $async.Future<$0.GetExtensionSettingsRequest> $request) async {
+    return getExtensionSettings($call, await $request);
+  }
+
+  $async.Future<$0.GetExtensionSettingsResponse> getExtensionSettings(
+      $grpc.ServiceCall call, $0.GetExtensionSettingsRequest request);
+
+  $async.Future<$0.SaveExtensionSettingsResponse> saveExtensionSettings_Pre(
+      $grpc.ServiceCall $call,
+      $async.Future<$0.SaveExtensionSettingsRequest> $request) async {
+    return saveExtensionSettings($call, await $request);
+  }
+
+  $async.Future<$0.SaveExtensionSettingsResponse> saveExtensionSettings(
+      $grpc.ServiceCall call, $0.SaveExtensionSettingsRequest request);
 }

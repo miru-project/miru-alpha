@@ -15,7 +15,11 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'extension_model.pbenum.dart';
+
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
+
+export 'extension_model.pbenum.dart';
 
 class ExtensionListItem extends $pb.GeneratedMessage {
   factory ExtensionListItem({
@@ -1494,6 +1498,157 @@ class RepoConfig extends $pb.GeneratedMessage {
   $core.bool hasId() => $_has(2);
   @$pb.TagNumber(3)
   void clearId() => $_clearField(3);
+}
+
+class ExtensionSetting extends $pb.GeneratedMessage {
+  factory ExtensionSetting({
+    $core.int? id,
+    $core.String? package,
+    $core.String? title,
+    $core.String? key,
+    $core.String? value,
+    $core.String? defaultValue,
+    ExtensionSettingType? type,
+    $core.String? description,
+    $core.String? options,
+  }) {
+    final result = create();
+    if (id != null) result.id = id;
+    if (package != null) result.package = package;
+    if (title != null) result.title = title;
+    if (key != null) result.key = key;
+    if (value != null) result.value = value;
+    if (defaultValue != null) result.defaultValue = defaultValue;
+    if (type != null) result.type = type;
+    if (description != null) result.description = description;
+    if (options != null) result.options = options;
+    return result;
+  }
+
+  ExtensionSetting._();
+
+  factory ExtensionSetting.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ExtensionSetting.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ExtensionSetting',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aI(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'package')
+    ..aOS(3, _omitFieldNames ? '' : 'title')
+    ..aOS(4, _omitFieldNames ? '' : 'key')
+    ..aOS(5, _omitFieldNames ? '' : 'value')
+    ..aOS(6, _omitFieldNames ? '' : 'defaultValue', protoName: 'defaultValue')
+    ..aE<ExtensionSettingType>(7, _omitFieldNames ? '' : 'type',
+        enumValues: ExtensionSettingType.values)
+    ..aOS(8, _omitFieldNames ? '' : 'description')
+    ..aOS(9, _omitFieldNames ? '' : 'options')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionSetting clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionSetting copyWith(void Function(ExtensionSetting) updates) =>
+      super.copyWith((message) => updates(message as ExtensionSetting))
+          as ExtensionSetting;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ExtensionSetting create() => ExtensionSetting._();
+  @$core.override
+  ExtensionSetting createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ExtensionSetting getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ExtensionSetting>(create);
+  static ExtensionSetting? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get id => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set id($core.int value) => $_setSignedInt32(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get package => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set package($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasPackage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPackage() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get title => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set title($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasTitle() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTitle() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get key => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set key($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasKey() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearKey() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get value => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set value($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasValue() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearValue() => $_clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.String get defaultValue => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set defaultValue($core.String value) => $_setString(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasDefaultValue() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearDefaultValue() => $_clearField(6);
+
+  @$pb.TagNumber(7)
+  ExtensionSettingType get type => $_getN(6);
+  @$pb.TagNumber(7)
+  set type(ExtensionSettingType value) => $_setField(7, value);
+  @$pb.TagNumber(7)
+  $core.bool hasType() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearType() => $_clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get description => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set description($core.String value) => $_setString(7, value);
+  @$pb.TagNumber(8)
+  $core.bool hasDescription() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearDescription() => $_clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.String get options => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set options($core.String value) => $_setString(8, value);
+  @$pb.TagNumber(9)
+  $core.bool hasOptions() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearOptions() => $_clearField(9);
 }
 
 const $core.bool _omitFieldNames =

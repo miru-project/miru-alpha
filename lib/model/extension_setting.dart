@@ -1,95 +1,105 @@
-// import 'package:objectbox/objectbox.dart';
+import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:miru_alpha/miru_core/proto/generate/proto/extension.pbgrpc.dart'
+    as $grpc;
+import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
+    as $model;
 
-// enum ExtensionSettingType {
-//   // 输入框
-//   input,
-//   // 单选
-//   radio,
-//   // 开关
-//   toggle,
-// }
+enum ExtensionSettingType { input, radio, toggle }
 
-// @Entity()
-// class ExtensionSetting {
-//   @Id()
-//   int id;
+class ExtensionSetting {
+  int id;
+  String package;
+  String title;
+  String key;
+  String? value;
+  String defaultValue;
+  ExtensionSettingType type;
+  String? description;
+  String? options;
 
-//   String package;
+  ExtensionSetting({
+    this.id = 0,
+    required this.package,
+    required this.title,
+    required this.key,
+    this.value,
+    required this.defaultValue,
+    this.type = ExtensionSettingType.input,
+    this.description,
+    this.options,
+  });
 
-//   // 标题
-//   String title;
+  factory ExtensionSetting.fromProto($model.ExtensionSetting proto) {
+    return ExtensionSetting(
+      id: proto.id,
+      package: proto.package,
+      title: proto.title,
+      key: proto.key,
+      value: proto.hasValue() ? proto.value : null,
+      defaultValue: proto.defaultValue,
+      type: _typeFromProto(proto.type),
+      description: proto.hasDescription() ? proto.description : null,
+      options: proto.hasOptions() ? proto.options : null,
+    );
+  }
 
-//   // 键
-//   String key;
+  $model.ExtensionSetting toProto() {
+    final proto = $model.ExtensionSetting()
+      ..id = id
+      ..package = package
+      ..title = title
+      ..key = key
+      ..defaultValue = defaultValue
+      ..type = _typeToProto(type);
 
-//   // 值
-//   String? value;
+    if (value != null) proto.value = value!;
+    if (description != null) proto.description = description!;
+    if (options != null) proto.options = options!;
 
-//   // 默认值
-//   String defaultValue;
+    return proto;
+  }
 
-//   // 类型
-//   String dbType;
+  static ExtensionSettingType _typeFromProto(
+    $model.ExtensionSettingType protoType,
+  ) {
+    switch (protoType) {
+      case $model.ExtensionSettingType.radio:
+        return ExtensionSettingType.radio;
+      case $model.ExtensionSettingType.toggle:
+        return ExtensionSettingType.toggle;
+      case $model.ExtensionSettingType.input:
+      default:
+        return ExtensionSettingType.input;
+    }
+  }
 
-//   @Transient()
-//   ExtensionSettingType? type;
+  static $model.ExtensionSettingType _typeToProto(ExtensionSettingType type) {
+    switch (type) {
+      case ExtensionSettingType.input:
+        return $model.ExtensionSettingType.input;
+      case ExtensionSettingType.radio:
+        return $model.ExtensionSettingType.radio;
+      case ExtensionSettingType.toggle:
+        return $model.ExtensionSettingType.toggle;
+    }
+  }
 
-//   // 描述
-//   String? description;
+  static Future<List<ExtensionSetting>> getSettings(String package) async {
+    final response = await MiruGrpcClient.extensionClient.getExtensionSettings(
+      $grpc.GetExtensionSettingsRequest(pkg: package),
+    );
+    return response.settings.map((e) => ExtensionSetting.fromProto(e)).toList();
+  }
 
-//   String? options;
-
-//   ExtensionSetting({
-//     this.id = 0,
-//     required this.package,
-//     required this.title,
-//     required this.key,
-//     this.value,
-//     required this.defaultValue,
-//     this.dbType = "input",
-//     this.description,
-//     this.options,
-//   }) {
-//     type = stringToType(dbType);
-//   }
-
-//   // int? get dbExtensionSetting {
-//   //   _ensureStableEnumValues();
-//   //   return dbType.index;
-//   // }
-
-//   // void _ensureStableEnumValues() {
-//   //   assert(ExtensionSettingType.input.index == 0);
-//   //   assert(ExtensionSettingType.radio.index == 1);
-//   //   assert(ExtensionSettingType.toggle.index == 2);
-//   // }
-
-//   // set dbExtensionSetting(int? value) {
-//   //   _ensureStableEnumValues();
-//   //   dbType = ExtensionSettingType.values[value ?? 0];
-//   // }
-
-//   static ExtensionSettingType stringToType(String type) {
-//     switch (type) {
-//       case 'input':
-//         return ExtensionSettingType.input;
-//       case 'radio':
-//         return ExtensionSettingType.radio;
-//       case 'toggle':
-//         return ExtensionSettingType.toggle;
-//       default:
-//         return ExtensionSettingType.input;
-//     }
-//   }
-
-//   static String typeToString(ExtensionSettingType type) {
-//     switch (type) {
-//       case ExtensionSettingType.input:
-//         return 'input';
-//       case ExtensionSettingType.radio:
-//         return 'radio';
-//       case ExtensionSettingType.toggle:
-//         return 'toggle';
-//     }
-//   }
-// }
+  static Future<void> saveSettings(
+    String package,
+    List<ExtensionSetting> settings,
+  ) async {
+    await MiruGrpcClient.extensionClient.saveExtensionSettings(
+      $grpc.SaveExtensionSettingsRequest(
+        pkg: package,
+        settings: settings.map((e) => e.toProto()).toList(),
+      ),
+    );
+  }
+}

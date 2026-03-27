@@ -46,32 +46,48 @@ class DesktopSearchPage extends HookConsumerWidget {
                         final ext = metaData
                             .where((ext) => ext.packageName == pinnedPkg)
                             .first;
-                        logger.info('Pinned ext: ${ext.packageName}');
                         return DesktopSearchListTile(
                           ext: ext,
-                          trailing: FButton.icon(
-                            selected: true,
-                            onPress: () {
-                              final newSet = {...existedPinnedExtensions};
-                              if (newSet.contains(ext.packageName)) {
-                                newSet.remove(ext.packageName);
-                              } else {
-                                newSet.add(ext.packageName);
-                              }
-                              ref
-                                  .read(searchPageProvider.notifier)
-                                  .setExistedPinnedExtensions(newSet);
-                              MiruSettings.setSettingSync(
-                                SettingKey.pinnedExtension,
-                                newSet.toString(),
-                              );
-                            },
-                            child:
-                                existedPinnedExtensions.contains(
-                                  ext.packageName,
-                                )
-                                ? Icon(FIcons.pinOff)
-                                : Icon(FIcons.pin),
+                          trailing: Row(
+                            children: [
+                              FButton.icon(
+                                variant: .ghost,
+                                onPress: () {
+                                  context.push(
+                                    "/extensionSettings",
+                                    extra: ExtensionSettingParam(
+                                      pkg: ext.packageName,
+                                      name: ext.name,
+                                    ),
+                                  );
+                                },
+                                child: Icon(FIcons.cog),
+                              ),
+                              FButton.icon(
+                                selected: true,
+                                onPress: () {
+                                  final newSet = {...existedPinnedExtensions};
+                                  if (newSet.contains(ext.packageName)) {
+                                    newSet.remove(ext.packageName);
+                                  } else {
+                                    newSet.add(ext.packageName);
+                                  }
+                                  ref
+                                      .read(searchPageProvider.notifier)
+                                      .setExistedPinnedExtensions(newSet);
+                                  MiruSettings.setSettingSync(
+                                    SettingKey.pinnedExtension,
+                                    newSet.toString(),
+                                  );
+                                },
+                                child:
+                                    existedPinnedExtensions.contains(
+                                      ext.packageName,
+                                    )
+                                    ? Icon(FIcons.pinOff)
+                                    : Icon(FIcons.pin),
+                              ),
+                            ],
                           ),
                         );
                       },
@@ -92,6 +108,19 @@ class DesktopSearchPage extends HookConsumerWidget {
                         ext: ext,
                         trailing: Row(
                           children: [
+                            FButton.icon(
+                              variant: .ghost,
+                              onPress: () {
+                                context.push(
+                                  "/extensionSettings",
+                                  extra: ExtensionSettingParam(
+                                    pkg: ext.packageName,
+                                    name: ext.name,
+                                  ),
+                                );
+                              },
+                              child: Icon(FIcons.cog),
+                            ),
                             FButton.icon(
                               variant: .ghost,
                               onPress: () {

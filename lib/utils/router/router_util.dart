@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/pages/detail/detail_loading_page.dart';
 import 'package:miru_alpha/pages/download/download_page.dart';
+import 'package:miru_alpha/pages/extension_settings/extension_settings.dart';
 import 'package:miru_alpha/pages/home/library_page.dart';
 import 'package:miru_alpha/pages/license/license_page.dart';
 import 'package:miru_alpha/pages/watch/load_entry.dart';
@@ -179,6 +180,19 @@ class RouterUtil {
                     child: SettingPage(selected: item),
                   ),
                 ),
+              GoRoute(
+                path: "/extensionSettings",
+                pageBuilder: (context, state) {
+                  final param = state.extra as ExtensionSettingParam;
+                  return getPage(
+                    state: state,
+                    child: ExtensionSettingPage(
+                      pkg: param.pkg,
+                      name: param.name,
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ],
