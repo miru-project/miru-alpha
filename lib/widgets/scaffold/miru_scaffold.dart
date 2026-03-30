@@ -144,26 +144,36 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     final isMobileTitleOnTop = ref.watch(
       applicationControllerProvider.select((value) => value.isMobileTitleOnTop),
     );
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return PlatformWidget(
-      mobileWidget: FTheme(
-        data: ref.watch(applicationControllerProvider).themeData,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (isMobileTitleOnTop)
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 5, top: 30),
-                child: widget.mobileHeader,
+      mobileWidget: PopScope(
+        canPop: bottomInset == 0,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          if (bottomInset > 0) {
+            FocusManager.instance.primaryFocus?.unfocus();
+          }
+        },
+        child: FTheme(
+          data: ref.watch(applicationControllerProvider).themeData,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isMobileTitleOnTop)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, right: 5, top: 30),
+                  child: widget.mobileHeader,
+                ),
+              Expanded(
+                child: (isMobileTitleOnTop && widget.snapSheet.isEmpty)
+                    ? FScaffold(
+                        childPad: widget.childPad,
+                        child: widget.mobileBody ?? widget.body!,
+                      )
+                    : _buildSheet(isMobileTitleOnTop),
               ),
-            Expanded(
-              child: (isMobileTitleOnTop && widget.snapSheet.isEmpty)
-                  ? FScaffold(
-                      childPad: widget.childPad,
-                      child: widget.mobileBody ?? widget.body!,
-                    )
-                  : _buildSheet(isMobileTitleOnTop),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       desktopWidget: widget.desktopBody ?? widget.body!,

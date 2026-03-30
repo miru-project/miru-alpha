@@ -18,7 +18,7 @@ class SettingsToggleTile extends HookWidget with FTileMixin {
   });
 
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final bool value;
   final Function(bool) onChanged;
   final void Function()? onTap;
@@ -31,7 +31,7 @@ class SettingsToggleTile extends HookWidget with FTileMixin {
       return FTile(
         onPress: onTap,
         title: Text(title.i18n),
-        subtitle: Text(subtitle.i18n),
+        subtitle: subtitle == null ? null : Text(subtitle!.i18n),
         suffix: FSwitch(
           value: val.value,
           onChange: (value) {

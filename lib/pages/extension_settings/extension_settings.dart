@@ -84,9 +84,9 @@ class _InputSetting extends HookWidget with FTileMixin {
 
   @override
   Widget build(BuildContext context) {
-    final controller = useTextEditingController(
-      text: setting.value ?? setting.defaultValue,
-    );
+    // final controller = useTextEditingController(
+    //   text: setting.value ?? setting.defaultValue,
+    // );
     final timer = useState<Timer?>(null);
 
     void saveWithTimer(String value) {
@@ -97,18 +97,24 @@ class _InputSetting extends HookWidget with FTileMixin {
       });
     }
 
-    return SettingBaseTile(
-      isMobileLayout: isMobile,
+    return SettingsInputTile(
       title: setting.title,
       subtitle: setting.description,
-      child: FTextField(
-        hint: setting.defaultValue,
-        control: FTextFieldControl.managed(
-          controller: controller,
-          onChange: (value) => saveWithTimer(value.text),
-        ),
-      ),
+      initialValue: setting.value ?? setting.defaultValue,
+      onChanged: saveWithTimer,
     );
+    // SettingBaseTile(
+    //   isMobileLayout: isMobile,
+    //   title: setting.title,
+    //   subtitle: setting.description,
+    //   child: FTextField(
+    //     hint: setting.defaultValue,
+    //     control: FTextFieldControl.managed(
+    //       controller: controller,
+    //       onChange: (value) => saveWithTimer(value.text),
+    //     ),
+    //   ),
+    // );
   }
 }
 
@@ -154,26 +160,17 @@ class _RadioSetting extends HookWidget with FTileMixin {
       return items;
     }, [options, value.value]);
 
-    return SettingBaseTile(
+    return SettingsRadiosTile(
       isMobileLayout: isMobile,
       title: setting.title,
       subtitle: setting.description,
-      child: SizedBox(
-        width: 300,
-        child: FSelect<String>(
-          control: FSelectControl.managed(
-            initial: value.value,
-            onChange: (val) {
-              if (val != null) {
-                value.value = val;
-                setting.value = val;
-                ExtensionSetting.saveSettings(setting.package, [setting]);
-              }
-            },
-          ),
-          items: safeOptions,
-        ),
-      ),
+      radios: safeOptions.keys.toList(),
+      value: value.value,
+      onChanged: (val) {
+        value.value = val;
+        setting.value = val;
+        ExtensionSetting.saveSettings(setting.package, [setting]);
+      },
     );
   }
 }
@@ -189,18 +186,28 @@ class _ToggleSetting extends HookWidget with FTileMixin {
       (setting.value ?? setting.defaultValue) == 'true',
     );
 
-    return SettingBaseTile(
-      isMobileLayout: isMobile,
+    return SettingsToggleTile(
       title: setting.title,
       subtitle: setting.description,
-      child: FSwitch(
-        value: isSwitched.value,
-        onChange: (val) {
-          isSwitched.value = val;
-          setting.value = val.toString();
-          ExtensionSetting.saveSettings(setting.package, [setting]);
-        },
-      ),
+      value: isSwitched.value,
+      onChanged: (val) {
+        isSwitched.value = val;
+        setting.value = val.toString();
+        ExtensionSetting.saveSettings(setting.package, [setting]);
+      },
     );
+    // SettingBaseTile(
+    //   isMobileLayout: isMobile,
+    //   title: setting.title,
+    //   subtitle: setting.description,
+    //   child: FSwitch(
+    //     value: isSwitched.value,
+    //     onChange: (val) {
+    //       isSwitched.value = val;
+    //       setting.value = val.toString();
+    //       ExtensionSetting.saveSettings(setting.package, [setting]);
+    //     },
+    //   ),
+    // );
   }
 }

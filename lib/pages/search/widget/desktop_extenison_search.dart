@@ -10,7 +10,6 @@
 // import 'package:miru_alpha/widgets/core/search_filter_card.dart';
 // import 'package:miru_alpha/pages/search/widget/desktop_search_list_tile.dart';
 
-
 // class DesktopExtensionSearch extends StatelessWidget {
 //   final Set<String> pinnedExtensions;
 //   final List<ExtensionMetaData> metaData;

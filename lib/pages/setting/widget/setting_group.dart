@@ -36,7 +36,7 @@ class SettingGroup extends StatelessWidget {
       );
     }
     return OutterCard(
-      title: title, // OutterCard handles .i18n internally, but we might want to pass the refactored one
+      title: title,
       trailing: trailing,
       child: Column(children: _withDividers(children)),
     );

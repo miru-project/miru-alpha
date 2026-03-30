@@ -1,6 +1,3 @@
-
-
-
 // class DesktopDetail extends ConsumerWidget {
 //   const DesktopDetail({
 //     super.key,

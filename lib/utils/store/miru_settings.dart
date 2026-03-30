@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/utils/core/log.dart';

@@ -31,7 +31,7 @@ class SettingsRadiosTile extends HookWidget with FTileMixin {
 
   final String title;
   final Map<String, Color>? color;
-  final String subtitle;
+  final String? subtitle;
   final List<String> radios;
   final String value;
   final void Function(String) onChanged;
@@ -55,14 +55,15 @@ class SettingsRadiosTile extends HookWidget with FTileMixin {
           }
           return Text(val.first.toString().i18n);
         },
-        subtitle: Text(subtitle.i18n),
+        subtitle: subtitle == null ? null : Text(subtitle!.i18n),
         menu: (entry == null)
             ? radios
                   .map((e) => FSelectTile(title: Text(e.i18n), value: e))
                   .toList()
             : entry!
                   .map(
-                    (e) => FSelectTile(title: Text(e.title.i18n), value: e.value),
+                    (e) =>
+                        FSelectTile(title: Text(e.title.i18n), value: e.value),
                   )
                   .toList(),
         title: Text(title.i18n),

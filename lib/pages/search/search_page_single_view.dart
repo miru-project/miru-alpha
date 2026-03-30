@@ -25,141 +25,138 @@ class SearchPageSingleView extends HookConsumerWidget {
     );
     final sheetController = useSheetController();
     final scrollController = useScrollController();
-    return Container(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: MiruScaffold(
-        sheetController: sheetController,
-        mobileHeader: Padding(
-          padding: EdgeInsetsGeometry.only(bottom: 10),
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 12.0, top: 4, left: 10),
-                  child: Icon(
-                    FIcons.chevronLeft,
-                    size: 28,
-                    color: context.theme.colors.primary,
-                  ),
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    meta.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: showPageNumber ? 20 : 22,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (MiruSettings.getSettingSync(SettingKey.showPageNumber))
-                    Consumer(
-                      builder: (context, ref, _) {
-                        final page = ref.watch(
-                          searchPageSingleProviderProvider.select(
-                            (v) => v.page,
-                          ),
-                        );
-                        return Text(
-                          'page: ${page.toString()}',
-                          style: TextStyle(fontSize: 13),
-                        );
-                      },
-                    ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        snapSheet: [
-          Padding(
-            padding: .symmetric(horizontal: 10),
-            child: FTextField(
+    return MiruScaffold(
+      sheetController: sheetController,
+      mobileHeader: Padding(
+        padding: EdgeInsetsGeometry.only(bottom: 10),
+        child: Row(
+          children: [
+            GestureDetector(
               onTap: () {
-                if (((sheetController.value ?? 190.0).toInt() - 190).abs() <
-                    2) {
-                  sheetController.animateTo(
-                    SheetOffset.proportionalToViewport(.5),
-                  );
-                }
+                Navigator.of(context).pop();
               },
-              autofocus: false,
-              maxLines: 1,
-              onSubmit: (value) {
-                ref.invalidate(
-                  fetchExtensionSearchLatestProvider.call(
-                    meta.packageName,
-                    1,
-                    query: value,
-                  ),
-                );
-                ref
-                    .read(searchPageSingleProviderProvider.notifier)
-                    .setQuery(value);
-              },
-              hint: "Search by Name or Tags ...",
-              prefixBuilder: (context, style, states) => Padding(
-                padding: EdgeInsetsGeometry.only(left: 12, right: 10),
-                child: Icon(FIcons.search),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 12.0, top: 4, left: 10),
+                child: Icon(
+                  FIcons.chevronLeft,
+                  size: 28,
+                  color: context.theme.colors.primary,
+                ),
               ),
             ),
-          ),
-        ],
-        body: LayoutBuilder(
-          builder: (context, cons) {
-            final query = ref.watch(
-              searchPageSingleProviderProvider.select((v) => v.query),
-            );
-            final snapshot = ref.watch(
-              fetchExtensionSearchLatestProvider.call(
-                meta.packageName,
-                1,
-                query: query,
-              ),
-            );
-
-            return snapshot.when(
-              data: (data) {
-                return PlatformWidget(
-                  desktopWidget: Stack(
-                    children: [
-                      SearchGridView(
-                        meta: meta,
-                        scrollController: scrollController,
-                        cons: cons,
-                        res: data,
-                      ),
-                      DesktopSearchSingleFilterBox(meta: meta),
-                    ],
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  meta.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: showPageNumber ? 20 : 22,
                   ),
-                  mobileWidget: SearchGridView(
-                    meta: meta,
-                    scrollController: scrollController,
-                    cons: cons,
-                    res: data,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (MiruSettings.getSettingSync(SettingKey.showPageNumber))
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final page = ref.watch(
+                        searchPageSingleProviderProvider.select((v) => v.page),
+                      );
+                      return Text(
+                        'page: ${page.toString()}',
+                        style: TextStyle(fontSize: 13),
+                      );
+                    },
                   ),
-                );
-                // return ;
-              },
-              error: (err, stack) => ErrorDisplay.grpc(err: err, stack: stack),
-              loading: () => PlatformWidget(
-                mobileWidget: MobileSeachGridLoadingWidget(
-                  scrollController: scrollController,
-                ),
-                desktopWidget: SearchGridLoadingWidget(
-                  scrollController: scrollController,
-                ),
-              ),
-            );
-          },
+              ],
+            ),
+          ],
         ),
+      ),
+      snappingOffsets: [
+        AbsoluteSheetOffset(150),
+        ProportionalToViewportSheetOffset(0.55),
+        ProportionalToViewportSheetOffset(1.0),
+      ],
+      snapSheet: [
+        Padding(
+          padding: .symmetric(horizontal: 10),
+          child: FTextField(
+            onTap: () {
+              if (((sheetController.value ?? 150.0).toInt() - 150).abs() < 2) {
+                sheetController.animateTo(
+                  SheetOffset.proportionalToViewport(.55),
+                );
+              }
+            },
+            autofocus: false,
+            maxLines: 1,
+            onSubmit: (value) {
+              ref.invalidate(
+                fetchExtensionSearchLatestProvider.call(
+                  meta.packageName,
+                  1,
+                  query: value,
+                ),
+              );
+              ref
+                  .read(searchPageSingleProviderProvider.notifier)
+                  .setQuery(value);
+            },
+            hint: "Search by Name or Tags ...",
+            prefixBuilder: (context, style, states) => Padding(
+              padding: EdgeInsetsGeometry.only(left: 12, right: 10),
+              child: Icon(FIcons.search),
+            ),
+          ),
+        ),
+      ],
+      body: LayoutBuilder(
+        builder: (context, cons) {
+          final query = ref.watch(
+            searchPageSingleProviderProvider.select((v) => v.query),
+          );
+          final snapshot = ref.watch(
+            fetchExtensionSearchLatestProvider.call(
+              meta.packageName,
+              1,
+              query: query,
+            ),
+          );
+
+          return snapshot.when(
+            data: (data) {
+              return PlatformWidget(
+                desktopWidget: Stack(
+                  children: [
+                    SearchGridView(
+                      meta: meta,
+                      scrollController: scrollController,
+                      cons: cons,
+                      res: data,
+                    ),
+                    DesktopSearchSingleFilterBox(meta: meta),
+                  ],
+                ),
+                mobileWidget: SearchGridView(
+                  meta: meta,
+                  scrollController: scrollController,
+                  cons: cons,
+                  res: data,
+                ),
+              );
+              // return ;
+            },
+            error: (err, stack) => ErrorDisplay.grpc(err: err, stack: stack),
+            loading: () => PlatformWidget(
+              mobileWidget: MobileSeachGridLoadingWidget(
+                scrollController: scrollController,
+              ),
+              desktopWidget: SearchGridLoadingWidget(
+                scrollController: scrollController,
+              ),
+            ),
+          );
+        },
       ),
     );
   }

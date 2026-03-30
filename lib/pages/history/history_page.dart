@@ -95,7 +95,10 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
             sliver: SliverToBoxAdapter(
               child: Text(
                 "history".i18n,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                ),
               ),
             ),
           ),

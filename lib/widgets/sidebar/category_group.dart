@@ -37,8 +37,10 @@ class CategoryGroup extends HookWidget {
 
       children: List.generate(
         items.length,
-        (index) =>
-            FSelectTile<String>(title: Text(items[index].i18n), value: items[index]),
+        (index) => FSelectTile<String>(
+          title: Text(items[index].i18n),
+          value: items[index],
+        ),
       ),
     );
   }
@@ -77,8 +79,10 @@ class CategoryMultiGroup extends HookWidget {
 
       children: List.generate(
         items.length,
-        (index) =>
-            FSelectTile<String>(title: Text(items[index].i18n), value: items[index]),
+        (index) => FSelectTile<String>(
+          title: Text(items[index].i18n),
+          value: items[index],
+        ),
       ),
     );
   }

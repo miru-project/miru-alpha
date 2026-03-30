@@ -27,11 +27,11 @@ class DesktopSearchListTile extends HookConsumerWidget {
             return FDialog(
               animation: animation,
               direction: Axis.horizontal,
-              title: Text('extension.uninstall_confirm'.fill({'name': ext.name})),
+              title: Text(
+                'extension.uninstall_confirm'.fill({'name': ext.name}),
+              ),
               body: FCheckbox(
-                label: Text(
-                  'extension.do_not_show_again'.i18n,
-                ),
+                label: Text('extension.do_not_show_again'.i18n),
 
                 value: checkboxVal.value,
                 onChange: (value) {

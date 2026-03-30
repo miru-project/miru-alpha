@@ -109,7 +109,7 @@ class MobileSearchPage extends HookConsumerWidget {
                   SliverToBoxAdapter(
                     child: FTileGroup(
                       label: Text('extension.pinned'.i18n),
-                      description: Text('extension.pinned_extensions'.i18n),
+                      // description: Text('extension.pinned_extensions'.i18n),
                       children: List.generate(containedPinned.length, (index) {
                         {
                           final ext = containedPinned.elementAt(index);
@@ -127,11 +127,155 @@ class MobileSearchPage extends HookConsumerWidget {
                               width: 40,
                               child: ImageWidget(imageUrl: ext.icon ?? ""),
                             ),
-                            suffix: FButton.icon(
-                              selected: true,
+                            // suffix: FButton.icon(
+                            //   selected: true,
+                            //   onPress: () {
+                            //     final newSet = {...pinnedExtensions.value};
+                            //     if (newSet.contains(ext.packageName)) {
+                            //       newSet.remove(ext.packageName);
+                            //     } else {
+                            //       newSet.add(ext.packageName);
+                            //     }
+                            //     pinnedExtensions.value = newSet;
+                            //     MiruSettings.setSettingSync(
+                            //       SettingKey.pinnedExtension,
+                            //       newSet.toString(),
+                            //     );
+                            //   },
+                            //   child:
+                            //       pinnedExtensions.value.contains(
+                            //         ext.packageName,
+                            //       )
+                            //       ? Icon(FIcons.pinOff)
+                            //       : Icon(FIcons.pin),
+                            // ),
+                          );
+                        }
+                      }),
+                    ),
+                  ),
+                SliverToBoxAdapter(child: FDivider(style: .delta(width: 3))),
+                if (metaData.isNotEmpty)
+                  SliverList.separated(
+                    separatorBuilder: (context, index) {
+                      return FDivider(
+                        style: .delta(
+                          padding: .value(.symmetric(vertical: 10)),
+                        ),
+                      );
+                    },
+                    itemCount: metaData.length,
+                    itemBuilder: (context, index) {
+                      final ext = metaData[index];
+                      final isPinned = pinnedExtensions.value.contains(
+                        ext.packageName,
+                      );
+                      return FTappable(
+                        style: .delta(motion: FTappableMotion.none),
+                        onPress: () {
+                          context.push(
+                            '/search/single',
+                            extra: SearchPageParam(meta: ext),
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                color: context.theme.colors.border.withAlpha(
+                                  30,
+                                ),
+                                child: SizedBox(
+                                  height: 48,
+                                  width: 48,
+                                  child: ImageWidget(imageUrl: ext.icon ?? ""),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    ext.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        ext.version,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: context
+                                              .theme
+                                              .colors
+                                              .mutedForeground,
+                                        ),
+                                      ),
+                                      if (ext.description?.isNotEmpty ??
+                                          false) ...[
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 4,
+                                          ),
+                                          child: Text(
+                                            "•",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: context
+                                                  .theme
+                                                  .colors
+                                                  .mutedForeground,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            ext.description!,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: context
+                                                  .theme
+                                                  .colors
+                                                  .mutedForeground,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            FButton.icon(
+                              variant: .ghost,
+                              onPress: () {
+                                context.push<ExtensionSettingParam>(
+                                  '/extensionSettings',
+                                  extra: ExtensionSettingParam(
+                                    pkg: ext.packageName,
+                                    name: ext.name,
+                                  ),
+                                );
+                              },
+                              child: Icon(FIcons.settings),
+                            ),
+                            FButton.icon(
+                              variant: .ghost,
                               onPress: () {
                                 final newSet = {...pinnedExtensions.value};
-                                if (newSet.contains(ext.packageName)) {
+                                if (isPinned) {
                                   newSet.remove(ext.packageName);
                                 } else {
                                   newSet.add(ext.packageName);
@@ -142,79 +286,18 @@ class MobileSearchPage extends HookConsumerWidget {
                                   newSet.toString(),
                                 );
                               },
-                              child:
-                                  pinnedExtensions.value.contains(
-                                    ext.packageName,
-                                  )
-                                  ? Icon(FIcons.pinOff)
-                                  : Icon(FIcons.pin),
+                              child: Icon(
+                                isPinned ? FIcons.pinOff : FIcons.pin,
+                                size: 20,
+                                color: isPinned
+                                    ? context.theme.colors.primary
+                                    : null,
+                              ),
                             ),
-                          );
-                        }
-                      }),
-                    ),
-                  ),
-                SliverToBoxAdapter(child: SizedBox(height: 20)),
-                if (metaData.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: FTileGroup(
-                      label: Text('extension.name'.i18n),
-                      description: Text(
-                        'extension.extensions_installed_desc'.i18n,
-                      ),
-                      children: List.generate(metaData.length, (index) {
-                        final ext = metaData[index];
-                        return FTile(
-                          onPress: () {
-                            context.push(
-                              '/search/single',
-                              extra: SearchPageParam(meta: ext),
-                            );
-                          },
-                          subtitle: Row(
-                            children: [
-                              Text(ext.version),
-                              if (ext.description != null &&
-                                  ext.description!.isNotEmpty) ...[
-                                Text(" • "),
-                                Expanded(
-                                  child: Text(
-                                    ext.description!,
-                                    overflow: .ellipsis,
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                          title: Text(ext.name),
-                          prefix: SizedBox(
-                            height: 40,
-                            width: 40,
-                            child: ImageWidget(imageUrl: ext.icon ?? ""),
-                          ),
-                          suffix: FButton.icon(
-                            selected: true,
-                            onPress: () {
-                              final newSet = {...pinnedExtensions.value};
-                              if (newSet.contains(ext.packageName)) {
-                                newSet.remove(ext.packageName);
-                              } else {
-                                newSet.add(ext.packageName);
-                              }
-                              pinnedExtensions.value = newSet;
-                              MiruSettings.setSettingSync(
-                                SettingKey.pinnedExtension,
-                                newSet.toString(),
-                              );
-                            },
-                            child:
-                                pinnedExtensions.value.contains(ext.packageName)
-                                ? Icon(FIcons.pinOff)
-                                : Icon(FIcons.pin),
-                          ),
-                        );
-                      }),
-                    ),
+                          ],
+                        ),
+                      );
+                    },
                   )
                 else
                   SliverToBoxAdapter(

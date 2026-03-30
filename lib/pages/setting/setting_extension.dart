@@ -32,7 +32,10 @@ class MobileRepoDialog extends HookConsumerWidget {
         style: .delta(),
         animation: animation,
         direction: Axis.horizontal,
-        title: Text('extension-repo.add_repo'.i18n, style: TextStyle(fontSize: 25)),
+        title: Text(
+          'extension-repo.add_repo'.i18n,
+          style: TextStyle(fontSize: 25),
+        ),
         body: Padding(
           padding: EdgeInsetsGeometry.only(top: 20, bottom: 10),
           child: Form(
@@ -47,8 +50,9 @@ class MobileRepoDialog extends HookConsumerWidget {
                   ),
                   autovalidateMode: AutovalidateMode.always,
                   hint: 'extension-repo.official_repo'.i18n,
-                  validator: (val) =>
-                      (val?.isEmpty ?? false) ? 'extension-repo.name_cannot_be_empty'.i18n : null,
+                  validator: (val) => (val?.isEmpty ?? false)
+                      ? 'extension-repo.name_cannot_be_empty'.i18n
+                      : null,
                 ),
                 SizedBox(height: 10),
                 FTextFormField(
@@ -119,8 +123,9 @@ class RepoDialog extends HookConsumerWidget {
                 label: Text('name'.i18n),
                 autovalidateMode: AutovalidateMode.always,
                 hint: 'extension-repo.official_repo'.i18n,
-                validator: (val) =>
-                    (val?.isEmpty ?? false) ? 'extension-repo.name_cannot_be_empty'.i18n : null,
+                validator: (val) => (val?.isEmpty ?? false)
+                    ? 'extension-repo.name_cannot_be_empty'.i18n
+                    : null,
               ),
               const SizedBox(height: 10),
               FTextFormField(
@@ -276,7 +281,9 @@ class SettingExtension extends HookConsumerWidget {
         if (isMobile)
           reposAsync.when(
             loading: () => const Center(child: FCircularProgress()),
-            error: (err, st) => Text('extension-repo.load_error'.fill({'error': err.toString()})),
+            error: (err, st) => Text(
+              'extension-repo.load_error'.fill({'error': err.toString()}),
+            ),
             data: (repos) {
               // final selectController = useFSelectGroupController<String>();
               return FTileGroup(
@@ -385,7 +392,9 @@ class SettingExtension extends HookConsumerWidget {
                   ),
             child: reposAsync.when(
               loading: () => const Center(child: FCircularProgress()),
-              error: (err, st) => Text('extension-repo.load_error'.fill({'error': err.toString()})),
+              error: (err, st) => Text(
+                'extension-repo.load_error'.fill({'error': err.toString()}),
+              ),
               data: (repos) {
                 if (isMobile) {
                   final selectController = useFMultiValueNotifier<String>();

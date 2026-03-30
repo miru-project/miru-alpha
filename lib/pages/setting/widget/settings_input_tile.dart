@@ -18,7 +18,7 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
     this.isMobileLayout = false,
   });
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final String initialValue;
   final void Function(String) onChanged;
   final void Function()? onTap;
@@ -30,7 +30,7 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
     if (isMobileLayout) {
       return FTile(
         title: Text(title.i18n),
-        subtitle: Text(subtitle.i18n),
+        subtitle: subtitle == null ? null : Text(subtitle!.i18n),
         details: Text(initialValue),
         onPress: () {
           showFDialog(
