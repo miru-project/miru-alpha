@@ -39,6 +39,13 @@ class ExtensionServiceClient extends $grpc.Client {
     return $createUnaryCall(_$search, request, options: options);
   }
 
+  $grpc.ResponseFuture<$0.CreateFilterResponse> createFilter(
+    $0.CreateFilterRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$createFilter, request, options: options);
+  }
+
   $grpc.ResponseFuture<$0.LatestResponse> latest(
     $0.LatestRequest request, {
     $grpc.CallOptions? options,
@@ -95,6 +102,11 @@ class ExtensionServiceClient extends $grpc.Client {
           '/miru.ExtensionService/Search',
           ($0.SearchRequest value) => value.writeToBuffer(),
           $0.SearchResponse.fromBuffer);
+  static final _$createFilter =
+      $grpc.ClientMethod<$0.CreateFilterRequest, $0.CreateFilterResponse>(
+          '/miru.ExtensionService/CreateFilter',
+          ($0.CreateFilterRequest value) => value.writeToBuffer(),
+          $0.CreateFilterResponse.fromBuffer);
   static final _$latest =
       $grpc.ClientMethod<$0.LatestRequest, $0.LatestResponse>(
           '/miru.ExtensionService/Latest',
@@ -143,6 +155,15 @@ abstract class ExtensionServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.SearchRequest.fromBuffer(value),
         ($0.SearchResponse value) => value.writeToBuffer()));
+    $addMethod(
+        $grpc.ServiceMethod<$0.CreateFilterRequest, $0.CreateFilterResponse>(
+            'CreateFilter',
+            createFilter_Pre,
+            false,
+            false,
+            ($core.List<$core.int> value) =>
+                $0.CreateFilterRequest.fromBuffer(value),
+            ($0.CreateFilterResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.LatestRequest, $0.LatestResponse>(
         'Latest',
         latest_Pre,
@@ -209,6 +230,15 @@ abstract class ExtensionServiceBase extends $grpc.Service {
 
   $async.Future<$0.SearchResponse> search(
       $grpc.ServiceCall call, $0.SearchRequest request);
+
+  $async.Future<$0.CreateFilterResponse> createFilter_Pre(
+      $grpc.ServiceCall $call,
+      $async.Future<$0.CreateFilterRequest> $request) async {
+    return createFilter($call, await $request);
+  }
+
+  $async.Future<$0.CreateFilterResponse> createFilter(
+      $grpc.ServiceCall call, $0.CreateFilterRequest request);
 
   $async.Future<$0.LatestResponse> latest_Pre(
       $grpc.ServiceCall $call, $async.Future<$0.LatestRequest> $request) async {

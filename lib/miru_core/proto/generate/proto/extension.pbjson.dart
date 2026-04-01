@@ -31,6 +31,60 @@ final $typed_data.Uint8List searchRequestDescriptor = $convert.base64Decode(
     'Cg1TZWFyY2hSZXF1ZXN0EhAKA3BrZxgBIAEoCVIDcGtnEg4KAmt3GAIgASgJUgJrdxISCgRwYW'
     'dlGAMgASgFUgRwYWdlEhYKBmZpbHRlchgEIAEoCVIGZmlsdGVy');
 
+@$core.Deprecated('Use createFilterRequestDescriptor instead')
+const CreateFilterRequest$json = {
+  '1': 'CreateFilterRequest',
+  '2': [
+    {'1': 'pkg', '3': 1, '4': 1, '5': 9, '10': 'pkg'},
+    {'1': 'filter', '3': 2, '4': 1, '5': 9, '10': 'filter'},
+  ],
+};
+
+/// Descriptor for `CreateFilterRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createFilterRequestDescriptor = $convert.base64Decode(
+    'ChNDcmVhdGVGaWx0ZXJSZXF1ZXN0EhAKA3BrZxgBIAEoCVIDcGtnEhYKBmZpbHRlchgCIAEoCV'
+    'IGZmlsdGVy');
+
+@$core.Deprecated('Use createFilterResponseDescriptor instead')
+const CreateFilterResponse$json = {
+  '1': 'CreateFilterResponse',
+  '2': [
+    {
+      '1': 'filters',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.CreateFilterResponse.FiltersEntry',
+      '10': 'filters'
+    },
+  ],
+  '3': [CreateFilterResponse_FiltersEntry$json],
+};
+
+@$core.Deprecated('Use createFilterResponseDescriptor instead')
+const CreateFilterResponse_FiltersEntry$json = {
+  '1': 'FiltersEntry',
+  '2': [
+    {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    {
+      '1': 'value',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionFilter',
+      '10': 'value'
+    },
+  ],
+  '7': {'7': true},
+};
+
+/// Descriptor for `CreateFilterResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List createFilterResponseDescriptor = $convert.base64Decode(
+    'ChRDcmVhdGVGaWx0ZXJSZXNwb25zZRJBCgdmaWx0ZXJzGAEgAygLMicubWlydS5DcmVhdGVGaW'
+    'x0ZXJSZXNwb25zZS5GaWx0ZXJzRW50cnlSB2ZpbHRlcnMaUQoMRmlsdGVyc0VudHJ5EhAKA2tl'
+    'eRgBIAEoCVIDa2V5EisKBXZhbHVlGAIgASgLMhUubWlydS5FeHRlbnNpb25GaWx0ZXJSBXZhbH'
+    'VlOgI4AQ==');
+
 @$core.Deprecated('Use searchResponseDescriptor instead')
 const SearchResponse$json = {
   '1': 'SearchResponse',

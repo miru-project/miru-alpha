@@ -513,10 +513,10 @@ packages:
     dependency: "direct main"
     description:
       name: forui
-      sha256: "2a151e90ca6ca10cd5ae55f3e6fb9a971830863d9c82ad607b5fd6eecb553ec5"
+      sha256: "0a1611a215b07fff150c94da48cd2b01c8b036636fc58c2177d916cb6ebaaa92"
       url: "https://pub.dev"
     source: hosted
-    version: "0.20.3"
+    version: "0.20.4"
   forui_assets:
     dependency: transitive
     description:
@@ -1366,10 +1366,10 @@ packages:
     dependency: transitive
     description:
       name: vector_graphics
-      sha256: "7076216a10d5c390315fbe536a30f1254c341e7543e6c4c8a815e591307772b1"
+      sha256: "81da85e9ca8885ade47f9685b953cb098970d11be4821ac765580a6607ea4373"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.20"
+    version: "1.1.21"
   vector_graphics_codec:
     dependency: transitive
     description:

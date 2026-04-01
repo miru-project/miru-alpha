@@ -108,6 +108,126 @@ class SearchRequest extends $pb.GeneratedMessage {
   void clearFilter() => $_clearField(4);
 }
 
+class CreateFilterRequest extends $pb.GeneratedMessage {
+  factory CreateFilterRequest({
+    $core.String? pkg,
+    $core.String? filter,
+  }) {
+    final result = create();
+    if (pkg != null) result.pkg = pkg;
+    if (filter != null) result.filter = filter;
+    return result;
+  }
+
+  CreateFilterRequest._();
+
+  factory CreateFilterRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory CreateFilterRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'CreateFilterRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'pkg')
+    ..aOS(2, _omitFieldNames ? '' : 'filter')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CreateFilterRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CreateFilterRequest copyWith(void Function(CreateFilterRequest) updates) =>
+      super.copyWith((message) => updates(message as CreateFilterRequest))
+          as CreateFilterRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static CreateFilterRequest create() => CreateFilterRequest._();
+  @$core.override
+  CreateFilterRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static CreateFilterRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<CreateFilterRequest>(create);
+  static CreateFilterRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get pkg => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set pkg($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasPkg() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPkg() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get filter => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set filter($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasFilter() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFilter() => $_clearField(2);
+}
+
+class CreateFilterResponse extends $pb.GeneratedMessage {
+  factory CreateFilterResponse({
+    $core.Iterable<$core.MapEntry<$core.String, $1.ExtensionFilter>>? filters,
+  }) {
+    final result = create();
+    if (filters != null) result.filters.addEntries(filters);
+    return result;
+  }
+
+  CreateFilterResponse._();
+
+  factory CreateFilterResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory CreateFilterResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'CreateFilterResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..m<$core.String, $1.ExtensionFilter>(1, _omitFieldNames ? '' : 'filters',
+        entryClassName: 'CreateFilterResponse.FiltersEntry',
+        keyFieldType: $pb.PbFieldType.OS,
+        valueFieldType: $pb.PbFieldType.OM,
+        valueCreator: $1.ExtensionFilter.create,
+        valueDefaultOrMaker: $1.ExtensionFilter.getDefault,
+        packageName: const $pb.PackageName('miru'))
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CreateFilterResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CreateFilterResponse copyWith(void Function(CreateFilterResponse) updates) =>
+      super.copyWith((message) => updates(message as CreateFilterResponse))
+          as CreateFilterResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static CreateFilterResponse create() => CreateFilterResponse._();
+  @$core.override
+  CreateFilterResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static CreateFilterResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<CreateFilterResponse>(create);
+  static CreateFilterResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbMap<$core.String, $1.ExtensionFilter> get filters => $_getMap(0);
+}
+
 class SearchResponse extends $pb.GeneratedMessage {
   factory SearchResponse({
     $core.Iterable<$1.ExtensionListItem>? items,

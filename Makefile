@@ -12,7 +12,7 @@ build-runner:
 	@echo "Building runner..."
 	dart run build_runner build --delete-conflicting-outputs
 	@echo "Runner built!"
-build_runner_watch:
+runner-build-watch:
 	@echo "Building runner..."
 	dart run build_runner watch --delete-conflicting-outputs
 	@echo "Runner built!"

@@ -168,9 +168,12 @@ class MiruCoreEndpoint {
 
   static Future<Map<String, pb_extension.ExtensionFilter>> createFilter(
     String pkg, {
-    Map<String, List<String>>? filter,
+    String? filter,
   }) async {
-    throw UnimplementedError('createFilter method not implemented');
+    final response = await MiruGrpcClient.extensionClient.createFilter(
+      proto.CreateFilterRequest(pkg: pkg, filter: filter ?? ""),
+    );
+    return response.filters;
   }
 
   static Future<Detail> detail(String pkg, String url) async {
@@ -189,16 +192,23 @@ class MiruCoreEndpoint {
     String pkg,
     String kw,
     int page, {
-    Map<String, pb_extension.ExtensionFilter>? filter,
+    dynamic filter,
   }) async {
+    String filterStr = "";
+    if (filter != null) {
+      if (filter is String) {
+        filterStr = filter;
+      } else {
+        filterStr = jsonEncode(filter);
+      }
+    }
+
     final response = await MiruGrpcClient.extensionClient.search(
       proto.SearchRequest(
         pkg: pkg,
         kw: kw,
         page: page,
-        filter: filter != null
-            ? jsonEncode(filter.map((k, v) => MapEntry(k, v.toProto3Json())))
-            : "",
+        filter: filterStr,
       ),
     );
 

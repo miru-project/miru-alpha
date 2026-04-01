@@ -46,14 +46,15 @@ class SearchGridView extends HookConsumerWidget {
           scrollController.position.maxScrollExtent) {
         if (!isLoading.value) {
           isLoading.value = true;
-          final c = ref.watch(searchPageSingleProviderProvider);
+          final c = ref.read(searchPageSingleProviderProvider);
           try {
             // Serach Mode
-            if (c.query.isNotEmpty) {
+            if (c.query.isNotEmpty || c.filterSelection.values.any((v) => v != "" && v != null)) {
               final res = await MiruCoreEndpoint.search(
                 meta.packageName,
                 c.query,
                 page + 1,
+                filter: c.filterSelection,
               );
               if (res.isNotEmpty) {
                 resState.value = [...resState.value, ...res];

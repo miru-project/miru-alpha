@@ -298,8 +298,7 @@ final class FetchExtensionSearchProvider
         $FutureProvider<List<ExtensionListItem>> {
   FetchExtensionSearchProvider._({
     required FetchExtensionSearchFamily super.from,
-    required (String, String, int, {Map<String, ExtensionFilter>? filter})
-    super.argument,
+    required (String, String, int, {String? filterJson}) super.argument,
   }) : super(
          retry: null,
          name: r'fetchExtensionSearchProvider',
@@ -327,14 +326,13 @@ final class FetchExtensionSearchProvider
   @override
   FutureOr<List<ExtensionListItem>> create(Ref ref) {
     final argument =
-        this.argument
-            as (String, String, int, {Map<String, ExtensionFilter>? filter});
+        this.argument as (String, String, int, {String? filterJson});
     return fetchExtensionSearch(
       ref,
       argument.$1,
       argument.$2,
       argument.$3,
-      filter: argument.filter,
+      filterJson: argument.filterJson,
     );
   }
 
@@ -350,13 +348,13 @@ final class FetchExtensionSearchProvider
 }
 
 String _$fetchExtensionSearchHash() =>
-    r'4cd9a7561506a1fb7197a0d87fe070bc525d5121';
+    r'c362b881a227f7bbd7cf2a1aa8c93396ad07051b';
 
 final class FetchExtensionSearchFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<List<ExtensionListItem>>,
-          (String, String, int, {Map<String, ExtensionFilter>? filter})
+          (String, String, int, {String? filterJson})
         > {
   FetchExtensionSearchFamily._()
     : super(
@@ -371,9 +369,9 @@ final class FetchExtensionSearchFamily extends $Family
     String package,
     String query,
     int page, {
-    Map<String, ExtensionFilter>? filter,
+    String? filterJson,
   }) => FetchExtensionSearchProvider._(
-    argument: (package, query, page, filter: filter),
+    argument: (package, query, page, filterJson: filterJson),
     from: this,
   );
 
@@ -396,13 +394,7 @@ final class FetchExtensionSearchLatestProvider
         $FutureProvider<List<ExtensionListItem>> {
   FetchExtensionSearchLatestProvider._({
     required FetchExtensionSearchLatestFamily super.from,
-    required (
-      String,
-      int, {
-      String? query,
-      Map<String, ExtensionFilter>? filter,
-    })
-    super.argument,
+    required (String, int, {String? query, String? filterJson}) super.argument,
   }) : super(
          retry: null,
          name: r'fetchExtensionSearchLatestProvider',
@@ -430,19 +422,13 @@ final class FetchExtensionSearchLatestProvider
   @override
   FutureOr<List<ExtensionListItem>> create(Ref ref) {
     final argument =
-        this.argument
-            as (
-              String,
-              int, {
-              String? query,
-              Map<String, ExtensionFilter>? filter,
-            });
+        this.argument as (String, int, {String? query, String? filterJson});
     return fetchExtensionSearchLatest(
       ref,
       argument.$1,
       argument.$2,
       query: argument.query,
-      filter: argument.filter,
+      filterJson: argument.filterJson,
     );
   }
 
@@ -459,13 +445,13 @@ final class FetchExtensionSearchLatestProvider
 }
 
 String _$fetchExtensionSearchLatestHash() =>
-    r'7aef9218fcb0de6b34be9356c306bb368374604c';
+    r'73b81bc14472aadbd8bdf61adf01302fbcfc3d3d';
 
 final class FetchExtensionSearchLatestFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<List<ExtensionListItem>>,
-          (String, int, {String? query, Map<String, ExtensionFilter>? filter})
+          (String, int, {String? query, String? filterJson})
         > {
   FetchExtensionSearchLatestFamily._()
     : super(
@@ -480,9 +466,9 @@ final class FetchExtensionSearchLatestFamily extends $Family
     String package,
     int page, {
     String? query,
-    Map<String, ExtensionFilter>? filter,
+    String? filterJson,
   }) => FetchExtensionSearchLatestProvider._(
-    argument: (package, page, query: query, filter: filter),
+    argument: (package, page, query: query, filterJson: filterJson),
     from: this,
   );
 

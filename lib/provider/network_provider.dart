@@ -96,8 +96,12 @@ Future<List<ExtensionListItem>> fetchExtensionSearch(
   String package,
   String query,
   int page, {
-  Map<String, ExtensionFilter>? filter,
+  String? filterJson,
 }) async {
+  Map<String, dynamic>? filter;
+  if (filterJson != null && filterJson.isNotEmpty) {
+    filter = jsonDecode(filterJson) as Map<String, dynamic>;
+  }
   final result = await MiruCoreEndpoint.search(
     package,
     query,
@@ -111,18 +115,22 @@ Future<List<ExtensionListItem>> fetchExtensionSearch(
 Future<List<ExtensionListItem>> fetchExtensionSearchLatest(
   Ref ref,
   String package,
-
   int page, {
   String? query,
-  Map<String, ExtensionFilter>? filter,
+  String? filterJson,
 }) async {
-  if (query == null || query.isEmpty) {
+  Map<String, dynamic>? filter;
+  if (filterJson != null && filterJson.isNotEmpty) {
+    filter = jsonDecode(filterJson) as Map<String, dynamic>;
+  }
+  final hasFilter = filter?.values.any((e) => e != "" && e != null) ?? false;
+  if ((query == null || query.isEmpty) && !hasFilter) {
     final result = await MiruCoreEndpoint.latest(package, page);
     return result;
   }
   final result = await MiruCoreEndpoint.search(
     package,
-    query,
+    query ?? "",
     page,
     filter: filter,
   );
