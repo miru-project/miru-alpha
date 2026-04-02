@@ -10,7 +10,7 @@ import 'package:miru_alpha/utils/hook/sheet_controller.dart';
 import 'package:miru_alpha/utils/setting_dir_index.dart';
 import 'package:miru_alpha/widgets/error.dart';
 import 'package:miru_alpha/widgets/index.dart';
-import 'package:miru_alpha/pages/search/widget/mobile_search_filter_bar.dart';
+import 'package:miru_alpha/pages/search/widget/mobile_search_single_filter_box.dart';
 import 'package:miru_alpha/pages/search/widget/search_grid_loading.dart';
 import 'package:miru_alpha/pages/search/widget/search_grid_view.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
@@ -91,41 +91,10 @@ class SearchPageSingleView extends HookConsumerWidget {
       ],
       snapSheet: [
         Padding(
-          padding: .symmetric(horizontal: 10),
-          child: Column(
-            children: [
-              FTextField(
-                onTap: () {
-                  if (((sheetController.value ?? 150.0).toInt() - 150).abs() <
-                      2) {
-                    sheetController.animateTo(
-                      SheetOffset.proportionalToViewport(.55),
-                    );
-                  }
-                },
-                autofocus: false,
-                maxLines: 1,
-                onSubmit: (value) {
-                  ref.invalidate(
-                    fetchExtensionSearchLatestProvider.call(
-                      meta.packageName,
-                      1,
-                      query: value,
-                    ),
-                  );
-                  ref
-                      .read(searchPageSingleProviderProvider.notifier)
-                      .setQuery(value);
-                },
-                hint: "Search by Name or Tags ...",
-                prefixBuilder: (context, style, states) => Padding(
-                  padding: EdgeInsetsGeometry.only(left: 12, right: 10),
-                  child: Icon(FIcons.search),
-                ),
-              ),
-              const SizedBox(height: 10),
-              MobileSearchFilterBar(),
-            ],
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: MobileSearchSingleFilterBox(
+            meta: meta,
+            sheetController: sheetController,
           ),
         ),
       ],

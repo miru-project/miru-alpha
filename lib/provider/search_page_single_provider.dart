@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:miru_alpha/miru_core/network.dart';
+import 'package:miru_alpha/widgets/core/toast.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_alpha/model/index.dart';
 
@@ -14,7 +15,8 @@ class SingleSearchPageState {
   final Map<String, ExtensionFilter> filter;
   final List<String> filterOrder; // Stable order of filters
   final bool isUpdateFilter;
-  final Map<String, List<String>> selected; // Keyed by filter key, values are option keys
+  final Map<String, List<String>>
+  selected; // Keyed by filter key, values are option keys
   final String appliedFilterJson;
   final String pkg;
 
@@ -107,7 +109,6 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
     return SingleSearchPageState();
   }
 
-  // Mutators for fields that used to be ValueNotifiers
   void setQuery(String q) async {
     state = state.copyWith(
       query: q,
@@ -164,7 +165,6 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
     final filter = state.filter[key];
     if (filter == null) return;
 
-    // Use default of 1 if min/max are 0 in direct accordance with user requirements
     final effectiveMin = filter.min == 0 ? 1 : filter.min;
     final effectiveMax = filter.max == 0 ? 1 : filter.max;
 
@@ -172,17 +172,14 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
     // Enforce max count
     if (newVal.length > effectiveMax) {
       if (effectiveMax == 1) {
-        // Radio behavior: if we exceed 1, take the newest selection (the last one)
         newVal = [newVal.last];
       } else {
-        // Multi-select behavior: cap at max
         newVal = newVal.take(effectiveMax).toList();
       }
     }
-    
+
     // Enforce min count
     if (newVal.length < effectiveMin) {
-      // If the new selection is smaller than min, revert to previous or keep current if it's already at min
       final current = state.selected[key] ?? [];
       if (current.length >= effectiveMin) {
         newVal = current;
@@ -210,7 +207,9 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
         final selectedOptionKeys = state.selected[key] ?? [];
 
         if (state.filter[key]!.max == 1) {
-          selection[key] = selectedOptionKeys.isEmpty ? "" : selectedOptionKeys.first;
+          selection[key] = selectedOptionKeys.isEmpty
+              ? ""
+              : selectedOptionKeys.first;
         } else {
           selection[key] = selectedOptionKeys;
         }
@@ -221,12 +220,10 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
           state.pkg,
           filter: jsonEncode(selection),
         );
-        
-        // Merge new filters while maintaining order
+
         final currentKeys = state.filterOrder;
         final newKeys = newFilters.keys.toList();
-        
-        // We want to keep current keys in order, and add new ones at the end
+
         final mergedKeys = [...currentKeys];
         for (final k in newKeys) {
           if (!mergedKeys.contains(k)) {
@@ -236,25 +233,56 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
         // Remove keys that are no longer present
         mergedKeys.removeWhere((k) => !newKeys.contains(k));
 
-        state = state.copyWith(
-          filter: newFilters,
-          filterOrder: mergedKeys,
-        );
+        state = state.copyWith(filter: newFilters, filterOrder: mergedKeys);
       } catch (e) {
-        // Handle error or ignore
+        showSimpleToast(e.toString());
       }
     }
   }
 
-  void setPkg(String pkg) => state = state.copyWith(pkg: pkg);
+  void setPkg(String pkg) {
+    if (state.pkg == pkg) return;
+    state = SingleSearchPageState(pkg: pkg);
+  }
 
   Future<void> fetchInitialFilters() async {
     if (state.pkg.isEmpty) return;
     try {
       final filters = await MiruCoreEndpoint.createFilter(state.pkg);
       setFileNotifier(filters);
+      commitFilters();
     } catch (e) {
-      // Ignore
+      showSimpleToast(e.toString());
     }
+  }
+
+  void clearFiltersToDefault() async {
+    final Map<String, List<String>> defaultSelected = {};
+    for (final key in state.filterOrder) {
+      final extFilter = state.filter[key]!;
+      if (extFilter.hasDefault_4() && extFilter.default_4.isNotEmpty) {
+        defaultSelected[key] = [extFilter.default_4];
+      } else {
+        defaultSelected[key] = [];
+      }
+    }
+
+    // Check if changed
+    bool changed = false;
+    for (final key in state.filterOrder) {
+      final current = state.selected[key] ?? [];
+      final def = defaultSelected[key] ?? [];
+      if (current.length != def.length ||
+          !current.every((e) => def.contains(e))) {
+        changed = true;
+        break;
+      }
+    }
+
+    if (changed) {
+      state = state.copyWith(selected: defaultSelected);
+      await _updateFilters();
+    }
+    commitFilters();
   }
 }

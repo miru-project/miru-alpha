@@ -29,12 +29,17 @@ class SearchFilterDialog extends ConsumerWidget {
       direction: Axis.horizontal,
       title: const Text('Filters'),
       body: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 500, minWidth: 400),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.7,
+          minWidth: MediaQuery.of(context).size.width * 0.8,
+          maxWidth: 500,
+        ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 8),
               for (var i = 0; i < order.length; i++) ...[
                 () {
                   final filter = filters[order[i]];
