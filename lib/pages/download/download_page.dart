@@ -50,7 +50,7 @@ class DownloadPage extends ConsumerWidget {
                   Text("select_download_directory_tip".i18n),
               child: FButton.icon(
                 onPress: () async {
-                  String? result = await FilePicker.platform.getDirectoryPath();
+                  String? result = await FilePicker.getDirectoryPath();
                   if (result != null) {
                     MiruSettings.setSettingSync(
                       SettingKey.downloadPath,

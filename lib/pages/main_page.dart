@@ -147,8 +147,7 @@ class _MainPageState extends ConsumerState<MainPage>
               actions: [
                 FButton(
                   onPress: () async {
-                    String? result = await FilePicker.platform
-                        .getDirectoryPath();
+                    String? result = await FilePicker.getDirectoryPath();
                     if (result != null) {
                       MiruSettings.setSettingSync(
                         SettingKey.downloadPath,
