@@ -1,9 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:miru_alpha/miru_core/network.dart';
-// import 'package:miru_alpha/utils/network/request.dart';
-import '../core/i18n.dart';
-import 'package:miru_alpha/utils/setting_dir_index.dart';
+import 'package:miru_alpha/model/anilist_model.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 
 enum AnilistType { anime, manga }
 
@@ -17,18 +15,7 @@ enum AnilistMediaListStatus {
 }
 
 class AniListProvider {
-  static String get anilistToken =>
-      MiruSettings.getSettingSync<String>(SettingKey.aniListToken);
-
-  static String get userid =>
-      MiruSettings.getSettingSync<String>(SettingKey.aniListUserId);
-
-  static const headers = <String, String>{
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  };
-
-  static const String apiUrl = 'https://graphql.anilist.co';
+  static const String apiUrl = 'http://127.0.0.1:3000/proxy/https://graphql.anilist.co';
 
   static String _typeToQuery(AnilistType type) {
     return (type == AnilistType.anime) ? "ANIME" : "MANGA";
@@ -60,9 +47,7 @@ class AniListProvider {
   ) {
     switch (status) {
       case AnilistMediaListStatus.current:
-        return (type == AnilistType.anime)
-            ? "anilist.watching".i18n
-            : "anilist.reading".i18n;
+        return (type == AnilistType.anime) ? "anilist.watching".i18n : "anilist.reading".i18n;
       case AnilistMediaListStatus.completed:
         return "anilist.completed".i18n;
       case AnilistMediaListStatus.planning:
@@ -72,9 +57,7 @@ class AniListProvider {
       case AnilistMediaListStatus.dropped:
         return "anilist.dropped".i18n;
       case AnilistMediaListStatus.repeating:
-        return (type == AnilistType.anime)
-            ? "anilist.re-watching".i18n
-            : "anilist.re-reading".i18n;
+        return (type == AnilistType.anime) ? "anilist.re-watching".i18n : "anilist.re-reading".i18n;
     }
   }
 
@@ -97,6 +80,10 @@ class AniListProvider {
     }
   }
 
+  static Future<void> logout() async {
+    await dio.get('http://127.0.0.1:3000/anilist/logout');
+  }
+
   static Future postRequest({
     Map<String, dynamic>? varibale,
     required String queryString,
@@ -106,7 +93,6 @@ class AniListProvider {
         apiUrl,
         options: Options(
           headers: {
-            "Authorization": "Bearer $anilistToken",
             'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
@@ -114,50 +100,28 @@ class AniListProvider {
         data: {"query": queryString},
       );
       return response.data;
-    } on DioException catch (e) {
-      if (e.response != null) {
-        if (e.response!.statusCode == 400 &&
-            e.response!.data.toString().toLowerCase().contains(
-              "invalid token",
-            )) {
-          // showSnackBar(
-          //   context: navigatorKey.currentContext!,
-          //   text: "Anilist not login",
-          // );
-        }
-      }
+    } on DioException {
       rethrow;
     }
   }
 
-  static Future<Map<String, dynamic>> getuserData() async {
-    const userDataQuery =
-        """{Viewer {name  id avatar{medium} statistics{anime{episodesWatched}manga{chaptersRead}}}}""";
-
+  static Future<AnilistUser> getuserData() async {
+    const userDataQuery = """{Viewer {name  id avatar{medium} statistics{anime{episodesWatched}manga{chaptersRead}}}}""";
     final response = await postRequest(queryString: userDataQuery);
-    final userId = response["data"]["Viewer"]["id"].toString();
-    MiruSettings.setSettingSync(SettingKey.aniListUserId, userId);
-    final data = response["data"]["Viewer"];
-    return {
-      "UserAvatar": data["avatar"]["medium"],
-      "User": data["name"],
-      "AnimeEpWatched": data["statistics"]["anime"]["episodesWatched"]
-          .toString(),
-      "MangaChapterRead": data["statistics"]["manga"]["chaptersRead"]
-          .toString(),
-    };
+    return AnilistUser.fromJson(response["data"]["Viewer"]);
   }
 
-  static Future<Map<String, dynamic>> getCollection(
+  static Future<List<AnilistList>> getCollection(
     AnilistType anilistType,
+    int userid,
   ) async {
-    final query =
-        """
+    final query = """
       {
         MediaListCollection(userId: $userid, type : ${_typeToQuery(anilistType)}) {
           lists {
             status
             entries {
+              id
               status
               progress
               score
@@ -182,32 +146,18 @@ class AniListProvider {
           }
         }
       }
-
       """;
     final res = await postRequest(queryString: query);
-    final collectionData = <String, List>{};
-    final lists = res["data"]["MediaListCollection"]["lists"];
-    int length = lists.length;
-    for (int i = 0; i < length; i++) {
-      String key = lists[i]["status"];
-      if (collectionData.containsKey(key)) {
-        collectionData[key]!.addAll(lists[i]["entries"]);
-      } else {
-        collectionData[key] = lists[i]["entries"];
-      }
-    }
-    return collectionData;
+    final lists = res["data"]["MediaListCollection"]["lists"] as List;
+    return lists.map((e) => AnilistList.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  //use their name to query anime or manga id
-  //save anilist: use mediaQueryPage to get id then go to editlist
-  static Future<List<dynamic>> mediaQuerypage({
+  static Future<List<AnilistMedia>> mediaQuerypage({
     required String searchString,
     required AnilistType type,
     int? page,
   }) async {
-    final String nameQuery =
-        """{Page(page:${page ?? 1}){
+    final String nameQuery = """{Page(page:${page ?? 1}){
     media(search:"$searchString",type:${_typeToQuery(type)}){
         id
         type
@@ -239,13 +189,14 @@ class AniListProvider {
   }}
   """;
     final res = await postRequest(queryString: nameQuery);
-    return res["data"]["Page"]["media"];
+    final media = res["data"]["Page"]["media"] as List;
+    return media.map((e) => AnilistMedia.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  static Future<String> editList({
+  static Future<int> editList({
     required AnilistMediaListStatus status,
-    String? mediaId,
-    String? id,
+    int? mediaId,
+    int? id,
     int? progress,
     double? score,
     DateTime? startDate,
@@ -281,21 +232,18 @@ class AniListProvider {
 
     final queryStr = queryList.join(",");
 
-    final queryString =
-        """mutation{
+    final queryString = """mutation{
     SaveMediaListEntry(status:${mediaListStatusToQuery(status)},private:${isPrivate ?? false},$queryStr){
         id
       }
     }""";
 
-    debugPrint(queryString);
     final res = await postRequest(queryString: queryString);
-    return res["data"]["SaveMediaListEntry"]["id"].toString();
+    return res["data"]["SaveMediaListEntry"]["id"];
   }
 
-  static Future<bool> deleteList({required String id}) async {
-    final String deleteMutation =
-        """
+  static Future<bool> deleteList({required int id}) async {
+    final String deleteMutation = """
     mutation{
         DeleteMediaListEntry(id:$id){
               deleted
@@ -306,9 +254,8 @@ class AniListProvider {
     return res["data"]["DeleteMediaListEntry"]["deleted"];
   }
 
-  static Future<dynamic> getMediaList(String id) async {
-    final query =
-        """
+  static Future<AnilistMedia> getMediaList(int id) async {
+    final query = """
 {
    Media(id: $id) {
     id
@@ -358,9 +305,8 @@ class AniListProvider {
   }
 }
 """;
-    // debugPrint(query);
     final res = await postRequest(queryString: query);
-    debugPrint(res.toString());
-    return res["data"]["Media"];
+    return AnilistMedia.fromJson(res["data"]["Media"]);
   }
 }
+

@@ -77,6 +77,11 @@ class _MainPageState extends ConsumerState<MainPage>
       page: "/extension",
     ),
     FIconNavItem(
+      text: 'tracking',
+      icon: FIcons.clipboardClock,
+      page: "/tracking",
+    ),
+    FIconNavItem(
       text: 'settings',
       icon: FIcons.settings,
       subItems: _fIconSettingSubItem,

@@ -9,14 +9,14 @@ import 'package:miru_alpha/pages/watch/load_entry.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/widgets/index.dart';
-import '../../../pages/anilist_webview.dart';
-import '../../pages/favorite/favorite_page_layout.dart';
-import '../../pages/history/history_page.dart';
-import '../../../pages/index.dart';
-import '../../../pages/main_page.dart';
-import '../../pages/webview/mobile_webview.dart';
-import '../../pages/search/search_page_single_view.dart';
-import '../../model/setting_items.dart';
+import 'package:miru_alpha/pages/favorite/favorite_page_layout.dart';
+import 'package:miru_alpha/pages/history/history_page.dart';
+import 'package:miru_alpha/pages/index.dart';
+import 'package:miru_alpha/pages/main_page.dart';
+import 'package:miru_alpha/pages/webview/mobile_webview.dart';
+import 'package:miru_alpha/pages/search/search_page_single_view.dart';
+import 'package:miru_alpha/model/setting_items.dart';
+import 'package:miru_alpha/pages/tracking/tracking_page.dart';
 
 class ParamCache {
   static DetailParam? detailParam;
@@ -78,18 +78,13 @@ class RouterUtil {
         },
       ),
       GoRoute(
-        path: '/anilist',
-        builder: (context, state) {
-          return AnilistWebViewPage(url: state.extra as String);
-        },
-      ),
-      GoRoute(
         path: '/mobileWebView',
         builder: (context, state) {
           final extra = state.extra as WebviewParam;
           return MobileWebViewPage(extMeta: extra.meta, path: extra.url);
         },
       ),
+
       StatefulShellRoute.indexedStack(
         branches: [
           StatefulShellBranch(
@@ -167,6 +162,11 @@ class RouterUtil {
                 path: '/extension',
                 pageBuilder: (context, state) =>
                     getPage(state: state, child: const ExtensionPage()),
+              ),
+              GoRoute(
+                path: '/tracking',
+                pageBuilder: (context, state) =>
+                    getPage(state: state, child: const TrackingPage()),
               ),
             ],
           ),

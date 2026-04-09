@@ -73,7 +73,10 @@
   "reader": "Reader",
   "advanced": "Advanced",
   "about": "About",
-  "tracking": "Tracking",
+  "tracking": {
+    "name": "Tracking",
+    "logout": "Logout"
+  },
   "download_directory": "Download Directory",
   "select_download_directory": "Please select a target directory for your downloads. On Android, this will use the Storage Access Framework.",
   "select_directory": "Select Directory",

@@ -73,7 +73,10 @@
   "reader": "阅读器",
   "advanced": "高级",
   "about": "关于",
-  "tracking": "追踪",
+  "tracking": {
+    "name": "追踪",
+    "logout": "登出"
+  },
   "download_directory": "下载目录",
   "select_download_directory": "请选择下载保存的目录。在 Android 上，这将使用存储访问框架。",
   "select_directory": "选择目录",

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
@@ -157,7 +158,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                       child: Padding(
                         padding: .symmetric(horizontal: 10),
                         child: FTileGroup(
-                          label: Text('tracking'.i18n),
+                          label: Text('tracking.name'.i18n),
                           children: [
                             FTile(
                               prefix: SvgPicture.string(
@@ -170,10 +171,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                               title: Text('anilist'.i18n),
                               suffix: Icon(FIcons.chevronRight),
                               onPress: () {
-                                iconsMessageToast(
-                                  title: 'wip'.i18n,
-                                  icon: FIcons.construction,
-                                );
+                                context.push('/tracking');
                               },
                             ),
                           ],
