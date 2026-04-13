@@ -100,7 +100,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                   children: [
                     FAccordionItem(
                       initiallyExpanded: true,
-                      title: Text("extension.description".i18n),
+                      title: Text("episode.description".i18n),
                       child: Text(
                         detail.desc ?? "no_description".i18n,
                         style: TextStyle(

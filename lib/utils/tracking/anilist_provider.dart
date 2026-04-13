@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/model/anilist_model.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/http/request.dart';
 
 enum AnilistType { anime, manga }
 
@@ -15,7 +15,8 @@ enum AnilistMediaListStatus {
 }
 
 class AniListProvider {
-  static const String apiUrl = 'http://127.0.0.1:3000/proxy/https://graphql.anilist.co';
+  static const String apiUrl =
+      'http://127.0.0.1:3000/proxy/https://graphql.anilist.co';
 
   static String _typeToQuery(AnilistType type) {
     return (type == AnilistType.anime) ? "ANIME" : "MANGA";
@@ -47,7 +48,9 @@ class AniListProvider {
   ) {
     switch (status) {
       case AnilistMediaListStatus.current:
-        return (type == AnilistType.anime) ? "anilist.watching".i18n : "anilist.reading".i18n;
+        return (type == AnilistType.anime)
+            ? "anilist.watching".i18n
+            : "anilist.reading".i18n;
       case AnilistMediaListStatus.completed:
         return "anilist.completed".i18n;
       case AnilistMediaListStatus.planning:
@@ -57,7 +60,9 @@ class AniListProvider {
       case AnilistMediaListStatus.dropped:
         return "anilist.dropped".i18n;
       case AnilistMediaListStatus.repeating:
-        return (type == AnilistType.anime) ? "anilist.re-watching".i18n : "anilist.re-reading".i18n;
+        return (type == AnilistType.anime)
+            ? "anilist.re-watching".i18n
+            : "anilist.re-reading".i18n;
     }
   }
 
@@ -81,7 +86,7 @@ class AniListProvider {
   }
 
   static Future<void> logout() async {
-    await dio.get('http://127.0.0.1:3000/anilist/logout');
+    await MiruRequest.rawGet('http://127.0.0.1:3000/anilist/logout');
   }
 
   static Future postRequest({
@@ -89,15 +94,15 @@ class AniListProvider {
     required String queryString,
   }) async {
     try {
-      final response = await dio.post(
+      final response = await MiruRequest.post(
         apiUrl,
+        {"query": queryString},
         options: Options(
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
         ),
-        data: {"query": queryString},
       );
       return response.data;
     } on DioException {
@@ -106,7 +111,8 @@ class AniListProvider {
   }
 
   static Future<AnilistUser> getuserData() async {
-    const userDataQuery = """{Viewer {name  id avatar{medium} statistics{anime{episodesWatched}manga{chaptersRead}}}}""";
+    const userDataQuery =
+        """{Viewer {name  id avatar{medium} statistics{anime{episodesWatched}manga{chaptersRead}}}}""";
     final response = await postRequest(queryString: userDataQuery);
     return AnilistUser.fromJson(response["data"]["Viewer"]);
   }
@@ -115,7 +121,8 @@ class AniListProvider {
     AnilistType anilistType,
     int userid,
   ) async {
-    final query = """
+    final query =
+        """
       {
         MediaListCollection(userId: $userid, type : ${_typeToQuery(anilistType)}) {
           lists {
@@ -149,7 +156,9 @@ class AniListProvider {
       """;
     final res = await postRequest(queryString: query);
     final lists = res["data"]["MediaListCollection"]["lists"] as List;
-    return lists.map((e) => AnilistList.fromJson(e as Map<String, dynamic>)).toList();
+    return lists
+        .map((e) => AnilistList.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   static Future<List<AnilistMedia>> mediaQuerypage({
@@ -157,7 +166,8 @@ class AniListProvider {
     required AnilistType type,
     int? page,
   }) async {
-    final String nameQuery = """{Page(page:${page ?? 1}){
+    final String nameQuery =
+        """{Page(page:${page ?? 1}){
     media(search:"$searchString",type:${_typeToQuery(type)}){
         id
         type
@@ -190,7 +200,9 @@ class AniListProvider {
   """;
     final res = await postRequest(queryString: nameQuery);
     final media = res["data"]["Page"]["media"] as List;
-    return media.map((e) => AnilistMedia.fromJson(e as Map<String, dynamic>)).toList();
+    return media
+        .map((e) => AnilistMedia.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   static Future<int> editList({
@@ -232,7 +244,8 @@ class AniListProvider {
 
     final queryStr = queryList.join(",");
 
-    final queryString = """mutation{
+    final queryString =
+        """mutation{
     SaveMediaListEntry(status:${mediaListStatusToQuery(status)},private:${isPrivate ?? false},$queryStr){
         id
       }
@@ -243,7 +256,8 @@ class AniListProvider {
   }
 
   static Future<bool> deleteList({required int id}) async {
-    final String deleteMutation = """
+    final String deleteMutation =
+        """
     mutation{
         DeleteMediaListEntry(id:$id){
               deleted
@@ -255,7 +269,8 @@ class AniListProvider {
   }
 
   static Future<AnilistMedia> getMediaList(int id) async {
-    final query = """
+    final query =
+        """
 {
    Media(id: $id) {
     id
@@ -272,6 +287,33 @@ class AniListProvider {
     chapters
     volumes
     isFavourite
+    characters(sort: [ROLE, RELEVANCE, ID]) {
+      edges {
+        role
+        node {
+          id
+          name {
+            full
+            native
+          }
+          image {
+            large
+            medium
+          }
+        }
+        voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
+          id
+          name {
+            full
+            native
+          }
+          image {
+            large
+            medium
+          }
+        }
+      }
+    }
     mediaListEntry {
       id
       mediaId
@@ -309,4 +351,3 @@ class AniListProvider {
     return AnilistMedia.fromJson(res["data"]["Media"]);
   }
 }
-

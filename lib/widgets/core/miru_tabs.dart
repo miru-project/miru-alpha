@@ -100,17 +100,6 @@ class _MiruTabsState extends State<MiruTabs>
               physics: widget.physics,
               children: widget.children.map((e) => e.child).toList(),
             ),
-            // DefaultTextStyle(
-            //   style: theme.typography.copyWith(
-            //     fontFamily: theme.typography.defaultFontFamily,
-            //     color: theme.colors.foreground,
-            //   ),
-            //   child: TabBarView(
-            //     controller: _controller,
-            //     physics: widget.physics,
-            //     children: widget.children.map((e) => e.child).toList(),
-            //   ),
-            // ),
           ),
         ],
       ),

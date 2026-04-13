@@ -105,6 +105,7 @@ class AnilistMedia {
   final AnilistTitle title;
   final AnilistCoverImage coverImage;
   final NextAiringEpisode? nextAiringEpisode;
+  final AnilistCharacterConnection? characters;
 
   AnilistMedia({
     required this.id,
@@ -116,6 +117,7 @@ class AnilistMedia {
     required this.title,
     required this.coverImage,
     this.nextAiringEpisode,
+    this.characters,
   });
 
   factory AnilistMedia.fromJson(Map<String, dynamic> json) => _$AnilistMediaFromJson(json);
@@ -155,4 +157,72 @@ class NextAiringEpisode {
 
   factory NextAiringEpisode.fromJson(Map<String, dynamic> json) => _$NextAiringEpisodeFromJson(json);
   Map<String, dynamic> toJson() => _$NextAiringEpisodeToJson(this);
+}
+
+@JsonSerializable()
+class AnilistCharacterConnection {
+  final List<AnilistCharacterEdge>? edges;
+
+  AnilistCharacterConnection({this.edges});
+
+  factory AnilistCharacterConnection.fromJson(Map<String, dynamic> json) => _$AnilistCharacterConnectionFromJson(json);
+  Map<String, dynamic> toJson() => _$AnilistCharacterConnectionToJson(this);
+}
+
+@JsonSerializable()
+class AnilistCharacterEdge {
+  final AnilistCharacter? node;
+  final String? role;
+  final List<AnilistStaff>? voiceActors;
+
+  AnilistCharacterEdge({this.node, this.role, this.voiceActors});
+
+  factory AnilistCharacterEdge.fromJson(Map<String, dynamic> json) => _$AnilistCharacterEdgeFromJson(json);
+  Map<String, dynamic> toJson() => _$AnilistCharacterEdgeToJson(this);
+}
+
+@JsonSerializable()
+class AnilistCharacter {
+  final int id;
+  final AnilistName name;
+  final AnilistImage? image;
+
+  AnilistCharacter({required this.id, required this.name, this.image});
+
+  factory AnilistCharacter.fromJson(Map<String, dynamic> json) => _$AnilistCharacterFromJson(json);
+  Map<String, dynamic> toJson() => _$AnilistCharacterToJson(this);
+}
+
+@JsonSerializable()
+class AnilistStaff {
+  final int id;
+  final AnilistName name;
+  final AnilistImage? image;
+
+  AnilistStaff({required this.id, required this.name, this.image});
+
+  factory AnilistStaff.fromJson(Map<String, dynamic> json) => _$AnilistStaffFromJson(json);
+  Map<String, dynamic> toJson() => _$AnilistStaffToJson(this);
+}
+
+@JsonSerializable()
+class AnilistName {
+  final String? full;
+  final String? native;
+
+  AnilistName({this.full, this.native});
+
+  factory AnilistName.fromJson(Map<String, dynamic> json) => _$AnilistNameFromJson(json);
+  Map<String, dynamic> toJson() => _$AnilistNameToJson(this);
+}
+
+@JsonSerializable()
+class AnilistImage {
+  final String? large;
+  final String? medium;
+
+  AnilistImage({this.large, this.medium});
+
+  factory AnilistImage.fromJson(Map<String, dynamic> json) => _$AnilistImageFromJson(json);
+  Map<String, dynamic> toJson() => _$AnilistImageToJson(this);
 }

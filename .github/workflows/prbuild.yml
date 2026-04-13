@@ -53,7 +53,7 @@ jobs:
       - run: flutter pub get
       # 打包apk
       - name: Collect Apks
-        run: flutter build apk --release --split-per-abi
+        run: flutter build apk --release --split-per-abi --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -98,7 +98,7 @@ jobs:
           channel: stable
 
       - name: Build artifacts
-        run: flutter build windows --release
+        run: flutter build windows --release --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
 
       - name: Rename Release Directory Name to Miru-alpha # 为了解压缩后更好看一点
         run: |
@@ -142,7 +142,7 @@ jobs:
           channel: stable
 
       - name: Build artifacts
-        run: flutter build linux --release
+        run: flutter build linux --release --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
       - name: Rename Release Directory Name to Miru-alpha # 为了解压缩后更好看一点
         run: |
           mv build/linux/x64/release/bundle build/linux/x64/release/Miru-alpha

@@ -29,6 +29,7 @@ class Core {
   static bool isInit = false;
   static String get port => configData['port'] ?? '3000';
   static String get host => configData['address'] ?? '127.0.0.1';
+  static String get baseUrl => 'http://$host:$port';
 
   static Future<void> ensureInitialized() async {
     await CoreNetwork.ensureInitialized();

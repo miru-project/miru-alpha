@@ -177,6 +177,21 @@ class DbServiceClient extends $grpc.Client {
     return $createUnaryCall(_$getHistorysFiltered, request, options: options);
   }
 
+  /// Track
+  $grpc.ResponseFuture<$0.GetTrackResponse> getTrack(
+    $0.GetTrackRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$getTrack, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.PutTrackResponse> putTrack(
+    $0.PutTrackRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$putTrack, request, options: options);
+  }
+
   // method descriptors
 
   static final _$getDetail =
@@ -279,6 +294,16 @@ class DbServiceClient extends $grpc.Client {
       '/miru.DbService/GetHistorysFiltered',
       ($0.GetHistorysFilteredRequest value) => value.writeToBuffer(),
       $0.GetHistorysFilteredResponse.fromBuffer);
+  static final _$getTrack =
+      $grpc.ClientMethod<$0.GetTrackRequest, $0.GetTrackResponse>(
+          '/miru.DbService/GetTrack',
+          ($0.GetTrackRequest value) => value.writeToBuffer(),
+          $0.GetTrackResponse.fromBuffer);
+  static final _$putTrack =
+      $grpc.ClientMethod<$0.PutTrackRequest, $0.PutTrackResponse>(
+          '/miru.DbService/PutTrack',
+          ($0.PutTrackRequest value) => value.writeToBuffer(),
+          $0.PutTrackResponse.fromBuffer);
 }
 
 @$pb.GrpcServiceName('miru.DbService')
@@ -457,6 +482,20 @@ abstract class DbServiceBase extends $grpc.Service {
         ($core.List<$core.int> value) =>
             $0.GetHistorysFilteredRequest.fromBuffer(value),
         ($0.GetHistorysFilteredResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GetTrackRequest, $0.GetTrackResponse>(
+        'GetTrack',
+        getTrack_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.GetTrackRequest.fromBuffer(value),
+        ($0.GetTrackResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.PutTrackRequest, $0.PutTrackResponse>(
+        'PutTrack',
+        putTrack_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.PutTrackRequest.fromBuffer(value),
+        ($0.PutTrackResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.GetDetailResponse> getDetail_Pre($grpc.ServiceCall $call,
@@ -634,4 +673,20 @@ abstract class DbServiceBase extends $grpc.Service {
 
   $async.Future<$0.GetHistorysFilteredResponse> getHistorysFiltered(
       $grpc.ServiceCall call, $0.GetHistorysFilteredRequest request);
+
+  $async.Future<$0.GetTrackResponse> getTrack_Pre($grpc.ServiceCall $call,
+      $async.Future<$0.GetTrackRequest> $request) async {
+    return getTrack($call, await $request);
+  }
+
+  $async.Future<$0.GetTrackResponse> getTrack(
+      $grpc.ServiceCall call, $0.GetTrackRequest request);
+
+  $async.Future<$0.PutTrackResponse> putTrack_Pre($grpc.ServiceCall $call,
+      $async.Future<$0.PutTrackRequest> $request) async {
+    return putTrack($call, await $request);
+  }
+
+  $async.Future<$0.PutTrackResponse> putTrack(
+      $grpc.ServiceCall call, $0.PutTrackRequest request);
 }

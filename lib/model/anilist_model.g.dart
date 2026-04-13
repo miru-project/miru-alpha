@@ -109,6 +109,11 @@ AnilistMedia _$AnilistMediaFromJson(Map<String, dynamic> json) => AnilistMedia(
       : NextAiringEpisode.fromJson(
           json['nextAiringEpisode'] as Map<String, dynamic>,
         ),
+  characters: json['characters'] == null
+      ? null
+      : AnilistCharacterConnection.fromJson(
+          json['characters'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$AnilistMediaToJson(AnilistMedia instance) =>
@@ -122,6 +127,7 @@ Map<String, dynamic> _$AnilistMediaToJson(AnilistMedia instance) =>
       'title': instance.title,
       'coverImage': instance.coverImage,
       'nextAiringEpisode': instance.nextAiringEpisode,
+      'characters': instance.characters,
     };
 
 AnilistTitle _$AnilistTitleFromJson(Map<String, dynamic> json) => AnilistTitle(
@@ -159,3 +165,82 @@ Map<String, dynamic> _$NextAiringEpisodeToJson(NextAiringEpisode instance) =>
       'episode': instance.episode,
       'airingAt': instance.airingAt,
     };
+
+AnilistCharacterConnection _$AnilistCharacterConnectionFromJson(
+  Map<String, dynamic> json,
+) => AnilistCharacterConnection(
+  edges: (json['edges'] as List<dynamic>?)
+      ?.map((e) => AnilistCharacterEdge.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
+
+Map<String, dynamic> _$AnilistCharacterConnectionToJson(
+  AnilistCharacterConnection instance,
+) => <String, dynamic>{'edges': instance.edges};
+
+AnilistCharacterEdge _$AnilistCharacterEdgeFromJson(
+  Map<String, dynamic> json,
+) => AnilistCharacterEdge(
+  node: json['node'] == null
+      ? null
+      : AnilistCharacter.fromJson(json['node'] as Map<String, dynamic>),
+  role: json['role'] as String?,
+  voiceActors: (json['voiceActors'] as List<dynamic>?)
+      ?.map((e) => AnilistStaff.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
+
+Map<String, dynamic> _$AnilistCharacterEdgeToJson(
+  AnilistCharacterEdge instance,
+) => <String, dynamic>{
+  'node': instance.node,
+  'role': instance.role,
+  'voiceActors': instance.voiceActors,
+};
+
+AnilistCharacter _$AnilistCharacterFromJson(Map<String, dynamic> json) =>
+    AnilistCharacter(
+      id: (json['id'] as num).toInt(),
+      name: AnilistName.fromJson(json['name'] as Map<String, dynamic>),
+      image: json['image'] == null
+          ? null
+          : AnilistImage.fromJson(json['image'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$AnilistCharacterToJson(AnilistCharacter instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'image': instance.image,
+    };
+
+AnilistStaff _$AnilistStaffFromJson(Map<String, dynamic> json) => AnilistStaff(
+  id: (json['id'] as num).toInt(),
+  name: AnilistName.fromJson(json['name'] as Map<String, dynamic>),
+  image: json['image'] == null
+      ? null
+      : AnilistImage.fromJson(json['image'] as Map<String, dynamic>),
+);
+
+Map<String, dynamic> _$AnilistStaffToJson(AnilistStaff instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'image': instance.image,
+    };
+
+AnilistName _$AnilistNameFromJson(Map<String, dynamic> json) => AnilistName(
+  full: json['full'] as String?,
+  native: json['native'] as String?,
+);
+
+Map<String, dynamic> _$AnilistNameToJson(AnilistName instance) =>
+    <String, dynamic>{'full': instance.full, 'native': instance.native};
+
+AnilistImage _$AnilistImageFromJson(Map<String, dynamic> json) => AnilistImage(
+  large: json['large'] as String?,
+  medium: json['medium'] as String?,
+);
+
+Map<String, dynamic> _$AnilistImageToJson(AnilistImage instance) =>
+    <String, dynamic>{'large': instance.large, 'medium': instance.medium};

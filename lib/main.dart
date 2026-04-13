@@ -20,6 +20,7 @@ import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/core/miru_directory.dart';
 import 'package:miru_alpha/utils/download/ffmpeg_util.dart';
+import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/router/router_util.dart';
 import 'package:miru_alpha/widgets/core/toast.dart';
 import 'package:miru_alpha/widgets/error.dart';
@@ -74,6 +75,7 @@ void main() async {
       }
       FFMpegUtils.ensureInitialized();
       Core.loadConfig();
+      MiruRequest.ensureInitalized(host: Core.baseUrl);
       if (Platform.isMacOS) {
         await WindowManipulator.initialize(enableWindowDelegate: true);
         await WindowManipulator.addToolbar();

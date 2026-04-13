@@ -77,6 +77,8 @@
     "name": "追踪",
     "logout": "登出"
   },
+  "cast": "角色",
+  "no_cast_found": "暂无角色",
   "download_directory": "下载目录",
   "select_download_directory": "请选择下载保存的目录。在 Android 上，这将使用存储访问框架。",
   "select_directory": "选择目录",
@@ -146,7 +148,6 @@
   "weeks_ago": "{weeks} 周前",
   "months_ago": "{months} 个月前",
   "years_ago": "{years} 年前",
-  "cast": "角色",
   "page": "页",
   "select_resolution": "选择分辨率",
   "download_started": "开始下载",

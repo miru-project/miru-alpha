@@ -77,7 +77,16 @@ const UpsertDetailRequest$json = {
       '10': 'headers',
       '17': true
     },
+    {
+      '1': 'track_ids',
+      '3': 9,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.UpsertDetailRequest.TrackIdsEntry',
+      '10': 'trackIds'
+    },
   ],
+  '3': [UpsertDetailRequest_TrackIdsEntry$json],
   '8': [
     {'1': '_title'},
     {'1': '_cover'},
@@ -87,14 +96,26 @@ const UpsertDetailRequest$json = {
   ],
 };
 
+@$core.Deprecated('Use upsertDetailRequestDescriptor instead')
+const UpsertDetailRequest_TrackIdsEntry$json = {
+  '1': 'TrackIdsEntry',
+  '2': [
+    {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    {'1': 'value', '3': 2, '4': 1, '5': 9, '10': 'value'},
+  ],
+  '7': {'7': true},
+};
+
 /// Descriptor for `UpsertDetailRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List upsertDetailRequestDescriptor = $convert.base64Decode(
     'ChNVcHNlcnREZXRhaWxSZXF1ZXN0EhkKBXRpdGxlGAEgASgJSABSBXRpdGxliAEBEhkKBWNvdm'
     'VyGAIgASgJSAFSBWNvdmVyiAEBEhcKBGRlc2MYAyABKAlIAlIEZGVzY4gBARIdCgpkZXRhaWxf'
     'dXJsGAQgASgJUglkZXRhaWxVcmwSGAoHcGFja2FnZRgFIAEoCVIHcGFja2FnZRIeCgpkb3dubG'
     '9hZGVkGAYgAygJUgpkb3dubG9hZGVkEh8KCGVwaXNvZGVzGAcgASgJSANSCGVwaXNvZGVziAEB'
-    'Eh0KB2hlYWRlcnMYCCABKAlIBFIHaGVhZGVyc4gBAUIICgZfdGl0bGVCCAoGX2NvdmVyQgcKBV'
-    '9kZXNjQgsKCV9lcGlzb2Rlc0IKCghfaGVhZGVycw==');
+    'Eh0KB2hlYWRlcnMYCCABKAlIBFIHaGVhZGVyc4gBARJECgl0cmFja19pZHMYCSADKAsyJy5taX'
+    'J1LlVwc2VydERldGFpbFJlcXVlc3QuVHJhY2tJZHNFbnRyeVIIdHJhY2tJZHMaOwoNVHJhY2tJ'
+    'ZHNFbnRyeRIQCgNrZXkYASABKAlSA2tleRIUCgV2YWx1ZRgCIAEoCVIFdmFsdWU6AjgBQggKBl'
+    '90aXRsZUIICgZfY292ZXJCBwoFX2Rlc2NCCwoJX2VwaXNvZGVzQgoKCF9oZWFkZXJz');
 
 @$core.Deprecated('Use upsertDetailResponseDescriptor instead')
 const UpsertDetailResponse$json = {
@@ -677,3 +698,58 @@ final $typed_data.Uint8List getHistorysFilteredResponseDescriptor =
     $convert.base64Decode(
         'ChtHZXRIaXN0b3J5c0ZpbHRlcmVkUmVzcG9uc2USKwoJaGlzdG9yaWVzGAEgAygLMg0ubWlydS'
         '5IaXN0b3J5UgloaXN0b3JpZXM=');
+
+@$core.Deprecated('Use getTrackRequestDescriptor instead')
+const GetTrackRequest$json = {
+  '1': 'GetTrackRequest',
+  '2': [
+    {'1': 'tracking_id', '3': 1, '4': 1, '5': 9, '10': 'trackingId'},
+    {'1': 'provider', '3': 2, '4': 1, '5': 9, '10': 'provider'},
+  ],
+};
+
+/// Descriptor for `GetTrackRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getTrackRequestDescriptor = $convert.base64Decode(
+    'Cg9HZXRUcmFja1JlcXVlc3QSHwoLdHJhY2tpbmdfaWQYASABKAlSCnRyYWNraW5nSWQSGgoIcH'
+    'JvdmlkZXIYAiABKAlSCHByb3ZpZGVy');
+
+@$core.Deprecated('Use getTrackResponseDescriptor instead')
+const GetTrackResponse$json = {
+  '1': 'GetTrackResponse',
+  '2': [
+    {'1': 'track', '3': 1, '4': 1, '5': 11, '6': '.miru.Track', '10': 'track'},
+  ],
+};
+
+/// Descriptor for `GetTrackResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getTrackResponseDescriptor = $convert.base64Decode(
+    'ChBHZXRUcmFja1Jlc3BvbnNlEiEKBXRyYWNrGAEgASgLMgsubWlydS5UcmFja1IFdHJhY2s=');
+
+@$core.Deprecated('Use putTrackRequestDescriptor instead')
+const PutTrackRequest$json = {
+  '1': 'PutTrackRequest',
+  '2': [
+    {'1': 'tracking_id', '3': 1, '4': 1, '5': 9, '10': 'trackingId'},
+    {'1': 'data', '3': 2, '4': 1, '5': 9, '10': 'data'},
+    {'1': 'media_type', '3': 3, '4': 1, '5': 9, '10': 'mediaType'},
+    {'1': 'provider', '3': 4, '4': 1, '5': 9, '10': 'provider'},
+  ],
+};
+
+/// Descriptor for `PutTrackRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List putTrackRequestDescriptor = $convert.base64Decode(
+    'Cg9QdXRUcmFja1JlcXVlc3QSHwoLdHJhY2tpbmdfaWQYASABKAlSCnRyYWNraW5nSWQSEgoEZG'
+    'F0YRgCIAEoCVIEZGF0YRIdCgptZWRpYV90eXBlGAMgASgJUgltZWRpYVR5cGUSGgoIcHJvdmlk'
+    'ZXIYBCABKAlSCHByb3ZpZGVy');
+
+@$core.Deprecated('Use putTrackResponseDescriptor instead')
+const PutTrackResponse$json = {
+  '1': 'PutTrackResponse',
+  '2': [
+    {'1': 'track', '3': 1, '4': 1, '5': 11, '6': '.miru.Track', '10': 'track'},
+  ],
+};
+
+/// Descriptor for `PutTrackResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List putTrackResponseDescriptor = $convert.base64Decode(
+    'ChBQdXRUcmFja1Jlc3BvbnNlEiEKBXRyYWNrGAEgASgLMgsubWlydS5UcmFja1IFdHJhY2s=');

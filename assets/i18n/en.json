@@ -77,6 +77,8 @@
     "name": "Tracking",
     "logout": "Logout"
   },
+  "cast": "Cast",
+  "no_cast_found": "No Cast Found",
   "download_directory": "Download Directory",
   "select_download_directory": "Please select a target directory for your downloads. On Android, this will use the Storage Access Framework.",
   "select_directory": "Select Directory",

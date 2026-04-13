@@ -44,7 +44,16 @@ const Detail$json = {
       '10': 'headers',
       '17': true
     },
+    {
+      '1': 'track_ids',
+      '3': 10,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.Detail.TrackIdsEntry',
+      '10': 'trackIds'
+    },
   ],
+  '3': [Detail_TrackIdsEntry$json],
   '8': [
     {'1': '_title'},
     {'1': '_cover'},
@@ -54,14 +63,26 @@ const Detail$json = {
   ],
 };
 
+@$core.Deprecated('Use detailDescriptor instead')
+const Detail_TrackIdsEntry$json = {
+  '1': 'TrackIdsEntry',
+  '2': [
+    {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    {'1': 'value', '3': 2, '4': 1, '5': 9, '10': 'value'},
+  ],
+  '7': {'7': true},
+};
+
 /// Descriptor for `Detail`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List detailDescriptor = $convert.base64Decode(
     'CgZEZXRhaWwSDgoCaWQYASABKAVSAmlkEhkKBXRpdGxlGAIgASgJSABSBXRpdGxliAEBEhkKBW'
     'NvdmVyGAMgASgJSAFSBWNvdmVyiAEBEhcKBGRlc2MYBCABKAlIAlIEZGVzY4gBARIdCgpkZXRh'
     'aWxfdXJsGAUgASgJUglkZXRhaWxVcmwSGAoHcGFja2FnZRgGIAEoCVIHcGFja2FnZRIeCgpkb3'
     'dubG9hZGVkGAcgAygJUgpkb3dubG9hZGVkEh8KCGVwaXNvZGVzGAggASgJSANSCGVwaXNvZGVz'
-    'iAEBEh0KB2hlYWRlcnMYCSABKAlIBFIHaGVhZGVyc4gBAUIICgZfdGl0bGVCCAoGX2NvdmVyQg'
-    'cKBV9kZXNjQgsKCV9lcGlzb2Rlc0IKCghfaGVhZGVycw==');
+    'iAEBEh0KB2hlYWRlcnMYCSABKAlIBFIHaGVhZGVyc4gBARI3Cgl0cmFja19pZHMYCiADKAsyGi'
+    '5taXJ1LkRldGFpbC5UcmFja0lkc0VudHJ5Ugh0cmFja0lkcxo7Cg1UcmFja0lkc0VudHJ5EhAK'
+    'A2tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGAIgASgJUgV2YWx1ZToCOAFCCAoGX3RpdGxlQggKBl'
+    '9jb3ZlckIHCgVfZGVzY0ILCglfZXBpc29kZXNCCgoIX2hlYWRlcnM=');
 
 @$core.Deprecated('Use favoriteDescriptor instead')
 const Favorite$json = {
@@ -136,3 +157,21 @@ final $typed_data.Uint8List historyDescriptor = $convert.base64Decode(
     'ZRgJIAEoCVIMZXBpc29kZVRpdGxlEhoKCHByb2dyZXNzGAogASgFUghwcm9ncmVzcxIlCg50b3'
     'RhbF9wcm9ncmVzcxgLIAEoBVINdG90YWxQcm9ncmVzcxISCgRkYXRlGAwgASgJUgRkYXRlEh0K'
     'CmRldGFpbF91cmwYDSABKAlSCWRldGFpbFVybA==');
+
+@$core.Deprecated('Use trackDescriptor instead')
+const Track$json = {
+  '1': 'Track',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
+    {'1': 'tracking_id', '3': 2, '4': 1, '5': 9, '10': 'trackingId'},
+    {'1': 'data', '3': 3, '4': 1, '5': 9, '10': 'data'},
+    {'1': 'media_type', '3': 4, '4': 1, '5': 9, '10': 'mediaType'},
+    {'1': 'provider', '3': 5, '4': 1, '5': 9, '10': 'provider'},
+  ],
+};
+
+/// Descriptor for `Track`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List trackDescriptor = $convert.base64Decode(
+    'CgVUcmFjaxIOCgJpZBgBIAEoBVICaWQSHwoLdHJhY2tpbmdfaWQYAiABKAlSCnRyYWNraW5nSW'
+    'QSEgoEZGF0YRgDIAEoCVIEZGF0YRIdCgptZWRpYV90eXBlGAQgASgJUgltZWRpYVR5cGUSGgoI'
+    'cHJvdmlkZXIYBSABKAlSCHByb3ZpZGVy');

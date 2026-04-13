@@ -33,7 +33,7 @@ final class AnilistAccountProvider
   AnilistAccount create() => AnilistAccount();
 }
 
-String _$anilistAccountHash() => r'2550792fb3fccf0089c49999f542254ad7634a55';
+String _$anilistAccountHash() => r'11a836ed5c8457ef89f1580590d6dc0835b4e204';
 
 abstract class _$AnilistAccount extends $AsyncNotifier<AnilistUser?> {
   FutureOr<AnilistUser?> build();

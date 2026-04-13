@@ -1,7 +1,10 @@
 import 'package:flutter/widgets.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/model/tmdb_model.dart';
 import 'package:miru_alpha/provider/favorite_page_provider.dart';
 import 'package:miru_alpha/provider/history_page_provider.dart';
+import 'package:miru_alpha/provider/tmdb_provider.dart';
+import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
@@ -15,6 +18,9 @@ class DetialState {
   final List<proto.Download> downloadList;
   final Favorite? favorite;
   final List<FavoriteGroup>? favoriateGroup;
+  final TMDBDetail? tmdbDetail;
+  final String castSource;
+  final proto.Detail? detailInfo;
 
   static const undefined = Object();
 
@@ -24,6 +30,9 @@ class DetialState {
     this.downloadList = const [],
     this.favorite,
     this.favoriateGroup,
+    this.tmdbDetail,
+    this.castSource = "tmdb",
+    this.detailInfo,
   });
 
   DetialState copyWith({
@@ -32,6 +41,9 @@ class DetialState {
     List<proto.Download>? downloadList,
     Object? favorite = undefined,
     Object? favoriateGroup = undefined,
+    Object? tmdbDetail = undefined,
+    String? castSource,
+    Object? detailInfo = undefined,
   }) {
     return DetialState(
       selectedGroup: selectedGroup ?? this.selectedGroup,
@@ -41,6 +53,13 @@ class DetialState {
       favoriateGroup: favoriateGroup == undefined
           ? this.favoriateGroup
           : favoriateGroup as List<FavoriteGroup>?,
+      tmdbDetail: tmdbDetail == undefined
+          ? this.tmdbDetail
+          : tmdbDetail as TMDBDetail?,
+      castSource: castSource ?? this.castSource,
+      detailInfo: detailInfo == undefined
+          ? this.detailInfo
+          : detailInfo as proto.Detail?,
     );
   }
 }
@@ -73,6 +92,7 @@ class Detial extends _$Detial {
         )
         .toList();
     initDetail(packageName, detailUrl);
+    fetchDetailInfo(packageName, detailUrl);
     return DetialState(
       selectedGroup: ValueNotifier<int>(0),
       historyList: historyList,
@@ -132,5 +152,74 @@ class Detial extends _$Detial {
         .getDownloadsByPackageAndDetailUrl(pkg, url);
 
     state = state.copyWith(downloadList: downloads);
+  }
+
+  void setCastSource(String source) {
+    state = state.copyWith(castSource: source);
+  }
+
+  Future<void> fetchDetailInfo(String pkg, String url) async {
+    try {
+      final resp = await MiruGrpcClient.dbClient.getDetail(
+        proto.GetDetailRequest()
+          ..package = pkg
+          ..detailUrl = url,
+      );
+      if (resp.hasDetail()) {
+        state = state.copyWith(detailInfo: resp.detail);
+      }
+    } catch (e) {
+      // Ignore
+    }
+  }
+
+  Future<void> fetchTMDBDetail(String title, String mediaType) async {
+    // 1. Check if we already have the ID in our DB
+    String? tmdbIdStr = state.detailInfo?.trackIds['TMDB'];
+
+    if (tmdbIdStr != null) {
+      final detail = await ref
+          .read(tMDBProvider.notifier)
+          .getDetail(int.parse(tmdbIdStr), mediaType);
+      state = state.copyWith(tmdbDetail: detail);
+      return;
+    }
+
+    // 2. Not found, search for it
+    final searchResult = await ref
+        .read(tMDBProvider.notifier)
+        .searchAndGetDetail(title, mediaType);
+
+    if (searchResult != null) {
+      final tmdbId = searchResult.id;
+      // 3. Update our DB with this mapping
+      final detailInfo =
+          state.detailInfo ??
+          (proto.Detail()
+            ..package = meta.packageName
+            ..detailUrl = detailUrl
+            ..title = title);
+
+      detailInfo.trackIds['TMDB'] = tmdbId.toString();
+
+      try {
+        await MiruGrpcClient.dbClient.upsertDetail(
+          proto.UpsertDetailRequest()
+            ..package = detailInfo.package
+            ..detailUrl = detailInfo.detailUrl
+            ..title = detailInfo.title
+            ..trackIds.addAll(detailInfo.trackIds),
+        );
+        state = state.copyWith(detailInfo: detailInfo);
+      } catch (e) {
+        // Ignore upsert error
+      }
+
+      // 4. Finally get full details (this will also cache the 'TMDB' track)
+      final fullDetail = await ref
+          .read(tMDBProvider.notifier)
+          .getDetail(tmdbId, mediaType);
+      state = state.copyWith(tmdbDetail: fullDetail);
+    }
   }
 }

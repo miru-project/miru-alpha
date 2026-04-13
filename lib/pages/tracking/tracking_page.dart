@@ -6,6 +6,7 @@ import 'package:miru_alpha/provider/anilist_provider.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
+import 'package:miru_alpha/widgets/core/tabbar.dart';
 import 'package:miru_alpha/widgets/index.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 import 'widgets/tracking_desktop.dart';
@@ -41,7 +42,13 @@ class TrackingPage extends HookConsumerWidget {
                 SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: TrackingMobileTabBar(controller: tabController),
+                  child: MiruTabBar(
+                    controller: tabController,
+                    tabs: const [
+                      Tab(text: 'Anime'),
+                      Tab(text: 'Manga'),
+                    ],
+                  ),
                 ),
               ]
             : [],

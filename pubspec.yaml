@@ -78,6 +78,7 @@ dependencies:
   smooth_sheets: ^0.17.0
   wakelock_plus: ^1.4.0
   url_launcher: ^6.3.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

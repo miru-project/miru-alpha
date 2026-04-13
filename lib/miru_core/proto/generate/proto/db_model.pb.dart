@@ -28,6 +28,7 @@ class Detail extends $pb.GeneratedMessage {
     $core.Iterable<$core.String>? downloaded,
     $core.String? episodes,
     $core.String? headers,
+    $core.Iterable<$core.MapEntry<$core.String, $core.String>>? trackIds,
   }) {
     final result = create();
     if (id != null) result.id = id;
@@ -39,6 +40,7 @@ class Detail extends $pb.GeneratedMessage {
     if (downloaded != null) result.downloaded.addAll(downloaded);
     if (episodes != null) result.episodes = episodes;
     if (headers != null) result.headers = headers;
+    if (trackIds != null) result.trackIds.addEntries(trackIds);
     return result;
   }
 
@@ -64,6 +66,11 @@ class Detail extends $pb.GeneratedMessage {
     ..pPS(7, _omitFieldNames ? '' : 'downloaded')
     ..aOS(8, _omitFieldNames ? '' : 'episodes')
     ..aOS(9, _omitFieldNames ? '' : 'headers')
+    ..m<$core.String, $core.String>(10, _omitFieldNames ? '' : 'trackIds',
+        entryClassName: 'Detail.TrackIdsEntry',
+        keyFieldType: $pb.PbFieldType.OS,
+        valueFieldType: $pb.PbFieldType.OS,
+        packageName: const $pb.PackageName('miru'))
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -159,6 +166,9 @@ class Detail extends $pb.GeneratedMessage {
   $core.bool hasHeaders() => $_has(8);
   @$pb.TagNumber(9)
   void clearHeaders() => $_clearField(9);
+
+  @$pb.TagNumber(10)
+  $pb.PbMap<$core.String, $core.String> get trackIds => $_getMap(9);
 }
 
 /// DB - Favorite
@@ -568,6 +578,108 @@ class History extends $pb.GeneratedMessage {
   $core.bool hasDetailUrl() => $_has(12);
   @$pb.TagNumber(13)
   void clearDetailUrl() => $_clearField(13);
+}
+
+/// Track
+class Track extends $pb.GeneratedMessage {
+  factory Track({
+    $core.int? id,
+    $core.String? trackingId,
+    $core.String? data,
+    $core.String? mediaType,
+    $core.String? provider,
+  }) {
+    final result = create();
+    if (id != null) result.id = id;
+    if (trackingId != null) result.trackingId = trackingId;
+    if (data != null) result.data = data;
+    if (mediaType != null) result.mediaType = mediaType;
+    if (provider != null) result.provider = provider;
+    return result;
+  }
+
+  Track._();
+
+  factory Track.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory Track.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Track',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aI(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'trackingId')
+    ..aOS(3, _omitFieldNames ? '' : 'data')
+    ..aOS(4, _omitFieldNames ? '' : 'mediaType')
+    ..aOS(5, _omitFieldNames ? '' : 'provider')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Track clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Track copyWith(void Function(Track) updates) =>
+      super.copyWith((message) => updates(message as Track)) as Track;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Track create() => Track._();
+  @$core.override
+  Track createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static Track getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Track>(create);
+  static Track? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get id => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set id($core.int value) => $_setSignedInt32(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get trackingId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set trackingId($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTrackingId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTrackingId() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get data => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set data($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasData() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearData() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get mediaType => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set mediaType($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasMediaType() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearMediaType() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.String get provider => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set provider($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasProvider() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearProvider() => $_clearField(5);
 }
 
 const $core.bool _omitFieldNames =

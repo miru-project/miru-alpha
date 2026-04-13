@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/pages/detail/widget/desktop_tracking_box.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -49,6 +50,11 @@ class DesktopLoadedPage extends HookWidget {
                         meta: meta,
                         detailUrl: detailUrl,
                         coverUrl: coverUrl,
+                      ),
+                      const SizedBox(height: 30),
+                      DetailTrackingBox(
+                        detailPr: detailPr,
+                        mediaTitle: detail.title,
                       ),
                       const SizedBox(height: 30),
                       if (ep.isEmpty)
