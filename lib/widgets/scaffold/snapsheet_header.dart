@@ -22,7 +22,7 @@ class SnapSheetHeader extends StatelessWidget {
         padding:
             padding ?? EdgeInsetsGeometry.only(left: 12, bottom: 6, right: 10),
         child: FLabel(
-          axis: .vertical,
+          layout: .vertical,
           description: (description != null) ? Text(description!) : null,
           child: Row(
             mainAxisAlignment: .spaceBetween,

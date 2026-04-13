@@ -77,7 +77,7 @@ class MobileLoadedPage extends HookConsumerWidget {
                           crossAxisAlignment: .start,
                           children: [
                             FLabel(
-                              axis: Axis.vertical,
+                              layout: .vertical,
                               description: Row(
                                 children: [
                                   Icon(switch (meta.type) {

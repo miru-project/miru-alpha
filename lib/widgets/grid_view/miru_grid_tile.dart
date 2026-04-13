@@ -80,7 +80,7 @@ class MiruDesktopGridTile extends HookWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    axis: Axis.vertical,
+                    layout: .vertical,
                     child: Text(
                       title,
                       maxLines: titleMaxline,
@@ -221,7 +221,7 @@ class MiruMobileTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        axis: Axis.vertical,
+                        layout: .vertical,
                         child: Text(
                           title,
                           maxLines: 1,

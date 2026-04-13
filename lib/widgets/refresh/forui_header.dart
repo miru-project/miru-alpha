@@ -81,7 +81,7 @@ class _ForuiIndicatorState extends State<_ForuiIndicator> {
           child: Opacity(
             opacity: opacity,
             child: FLabel(
-              axis: Axis.vertical,
+              layout: .vertical,
               label: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 transitionBuilder: (child, animation) {
@@ -224,7 +224,7 @@ class _ForuiFooterIndicatorState extends State<_ForuiFooterIndicator> {
           child: Opacity(
             opacity: opacity,
             child: FLabel(
-              axis: Axis.vertical,
+              layout: .vertical,
               label: Padding(
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: _buildIndicatorChild(theme),

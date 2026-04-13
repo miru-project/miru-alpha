@@ -32,7 +32,7 @@ class PlayerHeader extends ConsumerStatefulWidget {
 class _HeaderState extends ConsumerState<PlayerHeader> {
   Widget buildcontent(EpisodeNotifierState epNotifier) {
     return FLabel(
-      axis: Axis.vertical,
+      layout: .vertical,
       description: Text(
         '${epNotifier.epGroup[epNotifier.selectedGroupIndex].title}-${epNotifier.epGroup[epNotifier.selectedGroupIndex].urls[epNotifier.selectedEpisodeIndex].name}',
         style: TextStyle(

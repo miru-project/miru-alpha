@@ -131,7 +131,6 @@ class ErrorDisplay extends ConsumerWidget {
                         child: Row(
                           children: [
                             FTooltip(
-                              hoverEnterDuration: Duration(milliseconds: 300),
                               hover: true,
                               tipBuilder: (context, controller) =>
                                   const Text('Reload'),
@@ -143,7 +142,6 @@ class ErrorDisplay extends ConsumerWidget {
                             ),
                             const SizedBox(width: 10),
                             FTooltip(
-                              hoverEnterDuration: Duration(milliseconds: 300),
                               hover: true,
                               tipBuilder: (context, controller) =>
                                   const Text('Copy'),

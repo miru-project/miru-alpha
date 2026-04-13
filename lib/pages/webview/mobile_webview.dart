@@ -56,7 +56,7 @@ class _MobileWebViewPageState extends ConsumerState<MobileWebViewPage> {
       child: FScaffold(
         header: FHeader.nested(
           title: FLabel(
-            axis: .vertical,
+            layout: .vertical,
             description: Text(loadUrl.value.toString()),
             child: Text(widget.extMeta.name),
           ),

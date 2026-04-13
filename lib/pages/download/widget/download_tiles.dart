@@ -16,7 +16,7 @@ class DownloadProcessTile extends ConsumerWidget {
       child: Column(
         children: [
           FLabel(
-            axis: Axis.vertical,
+            layout: .vertical,
             description: Text(
               '${progress.progress}/${progress.total} - ${progress.status}',
             ),
@@ -87,7 +87,7 @@ class DownloadHistoryTile extends ConsumerWidget {
       child: Column(
         children: [
           FLabel(
-            axis: Axis.vertical,
+            layout: .vertical,
             description: Text(download.status),
             child: Row(
               children: [

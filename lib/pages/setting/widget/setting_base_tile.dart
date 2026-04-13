@@ -39,7 +39,7 @@ class SettingBaseTile extends StatelessWidget with FTileMixin {
         children: [
           Expanded(
             child: FLabel(
-              axis: Axis.vertical,
+              layout: .vertical,
               description: subtitleText == null ? null : Text(subtitleText),
               child: Text(
                 titleText,

@@ -288,7 +288,7 @@ class _ContinueWatchingCard extends ConsumerWidget {
                     vertical: 8,
                   ),
                   child: FLabel(
-                    axis: .vertical,
+                    layout: .vertical,
                     description: Text(
                       item.episodeTitle,
                       maxLines: 1,

@@ -29,7 +29,7 @@ class InnerCard extends StatelessWidget {
                 children: [
                   FLabel(
                     description: subtitle == null ? null : Text(subtitle!.i18n),
-                    axis: Axis.vertical,
+                    layout: .vertical,
                     child: Text(title.i18n),
                   ),
                   if (trailing != null) ...[Spacer(), trailing!],

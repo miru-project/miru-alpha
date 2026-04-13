@@ -53,8 +53,7 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
                   ImageWidget(imageUrl: widget.icon!, width: 50, height: 50),
                 const SizedBox(width: 8),
                 FLabel(
-                  axis: Axis.vertical,
-
+                  layout: .vertical,
                   description: Row(
                     children: [
                       Text(widget.type),
@@ -160,14 +159,14 @@ class ExtensionGridTile extends StatelessWidget {
                       ),
                     ),
                     FLabel(
-                      label: Row(
+                      layout: .vertical,
+                      description: Row(
                         children: [
                           FBadge(variant: .secondary, child: Text(version)),
                           SizedBox(width: 5),
                           FBadge(variant: .secondary, child: Text(type)),
                         ],
                       ),
-                      axis: Axis.vertical,
                       child: Text(
                         name,
                         style: TextStyle(
