@@ -4,7 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as common;
 import 'package:miru_alpha/provider/download_provider.dart';
-import 'package:miru_alpha/provider/history_page_provider.dart';
+import 'package:miru_alpha/provider/home/history_page_provider.dart';
 import 'package:miru_alpha/widgets/core/image_widget.dart';
 
 class DownloadItem extends ConsumerWidget {

@@ -184,9 +184,22 @@ const WatchRequest$json = {
 final $typed_data.Uint8List watchRequestDescriptor = $convert.base64Decode(
     'CgxXYXRjaFJlcXVlc3QSEAoDcGtnGAEgASgJUgNwa2cSEAoDdXJsGAIgASgJUgN1cmw=');
 
-@$core.Deprecated('Use watchResponseDescriptor instead')
-const WatchResponse$json = {
-  '1': 'WatchResponse',
+@$core.Deprecated('Use mirrorRequestDescriptor instead')
+const MirrorRequest$json = {
+  '1': 'MirrorRequest',
+  '2': [
+    {'1': 'pkg', '3': 1, '4': 1, '5': 9, '10': 'pkg'},
+    {'1': 'url', '3': 2, '4': 1, '5': 9, '10': 'url'},
+  ],
+};
+
+/// Descriptor for `MirrorRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List mirrorRequestDescriptor = $convert.base64Decode(
+    'Cg1NaXJyb3JSZXF1ZXN0EhAKA3BrZxgBIAEoCVIDcGtnEhAKA3VybBgCIAEoCVIDdXJs');
+
+@$core.Deprecated('Use mirrorResponseDescriptor instead')
+const MirrorResponse$json = {
+  '1': 'MirrorResponse',
   '2': [
     {
       '1': 'bangumi',
@@ -222,12 +235,67 @@ const WatchResponse$json = {
   ],
 };
 
+/// Descriptor for `MirrorResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List mirrorResponseDescriptor = $convert.base64Decode(
+    'Cg5NaXJyb3JSZXNwb25zZRI3CgdiYW5ndW1pGAEgASgLMhsubWlydS5FeHRlbnNpb25CYW5ndW'
+    '1pV2F0Y2hIAFIHYmFuZ3VtaRIxCgVtYW5nYRgCIAEoCzIZLm1pcnUuRXh0ZW5zaW9uTWFuZ2FX'
+    'YXRjaEgAUgVtYW5nYRI6CghmaWt1c2hvbhgDIAEoCzIcLm1pcnUuRXh0ZW5zaW9uRmlrdXNob2'
+    '5XYXRjaEgAUghmaWt1c2hvbhISCgNyYXcYBCABKAlIAFIDcmF3QgYKBGRhdGE=');
+
+@$core.Deprecated('Use watchResponseDescriptor instead')
+const WatchResponse$json = {
+  '1': 'WatchResponse',
+  '2': [
+    {
+      '1': 'bangumi',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionBangumiWatch',
+      '9': 0,
+      '10': 'bangumi'
+    },
+    {
+      '1': 'manga',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionMangaWatch',
+      '9': 0,
+      '10': 'manga'
+    },
+    {
+      '1': 'fikushon',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionFikushonWatch',
+      '9': 0,
+      '10': 'fikushon'
+    },
+    {
+      '1': 'watch',
+      '3': 4,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionWatch',
+      '9': 0,
+      '10': 'watch'
+    },
+    {'1': 'raw', '3': 5, '4': 1, '5': 9, '9': 0, '10': 'raw'},
+  ],
+  '8': [
+    {'1': 'data'},
+  ],
+};
+
 /// Descriptor for `WatchResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List watchResponseDescriptor = $convert.base64Decode(
     'Cg1XYXRjaFJlc3BvbnNlEjcKB2Jhbmd1bWkYASABKAsyGy5taXJ1LkV4dGVuc2lvbkJhbmd1bW'
     'lXYXRjaEgAUgdiYW5ndW1pEjEKBW1hbmdhGAIgASgLMhkubWlydS5FeHRlbnNpb25NYW5nYVdh'
     'dGNoSABSBW1hbmdhEjoKCGZpa3VzaG9uGAMgASgLMhwubWlydS5FeHRlbnNpb25GaWt1c2hvbl'
-    'dhdGNoSABSCGZpa3VzaG9uEhIKA3JhdxgEIAEoCUgAUgNyYXdCBgoEZGF0YQ==');
+    'dhdGNoSABSCGZpa3VzaG9uEiwKBXdhdGNoGAQgASgLMhQubWlydS5FeHRlbnNpb25XYXRjaEgA'
+    'UgV3YXRjaBISCgNyYXcYBSABKAlIAFIDcmF3QgYKBGRhdGE=');
 
 @$core.Deprecated('Use downloadExtensionRequestDescriptor instead')
 const DownloadExtensionRequest$json = {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_alpha/provider/search_page_single_provider.dart';
+import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
 
 class SearchFilterDialog extends ConsumerWidget {
   const SearchFilterDialog({

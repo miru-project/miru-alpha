@@ -33,7 +33,7 @@ final class TMDBNotifierProvider
   TMDBNotifier create() => TMDBNotifier();
 }
 
-String _$tMDBNotifierHash() => r'45f831ce47c01ce27ab7e4417eab2f90c054c699';
+String _$tMDBNotifierHash() => r'3a71a75ac64fc24a1949a03647c6cb9e9195d596';
 
 abstract class _$TMDBNotifier extends $AsyncNotifier<TMDBDetail?> {
   FutureOr<TMDBDetail?> build();

@@ -23,6 +23,7 @@ final class VideoPlayerNotifierProvider
       Size? initialRatio,
       ExtensionBangumiWatchTorrent? torrent,
       String? localPath,
+      pb_extension.ExtensionWatch? v2watch,
     })
     super.argument,
   }) : super(
@@ -67,7 +68,7 @@ final class VideoPlayerNotifierProvider
 }
 
 String _$videoPlayerNotifierHash() =>
-    r'6e3c311558a917a4730e9a1061066f3be431fa40';
+    r'8330978172a606fe6430bbb9dc486c9920f8b1fb';
 
 final class VideoPlayerNotifierFamily extends $Family
     with
@@ -83,6 +84,7 @@ final class VideoPlayerNotifierFamily extends $Family
             Size? initialRatio,
             ExtensionBangumiWatchTorrent? torrent,
             String? localPath,
+            pb_extension.ExtensionWatch? v2watch,
           })
         > {
   VideoPlayerNotifierFamily._()
@@ -101,6 +103,7 @@ final class VideoPlayerNotifierFamily extends $Family
     Size? initialRatio,
     ExtensionBangumiWatchTorrent? torrent,
     String? localPath,
+    pb_extension.ExtensionWatch? v2watch,
   }) => VideoPlayerNotifierProvider._(
     argument: (
       mediaUrl,
@@ -109,6 +112,7 @@ final class VideoPlayerNotifierFamily extends $Family
       initialRatio: initialRatio,
       torrent: torrent,
       localPath: localPath,
+      v2watch: v2watch,
     ),
     from: this,
   );
@@ -127,6 +131,7 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
             Size? initialRatio,
             ExtensionBangumiWatchTorrent? torrent,
             String? localPath,
+            pb_extension.ExtensionWatch? v2watch,
           });
   String? get mediaUrl => _$args.$1;
   List<ExtensionBangumiWatchSubtitle>? get subtitlesRaw => _$args.subtitlesRaw;
@@ -134,6 +139,7 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
   Size? get initialRatio => _$args.initialRatio;
   ExtensionBangumiWatchTorrent? get torrent => _$args.torrent;
   String? get localPath => _$args.localPath;
+  pb_extension.ExtensionWatch? get v2watch => _$args.v2watch;
 
   VideoPlayerTickState build(
     String? mediaUrl, {
@@ -142,6 +148,7 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
     Size? initialRatio,
     ExtensionBangumiWatchTorrent? torrent,
     String? localPath,
+    pb_extension.ExtensionWatch? v2watch,
   });
   @$mustCallSuper
   @override
@@ -164,6 +171,7 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
         initialRatio: _$args.initialRatio,
         torrent: _$args.torrent,
         localPath: _$args.localPath,
+        v2watch: _$args.v2watch,
       ),
     );
   }

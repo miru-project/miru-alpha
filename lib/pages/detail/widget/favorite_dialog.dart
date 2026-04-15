@@ -6,7 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
-import 'package:miru_alpha/provider/favorite_page_provider.dart';
+import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/utils/store/database_service.dart';
 import 'package:miru_alpha/widgets/core/toast.dart';
 

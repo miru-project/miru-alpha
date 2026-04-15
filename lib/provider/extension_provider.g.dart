@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'network_provider.dart';
+part of 'extension_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
@@ -13,11 +13,16 @@ part of 'network_provider.dart';
 final watchProvider = WatchFamily._();
 
 final class WatchProvider
-    extends $FunctionalProvider<AsyncValue<Object>, Object, FutureOr<Object>>
-    with $FutureModifier<Object>, $FutureProvider<Object> {
+    extends
+        $FunctionalProvider<
+          AsyncValue<WatchResult>,
+          WatchResult,
+          FutureOr<WatchResult>
+        >
+    with $FutureModifier<WatchResult>, $FutureProvider<WatchResult> {
   WatchProvider._({
     required WatchFamily super.from,
-    required (String, String, String, ExtensionType) super.argument,
+    required (String, String, ExtensionMeta) super.argument,
   }) : super(
          retry: null,
          name: r'watchProvider',
@@ -38,13 +43,14 @@ final class WatchProvider
 
   @$internal
   @override
-  $FutureProviderElement<Object> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
+  $FutureProviderElement<WatchResult> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<Object> create(Ref ref) {
-    final argument = this.argument as (String, String, String, ExtensionType);
-    return watch(ref, argument.$1, argument.$2, argument.$3, argument.$4);
+  FutureOr<WatchResult> create(Ref ref) {
+    final argument = this.argument as (String, String, ExtensionMeta);
+    return watch(ref, argument.$1, argument.$2, argument.$3);
   }
 
   @override
@@ -58,13 +64,13 @@ final class WatchProvider
   }
 }
 
-String _$watchHash() => r'eb74354da537b97dcca5c995438199ab8d370e11';
+String _$watchHash() => r'3d8261afc1fcc821ff4398358a92c24db9878803';
 
 final class WatchFamily extends $Family
     with
         $FunctionalFamilyOverride<
-          FutureOr<Object>,
-          (String, String, String, ExtensionType)
+          FutureOr<WatchResult>,
+          (String, String, ExtensionMeta)
         > {
   WatchFamily._()
     : super(
@@ -75,12 +81,8 @@ final class WatchFamily extends $Family
         isAutoDispose: true,
       );
 
-  WatchProvider call(
-    String watchUrl,
-    String detailUrl,
-    String pkg,
-    ExtensionType type,
-  ) => WatchProvider._(argument: (watchUrl, detailUrl, pkg, type), from: this);
+  WatchProvider call(String watchUrl, String detailUrl, ExtensionMeta meta) =>
+      WatchProvider._(argument: (watchUrl, detailUrl, meta), from: this);
 
   @override
   String toString() => r'watchProvider';

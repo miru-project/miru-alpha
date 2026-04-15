@@ -103,18 +103,6 @@ class _InputSetting extends HookWidget with FTileMixin {
       initialValue: setting.value ?? setting.defaultValue,
       onChanged: saveWithTimer,
     );
-    // SettingBaseTile(
-    //   isMobileLayout: isMobile,
-    //   title: setting.title,
-    //   subtitle: setting.description,
-    //   child: FTextField(
-    //     hint: setting.defaultValue,
-    //     control: FTextFieldControl.managed(
-    //       controller: controller,
-    //       onChange: (value) => saveWithTimer(value.text),
-    //     ),
-    //   ),
-    // );
   }
 }
 

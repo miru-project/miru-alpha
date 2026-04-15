@@ -3,6 +3,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/provider/watch/video_player_provider.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
 
 class SideSettingsMenu extends HookConsumerWidget {
   const SideSettingsMenu({
@@ -10,11 +11,13 @@ class SideSettingsMenu extends HookConsumerWidget {
     required this.vidPr,
     required this.epProvdier,
     required this.width,
+    required this.meta,
   });
 
   final VideoPlayerNotifierProvider vidPr;
   final EpisodeNotifierProvider epProvdier;
   final double width;
+  final ExtensionMeta meta;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,6 +28,7 @@ class SideSettingsMenu extends HookConsumerWidget {
 
     final tabs = [
       (icon: FIcons.tv, text: 'Episode'),
+      if (controller.v2watch != null) (icon: FIcons.layers, text: 'Mirror'),
       (icon: FIcons.ratio, text: 'Resolution'),
       (icon: FIcons.captions, text: 'Subtitle'),
     ];
@@ -72,6 +76,54 @@ class SideSettingsMenu extends HookConsumerWidget {
           ],
         ),
       ),
+      if (controller.v2watch != null)
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.8,
+          child: CustomScrollView(
+            slivers: [
+              SliverList.builder(
+                itemCount: controller.v2watch?.mirrors.length ?? 0,
+                itemBuilder: (context, index) {
+                  final group = controller.v2watch!.mirrors[index];
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        child: FAccordion(
+                          style: .delta(childPadding: .add(.all(0))),
+                          children: [
+                            FAccordionItem(
+                              title: Text(group.title),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: List.generate(
+                                  group.mirrors.length,
+                                  (i) => FTile(
+                                    title: Text(group.mirrors[i].name),
+                                    onPress: () {
+                                      notifier.switchMirror(
+                                        meta.packageName,
+                                        group.mirrors[i],
+                                      );
+                                      notifier.toggleSettings();
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
       // episodes
       // FTileGroup.builder(
       //   count: epController.epGroup.length,

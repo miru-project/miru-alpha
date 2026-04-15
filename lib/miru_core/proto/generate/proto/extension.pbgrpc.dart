@@ -67,6 +67,13 @@ class ExtensionServiceClient extends $grpc.Client {
     return $createUnaryCall(_$watch, request, options: options);
   }
 
+  $grpc.ResponseFuture<$0.MirrorResponse> mirror(
+    $0.MirrorRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$mirror, request, options: options);
+  }
+
   $grpc.ResponseFuture<$0.DownloadExtensionResponse> downloadExtension(
     $0.DownloadExtensionRequest request, {
     $grpc.CallOptions? options,
@@ -121,6 +128,11 @@ class ExtensionServiceClient extends $grpc.Client {
       '/miru.ExtensionService/Watch',
       ($0.WatchRequest value) => value.writeToBuffer(),
       $0.WatchResponse.fromBuffer);
+  static final _$mirror =
+      $grpc.ClientMethod<$0.MirrorRequest, $0.MirrorResponse>(
+          '/miru.ExtensionService/Mirror',
+          ($0.MirrorRequest value) => value.writeToBuffer(),
+          $0.MirrorResponse.fromBuffer);
   static final _$downloadExtension = $grpc.ClientMethod<
           $0.DownloadExtensionRequest, $0.DownloadExtensionResponse>(
       '/miru.ExtensionService/DownloadExtension',
@@ -185,6 +197,13 @@ abstract class ExtensionServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.WatchRequest.fromBuffer(value),
         ($0.WatchResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.MirrorRequest, $0.MirrorResponse>(
+        'Mirror',
+        mirror_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.MirrorRequest.fromBuffer(value),
+        ($0.MirrorResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.DownloadExtensionRequest,
             $0.DownloadExtensionResponse>(
         'DownloadExtension',
@@ -263,6 +282,14 @@ abstract class ExtensionServiceBase extends $grpc.Service {
 
   $async.Future<$0.WatchResponse> watch(
       $grpc.ServiceCall call, $0.WatchRequest request);
+
+  $async.Future<$0.MirrorResponse> mirror_Pre(
+      $grpc.ServiceCall $call, $async.Future<$0.MirrorRequest> $request) async {
+    return mirror($call, await $request);
+  }
+
+  $async.Future<$0.MirrorResponse> mirror(
+      $grpc.ServiceCall call, $0.MirrorRequest request);
 
   $async.Future<$0.DownloadExtensionResponse> downloadExtension_Pre(
       $grpc.ServiceCall $call,

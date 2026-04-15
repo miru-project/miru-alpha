@@ -581,10 +581,76 @@ class WatchRequest extends $pb.GeneratedMessage {
   void clearUrl() => $_clearField(2);
 }
 
-enum WatchResponse_Data { bangumi, manga, fikushon, raw, notSet }
+class MirrorRequest extends $pb.GeneratedMessage {
+  factory MirrorRequest({
+    $core.String? pkg,
+    $core.String? url,
+  }) {
+    final result = create();
+    if (pkg != null) result.pkg = pkg;
+    if (url != null) result.url = url;
+    return result;
+  }
 
-class WatchResponse extends $pb.GeneratedMessage {
-  factory WatchResponse({
+  MirrorRequest._();
+
+  factory MirrorRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory MirrorRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'MirrorRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'pkg')
+    ..aOS(2, _omitFieldNames ? '' : 'url')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  MirrorRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  MirrorRequest copyWith(void Function(MirrorRequest) updates) =>
+      super.copyWith((message) => updates(message as MirrorRequest))
+          as MirrorRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MirrorRequest create() => MirrorRequest._();
+  @$core.override
+  MirrorRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static MirrorRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<MirrorRequest>(create);
+  static MirrorRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get pkg => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set pkg($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasPkg() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPkg() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get url => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set url($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasUrl() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearUrl() => $_clearField(2);
+}
+
+enum MirrorResponse_Data { bangumi, manga, fikushon, raw, notSet }
+
+class MirrorResponse extends $pb.GeneratedMessage {
+  factory MirrorResponse({
     $1.ExtensionBangumiWatch? bangumi,
     $1.ExtensionMangaWatch? manga,
     $1.ExtensionFikushonWatch? fikushon,
@@ -598,25 +664,25 @@ class WatchResponse extends $pb.GeneratedMessage {
     return result;
   }
 
-  WatchResponse._();
+  MirrorResponse._();
 
-  factory WatchResponse.fromBuffer($core.List<$core.int> data,
+  factory MirrorResponse.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory WatchResponse.fromJson($core.String json,
+  factory MirrorResponse.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
-  static const $core.Map<$core.int, WatchResponse_Data>
-      _WatchResponse_DataByTag = {
-    1: WatchResponse_Data.bangumi,
-    2: WatchResponse_Data.manga,
-    3: WatchResponse_Data.fikushon,
-    4: WatchResponse_Data.raw,
-    0: WatchResponse_Data.notSet
+  static const $core.Map<$core.int, MirrorResponse_Data>
+      _MirrorResponse_DataByTag = {
+    1: MirrorResponse_Data.bangumi,
+    2: MirrorResponse_Data.manga,
+    3: MirrorResponse_Data.fikushon,
+    4: MirrorResponse_Data.raw,
+    0: MirrorResponse_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'WatchResponse',
+      _omitMessageNames ? '' : 'MirrorResponse',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
     ..oo(0, [1, 2, 3, 4])
@@ -630,29 +696,30 @@ class WatchResponse extends $pb.GeneratedMessage {
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  WatchResponse clone() => deepCopy();
+  MirrorResponse clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  WatchResponse copyWith(void Function(WatchResponse) updates) =>
-      super.copyWith((message) => updates(message as WatchResponse))
-          as WatchResponse;
+  MirrorResponse copyWith(void Function(MirrorResponse) updates) =>
+      super.copyWith((message) => updates(message as MirrorResponse))
+          as MirrorResponse;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static WatchResponse create() => WatchResponse._();
+  static MirrorResponse create() => MirrorResponse._();
   @$core.override
-  WatchResponse createEmptyInstance() => create();
+  MirrorResponse createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static WatchResponse getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<WatchResponse>(create);
-  static WatchResponse? _defaultInstance;
+  static MirrorResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<MirrorResponse>(create);
+  static MirrorResponse? _defaultInstance;
 
   @$pb.TagNumber(1)
   @$pb.TagNumber(2)
   @$pb.TagNumber(3)
   @$pb.TagNumber(4)
-  WatchResponse_Data whichData() => _WatchResponse_DataByTag[$_whichOneof(0)]!;
+  MirrorResponse_Data whichData() =>
+      _MirrorResponse_DataByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(1)
   @$pb.TagNumber(2)
   @$pb.TagNumber(3)
@@ -700,6 +767,145 @@ class WatchResponse extends $pb.GeneratedMessage {
   $core.bool hasRaw() => $_has(3);
   @$pb.TagNumber(4)
   void clearRaw() => $_clearField(4);
+}
+
+enum WatchResponse_Data { bangumi, manga, fikushon, watch, raw, notSet }
+
+class WatchResponse extends $pb.GeneratedMessage {
+  factory WatchResponse({
+    $1.ExtensionBangumiWatch? bangumi,
+    $1.ExtensionMangaWatch? manga,
+    $1.ExtensionFikushonWatch? fikushon,
+    $1.ExtensionWatch? watch,
+    $core.String? raw,
+  }) {
+    final result = create();
+    if (bangumi != null) result.bangumi = bangumi;
+    if (manga != null) result.manga = manga;
+    if (fikushon != null) result.fikushon = fikushon;
+    if (watch != null) result.watch = watch;
+    if (raw != null) result.raw = raw;
+    return result;
+  }
+
+  WatchResponse._();
+
+  factory WatchResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory WatchResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static const $core.Map<$core.int, WatchResponse_Data>
+      _WatchResponse_DataByTag = {
+    1: WatchResponse_Data.bangumi,
+    2: WatchResponse_Data.manga,
+    3: WatchResponse_Data.fikushon,
+    4: WatchResponse_Data.watch,
+    5: WatchResponse_Data.raw,
+    0: WatchResponse_Data.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'WatchResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..oo(0, [1, 2, 3, 4, 5])
+    ..aOM<$1.ExtensionBangumiWatch>(1, _omitFieldNames ? '' : 'bangumi',
+        subBuilder: $1.ExtensionBangumiWatch.create)
+    ..aOM<$1.ExtensionMangaWatch>(2, _omitFieldNames ? '' : 'manga',
+        subBuilder: $1.ExtensionMangaWatch.create)
+    ..aOM<$1.ExtensionFikushonWatch>(3, _omitFieldNames ? '' : 'fikushon',
+        subBuilder: $1.ExtensionFikushonWatch.create)
+    ..aOM<$1.ExtensionWatch>(4, _omitFieldNames ? '' : 'watch',
+        subBuilder: $1.ExtensionWatch.create)
+    ..aOS(5, _omitFieldNames ? '' : 'raw')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  WatchResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  WatchResponse copyWith(void Function(WatchResponse) updates) =>
+      super.copyWith((message) => updates(message as WatchResponse))
+          as WatchResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static WatchResponse create() => WatchResponse._();
+  @$core.override
+  WatchResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static WatchResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<WatchResponse>(create);
+  static WatchResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  @$pb.TagNumber(2)
+  @$pb.TagNumber(3)
+  @$pb.TagNumber(4)
+  @$pb.TagNumber(5)
+  WatchResponse_Data whichData() => _WatchResponse_DataByTag[$_whichOneof(0)]!;
+  @$pb.TagNumber(1)
+  @$pb.TagNumber(2)
+  @$pb.TagNumber(3)
+  @$pb.TagNumber(4)
+  @$pb.TagNumber(5)
+  void clearData() => $_clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  $1.ExtensionBangumiWatch get bangumi => $_getN(0);
+  @$pb.TagNumber(1)
+  set bangumi($1.ExtensionBangumiWatch value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasBangumi() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearBangumi() => $_clearField(1);
+  @$pb.TagNumber(1)
+  $1.ExtensionBangumiWatch ensureBangumi() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $1.ExtensionMangaWatch get manga => $_getN(1);
+  @$pb.TagNumber(2)
+  set manga($1.ExtensionMangaWatch value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasManga() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearManga() => $_clearField(2);
+  @$pb.TagNumber(2)
+  $1.ExtensionMangaWatch ensureManga() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  $1.ExtensionFikushonWatch get fikushon => $_getN(2);
+  @$pb.TagNumber(3)
+  set fikushon($1.ExtensionFikushonWatch value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasFikushon() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearFikushon() => $_clearField(3);
+  @$pb.TagNumber(3)
+  $1.ExtensionFikushonWatch ensureFikushon() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  $1.ExtensionWatch get watch => $_getN(3);
+  @$pb.TagNumber(4)
+  set watch($1.ExtensionWatch value) => $_setField(4, value);
+  @$pb.TagNumber(4)
+  $core.bool hasWatch() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearWatch() => $_clearField(4);
+  @$pb.TagNumber(4)
+  $1.ExtensionWatch ensureWatch() => $_ensure(3);
+
+  @$pb.TagNumber(5)
+  $core.String get raw => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set raw($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasRaw() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearRaw() => $_clearField(5);
 }
 
 /// Extension Management

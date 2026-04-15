@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
-import 'package:miru_alpha/provider/favorite_page_provider.dart';
+import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/widgets/amination/animated_box.dart';

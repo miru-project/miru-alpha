@@ -8,7 +8,7 @@ import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/pages/detail/widget/desktop_detail_image_view.dart';
 import 'package:miru_alpha/pages/detail/widget/mobile_detail_silverlist.dart';
-import 'package:miru_alpha/provider/network_provider.dart';
+import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/widgets/core/image_widget.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
 import 'package:miru_alpha/widgets/index.dart';

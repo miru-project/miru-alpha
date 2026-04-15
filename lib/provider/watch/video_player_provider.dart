@@ -7,6 +7,8 @@ import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/provider/network_provider.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/utils/watch/subtitle.dart';
+import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
+    as pb_extension;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:video_player/video_player.dart';
 
@@ -29,6 +31,7 @@ class VideoPlayerTickState {
   final bool showSettings;
   final Map<String, String> qualityMap;
   final double ratio;
+  final pb_extension.ExtensionWatch? v2watch;
   VideoPlayerTickState({
     this.position = Duration.zero,
     this.isPlaying = false,
@@ -45,6 +48,7 @@ class VideoPlayerTickState {
     this.currentSubtitle = '',
     this.showControls = false,
     this.showSettings = false,
+    this.v2watch,
   });
 
   VideoPlayerTickState copyWith({
@@ -86,6 +90,7 @@ class VideoPlayerTickState {
       qualityMap: qualityMap ?? this.qualityMap,
       showControls: showControls ?? this.showControls,
       showSettings: showSettings ?? this.showSettings,
+      v2watch: v2watch ?? v2watch,
     );
   }
 }
@@ -124,6 +129,7 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     Size? initialRatio,
     ExtensionBangumiWatchTorrent? torrent,
     String? localPath,
+    pb_extension.ExtensionWatch? v2watch,
   }) {
     defaultSize = initialRatio ?? const Size(0, 0);
     String streamUrl = mediaUrl ?? '';
@@ -137,6 +143,7 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
       subtitlesRaw: subtitlesRaw ?? const [],
       showControls: false,
       ratio: vidController.value.aspectRatio,
+      v2watch: v2watch,
     );
 
     Future.microtask(() => _init(mediaUrl, headers ?? const {}));
@@ -338,5 +345,62 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
 
   void toggleSettings() {
     state = state.copyWith(showSettings: !state.showSettings);
+  }
+
+  Future<void> switchMirror(
+    String packageName,
+    pb_extension.ExtensionMirror mirror,
+  ) async {
+    final currentPosition = vidController.value.position;
+    final isPlaying = vidController.value.isPlaying;
+
+    // Optional: show loading or some UI feedback
+    vidController.pause();
+
+    try {
+      final watchResult = await MiruCoreEndpoint.mirror(
+        packageName,
+        mirror.url,
+      );
+
+      if (watchResult is pb_extension.ExtensionBangumiWatch) {
+        vidController.removeListener(_updatePosition);
+        await vidController.dispose();
+
+        vidController = _getController(
+          watchResult.url,
+          watchResult.headers,
+          watchResult.torrent,
+          null,
+        );
+
+        await vidController.initialize();
+        vidController.addListener(_updatePosition);
+        
+        if (isPlaying) {
+          vidController.play();
+        }
+        
+        await vidController.seekTo(currentPosition);
+
+        state = state.copyWith(
+          subtitlesRaw: watchResult.subtitles,
+          duration: vidController.value.duration,
+          isPlaying: isPlaying,
+          position: currentPosition,
+          ratio: vidController.value.aspectRatio,
+        );
+
+        // Subtitles re-init if needed
+        initSubtitle(watchResult.subtitles);
+        
+        // Quality re-init
+        getQuality(watchResult.url, watchResult.headers).then((val) {
+          state = state.copyWith(qualityMap: val);
+        });
+      }
+    } catch (e) {
+      // Handle error
+    }
   }
 }

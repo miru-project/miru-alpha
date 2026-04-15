@@ -5,7 +5,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/model/user_data.dart';
-import 'package:miru_alpha/provider/favorite_page_provider.dart';
+import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/utils/store/database_service.dart';
 
 class FavoriteTab extends StatefulHookConsumerWidget {

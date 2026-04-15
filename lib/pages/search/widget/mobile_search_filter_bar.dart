@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_alpha/provider/search_page_single_provider.dart';
+import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
 
 class MobileSearchFilterBar extends ConsumerWidget {
   const MobileSearchFilterBar({super.key});
@@ -51,24 +51,23 @@ class MobileSearchFilterBar extends ConsumerWidget {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      for (final option in (filter?.options.entries.toList() ?? [])
-                        ..sort((a, b) => a.key.compareTo(b.key)))
+                      for (final option
+                          in (filter?.options.entries.toList() ?? [])
+                            ..sort((a, b) => a.key.compareTo(b.key)))
                         () {
                           final isSelected = selected.contains(option.key);
                           return FTappable(
                             onPress: () {
                               final next = isSelected
                                   ? selected
-                                      .where((e) => e != option.key)
-                                      .toList()
+                                        .where((e) => e != option.key)
+                                        .toList()
                                   : <String>[...selected, option.key];
                               notifier.setFilterValue(key, next);
                               notifier.commitFilters();
                             },
                             child: FBadge(
-                              variant: isSelected
-                                  ? .primary
-                                  : .outline,
+                              variant: isSelected ? .primary : .outline,
                               child: Text(option.value),
                             ),
                           );

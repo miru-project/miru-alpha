@@ -13,6 +13,8 @@ import 'package:miru_alpha/widgets/core/toast.dart';
 import 'package:path/path.dart' as p;
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
+import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
+    as pb_extension;
 
 class DownloadButton extends StatelessWidget {
   const DownloadButton({
@@ -224,15 +226,61 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                         _loadingTasks[key] = true;
                                       });
                                       try {
-                                        final videoWatch =
+                                        var watchResult =
                                             await MiruCoreEndpoint.watch(
-                                                  url.url,
-                                                  widget.meta.packageName,
-                                                  widget.meta.type,
-                                                )
-                                                as ExtensionBangumiWatch?;
+                                          url.url,
+                                          widget.meta.packageName,
+                                          widget.meta,
+                                        );
 
-                                        if (videoWatch == null) {
+                                        // Handle mirrors for V2 flow
+                                        if (widget.meta.api == "2" &&
+                                            watchResult
+                                                is pb_extension.ExtensionWatch) {
+                                          if (watchResult.mirrors.isNotEmpty) {
+                                            final group = watchResult.mirrors
+                                                .firstWhere(
+                                              (e) =>
+                                                  watchResult.hasDefaultGroup() &&
+                                                  e.title ==
+                                                      watchResult.defaultGroup,
+                                              orElse: () =>
+                                                  watchResult.mirrors.first,
+                                            );
+                                            if (group.mirrors.isNotEmpty) {
+                                              final index =
+                                                  watchResult.hasDefaultIndex()
+                                                      ? watchResult.defaultIndex
+                                                      : 0;
+                                              final mirror = (index >= 0 &&
+                                                      index <
+                                                          group.mirrors.length)
+                                                  ? group.mirrors[index]
+                                                  : group.mirrors.first;
+
+                                              // Call mirror which now returns the specialized mirror object
+                                              watchResult =
+                                                  await MiruCoreEndpoint.mirror(
+                                                widget.meta.packageName,
+                                                mirror.url,
+                                              );
+                                            }
+                                          }
+                                        }
+
+                                        String videoUrl = "";
+                                        Map<String, String> videoHeaders = {};
+                                        String videoType = "";
+
+                                        if (watchResult
+                                            is pb_extension
+                                                .ExtensionBangumiWatch) {
+                                          videoUrl = watchResult.url;
+                                          videoHeaders = watchResult.headers;
+                                          videoType = watchResult.type;
+                                        }
+
+                                        if (videoUrl.isEmpty) {
                                           if (mounted) {
                                             showSimpleToast(
                                               'failed_to_fetch_video_url'.i18n,
@@ -240,21 +288,20 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                           }
                                           return;
                                         }
+
                                         await _startDownload(
                                           type: ExtensionWatchBangumiType.values
                                               .firstWhere(
-                                                (e) =>
-                                                    e.name == videoWatch.type,
-                                                orElse: () =>
-                                                    ExtensionWatchBangumiType
-                                                        .hls,
-                                              ),
+                                            (e) => e.name == videoType,
+                                            orElse: () =>
+                                                ExtensionWatchBangumiType.hls,
+                                          ),
                                           watchUrl: url.url,
-                                          url: videoWatch.url,
+                                          url: videoUrl,
                                           title:
                                               "${widget.detail.title}-${group.title}-${url.name}",
                                           key: key,
-                                          headers: videoWatch.headers,
+                                          headers: videoHeaders,
                                         );
                                       } finally {
                                         if (mounted) {

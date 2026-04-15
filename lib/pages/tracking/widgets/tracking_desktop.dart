@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/anilist_model.dart';
-import 'package:miru_alpha/provider/anilist_provider.dart';
+import 'package:miru_alpha/provider/tracking/anilist_provider.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'anilist_media_card.dart';
 
@@ -74,7 +74,8 @@ class _DesktopUserHeader extends ConsumerWidget {
                   children: [
                     _StatChip(
                       icon: FIcons.tv,
-                      label: '${user.statistics.anime.episodesWatched} Episodes',
+                      label:
+                          '${user.statistics.anime.episodesWatched} Episodes',
                     ),
                     const SizedBox(width: 12),
                     _StatChip(
@@ -110,7 +111,11 @@ class _StatChip extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [Icon(icon, size: 14), const SizedBox(width: 6), Text(label)],
+        children: [
+          Icon(icon, size: 14, color: context.theme.colors.background),
+          const SizedBox(width: 6),
+          Text(label),
+        ],
       ),
     );
   }

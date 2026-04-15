@@ -12,6 +12,8 @@ import 'package:miru_alpha/pages/watch/video_player/widget/subtitle.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/provider/watch/video_player_provider.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
+    as pb_extension;
 import 'package:video_player/video_player.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -25,7 +27,8 @@ class MiruVideoPlayer extends ConsumerWidget {
     required this.hasOriented,
   }) : value = null,
        torrent = null,
-       mediaUrl = null;
+       mediaUrl = null,
+       v2watch = null;
 
   const MiruVideoPlayer({
     super.key,
@@ -36,6 +39,7 @@ class MiruVideoPlayer extends ConsumerWidget {
     required this.hasOriented,
     required this.mediaUrl,
     this.torrent,
+    this.v2watch,
   }) : localPath = null;
 
   final ExtensionBangumiWatch? value;
@@ -46,6 +50,7 @@ class MiruVideoPlayer extends ConsumerWidget {
   final bool hasOriented;
   final ExtensionBangumiWatchTorrent? torrent;
   final String? localPath;
+  final pb_extension.ExtensionWatch? v2watch;
   @override
   Widget build(context, WidgetRef ref) {
     final screenRatio = MediaQuery.of(context).size;
@@ -55,6 +60,7 @@ class MiruVideoPlayer extends ConsumerWidget {
       headers: value?.headers,
       torrent: torrent,
       localPath: localPath,
+      v2watch: v2watch,
     );
 
     return Stack(
@@ -157,6 +163,7 @@ class MiruVideoPlayer extends ConsumerWidget {
                 vidPr: vidProvider,
                 epProvdier: epProvider,
                 width: width,
+                meta: meta,
               ),
             );
           },

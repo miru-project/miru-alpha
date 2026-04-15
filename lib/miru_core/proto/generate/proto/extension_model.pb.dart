@@ -468,6 +468,133 @@ class ExtensionEpisode extends $pb.GeneratedMessage {
   void clearDescription() => $_clearField(4);
 }
 
+class ExtensionMirror extends $pb.GeneratedMessage {
+  factory ExtensionMirror({
+    $core.String? name,
+    $core.String? url,
+  }) {
+    final result = create();
+    if (name != null) result.name = name;
+    if (url != null) result.url = url;
+    return result;
+  }
+
+  ExtensionMirror._();
+
+  factory ExtensionMirror.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ExtensionMirror.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ExtensionMirror',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'name')
+    ..aOS(2, _omitFieldNames ? '' : 'url')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionMirror clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionMirror copyWith(void Function(ExtensionMirror) updates) =>
+      super.copyWith((message) => updates(message as ExtensionMirror))
+          as ExtensionMirror;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ExtensionMirror create() => ExtensionMirror._();
+  @$core.override
+  ExtensionMirror createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ExtensionMirror getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ExtensionMirror>(create);
+  static ExtensionMirror? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get name => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set name($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasName() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearName() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get url => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set url($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasUrl() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearUrl() => $_clearField(2);
+}
+
+class ExtensionMirrorGroup extends $pb.GeneratedMessage {
+  factory ExtensionMirrorGroup({
+    $core.String? title,
+    $core.Iterable<ExtensionMirror>? mirrors,
+  }) {
+    final result = create();
+    if (title != null) result.title = title;
+    if (mirrors != null) result.mirrors.addAll(mirrors);
+    return result;
+  }
+
+  ExtensionMirrorGroup._();
+
+  factory ExtensionMirrorGroup.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ExtensionMirrorGroup.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ExtensionMirrorGroup',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'title')
+    ..pPM<ExtensionMirror>(2, _omitFieldNames ? '' : 'mirrors',
+        subBuilder: ExtensionMirror.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionMirrorGroup clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionMirrorGroup copyWith(void Function(ExtensionMirrorGroup) updates) =>
+      super.copyWith((message) => updates(message as ExtensionMirrorGroup))
+          as ExtensionMirrorGroup;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ExtensionMirrorGroup create() => ExtensionMirrorGroup._();
+  @$core.override
+  ExtensionMirrorGroup createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ExtensionMirrorGroup getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ExtensionMirrorGroup>(create);
+  static ExtensionMirrorGroup? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get title => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set title($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTitle() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTitle() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $pb.PbList<ExtensionMirror> get mirrors => $_getList(1);
+}
+
 class ExtensionBangumiWatchSubtitle extends $pb.GeneratedMessage {
   factory ExtensionBangumiWatchSubtitle({
     $core.String? language,
@@ -1168,6 +1295,80 @@ class ExtensionFikushonWatch extends $pb.GeneratedMessage {
   $core.bool hasSubtitle() => $_has(2);
   @$pb.TagNumber(3)
   void clearSubtitle() => $_clearField(3);
+}
+
+/// V2
+class ExtensionWatch extends $pb.GeneratedMessage {
+  factory ExtensionWatch({
+    $core.Iterable<ExtensionMirrorGroup>? mirrors,
+    $core.String? defaultGroup,
+    $core.int? defaultIndex,
+  }) {
+    final result = create();
+    if (mirrors != null) result.mirrors.addAll(mirrors);
+    if (defaultGroup != null) result.defaultGroup = defaultGroup;
+    if (defaultIndex != null) result.defaultIndex = defaultIndex;
+    return result;
+  }
+
+  ExtensionWatch._();
+
+  factory ExtensionWatch.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ExtensionWatch.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ExtensionWatch',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..pPM<ExtensionMirrorGroup>(1, _omitFieldNames ? '' : 'mirrors',
+        subBuilder: ExtensionMirrorGroup.create)
+    ..aOS(2, _omitFieldNames ? '' : 'defaultGroup')
+    ..aI(3, _omitFieldNames ? '' : 'defaultIndex')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionWatch clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionWatch copyWith(void Function(ExtensionWatch) updates) =>
+      super.copyWith((message) => updates(message as ExtensionWatch))
+          as ExtensionWatch;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ExtensionWatch create() => ExtensionWatch._();
+  @$core.override
+  ExtensionWatch createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ExtensionWatch getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ExtensionWatch>(create);
+  static ExtensionWatch? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<ExtensionMirrorGroup> get mirrors => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.String get defaultGroup => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set defaultGroup($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasDefaultGroup() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDefaultGroup() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get defaultIndex => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set defaultIndex($core.int value) => $_setSignedInt32(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasDefaultIndex() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearDefaultIndex() => $_clearField(3);
 }
 
 class GithubExtension extends $pb.GeneratedMessage {

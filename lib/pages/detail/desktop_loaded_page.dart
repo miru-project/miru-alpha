@@ -85,7 +85,7 @@ class DesktopLoadedPage extends HookWidget {
                         const SizedBox(height: 30),
                         AnimatedBox(
                           child: OutterCard(
-                            title: 'tracking'.i18n,
+                            title: 'tracking.name'.i18n,
                             trailing: FButton(
                               variant: .ghost,
                               onPress: () {},

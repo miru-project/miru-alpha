@@ -7,7 +7,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
-import 'package:miru_alpha/provider/favorite_page_provider.dart';
+import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/widgets/grid_view/index.dart';

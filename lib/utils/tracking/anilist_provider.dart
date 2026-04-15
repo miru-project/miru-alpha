@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:miru_alpha/model/anilist_model.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 
 enum AnilistType { anime, manga }
@@ -15,8 +16,7 @@ enum AnilistMediaListStatus {
 }
 
 class AniListProvider {
-  static const String apiUrl =
-      'http://127.0.0.1:3000/proxy/https://graphql.anilist.co';
+  static const String apiUrl = 'https://graphql.anilist.co';
 
   static String _typeToQuery(AnilistType type) {
     return (type == AnilistType.anime) ? "ANIME" : "MANGA";
@@ -104,9 +104,9 @@ class AniListProvider {
           },
         ),
       );
-      return response.data;
-    } on DioException {
-      rethrow;
+      return response;
+    } catch (e) {
+      logger.info(e);
     }
   }
 

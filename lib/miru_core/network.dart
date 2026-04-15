@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:miru_alpha/miru_core/core.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/utils/core/log.dart';
@@ -142,27 +143,67 @@ class MiruCoreEndpoint {
   static Future<dynamic> watch(
     String url,
     String pkg,
-    ExtensionType type,
+    ExtensionMeta meta,
   ) async {
     final response = await MiruGrpcClient.extensionClient.watch(
       proto.WatchRequest(pkg: pkg, url: url),
     );
-    final data = jsonDecode(response.raw);
-    final String mediaType = data["type"] ?? "";
-    switch (type) {
-      case ExtensionType.bangumi:
-        final watch = ExtensionBangumiWatch()
-          ..mergeFromProto3Json(data, ignoreUnknownFields: true);
-        watch.torrent = _handleTorrent(data, mediaType);
-        return watch;
-      case ExtensionType.manga:
-        return ExtensionMangaWatch()
-          ..mergeFromProto3Json(data, ignoreUnknownFields: true);
-      case ExtensionType.fikushon:
-        return ExtensionFikushonWatch()
-          ..mergeFromProto3Json(data, ignoreUnknownFields: true);
-      default:
-        throw (Exception('Unknown media type'));
+
+    switch (response.whichData()) {
+      case proto.WatchResponse_Data.bangumi:
+        return response.bangumi;
+      case proto.WatchResponse_Data.manga:
+        return response.manga;
+      case proto.WatchResponse_Data.fikushon:
+        return response.fikushon;
+      case proto.WatchResponse_Data.raw:
+        final data = jsonDecode(response.raw);
+        final String mediaType = data["type"] ?? "";
+        switch (meta.type) {
+          case ExtensionType.bangumi:
+            final watch = ExtensionBangumiWatch()
+              ..mergeFromProto3Json(data, ignoreUnknownFields: true);
+            watch.torrent = _handleTorrent(data, mediaType);
+            return watch;
+          case ExtensionType.manga:
+            return ExtensionMangaWatch()
+              ..mergeFromProto3Json(data, ignoreUnknownFields: true);
+          case ExtensionType.fikushon:
+            return ExtensionFikushonWatch()
+              ..mergeFromProto3Json(data, ignoreUnknownFields: true);
+
+          default:
+            return response.raw;
+        }
+      // V2
+      case proto.WatchResponse_Data.watch:
+        return response.watch;
+      case proto.WatchResponse_Data.notSet:
+        throw Exception("Watch response data not set");
+    }
+  }
+
+  static Future<dynamic> mirror(String pkg, String url) async {
+    final response = await MiruGrpcClient.extensionClient.mirror(
+      proto.MirrorRequest(pkg: pkg, url: url),
+    );
+
+    switch (response.whichData()) {
+      case proto.MirrorResponse_Data.bangumi:
+        return response.bangumi;
+      case proto.MirrorResponse_Data.manga:
+        return response.manga;
+      case proto.MirrorResponse_Data.fikushon:
+        return response.fikushon;
+      case proto.MirrorResponse_Data.raw:
+        try {
+          // If raw is JSON, it might be a backward compatible object
+          return jsonDecode(response.raw);
+        } catch (e) {
+          return response.raw;
+        }
+      case proto.MirrorResponse_Data.notSet:
+        throw Exception("Mirror response data not set");
     }
   }
 
@@ -204,12 +245,7 @@ class MiruCoreEndpoint {
     }
 
     final response = await MiruGrpcClient.extensionClient.search(
-      proto.SearchRequest(
-        pkg: pkg,
-        kw: kw,
-        page: page,
-        filter: filterStr,
-      ),
+      proto.SearchRequest(pkg: pkg, kw: kw, page: page, filter: filterStr),
     );
 
     return response.items;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +10,6 @@ import 'package:miru_alpha/pages/watch/novel_reader/novel_reader.dart';
 import 'package:miru_alpha/pages/watch/video_player/video_player.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
 import 'package:miru_alpha/model/index.dart';
-import 'package:miru_alpha/provider/network_provider.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
@@ -92,19 +92,15 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
     return Consumer(
       builder: (context, ref, child) {
         final snapshot = ref.watch(
-          watchProvider(
-            url,
-            widget.param.detailUrl,
-            meta.packageName,
-            meta.type,
-          ),
+          watchProvider(url, widget.param.detailUrl, meta),
         );
         return FTheme(
           data: ref.watch(applicationControllerProvider).themeData,
           child: snapshot.when(
             data: (value) {
               final extra = widget.param;
-              if (value is proto.Download) {
+              if (value.data is proto.Download) {
+                final downloadData = value.data as proto.Download;
                 switch (extra.type) {
                   case ExtensionType.bangumi:
                     return MiruVideoPlayer.local(
@@ -112,18 +108,18 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                       meta: meta,
                       epProvider: _epProvider,
                       hasOriented: _hasOriented,
-                      localPath: value.savePath,
+                      localPath: downloadData.savePath,
                     );
                   case ExtensionType.manga:
                     return MiruMangaReader.local(
                       name: extra.name,
                       meta: meta,
                       epProvider: _epProvider,
-                      localPath: value.savePath,
+                      localPath: downloadData.savePath,
                     );
                   default:
                     return MiruNovelReader.local(
-                      localPath: value.savePath,
+                      localPath: downloadData.savePath,
                       name: extra.name,
                       meta: meta,
                       epProvider: _epProvider,
@@ -133,7 +129,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
               }
               switch (extra.type) {
                 case ExtensionType.bangumi:
-                  final data = value as ExtensionBangumiWatch;
+                  final data = value.data as ExtensionBangumiWatch;
                   return MiruVideoPlayer(
                     name: extra.name,
                     value: data,
@@ -142,9 +138,10 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     hasOriented: _hasOriented,
                     epProvider: _epProvider,
                     torrent: data.torrent,
+                    v2watch: value.v2watch,
                   );
                 case ExtensionType.manga:
-                  final data = value as ExtensionMangaWatch;
+                  final data = value.data as ExtensionMangaWatch;
                   return MiruMangaReader(
                     name: extra.name,
                     value: data,
@@ -154,7 +151,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     epProvider: _epProvider,
                   );
                 default:
-                  final data = value as ExtensionFikushonWatch;
+                  final data = value.data as ExtensionFikushonWatch;
                   return MiruNovelReader(
                     meta: meta,
                     name: extra.name,

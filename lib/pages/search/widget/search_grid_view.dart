@@ -7,7 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/model.dart';
-import 'package:miru_alpha/provider/search_page_single_provider.dart';
+import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/widgets/core/toast.dart';
@@ -49,7 +49,8 @@ class SearchGridView extends HookConsumerWidget {
           final c = ref.read(searchPageSingleProviderProvider);
           try {
             // Serach Mode
-            if (c.query.isNotEmpty || c.filterSelection.values.any((v) => v != "" && v != null)) {
+            if (c.query.isNotEmpty ||
+                c.filterSelection.values.any((v) => v != "" && v != null)) {
               final res = await MiruCoreEndpoint.search(
                 meta.packageName,
                 c.query,
