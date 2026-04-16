@@ -4,8 +4,7 @@ A rework version of [miru_app](github.com/miru-project/miru-app)
 
 ## Getting Started
 
-The project currently work in progress. To download the latest dev build, go to
-[github actions](https://github.com/miru-project/miru-alpha/actions)
+FOSS app for videos, comics, and novels with extension support available on Windows, Android and Linux (Rework of miru-app WIP). To download the latest dev build, go to [github actions](https://github.com/miru-project/miru-alpha/actions)
 
 ## Build
 
@@ -15,15 +14,15 @@ local steps so you can reproduce the outputs locally.
 
 ### Prerequisites
 
-- Flutter (Flutter 3.41.1 stable). Install and ensure `flutter` is on PATH.
-- Go ( Go 1.25.7). Install and ensure `go` is on PATH.
+- Flutter (Flutter 3.41.X stable). Install and ensure `flutter` is on PATH.
+- Go ( Go 1.26.X). Install and ensure `go` is on PATH.
 
 ### Linux
 
 Make sure the following depencies are exist.
 
 ```text
-ninja-build, build-essential, libasound2-dev, libgtk-3-dev, libwebkit2gtk-4.1-0, libwebkit2gtk-4.1-dev, libsoup-3.0-0, libsoup-3.0-dev
+gtk3 wpewebkit git clang cmake ninja jq alsa-utils alsa-plugins
 ```
 
 ### Android
@@ -36,83 +35,3 @@ go get golang.org/x/mobile/cmd/gomobile #for the first time
 gomobile init  #for the first time
 make build-android
 ```
-
-## Progress and Future work
-
-The plan has split into two stage basic (`2.0.0`) and advanced.
-
-### Basic
-
-The basic stage contains necessary components for apps to run at minimum
-functionality.
-
-#### Miru Core (backend)
-
-##### Js Runtime (goja) V1
-
-- [x] DOM (implement with linkedom)
-- [x] Crypto Js
-
-##### DB
-
-- [x] Settings
-
-#### App
-
-##### Readview
-
-- [x] Video player
-- [x] Manga reader
-- [ ] Novel reader
-
-##### Extension
-
-- [x] Search and install
-
-### Advanced
-
-#### Miru Core (backend)
-
-- [x] Torrent support
-
-##### Backup
-
-- [x] webdav
-
-##### Downloader
-
-- [x] Mp4
-- [x] Hls
-- [ ] Torrent
-- [ ] Manga
-- [ ] Novel
-
-##### DB
-
-- [ ] Favorite
-- [ ] History
-
-#### App
-
-- [ ] Anilist support
-- [ ] Devtool
-- [ ] Search filter
-
-##### Download
-
-- [ ] UI
-- [x] FFmpeg
-
-##### Video player
-
-##### Manga Reader
-
-- [ ] infinite scroll
-- [ ] support Tortent
-
-##### Novel reader
-
-- [ ] support epub
-- [ ] support Torrent
-- [ ] Page view
-- [ ] Integrate TTS (KokoroTTS)

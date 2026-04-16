@@ -44,12 +44,12 @@ Future<WatchResult> watch(
       meta,
     );
     if (meta.api == "2" && watchResult is pb_extension.ExtensionWatch) {
-      if (watchResult.mirrors.isNotEmpty) {
-        final group = watchResult.mirrors.firstWhere(
+      if (watchResult.groups.isNotEmpty) {
+        final group = watchResult.groups.firstWhere(
           (e) =>
               watchResult.hasDefaultGroup() &&
               e.title == watchResult.defaultGroup,
-          orElse: () => watchResult.mirrors.first,
+          orElse: () => watchResult.groups.first,
         );
         if (group.mirrors.isNotEmpty) {
           final index = watchResult.hasDefaultIndex()
@@ -60,7 +60,10 @@ Future<WatchResult> watch(
               : group.mirrors.first;
 
           // Call mirror which now returns the specialized mirror object
-          final resolved = await MiruCoreEndpoint.mirror(meta.packageName, mirror.url);
+          final resolved = await MiruCoreEndpoint.mirror(
+            meta.packageName,
+            mirror.url,
+          );
           return WatchResult(data: resolved, v2watch: watchResult);
         }
       }

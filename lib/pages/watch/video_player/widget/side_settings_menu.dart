@@ -82,9 +82,9 @@ class SideSettingsMenu extends HookConsumerWidget {
           child: CustomScrollView(
             slivers: [
               SliverList.builder(
-                itemCount: controller.v2watch?.mirrors.length ?? 0,
+                itemCount: controller.v2watch?.groups.length ?? 0,
                 itemBuilder: (context, index) {
-                  final group = controller.v2watch!.mirrors[index];
+                  final group = controller.v2watch!.groups[index];
                   return Column(
                     children: [
                       Padding(

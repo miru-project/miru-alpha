@@ -557,12 +557,12 @@ const ExtensionWatch$json = {
   '1': 'ExtensionWatch',
   '2': [
     {
-      '1': 'mirrors',
+      '1': 'groups',
       '3': 1,
       '4': 3,
       '5': 11,
       '6': '.miru.ExtensionMirrorGroup',
-      '10': 'mirrors'
+      '10': 'groups'
     },
     {
       '1': 'default_group',
@@ -591,10 +591,10 @@ const ExtensionWatch$json = {
 
 /// Descriptor for `ExtensionWatch`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List extensionWatchDescriptor = $convert.base64Decode(
-    'Cg5FeHRlbnNpb25XYXRjaBI0CgdtaXJyb3JzGAEgAygLMhoubWlydS5FeHRlbnNpb25NaXJyb3'
-    'JHcm91cFIHbWlycm9ycxIoCg1kZWZhdWx0X2dyb3VwGAIgASgJSABSDGRlZmF1bHRHcm91cIgB'
-    'ARIoCg1kZWZhdWx0X2luZGV4GAMgASgFSAFSDGRlZmF1bHRJbmRleIgBAUIQCg5fZGVmYXVsdF'
-    '9ncm91cEIQCg5fZGVmYXVsdF9pbmRleA==');
+    'Cg5FeHRlbnNpb25XYXRjaBIyCgZncm91cHMYASADKAsyGi5taXJ1LkV4dGVuc2lvbk1pcnJvck'
+    'dyb3VwUgZncm91cHMSKAoNZGVmYXVsdF9ncm91cBgCIAEoCUgAUgxkZWZhdWx0R3JvdXCIAQES'
+    'KAoNZGVmYXVsdF9pbmRleBgDIAEoBUgBUgxkZWZhdWx0SW5kZXiIAQFCEAoOX2RlZmF1bHRfZ3'
+    'JvdXBCEAoOX2RlZmF1bHRfaW5kZXg=');
 
 @$core.Deprecated('Use githubExtensionDescriptor instead')
 const GithubExtension$json = {

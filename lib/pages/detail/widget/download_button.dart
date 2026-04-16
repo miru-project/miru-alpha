@@ -237,15 +237,15 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                         if (widget.meta.api == "2" &&
                                             watchResult
                                                 is pb_extension.ExtensionWatch) {
-                                          if (watchResult.mirrors.isNotEmpty) {
-                                            final group = watchResult.mirrors
+                                          if (watchResult.groups.isNotEmpty) {
+                                            final group = watchResult.groups
                                                 .firstWhere(
                                               (e) =>
                                                   watchResult.hasDefaultGroup() &&
                                                   e.title ==
                                                       watchResult.defaultGroup,
                                               orElse: () =>
-                                                  watchResult.mirrors.first,
+                                                  watchResult.groups.first,
                                             );
                                             if (group.mirrors.isNotEmpty) {
                                               final index =

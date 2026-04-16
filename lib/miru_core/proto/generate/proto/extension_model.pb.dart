@@ -1300,12 +1300,12 @@ class ExtensionFikushonWatch extends $pb.GeneratedMessage {
 /// V2
 class ExtensionWatch extends $pb.GeneratedMessage {
   factory ExtensionWatch({
-    $core.Iterable<ExtensionMirrorGroup>? mirrors,
+    $core.Iterable<ExtensionMirrorGroup>? groups,
     $core.String? defaultGroup,
     $core.int? defaultIndex,
   }) {
     final result = create();
-    if (mirrors != null) result.mirrors.addAll(mirrors);
+    if (groups != null) result.groups.addAll(groups);
     if (defaultGroup != null) result.defaultGroup = defaultGroup;
     if (defaultIndex != null) result.defaultIndex = defaultIndex;
     return result;
@@ -1324,7 +1324,7 @@ class ExtensionWatch extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'ExtensionWatch',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
-    ..pPM<ExtensionMirrorGroup>(1, _omitFieldNames ? '' : 'mirrors',
+    ..pPM<ExtensionMirrorGroup>(1, _omitFieldNames ? '' : 'groups',
         subBuilder: ExtensionMirrorGroup.create)
     ..aOS(2, _omitFieldNames ? '' : 'defaultGroup')
     ..aI(3, _omitFieldNames ? '' : 'defaultIndex')
@@ -1350,7 +1350,7 @@ class ExtensionWatch extends $pb.GeneratedMessage {
   static ExtensionWatch? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $pb.PbList<ExtensionMirrorGroup> get mirrors => $_getList(0);
+  $pb.PbList<ExtensionMirrorGroup> get groups => $_getList(0);
 
   @$pb.TagNumber(2)
   $core.String get defaultGroup => $_getSZ(1);

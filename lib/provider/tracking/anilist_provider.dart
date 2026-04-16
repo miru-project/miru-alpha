@@ -31,7 +31,7 @@ class AnilistAccount extends _$AnilistAccount {
     int attempts = 0;
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) async {
       attempts++;
-      if (attempts > 40) {
+      if (attempts > 10) {
         // Timeout after 2 minutes
         timer.cancel();
         return;
