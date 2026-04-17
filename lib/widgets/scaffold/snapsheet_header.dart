@@ -29,7 +29,12 @@ class SnapSheetHeader extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 28,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
               Row(children: suffix),
             ],
@@ -60,13 +65,14 @@ class SnapSheetNested extends StatelessWidget {
       child: Row(
         children: [
           prefix ?? const SizedBox.shrink(),
-          Text(
-            title,
-            maxLines: 1,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-            overflow: .ellipsis,
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          Spacer(),
           suffix ?? const SizedBox.shrink(),
         ],
       ),

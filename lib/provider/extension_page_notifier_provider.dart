@@ -3,6 +3,7 @@ import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/network/github_network.dart';
 import 'package:miru_alpha/model/model.dart';
+import 'package:miru_alpha/utils/core/version_util.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'extension_page_notifier_provider.g.dart';
 
@@ -112,14 +113,23 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
         exts = exts.where((e) => e.type == cacheType.toLowerCase()).toList();
       }
 
-      if (cacheInstalled == 'Installed') {
+      if (cacheInstalled == 'extension.installed') {
         exts = exts
             .where((e) => state.installedPackages.contains(e.package))
             .toList();
-      } else if (cacheInstalled == 'Not installed') {
+      } else if (cacheInstalled == 'extension.not_installed') {
         exts = exts
             .where((e) => !state.installedPackages.contains(e.package))
             .toList();
+      } else if (cacheInstalled == 'extension.update_available') {
+        exts = exts.where((e) {
+          if (!state.installedPackages.contains(e.package)) return false;
+          final localMeta = state.metaData
+              .where((m) => m.packageName == e.package)
+              .firstOrNull;
+          if (localMeta == null) return false;
+          return VersionUtil.isVersionGreaterThan(e.version, localMeta.version);
+        }).toList();
       }
 
       if (cacheQuery.isNotEmpty) {

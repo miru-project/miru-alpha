@@ -45,7 +45,8 @@
     "search_with_pinned_extensions": "使用已固定的扩展搜索",
     "search_extensions": "搜索扩展",
     "search_hint": "按名称或标签搜索...",
-    "nsfw": "NSFW"
+    "nsfw": "NSFW",
+    "update_available": "可用更新"
   },
   "extension-repo": {
     "error": "发生错误！",
@@ -111,6 +112,7 @@
     "information": "调整播放设置"
   },
   "danmaku": "弹幕",
+  "reset": "重置",
   "speed": "倍速",
   "adjust_speed": "调整播放速度",
   "aspect_ratio": "高宽比",

@@ -87,9 +87,15 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
               dismissBehavior: const DragDownSheetKeyboardDismissBehavior(),
               child: Blur(
                 blurDensity: 10,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(10),
+                ),
                 child: FCard.raw(
                   style: .delta(
                     decoration: .boxDelta(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(10),
+                      ),
                       color: context.theme.colors.background.withAlpha(150),
                     ),
                   ),

@@ -23,6 +23,7 @@ class MangaImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ImageWidget(
+      fit: .fitHeight,
       imageUrl: imageUrl,
       loadingChild: MobileMangaLoading(),
       borderRadius: 0,

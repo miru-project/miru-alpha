@@ -45,7 +45,8 @@
     "search_with_pinned_extensions": "Search with pinned extensions",
     "search_extensions": "Search extensions",
     "search_hint": "Search by Name or Tags ...",
-    "nsfw": "NSFW"
+    "nsfw": "NSFW",
+    "update_available": "Update Available"
   },
   "extension-repo": {
     "error": "An error occurred!",
@@ -112,6 +113,7 @@
     "play": "Play"
   },
   "danmaku": "Danmaku",
+  "reset": "Reset",
   "speed": "Speed",
   "adjust_speed": "Adjust playback speed",
   "aspect_ratio": "Aspect Ratio",

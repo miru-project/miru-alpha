@@ -8,9 +8,11 @@ class SearchFilterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Blur(
+      borderRadius: context.theme.style.borderRadius.md,
       child: FCard(
         style: .delta(
           decoration: .boxDelta(
+            borderRadius: context.theme.style.borderRadius.md,
             color: context.theme.colors.background.withAlpha(200),
           ),
         ),

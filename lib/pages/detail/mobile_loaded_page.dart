@@ -61,7 +61,7 @@ class MobileLoadedPage extends HookConsumerWidget {
                         coverUrl: detail.cover ?? '',
                         child: ImageWidget(
                           imageUrl: detail.cover ?? '',
-                          fit: BoxFit.fitHeight,
+                          fit: BoxFit.cover,
                           errChild: FCard.raw(
                             child: Center(child: Icon(FIcons.cloudAlert)),
                           ),

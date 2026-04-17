@@ -43,7 +43,12 @@ class _MobileExtensionModal extends HookConsumerWidget {
       'status': CatEntry(
         initialValue: 'ALL',
         title: 'Status',
-        items: ['all', 'extension.installed', 'extension.not_installed'],
+        items: [
+          'all',
+          'extension.installed',
+          'extension.not_installed',
+          'extension.update_available'
+        ],
         onpress: (val) {
           extNotifier.filterByInstalled(val);
         },

@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/utils/core/version_util.dart';
 import 'package:miru_alpha/widgets/core/toast.dart';
 import 'package:miru_alpha/widgets/index.dart';
 
@@ -12,16 +13,6 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
   final String repoUrl;
   const ExtensionTile({super.key, required this.data, required this.repoUrl});
 
-  bool isVersionGreaterThan(String newVersion, String currentVersion) {
-    List<String> currentV = currentVersion.replaceAll("v", "").split(".");
-    List<String> newV = newVersion.replaceAll("v", "").split(".");
-    bool a = false;
-    for (var i = 0; i <= 2; i++) {
-      a = int.parse(newV[i]) > int.parse(currentV[i]);
-      if (int.parse(newV[i]) != int.parse(currentV[i])) break;
-    }
-    return a;
-  }
 
   void oninstall(
     GithubExtension data,
@@ -59,7 +50,7 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
     final isInstalled = pkg.contains(data.package);
     bool needUpdate = isInstalled;
     if (isInstalled) {
-      needUpdate = isVersionGreaterThan(
+      needUpdate = VersionUtil.isVersionGreaterThan(
         data.version,
         meta.where((e) => e.packageName == data.package).first.version,
       );
@@ -88,6 +79,7 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
         author: data.author,
         type: data.type,
         icon: data.icon,
+        needUpdate: needUpdate,
         onInstall: () => oninstall(data, repoUrl, notifier),
         onUninstall: () => onuninstall(data, repoUrl, notifier),
       ),

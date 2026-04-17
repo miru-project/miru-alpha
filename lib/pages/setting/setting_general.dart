@@ -26,6 +26,7 @@ class SettingGeneral extends HookConsumerWidget {
               initialValue: MiruSettings.getSettingSync<String>(
                 SettingKey.tmdbKey,
               ),
+              hintText: 'enter_tmdb_api_key',
               onChanged: (value) {
                 MiruSettings.setSettingSync(SettingKey.tmdbKey, value);
               },

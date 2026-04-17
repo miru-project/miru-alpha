@@ -13,13 +13,19 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
     required this.subtitle,
     required this.initialValue,
     required this.onChanged,
+    this.hintText,
     this.onTap,
     this.icon,
+    this.description,
+    this.defaultValue,
     this.isMobileLayout = false,
   });
   final String title;
   final String? subtitle;
   final String initialValue;
+  final String? hintText;
+  final String? description;
+  final String? defaultValue;
   final void Function(String) onChanged;
   final void Function()? onTap;
   final IconData? icon;
@@ -31,7 +37,10 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
       return FTile(
         title: Text(title.i18n),
         subtitle: subtitle == null ? null : Text(subtitle!.i18n),
-        details: Text(initialValue),
+        details: Icon(
+          FIcons.chevronsLeftRightEllipsis,
+          color: context.theme.colors.mutedForeground,
+        ),
         onPress: () {
           showFDialog(
             context: context,
@@ -51,20 +60,49 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
             builder: (context, style, animation) => FDialog(
               style: style,
               animation: animation,
-              title: Text('tmdb_api_key_wip'.i18n),
-              body: Form(child: FTextField(hint: 'enter_tmdb_api_key'.i18n)),
+              title: Text(title.i18n),
+              body: Form(
+                child: Column(
+                  mainAxisSize: .min,
+                  children: [
+                    if (description != null)
+                      Padding(
+                        padding: .only(bottom: 10),
+                        child: Text(description!.i18n),
+                      ),
+                    FTextField(
+                      hint: hintText?.i18n,
+                      control: FTextFieldControl.managed(
+                        initial: TextEditingValue(text: initialValue),
+                        onChange: (value) => onChanged(value.text),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               actions: [
                 FButton(
                   size: .sm,
                   child: Text('confirm'.i18n),
                   onPress: () => Navigator.of(context).pop(),
                 ),
-                FButton(
-                  size: .sm,
-                  variant: .outline,
-                  child: Text('cancel'.i18n),
-                  onPress: () => Navigator.of(context).pop(),
-                ),
+                if (defaultValue == null)
+                  FButton(
+                    size: .sm,
+                    variant: .outline,
+                    child: Text('cancel'.i18n),
+                    onPress: () => Navigator.of(context).pop(),
+                  )
+                else
+                  FButton(
+                    size: .sm,
+                    variant: .destructive,
+                    child: Text('reset'.i18n),
+                    onPress: () {
+                      onChanged(defaultValue!);
+                      Navigator.of(context).pop();
+                    },
+                  ),
               ],
             ),
           );

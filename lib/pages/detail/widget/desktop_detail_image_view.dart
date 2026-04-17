@@ -18,32 +18,56 @@ class DetailImageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBox(
+    return AnimatedBox.nopadding(
       onTap: () {
         Navigator.of(context).push(
           PageRouteBuilder<void>(
             opaque: false,
-            transitionDuration: const Duration(milliseconds: 500),
+            transitionDuration: const Duration(milliseconds: 350),
             pageBuilder: (context, animation, secondaryAnimation) => FScaffold(
               scaffoldStyle: .delta(
-                backgroundColor: context.theme.colors.background.withAlpha(100),
+                backgroundColor: context.theme.colors.background.withAlpha(200),
               ),
               child: Stack(
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
+                    onTap: () => Navigator.of(context).pop(),
                     child: Container(color: Colors.transparent),
                   ),
                   Center(
                     child: Hero(
                       tag: 'detail-card',
-                      child: ExtendedImage.network(
-                        mode: .gesture,
-                        coverUrl,
-                        initGestureConfigHandler: (state) {
-                          return GestureConfig(
+                      flightShuttleBuilder:
+                          (
+                            flightContext,
+                            animation,
+                            direction,
+                            fromContext,
+                            toContext,
+                          ) {
+                            return AnimatedBuilder(
+                              animation: animation,
+                              builder: (context, child) {
+                                return Material(
+                                  color: Colors.transparent,
+                                  clipBehavior: Clip.antiAlias,
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: child,
+                                );
+                              },
+                              child: (direction == HeroFlightDirection.push)
+                                  ? toContext.widget
+                                  : fromContext.widget,
+                            );
+                          },
+                      child: Material(
+                        color: Colors.transparent,
+                        clipBehavior: Clip.antiAlias,
+                        borderRadius: BorderRadius.circular(10),
+                        child: ExtendedImage.network(
+                          mode: .gesture,
+                          coverUrl,
+                          initGestureConfigHandler: (state) => GestureConfig(
                             minScale: 0.9,
                             animationMinScale: 0.7,
                             maxScale: 3.0,
@@ -53,9 +77,9 @@ class DetailImageView extends StatelessWidget {
                             initialScale: 1.0,
                             inPageView: false,
                             initialAlignment: InitialAlignment.center,
-                          );
-                        },
-                        fit: BoxFit.cover,
+                          ),
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
@@ -68,11 +92,12 @@ class DetailImageView extends StatelessWidget {
       child: Hero(
         tag: 'detail-card',
         child: FCard.raw(
-          child: ClipRRect(
-            child:
-                child ??
-                ImageWidget.defaultErr(title: detail.title, imageUrl: coverUrl),
+          style: .delta(
+            decoration: .boxDelta(borderRadius: BorderRadius.circular(10)),
           ),
+          child:
+              child ??
+              ImageWidget.defaultErr(title: detail.title, imageUrl: coverUrl),
         ),
       ),
     );

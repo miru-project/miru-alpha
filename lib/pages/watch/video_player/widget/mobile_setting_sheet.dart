@@ -122,9 +122,12 @@ class MobileVideoSheet extends HookConsumerWidget {
         ];
 
         return Blur(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
           child: FCard.raw(
             style: .delta(
               decoration: .boxDelta(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(10)),
                 color: context.theme.colors.background.withAlpha(230),
               ),
             ),

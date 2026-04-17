@@ -39,6 +39,7 @@ class MobilePlayerFooter extends ConsumerWidget {
         //   style: context.theme.style,
         // ).call,
         child: Blur(
+          borderRadius: BorderRadius.circular(10),
           child: Padding(
             padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
             child: Consumer(

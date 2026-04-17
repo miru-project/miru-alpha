@@ -110,6 +110,7 @@ class ExtensionGridTile extends StatelessWidget {
     required this.package,
     this.icon,
     this.description,
+    required this.needUpdate,
     this.tags = const [],
   });
   final bool isNSFW;
@@ -124,6 +125,7 @@ class ExtensionGridTile extends StatelessWidget {
   final void Function() onInstall;
   final void Function() onUninstall;
   final bool isInstalled;
+  final bool needUpdate;
   @override
   Widget build(BuildContext context) {
     final badges = tags
@@ -132,6 +134,14 @@ class ExtensionGridTile extends StatelessWidget {
     if (isNSFW) {
       badges.add(
         FBadge(variant: .destructive, child: Text('extension.nsfw'.i18n)),
+      );
+    }
+    if (needUpdate) {
+      badges.add(
+        FBadge(
+          variant: .outline,
+          child: Text('extension.update_available'.i18n),
+        ),
       );
     }
     return Center(
@@ -194,6 +204,11 @@ class ExtensionGridTile extends StatelessWidget {
                           child: Text('extension.uninstall'.i18n),
                         ),
                       ),
+                      if (needUpdate)
+                        FButton.icon(
+                          onPress: onInstall,
+                          child: Icon(FIcons.circleFadingArrowUp),
+                        ),
                       FTooltip(
                         tipBuilder: (context, controller) =>
                             Text('settings'.i18n),

@@ -98,6 +98,9 @@ class _InputSetting extends HookWidget with FTileMixin {
     }
 
     return SettingsInputTile(
+      defaultValue: setting.defaultValue,
+      description: setting.description,
+      isMobileLayout: isMobile,
       title: setting.title,
       subtitle: setting.description,
       initialValue: setting.value ?? setting.defaultValue,
