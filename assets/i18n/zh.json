@@ -330,5 +330,9 @@
     "blue": "蓝色",
     "yellow": "黄色",
     "violet": "紫色"
-  }
+  },
+  "source_code": "源代码",
+  "source_code_description": "查看扩展源代码",
+  "cookie_clear": "清除 Cookie",
+  "cookie_clear_description": "清除扩展 Cookie"
 }

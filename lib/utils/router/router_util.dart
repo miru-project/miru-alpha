@@ -5,6 +5,7 @@ import 'package:miru_alpha/pages/download/download_page.dart';
 import 'package:miru_alpha/pages/extension_settings/extension_settings.dart';
 import 'package:miru_alpha/pages/home/library_page.dart';
 import 'package:miru_alpha/pages/license/license_page.dart';
+import 'package:miru_alpha/pages/source_code/source_code_page.dart';
 import 'package:miru_alpha/pages/watch/load_entry.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
@@ -34,7 +35,10 @@ class ParamCache {
 }
 
 class RouterUtil {
-  static Page getPage({required Widget child, required GoRouterState state}) {
+  static Page noTransitionPage({
+    required Widget child,
+    required GoRouterState state,
+  }) {
     return NoTransitionPage<void>(key: state.pageKey, child: child);
   }
 
@@ -84,7 +88,16 @@ class RouterUtil {
           return MobileWebViewPage(extMeta: extra.meta, path: extra.url);
         },
       ),
-
+      GoRoute(
+        path: '/sourceCode',
+        pageBuilder: (context, state) {
+          final extra = state.extra as String;
+          return noTransitionPage(
+            state: state,
+            child: SourceCodePage(path: extra),
+          );
+        },
+      ),
       StatefulShellRoute.indexedStack(
         branches: [
           StatefulShellBranch(
@@ -93,22 +106,26 @@ class RouterUtil {
                 routes: [
                   GoRoute(
                     path: 'history',
-                    pageBuilder: (context, state) =>
-                        getPage(state: state, child: const HistoryPage()),
+                    pageBuilder: (context, state) => noTransitionPage(
+                      state: state,
+                      child: const HistoryPage(),
+                    ),
                   ),
                   GoRoute(
                     path: 'favorite',
-                    pageBuilder: (context, state) =>
-                        getPage(state: state, child: const FavoritePage()),
+                    pageBuilder: (context, state) => noTransitionPage(
+                      state: state,
+                      child: const FavoritePage(),
+                    ),
                   ),
                   GoRoute(
                     path: 'download',
                     pageBuilder: (context, state) =>
-                        getPage(state: state, child: DownloadPage()),
+                        noTransitionPage(state: state, child: DownloadPage()),
                   ),
                 ],
                 path: '/home',
-                pageBuilder: (context, state) => getPage(
+                pageBuilder: (context, state) => noTransitionPage(
                   state: state,
                   child: PlatformWidget(
                     mobileWidget: MiruMobileShellScaffold(),
@@ -122,7 +139,7 @@ class RouterUtil {
             routes: [
               GoRoute(
                 path: '/search',
-                pageBuilder: (context, state) => getPage(
+                pageBuilder: (context, state) => noTransitionPage(
                   state: state,
                   child: SearchPage(search: state.extra as String?),
                 ),
@@ -131,7 +148,7 @@ class RouterUtil {
                     path: 'single',
                     pageBuilder: (context, state) {
                       final extra = state.extra as SearchPageParam;
-                      return getPage(
+                      return noTransitionPage(
                         state: state,
                         child: SearchPageSingleView(
                           query: extra.query,
@@ -160,13 +177,15 @@ class RouterUtil {
             routes: [
               GoRoute(
                 path: '/extension',
-                pageBuilder: (context, state) =>
-                    getPage(state: state, child: const ExtensionPage()),
+                pageBuilder: (context, state) => noTransitionPage(
+                  state: state,
+                  child: const ExtensionPage(),
+                ),
               ),
               GoRoute(
                 path: '/tracking',
                 pageBuilder: (context, state) =>
-                    getPage(state: state, child: const TrackingPage()),
+                    noTransitionPage(state: state, child: const TrackingPage()),
               ),
             ],
           ),
@@ -175,7 +194,7 @@ class RouterUtil {
               for (final item in SideBarName.values)
                 GoRoute(
                   path: "/settings/${item.name}",
-                  pageBuilder: (context, state) => getPage(
+                  pageBuilder: (context, state) => noTransitionPage(
                     state: state,
                     child: SettingPage(selected: item),
                   ),
@@ -184,7 +203,7 @@ class RouterUtil {
                 path: "/extensionSettings",
                 pageBuilder: (context, state) {
                   final param = state.extra as ExtensionSettingParam;
-                  return getPage(
+                  return noTransitionPage(
                     state: state,
                     child: ExtensionSettingPage(
                       pkg: param.pkg,
@@ -200,9 +219,9 @@ class RouterUtil {
           if (DeviceUtil.isMobileLayout(context) &&
               (state.fullPath?.split('/') ?? []).length > 2 &&
               state.fullPath?.contains('settings') == false) {
-            return getPage(state: state, child: navigationShell);
+            return noTransitionPage(state: state, child: navigationShell);
           }
-          return getPage(
+          return noTransitionPage(
             state: state,
             child: MainPage(child: navigationShell),
           );

@@ -331,5 +331,9 @@
     "blue": "Blue",
     "yellow": "Yellow",
     "violet": "Violet"
-  }
+  },
+  "source_code": "Source Code",
+  "source_code_description": "View extension source code",
+  "cookie_clear": "Clear Cookie",
+  "cookie_clear_description": "Clear extension cookies"
 }

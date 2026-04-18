@@ -3,12 +3,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/model/extension_setting.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/widgets/index.dart';
+import 'package:path/path.dart' as p;
 
 class ExtensionSettingPage extends HookConsumerWidget {
   final String pkg;
@@ -45,16 +48,41 @@ class ExtensionSettingPage extends HookConsumerWidget {
     final isMobile = DeviceUtil.isMobileLayout(context);
 
     return MiruScaffold(
+      childPad: false,
       mobileHeader: SnapSheetNested.back(title: name),
       body: MiruListView(
         children: [
+          if (settings.isNotEmpty)
+            SettingGroup(
+              isMobileLayout: isMobile,
+              title: 'settings',
+              children: settings
+                  .map((s) => _buildSettingItem(context, s, isMobile))
+                  .cast<FTileMixin>()
+                  .toList(),
+            ),
+          SizedBox(height: 10),
           SettingGroup(
             isMobileLayout: isMobile,
-            title: name,
-            children: settings
-                .map((s) => _buildSettingItem(context, s, isMobile))
-                .cast<FTileMixin>()
-                .toList(),
+            title: 'advanced',
+            children: [
+              FTile(
+                subtitle: Text('source_code_description'.i18n),
+                title: Text('source_code'.i18n),
+                prefix: Icon(FIcons.code),
+                onPress: () {
+                  final extPath = Core.getExtensionPath;
+                  final codePath = p.join(extPath, '$pkg.js');
+                  context.push('/sourceCode', extra: codePath);
+                },
+              ),
+              FTile(
+                subtitle: Text('cookie_clear_description'.i18n),
+                title: Text('cookie_clear'.i18n),
+                prefix: Icon(FIcons.cookie),
+                onPress: () {},
+              ),
+            ],
           ),
         ],
       ),
