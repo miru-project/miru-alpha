@@ -6,7 +6,7 @@ on:
   push:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 env:
-  FLUTTER_VERSION: '3.41.5'
+  FLUTTER_VERSION: '3.41.7'
   GO_VERSION: '1.26.2'
 jobs:
   build-and-release-android:
