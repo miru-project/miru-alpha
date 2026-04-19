@@ -4,7 +4,13 @@ import 'package:forui/forui.dart';
 class MiruTabBar extends StatelessWidget {
   final TabController controller;
   final List<Widget> tabs;
-  const MiruTabBar({super.key, required this.controller, required this.tabs});
+  final bool isScrollable;
+  const MiruTabBar({
+    super.key,
+    required this.controller,
+    required this.tabs,
+    this.isScrollable = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +22,8 @@ class MiruTabBar extends StatelessWidget {
         child: TabBar(
           tabs: tabs,
           controller: controller,
+          isScrollable: isScrollable,
+          tabAlignment: isScrollable ? TabAlignment.start : null,
           padding: style.padding,
           indicator: style.indicatorDecoration,
           indicatorSize: TabBarIndicatorSize.tab,

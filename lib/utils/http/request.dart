@@ -43,12 +43,6 @@ class MiruRequest {
   }
 
   static Uri proxyUrl(String url) {
-    final qIndex = url.indexOf('?');
-    if (qIndex != -1) {
-      final pathPart = url.substring(0, qIndex);
-      final queryPart = url.substring(qIndex + 1);
-      return proxyBaseUrl.replace(path: '/proxy/$pathPart', query: queryPart);
-    }
-    return proxyBaseUrl.replace(path: '/proxy/$url');
+    return proxyBaseUrl.resolve(Uri.encodeComponent(url));
   }
 }

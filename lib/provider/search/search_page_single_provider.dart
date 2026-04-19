@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:miru_alpha/miru_core/network.dart';
-import 'package:miru_alpha/widgets/core/toast.dart';
+import 'package:miru_alpha/utils/core/log.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_alpha/model/index.dart';
 
@@ -235,7 +235,7 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
 
         state = state.copyWith(filter: newFilters, filterOrder: mergedKeys);
       } catch (e) {
-        showSimpleToast(e.toString());
+        logger.info(e.toString());
       }
     }
   }
@@ -252,7 +252,7 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
       setFileNotifier(filters);
       commitFilters();
     } catch (e) {
-      showSimpleToast(e.toString());
+      logger.info(e.toString());
     }
   }
 

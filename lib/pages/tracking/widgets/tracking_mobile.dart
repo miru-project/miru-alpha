@@ -1,8 +1,10 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/anilist_model.dart';
 import 'package:miru_alpha/provider/tracking/anilist_provider.dart';
+import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'anilist_media_card.dart';
 
@@ -17,7 +19,9 @@ class MobileUserHeader extends ConsumerWidget {
       child: Row(
         children: [
           FAvatar(
-            image: NetworkImage(user.avatar.large ?? ''),
+            image: ExtendedNetworkImageProvider(
+              MiruRequest.proxyUrl(user.avatar.medium ?? '').toString(),
+            ),
             fallback: Text(user.name[0].toUpperCase()),
           ),
           const SizedBox(width: 16),
@@ -53,16 +57,24 @@ class CollectionTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final collection = ref.watch(anilistCollectionProvider(type));
+    final statusFilter = ref.watch(trackingStatusFilterProvider);
 
     return collection.when(
-      data: (data) => data.isEmpty
-          ? const Center(child: Text('Empty Collection'))
-          : CustomScrollView(
-              slivers: [
-                for (final list in data) ..._buildStatusSection(context, list),
-                const SliverToBoxAdapter(child: SizedBox(height: 200)),
-              ],
-            ),
+      data: (data) {
+        final filtered = statusFilter == null
+            ? data
+            : data.where((list) => list.status == statusFilter).toList();
+
+        return filtered.isEmpty
+            ? const Center(child: Text('Empty Collection'))
+            : CustomScrollView(
+                slivers: [
+                  for (final list in filtered)
+                    ..._buildStatusSection(context, list),
+                  const SliverToBoxAdapter(child: SizedBox(height: 200)),
+                ],
+              );
+      },
       loading: () => const Center(child: FCircularProgress.loader()),
       error: (err, stack) => Center(child: Text('Error: $err')),
     );
@@ -74,7 +86,10 @@ class CollectionTab extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
           child: Text(
-            list.status,
+            AniListProvider.mediaListStatusToTranslate(
+              AniListProvider.stringToMediaListStatus(list.status),
+              type,
+            ),
             style: context.theme.typography.lg.copyWith(
               fontWeight: FontWeight.bold,
             ),

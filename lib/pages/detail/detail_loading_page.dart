@@ -12,6 +12,7 @@ import 'package:miru_alpha/widgets/animted_icon/heart.dart';
 
 import 'package:miru_alpha/widgets/error.dart';
 import 'package:miru_alpha/widgets/index.dart';
+import 'package:smooth_sheets/smooth_sheets.dart';
 import './widget/index.dart';
 
 class DetailLoadingPage extends StatefulHookConsumerWidget {
@@ -37,15 +38,21 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
     final favorite = ref.watch(detailPr.select((value) => value.favorite));
     return detial.when(
       data: (detial) => MiruScaffold(
+        snappingOffsets: const [
+          AbsoluteSheetOffset(150),
+          ProportionalToViewportSheetOffset(0.5),
+          ProportionalToViewportSheetOffset(1.0),
+        ],
         snapSheet: [
           MobileDetailTabs(
             detail: detial,
             meta: widget.meta,
             detailUrl: widget.detailUrl,
+            detailPr: detailPr,
           ),
         ],
         mobileHeader: Padding(
-          padding: EdgeInsetsGeometry.only(right: 10, left: 5, bottom: 20),
+          padding: EdgeInsetsGeometry.only(right: 10, left: 5, bottom: 0),
           child: Row(
             children: [
               GestureDetector(

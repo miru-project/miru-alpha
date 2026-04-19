@@ -6,8 +6,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/index.dart';
-import 'package:miru_alpha/pages/detail/widget/desktop_detail_image_view.dart';
-import 'package:miru_alpha/pages/detail/widget/mobile_detail_silverlist.dart';
+import 'package:miru_alpha/pages/detail/widget/index.dart';
 import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/widgets/core/image_widget.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
@@ -122,7 +121,23 @@ class MobileLoadedPage extends HookConsumerWidget {
                               Wrap(
                                 spacing: 10,
                                 children: favGrp
-                                    .map((e) => FBadge(child: Text(e.name)))
+                                    .map(
+                                      (e) => FTappable(
+                                        onPress: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) =>
+                                                FavoriteDialog(
+                                                  meta: meta,
+                                                  detailUrl: detailUrl,
+                                                  detail: detail,
+                                                  detailPr: detailPr,
+                                                ),
+                                          );
+                                        },
+                                        child: FBadge(child: Text(e.name)),
+                                      ),
+                                    )
                                     .toList(),
                               ),
                           ],

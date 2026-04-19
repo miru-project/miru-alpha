@@ -20,10 +20,26 @@ class TrackingPage extends HookConsumerWidget {
     final account = ref.watch(anilistAccountProvider);
     final isMobile = DeviceUtil.isMobile;
     final tabController = useTabController(initialLength: 2);
+    final currentType = useState(AnilistType.anime);
+
+    // Reset status on anime/manga tab switch
+    useEffect(() {
+      void listener() {
+        if (!tabController.indexIsChanging) {
+          currentType.value = tabController.index == 0
+              ? AnilistType.anime
+              : AnilistType.manga;
+          ref.read(trackingStatusFilterProvider.notifier).set(null);
+        }
+      }
+
+      tabController.addListener(listener);
+      return () => tabController.removeListener(listener);
+    }, [tabController]);
 
     return MiruScaffold(
       snappingOffsets: const [
-        AbsoluteSheetOffset(220),
+        AbsoluteSheetOffset(190),
         ProportionalToViewportSheetOffset(0.5),
         ProportionalToViewportSheetOffset(1.0),
       ],
@@ -39,16 +55,58 @@ class TrackingPage extends HookConsumerWidget {
         data: (user) => (user != null && isMobile)
             ? [
                 MobileUserHeader(user: user),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: MiruTabBar(
-                    controller: tabController,
-                    tabs: const [
-                      Tab(text: 'Anime'),
-                      Tab(text: 'Manga'),
-                    ],
+                  child: SizedBox(
+                    height: 40,
+                    child: MiruTabBar(
+                      controller: tabController,
+                      tabs: const [
+                        Tab(text: 'Anime'),
+                        Tab(text: 'Manga'),
+                      ],
+                    ),
                   ),
+                ),
+                const SizedBox(height: 8),
+                HookBuilder(
+                  builder: (context) {
+                    final selectedStatus = ref.watch(
+                      trackingStatusFilterProvider,
+                    );
+                    return FSelectTileGroup<String>.builder(
+                      key: ValueKey(selectedStatus),
+                      count: AnilistMediaListStatus.values.length + 1,
+                      control: FMultiValueControl.managedRadio(
+                        initial: selectedStatus ?? 'ALL',
+                        onChange: (values) {
+                          final val = values.firstOrNull;
+                          ref
+                              .read(trackingStatusFilterProvider.notifier)
+                              .set(val == 'ALL' ? null : val);
+                        },
+                      ),
+                      tileBuilder: (context, index) {
+                        if (index == 0) {
+                          return const FSelectTile(
+                            title: Text('All'),
+                            value: 'ALL',
+                          );
+                        }
+                        final status = AnilistMediaListStatus.values[index - 1];
+                        return FSelectTile(
+                          title: Text(
+                            AniListProvider.mediaListStatusToTranslate(
+                              status,
+                              currentType.value,
+                            ),
+                          ),
+                          value: AniListProvider.mediaListStatusToQuery(status),
+                        );
+                      },
+                    );
+                  },
                 ),
               ]
             : [],
@@ -64,8 +122,12 @@ class TrackingPage extends HookConsumerWidget {
             return TabBarView(
               controller: tabController,
               children: const [
-                CollectionTab(type: AnilistType.anime),
-                CollectionTab(type: AnilistType.manga),
+                _KeepAliveWrapper(
+                  child: CollectionTab(type: AnilistType.anime),
+                ),
+                _KeepAliveWrapper(
+                  child: CollectionTab(type: AnilistType.manga),
+                ),
               ],
             );
           }
@@ -130,5 +192,25 @@ class _LoginPrompt extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+class _KeepAliveWrapper extends StatefulWidget {
+  final Widget child;
+  const _KeepAliveWrapper({required this.child});
+
+  @override
+  State<_KeepAliveWrapper> createState() => _KeepAliveWrapperState();
+}
+
+class _KeepAliveWrapperState extends State<_KeepAliveWrapper>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return widget.child;
   }
 }

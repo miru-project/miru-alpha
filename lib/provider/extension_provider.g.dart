@@ -64,7 +64,7 @@ final class WatchProvider
   }
 }
 
-String _$watchHash() => r'3d8261afc1fcc821ff4398358a92c24db9878803';
+String _$watchHash() => r'faf588491117dd032aa14a62eff70ff3a357d8d5';
 
 final class WatchFamily extends $Family
     with

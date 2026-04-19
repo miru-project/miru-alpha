@@ -31,7 +31,7 @@ class SearchFilterDialog extends ConsumerWidget {
       body: ConstrainedBox(
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.7,
-          minWidth: MediaQuery.of(context).size.width * 0.8,
+          minWidth: (MediaQuery.of(context).size.width * 0.8).clamp(0.0, 500.0),
           maxWidth: 500,
         ),
         child: SingleChildScrollView(
@@ -133,10 +133,12 @@ class SearchFilterDialog extends ConsumerWidget {
         FButton(
           variant: .outline,
           onPress: () {
-            notifier.setSelected(initialSelected);
-            Navigator.of(context).pop(false);
+            if (!selected.values.any((e) => e.isNotEmpty)) return;
+            notifier.setSelected({});
+            notifier.commitFilters();
+            Navigator.of(context).pop(true);
           },
-          child: const Text('Cancel'),
+          child: const Text('Clear'),
         ),
         FButton(
           onPress: () {

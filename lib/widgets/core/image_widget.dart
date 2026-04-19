@@ -1,3 +1,4 @@
+import 'package:miru_alpha/utils/http/request.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
@@ -56,9 +57,9 @@ class ImageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (imageUrl?.isEmpty ?? true) return buildErrchild();
-    // Fallback: treat as network image
+
     return ExtendedImage.network(
-      "http://127.0.0.1:3000/proxy/${imageUrl!}",
+      MiruRequest.proxyUrl(imageUrl!).toString(),
       borderRadius: BorderRadius.circular(borderRadius),
       clipBehavior: clipBehavior,
       shape: BoxShape.rectangle,

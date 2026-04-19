@@ -33,7 +33,7 @@ final class AnilistAccountProvider
   AnilistAccount create() => AnilistAccount();
 }
 
-String _$anilistAccountHash() => r'11a836ed5c8457ef89f1580590d6dc0835b4e204';
+String _$anilistAccountHash() => r'1d95b824dd0013eff4e3d3bb53af640380a346da';
 
 abstract class _$AnilistAccount extends $AsyncNotifier<AnilistUser?> {
   FutureOr<AnilistUser?> build();
@@ -46,6 +46,59 @@ abstract class _$AnilistAccount extends $AsyncNotifier<AnilistUser?> {
             as $ClassProviderElement<
               AnyNotifier<AsyncValue<AnilistUser?>, AnilistUser?>,
               AsyncValue<AnilistUser?>,
+              Object?,
+              Object?
+            >;
+    element.handleCreate(ref, build);
+  }
+}
+
+@ProviderFor(TrackingStatusFilter)
+final trackingStatusFilterProvider = TrackingStatusFilterProvider._();
+
+final class TrackingStatusFilterProvider
+    extends $NotifierProvider<TrackingStatusFilter, String?> {
+  TrackingStatusFilterProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'trackingStatusFilterProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$trackingStatusFilterHash();
+
+  @$internal
+  @override
+  TrackingStatusFilter create() => TrackingStatusFilter();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String?>(value),
+    );
+  }
+}
+
+String _$trackingStatusFilterHash() =>
+    r'9633717ba13154f4fad388a1db0d46ede37c1d4c';
+
+abstract class _$TrackingStatusFilter extends $Notifier<String?> {
+  String? build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final ref = this.ref as $Ref<String?, String?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<String?, String?>,
+              String?,
               Object?,
               Object?
             >;

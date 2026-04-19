@@ -16,7 +16,8 @@ class AnilistUser {
     required this.statistics,
   });
 
-  factory AnilistUser.fromJson(Map<String, dynamic> json) => _$AnilistUserFromJson(json);
+  factory AnilistUser.fromJson(Map<String, dynamic> json) =>
+      _$AnilistUserFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistUserToJson(this);
 }
 
@@ -27,7 +28,8 @@ class AnilistAvatar {
 
   AnilistAvatar({this.medium, this.large});
 
-  factory AnilistAvatar.fromJson(Map<String, dynamic> json) => _$AnilistAvatarFromJson(json);
+  factory AnilistAvatar.fromJson(Map<String, dynamic> json) =>
+      _$AnilistAvatarFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistAvatarToJson(this);
 }
 
@@ -38,7 +40,8 @@ class AnilistStatistics {
 
   AnilistStatistics({required this.anime, required this.manga});
 
-  factory AnilistStatistics.fromJson(Map<String, dynamic> json) => _$AnilistStatisticsFromJson(json);
+  factory AnilistStatistics.fromJson(Map<String, dynamic> json) =>
+      _$AnilistStatisticsFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistStatisticsToJson(this);
 }
 
@@ -49,7 +52,8 @@ class AnilistMediaStatistics {
 
   AnilistMediaStatistics({this.episodesWatched = 0, this.chaptersRead = 0});
 
-  factory AnilistMediaStatistics.fromJson(Map<String, dynamic> json) => _$AnilistMediaStatisticsFromJson(json);
+  factory AnilistMediaStatistics.fromJson(Map<String, dynamic> json) =>
+      _$AnilistMediaStatisticsFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistMediaStatisticsToJson(this);
 }
 
@@ -59,7 +63,8 @@ class AnilistCollection {
 
   AnilistCollection({required this.lists});
 
-  factory AnilistCollection.fromJson(Map<String, dynamic> json) => _$AnilistCollectionFromJson(json);
+  factory AnilistCollection.fromJson(Map<String, dynamic> json) =>
+      _$AnilistCollectionFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistCollectionToJson(this);
 }
 
@@ -70,7 +75,8 @@ class AnilistList {
 
   AnilistList({required this.status, required this.entries});
 
-  factory AnilistList.fromJson(Map<String, dynamic> json) => _$AnilistListFromJson(json);
+  factory AnilistList.fromJson(Map<String, dynamic> json) =>
+      _$AnilistListFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistListToJson(this);
 }
 
@@ -80,47 +86,55 @@ class AnilistEntry {
   final String status;
   final int progress;
   final double score;
-  final AnilistMedia media;
+  final AnilistMedia? media;
 
   AnilistEntry({
     this.id,
     required this.status,
     required this.progress,
     required this.score,
-    required this.media,
+    this.media,
   });
 
-  factory AnilistEntry.fromJson(Map<String, dynamic> json) => _$AnilistEntryFromJson(json);
+  factory AnilistEntry.fromJson(Map<String, dynamic> json) =>
+      _$AnilistEntryFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistEntryToJson(this);
 }
 
 @JsonSerializable()
 class AnilistMedia {
   final int id;
+  final String? type;
   final String status;
   final int? chapters;
   final int? episodes;
   final int? meanScore;
+  final String? description;
   final bool? isFavourite;
   final AnilistTitle title;
   final AnilistCoverImage coverImage;
   final NextAiringEpisode? nextAiringEpisode;
   final AnilistCharacterConnection? characters;
+  final AnilistEntry? mediaListEntry;
 
   AnilistMedia({
     required this.id,
+    this.type,
     required this.status,
     this.chapters,
     this.episodes,
     this.meanScore,
+    this.description,
     this.isFavourite,
     required this.title,
     required this.coverImage,
     this.nextAiringEpisode,
     this.characters,
+    this.mediaListEntry,
   });
 
-  factory AnilistMedia.fromJson(Map<String, dynamic> json) => _$AnilistMediaFromJson(json);
+  factory AnilistMedia.fromJson(Map<String, dynamic> json) =>
+      _$AnilistMediaFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistMediaToJson(this);
 }
 
@@ -133,7 +147,8 @@ class AnilistTitle {
 
   AnilistTitle({this.userPreferred, this.english, this.romaji, this.native});
 
-  factory AnilistTitle.fromJson(Map<String, dynamic> json) => _$AnilistTitleFromJson(json);
+  factory AnilistTitle.fromJson(Map<String, dynamic> json) =>
+      _$AnilistTitleFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistTitleToJson(this);
 }
 
@@ -144,7 +159,8 @@ class AnilistCoverImage {
 
   AnilistCoverImage({this.large, this.medium});
 
-  factory AnilistCoverImage.fromJson(Map<String, dynamic> json) => _$AnilistCoverImageFromJson(json);
+  factory AnilistCoverImage.fromJson(Map<String, dynamic> json) =>
+      _$AnilistCoverImageFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistCoverImageToJson(this);
 }
 
@@ -155,7 +171,8 @@ class NextAiringEpisode {
 
   NextAiringEpisode({required this.episode, this.airingAt = 0});
 
-  factory NextAiringEpisode.fromJson(Map<String, dynamic> json) => _$NextAiringEpisodeFromJson(json);
+  factory NextAiringEpisode.fromJson(Map<String, dynamic> json) =>
+      _$NextAiringEpisodeFromJson(json);
   Map<String, dynamic> toJson() => _$NextAiringEpisodeToJson(this);
 }
 
@@ -165,7 +182,8 @@ class AnilistCharacterConnection {
 
   AnilistCharacterConnection({this.edges});
 
-  factory AnilistCharacterConnection.fromJson(Map<String, dynamic> json) => _$AnilistCharacterConnectionFromJson(json);
+  factory AnilistCharacterConnection.fromJson(Map<String, dynamic> json) =>
+      _$AnilistCharacterConnectionFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistCharacterConnectionToJson(this);
 }
 
@@ -177,7 +195,8 @@ class AnilistCharacterEdge {
 
   AnilistCharacterEdge({this.node, this.role, this.voiceActors});
 
-  factory AnilistCharacterEdge.fromJson(Map<String, dynamic> json) => _$AnilistCharacterEdgeFromJson(json);
+  factory AnilistCharacterEdge.fromJson(Map<String, dynamic> json) =>
+      _$AnilistCharacterEdgeFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistCharacterEdgeToJson(this);
 }
 
@@ -189,7 +208,8 @@ class AnilistCharacter {
 
   AnilistCharacter({required this.id, required this.name, this.image});
 
-  factory AnilistCharacter.fromJson(Map<String, dynamic> json) => _$AnilistCharacterFromJson(json);
+  factory AnilistCharacter.fromJson(Map<String, dynamic> json) =>
+      _$AnilistCharacterFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistCharacterToJson(this);
 }
 
@@ -201,7 +221,8 @@ class AnilistStaff {
 
   AnilistStaff({required this.id, required this.name, this.image});
 
-  factory AnilistStaff.fromJson(Map<String, dynamic> json) => _$AnilistStaffFromJson(json);
+  factory AnilistStaff.fromJson(Map<String, dynamic> json) =>
+      _$AnilistStaffFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistStaffToJson(this);
 }
 
@@ -212,7 +233,8 @@ class AnilistName {
 
   AnilistName({this.full, this.native});
 
-  factory AnilistName.fromJson(Map<String, dynamic> json) => _$AnilistNameFromJson(json);
+  factory AnilistName.fromJson(Map<String, dynamic> json) =>
+      _$AnilistNameFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistNameToJson(this);
 }
 
@@ -223,6 +245,7 @@ class AnilistImage {
 
   AnilistImage({this.large, this.medium});
 
-  factory AnilistImage.fromJson(Map<String, dynamic> json) => _$AnilistImageFromJson(json);
+  factory AnilistImage.fromJson(Map<String, dynamic> json) =>
+      _$AnilistImageFromJson(json);
   Map<String, dynamic> toJson() => _$AnilistImageToJson(this);
 }

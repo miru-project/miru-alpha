@@ -14,6 +14,8 @@ import 'package:miru_alpha/pages/favorite/favorite_page_layout.dart';
 import 'package:miru_alpha/pages/history/history_page.dart';
 import 'package:miru_alpha/pages/index.dart';
 import 'package:miru_alpha/pages/main_page.dart';
+import 'package:miru_alpha/pages/tracking/anilist_search_page.dart';
+import 'package:miru_alpha/pages/tracking/anilist_progress_page.dart';
 import 'package:miru_alpha/pages/webview/mobile_webview.dart';
 import 'package:miru_alpha/pages/search/search_page_single_view.dart';
 import 'package:miru_alpha/model/setting_items.dart';
@@ -96,6 +98,20 @@ class RouterUtil {
             state: state,
             child: SourceCodePage(path: extra),
           );
+        },
+      ),
+      GoRoute(
+        path: '/anilistSearch',
+        builder: (context, state) {
+          final extra = state.extra as AnilistSearchParam;
+          return AnilistSearchPage(param: extra);
+        },
+      ),
+      GoRoute(
+        path: '/anilistProgress',
+        builder: (context, state) {
+          final extra = state.extra as AnilistProgressParam;
+          return AnilistProgressPage(param: extra);
         },
       ),
       StatefulShellRoute.indexedStack(

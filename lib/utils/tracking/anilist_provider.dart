@@ -175,6 +175,8 @@ class AniListProvider {
         isAdult
         description
         status
+        episodes
+        chapters
         season
         startDate{
             year
@@ -287,6 +289,9 @@ class AniListProvider {
     chapters
     volumes
     isFavourite
+    nextAiringEpisode {
+      episode
+    }
     characters(sort: [ROLE, RELEVANCE, ID]) {
       edges {
         role

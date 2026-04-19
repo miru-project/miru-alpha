@@ -53,3 +53,27 @@ class ExtensionSettingParam {
   final String name;
   const ExtensionSettingParam({required this.pkg, required this.name});
 }
+
+class AnilistSearchParam {
+  final String title;
+  final ExtensionType type;
+  final String detailUrl;
+  final String package;
+  const AnilistSearchParam({
+    required this.title,
+    required this.type,
+    required this.detailUrl,
+    required this.package,
+  });
+}
+
+class AnilistProgressParam {
+  final int mediaId;
+  final String detailUrl;
+  final String package;
+  const AnilistProgressParam({
+    required this.mediaId,
+    required this.detailUrl,
+    required this.package,
+  });
+}

@@ -59,6 +59,14 @@ class AnilistAccount extends _$AnilistAccount {
 }
 
 @riverpod
+class TrackingStatusFilter extends _$TrackingStatusFilter {
+  @override
+  String? build() => null;
+
+  void set(String? status) => state = status;
+}
+
+@riverpod
 class AnilistCollectionNotifier extends _$AnilistCollectionNotifier {
   @override
   FutureOr<List<AnilistList>> build(AnilistType type) async {

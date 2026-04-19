@@ -81,7 +81,9 @@ AnilistEntry _$AnilistEntryFromJson(Map<String, dynamic> json) => AnilistEntry(
   status: json['status'] as String,
   progress: (json['progress'] as num).toInt(),
   score: (json['score'] as num).toDouble(),
-  media: AnilistMedia.fromJson(json['media'] as Map<String, dynamic>),
+  media: json['media'] == null
+      ? null
+      : AnilistMedia.fromJson(json['media'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$AnilistEntryToJson(AnilistEntry instance) =>
@@ -95,10 +97,12 @@ Map<String, dynamic> _$AnilistEntryToJson(AnilistEntry instance) =>
 
 AnilistMedia _$AnilistMediaFromJson(Map<String, dynamic> json) => AnilistMedia(
   id: (json['id'] as num).toInt(),
+  type: json['type'] as String?,
   status: json['status'] as String,
   chapters: (json['chapters'] as num?)?.toInt(),
   episodes: (json['episodes'] as num?)?.toInt(),
   meanScore: (json['meanScore'] as num?)?.toInt(),
+  description: json['description'] as String?,
   isFavourite: json['isFavourite'] as bool?,
   title: AnilistTitle.fromJson(json['title'] as Map<String, dynamic>),
   coverImage: AnilistCoverImage.fromJson(
@@ -114,20 +118,26 @@ AnilistMedia _$AnilistMediaFromJson(Map<String, dynamic> json) => AnilistMedia(
       : AnilistCharacterConnection.fromJson(
           json['characters'] as Map<String, dynamic>,
         ),
+  mediaListEntry: json['mediaListEntry'] == null
+      ? null
+      : AnilistEntry.fromJson(json['mediaListEntry'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$AnilistMediaToJson(AnilistMedia instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'type': instance.type,
       'status': instance.status,
       'chapters': instance.chapters,
       'episodes': instance.episodes,
       'meanScore': instance.meanScore,
+      'description': instance.description,
       'isFavourite': instance.isFavourite,
       'title': instance.title,
       'coverImage': instance.coverImage,
       'nextAiringEpisode': instance.nextAiringEpisode,
       'characters': instance.characters,
+      'mediaListEntry': instance.mediaListEntry,
     };
 
 AnilistTitle _$AnilistTitleFromJson(Map<String, dynamic> json) => AnilistTitle(

@@ -18,10 +18,10 @@ class AnilistMediaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = entry.media.title.userPreferred ?? '';
+    final title = entry.media?.title.userPreferred ?? '';
     final subtitle =
-        'Progress: ${entry.progress} / ${type == AnilistType.anime ? entry.media.episodes ?? '?' : entry.media.chapters ?? '?'}';
-    final imageUrl = entry.media.coverImage.large;
+        'Progress: ${entry.progress} / ${type == AnilistType.anime ? entry.media?.episodes ?? '?' : entry.media?.chapters ?? '?'}';
+    final imageUrl = entry.media?.coverImage.large;
 
     return Stack(
       children: [

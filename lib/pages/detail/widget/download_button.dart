@@ -228,10 +228,10 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                       try {
                                         var watchResult =
                                             await MiruCoreEndpoint.watch(
-                                          url.url,
-                                          widget.meta.packageName,
-                                          widget.meta,
-                                        );
+                                              url.url,
+                                              widget.meta.packageName,
+                                              widget.meta,
+                                            );
 
                                         // Handle mirrors for V2 flow
                                         if (widget.meta.api == "2" &&
@@ -240,19 +240,22 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                           if (watchResult.groups.isNotEmpty) {
                                             final group = watchResult.groups
                                                 .firstWhere(
-                                              (e) =>
-                                                  watchResult.hasDefaultGroup() &&
-                                                  e.title ==
-                                                      watchResult.defaultGroup,
-                                              orElse: () =>
-                                                  watchResult.groups.first,
-                                            );
+                                                  (e) =>
+                                                      watchResult
+                                                          .hasDefaultGroup() &&
+                                                      e.title ==
+                                                          watchResult
+                                                              .defaultGroup,
+                                                  orElse: () =>
+                                                      watchResult.groups.first,
+                                                );
                                             if (group.mirrors.isNotEmpty) {
                                               final index =
                                                   watchResult.hasDefaultIndex()
-                                                      ? watchResult.defaultIndex
-                                                      : 0;
-                                              final mirror = (index >= 0 &&
+                                                  ? watchResult.defaultIndex
+                                                  : 0;
+                                              final mirror =
+                                                  (index >= 0 &&
                                                       index <
                                                           group.mirrors.length)
                                                   ? group.mirrors[index]
@@ -261,9 +264,9 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                               // Call mirror which now returns the specialized mirror object
                                               watchResult =
                                                   await MiruCoreEndpoint.mirror(
-                                                widget.meta.packageName,
-                                                mirror.url,
-                                              );
+                                                    widget.meta.packageName,
+                                                    mirror.url,
+                                                  );
                                             }
                                           }
                                         }
@@ -273,8 +276,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                         String videoType = "";
 
                                         if (watchResult
-                                            is pb_extension
-                                                .ExtensionBangumiWatch) {
+                                            is pb_extension.ExtensionBangumiWatch) {
                                           videoUrl = watchResult.url;
                                           videoHeaders = watchResult.headers;
                                           videoType = watchResult.type;
@@ -292,10 +294,11 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                         await _startDownload(
                                           type: ExtensionWatchBangumiType.values
                                               .firstWhere(
-                                            (e) => e.name == videoType,
-                                            orElse: () =>
-                                                ExtensionWatchBangumiType.hls,
-                                          ),
+                                                (e) => e.name == videoType,
+                                                orElse: () =>
+                                                    ExtensionWatchBangumiType
+                                                        .hls,
+                                              ),
                                           watchUrl: url.url,
                                           url: videoUrl,
                                           title:

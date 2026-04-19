@@ -42,7 +42,7 @@ final class SearchPageSingleProviderProvider
 }
 
 String _$searchPageSingleProviderHash() =>
-    r'99e84311f26d7252aa10158532e93d7a5e90984d';
+    r'3ceaab62531c31785a4288e81ee460ad6e3c111e';
 
 abstract class _$SearchPageSingleProvider
     extends $Notifier<SingleSearchPageState> {

@@ -91,19 +91,23 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                       return FPopoverMenu.tiles(
                         menuAnchor: .topCenter,
                         menu: [
-                          FTileGroup.builder(
-                            tileBuilder: (context, idx) {
-                              return FTile(
-                                onPress: () {
-                                  ref
-                                      .read(detailPageProviderProvider.notifier)
-                                      .setEpGroup(idx);
-                                  controller.toggle();
-                                },
-                                title: Text(detail.episodes![idx].title),
-                              );
-                            },
-                            count: detail.episodes?.length ?? 0,
+                          FTileGroup(
+                            children: List.generate(
+                              detail.episodes?.length ?? 0,
+                              (idx) {
+                                return FTile(
+                                  onPress: () {
+                                    ref
+                                        .read(
+                                          detailPageProviderProvider.notifier,
+                                        )
+                                        .setEpGroup(idx);
+                                    controller.toggle();
+                                  },
+                                  title: Text(detail.episodes![idx].title),
+                                );
+                              },
+                            ),
                           ),
                         ],
                         control: .managed(controller: controller),

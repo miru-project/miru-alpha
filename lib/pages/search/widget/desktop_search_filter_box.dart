@@ -83,7 +83,7 @@ class DesktopSearchSingleFilterBox extends HookConsumerWidget {
                     sigmaY: animation * 5,
                   ),
                   inner: ColorFilter.mode(
-                    context.theme.colors.barrier,
+                    theme.colors.barrier,
                     BlendMode.srcOver,
                   ),
                 ),
