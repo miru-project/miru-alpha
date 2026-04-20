@@ -5,3 +5,7 @@ export 'favorite_dialog.dart';
 export 'mobile_detail_silverlist.dart';
 export 'mobile_detail_tabs.dart';
 export 'desktop_detail_image_view.dart';
+export 'desktop_tracking_box.dart';
+export 'anilist_tracking_dialog.dart';
+export 'anilist_search_dialog.dart';
+export 'desktop_detail_episode_card.dart';

@@ -218,18 +218,9 @@ class _App extends ConsumerState<App> {
       data: c.themeData,
       child: FToaster(
         child: MaterialApp.router(
+          supportedLocales: FLocalizations.supportedLocales,
           key: ValueKey(c.language),
-          theme: ThemeData(
-            useMaterial3: true,
-            // pageTransitionsTheme: const PageTransitionsTheme(
-            //   builders: <TargetPlatform, PageTransitionsBuilder>{
-            //     .android: SlideRightPageTransitionsBuilder(),
-            //     .iOS: SlideRightPageTransitionsBuilder(),
-            //     .linux: OpenUpwardsPageTransitionsBuilder(),
-            //     .macOS: FadeUpwardsPageTransitionsBuilder(),
-            //   },
-            // ),
-          ),
+          theme: c.themeData.toApproximateMaterialTheme(),
           themeMode: c.themeMode,
           title: 'Miru Alpha',
           localizationsDelegates: [
@@ -239,7 +230,6 @@ class _App extends ConsumerState<App> {
             GlobalCupertinoLocalizations.delegate,
           ],
           routerConfig: RouterUtil.appRouter,
-          supportedLocales: const [Locale('en'), Locale('zh')],
           // debugShowCheckedModeBanner: false,
         ),
       ),

@@ -24,15 +24,16 @@ class DetailTrackingBox extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(detailPr);
-    final tabController = useTabController(initialLength: 2);
+    final tabController = useTabController(initialLength: 3);
     return OutterCard(
       title: "cast".i18n,
       trailing: SizedBox(
-        width: 200,
+        width: 300,
         height: 40,
         child: MiruTabBar(
           controller: tabController,
           tabs: const [
+            Tab(text: 'None'),
             Tab(text: 'TMDB'),
             Tab(text: 'AniList'),
           ],
@@ -43,6 +44,12 @@ class DetailTrackingBox extends HookConsumerWidget {
         child: TabBarView(
           controller: tabController,
           children: [
+            Center(
+              child: Text(
+                'Select the Provider',
+                style: TextStyle(fontSize: 18, fontWeight: .bold),
+              ),
+            ),
             KeepAliveWrapper(
               child: _TMDBSection(
                 state: state,
@@ -64,11 +71,7 @@ class _AnilistSection extends HookConsumerWidget {
   final DetialProvider detailPr;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return const Text(
-      "AniList Cast view linked to active tracking is coming soon.",
-    );
-  }
+  Widget build(BuildContext context, WidgetRef ref) => SizedBox.shrink();
 }
 
 class _TMDBSection extends HookConsumerWidget {
@@ -127,7 +130,7 @@ class _TMDBSection extends HookConsumerWidget {
         separatorBuilder: (context, index) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final cast = tmdb.casts[index];
-          final url = TMDBProvider.getImageUrl(cast.profilePath!);
+          final url = TMDBProvider.getImageUrl(cast.profilePath ?? '');
           return Column(
             children: [
               if (cast.profilePath != null && cast.profilePath!.isNotEmpty)

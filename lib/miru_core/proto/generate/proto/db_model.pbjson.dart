@@ -52,6 +52,14 @@ const Detail$json = {
       '6': '.miru.Detail.TrackIdsEntry',
       '10': 'trackIds'
     },
+    {
+      '1': 'trackers',
+      '3': 11,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.Tracker',
+      '10': 'trackers'
+    },
   ],
   '3': [Detail_TrackIdsEntry$json],
   '8': [
@@ -80,9 +88,66 @@ final $typed_data.Uint8List detailDescriptor = $convert.base64Decode(
     'aWxfdXJsGAUgASgJUglkZXRhaWxVcmwSGAoHcGFja2FnZRgGIAEoCVIHcGFja2FnZRIeCgpkb3'
     'dubG9hZGVkGAcgAygJUgpkb3dubG9hZGVkEh8KCGVwaXNvZGVzGAggASgJSANSCGVwaXNvZGVz'
     'iAEBEh0KB2hlYWRlcnMYCSABKAlIBFIHaGVhZGVyc4gBARI3Cgl0cmFja19pZHMYCiADKAsyGi'
-    '5taXJ1LkRldGFpbC5UcmFja0lkc0VudHJ5Ugh0cmFja0lkcxo7Cg1UcmFja0lkc0VudHJ5EhAK'
-    'A2tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGAIgASgJUgV2YWx1ZToCOAFCCAoGX3RpdGxlQggKBl'
-    '9jb3ZlckIHCgVfZGVzY0ILCglfZXBpc29kZXNCCgoIX2hlYWRlcnM=');
+    '5taXJ1LkRldGFpbC5UcmFja0lkc0VudHJ5Ugh0cmFja0lkcxIpCgh0cmFja2VycxgLIAMoCzIN'
+    'Lm1pcnUuVHJhY2tlclIIdHJhY2tlcnMaOwoNVHJhY2tJZHNFbnRyeRIQCgNrZXkYASABKAlSA2'
+    'tleRIUCgV2YWx1ZRgCIAEoCVIFdmFsdWU6AjgBQggKBl90aXRsZUIICgZfY292ZXJCBwoFX2Rl'
+    'c2NCCwoJX2VwaXNvZGVzQgoKCF9oZWFkZXJz');
+
+@$core.Deprecated('Use trackerDescriptor instead')
+const Tracker$json = {
+  '1': 'Tracker',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 5, '10': 'id'},
+    {'1': 'tracker_id', '3': 2, '4': 1, '5': 9, '10': 'trackerId'},
+    {'1': 'provider', '3': 3, '4': 1, '5': 9, '10': 'provider'},
+    {'1': 'status', '3': 4, '4': 1, '5': 9, '10': 'status'},
+    {'1': 'score', '3': 5, '4': 1, '5': 5, '9': 0, '10': 'score', '17': true},
+    {'1': 'progress', '3': 6, '4': 1, '5': 5, '10': 'progress'},
+    {
+      '1': 'start_date',
+      '3': 7,
+      '4': 1,
+      '5': 3,
+      '9': 1,
+      '10': 'startDate',
+      '17': true
+    },
+    {
+      '1': 'finish_date',
+      '3': 8,
+      '4': 1,
+      '5': 3,
+      '9': 2,
+      '10': 'finishDate',
+      '17': true
+    },
+    {
+      '1': 'total_progress',
+      '3': 9,
+      '4': 1,
+      '5': 5,
+      '9': 3,
+      '10': 'totalProgress',
+      '17': true
+    },
+  ],
+  '8': [
+    {'1': '_score'},
+    {'1': '_start_date'},
+    {'1': '_finish_date'},
+    {'1': '_total_progress'},
+  ],
+};
+
+/// Descriptor for `Tracker`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List trackerDescriptor = $convert.base64Decode(
+    'CgdUcmFja2VyEg4KAmlkGAEgASgFUgJpZBIdCgp0cmFja2VyX2lkGAIgASgJUgl0cmFja2VySW'
+    'QSGgoIcHJvdmlkZXIYAyABKAlSCHByb3ZpZGVyEhYKBnN0YXR1cxgEIAEoCVIGc3RhdHVzEhkK'
+    'BXNjb3JlGAUgASgFSABSBXNjb3JliAEBEhoKCHByb2dyZXNzGAYgASgFUghwcm9ncmVzcxIiCg'
+    'pzdGFydF9kYXRlGAcgASgDSAFSCXN0YXJ0RGF0ZYgBARIkCgtmaW5pc2hfZGF0ZRgIIAEoA0gC'
+    'UgpmaW5pc2hEYXRliAEBEioKDnRvdGFsX3Byb2dyZXNzGAkgASgFSANSDXRvdGFsUHJvZ3Jlc3'
+    'OIAQFCCAoGX3Njb3JlQg0KC19zdGFydF9kYXRlQg4KDF9maW5pc2hfZGF0ZUIRCg9fdG90YWxf'
+    'cHJvZ3Jlc3M=');
 
 @$core.Deprecated('Use favoriteDescriptor instead')
 const Favorite$json = {

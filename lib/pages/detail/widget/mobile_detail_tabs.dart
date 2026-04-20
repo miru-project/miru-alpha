@@ -11,6 +11,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:miru_alpha/utils/http/request.dart';
+import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'package:miru_alpha/utils/tracking/tmdb.dart';
 import 'package:miru_alpha/provider/tracking/anilist_track_page_provider.dart';
 
@@ -36,10 +37,15 @@ class MobileDetailTabs extends HookConsumerWidget {
     ];
 
     final detailState = ref.watch(detailPr);
-    final anilistIdStr = detailState.detailInfo?.trackIds['ANILIST'];
-    final anilistId = anilistIdStr != null ? int.tryParse(anilistIdStr) : null;
-    final anilistTrackState = anilistId != null
-        ? ref.watch(anilistTrackPageProvider(anilistId))
+    final trackers = detailState.detailInfo?.trackers ?? [];
+    final anilistTracker = trackers
+        .where((t) => t.provider.toLowerCase() == 'anilist')
+        .firstOrNull;
+
+    final anilistTrackState = anilistTracker != null
+        ? ref.watch(
+            anilistTrackPageProvider(int.parse(anilistTracker.trackerId)),
+          )
         : null;
 
     final List<Widget> tabContent = [
@@ -61,7 +67,7 @@ class MobileDetailTabs extends HookConsumerWidget {
         ],
       ),
       // Tracking
-      FTileGroup(
+      Column(
         children: [
           FTile(
             onPress: () {
@@ -72,6 +78,7 @@ class MobileDetailTabs extends HookConsumerWidget {
                   type: meta.type,
                   detailUrl: detailUrl,
                   package: meta.packageName,
+                  detailPr: detailPr,
                 ),
               );
             },
@@ -82,14 +89,56 @@ class MobileDetailTabs extends HookConsumerWidget {
               colorFilter: .mode(context.theme.colors.foreground, .srcIn),
             ),
             title: Text('anilist'.i18n),
-            suffix: anilistTrackState != null && anilistTrackState.entry != null
-                ? Text(
-                    '${anilistTrackState.progress} / ${anilistTrackState.score}',
-                    style: context.theme.typography.sm.copyWith(
-                      color: context.theme.colors.mutedForeground,
+            suffix: () {
+              if (anilistTracker != null) {
+                final progress =
+                    anilistTrackState?.progress ?? anilistTracker.progress;
+                final total =
+                    anilistTrackState?.totalProgress ??
+                    (anilistTracker.hasTotalProgress()
+                        ? anilistTracker.totalProgress
+                        : 0);
+                return Row(
+                  // crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: .min,
+                  children: [
+                    Text(
+                      AniListProvider.mediaListStatusToTranslate(
+                        AniListProvider.stringToMediaListStatus(
+                          anilistTracker.status,
+                        ),
+                        meta.type == ExtensionType.bangumi
+                            ? AnilistType.anime
+                            : AnilistType.manga,
+                      ),
+                      style: context.theme.typography.sm.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: context.theme.colors.mutedForeground,
+                      ),
                     ),
-                  )
-                : null,
+                    Text(
+                      ' • ',
+                      style: context.theme.typography.sm.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: context.theme.colors.mutedForeground,
+                      ),
+                    ),
+                    Text(
+                      '$progress / ${total != 0 ? total : '?'}',
+                      style: context.theme.typography.xs.copyWith(
+                        color: context.theme.colors.mutedForeground,
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Text(
+                'none'.i18n,
+                style: context.theme.typography.sm.copyWith(
+                  color: context.theme.colors.mutedForeground,
+                ),
+              );
+            }(),
           ),
         ],
       ),

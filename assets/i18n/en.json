@@ -76,7 +76,9 @@
   "about": "About",
   "tracking": {
     "name": "Tracking",
-    "logout": "Logout"
+    "logout": "Logout",
+    "unlink": "Unlink",
+    "delete_entry": "Delete Entry"
   },
   "cast": "Cast",
   "no_cast_found": "No Cast Found",
@@ -161,7 +163,12 @@
     "aired": "Aired",
     "save_progress": "Save Progress",
     "score": "Score",
-    "progress": "Progress"
+    "progress": "Progress",
+    "link": "Link AniList",
+    "tracker_unlinked": "Tracker unlinked",
+    "tracker_unlink_failed": "Failed to unlink tracker",
+    "delete_warning": "By doing this action it will delete entry on {provider}",
+    "current_status": "Current Status"
   },
   "just_now": "Just now",
   "minutes_ago": "{minutes} minutes ago",
@@ -191,6 +198,8 @@
   "confirm": "Confirm",
   "add": "Add",
   "error": "Error",
+  "warning": "Warning",
+  "delete": "Delete",
   "from": "from",
   "status": "Status",
   "package": "Package",
@@ -356,5 +365,6 @@
   "source_code": "Source Code",
   "source_code_description": "View extension source code",
   "cookie_clear": "Clear Cookie",
-  "cookie_clear_description": "Clear extension cookies"
+  "cookie_clear_description": "Clear extension cookies",
+  "no_results": "No results found"
 }

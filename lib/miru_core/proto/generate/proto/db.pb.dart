@@ -2638,6 +2638,408 @@ class PutTrackResponse extends $pb.GeneratedMessage {
   $1.Track ensureTrack() => $_ensure(0);
 }
 
+/// Tracker (New)
+class UpsertTrackerRequest extends $pb.GeneratedMessage {
+  factory UpsertTrackerRequest({
+    $core.String? package,
+    $core.String? detailUrl,
+    $1.Tracker? tracker,
+  }) {
+    final result = create();
+    if (package != null) result.package = package;
+    if (detailUrl != null) result.detailUrl = detailUrl;
+    if (tracker != null) result.tracker = tracker;
+    return result;
+  }
+
+  UpsertTrackerRequest._();
+
+  factory UpsertTrackerRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory UpsertTrackerRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'UpsertTrackerRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'package')
+    ..aOS(2, _omitFieldNames ? '' : 'detailUrl')
+    ..aOM<$1.Tracker>(3, _omitFieldNames ? '' : 'tracker',
+        subBuilder: $1.Tracker.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpsertTrackerRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpsertTrackerRequest copyWith(void Function(UpsertTrackerRequest) updates) =>
+      super.copyWith((message) => updates(message as UpsertTrackerRequest))
+          as UpsertTrackerRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UpsertTrackerRequest create() => UpsertTrackerRequest._();
+  @$core.override
+  UpsertTrackerRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static UpsertTrackerRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<UpsertTrackerRequest>(create);
+  static UpsertTrackerRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get package => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set package($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasPackage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPackage() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get detailUrl => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set detailUrl($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasDetailUrl() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDetailUrl() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $1.Tracker get tracker => $_getN(2);
+  @$pb.TagNumber(3)
+  set tracker($1.Tracker value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasTracker() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTracker() => $_clearField(3);
+  @$pb.TagNumber(3)
+  $1.Tracker ensureTracker() => $_ensure(2);
+}
+
+class UpsertTrackerResponse extends $pb.GeneratedMessage {
+  factory UpsertTrackerResponse({
+    $1.Tracker? tracker,
+  }) {
+    final result = create();
+    if (tracker != null) result.tracker = tracker;
+    return result;
+  }
+
+  UpsertTrackerResponse._();
+
+  factory UpsertTrackerResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory UpsertTrackerResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'UpsertTrackerResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOM<$1.Tracker>(1, _omitFieldNames ? '' : 'tracker',
+        subBuilder: $1.Tracker.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpsertTrackerResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UpsertTrackerResponse copyWith(
+          void Function(UpsertTrackerResponse) updates) =>
+      super.copyWith((message) => updates(message as UpsertTrackerResponse))
+          as UpsertTrackerResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UpsertTrackerResponse create() => UpsertTrackerResponse._();
+  @$core.override
+  UpsertTrackerResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static UpsertTrackerResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<UpsertTrackerResponse>(create);
+  static UpsertTrackerResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $1.Tracker get tracker => $_getN(0);
+  @$pb.TagNumber(1)
+  set tracker($1.Tracker value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTracker() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTracker() => $_clearField(1);
+  @$pb.TagNumber(1)
+  $1.Tracker ensureTracker() => $_ensure(0);
+}
+
+class DeleteTrackerRequest extends $pb.GeneratedMessage {
+  factory DeleteTrackerRequest({
+    $core.String? package,
+    $core.String? detailUrl,
+    $core.String? provider,
+  }) {
+    final result = create();
+    if (package != null) result.package = package;
+    if (detailUrl != null) result.detailUrl = detailUrl;
+    if (provider != null) result.provider = provider;
+    return result;
+  }
+
+  DeleteTrackerRequest._();
+
+  factory DeleteTrackerRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory DeleteTrackerRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DeleteTrackerRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'package')
+    ..aOS(2, _omitFieldNames ? '' : 'detailUrl')
+    ..aOS(3, _omitFieldNames ? '' : 'provider')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteTrackerRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteTrackerRequest copyWith(void Function(DeleteTrackerRequest) updates) =>
+      super.copyWith((message) => updates(message as DeleteTrackerRequest))
+          as DeleteTrackerRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DeleteTrackerRequest create() => DeleteTrackerRequest._();
+  @$core.override
+  DeleteTrackerRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static DeleteTrackerRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DeleteTrackerRequest>(create);
+  static DeleteTrackerRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get package => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set package($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasPackage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPackage() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get detailUrl => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set detailUrl($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasDetailUrl() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDetailUrl() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get provider => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set provider($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasProvider() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearProvider() => $_clearField(3);
+}
+
+class DeleteTrackerResponse extends $pb.GeneratedMessage {
+  factory DeleteTrackerResponse({
+    $core.String? message,
+  }) {
+    final result = create();
+    if (message != null) result.message = message;
+    return result;
+  }
+
+  DeleteTrackerResponse._();
+
+  factory DeleteTrackerResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory DeleteTrackerResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DeleteTrackerResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'message')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteTrackerResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteTrackerResponse copyWith(
+          void Function(DeleteTrackerResponse) updates) =>
+      super.copyWith((message) => updates(message as DeleteTrackerResponse))
+          as DeleteTrackerResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DeleteTrackerResponse create() => DeleteTrackerResponse._();
+  @$core.override
+  DeleteTrackerResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static DeleteTrackerResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DeleteTrackerResponse>(create);
+  static DeleteTrackerResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get message => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set message($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasMessage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMessage() => $_clearField(1);
+}
+
+class DeleteTrackerByTrackerIdRequest extends $pb.GeneratedMessage {
+  factory DeleteTrackerByTrackerIdRequest({
+    $core.String? trackerId,
+    $core.String? provider,
+  }) {
+    final result = create();
+    if (trackerId != null) result.trackerId = trackerId;
+    if (provider != null) result.provider = provider;
+    return result;
+  }
+
+  DeleteTrackerByTrackerIdRequest._();
+
+  factory DeleteTrackerByTrackerIdRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory DeleteTrackerByTrackerIdRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DeleteTrackerByTrackerIdRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'trackerId')
+    ..aOS(2, _omitFieldNames ? '' : 'provider')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteTrackerByTrackerIdRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteTrackerByTrackerIdRequest copyWith(
+          void Function(DeleteTrackerByTrackerIdRequest) updates) =>
+      super.copyWith(
+              (message) => updates(message as DeleteTrackerByTrackerIdRequest))
+          as DeleteTrackerByTrackerIdRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DeleteTrackerByTrackerIdRequest create() =>
+      DeleteTrackerByTrackerIdRequest._();
+  @$core.override
+  DeleteTrackerByTrackerIdRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static DeleteTrackerByTrackerIdRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DeleteTrackerByTrackerIdRequest>(
+          create);
+  static DeleteTrackerByTrackerIdRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get trackerId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set trackerId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTrackerId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTrackerId() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get provider => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set provider($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasProvider() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearProvider() => $_clearField(2);
+}
+
+class DeleteTrackerByTrackerIdResponse extends $pb.GeneratedMessage {
+  factory DeleteTrackerByTrackerIdResponse({
+    $core.String? message,
+  }) {
+    final result = create();
+    if (message != null) result.message = message;
+    return result;
+  }
+
+  DeleteTrackerByTrackerIdResponse._();
+
+  factory DeleteTrackerByTrackerIdResponse.fromBuffer(
+          $core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory DeleteTrackerByTrackerIdResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DeleteTrackerByTrackerIdResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'message')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteTrackerByTrackerIdResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DeleteTrackerByTrackerIdResponse copyWith(
+          void Function(DeleteTrackerByTrackerIdResponse) updates) =>
+      super.copyWith(
+              (message) => updates(message as DeleteTrackerByTrackerIdResponse))
+          as DeleteTrackerByTrackerIdResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DeleteTrackerByTrackerIdResponse create() =>
+      DeleteTrackerByTrackerIdResponse._();
+  @$core.override
+  DeleteTrackerByTrackerIdResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static DeleteTrackerByTrackerIdResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DeleteTrackerByTrackerIdResponse>(
+          create);
+  static DeleteTrackerByTrackerIdResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get message => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set message($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasMessage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMessage() => $_clearField(1);
+}
+
 const $core.bool _omitFieldNames =
     $core.bool.fromEnvironment('protobuf.omit_field_names');
 const $core.bool _omitMessageNames =

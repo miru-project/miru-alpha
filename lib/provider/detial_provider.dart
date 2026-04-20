@@ -151,6 +151,7 @@ class Detial extends _$Detial {
         .read(downloadProvider.notifier)
         .getDownloadsByPackageAndDetailUrl(pkg, url);
 
+    if (!ref.mounted) return;
     state = state.copyWith(downloadList: downloads);
   }
 
@@ -166,6 +167,7 @@ class Detial extends _$Detial {
           ..detailUrl = url,
       );
       if (resp.hasDetail()) {
+        if (!ref.mounted) return;
         state = state.copyWith(detailInfo: resp.detail);
       }
     } catch (e) {
@@ -181,6 +183,7 @@ class Detial extends _$Detial {
       final detail = await ref
           .read(tMDBProvider.notifier)
           .getDetail(int.parse(tmdbIdStr), mediaType);
+      if (!ref.mounted) return;
       state = state.copyWith(tmdbDetail: detail);
       return;
     }
@@ -190,6 +193,7 @@ class Detial extends _$Detial {
         .read(tMDBProvider.notifier)
         .searchAndGetDetail(title, mediaType);
 
+    if (!ref.mounted) return;
     if (searchResult != null) {
       final tmdbId = searchResult.id;
       // 3. Update our DB with this mapping
@@ -219,6 +223,7 @@ class Detial extends _$Detial {
       final fullDetail = await ref
           .read(tMDBProvider.notifier)
           .getDetail(tmdbId, mediaType);
+      if (!ref.mounted) return;
       state = state.copyWith(tmdbDetail: fullDetail);
     }
   }

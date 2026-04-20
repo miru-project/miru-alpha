@@ -1,7 +1,10 @@
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
 import 'package:miru_alpha/provider/home/history_page_provider.dart';
+import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'epidsode_provider.g.dart';
 
@@ -90,11 +93,46 @@ class EpisodeNotifier extends _$EpisodeNotifier {
       detailUrl: detailUrl,
       date: DateTime.now(),
     );
-    Future.microtask(() {
+    Future.microtask(() async {
       ref.read(historyPageProvider.notifier).addHistory(history);
       if (detailPr == null) return;
       // Put the history to detail for update the history list
       ref.read(detailPr!.notifier).putHistory(history);
+
+      // Auto-tracking logic: 90% completion
+      if (totalProgress > 0 && (progress / totalProgress) >= 0.9) {
+        final dState = ref.read(detailPr!);
+        if (dState.detailInfo != null &&
+            dState.detailInfo!.trackers.isNotEmpty) {
+          final newProgress = s.selectedEpisodeIndex + 1;
+          for (final t in dState.detailInfo!.trackers) {
+            if (newProgress > t.progress) {
+              if (t.provider.toLowerCase() == 'anilist') {
+                try {
+                  final mediaId = int.tryParse(t.trackerId);
+                  if (mediaId != null) {
+                    await AniListProvider.editList(
+                      mediaId: mediaId,
+                      progress: newProgress,
+                      status: AniListProvider.stringToMediaListStatus(t.status),
+                    );
+                    // Update local tracker
+                    t.progress = newProgress;
+                    await MiruGrpcClient.dbClient.upsertTracker(
+                      proto.UpsertTrackerRequest()
+                        ..package = package
+                        ..detailUrl = detailUrl
+                        ..tracker = t,
+                    );
+                  }
+                } catch (e) {
+                  // Ignore tracking errors
+                }
+              }
+            }
+          }
+        }
+      }
     });
   }
 

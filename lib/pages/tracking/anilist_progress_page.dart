@@ -35,25 +35,83 @@ class AnilistProgressPage extends HookConsumerWidget {
               : 'anilist.progress_save_failed'.i18n,
         );
         if (success) {
+          if (param.detailPr != null) {
+            ref
+                .read(param.detailPr!.notifier)
+                .fetchDetailInfo(param.package, param.detailUrl);
+          }
           context.pop();
         }
       }
     }
 
-    Future<void> deleteEntry() async {
-      final success = await notifier.deleteEntry();
+    Future<void> unlinkTracker() async {
+      final success = await notifier.unlinkTracker(
+        detailUrl: param.detailUrl,
+        package: param.package,
+      );
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              success
-                  ? 'anilist.entry_deleted'.i18n
-                  : 'anilist.entry_delete_failed'.i18n,
-            ),
-          ),
+        showSimpleToast(
+          success
+              ? 'anilist.tracker_unlinked'.i18n
+              : 'anilist.tracker_unlink_failed'.i18n,
         );
-        if (success) context.pop();
+        if (success) {
+          if (param.detailPr != null) {
+            ref
+                .read(param.detailPr!.notifier)
+                .fetchDetailInfo(param.package, param.detailUrl);
+          }
+          context.pop();
+        }
       }
+    }
+
+    Future<void> showDeleteConfirmation() async {
+      showFDialog(
+        context: context,
+        builder: (context, style, animation) => FDialog(
+          style: style,
+          animation: animation,
+          title: Text('warning'.i18n),
+          body: Text(
+            'anilist.delete_warning'.i18n.replaceAll('{provider}', 'AniList'),
+          ),
+          actions: [
+            FButton(
+              variant: .destructive,
+              onPress: () async {
+                Navigator.of(context).pop();
+                final success = await notifier.deleteEntry(
+                  detailUrl: param.detailUrl,
+                  package: param.package,
+                );
+                if (context.mounted) {
+                  showSimpleToast(
+                    success
+                        ? 'anilist.entry_deleted'.i18n
+                        : 'anilist.entry_delete_failed'.i18n,
+                  );
+                  if (success) {
+                    if (param.detailPr != null) {
+                      ref
+                          .read(param.detailPr!.notifier)
+                          .fetchDetailInfo(param.package, param.detailUrl);
+                    }
+                    context.pop();
+                  }
+                }
+              },
+              child: Text('delete'.i18n),
+            ),
+            FButton(
+              variant: .ghost,
+              onPress: () => Navigator.of(context).pop(),
+              child: Text('cancel'.i18n),
+            ),
+          ],
+        ),
+      );
     }
 
     void showSheet(String title, Widget child) {
@@ -269,11 +327,21 @@ class AnilistProgressPage extends HookConsumerWidget {
                                 : Text('anilist.save_progress'.i18n),
                           ),
                         ),
+                        if (param.isLinked) ...[
+                          const SizedBox(width: 12),
+                          FButton.icon(
+                            variant: .outline,
+                            onPress: state.isSaving ? null : unlinkTracker,
+                            child: const Icon(FIcons.unlink),
+                          ),
+                        ],
                         if (state.entry != null) ...[
                           const SizedBox(width: 12),
                           FButton.icon(
                             variant: .destructive,
-                            onPress: state.isSaving ? null : deleteEntry,
+                            onPress: state.isSaving
+                                ? null
+                                : showDeleteConfirmation,
                             child: const Icon(FIcons.trash2),
                           ),
                         ],

@@ -36,7 +36,7 @@ class DownloadButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isIcon) {
       return FButton.icon(
-        variant: varient ?? FButtonVariant.secondary,
+        variant: varient ?? .secondary,
         onPress: () => onTap(context),
         child: Icon(FIcons.download),
       );

@@ -10,6 +10,7 @@ import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/widgets/amination/animated_box.dart';
 import 'package:miru_alpha/widgets/core/outter_card.dart';
 
 class DesktopDetailEpisodeCard extends HookConsumerWidget {
@@ -33,128 +34,130 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
       detailPr.select((value) => value.historyList),
     );
 
-    return OutterCard(
-      title: 'episodes'.i18n,
-      trailing: Row(
-        children: [
-          FButton(
-            suffix: Icon(FIcons.rotateCcw),
-            variant: .outline,
-            onPress: () {
-              ref.invalidate(fetchDetailProvider);
-              ref.read(
-                fetchDetailProvider(meta.packageName, detailUrl, force: true),
-              );
-            },
-            child: Text('refresh'.i18n),
-          ),
-          SizedBox(width: 10),
-          SizedBox(
-            width: 180,
-            child: FSelect<int>(
-              control: .lifted(
-                value: selected.value,
-                onChange: (value) {
-                  if (value == null) {
-                    return;
-                  }
-                  selected.value = value;
-                },
-              ),
-              items: {for (int i = 0; i < ep.length; i++) ep[i].title: i},
-            ),
-          ),
-        ],
-      ),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          for (final item in ep[selected.value].urls)
-            Builder(
-              builder: (context) {
-                final h = historyList.firstWhereOrNull(
-                  (element) => element.url == item.url,
-                );
-                final isWatched =
-                    h != null && (h.progress / h.totalProgress) >= 0.95;
-                return Container(
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: context.theme.colors.border,
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: FButton.raw(
-                    variant: .outline,
-                    onPress: () {
-                      final donwloadList = ref.watch(
-                        detailPr.select((value) => value.downloadList),
-                      );
-                      final savePath = donwloadList
-                          .firstWhereOrNull(
-                            (element) =>
-                                element.key ==
-                                "${detail.title}-${ep[selected.value].title}-${item.name}",
-                          )
-                          ?.savePath;
-                      context.push(
-                        '/watch',
-                        extra: WatchParams(
-                          detailPr: detailPr,
-                          name: detail.title,
-                          detailImageUrl: detail.cover ?? '',
-                          selectedEpisodeIndex: detail
-                              .episodes![selected.value]
-                              .urls
-                              .indexOf(item),
-                          selectedGroupIndex: selected.value,
-                          epGroup: detail.episodes,
-                          detailUrl: detailUrl,
-                          url: item.url,
-                          savePath: savePath,
-                          meta: meta,
-                          type: meta.type,
-                        ),
-                      );
-                    },
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                          child: Text(
-                            item.name,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: isWatched
-                                  ? context.theme.colors.mutedForeground
-                                  : null,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: SizedBox(
-                            height: 3,
-                            child: FDeterminateProgress(
-                              value:
-                                  (h?.progress ?? 0).toDouble() /
-                                  (h?.totalProgress ?? 1).toDouble(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+    return AnimatedBox(
+      child: OutterCard(
+        title: 'episodes'.i18n,
+        trailing: Row(
+          children: [
+            FButton(
+              suffix: Icon(FIcons.rotateCcw),
+              variant: .outline,
+              onPress: () {
+                ref.invalidate(fetchDetailProvider);
+                ref.read(
+                  fetchDetailProvider(meta.packageName, detailUrl, force: true),
                 );
               },
+              child: Text('refresh'.i18n),
             ),
-        ],
+            SizedBox(width: 10),
+            SizedBox(
+              width: 180,
+              child: FSelect<int>(
+                control: .lifted(
+                  value: selected.value,
+                  onChange: (value) {
+                    if (value == null) {
+                      return;
+                    }
+                    selected.value = value;
+                  },
+                ),
+                items: {for (int i = 0; i < ep.length; i++) ep[i].title: i},
+              ),
+            ),
+          ],
+        ),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final item in ep[selected.value].urls)
+              Builder(
+                builder: (context) {
+                  final h = historyList.firstWhereOrNull(
+                    (element) => element.url == item.url,
+                  );
+                  final isWatched =
+                      h != null && (h.progress / h.totalProgress) >= 0.95;
+                  return Container(
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: context.theme.colors.border,
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: FButton.raw(
+                      variant: .outline,
+                      onPress: () {
+                        final donwloadList = ref.watch(
+                          detailPr.select((value) => value.downloadList),
+                        );
+                        final savePath = donwloadList
+                            .firstWhereOrNull(
+                              (element) =>
+                                  element.key ==
+                                  "${detail.title}-${ep[selected.value].title}-${item.name}",
+                            )
+                            ?.savePath;
+                        context.push(
+                          '/watch',
+                          extra: WatchParams(
+                            detailPr: detailPr,
+                            name: detail.title,
+                            detailImageUrl: detail.cover ?? '',
+                            selectedEpisodeIndex: detail
+                                .episodes![selected.value]
+                                .urls
+                                .indexOf(item),
+                            selectedGroupIndex: selected.value,
+                            epGroup: detail.episodes,
+                            detailUrl: detailUrl,
+                            url: item.url,
+                            savePath: savePath,
+                            meta: meta,
+                            type: meta.type,
+                          ),
+                        );
+                      },
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                            child: Text(
+                              item.name,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: isWatched
+                                    ? context.theme.colors.mutedForeground
+                                    : null,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: SizedBox(
+                              height: 3,
+                              child: FDeterminateProgress(
+                                value:
+                                    (h?.progress ?? 0).toDouble() /
+                                    (h?.totalProgress ?? 1).toDouble(),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+          ],
+        ),
       ),
     );
   }

@@ -173,14 +173,7 @@ class FavoriteDialog extends HookConsumerWidget {
           ],
         ),
       ),
-      actions: [
-        FButton(
-          variant: .ghost,
-          onPress: () => Navigator.of(context).pop(),
-          child: Text("cancel".i18n),
-        ),
-        FButton(onPress: handleSave, child: Text("save".i18n)),
-      ],
+      actions: [FButton(onPress: handleSave, child: Text("save".i18n))],
     );
   }
 }

@@ -77,7 +77,10 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                     children: [
                       const Icon(FIcons.plus),
                       const SizedBox(width: 4),
-                      Text("new_tag".i18n),
+                      Text(
+                        "new_tag".i18n,
+                        style: TextStyle(fontWeight: .normal),
+                      ),
                     ],
                   ),
                 ),
@@ -114,38 +117,28 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                     FTabEntry(
                       label: Text(
                         'all'.i18n,
-                        textHeightBehavior: TextHeightBehavior(
-                          applyHeightToFirstAscent: false,
-                          applyHeightToLastDescent: false,
-                        ),
+                        style: TextStyle(fontWeight: .normal),
                       ),
                       child: SizedBox.shrink(),
                     ),
                     FTabEntry(
                       label: Text(
                         'video'.i18n,
-                        textHeightBehavior: TextHeightBehavior(
-                          applyHeightToFirstAscent: false,
-                          applyHeightToLastDescent: false,
-                        ),
+                        style: TextStyle(fontWeight: .normal),
                       ),
                       child: SizedBox.shrink(),
                     ),
                     FTabEntry(
-                      label: Text('manga'.i18n),
+                      label: Text(
+                        'manga'.i18n,
+                        style: TextStyle(fontWeight: .normal),
+                      ),
                       child: SizedBox.shrink(),
                     ),
                     FTabEntry(
                       label: Text(
                         'novel'.i18n,
-                        style: TextStyle(
-                          textBaseline: .ideographic,
-                          fontWeight: .w400,
-                        ),
-                        // textHeightBehavior: TextHeightBehavior(
-                        //   applyHeightToFirstAscent: false,
-                        //   applyHeightToLastDescent: false,
-                        // ),
+                        style: TextStyle(fontWeight: .normal),
                       ),
                       child: SizedBox.shrink(),
                     ),
@@ -215,7 +208,10 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                     onPress: () {},
                     variant: .outline,
                     prefix: Icon(FIcons.listFilter),
-                    child: Text('more_filter'.i18n),
+                    child: Text(
+                      'more_filter'.i18n,
+                      style: TextStyle(fontWeight: .normal),
+                    ),
                   ),
                 ],
               ),

@@ -47,6 +47,30 @@ class DbServiceClient extends $grpc.Client {
     return $createUnaryCall(_$upsertDetail, request, options: options);
   }
 
+  /// Tracker
+  $grpc.ResponseFuture<$0.UpsertTrackerResponse> upsertTracker(
+    $0.UpsertTrackerRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$upsertTracker, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.DeleteTrackerResponse> deleteTracker(
+    $0.DeleteTrackerRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$deleteTracker, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.DeleteTrackerByTrackerIdResponse>
+      deleteTrackerByTrackerId(
+    $0.DeleteTrackerByTrackerIdRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$deleteTrackerByTrackerId, request,
+        options: options);
+  }
+
   /// Favorite
   $grpc.ResponseFuture<$0.GetAllFavoriteResponse> getAllFavorite(
     $0.GetAllFavoriteRequest request, {
@@ -204,6 +228,22 @@ class DbServiceClient extends $grpc.Client {
           '/miru.DbService/UpsertDetail',
           ($0.UpsertDetailRequest value) => value.writeToBuffer(),
           $0.UpsertDetailResponse.fromBuffer);
+  static final _$upsertTracker =
+      $grpc.ClientMethod<$0.UpsertTrackerRequest, $0.UpsertTrackerResponse>(
+          '/miru.DbService/UpsertTracker',
+          ($0.UpsertTrackerRequest value) => value.writeToBuffer(),
+          $0.UpsertTrackerResponse.fromBuffer);
+  static final _$deleteTracker =
+      $grpc.ClientMethod<$0.DeleteTrackerRequest, $0.DeleteTrackerResponse>(
+          '/miru.DbService/DeleteTracker',
+          ($0.DeleteTrackerRequest value) => value.writeToBuffer(),
+          $0.DeleteTrackerResponse.fromBuffer);
+  static final _$deleteTrackerByTrackerId = $grpc.ClientMethod<
+          $0.DeleteTrackerByTrackerIdRequest,
+          $0.DeleteTrackerByTrackerIdResponse>(
+      '/miru.DbService/DeleteTrackerByTrackerId',
+      ($0.DeleteTrackerByTrackerIdRequest value) => value.writeToBuffer(),
+      $0.DeleteTrackerByTrackerIdResponse.fromBuffer);
   static final _$getAllFavorite =
       $grpc.ClientMethod<$0.GetAllFavoriteRequest, $0.GetAllFavoriteResponse>(
           '/miru.DbService/GetAllFavorite',
@@ -327,6 +367,33 @@ abstract class DbServiceBase extends $grpc.Service {
             ($core.List<$core.int> value) =>
                 $0.UpsertDetailRequest.fromBuffer(value),
             ($0.UpsertDetailResponse value) => value.writeToBuffer()));
+    $addMethod(
+        $grpc.ServiceMethod<$0.UpsertTrackerRequest, $0.UpsertTrackerResponse>(
+            'UpsertTracker',
+            upsertTracker_Pre,
+            false,
+            false,
+            ($core.List<$core.int> value) =>
+                $0.UpsertTrackerRequest.fromBuffer(value),
+            ($0.UpsertTrackerResponse value) => value.writeToBuffer()));
+    $addMethod(
+        $grpc.ServiceMethod<$0.DeleteTrackerRequest, $0.DeleteTrackerResponse>(
+            'DeleteTracker',
+            deleteTracker_Pre,
+            false,
+            false,
+            ($core.List<$core.int> value) =>
+                $0.DeleteTrackerRequest.fromBuffer(value),
+            ($0.DeleteTrackerResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.DeleteTrackerByTrackerIdRequest,
+            $0.DeleteTrackerByTrackerIdResponse>(
+        'DeleteTrackerByTrackerId',
+        deleteTrackerByTrackerId_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.DeleteTrackerByTrackerIdRequest.fromBuffer(value),
+        ($0.DeleteTrackerByTrackerIdResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.GetAllFavoriteRequest,
             $0.GetAllFavoriteResponse>(
         'GetAllFavorite',
@@ -514,6 +581,33 @@ abstract class DbServiceBase extends $grpc.Service {
 
   $async.Future<$0.UpsertDetailResponse> upsertDetail(
       $grpc.ServiceCall call, $0.UpsertDetailRequest request);
+
+  $async.Future<$0.UpsertTrackerResponse> upsertTracker_Pre(
+      $grpc.ServiceCall $call,
+      $async.Future<$0.UpsertTrackerRequest> $request) async {
+    return upsertTracker($call, await $request);
+  }
+
+  $async.Future<$0.UpsertTrackerResponse> upsertTracker(
+      $grpc.ServiceCall call, $0.UpsertTrackerRequest request);
+
+  $async.Future<$0.DeleteTrackerResponse> deleteTracker_Pre(
+      $grpc.ServiceCall $call,
+      $async.Future<$0.DeleteTrackerRequest> $request) async {
+    return deleteTracker($call, await $request);
+  }
+
+  $async.Future<$0.DeleteTrackerResponse> deleteTracker(
+      $grpc.ServiceCall call, $0.DeleteTrackerRequest request);
+
+  $async.Future<$0.DeleteTrackerByTrackerIdResponse>
+      deleteTrackerByTrackerId_Pre($grpc.ServiceCall $call,
+          $async.Future<$0.DeleteTrackerByTrackerIdRequest> $request) async {
+    return deleteTrackerByTrackerId($call, await $request);
+  }
+
+  $async.Future<$0.DeleteTrackerByTrackerIdResponse> deleteTrackerByTrackerId(
+      $grpc.ServiceCall call, $0.DeleteTrackerByTrackerIdRequest request);
 
   $async.Future<$0.GetAllFavoriteResponse> getAllFavorite_Pre(
       $grpc.ServiceCall $call,

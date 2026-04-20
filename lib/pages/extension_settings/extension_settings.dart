@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/model/extension_setting.dart';
+import 'package:miru_alpha/pages/setting/widget/setting_press_tile.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
@@ -66,9 +67,10 @@ class ExtensionSettingPage extends HookConsumerWidget {
             isMobileLayout: isMobile,
             title: 'advanced',
             children: [
-              FTile(
-                subtitle: Text('source_code_description'.i18n),
-                title: Text('source_code'.i18n),
+              SettingPressTile(
+                isMobileLayout: isMobile,
+                title: 'source_code'.i18n,
+                subtitle: 'source_code_description'.i18n,
                 prefix: Icon(FIcons.code),
                 onPress: () {
                   final extPath = Core.getExtensionPath;
@@ -76,9 +78,10 @@ class ExtensionSettingPage extends HookConsumerWidget {
                   context.push('/sourceCode', extra: codePath);
                 },
               ),
-              FTile(
-                subtitle: Text('cookie_clear_description'.i18n),
-                title: Text('cookie_clear'.i18n),
+              SettingPressTile(
+                isMobileLayout: isMobile,
+                subtitle: 'cookie_clear_description'.i18n,
+                title: 'cookie_clear'.i18n,
                 prefix: Icon(FIcons.cookie),
                 onPress: () {},
               ),

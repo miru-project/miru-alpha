@@ -9,11 +9,15 @@ class SettingBaseTile extends StatelessWidget with FTileMixin {
     required this.title,
     required this.child,
     this.isMobileLayout = false,
+    this.prefix,
+    this.onTap,
   });
   final String title;
   final String? subtitle;
   final Widget child;
   final bool isMobileLayout;
+  final Widget? prefix;
+  final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
     var name = '$title.name'.i18n;
@@ -28,6 +32,8 @@ class SettingBaseTile extends StatelessWidget with FTileMixin {
 
     if (isMobileLayout) {
       return FTile(
+        onPress: onTap,
+        prefix: prefix,
         title: Text(titleText),
         subtitle: subtitleText == null ? null : Text(subtitleText),
         details: child,
@@ -37,6 +43,7 @@ class SettingBaseTile extends StatelessWidget with FTileMixin {
       padding: EdgeInsets.symmetric(vertical: 5),
       child: Row(
         children: [
+          if (prefix != null) ...[prefix!, const SizedBox(width: 12)],
           Expanded(
             child: FLabel(
               layout: .vertical,

@@ -12,6 +12,7 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
@@ -29,6 +30,7 @@ class Detail extends $pb.GeneratedMessage {
     $core.String? episodes,
     $core.String? headers,
     $core.Iterable<$core.MapEntry<$core.String, $core.String>>? trackIds,
+    $core.Iterable<Tracker>? trackers,
   }) {
     final result = create();
     if (id != null) result.id = id;
@@ -41,6 +43,7 @@ class Detail extends $pb.GeneratedMessage {
     if (episodes != null) result.episodes = episodes;
     if (headers != null) result.headers = headers;
     if (trackIds != null) result.trackIds.addEntries(trackIds);
+    if (trackers != null) result.trackers.addAll(trackers);
     return result;
   }
 
@@ -71,6 +74,8 @@ class Detail extends $pb.GeneratedMessage {
         keyFieldType: $pb.PbFieldType.OS,
         valueFieldType: $pb.PbFieldType.OS,
         packageName: const $pb.PackageName('miru'))
+    ..pPM<Tracker>(11, _omitFieldNames ? '' : 'trackers',
+        subBuilder: Tracker.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -169,6 +174,159 @@ class Detail extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(10)
   $pb.PbMap<$core.String, $core.String> get trackIds => $_getMap(9);
+
+  @$pb.TagNumber(11)
+  $pb.PbList<Tracker> get trackers => $_getList(10);
+}
+
+/// DB - Tracker
+class Tracker extends $pb.GeneratedMessage {
+  factory Tracker({
+    $core.int? id,
+    $core.String? trackerId,
+    $core.String? provider,
+    $core.String? status,
+    $core.int? score,
+    $core.int? progress,
+    $fixnum.Int64? startDate,
+    $fixnum.Int64? finishDate,
+    $core.int? totalProgress,
+  }) {
+    final result = create();
+    if (id != null) result.id = id;
+    if (trackerId != null) result.trackerId = trackerId;
+    if (provider != null) result.provider = provider;
+    if (status != null) result.status = status;
+    if (score != null) result.score = score;
+    if (progress != null) result.progress = progress;
+    if (startDate != null) result.startDate = startDate;
+    if (finishDate != null) result.finishDate = finishDate;
+    if (totalProgress != null) result.totalProgress = totalProgress;
+    return result;
+  }
+
+  Tracker._();
+
+  factory Tracker.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory Tracker.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Tracker',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aI(1, _omitFieldNames ? '' : 'id')
+    ..aOS(2, _omitFieldNames ? '' : 'trackerId')
+    ..aOS(3, _omitFieldNames ? '' : 'provider')
+    ..aOS(4, _omitFieldNames ? '' : 'status')
+    ..aI(5, _omitFieldNames ? '' : 'score')
+    ..aI(6, _omitFieldNames ? '' : 'progress')
+    ..aInt64(7, _omitFieldNames ? '' : 'startDate')
+    ..aInt64(8, _omitFieldNames ? '' : 'finishDate')
+    ..aI(9, _omitFieldNames ? '' : 'totalProgress')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Tracker clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Tracker copyWith(void Function(Tracker) updates) =>
+      super.copyWith((message) => updates(message as Tracker)) as Tracker;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Tracker create() => Tracker._();
+  @$core.override
+  Tracker createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static Tracker getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Tracker>(create);
+  static Tracker? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get id => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set id($core.int value) => $_setSignedInt32(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get trackerId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set trackerId($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTrackerId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTrackerId() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get provider => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set provider($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasProvider() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearProvider() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.String get status => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set status($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasStatus() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearStatus() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.int get score => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set score($core.int value) => $_setSignedInt32(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasScore() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearScore() => $_clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.int get progress => $_getIZ(5);
+  @$pb.TagNumber(6)
+  set progress($core.int value) => $_setSignedInt32(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasProgress() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearProgress() => $_clearField(6);
+
+  @$pb.TagNumber(7)
+  $fixnum.Int64 get startDate => $_getI64(6);
+  @$pb.TagNumber(7)
+  set startDate($fixnum.Int64 value) => $_setInt64(6, value);
+  @$pb.TagNumber(7)
+  $core.bool hasStartDate() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearStartDate() => $_clearField(7);
+
+  @$pb.TagNumber(8)
+  $fixnum.Int64 get finishDate => $_getI64(7);
+  @$pb.TagNumber(8)
+  set finishDate($fixnum.Int64 value) => $_setInt64(7, value);
+  @$pb.TagNumber(8)
+  $core.bool hasFinishDate() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearFinishDate() => $_clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.int get totalProgress => $_getIZ(8);
+  @$pb.TagNumber(9)
+  set totalProgress($core.int value) => $_setSignedInt32(8, value);
+  @$pb.TagNumber(9)
+  $core.bool hasTotalProgress() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearTotalProgress() => $_clearField(9);
 }
 
 /// DB - Favorite

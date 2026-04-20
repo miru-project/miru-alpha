@@ -753,3 +753,103 @@ const PutTrackResponse$json = {
 /// Descriptor for `PutTrackResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List putTrackResponseDescriptor = $convert.base64Decode(
     'ChBQdXRUcmFja1Jlc3BvbnNlEiEKBXRyYWNrGAEgASgLMgsubWlydS5UcmFja1IFdHJhY2s=');
+
+@$core.Deprecated('Use upsertTrackerRequestDescriptor instead')
+const UpsertTrackerRequest$json = {
+  '1': 'UpsertTrackerRequest',
+  '2': [
+    {'1': 'package', '3': 1, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'detail_url', '3': 2, '4': 1, '5': 9, '10': 'detailUrl'},
+    {
+      '1': 'tracker',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.Tracker',
+      '10': 'tracker'
+    },
+  ],
+};
+
+/// Descriptor for `UpsertTrackerRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List upsertTrackerRequestDescriptor = $convert.base64Decode(
+    'ChRVcHNlcnRUcmFja2VyUmVxdWVzdBIYCgdwYWNrYWdlGAEgASgJUgdwYWNrYWdlEh0KCmRldG'
+    'FpbF91cmwYAiABKAlSCWRldGFpbFVybBInCgd0cmFja2VyGAMgASgLMg0ubWlydS5UcmFja2Vy'
+    'Ugd0cmFja2Vy');
+
+@$core.Deprecated('Use upsertTrackerResponseDescriptor instead')
+const UpsertTrackerResponse$json = {
+  '1': 'UpsertTrackerResponse',
+  '2': [
+    {
+      '1': 'tracker',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.Tracker',
+      '10': 'tracker'
+    },
+  ],
+};
+
+/// Descriptor for `UpsertTrackerResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List upsertTrackerResponseDescriptor = $convert.base64Decode(
+    'ChVVcHNlcnRUcmFja2VyUmVzcG9uc2USJwoHdHJhY2tlchgBIAEoCzINLm1pcnUuVHJhY2tlcl'
+    'IHdHJhY2tlcg==');
+
+@$core.Deprecated('Use deleteTrackerRequestDescriptor instead')
+const DeleteTrackerRequest$json = {
+  '1': 'DeleteTrackerRequest',
+  '2': [
+    {'1': 'package', '3': 1, '4': 1, '5': 9, '10': 'package'},
+    {'1': 'detail_url', '3': 2, '4': 1, '5': 9, '10': 'detailUrl'},
+    {'1': 'provider', '3': 3, '4': 1, '5': 9, '10': 'provider'},
+  ],
+};
+
+/// Descriptor for `DeleteTrackerRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List deleteTrackerRequestDescriptor = $convert.base64Decode(
+    'ChREZWxldGVUcmFja2VyUmVxdWVzdBIYCgdwYWNrYWdlGAEgASgJUgdwYWNrYWdlEh0KCmRldG'
+    'FpbF91cmwYAiABKAlSCWRldGFpbFVybBIaCghwcm92aWRlchgDIAEoCVIIcHJvdmlkZXI=');
+
+@$core.Deprecated('Use deleteTrackerResponseDescriptor instead')
+const DeleteTrackerResponse$json = {
+  '1': 'DeleteTrackerResponse',
+  '2': [
+    {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `DeleteTrackerResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List deleteTrackerResponseDescriptor =
+    $convert.base64Decode(
+        'ChVEZWxldGVUcmFja2VyUmVzcG9uc2USGAoHbWVzc2FnZRgBIAEoCVIHbWVzc2FnZQ==');
+
+@$core.Deprecated('Use deleteTrackerByTrackerIdRequestDescriptor instead')
+const DeleteTrackerByTrackerIdRequest$json = {
+  '1': 'DeleteTrackerByTrackerIdRequest',
+  '2': [
+    {'1': 'tracker_id', '3': 1, '4': 1, '5': 9, '10': 'trackerId'},
+    {'1': 'provider', '3': 2, '4': 1, '5': 9, '10': 'provider'},
+  ],
+};
+
+/// Descriptor for `DeleteTrackerByTrackerIdRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List deleteTrackerByTrackerIdRequestDescriptor =
+    $convert.base64Decode(
+        'Ch9EZWxldGVUcmFja2VyQnlUcmFja2VySWRSZXF1ZXN0Eh0KCnRyYWNrZXJfaWQYASABKAlSCX'
+        'RyYWNrZXJJZBIaCghwcm92aWRlchgCIAEoCVIIcHJvdmlkZXI=');
+
+@$core.Deprecated('Use deleteTrackerByTrackerIdResponseDescriptor instead')
+const DeleteTrackerByTrackerIdResponse$json = {
+  '1': 'DeleteTrackerByTrackerIdResponse',
+  '2': [
+    {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `DeleteTrackerByTrackerIdResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List deleteTrackerByTrackerIdResponseDescriptor =
+    $convert.base64Decode(
+        'CiBEZWxldGVUcmFja2VyQnlUcmFja2VySWRSZXNwb25zZRIYCgdtZXNzYWdlGAEgASgJUgdtZX'
+        'NzYWdl');

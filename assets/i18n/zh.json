@@ -76,7 +76,9 @@
   "about": "关于",
   "tracking": {
     "name": "追踪",
-    "logout": "登出"
+    "logout": "登出",
+    "unlink": "取消关联",
+    "delete_entry": "删除条目"
   },
   "cast": "角色",
   "no_cast_found": "暂无角色",
@@ -162,7 +164,12 @@
     "aired": "已播",
     "save_progress": "保存进度",
     "score": "评分",
-    "progress": "进度"
+    "progress": "进度",
+    "link": "绑定 AniList",
+    "tracker_unlinked": "追踪器已取消关联",
+    "tracker_unlink_failed": "取消关联追踪器失败",
+    "delete_warning": "此操作将删除 {provider} 上的条目",
+    "current_status": "当前状态"
   },
   "just_now": "刚刚",
   "minutes_ago": "{minutes} 分钟前",
@@ -191,6 +198,8 @@
   "cancel": "取消",
   "confirm": "确认",
   "error": "错误",
+  "warning": "警告",
+  "delete": "删除",
   "from": "从",
   "status": "状态",
   "package": "扩展包",
@@ -356,5 +365,6 @@
   "source_code": "源代码",
   "source_code_description": "查看扩展源代码",
   "cookie_clear": "清除 Cookie",
-  "cookie_clear_description": "清除扩展 Cookie"
+  "cookie_clear_description": "清除扩展 Cookie",
+  "no_results": "未找到结果"
 }

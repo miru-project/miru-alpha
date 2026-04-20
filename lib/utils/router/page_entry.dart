@@ -59,11 +59,13 @@ class AnilistSearchParam {
   final ExtensionType type;
   final String detailUrl;
   final String package;
+  final DetialProvider detailPr;
   const AnilistSearchParam({
     required this.title,
     required this.type,
     required this.detailUrl,
     required this.package,
+    required this.detailPr,
   });
 }
 
@@ -71,9 +73,13 @@ class AnilistProgressParam {
   final int mediaId;
   final String detailUrl;
   final String package;
+  final bool isLinked;
+  final DetialProvider? detailPr;
   const AnilistProgressParam({
     required this.mediaId,
     required this.detailUrl,
     required this.package,
+    this.isLinked = false,
+    this.detailPr,
   });
 }
