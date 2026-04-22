@@ -215,12 +215,12 @@ class DesktopSearchPage extends HookConsumerWidget {
                   contextMenuBuilder: (context, editableTextState) {
                     return Column(
                       children: [
-                        Text('custom_context_menu'.i18n),
+                        Text('common.custom_context_menu'.i18n),
                         // Add more context menu items here
                       ],
                     );
                   },
-                  hint: 'search_globally'.i18n,
+                  hint: 'common.search_globally'.i18n,
                 ),
               ),
             ],

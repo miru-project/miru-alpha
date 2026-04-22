@@ -70,7 +70,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
                     children: [
                       FTile(
                         prefix: Icon(FIcons.bookX),
-                        title: Text('remove_history'.i18n),
+                        title: Text('common.remove_history'.i18n),
                         onPress: () {
                           ref
                               .read(historyPageProvider.notifier)
@@ -94,7 +94,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             sliver: SliverToBoxAdapter(
               child: Text(
-                "history".i18n,
+                "common.history".i18n,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 28,

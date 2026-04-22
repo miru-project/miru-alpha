@@ -32,7 +32,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
     );
     return PlatformWidget(
       desktopWidget: MiruScaffold(
-        mobileHeader: SnapSheetHeader(title: 'home'.i18n),
+        mobileHeader: SnapSheetHeader(title: 'common.home'.i18n),
         body: Column(
           children: [
             FavoriteTab(),
@@ -53,7 +53,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                             .where((e) => e.packageName == favorite.package)
                             .firstOrNull
                             ?.name ??
-                        'package_not_found'.i18n,
+                        'common.package_not_found'.i18n,
                     imageUrl: favorite.cover,
                     onTap: () {
                       final extMeta = meta
@@ -94,7 +94,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
           );
           return MiruMobileTile(
             title: favorite.title,
-            subtitle: ext?.name ?? 'package_not_found'.i18n,
+            subtitle: ext?.name ?? 'common.package_not_found'.i18n,
             imageUrl: favorite.cover,
             onTap: () {
               if (ext == null) return;
@@ -122,7 +122,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                         children: [
                           FTile(
                             prefix: Icon(FIcons.heartMinus),
-                            title: Text('remove_favorite'.i18n),
+                            title: Text('common.remove_favorite'.i18n),
                             onPress: () {
                               ref
                                   .read(favoritePageProvider.notifier)

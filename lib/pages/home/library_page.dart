@@ -58,13 +58,13 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
           }, []);
           return switch (index.value) {
             0 => SnapSheetHeader(
-              title: 'library'.i18n,
+              title: 'common.library'.i18n,
               suffix: [
                 FButton.icon(
                   variant: .ghost,
                   onPress: () {
                     iconsMessageToast(
-                      title: 'web_dav_sync_wip'.i18n,
+                      title: 'common.web_dav_sync_wip'.i18n,
                       icon: FIcons.construction,
                     );
                   },
@@ -72,9 +72,9 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                 ),
               ],
             ),
-            1 => SnapSheetHeader(title: 'history'.i18n),
+            1 => SnapSheetHeader(title: 'common.history'.i18n),
             2 => SnapSheetHeader(
-              title: 'favorite.name'.i18n,
+              title: 'common.favorite.name'.i18n,
               suffix: [
                 FTappable(
                   onPress: () {
@@ -110,7 +110,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                         ),
                       );
                       if (favGrp.isEmpty) {
-                        return FBadge(child: Text('all'.i18n));
+                        return FBadge(child: Text('common.all'.i18n));
                       }
                       return Wrap(
                         spacing: 3,
@@ -124,7 +124,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                 ),
               ],
             ),
-            3 => SnapSheetHeader(title: 'download'.i18n),
+            3 => SnapSheetHeader(title: 'common.download'.i18n),
             _ => const SizedBox.shrink(),
           };
         },
@@ -170,7 +170,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                                   .srcIn,
                                 ),
                               ),
-                              title: Text('anilist'.i18n),
+                              title: Text('tracking.anilist.name'.i18n),
                               suffix: Icon(FIcons.chevronRight),
                               onPress: () {
                                 context.push('/tracking');
@@ -225,7 +225,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                                         ),
                                         child: Icon(FIcons.history),
                                       ),
-                                  hint: 'search_for_histories'.i18n,
+                                  hint: 'common.search_for_histories'.i18n,
                                 );
                               },
                             ),
@@ -302,7 +302,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                                         ),
                                         child: Icon(FIcons.heart),
                                       ),
-                                  hint: 'search_for_favorites'.i18n,
+                                  hint: 'common.search_for_favorites'.i18n,
                                   // onTapOutside: (event) {
                                   //   FocusScope.of(context).unfocus();
                                   // },
@@ -315,7 +315,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                               return Padding(
                                 padding: .symmetric(horizontal: 10),
                                 child: CategoryMultiGroup(
-                                  title: 'type'.i18n,
+                                  title: 'common.type'.i18n,
                                   initialValue: {'video', 'manga', 'novel'},
                                   items: ['video', 'manga', 'novel'],
                                   onpress: (val) {
@@ -339,7 +339,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                     ),
                     FTabEntry(
                       label: Icon(FIcons.download),
-                      child: Center(child: Text('wip'.i18n)),
+                      child: Center(child: Text('common.wip'.i18n)),
                     ),
                   ],
                 ),
@@ -403,8 +403,8 @@ class DesktopLibraryPage extends HookConsumerWidget {
         SliverToBoxAdapter(
           child: SnapSheetHeader(
             padding: EdgeInsets.fromLTRB(40, 40, 40, 20),
-            title: 'your_library'.i18n,
-            description: 'library_description'.i18n,
+            title: 'common.your_library'.i18n,
+            description: 'common.library_description'.i18n,
           ),
         ),
         SliverToBoxAdapter(

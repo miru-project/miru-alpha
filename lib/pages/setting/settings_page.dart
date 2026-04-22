@@ -18,7 +18,7 @@ class SettingsPage extends HookWidget {
   Widget build(BuildContext context) {
     final select = useState(SideBarName.general);
     return MiruScaffold(
-      mobileHeader: SnapSheetHeader(title: 'settings'.i18n),
+      mobileHeader: SnapSheetHeader(title: 'common.settings'.i18n),
       body: SettingPage(selected: select.value),
     );
   }
@@ -35,10 +35,10 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
   Widget selected(SideBarName name, BuildContext context) {
     switch (name) {
       case SideBarName.general:
-        return SettingScaffold(title: 'general'.i18n, child: SettingGeneral());
+        return SettingScaffold(title: 'common.general'.i18n, child: SettingGeneral());
       case SideBarName.extension:
         return SettingScaffold(
-          title: 'repo_settings'.i18n,
+          title: 'settings.extension.name'.i18n,
           child: SettingExtension(),
         );
       case SideBarName.player:
@@ -58,6 +58,8 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
       case SideBarName.download:
         // return SettingDownload();
         return Center();
+      case SideBarName.developer:
+        return Center();
     }
   }
 
@@ -66,25 +68,25 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return MiruScaffold(
-      mobileHeader: SnapSheetHeader(title: 'settings'.i18n),
+      mobileHeader: SnapSheetHeader(title: 'common.settings'.i18n),
       desktopBody: selected(widget.selected, context),
       mobileBody: ListView(
         padding: .only(top: 30, bottom: 80),
         children: [
           FTileGroup(
-            label: Text("setting_general.name".i18n),
-            description: Text('setting_general.information'.i18n),
+            label: Text("settings.general.name".i18n),
+            description: Text('settings.general.information'.i18n),
             children: [
               FTile(
                 prefix: Icon(FIcons.menu),
-                title: Text('general'.i18n),
+                title: Text('common.general'.i18n),
                 suffix: Icon(FIcons.chevronRight),
-                subtitle: Text('setting_general.information'.i18n),
+                subtitle: Text('settings.general.information'.i18n),
                 onPress: () {
                   _pushtoPage(
                     context,
                     SettingScaffold(
-                      title: 'general'.i18n,
+                      title: 'common.general'.i18n,
                       child: SettingGeneral(isMobileLayout: true),
                     ),
                   );
@@ -94,20 +96,20 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
           ),
           const SizedBox(height: 10),
           FTileGroup(
-            label: Text('setting_extension.name'.i18n),
-            description: Text('setting_extension.information'.i18n),
+            label: Text('settings.extension.name'.i18n),
+            description: Text('settings.extension.information'.i18n),
             children: [
               FTile(
                 prefix: Icon(FIcons.blocks),
                 title: Text('extension.name'.i18n),
-                subtitle: Text('setting_extension.information'.i18n),
+                subtitle: Text('settings.extension.information'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {
                   _pushtoPage(
                     context,
                     SettingScaffold(
-                      title: 'setting_extension.name'.i18n,
+                      title: 'settings.extension.name'.i18n,
                       child: SettingExtension(isMobile: true),
                     ),
                   );
@@ -115,15 +117,15 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
               ),
               FTile(
                 prefix: Icon(FIcons.serverCog),
-                title: Text('setting_miru_core.name'.i18n),
-                subtitle: Text('setting_miru_core.information'.i18n),
+                title: Text('settings.miru_core.name'.i18n),
+                subtitle: Text('settings.miru_core.information'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {
                   _pushtoPage(
                     context,
                     SettingScaffold(
-                      title: 'setting_miru_core.name'.i18n,
+                      title: 'settings.miru_core.name'.i18n,
                       child: SettingNetwork(isMobileLayout: true),
                     ),
                   );
@@ -133,21 +135,21 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
           ),
           const SizedBox(height: 10),
           FTileGroup(
-            label: Text("setting_watch.name".i18n),
-            description: Text('setting_watch.information'.i18n),
+            label: Text("settings.watch.name".i18n),
+            description: Text('settings.watch.information'.i18n),
             children: [
               FTile(
                 prefix: Icon(FIcons.tv),
-                title: Text('player'.i18n),
-                subtitle: Text('player_setting'.i18n),
+                title: Text('common.player'.i18n),
+                subtitle: Text('settings.watch.information'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {},
               ),
               FTile(
                 prefix: Icon(FIcons.bookOpen),
-                title: Text('readers'.i18n),
-                subtitle: Text('novels_manga'.i18n),
+                title: Text('common.reader'.i18n),
+                subtitle: Text('settings.watch.information'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {},
@@ -155,12 +157,12 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
             ],
           ),
           FTileGroup(
-            label: Text("setting_about.name".i18n),
+            label: Text("settings.about.name".i18n),
             // description: const Text('Personalize your experience'),
             children: [
               FTile(
                 prefix: Icon(FIcons.code),
-                title: Text('licenses'.i18n),
+                title: Text('common.licenses'.i18n),
                 // details: const Text('Forus Labs (5G)'),
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {

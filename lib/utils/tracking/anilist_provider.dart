@@ -49,20 +49,20 @@ class AniListProvider {
     switch (status) {
       case AnilistMediaListStatus.current:
         return (type == AnilistType.anime)
-            ? "anilist.watching".i18n
-            : "anilist.reading".i18n;
+            ? "tracking.anilist.watching".i18n
+            : "tracking.anilist.reading".i18n;
       case AnilistMediaListStatus.completed:
-        return "anilist.completed".i18n;
+        return "tracking.anilist.completed".i18n;
       case AnilistMediaListStatus.planning:
-        return "anilist.planning".i18n;
+        return "tracking.anilist.planning".i18n;
       case AnilistMediaListStatus.paused:
-        return "anilist.hold-on".i18n;
+        return "tracking.anilist.hold-on".i18n;
       case AnilistMediaListStatus.dropped:
-        return "anilist.dropped".i18n;
+        return "tracking.anilist.dropped".i18n;
       case AnilistMediaListStatus.repeating:
         return (type == AnilistType.anime)
-            ? "anilist.re-watching".i18n
-            : "anilist.re-reading".i18n;
+            ? "tracking.anilist.re-watching".i18n
+            : "tracking.anilist.re-reading".i18n;
     }
   }
 

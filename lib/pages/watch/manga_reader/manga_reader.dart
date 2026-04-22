@@ -79,7 +79,7 @@ class MiruMangaReader extends HookConsumerWidget {
             FTabEntry(
               label: Icon(FIcons.alignHorizontalJustifyEnd),
               child: Center(
-                child: Text('manga_reader.alignment_settings.name'.i18n),
+                child: Text('reader.manga.alignment_settings.name'.i18n),
               ),
             ),
             FTabEntry(
@@ -196,7 +196,7 @@ class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
             c.setPageNumber(index);
           },
         );
-      case MangaReadMode.webTonn:
+      case MangaReadMode.webToon:
         final List<int> pointer = [];
         return Listener(
           behavior: HitTestBehavior.opaque,

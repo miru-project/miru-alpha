@@ -46,7 +46,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
                 FButton(
                   variant: .outline,
                   onPress: () => Navigator.of(context).pop(),
-                  child: Text('cancel'.i18n),
+                  child: Text('common.cancel'.i18n),
                 ),
                 FButton(
                   onPress: () {
@@ -54,7 +54,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
                     notifier.uninstallPackage(ext.packageName);
                     Navigator.of(context).pop();
                   },
-                  child: Text('continue_text'.i18n),
+                  child: Text('common.continue_text'.i18n),
                 ),
               ],
             );

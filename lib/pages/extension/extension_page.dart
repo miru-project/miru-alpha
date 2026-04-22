@@ -34,7 +34,7 @@ class CatEntry {
 
 class _MobileExtensionModal extends HookConsumerWidget {
   const _MobileExtensionModal();
-  static const categories = ['status', 'type', 'extension-repo.repository'];
+  static const categories = ['common.status', 'common.type', 'extension.repo.repository'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -44,7 +44,7 @@ class _MobileExtensionModal extends HookConsumerWidget {
         initialValue: 'ALL',
         title: 'Status',
         items: [
-          'all',
+          'common.all',
           'extension.installed',
           'extension.not_installed',
           'extension.update_available'
@@ -56,7 +56,7 @@ class _MobileExtensionModal extends HookConsumerWidget {
       'type': CatEntry(
         initialValue: 'ALL',
         title: 'Type',
-        items: ['all', 'video', 'manga', 'novel'],
+        items: ['common.all', 'media.video', 'media.manga', 'media.novel'],
         onpress: (val) {
           switch (val) {
             case 'video':
@@ -74,7 +74,7 @@ class _MobileExtensionModal extends HookConsumerWidget {
           extNotifier.filterByMediaType(val);
         },
       ),
-      'extension-repo.repository': CatEntry(
+      'extension.repo.repository': CatEntry(
         title: 'Repository',
         items: extNotifier.getRepoNames(),
         onpress: (val) {

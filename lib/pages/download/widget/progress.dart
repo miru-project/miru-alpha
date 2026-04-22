@@ -15,11 +15,11 @@ class DownloadProgressCard extends ConsumerWidget {
     double progress = task.total > 0 ? task.progress / task.total : 0.0;
 
     return FCard(
-      title: Text(task.title.isNotEmpty ? task.title : "unknown".i18n),
+      title: Text(task.title.isNotEmpty ? task.title : "common.unknown".i18n),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("${"status".i18n}: ${task.status}"),
+          Text("${"common.status".i18n}: ${task.status}"),
           const SizedBox(height: 8),
           FDeterminateProgress(value: progress),
           const SizedBox(height: 4),

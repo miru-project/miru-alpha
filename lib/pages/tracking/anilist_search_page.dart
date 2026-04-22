@@ -63,7 +63,7 @@ class AnilistSearchPage extends HookConsumerWidget {
     }, []);
 
     return MiruScaffold(
-      mobileHeader: SnapSheetNested.back(title: "search".i18n),
+      mobileHeader: SnapSheetNested.back(title: "common.search".i18n),
       snappingOffsets: [
         AbsoluteSheetOffset(140),
         ProportionalToViewportSheetOffset(0.5),
@@ -130,7 +130,7 @@ class AnilistSearchPage extends HookConsumerWidget {
                               ),
                             ),
                             Text(
-                              '${item.episodes ?? item.chapters} ${item.type == 'ANIME' ? 'episodes'.i18n : 'chapters'.i18n}',
+                              '${item.episodes ?? item.chapters} ${item.type == 'ANIME' ? 'media.episodes'.i18n : 'media.chapters'.i18n}',
                               style: TextStyle(
                                 color: context.theme.colors.mutedForeground,
                                 fontSize: 12,

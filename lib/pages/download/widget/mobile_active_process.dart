@@ -14,7 +14,7 @@ class MobileActiveDownloadSection extends ConsumerWidget {
     final state = ref.watch(downloadProvider);
     return state.when(
       data: (data) => FTileGroup.builder(
-        label: Text("active_tasks".i18n),
+        label: Text("common.active_tasks".i18n),
         count: data.active.length,
         tileBuilder: (context, index) {
           final item = data.active[index];

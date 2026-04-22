@@ -117,7 +117,7 @@ class MangaReader extends _$MangaReader {
   void jumpTo(int page) {
     setPageNumber(page);
     switch (state.readMode) {
-      case MangaReadMode.webTonn:
+      case MangaReadMode.webToon:
         isAdjusting = true;
         itemScrollController
             .scrollTo(index: page, duration: const Duration(milliseconds: 100))

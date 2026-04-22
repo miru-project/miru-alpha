@@ -130,20 +130,20 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
                         style: style,
                         animation: animation,
                         title: Text(
-                          'video_player.settings_placeholder_title'.i18n,
+                          'media.video_player.settings_placeholder_title'.i18n,
                         ),
                         body: Text(
-                          'video_player.settings_placeholder_body'.i18n,
+                          'media.video_player.settings_placeholder_body'.i18n,
                         ),
                         actions: [
                           FButton(
                             onPress: () => Navigator.of(context).pop(),
-                            child: Text('continue_text'.i18n),
+                            child: Text('common.continue_text'.i18n),
                           ),
                           FButton(
                             variant: .outline,
                             onPress: () => Navigator.of(context).pop(),
-                            child: Text('cancel'.i18n),
+                            child: Text('common.cancel'.i18n),
                           ),
                         ],
                       ),

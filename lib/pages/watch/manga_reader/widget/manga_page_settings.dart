@@ -13,19 +13,24 @@ class MangaPageSetting extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return FTileGroup(
-      label: Text('manga_reader.page_settings.name'.i18n),
+      label: Text('reader.manga.page_settings.name'.i18n),
       children: [
-        SettingsRadiosTile(
+        SettingsRadiosTile.detailed(
           isMobileLayout: true,
-          title: 'manga_reader.read_mode.name'.i18n,
-          subtitle: 'manga_reader.read_mode.name'.i18n,
-          radios: MangaReadMode.values.map((e) => e.name).toList(),
+          title: 'reader.manga.read_mode.name',
+          subtitle: 'reader.manga.read_mode.information',
+          entry: MangaReadMode.values
+              .map(
+                (e) => RadioTileEntry(
+                  value: e.name,
+                  title: 'reader.manga.read_mode.${e.name}',
+                ),
+              )
+              .toList(),
           value: MiruSettings.getSettingSync(SettingKey.mangaReadingMode),
           onChanged: (val) {
             MiruSettings.setSetting(SettingKey.mangaReadingMode, val);
-            ref
-                .read(mangaProvider.notifier)
-                .changeReadMode(
+            ref.read(mangaProvider.notifier).changeReadMode(
                   MangaReadMode.values.firstWhere((e) => e.name == val),
                 );
           },

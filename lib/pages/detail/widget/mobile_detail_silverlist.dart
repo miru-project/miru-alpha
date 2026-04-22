@@ -38,7 +38,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
     final historyList = ref.watch(detailPr.select((s) => s.historyList));
 
     if (detail.episodes?.isEmpty ?? true) {
-      return SliverToBoxAdapter(child: Center(child: Text('no_episodes'.i18n)));
+      return SliverToBoxAdapter(child: Center(child: Text('media.no_episodes'.i18n)));
     }
     final selectGroup = detail.episodes![epGroupIdx].urls;
 
@@ -58,7 +58,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                       mainAxisAlignment: .center,
                       onPress: () {},
                       prefix: Icon(FIcons.play),
-                      child: Text("play".i18n),
+                      child: Text("common.play".i18n),
                     ),
                   ),
                   SizedBox(width: 10),
@@ -123,7 +123,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                           },
                           child: Text(
                             detail.episodes?[selectedEpGroup].title ??
-                                "no_episodes".i18n,
+                                "media.no_episodes".i18n,
                             style: TextStyle(fontSize: 18),
                           ),
                         ),
@@ -211,25 +211,25 @@ class MobileDetailSilverlist extends HookConsumerWidget {
     if (diff.inDays == 0) {
       if (diff.inHours == 0) {
         if (diff.inMinutes == 0) {
-          return "just_now".i18n;
+          return "time.just_now".i18n;
         }
-        return "minutes_ago".fill({"minutes": diff.inMinutes.toString()});
+        return "time.minutes_ago".fill({"minutes": diff.inMinutes.toString()});
       }
-      return "hours_ago".fill({"hours": diff.inHours.toString()});
+      return "time.hours_ago".fill({"hours": diff.inHours.toString()});
     }
     if (diff.inDays == 1) {
-      return "yesterday".i18n;
+      return "time.yesterday".i18n;
     }
     if (diff.inDays < 7) {
-      return "days_ago".fill({"days": diff.inDays.toString()});
+      return "time.days_ago".fill({"days": diff.inDays.toString()});
     }
     if (diff.inDays < 30) {
-      return "weeks_ago".fill({"weeks": (diff.inDays ~/ 7).toString()});
+      return "time.weeks_ago".fill({"weeks": (diff.inDays ~/ 7).toString()});
     }
     if (diff.inDays < 365) {
-      return "months_ago".fill({"months": (diff.inDays ~/ 30).toString()});
+      return "time.months_ago".fill({"months": (diff.inDays ~/ 30).toString()});
     }
-    return "years_ago".fill({"years": (diff.inDays ~/ 365).toString()});
+    return "time.years_ago".fill({"years": (diff.inDays ~/ 365).toString()});
   }
 
   String progressIndicator(History h) {
@@ -240,7 +240,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
         ExtensionType.all;
     switch (type) {
       case ExtensionType.manga:
-        return "${h.progress} ${"page".i18n} / ${h.totalProgress} ${"page".i18n}";
+        return "${h.progress} ${"common.page".i18n} / ${h.totalProgress} ${"common.page".i18n}";
       case ExtensionType.bangumi:
         final dur = Duration(seconds: h.progress);
         final totalDur = Duration(seconds: h.totalProgress);

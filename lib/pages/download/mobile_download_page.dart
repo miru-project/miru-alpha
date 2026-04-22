@@ -32,9 +32,9 @@ class MobileFinishedDownloadSection extends ConsumerWidget {
       error: (e, s) => ErrorDisplay.grpc(err: e, stack: s),
       data: (data) {
         final downloads = data.history;
-        if (downloads.isEmpty) return Text("no_download_history".i18n);
+        if (downloads.isEmpty) return Text("common.no_download_history".i18n);
         return FTileGroup.builder(
-          label: Text("downloads_history".i18n),
+          label: Text("common.downloads_history".i18n),
           count: downloads.length,
           tileBuilder: (context, index) {
             final item = downloads[index];

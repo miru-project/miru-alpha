@@ -24,11 +24,11 @@ class SettingNetwork extends HookConsumerWidget {
       children: [
         SettingGroup(
           isMobileLayout: isMobileLayout,
-          title: 'setting_network.name',
+          title: 'settings.network.name',
           children: [
             SettingBaseTile(
               isMobileLayout: isMobileLayout,
-              title: 'address'.i18n,
+              title: 'common.address'.i18n,
               child: Text(
                 Core.host,
                 style: TextStyle(fontWeight: .bold, letterSpacing: .5),
@@ -36,7 +36,7 @@ class SettingNetwork extends HookConsumerWidget {
             ),
             SettingBaseTile(
               isMobileLayout: isMobileLayout,
-              title: 'port'.i18n,
+              title: 'common.port'.i18n,
               child: Text(
                 Core.port,
                 style: TextStyle(letterSpacing: .5, fontWeight: .bold),
@@ -47,11 +47,11 @@ class SettingNetwork extends HookConsumerWidget {
         if (!isMobileLayout)
           SettingGroup(
             isMobileLayout: isMobileLayout,
-            title: 'setting_proxy.name',
+            title: 'settings.proxy.name',
             children: [
               SettingBaseTile(
                 isMobileLayout: isMobileLayout,
-                title: 'address'.i18n,
+                title: 'common.address'.i18n,
                 child: Row(
                   children: [
                     Spacer(),
@@ -79,7 +79,7 @@ class SettingNetwork extends HookConsumerWidget {
                               ),
                         );
                       },
-                      child: Text('setting_proxy.select'.i18n),
+                      child: Text('settings.proxy.select'.i18n),
                     ),
                     FSwitch(
                       value: isActivateProxy.value,
@@ -98,11 +98,11 @@ class SettingNetwork extends HookConsumerWidget {
           )
         else
           FTileGroup(
-            label: Text('setting_proxy.name'.i18n),
+            label: Text('settings.proxy.name'.i18n),
             children: [
               FTile(
-                title: Text('setting_proxy.name'.i18n),
-                subtitle: Text('setting_proxy.information'.i18n),
+                title: Text('settings.proxy.name'.i18n),
+                subtitle: Text('settings.proxy.information'.i18n),
                 onPress: () {
                   Navigator.of(
                     context,
@@ -110,7 +110,7 @@ class SettingNetwork extends HookConsumerWidget {
                 },
               ),
               FTile(
-                title: Text('setting_proxy.enable'.i18n),
+                title: Text('settings.proxy.enable'.i18n),
                 suffix: FSwitch(
                   value: isActivateProxy.value,
                   onChange: (value) {

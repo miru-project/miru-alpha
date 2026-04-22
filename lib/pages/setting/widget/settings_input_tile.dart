@@ -83,21 +83,21 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
               actions: [
                 FButton(
                   size: .sm,
-                  child: Text('confirm'.i18n),
+                  child: Text('common.confirm'.i18n),
                   onPress: () => Navigator.of(context).pop(),
                 ),
                 if (defaultValue == null)
                   FButton(
                     size: .sm,
                     variant: .outline,
-                    child: Text('cancel'.i18n),
+                    child: Text('common.cancel'.i18n),
                     onPress: () => Navigator.of(context).pop(),
                   )
                 else
                   FButton(
                     size: .sm,
                     variant: .destructive,
-                    child: Text('reset'.i18n),
+                    child: Text('common.reset'.i18n),
                     onPress: () {
                       onChanged(defaultValue!);
                       Navigator.of(context).pop();

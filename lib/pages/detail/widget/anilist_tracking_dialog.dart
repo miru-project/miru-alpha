@@ -73,13 +73,13 @@ class AnilistTrackingDialog extends HookConsumerWidget {
       final success = await notifier.saveProgress(
         detailUrl: param.detailUrl,
         package: param.package,
-        title: media?.title.userPreferred ?? 'unknown'.i18n,
+        title: media?.title.userPreferred ?? 'common.unknown'.i18n,
       );
       if (context.mounted) {
         showSimpleToast(
           success
-              ? 'anilist.progress_saved'.i18n
-              : 'anilist.progress_save_failed'.i18n,
+              ? 'tracking.anilist.progress_saved'.i18n
+              : 'tracking.anilist.progress_save_failed'.i18n,
         );
         if (success) {
           ref
@@ -98,8 +98,8 @@ class AnilistTrackingDialog extends HookConsumerWidget {
       if (context.mounted) {
         showSimpleToast(
           success
-              ? 'anilist.tracker_unlinked'.i18n
-              : 'anilist.tracker_unlink_failed'.i18n,
+              ? 'tracking.anilist.tracker_unlinked'.i18n
+              : 'tracking.anilist.tracker_unlink_failed'.i18n,
         );
         if (success) {
           ref
@@ -116,9 +116,9 @@ class AnilistTrackingDialog extends HookConsumerWidget {
         builder: (context, style, animation) => FDialog(
           style: style,
           animation: animation,
-          title: Text('warning'.i18n),
+          title: Text('common.warning'.i18n),
           body: Text(
-            'anilist.delete_warning'.i18n.replaceAll('{provider}', 'AniList'),
+            'tracking.anilist.delete_warning'.i18n.replaceAll('{provider}', 'AniList'),
           ),
           actions: [
             FButton(
@@ -132,8 +132,8 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                 if (context.mounted) {
                   showSimpleToast(
                     success
-                        ? 'anilist.entry_deleted'.i18n
-                        : 'anilist.entry_delete_failed'.i18n,
+                        ? 'tracking.anilist.entry_deleted'.i18n
+                        : 'tracking.anilist.entry_delete_failed'.i18n,
                   );
                   if (success) {
                     ref
@@ -143,12 +143,12 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                   }
                 }
               },
-              child: Text('delete'.i18n),
+              child: Text('common.delete'.i18n),
             ),
             FButton(
               variant: .ghost,
               onPress: () => Navigator.of(context).pop(),
-              child: Text('cancel'.i18n),
+              child: Text('common.cancel'.i18n),
             ),
           ],
         ),
@@ -163,7 +163,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
           FButton(
             variant: .ghost,
             onPress: () => Navigator.of(context).pop(),
-            child: Text('close'.i18n),
+            child: Text('common.close'.i18n),
           ),
         ],
         body: const Center(
@@ -179,12 +179,12 @@ class AnilistTrackingDialog extends HookConsumerWidget {
       return FDialog(
         style: style,
         animation: animation,
-        title: Text('anilist.tracking_progress'.i18n),
-        body: Center(child: Text('anilist.failed_load_media'.i18n)),
+        title: Text('tracking.anilist.tracking_progress'.i18n),
+        body: Center(child: Text('tracking.anilist.failed_load_media'.i18n)),
         actions: [
           FButton(
             onPress: () => Navigator.of(context).pop(),
-            child: Text('close'.i18n),
+            child: Text('common.close'.i18n),
           ),
         ],
       );
@@ -219,7 +219,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          media.title.userPreferred ?? 'unknown'.i18n,
+                          media.title.userPreferred ?? 'common.unknown'.i18n,
                           style: context.theme.typography.lg.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
@@ -231,9 +231,9 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                           [
                             media.status,
                             if (media.episodes != null)
-                              '${'anilist.total'.i18n}: ${media.episodes} ${'episodes'.i18n}',
+                              '${'tracking.anilist.total'.i18n}: ${media.episodes} ${'media.episodes'.i18n}',
                             if (media.chapters != null)
-                              '${'anilist.total'.i18n}: ${media.chapters} ${'chapters'.i18n}',
+                              '${'tracking.anilist.total'.i18n}: ${media.chapters} ${'media.chapters'.i18n}',
                           ].join(' • '),
                           style: TextStyle(
                             color: context.theme.colors.mutedForeground,
@@ -246,7 +246,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                 ],
               ),
               const FDivider(),
-              _buildSectionTitle(context, 'status'.i18n),
+              _buildSectionTitle(context, 'common.status'.i18n),
               const SizedBox(height: 8),
               FSelectTileGroup<AnilistMediaListStatus>.builder(
                 count: AnilistMediaListStatus.values.length,
@@ -280,7 +280,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildSectionTitle(context, 'anilist.progress'.i18n),
+                        _buildSectionTitle(context, 'tracking.anilist.progress'.i18n),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -331,7 +331,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildSectionTitle(context, 'anilist.score'.i18n),
+                        _buildSectionTitle(context, 'tracking.anilist.score'.i18n),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -391,7 +391,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
           onPress: isSaving ? null : saveProgress,
           child: isSaving
               ? const FCircularProgress.loader()
-              : Text('anilist.save_progress'.i18n),
+              : Text('tracking.anilist.save_progress'.i18n),
         ),
         if (param.isLinked)
           FButton(

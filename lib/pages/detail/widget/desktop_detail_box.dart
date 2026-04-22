@@ -51,7 +51,7 @@ class DetailDesktopBox extends HookConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (favorite != null) FBadge(child: Text('favorited'.i18n)),
+                if (favorite != null) FBadge(child: Text('media.favorited'.i18n)),
                 const SizedBox(height: 10),
                 if (isTablet)
                   SizedBox(
@@ -100,9 +100,9 @@ class DetailDesktopBox extends HookConsumerWidget {
                   children: [
                     FAccordionItem(
                       initiallyExpanded: true,
-                      title: Text("episode.description".i18n),
+                      title: Text("media.episode.description".i18n),
                       child: Text(
-                        detail.desc ?? "no_description".i18n,
+                        detail.desc ?? "media.no_description".i18n,
                         style: TextStyle(
                           fontSize: 15,
                           color: context.theme.colors.mutedForeground,
@@ -117,7 +117,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                     FButton(
                       suffix: Icon(FIcons.play),
                       onPress: () {},
-                      child: Text("video_player.play".i18n),
+                      child: Text("media.video_player.play".i18n),
                     ),
 
                     SizedBox(width: 15),
@@ -152,7 +152,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                           ),
                         );
                       },
-                      child: Text("favorite.title".i18n),
+                      child: Text("common.favorite.title".i18n),
                     ),
                     SizedBox(width: 15),
                     FButton(
@@ -164,7 +164,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                           extra: WebviewParam(meta: meta, url: detailUrl),
                         );
                       },
-                      child: Text("webview".i18n),
+                      child: Text("common.webview".i18n),
                     ),
                   ],
                 ),

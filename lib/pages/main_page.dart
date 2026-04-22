@@ -51,26 +51,30 @@ class _MainPageState extends ConsumerState<MainPage>
   // late TabController _tabController;
   late final MainController c;
   static const List<NavItem> _navItems = [
-    NavItem(text: 'home', icon: Icons.home_outlined),
-    NavItem(text: 'search', icon: Icons.explore_outlined),
+    NavItem(text: 'common.home', icon: Icons.home_outlined),
+    NavItem(text: 'common.search', icon: Icons.explore_outlined),
     NavItem(text: 'extension.name', icon: Icons.extension_outlined),
-    NavItem(text: 'settings', icon: Icons.settings_outlined),
+    NavItem(text: 'common.settings', icon: Icons.settings_outlined),
   ];
 
   static final List<FIconNavItem> _fIconNavItem = [
-    FIconNavItem(text: 'home', icon: FIcons.house, page: "/home"),
-    FIconNavItem(text: 'history', icon: FIcons.history, page: "/home/history"),
+    FIconNavItem(text: 'common.home', icon: FIcons.house, page: "/home"),
     FIconNavItem(
-      text: 'favorite.name',
+      text: 'common.history',
+      icon: FIcons.history,
+      page: "/home/history",
+    ),
+    FIconNavItem(
+      text: 'common.favorite.name',
       icon: FIcons.bookHeart,
       page: "/home/favorite",
     ),
     FIconNavItem(
-      text: 'download',
+      text: 'common.download',
       icon: FIcons.download,
       page: "/home/download",
     ),
-    FIconNavItem(text: 'search', icon: FIcons.search, page: "/search"),
+    FIconNavItem(text: 'common.search', icon: FIcons.search, page: "/search"),
     FIconNavItem(
       text: 'extension.name',
       icon: FIcons.blocks,
@@ -82,7 +86,7 @@ class _MainPageState extends ConsumerState<MainPage>
       page: "/tracking",
     ),
     FIconNavItem(
-      text: 'settings',
+      text: 'common.settings',
       icon: FIcons.settings,
       subItems: _fIconSettingSubItem,
     ),
@@ -98,17 +102,19 @@ class _MainPageState extends ConsumerState<MainPage>
     SideBarName.download: FIcons.download,
     SideBarName.about: FIcons.inbox,
     SideBarName.tracking: FIcons.arrowUpDown,
+    SideBarName.developer: FIcons.code,
   };
   static const sideBarTranslationMap = <SideBarName, String>{
-    SideBarName.general: 'general',
+    SideBarName.general: 'common.general',
     SideBarName.extension: 'extension.name',
-    SideBarName.player: 'player',
-    SideBarName.network: 'network',
-    SideBarName.reader: 'reader',
-    SideBarName.advanced: 'advanced',
-    SideBarName.about: 'about',
-    SideBarName.tracking: 'tracking',
-    SideBarName.download: 'download',
+    SideBarName.player: 'common.player',
+    SideBarName.network: 'common.network',
+    SideBarName.reader: 'common.reader',
+    SideBarName.advanced: 'common.advanced',
+    SideBarName.about: 'common.about',
+    SideBarName.tracking: 'tracking.name',
+    SideBarName.download: 'common.download',
+    SideBarName.developer: 'common.developer',
   };
 
   static final List<FIconNavItem> _fIconSettingSubItem = [
@@ -147,8 +153,8 @@ class _MainPageState extends ConsumerState<MainPage>
           showFDialog(
             context: context,
             builder: (context, _, _) => FDialog(
-              title: Text('download_directory'.i18n),
-              body: Text('select_download_directory'.i18n),
+              title: Text('settings.download_directory'.i18n),
+              body: Text('settings.select_download_directory'.i18n),
               actions: [
                 FButton(
                   onPress: () async {
@@ -161,7 +167,7 @@ class _MainPageState extends ConsumerState<MainPage>
                       if (context.mounted) Navigator.of(context).pop();
                     }
                   },
-                  child: Text('select_directory'.i18n),
+                  child: Text('settings.select_directory'.i18n),
                 ),
               ],
             ),
@@ -242,12 +248,8 @@ class _MainPageState extends ConsumerState<MainPage>
                     child: Row(
                       children: [
                         Text(
-                          "miru".i18n,
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.none,
-                          ),
+                          "common.miru".i18n,
+                          style: context.theme.typography.lg,
                         ),
                         Padding(
                           padding: EdgeInsetsGeometry.directional(
@@ -255,7 +257,7 @@ class _MainPageState extends ConsumerState<MainPage>
                             top: 15,
                           ),
                           child: Text(
-                            "alpha".i18n,
+                            "common.alpha".i18n,
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
@@ -281,7 +283,7 @@ class _MainPageState extends ConsumerState<MainPage>
                 child: FTappable(
                   onPress: () {
                     iconsMessageToast(
-                      title: 'wip'.i18n,
+                      title: 'common.wip'.i18n,
                       icon: FIcons.construction,
                     );
                   },
@@ -307,15 +309,13 @@ class _MainPageState extends ConsumerState<MainPage>
                               spacing: 2,
                               children: [
                                 Text(
-                                  'webdav'.i18n,
-                                  style: context.theme.typography.sm.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: context.theme.colors.foreground,
+                                  'common.webdav'.i18n,
+                                  style: context.theme.typography.xs.copyWith(
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 Text(
-                                  'signin'.i18n,
+                                  'common.signin'.i18n,
                                   style: context.theme.typography.xs.copyWith(
                                     color: context.theme.colors.mutedForeground,
                                   ),
@@ -337,7 +337,7 @@ class _MainPageState extends ConsumerState<MainPage>
                   final selectedIndex = useState("");
                   return FSidebarGroup(
                     label: Text(
-                      'overview'.i18n,
+                      'common.overview'.i18n,
                       style: TextStyle(
                         // fontFamily: 'Noto Sans CJK TC', // Be explicit
                         fontWeight: FontWeight.w400,

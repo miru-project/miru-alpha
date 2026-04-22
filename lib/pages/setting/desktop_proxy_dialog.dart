@@ -26,7 +26,7 @@ class DesktopProxyDialog extends HookWidget {
     return FDialog(
       style: style,
       animation: animation,
-      title: Text('setting_proxy.proxy_settings'.i18n),
+      title: Text('settings.proxy.proxy_settings'.i18n),
       body: ListView(
         children: [
           Row(
@@ -137,7 +137,7 @@ class DesktopProxyDialog extends HookWidget {
                                   ),
                                 ),
                                 SizedBox(width: 10),
-                                Text('${'port'.i18n}:  '),
+                                Text('${'common.port'.i18n}:  '),
                                 Text(
                                   uri.port.toString(),
                                   style: TextStyle(
@@ -155,13 +155,13 @@ class DesktopProxyDialog extends HookWidget {
               );
             })
           else
-            Center(child: Text('setting_proxy.no_proxy'.i18n)),
+            Center(child: Text('settings.proxy.no_proxy'.i18n)),
         ],
       ),
       actions: [
         FButton(
           size: .sm,
-          child: Text('save'.i18n),
+          child: Text('common.save'.i18n),
           onPress: () {
             MiruSettings.setSetting(SettingKey.proxy, selectedProxy.value);
             Navigator.of(context).pop();
@@ -170,7 +170,7 @@ class DesktopProxyDialog extends HookWidget {
         FButton(
           size: .sm,
           variant: .outline,
-          child: Text('cancel'.i18n),
+          child: Text('common.cancel'.i18n),
           onPress: () => Navigator.of(context).pop(),
         ),
       ],

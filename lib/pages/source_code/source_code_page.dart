@@ -49,7 +49,7 @@ class _SourceCodePageState extends State<SourceCodePage> {
       child: MiruScaffold(
         childPad: false,
         mobileHeader: SnapSheetNested.back(
-          title: 'source_code'.i18n,
+          title: 'extension.source_code'.i18n,
           suffix: FButton.icon(
             variant: .ghost,
             child: Icon(FIcons.save),

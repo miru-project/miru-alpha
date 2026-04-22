@@ -78,7 +78,7 @@ class FavoriteDialog extends HookConsumerWidget {
         ref.read(detailPr.notifier).putFavoriteGroup(groupsToUpdate);
         ref.read(favoritePageProvider.notifier).refreshFavoritesAndGroup();
         if (context.mounted) Navigator.of(context).pop();
-        if (context.mounted) showSimpleToast("favorites_updated".i18n);
+        if (context.mounted) showSimpleToast("media.favorites_updated".i18n);
       } catch (e) {
         debugPrint("Error saving favorite: $e");
         if (context.mounted) showSimpleToast("Error saving: $e");
@@ -105,14 +105,14 @@ class FavoriteDialog extends HookConsumerWidget {
     }
 
     return FDialog(
-      title: Text("add_to_favorites".i18n),
+      title: Text("media.add_to_favorites".i18n),
       body: Padding(
         padding: EdgeInsetsGeometry.only(top: 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("select_tags_groups".i18n),
+            Text("common.select_tags_groups".i18n),
             const SizedBox(height: 10),
             Wrap(
               spacing: 3,
@@ -151,11 +151,11 @@ class FavoriteDialog extends HookConsumerWidget {
                         onChange: (val) =>
                             newGroupNameController.text = val.text,
                       ),
-                      hint: "group_name".i18n,
+                      hint: "common.group_name".i18n,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  FButton(onPress: handleCreateGroup, child: Text("add".i18n)),
+                  FButton(onPress: handleCreateGroup, child: Text("common.add".i18n)),
                   const SizedBox(width: 8),
                   FButton(
                     variant: .ghost,
@@ -168,12 +168,12 @@ class FavoriteDialog extends HookConsumerWidget {
               FButton(
                 variant: .outline,
                 onPress: () => isCreatingGroup.value = true,
-                child: Text("create_new_tag".i18n),
+                child: Text("common.create_new_tag".i18n),
               ),
           ],
         ),
       ),
-      actions: [FButton(onPress: handleSave, child: Text("save".i18n))],
+      actions: [FButton(onPress: handleSave, child: Text("common.save".i18n))],
     );
   }
 }

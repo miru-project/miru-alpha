@@ -24,7 +24,7 @@ class MobileProxyPage extends HookWidget {
     return MiruScaffold(
       resizeToAvoidBottomInset: false,
       mobileHeader: SnapSheetNested.back(
-        title: 'setting_proxy.name'.i18n,
+        title: 'settings.proxy.name'.i18n,
         suffix: Row(
           children: [
             FButton.icon(
@@ -48,14 +48,14 @@ class MobileProxyPage extends HookWidget {
                   builder: (context, style, animation) => FDialog(
                     style: style,
                     animation: animation,
-                    title: Text('setting_proxy.add_proxy'.i18n),
+                    title: Text('settings.proxy.add_proxy'.i18n),
                     body: Form(
                       child: Column(
                         mainAxisSize: .min,
                         children: [
                           SizedBox(height: 10),
                           FSelect<String>(
-                            label: Text('type'.i18n),
+                            label: Text('common.type'.i18n),
                             control: .managed(
                               toggleable: true,
                               onChange: (value) {
@@ -74,7 +74,7 @@ class MobileProxyPage extends HookWidget {
                           ),
                           SizedBox(height: 10),
                           FTextField(
-                            label: Text('url'.i18n),
+                            label: Text('common.url'.i18n),
                             clearable: (value) => value.text.isNotEmpty,
                             hint: '127.0.0.1:3000',
                             control: .managed(
@@ -89,7 +89,7 @@ class MobileProxyPage extends HookWidget {
                     actions: [
                       FButton(
                         size: .sm,
-                        child: Text('continue_text'.i18n),
+                        child: Text('common.continue_text'.i18n),
                         onPress: () {
                           final link = Uri.parse(
                             '${selectType.value}://${inputLink.value}',
@@ -108,7 +108,7 @@ class MobileProxyPage extends HookWidget {
                       FButton(
                         size: .sm,
                         variant: .outline,
-                        child: Text('cancel'.i18n),
+                        child: Text('common.cancel'.i18n),
                         onPress: () => Navigator.of(context).pop(),
                       ),
                     ],
@@ -145,14 +145,14 @@ class MobileProxyPage extends HookWidget {
                     style: style,
                     animation: animation,
                     title: Text(
-                      'setting_proxy.remove_proxy_count'.fill({
+                      'settings.proxy.remove_proxy_count'.fill({
                         "count": selectToRemove.value.length.toString(),
                       }),
                     ),
                     actions: [
                       FButton(
                         size: .sm,
-                        child: Text('continue_text'.i18n),
+                        child: Text('common.continue_text'.i18n),
                         onPress: () {
                           proxyList.value = proxyList.value.difference(
                             selectToRemove.value,
@@ -174,7 +174,7 @@ class MobileProxyPage extends HookWidget {
                       FButton(
                         size: .sm,
                         variant: .outline,
-                        child: Text('cancel'.i18n),
+                        child: Text('common.cancel'.i18n),
                         onPress: () => Navigator.of(context).pop(),
                       ),
                     ],
@@ -210,7 +210,7 @@ class MobileProxyPage extends HookWidget {
                         checkedIcon: Icon(FIcons.trash),
                         value: proxy,
                         title: Text(uri.host),
-                        subtitle: Text('${'port'.i18n} : ${uri.port}'),
+                        subtitle: Text('${'common.port'.i18n} : ${uri.port}'),
                         suffix: Text(uri.scheme.toUpperCase()),
                       );
                     },
@@ -245,7 +245,7 @@ class MobileProxyPage extends HookWidget {
                       return FSelectTile.tile(
                         value: proxy,
                         title: Text(uri.host),
-                        subtitle: Text('${'port'.i18n} : ${uri.port}'),
+                        subtitle: Text('${'common.port'.i18n} : ${uri.port}'),
                         suffix: selectToRemove.value.contains(proxy)
                             ? Icon(FIcons.trash)
                             : Text(uri.scheme.toUpperCase()),
@@ -256,7 +256,7 @@ class MobileProxyPage extends HookWidget {
               ] else
                 Center(
                   child: Text(
-                    'setting_proxy.no_proxy'.i18n,
+                    'settings.proxy.no_proxy'.i18n,
                     style: TextStyle(fontWeight: .bold),
                   ),
                 ),

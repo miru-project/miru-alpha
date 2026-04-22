@@ -30,7 +30,7 @@ class MobileSearchPage extends HookConsumerWidget {
       sheetController: sheetController,
       mobileHeader: Row(
         children: [
-          SnapSheetHeader(title: 'search'.i18n),
+          SnapSheetHeader(title: 'common.search'.i18n),
           const Spacer(),
           HookBuilder(
             builder: (context) {
@@ -70,7 +70,7 @@ class MobileSearchPage extends HookConsumerWidget {
             // onTapOutside: (event) {
             //   FocusScope.of(context).unfocus();
             // },
-            hint: "search_by_keywords".i18n,
+            hint: "common.search_by_keywords".i18n,
             prefixBuilder: (context, style, states) => Padding(
               padding: EdgeInsetsGeometry.only(left: 12, right: 10),
               child: Icon(FIcons.search),
@@ -83,14 +83,14 @@ class MobileSearchPage extends HookConsumerWidget {
           child: FTabs(
             children: [
               FTabEntry(
-                label: Text('type'.i18n),
+                label: Text('common.type'.i18n),
                 child: CategoryMultiGroup(
                   items: ['bangumi', 'manga', 'novel'],
                   onpress: (val) {},
                 ),
               ),
               FTabEntry(
-                label: Text('language'.i18n),
+                label: Text('common.language'.i18n),
                 child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
               ),
               FTabEntry(

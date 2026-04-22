@@ -78,7 +78,7 @@ class DesktopPlayerFooterMenu extends HookConsumerWidget {
                 controller: speedPopOverController,
               ),
               popoverBuilder: (context, ctrller) => InnerCard(
-                title: 'video_player.adjust_speed'.i18n,
+                title: 'media.video_player.adjust_speed'.i18n,
                 child: SizedBox(
                   width: 200,
                   child: FItemGroup(maxHeight: 150, children: []),

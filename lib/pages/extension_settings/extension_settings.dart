@@ -69,8 +69,8 @@ class ExtensionSettingPage extends HookConsumerWidget {
             children: [
               SettingPressTile(
                 isMobileLayout: isMobile,
-                title: 'source_code'.i18n,
-                subtitle: 'source_code_description'.i18n,
+                title: 'extension.source_code'.i18n,
+                subtitle: 'extension.source_code_description'.i18n,
                 prefix: Icon(FIcons.code),
                 onPress: () {
                   final extPath = Core.getExtensionPath;
@@ -80,8 +80,8 @@ class ExtensionSettingPage extends HookConsumerWidget {
               ),
               SettingPressTile(
                 isMobileLayout: isMobile,
-                subtitle: 'cookie_clear_description'.i18n,
-                title: 'cookie_clear'.i18n,
+                subtitle: 'extension.cookie_clear_description'.i18n,
+                title: 'extension.cookie_clear'.i18n,
                 prefix: Icon(FIcons.cookie),
                 onPress: () {},
               ),
@@ -154,13 +154,12 @@ class _RadioSetting extends HookWidget with FTileMixin {
           if (decoded is Map) {
             return decoded
                 .map(
-                  (key, value) =>
-                      MapEntry(key.toString().i18n, value.toString()),
+                  (key, value) => MapEntry(value.toString(), key.toString()),
                 )
                 .cast<String, String>();
           } else if (decoded is List) {
             return <String, String>{
-              for (var e in decoded) e.toString().i18n: e.toString(),
+              for (var e in decoded) e.toString(): e.toString(),
             };
           }
         }
@@ -182,11 +181,13 @@ class _RadioSetting extends HookWidget with FTileMixin {
       return items;
     }, [options, value.value]);
 
-    return SettingsRadiosTile(
+    return SettingsRadiosTile.detailed(
       isMobileLayout: isMobile,
       title: setting.title,
       subtitle: setting.description,
-      radios: safeOptions.keys.toList(),
+      entry: safeOptions.entries
+          .map((e) => RadioTileEntry(value: e.key, title: e.value))
+          .toList(),
       value: value.value,
       onChanged: (val) {
         value.value = val;

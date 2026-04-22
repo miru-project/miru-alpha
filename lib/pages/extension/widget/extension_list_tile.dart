@@ -211,7 +211,7 @@ class ExtensionGridTile extends StatelessWidget {
                         ),
                       FTooltip(
                         tipBuilder: (context, controller) =>
-                            Text('settings'.i18n),
+                            Text('common.settings'.i18n),
                         child: FButton.icon(
                           variant: .secondary,
                           onPress: () {
@@ -232,7 +232,7 @@ class ExtensionGridTile extends StatelessWidget {
                   FButton(
                     onPress: onInstall,
                     prefix: Icon(FIcons.download),
-                    child: Text('install'.i18n),
+                    child: Text('common.install'.i18n),
                   ),
               ],
             ),

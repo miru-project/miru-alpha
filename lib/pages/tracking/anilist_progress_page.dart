@@ -26,13 +26,13 @@ class AnilistProgressPage extends HookConsumerWidget {
       final success = await notifier.saveProgress(
         detailUrl: param.detailUrl,
         package: param.package,
-        title: state.media?.title.userPreferred ?? 'unknown'.i18n,
+        title: state.media?.title.userPreferred ?? 'common.unknown'.i18n,
       );
       if (context.mounted) {
         showSimpleToast(
           success
-              ? 'anilist.progress_saved'.i18n
-              : 'anilist.progress_save_failed'.i18n,
+              ? 'tracking.anilist.progress_saved'.i18n
+              : 'tracking.anilist.progress_save_failed'.i18n,
         );
         if (success) {
           if (param.detailPr != null) {
@@ -53,8 +53,8 @@ class AnilistProgressPage extends HookConsumerWidget {
       if (context.mounted) {
         showSimpleToast(
           success
-              ? 'anilist.tracker_unlinked'.i18n
-              : 'anilist.tracker_unlink_failed'.i18n,
+              ? 'tracking.anilist.tracker_unlinked'.i18n
+              : 'tracking.anilist.tracker_unlink_failed'.i18n,
         );
         if (success) {
           if (param.detailPr != null) {
@@ -73,9 +73,9 @@ class AnilistProgressPage extends HookConsumerWidget {
         builder: (context, style, animation) => FDialog(
           style: style,
           animation: animation,
-          title: Text('warning'.i18n),
+          title: Text('common.warning'.i18n),
           body: Text(
-            'anilist.delete_warning'.i18n.replaceAll('{provider}', 'AniList'),
+            'tracking.anilist.delete_warning'.i18n.replaceAll('{provider}', 'AniList'),
           ),
           actions: [
             FButton(
@@ -89,8 +89,8 @@ class AnilistProgressPage extends HookConsumerWidget {
                 if (context.mounted) {
                   showSimpleToast(
                     success
-                        ? 'anilist.entry_deleted'.i18n
-                        : 'anilist.entry_delete_failed'.i18n,
+                        ? 'tracking.anilist.entry_deleted'.i18n
+                        : 'tracking.anilist.entry_delete_failed'.i18n,
                   );
                   if (success) {
                     if (param.detailPr != null) {
@@ -102,12 +102,12 @@ class AnilistProgressPage extends HookConsumerWidget {
                   }
                 }
               },
-              child: Text('delete'.i18n),
+              child: Text('common.delete'.i18n),
             ),
             FButton(
               variant: .ghost,
               onPress: () => Navigator.of(context).pop(),
-              child: Text('cancel'.i18n),
+              child: Text('common.cancel'.i18n),
             ),
           ],
         ),
@@ -169,7 +169,7 @@ class AnilistProgressPage extends HookConsumerWidget {
       final intPart = state.score.toInt();
       final decimalPart = ((state.score * 10).toInt() % 10);
       showSheet(
-        'anilist.score'.i18n,
+        'tracking.anilist.score'.i18n,
         FPicker(
           control: .managed(
             initial: [intPart, decimalPart],
@@ -200,12 +200,12 @@ class AnilistProgressPage extends HookConsumerWidget {
 
     return MiruScaffold(
       mobileHeader: SnapSheetNested.back(
-        title: "anilist.tracking_progress".i18n,
+        title: "tracking.anilist.tracking_progress".i18n,
       ),
       body: state.isLoading
           ? const Center(child: FCircularProgress.loader())
           : state.media == null
-          ? const Center(child: Text('anilist.failed_load_media'))
+          ? const Center(child: Text('tracking.anilist.failed_load_media'))
           : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Column(
@@ -230,7 +230,7 @@ class AnilistProgressPage extends HookConsumerWidget {
                             children: [
                               Text(
                                 state.media!.title.userPreferred ??
-                                    'unknown'.i18n,
+                                    'common.unknown'.i18n,
                                 style: context.theme.typography.md.copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -241,12 +241,12 @@ class AnilistProgressPage extends HookConsumerWidget {
                                 [
                                   state.media!.status,
                                   if (state.media!.episodes != null)
-                                    '${'anilist.total'.i18n}: ${state.media!.episodes} ${'episodes'.i18n}',
+                                    '${'tracking.anilist.total'.i18n}: ${state.media!.episodes} ${'media.episodes'.i18n}',
                                   if (state.media!.chapters != null)
-                                    '${'anilist.total'.i18n}: ${state.media!.chapters} ${'chapters'.i18n}',
+                                    '${'tracking.anilist.total'.i18n}: ${state.media!.chapters} ${'media.chapters'.i18n}',
                                   if (state.media!.status == "RELEASING" &&
                                       state.media!.nextAiringEpisode != null)
-                                    '${'anilist.aired'.i18n}: ${state.media!.nextAiringEpisode!.episode - 1}',
+                                    '${'tracking.anilist.aired'.i18n}: ${state.media!.nextAiringEpisode!.episode - 1}',
                                 ].join(' • '),
                                 style: TextStyle(
                                   color: context.theme.colors.mutedForeground,
@@ -263,7 +263,7 @@ class AnilistProgressPage extends HookConsumerWidget {
                   FTileGroup(
                     children: [
                       FTile(
-                        title: Text('status'.i18n),
+                        title: Text('common.status'.i18n),
                         subtitle: Text(
                           AniListProvider.mediaListStatusToTranslate(
                             state.status,
@@ -273,7 +273,7 @@ class AnilistProgressPage extends HookConsumerWidget {
                           ),
                         ),
                         onPress: () => showPicker(
-                          title: 'status'.i18n,
+                          title: 'common.status'.i18n,
                           count: AnilistMediaListStatus.values.length,
                           initialIndex: AnilistMediaListStatus.values.indexOf(
                             state.status,
@@ -291,12 +291,12 @@ class AnilistProgressPage extends HookConsumerWidget {
                         ),
                       ),
                       FTile(
-                        title: Text('anilist.progress'.i18n),
+                        title: Text('tracking.anilist.progress'.i18n),
                         subtitle: Text(
                           '${state.progress} / ${state.media!.episodes ?? state.media!.chapters ?? '?'}',
                         ),
                         onPress: () => showPicker(
-                          title: 'anilist.progress'.i18n,
+                          title: 'tracking.anilist.progress'.i18n,
                           count:
                               (state.media!.episodes ??
                                   state.media!.chapters ??
@@ -308,7 +308,7 @@ class AnilistProgressPage extends HookConsumerWidget {
                         ),
                       ),
                       FTile(
-                        title: Text('anilist.score'.i18n),
+                        title: Text('tracking.anilist.score'.i18n),
                         subtitle: Text(state.score.toString()),
                         onPress: showScorePicker,
                       ),
@@ -324,7 +324,7 @@ class AnilistProgressPage extends HookConsumerWidget {
                             onPress: state.isSaving ? null : saveProgress,
                             child: state.isSaving
                                 ? const FCircularProgress.loader()
-                                : Text('anilist.save_progress'.i18n),
+                                : Text('tracking.anilist.save_progress'.i18n),
                           ),
                         ),
                         if (param.isLinked) ...[

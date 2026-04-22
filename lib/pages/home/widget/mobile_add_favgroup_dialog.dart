@@ -36,7 +36,7 @@ class MobileAddFAVDialog extends HookConsumerWidget {
             mainAxisSize: .min,
             children: [
               Text(
-                'favorite.manage_tags'.i18n,
+                'common.favorite.manage_tags'.i18n,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 19,
@@ -44,7 +44,7 @@ class MobileAddFAVDialog extends HookConsumerWidget {
               ),
               SizedBox(height: 5),
               Text(
-                'favorite.manage_tags_desc'.i18n,
+                'common.favorite.manage_tags_desc'.i18n,
                 style: TextStyle(
                   fontSize: 14,
                   height: 1.2,
@@ -62,8 +62,8 @@ class MobileAddFAVDialog extends HookConsumerWidget {
                           newFavGroupName = value.text;
                         },
                       ),
-                      label: Text('favorite.add_new_group'.i18n),
-                      hint: 'favorite.enter_group_name'.i18n,
+                      label: Text('common.favorite.add_new_group'.i18n),
+                      hint: 'common.favorite.enter_group_name'.i18n,
                     ),
                   ),
                   SizedBox(width: 10),
@@ -84,7 +84,7 @@ class MobileAddFAVDialog extends HookConsumerWidget {
               ),
               SizedBox(height: 20),
               Text(
-                'favorite.current_groups'.i18n,
+                'common.favorite.current_groups'.i18n,
                 style: TextStyle(
                   fontWeight: FontWeight.w500,
                   fontSize: 15,

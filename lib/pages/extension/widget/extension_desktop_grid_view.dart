@@ -69,15 +69,15 @@ class ExtensionView extends HookConsumerWidget {
                         Row(
                           children: [
                             ClearableSelect(
-                              hintText: 'all'.i18n.toUpperCase(),
-                              title: "type".i18n,
-                              items: ['video'.i18n, 'manga'.i18n, 'novel'.i18n],
+                              hintText: 'common.all'.i18n.toUpperCase(),
+                              title: "common.type".i18n,
+                              items: ['media.video'.i18n, 'media.manga'.i18n, 'media.novel'.i18n],
                               onChange: (val) {
-                                if (val == 'video'.i18n) {
+                                if (val == 'media.video'.i18n) {
                                   val = 'bangumi';
-                                } else if (val == 'manga'.i18n) {
+                                } else if (val == 'media.manga'.i18n) {
                                   val = 'manga';
-                                } else if (val == 'novel'.i18n) {
+                                } else if (val == 'media.novel'.i18n) {
                                   val = 'fikushon';
                                 } else {
                                   val = 'ALL';
@@ -87,10 +87,10 @@ class ExtensionView extends HookConsumerWidget {
                             ),
                             ClearableSelect(
                               // initialValue: 'ALL',
-                              hintText: 'all'.i18n.toUpperCase(),
+                              hintText: 'common.all'.i18n.toUpperCase(),
                               title: "extension.installed".i18n,
                               items: [
-                                'all'.i18n.toUpperCase(),
+                                'common.all'.i18n.toUpperCase(),
                                 'extension.installed'.i18n,
                                 'extension.not_installed'.i18n,
                               ],
@@ -112,8 +112,8 @@ class ExtensionView extends HookConsumerWidget {
                             Row(
                               children: [
                                 ClearableSelect(
-                                  hintText: 'all'.i18n.toUpperCase(),
-                                  title: "extension-repo.repository".i18n,
+                                  hintText: 'common.all'.i18n.toUpperCase(),
+                                  title: "extension.repo.repository".i18n,
                                   items: extNotifier.getRepoNames(),
                                   onChange: (val) {
                                     extNotifier.filterRepoByName(val ?? '');
@@ -124,7 +124,7 @@ class ExtensionView extends HookConsumerWidget {
                                   padding: const EdgeInsets.only(top: 20),
                                   child: FTooltip(
                                     tipBuilder: (context, controller) {
-                                      return Text('extension-repo.reload'.i18n);
+                                      return Text('extension.repo.reload'.i18n);
                                     },
                                     child: FButton.icon(
                                       onPress: () async {

@@ -57,7 +57,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
           Row(
             children: [
               Text(
-                "favorite.title".i18n,
+                "common.favorite.title".i18n,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 28,
@@ -78,7 +78,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                       const Icon(FIcons.plus),
                       const SizedBox(width: 4),
                       Text(
-                        "new_tag".i18n,
+                        "common.new_tag".i18n,
                         style: TextStyle(fontWeight: .normal),
                       ),
                     ],
@@ -116,28 +116,28 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                   children: [
                     FTabEntry(
                       label: Text(
-                        'all'.i18n,
+                        'common.all'.i18n,
                         style: TextStyle(fontWeight: .normal),
                       ),
                       child: SizedBox.shrink(),
                     ),
                     FTabEntry(
                       label: Text(
-                        'video'.i18n,
+                        'media.video'.i18n,
                         style: TextStyle(fontWeight: .normal),
                       ),
                       child: SizedBox.shrink(),
                     ),
                     FTabEntry(
                       label: Text(
-                        'manga'.i18n,
+                        'media.manga'.i18n,
                         style: TextStyle(fontWeight: .normal),
                       ),
                       child: SizedBox.shrink(),
                     ),
                     FTabEntry(
                       label: Text(
-                        'novel'.i18n,
+                        'media.novel'.i18n,
                         style: TextStyle(fontWeight: .normal),
                       ),
                       child: SizedBox.shrink(),
@@ -180,13 +180,13 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                       prefixBuilder: (context, style, states) => Padding(
                         padding: const .only(left: 14, right: 8),
                         child: Text(
-                          "sort_by".i18n,
+                          "common.sort_by".i18n,
                           style: TextStyle(
                             color: context.theme.colors.foreground,
                           ),
                         ),
                       ),
-                      hint: 'time'.i18n,
+                      hint: 'common.time'.i18n,
                       format: (s) => s,
                       children: [
                         for (final sort in [
@@ -209,7 +209,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                     variant: .outline,
                     prefix: Icon(FIcons.listFilter),
                     child: Text(
-                      'more_filter'.i18n,
+                      'common.more_filter'.i18n,
                       style: TextStyle(fontWeight: .normal),
                     ),
                   ),

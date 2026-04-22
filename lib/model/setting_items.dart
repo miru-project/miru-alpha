@@ -8,4 +8,5 @@ enum SideBarName {
   about,
   tracking,
   download,
+  developer,
 }

@@ -1,370 +1,394 @@
 {
-  "initializing_miru_core": "Initializing Miru core",
-  "home": "Home",
-  "history": "History",
-  "episode": {
-    "description": "Description",
-    "tracking": "Tracking",
-    "cast": "Cast"
+  "common": {
+    "home": "Home",
+    "search": "Search",
+    "settings": "Settings",
+    "favorite": {
+      "name": "Favorite",
+      "title": "Favorite",
+      "manage_tags": "Manage Tags",
+      "manage_tags_desc": "Organize your group by creating and managing favorite groups.",
+      "add_new_group": "Add a new favorite group",
+      "enter_group_name": "Enter group name...",
+      "current_groups": "CURRENT GROUPS"
+    },
+    "history": "History",
+    "download": "Download",
+    "library": "Library",
+    "your_library": "Your Library",
+    "library_description": "Pick up where you left off or manage your downloads.",
+    "wip": "WIP",
+    "all": "All",
+    "type": "Type",
+    "status": "Status",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "add": "Add",
+    "reset": "Reset",
+    "error": "Error",
+    "warning": "Warning",
+    "back": "Back",
+    "refresh": "Refresh",
+    "load_more": "Load More",
+    "page": "page",
+    "date": "Date",
+    "time": "Time",
+    "name": "Name",
+    "url": "URL",
+    "path": "Path",
+    "unknown": "Unknown",
+    "port": "Port",
+    "address": "Address",
+    "developer": "Developer",
+    "continue_text": "Continue",
+    "return_text": "Return",
+    "are_you_sure": "Are you absolutely sure?",
+    "overview": "Overview",
+    "general": "General",
+    "player": "Player",
+    "network": "Network",
+    "reader": "Reader",
+    "advanced": "Advanced",
+    "about": "About",
+    "miru": "Miru",
+    "alpha": "Alpha",
+    "webdav": "WebDav",
+    "signin": "Signin",
+    "licenses": "Licenses",
+    "close": "Close",
+    "install": "Install",
+    "language": "Language",
+    "play": "Play",
+    "none": "None",
+    "package": "Package",
+    "webview": "WebView",
+    "sort_by": "Sort by:",
+    "more_filter": "More Filter",
+    "paragraphs": "Paragraphs",
+    "group_name": "Group Name",
+    "new_tag": "New Tag",
+    "create_new_tag": "Create New Tag",
+    "select_tags_groups": "Select tags/groups",
+    "custom_context_menu": "Custom Context Menu",
+    "search_globally": "Search Globally",
+    "search_by_keywords": "Search by Keywords",
+    "search_for_favorites": "Search for Favorites",
+    "search_for_histories": "Search for Histories",
+    "active_tasks": "Active Tasks",
+    "downloads_history": "Download History",
+    "no_download_history": "No download history",
+    "no_active_downloads": "No active downloads",
+    "no_results": "No Results Found",
+    "no_licenses_found": "No licenses found",
+    "error_loading_downloads": "Error loading downloads",
+    "remove_history": "Remove History",
+    "remove_favorite": "Remove Favorite",
+    "package_not_found": "Package not found",
+    "initializing_miru_core": "Initializing Miru Core",
+    "saved_to": "Saved to",
+    "web_dav_sync_wip": "WebDAV Sync (WIP)",
+    "just_now": "Just now",
+    "minutes_ago": "{minutes} minutes ago",
+    "hours_ago": "{hours} hours ago",
+    "yesterday": "Yesterday",
+    "days_ago": "{days} days ago",
+    "weeks_ago": "{weeks} weeks ago",
+    "months_ago": "{months} months ago",
+    "years_ago": "{years} years ago"
   },
-  "favorite": {
-    "name": "Favorite",
-    "title": "Favorite",
-    "manage_tags": "Manage Tags",
-    "manage_tags_desc": "Organize your group by creating and managing favorite groups.",
-    "add_new_group": "Add a new favorite group",
-    "enter_group_name": "Enter group name...",
-    "current_groups": "CURRENT GROUPS"
+  "media": {
+    "episode": {
+      "description": "Description",
+      "tracking": "Tracking",
+      "cast": "Cast"
+    },
+    "chapters": "Chapters",
+    "episodes": "Episodes",
+    "no_episodes": "No Episode",
+    "no_episodes_found": "Error: No episodes found",
+    "cast": "Cast",
+    "no_cast_found": "No Cast Found",
+    "video": "Video",
+    "bangumi": "Bangumi",
+    "manga": "Manga",
+    "novel": "Novel",
+    "video_player": {
+      "name": "Video Player",
+      "information": "Adjust playback settings",
+      "play": "Play",
+      "speed": "Speed",
+      "adjust_speed": "Adjust playback speed",
+      "aspect_ratio": "Aspect Ratio",
+      "video_info": "Video Info",
+      "danmaku": "Danmaku",
+      "settings_placeholder_title": "Settings",
+      "settings_placeholder_body": "No settings available"
+    },
+    "download_started": "Download started",
+    "failed_to_start_download": "Failed to start download",
+    "downloaded": "Downloaded",
+    "failed_to_fetch_video_url": "Failed to fetch video URL",
+    "select_resolution": "Select Resolution",
+    "no_description": "Currently no description ... ",
+    "favorites_updated": "Favorites updated",
+    "favorited": "Favorited",
+    "add_to_favorites": "Add to Favorites",
+    "no_episodes_found_error": "Error: No episodes found"
   },
-  "download": "Download",
-  "search": "Search",
   "extension": {
     "name": "Extension",
-    "import": {
-      "title": "Import Extension",
-      "url-label": "Extension URL",
-      "tips": "You can import extensions through a link, or click on the extension directory below and place the extension file there.",
-      "extension-dir": "Extension Directory",
-      "import-by-url": "Import by URL",
-      "import-by-local": "Import Locally"
-    },
-    "error-dialog": "Error Message",
     "installed": "Installed",
     "not_installed": "Not Installed",
-    "edit-code": "Edit Code",
+    "pinned": "Pinned",
+    "pinned_extensions": "Pinned extensions",
+    "extensions_installed_desc": "Extensions that are already installed",
+    "search_extensions": "Search extensions",
+    "search_hint": "Search by Name or Tags ...",
+    "nsfw": "NSFW",
+    "update_available": "Update Available",
+    "edit_code": "Edit Code",
     "uninstall": "Uninstall",
     "uninstall_confirm": "Uninstall {name}?",
     "uninstall_success": "Uninstall Success",
     "uninstall_failed": "Uninstall Failed",
     "no_extensions_installed": "No extensions installed",
     "do_not_show_again": "Do not show again this dialog when try to uninstall",
-    "setting_wip": "Setting (WIP)",
-    "pinned": "Pinned",
-    "pinned_extensions": "Pinned extensions",
-    "extensions_installed_desc": "Extensions that are already installed",
+    "import": {
+      "title": "Import Extension",
+      "url_label": "Extension URL",
+      "tips": "You can import extensions through a link, or click on the extension directory below and place the extension file there.",
+      "extension_dir": "Extension Directory",
+      "import_by_url": "Import by URL",
+      "import_by_local": "Import Locally"
+    },
+    "repo": {
+      "error": "An error occurred!",
+      "error_tips": "Please check your network connection or the repository address",
+      "empty": "Repository is empty",
+      "upgrade": "Update",
+      "management": "Repo Management",
+      "add_repo": "Add Repo?",
+      "official_repo": "Official Repo",
+      "name_cannot_be_empty": "Name cannot be empty",
+      "url": "Repo URL",
+      "url_validation_error": "Repo url must contain .json extension.",
+      "remove_confirm": "Remove selected from repo?",
+      "remove_confirm_with_name": "Uninstall {name} from repo?",
+      "no_repos_found": "No extension repositories found.",
+      "reload": "Reload Repositories",
+      "repository": "Repository",
+      "load_error": "Error loading repos: {error}"
+    },
+    "source_code": "Source Code",
+    "source_code_description": "View extension source code",
+    "cookie_clear": "Clear Cookie",
+    "cookie_clear_description": "Clear extension cookies",
     "search_with_pinned_extensions": "Search with pinned extensions",
-    "search_extensions": "Search extensions",
-    "search_hint": "Search by Name or Tags ...",
-    "nsfw": "NSFW",
-    "update_available": "Update Available"
+    "setting_wip": "Extension settings (WIP)"
   },
-  "extension-repo": {
-    "error": "An error occurred!",
-    "error-tips": "Please check your network connection or the repository address",
-    "empty": "Repository is empty",
-    "upgrade": "Update",
-    "management": "Repo Management",
-    "add_repo": "Add Repo?",
-    "official_repo": "Official Repo",
-    "name_cannot_be_empty": "Name cannot be empty",
-    "url": "Repo URL",
-    "url_validation_error": "Repo url must contain .json extension.",
-    "remove_confirm": "Remove selected from repo?",
-    "remove_confirm_with_name": "Uninstall {name} from repo?",
-    "no_repos_found": "No extension repositories found.",
-    "reload": "Reload Repositories",
-    "repository": "Repository",
-    "load_error": "Error loading repos: {error}"
-  },
-  "settings": "Settings",
-  "overview": "Overview",
-  "general": "General",
-  "player": "Player",
-  "network": "Network",
-  "reader": "Reader",
-  "advanced": "Advanced",
-  "about": "About",
   "tracking": {
     "name": "Tracking",
     "logout": "Logout",
     "unlink": "Unlink",
-    "delete_entry": "Delete Entry"
-  },
-  "cast": "Cast",
-  "no_cast_found": "No Cast Found",
-  "download_directory": "Download Directory",
-  "select_download_directory": "Please select a target directory for your downloads. On Android, this will use the Storage Access Framework.",
-  "select_directory": "Select Directory",
-  "webdav": "WebDav",
-  "signin": "Signin",
-  "miru": "Miru",
-  "alpha": "Alpha",
-  "setting_general": {
-    "name": "General Settings",
-    "information": "Personalize your experience"
-  },
-  "setting_extension": {
-    "name": "Repo Settings",
-    "information": "repos"
-  },
-  "setting_miru_core": {
-    "name": "Miru Core Settings",
-    "information": "network, download"
-  },
-  "setting_watch": {
-    "name": "Watch Settings",
-    "information": "player, readers ..."
-  },
-  "setting_about": {
-    "name": "About",
-    "information": ""
-  },
-  "video_player": {
-    "name": "Video Player",
-    "information": "Adjust playback settings",
-    "play": "Play"
-  },
-  "danmaku": "Danmaku",
-  "reset": "Reset",
-  "speed": "Speed",
-  "adjust_speed": "Adjust playback speed",
-  "aspect_ratio": "Aspect Ratio",
-  "video_info": "Video Info",
-  "settings_placeholder_title": "Are you absolutely sure?",
-  "settings_placeholder_body": "This action cannot be undone. This will permanently delete your account and remove your data from our servers.",
-  "player_setting": "player setting",
-  "readers": "Readers",
-  "novels_manga": "Novels, Manga ...",
-  "licenses": "Licenses",
-  "library": "Library",
-  "web_dav_sync_wip": "Web Dav sync (WIP)",
-  "all": "All",
-  "search_for_histories": "Search for Histories...",
-  "search_for_favorites": "Search for Favorites...",
-  "type": "Type",
-  "video": "Video",
-  "bangumi": "Bangumi",
-  "manga": "Manga",
-  "novel": "Novel",
-  "your_library": "Your Library",
-  "library_description": "Pick up where you left off or manage your downloads.",
-  "wip": "WIP",
-  "no_episodes": "No Episode",
-  "episodes": "Episodes",
-  "chapters": "Chapters",
-  "sync": "Sync",
-  "anilist": {
-    "name": "Anilist",
-    "watching": "Watching",
-    "reading": "Reading",
-    "completed": "Completed",
-    "planning": "Planning",
-    "hold-on": "Hold on",
-    "dropped": "Dropped",
-    "re-watching": "Re-watching",
-    "re-reading": "Re-reading",
-    "tracking_progress": "Tracking Progress",
-    "failed_load_media": "Failed to load media",
-    "progress_saved": "Progress saved",
-    "progress_save_failed": "Failed to save progress",
-    "entry_deleted": "Entry deleted",
-    "entry_delete_failed": "Failed to delete entry",
-    "total": "Total",
-    "aired": "Aired",
-    "save_progress": "Save Progress",
-    "score": "Score",
-    "progress": "Progress",
-    "link": "Link AniList",
-    "tracker_unlinked": "Tracker unlinked",
-    "tracker_unlink_failed": "Failed to unlink tracker",
-    "delete_warning": "By doing this action it will delete entry on {provider}",
-    "current_status": "Current Status"
-  },
-  "just_now": "Just now",
-  "minutes_ago": "{minutes} minutes ago",
-  "hours_ago": "{hours} hours ago",
-  "yesterday": "Yesterday",
-  "days_ago": "{days} days ago",
-  "weeks_ago": "{weeks} weeks ago",
-  "months_ago": "{months} months ago",
-  "years_ago": "{years} years ago",
-  "page": "page",
-  "select_resolution": "Select Resolution",
-  "download_started": "Download started",
-  "failed_to_start_download": "Failed to start download",
-  "downloaded": "Downloaded",
-  "failed_to_fetch_video_url": "Failed to fetch video URL",
-  "favorites_updated": "Favorites updated",
-  "install": "Install",
-  "favorited": "Favorited",
-  "webview": "WebView",
-  "no_description": "Currently no description ... ",
-  "add_to_favorites": "Add to Favorites",
-  "select_tags_groups": "Select tags/groups for this item:",
-  "group_name": "Group Name",
-  "create_new_tag": "Create New Tag",
-  "save": "Save",
-  "cancel": "Cancel",
-  "confirm": "Confirm",
-  "add": "Add",
-  "error": "Error",
-  "warning": "Warning",
-  "delete": "Delete",
-  "from": "from",
-  "status": "Status",
-  "package": "Package",
-  "date": "Date",
-  "saved_to": "Saved to",
-  "unknown": "Unknown",
-  "path": "Path",
-  "no_licenses_found": "No licenses found",
-  "paragraphs": "paragraphs",
-  "are_you_sure": "Are you absolutely sure?",
-  "continue_text": "Continue",
-  "setting_network": {
-    "name": "Setting Network",
-    "information": "Information"
-  },
-  "setting_proxy": {
-    "name": "Setting Proxy",
-    "information": "select proxy",
-    "select": "Select",
-    "add_proxy": "Add Proxy",
-    "proxy_settings": "Proxy Settings",
-    "remove_proxy_count": "Remove {count} Proxy ?",
-    "no_proxy": "No proxy",
-    "enable": "Enable"
-  },
-  "address": "Address",
-  "port": "Port",
-  "no_episodes_found": "Error: No episodes found",
-  "back": "Back",
-  "return_text": "Return",
-  "no_active_downloads": "No active downloads",
-  "no_download_history": "No download history",
-  "error_loading_downloads": "Error loading downloads",
-  "completed": "Completed",
-  "failed": "Failed",
-  "paused": "Paused",
-  "downloading": "Downloading",
-  "search_globally": "Search globally",
-  "search_by_keywords": "Search by Keywords ...",
-  "custom_context_menu": "Custom Context Menu",
-  "anilist_login": "Anilist Login",
-  "manga_reader": {
-    "alignment_settings": {
-      "name": "Alignment Settings",
-      "information": ""
-    },
-    "page_settings": {
-      "name": "Page Settings",
-      "information": ""
-    },
-    "general_settings": {
-      "name": "General Settings",
-      "information": ""
-    },
-    "read_mode": {
-      "name": "Read Mode",
-      "information": ""
+    "delete_entry": "Delete Entry",
+    "anilist": {
+      "name": "Anilist",
+      "watching": "Watching",
+      "reading": "Reading",
+      "completed": "Completed",
+      "planning": "Planning",
+      "hold-on": "Hold on",
+      "dropped": "Dropped",
+      "re-watching": "Re-watching",
+      "re-reading": "Re-reading",
+      "tracking_progress": "Tracking Progress",
+      "failed_load_media": "Failed to load media",
+      "progress_saved": "Progress saved",
+      "progress_save_failed": "Failed to save progress",
+      "entry_deleted": "Entry deleted",
+      "entry_delete_failed": "Failed to delete entry",
+      "total": "Total",
+      "aired": "Aired",
+      "save_progress": "Save Progress",
+      "score": "Score",
+      "progress": "Progress",
+      "link": "Link AniList",
+      "tracker_unlinked": "Tracker unlinked",
+      "tracker_unlink_failed": "Failed to unlink tracker",
+      "delete_warning": "By doing this action it will delete entry on {provider}",
+      "current_status": "Current Status"
     }
   },
-  "novel_reader": {
-    "alignment_settings": {
-      "name": "Alignment Settings",
-      "information": ""
+  "settings": {
+    "labels": {
+      "content": {
+        "name": "Content",
+        "information": ""
+      },
+      "tmdb_api_key": {
+        "name": "TMDB api key",
+        "information": "api for tmdb-api",
+        "hint": "Enter your TMDB Api key"
+      },
+      "allow_nsfw": {
+        "name": "Allow NSFW",
+        "information": "Show NSFW extensions and content"
+      },
+      "appearance": {
+        "name": "Appearance",
+        "information": ""
+      },
+      "theme": {
+        "name": "Theme",
+        "information": "Change the application theme"
+      },
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "accent_color": {
+        "name": "Accent Color",
+        "information": "Change the application accent color"
+      },
+      "others": {
+        "name": "Others",
+        "information": ""
+      },
+      "auto_update": {
+        "name": "Auto Update",
+        "information": "Automatically check for updates"
+      },
+      "mobile_header_top": {
+        "name": "Mobile header always on top",
+        "information": "Make the app bar header always on top in mobile"
+      },
+      "show_page_number": {
+        "name": "Show page number",
+        "information": "Show page number in Search / Latest"
+      },
+      "language": {
+        "name": "Language",
+        "information": "Change the application language"
+      },
+      "en": "English",
+      "zh": "Chinese",
+      "zinc": "Zinc",
+      "neutral": "Neutral",
+      "slate": "Slate",
+      "red": "Red",
+      "rose": "Rose",
+      "orange": "Orange",
+      "green": "Green",
+      "blue": "Blue",
+      "yellow": "Yellow",
+      "violet": "Violet"
     },
-    "page_settings": {
-      "name": "Page Settings",
-      "information": ""
-    },
-    "general_settings": {
+    "general": {
       "name": "General Settings",
+      "information": "Personalize your experience"
+    },
+    "extension": {
+      "name": "Repo Settings",
+      "information": "repos"
+    },
+    "miru_core": {
+      "name": "Miru Core Settings",
+      "information": "network, download"
+    },
+    "watch": {
+      "name": "Watch Settings",
+      "information": "player, readers ..."
+    },
+    "about": {
+      "name": "About",
       "information": ""
     },
-    "font_size": {
-      "name": "Font Size",
-      "information": ""
+    "network": {
+      "name": "Setting Network",
+      "information": "Information"
     },
-    "line_height": {
-      "name": "Line Height",
-      "information": ""
+    "proxy": {
+      "name": "Setting Proxy",
+      "information": "select proxy",
+      "select": "Select",
+      "add_proxy": "Add Proxy",
+      "proxy_settings": "Proxy Settings",
+      "remove_proxy_count": "Remove {count} Proxy ?",
+      "no_proxy": "No proxy",
+      "enable": "Enable"
     },
-    "font_family": {
-      "name": "Font Family",
-      "information": ""
+    "download_directory": "Download Directory",
+    "select_download_directory": "Please select a target directory for your downloads. On Android, this will use the Storage Access Framework.",
+    "select_directory": "Select Directory",
+    "select_download_directory_tip": "Select Download Directory"
+  },
+  "reader": {
+    "manga": {
+      "alignment_settings": {
+        "name": "Alignment Settings",
+        "information": ""
+      },
+      "page_settings": {
+        "name": "Page Settings",
+        "information": ""
+      },
+      "general_settings": {
+        "name": "General Settings",
+        "information": ""
+      },
+      "read_mode": {
+        "name": "Read Mode",
+        "information": "Change the reading direction",
+        "standard": "Standard",
+        "rightToLeft": "Right to Left",
+        "webToon": "WebToon"
+      }
+    },
+    "novel": {
+      "alignment_settings": {
+        "name": "Alignment Settings",
+        "information": ""
+      },
+      "page_settings": {
+        "name": "Page Settings",
+        "information": ""
+      },
+      "general_settings": {
+        "name": "General Settings",
+        "information": ""
+      },
+      "font_size": {
+        "name": "Font Size",
+        "information": ""
+      },
+      "line_height": {
+        "name": "Line Height",
+        "information": ""
+      },
+      "font_family": {
+        "name": "Font Family",
+        "information": ""
+      },
+      "read_mode": {
+        "name": "Read Mode",
+        "information": "Change the reading direction",
+        "standard": "Standard",
+        "rightToLeft": "Right to Left",
+        "webToon": "WebToon",
+        "rightToLeftFlip": "Right to Left (Flip)",
+        "standardFlip": "Standard (Flip)"
+      }
     }
   },
-  "remove_history": "Remove History",
-  "remove_favorite": "Remove Favorite",
-  "new_tag": "New Tag",
-  "sort_by": "Sort:",
-  "time": "Time",
-  "more_filter": "More filter",
-  "active_tasks": "Active Tasks",
-  "downloads_history": "Downloads History",
-  "load_more": "Load More",
-  "select_download_directory_tip": "Select Download Directory",
-  "package_not_found": "Package Not Found",
-  "name": "Name",
-  "url": "URL",
-  "tmdb_api_key_wip": "TMDB Api keys (WIP)",
-  "enter_tmdb_api_key": "Enter your TMDB Api keys",
-  "language": "Language",
-  "settings_labels": {
-    "content": {
-      "name": "Content",
-      "information": ""
-    },
-    "tmdb_api_key": {
-      "name": "TMDB api key",
-      "information": "api for tmdb-api"
-    },
-    "allow_nsfw": {
-      "name": "Allow NSFW",
-      "information": "Show NSFW extensions and content"
-    },
-    "appearance": {
-      "name": "Appearance",
-      "information": ""
-    },
-    "theme": {
-      "name": "Theme",
-      "information": "Change the application theme"
-    },
-    "system": "System",
-    "light": "Light",
-    "dark": "Dark",
-    "accent_color": {
-      "name": "Accent Color",
-      "information": "Change the application accent color"
-    },
-    "others": {
-      "name": "Others",
-      "information": ""
-    },
-    "auto_update": {
-      "name": "Auto Update",
-      "information": "Automatically check for updates"
-    },
-    "mobile_header_top": {
-      "name": "Mobile header always on top",
-      "information": "Make the app bar header always on top in mobile"
-    },
-    "show_page_number": {
-      "name": "Show page number",
-      "information": "Show page number in Search / Latest"
-    },
-    "language": {
-      "name": "Language",
-      "information": "Change the application language"
-    },
-    "en": "English",
-    "zh": "Chinese",
-    "zinc": "Zinc",
-    "neutral": "Neutral",
-    "slate": "Slate",
-    "red": "Red",
-    "rose": "Rose",
-    "orange": "Orange",
-    "green": "Green",
-    "blue": "Blue",
-    "yellow": "Yellow",
-    "violet": "Violet"
-  },
-  "source_code": "Source Code",
-  "source_code_description": "View extension source code",
-  "cookie_clear": "Clear Cookie",
-  "cookie_clear_description": "Clear extension cookies",
-  "no_results": "No results found"
+  "time": {
+    "just_now": "Just now",
+    "minutes_ago": "{minutes} minutes ago",
+    "hours_ago": "{hours} hours ago",
+    "yesterday": "Yesterday",
+    "days_ago": "{days} days ago",
+    "weeks_ago": "{weeks} weeks ago",
+    "months_ago": "{months} months ago",
+    "years_ago": "{years} years ago"
+  }
 }

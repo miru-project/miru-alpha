@@ -44,10 +44,10 @@ class DownloadPage extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("download".i18n, style: context.theme.typography.xl2),
+            Text("common.download".i18n, style: context.theme.typography.xl2),
             FTooltip(
               tipBuilder: (context, controller) =>
-                  Text("select_download_directory_tip".i18n),
+                  Text("settings.select_download_directory_tip".i18n),
               child: FButton.icon(
                 onPress: () async {
                   String? result = await FilePicker.getDirectoryPath();
@@ -67,7 +67,7 @@ class DownloadPage extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
-              "${"path".i18n}: $downloadPath",
+              "${"common.path".i18n}: $downloadPath",
               style: context.theme.typography.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
@@ -102,14 +102,14 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
                 children: [
                   if (activeTasks.isNotEmpty)
                     FTileGroup.builder(
-                      label: Text("active_tasks".i18n),
+                      label: Text("common.active_tasks".i18n),
                       count: activeTasks.length,
                       tileBuilder: (context, index) =>
                           DownloadProcessTile(progress: activeTasks[index]),
                     ),
                   const SizedBox(height: 24),
                   FTileGroup.builder(
-                    label: Text("downloads_history".i18n),
+                    label: Text("common.downloads_history".i18n),
                     count: downloadState.history.length,
                     tileBuilder: (context, index) => DownloadHistoryTile(
                       download: downloadState.history[index],
@@ -123,7 +123,7 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
                           onPress: () => ref
                               .read(downloadProvider.notifier)
                               .loadMoreHistory(),
-                          child: Text("load_more".i18n),
+                          child: Text("common.load_more".i18n),
                         ),
                       ),
                     ),

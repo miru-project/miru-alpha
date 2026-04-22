@@ -73,9 +73,9 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
       return Center(
         child: Column(
           children: [
-            Text('no_episodes_found'.i18n),
+            Text('media.no_episodes_found'.i18n),
             FButton.icon(
-              child: Text('back'.i18n),
+              child: Text('common.back'.i18n),
               onPress: () {
                 context.pop();
               },
@@ -172,7 +172,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     onPress: () {
                       context.pop();
                     },
-                    child: Text('return_text'.i18n),
+                    child: Text('common.return_text'.i18n),
                   ),
                 ),
               ),

@@ -31,9 +31,9 @@ class MobileDetailTabs extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<String> tabTitles = [
-      'episode.description'.i18n,
-      'episode.tracking'.i18n,
-      'episode.cast'.i18n,
+      'media.episode.description'.i18n,
+      'media.episode.tracking'.i18n,
+      'media.episode.cast'.i18n,
     ];
 
     final detailState = ref.watch(detailPr);
@@ -59,7 +59,7 @@ class MobileDetailTabs extends HookConsumerWidget {
               vertical: 10,
             ),
             child: Text(
-              detail.desc ?? 'no_description'.i18n,
+              detail.desc ?? 'media.no_description'.i18n,
               textAlign: TextAlign.start,
               style: const TextStyle(height: 1.4, fontWeight: .w600),
             ),
@@ -88,7 +88,7 @@ class MobileDetailTabs extends HookConsumerWidget {
               height: 24,
               colorFilter: .mode(context.theme.colors.foreground, .srcIn),
             ),
-            title: Text('anilist'.i18n),
+            title: Text('tracking.anilist.name'.i18n),
             suffix: () {
               if (anilistTracker != null) {
                 final progress =
@@ -133,7 +133,7 @@ class MobileDetailTabs extends HookConsumerWidget {
                 );
               }
               return Text(
-                'none'.i18n,
+                'common.none'.i18n,
                 style: context.theme.typography.sm.copyWith(
                   color: context.theme.colors.mutedForeground,
                 ),
@@ -199,7 +199,7 @@ class _MobileCastSection extends HookConsumerWidget {
       return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Text("no_cast_found".i18n),
+          child: Text("media.no_cast_found".i18n),
         ),
       );
     }
@@ -209,7 +209,7 @@ class _MobileCastSection extends HookConsumerWidget {
       return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Text("no_cast_found".i18n),
+          child: Text("media.no_cast_found".i18n),
         ),
       );
     }

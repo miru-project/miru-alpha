@@ -24,7 +24,7 @@ class FavoritesHeader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'favorite.title'.i18n,
+              'common.favorite.title'.i18n,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ],

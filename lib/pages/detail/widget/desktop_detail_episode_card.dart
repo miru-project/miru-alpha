@@ -36,7 +36,7 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
 
     return AnimatedBox(
       child: OutterCard(
-        title: 'episodes'.i18n,
+        title: 'media.episodes'.i18n,
         trailing: Row(
           children: [
             FButton(
@@ -48,7 +48,7 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
                   fetchDetailProvider(meta.packageName, detailUrl, force: true),
                 );
               },
-              child: Text('refresh'.i18n),
+              child: Text('common.refresh'.i18n),
             ),
             SizedBox(width: 10),
             SizedBox(

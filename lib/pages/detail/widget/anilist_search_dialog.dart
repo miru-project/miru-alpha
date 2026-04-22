@@ -74,7 +74,7 @@ class AnilistSearchDialog extends HookConsumerWidget {
     return FDialog(
       style: style,
       animation: animation,
-      title: Text('search'.i18n),
+      title: Text('common.search'.i18n),
       body: SizedBox(
         width: 600,
         height: 500,
@@ -101,7 +101,7 @@ class AnilistSearchDialog extends HookConsumerWidget {
               child: isLoading.value
                   ? const Center(child: FCircularProgress.loader())
                   : results.value.isEmpty
-                  ? Center(child: Text('no_results'.i18n))
+                  ? Center(child: Text('common.no_results'.i18n))
                   : ListView.separated(
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 8),
@@ -125,7 +125,7 @@ class AnilistSearchDialog extends HookConsumerWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           subtitle: Text(
-                            '${item.status} • ${item.episodes ?? item.chapters ?? "?"} ${item.type == 'ANIME' ? 'episodes'.i18n : 'chapters'.i18n}',
+                            '${item.status} • ${item.episodes ?? item.chapters ?? "?"} ${item.type == 'ANIME' ? 'media.episodes'.i18n : 'media.chapters'.i18n}',
                             style: TextStyle(
                               color: context.theme.colors.mutedForeground,
                               fontSize: 12,

@@ -156,7 +156,7 @@ class _EntryLoadingState extends State<EntryLoadingState> {
             children: [
               Text(
                 _initialized
-                    ? "initializing_miru_core".i18n
+                    ? "common.initializing_miru_core".i18n
                     : "Initializing Miru core...",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
               ),

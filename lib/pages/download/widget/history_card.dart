@@ -18,12 +18,12 @@ class DownloadHistoryCard extends ConsumerWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("${"package".i18n}: ${download.package}"),
-          Text("${"status".i18n}: ${download.status}"),
-          Text("${"date".i18n}: ${download.date}"),
+          Text("${"common.package".i18n}: ${download.package}"),
+          Text("${"common.status".i18n}: ${download.status}"),
+          Text("${"common.date".i18n}: ${download.date}"),
           if (download.savePath.isNotEmpty)
             Text(
-              "${"saved_to".i18n}: ${download.savePath}",
+              "${"common.saved_to".i18n}: ${download.savePath}",
               overflow: TextOverflow.ellipsis,
             ),
         ],

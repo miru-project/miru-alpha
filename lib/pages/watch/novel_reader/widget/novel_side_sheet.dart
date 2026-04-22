@@ -34,7 +34,7 @@ class NovelSideSheet extends StatelessWidget {
             FTabEntry(
               label: Icon(FIcons.alignHorizontalJustifyEnd),
               child: Center(
-                child: Text('novel_reader.alignment_settings.name'.i18n),
+                child: Text('reader.novel.alignment_settings.name'.i18n),
               ),
             ),
             FTabEntry(

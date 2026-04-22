@@ -26,7 +26,7 @@ class DetailTrackingBox extends HookConsumerWidget {
     final state = ref.watch(detailPr);
     final tabController = useTabController(initialLength: 3);
     return OutterCard(
-      title: "cast".i18n,
+      title: "media.cast".i18n,
       trailing: SizedBox(
         width: 300,
         height: 40,
@@ -116,11 +116,11 @@ class _TMDBSection extends HookConsumerWidget {
     }
 
     if (state.tmdbDetail == null && hasAttempted.value) {
-      return Center(child: Text("no_cast_found".i18n));
+      return Center(child: Text("media.no_cast_found".i18n));
     }
 
     final tmdb = state.tmdbDetail!;
-    if (tmdb.casts.isEmpty) return Text("no_cast_found".i18n);
+    if (tmdb.casts.isEmpty) return Text("media.no_cast_found".i18n);
 
     return SizedBox(
       height: 150,

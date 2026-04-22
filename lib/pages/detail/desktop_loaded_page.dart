@@ -66,7 +66,7 @@ class DesktopLoadedPage extends HookConsumerWidget {
                       const SizedBox(height: 30),
                       if (ep.isEmpty)
                         DesktopDetailItemBox(
-                          title: 'no_episodes_found'.i18n,
+                          title: 'media.no_episodes_found'.i18n,
                           padding: 20,
                           child: SizedBox(),
                         )
@@ -113,7 +113,7 @@ class DesktopLoadedPage extends HookConsumerWidget {
                                     .srcIn,
                                   ),
                                 ),
-                                title: Text('Anilist'.i18n),
+                                title: Text('tracking.anilist.name'.i18n),
                                 suffix: Text(
                                   anilistTracker != null
                                       ? '${AniListProvider.mediaListStatusToTranslate(AniListProvider.stringToMediaListStatus(anilistTracker.status), meta.type == ExtensionType.bangumi ? AnilistType.anime : AnilistType.manga)} • ${anilistTracker.progress}${anilistTracker.hasTotalProgress() && anilistTracker.totalProgress != 0 ? ' / ${anilistTracker.totalProgress}' : ''}'
