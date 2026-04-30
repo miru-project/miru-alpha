@@ -12,6 +12,7 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'common.pb.dart' as $1;
@@ -61,6 +62,8 @@ enum WatchEventsResponse_Event {
   downloadEvent,
   extensionEvent,
   historyEvent,
+  devLogEvent,
+  devNetworkEvent,
   notSet
 }
 
@@ -69,11 +72,15 @@ class WatchEventsResponse extends $pb.GeneratedMessage {
     DownloadEvent? downloadEvent,
     ExtensionEvent? extensionEvent,
     HistoryEvent? historyEvent,
+    DevLogEvent? devLogEvent,
+    DevNetworkEvent? devNetworkEvent,
   }) {
     final result = create();
     if (downloadEvent != null) result.downloadEvent = downloadEvent;
     if (extensionEvent != null) result.extensionEvent = extensionEvent;
     if (historyEvent != null) result.historyEvent = historyEvent;
+    if (devLogEvent != null) result.devLogEvent = devLogEvent;
+    if (devNetworkEvent != null) result.devNetworkEvent = devNetworkEvent;
     return result;
   }
 
@@ -91,19 +98,25 @@ class WatchEventsResponse extends $pb.GeneratedMessage {
     1: WatchEventsResponse_Event.downloadEvent,
     2: WatchEventsResponse_Event.extensionEvent,
     3: WatchEventsResponse_Event.historyEvent,
+    4: WatchEventsResponse_Event.devLogEvent,
+    5: WatchEventsResponse_Event.devNetworkEvent,
     0: WatchEventsResponse_Event.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'WatchEventsResponse',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
-    ..oo(0, [1, 2, 3])
+    ..oo(0, [1, 2, 3, 4, 5])
     ..aOM<DownloadEvent>(1, _omitFieldNames ? '' : 'downloadEvent',
         subBuilder: DownloadEvent.create)
     ..aOM<ExtensionEvent>(2, _omitFieldNames ? '' : 'extensionEvent',
         subBuilder: ExtensionEvent.create)
     ..aOM<HistoryEvent>(3, _omitFieldNames ? '' : 'historyEvent',
         subBuilder: HistoryEvent.create)
+    ..aOM<DevLogEvent>(4, _omitFieldNames ? '' : 'devLogEvent',
+        subBuilder: DevLogEvent.create)
+    ..aOM<DevNetworkEvent>(5, _omitFieldNames ? '' : 'devNetworkEvent',
+        subBuilder: DevNetworkEvent.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -128,11 +141,15 @@ class WatchEventsResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   @$pb.TagNumber(2)
   @$pb.TagNumber(3)
+  @$pb.TagNumber(4)
+  @$pb.TagNumber(5)
   WatchEventsResponse_Event whichEvent() =>
       _WatchEventsResponse_EventByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(1)
   @$pb.TagNumber(2)
   @$pb.TagNumber(3)
+  @$pb.TagNumber(4)
+  @$pb.TagNumber(5)
   void clearEvent() => $_clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
@@ -167,6 +184,28 @@ class WatchEventsResponse extends $pb.GeneratedMessage {
   void clearHistoryEvent() => $_clearField(3);
   @$pb.TagNumber(3)
   HistoryEvent ensureHistoryEvent() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  DevLogEvent get devLogEvent => $_getN(3);
+  @$pb.TagNumber(4)
+  set devLogEvent(DevLogEvent value) => $_setField(4, value);
+  @$pb.TagNumber(4)
+  $core.bool hasDevLogEvent() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearDevLogEvent() => $_clearField(4);
+  @$pb.TagNumber(4)
+  DevLogEvent ensureDevLogEvent() => $_ensure(3);
+
+  @$pb.TagNumber(5)
+  DevNetworkEvent get devNetworkEvent => $_getN(4);
+  @$pb.TagNumber(5)
+  set devNetworkEvent(DevNetworkEvent value) => $_setField(5, value);
+  @$pb.TagNumber(5)
+  $core.bool hasDevNetworkEvent() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearDevNetworkEvent() => $_clearField(5);
+  @$pb.TagNumber(5)
+  DevNetworkEvent ensureDevNetworkEvent() => $_ensure(4);
 }
 
 class DownloadEvent extends $pb.GeneratedMessage {
@@ -322,6 +361,258 @@ class HistoryEvent extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $pb.PbList<$2.History> get history => $_getList(0);
+}
+
+class DevLogEvent extends $pb.GeneratedMessage {
+  factory DevLogEvent({
+    $core.String? package,
+    $core.String? message,
+    $core.String? level,
+    $fixnum.Int64? timestamp,
+  }) {
+    final result = create();
+    if (package != null) result.package = package;
+    if (message != null) result.message = message;
+    if (level != null) result.level = level;
+    if (timestamp != null) result.timestamp = timestamp;
+    return result;
+  }
+
+  DevLogEvent._();
+
+  factory DevLogEvent.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory DevLogEvent.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DevLogEvent',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'package')
+    ..aOS(2, _omitFieldNames ? '' : 'message')
+    ..aOS(3, _omitFieldNames ? '' : 'level')
+    ..aInt64(4, _omitFieldNames ? '' : 'timestamp')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DevLogEvent clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DevLogEvent copyWith(void Function(DevLogEvent) updates) =>
+      super.copyWith((message) => updates(message as DevLogEvent))
+          as DevLogEvent;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DevLogEvent create() => DevLogEvent._();
+  @$core.override
+  DevLogEvent createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static DevLogEvent getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DevLogEvent>(create);
+  static DevLogEvent? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get package => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set package($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasPackage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPackage() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get message => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set message($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasMessage() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMessage() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get level => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set level($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasLevel() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearLevel() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get timestamp => $_getI64(3);
+  @$pb.TagNumber(4)
+  set timestamp($fixnum.Int64 value) => $_setInt64(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasTimestamp() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTimestamp() => $_clearField(4);
+}
+
+class DevNetworkEvent extends $pb.GeneratedMessage {
+  factory DevNetworkEvent({
+    $core.String? package,
+    $core.String? url,
+    $core.String? method,
+    $core.int? status,
+    $fixnum.Int64? duration,
+    $fixnum.Int64? timestamp,
+    $core.String? requestHeaders,
+    $core.String? requestBody,
+    $core.String? responseHeaders,
+    $core.String? responseBody,
+  }) {
+    final result = create();
+    if (package != null) result.package = package;
+    if (url != null) result.url = url;
+    if (method != null) result.method = method;
+    if (status != null) result.status = status;
+    if (duration != null) result.duration = duration;
+    if (timestamp != null) result.timestamp = timestamp;
+    if (requestHeaders != null) result.requestHeaders = requestHeaders;
+    if (requestBody != null) result.requestBody = requestBody;
+    if (responseHeaders != null) result.responseHeaders = responseHeaders;
+    if (responseBody != null) result.responseBody = responseBody;
+    return result;
+  }
+
+  DevNetworkEvent._();
+
+  factory DevNetworkEvent.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory DevNetworkEvent.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DevNetworkEvent',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'package')
+    ..aOS(2, _omitFieldNames ? '' : 'url')
+    ..aOS(3, _omitFieldNames ? '' : 'method')
+    ..aI(4, _omitFieldNames ? '' : 'status')
+    ..aInt64(5, _omitFieldNames ? '' : 'duration')
+    ..aInt64(6, _omitFieldNames ? '' : 'timestamp')
+    ..aOS(7, _omitFieldNames ? '' : 'requestHeaders')
+    ..aOS(8, _omitFieldNames ? '' : 'requestBody')
+    ..aOS(9, _omitFieldNames ? '' : 'responseHeaders')
+    ..aOS(10, _omitFieldNames ? '' : 'responseBody')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DevNetworkEvent clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DevNetworkEvent copyWith(void Function(DevNetworkEvent) updates) =>
+      super.copyWith((message) => updates(message as DevNetworkEvent))
+          as DevNetworkEvent;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DevNetworkEvent create() => DevNetworkEvent._();
+  @$core.override
+  DevNetworkEvent createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static DevNetworkEvent getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DevNetworkEvent>(create);
+  static DevNetworkEvent? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get package => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set package($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasPackage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPackage() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get url => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set url($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasUrl() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearUrl() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get method => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set method($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasMethod() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearMethod() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get status => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set status($core.int value) => $_setSignedInt32(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasStatus() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearStatus() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $fixnum.Int64 get duration => $_getI64(4);
+  @$pb.TagNumber(5)
+  set duration($fixnum.Int64 value) => $_setInt64(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasDuration() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearDuration() => $_clearField(5);
+
+  @$pb.TagNumber(6)
+  $fixnum.Int64 get timestamp => $_getI64(5);
+  @$pb.TagNumber(6)
+  set timestamp($fixnum.Int64 value) => $_setInt64(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasTimestamp() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearTimestamp() => $_clearField(6);
+
+  @$pb.TagNumber(7)
+  $core.String get requestHeaders => $_getSZ(6);
+  @$pb.TagNumber(7)
+  set requestHeaders($core.String value) => $_setString(6, value);
+  @$pb.TagNumber(7)
+  $core.bool hasRequestHeaders() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearRequestHeaders() => $_clearField(7);
+
+  @$pb.TagNumber(8)
+  $core.String get requestBody => $_getSZ(7);
+  @$pb.TagNumber(8)
+  set requestBody($core.String value) => $_setString(7, value);
+  @$pb.TagNumber(8)
+  $core.bool hasRequestBody() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearRequestBody() => $_clearField(8);
+
+  @$pb.TagNumber(9)
+  $core.String get responseHeaders => $_getSZ(8);
+  @$pb.TagNumber(9)
+  set responseHeaders($core.String value) => $_setString(8, value);
+  @$pb.TagNumber(9)
+  $core.bool hasResponseHeaders() => $_has(8);
+  @$pb.TagNumber(9)
+  void clearResponseHeaders() => $_clearField(9);
+
+  @$pb.TagNumber(10)
+  $core.String get responseBody => $_getSZ(9);
+  @$pb.TagNumber(10)
+  set responseBody($core.String value) => $_setString(9, value);
+  @$pb.TagNumber(10)
+  $core.bool hasResponseBody() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearResponseBody() => $_clearField(10);
 }
 
 const $core.bool _omitFieldNames =

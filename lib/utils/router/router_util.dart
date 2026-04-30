@@ -20,6 +20,7 @@ import 'package:miru_alpha/pages/webview/mobile_webview.dart';
 import 'package:miru_alpha/pages/search/search_page_single_view.dart';
 import 'package:miru_alpha/model/setting_items.dart';
 import 'package:miru_alpha/pages/tracking/tracking_page.dart';
+import 'package:miru_alpha/pages/dev_tool/dev_tool_page.dart';
 
 class ParamCache {
   static DetailParam? detailParam;
@@ -76,6 +77,7 @@ class RouterUtil {
     routes: [
       GoRoute(path: '/', redirect: (context, state) => '/home'),
       GoRoute(path: '/license', builder: (context, state) => MiruLicensePage()),
+      GoRoute(path: '/devTool', builder: (context, state) => const DevToolPage()),
       GoRoute(
         path: '/watch',
         builder: (context, state) {

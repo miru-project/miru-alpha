@@ -5,10 +5,13 @@ import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/pages/setting/setting_network.dart';
 import 'package:miru_alpha/pages/setting/setting_general.dart';
+import 'package:miru_alpha/pages/setting/widget/setting_press_tile.dart';
 import 'package:miru_alpha/utils/router/router_util.dart';
+import 'package:miru_alpha/widgets/core/outter_card.dart';
 import 'setting_extension.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/widgets/index.dart';
+import 'package:miru_alpha/provider/dev_tool_provider.dart';
 import '../../model/setting_items.dart';
 
 class SettingsPage extends HookWidget {
@@ -35,7 +38,10 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
   Widget selected(SideBarName name, BuildContext context) {
     switch (name) {
       case SideBarName.general:
-        return SettingScaffold(title: 'common.general'.i18n, child: SettingGeneral());
+        return SettingScaffold(
+          title: 'common.general'.i18n,
+          child: SettingGeneral(),
+        );
       case SideBarName.extension:
         return SettingScaffold(
           title: 'settings.extension.name'.i18n,
@@ -59,7 +65,23 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
         // return SettingDownload();
         return Center();
       case SideBarName.developer:
-        return Center();
+        return SettingScaffold(
+          title: 'common.developer'.i18n,
+          child: Column(
+            children: [
+              OutterCard(
+                title: 'common.developer'.i18n,
+                child: SettingPressTile(
+                  isMobileLayout: false,
+                  title: 'common.developer'.i18n,
+                  subtitle: 'Open DevTools for JS extensions',
+                  prefix: Icon(FIcons.terminal),
+                  onPress: () => ref.read(devToolProvider.notifier).toggle(),
+                ),
+              ),
+            ],
+          ),
+        );
     }
   }
 
@@ -167,6 +189,14 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
                 suffix: Icon(FIcons.chevronRight),
                 onPress: () {
                   context.push('/license');
+                },
+              ),
+              FTile(
+                prefix: Icon(FIcons.terminal),
+                title: const Text('Developer Tool'),
+                suffix: Icon(FIcons.chevronRight),
+                onPress: () {
+                  context.push('/devTool');
                 },
               ),
             ],

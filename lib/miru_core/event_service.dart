@@ -14,12 +14,18 @@ class MiruEventService {
   final _extensionController =
       StreamController<List<proto.ExtensionMeta>>.broadcast();
   final _historyController = StreamController<List<proto.History>>.broadcast();
+  final _devLogController = StreamController<proto.DevLogEvent>.broadcast();
+  final _devNetworkController =
+      StreamController<proto.DevNetworkEvent>.broadcast();
 
   Stream<Map<int, proto.DownloadProgress>> get downloadStream =>
       _downloadController.stream;
   Stream<List<proto.ExtensionMeta>> get extensionStream =>
       _extensionController.stream;
   Stream<List<proto.History>> get historyStream => _historyController.stream;
+  Stream<proto.DevLogEvent> get devLogStream => _devLogController.stream;
+  Stream<proto.DevNetworkEvent> get devNetworkStream =>
+      _devNetworkController.stream;
 
   Future<void> start() async {
     _subscription?.cancel();
@@ -52,6 +58,10 @@ class MiruEventService {
               _extensionController.add(event.extensionEvent.extensionMeta);
             } else if (event.hasHistoryEvent()) {
               _historyController.add(event.historyEvent.history);
+            } else if (event.hasDevLogEvent()) {
+              _devLogController.add(event.devLogEvent);
+            } else if (event.hasDevNetworkEvent()) {
+              _devNetworkController.add(event.devNetworkEvent);
             }
           },
           onError: (e) {

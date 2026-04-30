@@ -52,19 +52,18 @@ class SideSettingsMenu extends HookConsumerWidget {
                       children: [
                         FAccordionItem(
                           title: Text(epController.epGroup[index].title),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: List.generate(
-                              epController.epGroup[index].urls.length,
-                              (i) => FTile(
+                          child: FTileGroup.builder(
+                            count: epController.epGroup[index].urls.length,
+                            tileBuilder: (context, i) {
+                              return FTile(
                                 title: Text(
                                   epController.epGroup[index].urls[i].name,
                                 ),
                                 onPress: () {
                                   epNotifier.selectEpisode(index, i);
                                 },
-                              ),
-                            ),
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -97,11 +96,9 @@ class SideSettingsMenu extends HookConsumerWidget {
                           children: [
                             FAccordionItem(
                               title: Text(group.title),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: List.generate(
-                                  group.mirrors.length,
-                                  (i) => FTile(
+                              child: FTileGroup.builder(
+                                tileBuilder: (context, i) {
+                                  return FTile(
                                     title: Text(group.mirrors[i].name),
                                     onPress: () {
                                       notifier.switchMirror(
@@ -110,8 +107,9 @@ class SideSettingsMenu extends HookConsumerWidget {
                                       );
                                       notifier.toggleSettings();
                                     },
-                                  ),
-                                ),
+                                  );
+                                },
+                                count: group.mirrors.length,
                               ),
                             ),
                           ],

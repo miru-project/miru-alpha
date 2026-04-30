@@ -22,6 +22,7 @@ import '../model/setting_items.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:file_picker/file_picker.dart';
+import 'dev_tool/widget/dev_tool_panel.dart';
 
 class MainPage extends StatefulHookConsumerWidget {
   final StatefulNavigationShell? child;
@@ -244,12 +245,14 @@ class _MainPageState extends ConsumerState<MainPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: .symmetric(horizontal: 10, vertical: 10),
+                    padding: .symmetric(horizontal: 10),
                     child: Row(
                       children: [
                         Text(
                           "common.miru".i18n,
-                          style: context.theme.typography.lg,
+                          style: context.theme.typography.xl3.copyWith(
+                            fontWeight: .bold,
+                          ),
                         ),
                         Padding(
                           padding: EdgeInsetsGeometry.directional(
@@ -310,7 +313,7 @@ class _MainPageState extends ConsumerState<MainPage>
                               children: [
                                 Text(
                                   'common.webdav'.i18n,
-                                  style: context.theme.typography.xs.copyWith(
+                                  style: context.theme.typography.sm.copyWith(
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -385,25 +388,36 @@ class _MainPageState extends ConsumerState<MainPage>
               ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 7),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (!DeviceUtil.isMobile) ...[
-                  const DragWindows(),
-                  const FDivider(
-                    style: FDividerStyleDelta.delta(
-                      padding: EdgeInsetsGeometryDelta.value(EdgeInsets.zero),
-                    ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 7),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (!DeviceUtil.isMobile) ...[
+                        const DragWindows(),
+                        const FDivider(
+                          style: FDividerStyleDelta.delta(
+                            padding: EdgeInsetsGeometryDelta.value(
+                              EdgeInsets.zero,
+                            ),
+                          ),
+                        ),
+                      ],
+                      FTheme(
+                        data: themeData,
+                        child: Expanded(
+                          child: widget.child ?? const SizedBox(),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-                FTheme(
-                  data: themeData,
-                  child: Expanded(child: widget.child ?? const SizedBox()),
                 ),
-              ],
-            ),
+              ),
+              const DevToolPanel(),
+            ],
           ),
         ),
       ),

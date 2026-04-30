@@ -58,7 +58,7 @@ final class AnilistTrackPageProvider
   }
 }
 
-String _$anilistTrackPageHash() => r'59dfda5131c8bf8812d52cee4921f6eeef7ec3ed';
+String _$anilistTrackPageHash() => r'd128283daa8c8fdc6598b716e1a0d9f0dea3aaa4';
 
 final class AnilistTrackPageFamily extends $Family
     with
