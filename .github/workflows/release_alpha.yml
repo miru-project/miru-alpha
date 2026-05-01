@@ -1,18 +1,17 @@
-# This is a basic workflow to help you get started with Actions
-
-name: Dev Build CI
+name: Alpha Release
 
 on:
   push:
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+    tags:
+      - 'v*-alpha*'
+
 env:
   FLUTTER_VERSION: '3.41.9'
   GO_VERSION: '1.26.2'
+
 jobs:
   build-and-release-android:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,6 +36,7 @@ jobs:
       
       - name: Create AAR directory
         run: mkdir src/miru_core/android  
+        
       - name: Install gomobile
         run: |
           go install golang.org/x/mobile/cmd/gomobile@latest
@@ -51,7 +51,7 @@ jobs:
           gomobile bind -tags nosqlite -ldflags="-s -w -checklinkname=0" -o ../../android/libmiru-core.aar -target=android -androidapi 28
 
       - run: flutter pub get
-      # 打包apk
+      
       - name: Collect Apks
         run: flutter build apk --release --split-per-abi --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
         env:
@@ -59,29 +59,18 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD}}
 
-          
-      - name: Set artifact timestamp
-        run: echo "TIMESTAMP=$(date -u +'%Y%m%dT%H%M%SZ')" >> $GITHUB_ENV
-      # 发布安装包
-      - name: Upload Artifact - armeabi-v7a
-        uses: actions/upload-artifact@v4
+      - name: Upload APKs to Release
+        uses: softprops/action-gh-release@v2
         with:
-          path: "build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
-          name: Miru-pr-${{ env.TIMESTAMP }}-armeabi-v7a.apk
-      - name: Upload Artifact - arm64-v8a
-        uses: actions/upload-artifact@v4
-        with:
-          path: "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
-          name: Miru-pr-${{ env.TIMESTAMP }}-arm64-v8a.apk
-      - name: Upload Artifact - x86
-        uses: actions/upload-artifact@v4
-        with:
-          path: "build/app/outputs/flutter-apk/app-x86_64-release.apk"
-          name: Miru-pr-${{ env.TIMESTAMP }}-x86_64.apk
+          prerelease: true
+          generate_release_notes: true
+          files: |
+            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            build/app/outputs/flutter-apk/app-x86_64-release.apk
 
   build-and-release-windows:
     runs-on: windows-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -90,7 +79,6 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: ${{env.GO_VERSION}}
-
 
       - uses: subosito/flutter-action@v2
         with:
@@ -100,33 +88,30 @@ jobs:
       - name: Build artifacts
         run: flutter build windows --release --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
 
-      - name: Rename Release Directory Name to Miru-alpha # 为了解压缩后更好看一点
+      - name: Rename Release Directory Name to Miru-alpha
         run: |
           mv build/windows/x64/runner/Release build/windows/x64/runner/Miru-alpha
-            # set a timestamp based on the commit time and use that in artifact names
 
-      - name: Set artifact timestamps
-        run: echo "TIMESTAMP=$(date -u +'%Y%m%dT%H%M%SZ')" >> $GITHUB_ENV
+      - name: Zip Release
+        run: Compress-Archive -Path build/windows/x64/runner/Miru-alpha -DestinationPath Miru-Alpha-windows.zip
 
-      # 发布安装包
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Windows Zip to Release
+        uses: softprops/action-gh-release@v2
         with:
-          path: "build/windows/x64/runner/Miru-alpha"
-          name: Miru-Alpha-${{ env.TIMESTAMP }}-windows.zip
+          prerelease: true
+          generate_release_notes: true
+          files: Miru-Alpha-windows.zip
 
   build-and-release-linux:
     runs-on: ubuntu-latest
     container:
       image: archlinux:base-devel
     steps:
-
       - name: Install Dependencies
-        run: pacman -Sy --noconfirm gtk3 wpewebkit git clang cmake ninja jq alsa-utils alsa-plugins
+        run: pacman -Sy --noconfirm gtk3 wpewebkit git clang cmake ninja jq alsa-utils alsa-plugins tar
 
       - name: Config Git to Trust All Repositories
-        run: |
-          git config --global --add safe.directory '*'
+        run: git config --global --add safe.directory '*'
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -138,21 +123,21 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version:  ${{ env.FLUTTER_VERSION }}
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
 
       - name: Build artifacts
         run: flutter build linux --release --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
-      - name: Rename Release Directory Name to Miru-alpha # 为了解压缩后更好看一点
-        run: |
-          mv build/linux/x64/release/bundle build/linux/x64/release/Miru-alpha
-      # set a timestamp based on the commit time and use that in artifact names
-      - name: Set artifact timestamp
-        run: echo "TIMESTAMP=$(date -u +'%Y%m%dT%H%M%SZ')" >> $GITHUB_ENV
-
-      # 发布安装包
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        
+      - name: Rename Release Directory Name to Miru-alpha
+        run: mv build/linux/x64/release/bundle build/linux/x64/release/Miru-alpha
+        
+      - name: Tar Release
+        run: tar -czvf Miru-Alpha-linux.tar.gz -C build/linux/x64/release Miru-alpha
+        
+      - name: Upload Linux Tar to Release
+        uses: softprops/action-gh-release@v2
         with:
-          path: "build/linux/x64/release/Miru-alpha"
-          name: Miru-Alpha-${{ env.TIMESTAMP }}-linux
+          prerelease: true
+          generate_release_notes: true
+          files: Miru-Alpha-linux.tar.gz

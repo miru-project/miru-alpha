@@ -4,7 +4,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/dev_tool_provider.dart';
 import 'package:miru_alpha/provider/search/search_page_provider.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
-import 'package:miru_alpha/widgets/core/image_widget.dart';
 import 'console_view.dart';
 import 'network_view.dart';
 
@@ -85,7 +84,7 @@ class DevToolPanel extends ConsumerWidget {
 }
 
 class _DevToolFilter extends ConsumerWidget {
-  const _DevToolFilter({super.key});
+  const _DevToolFilter();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

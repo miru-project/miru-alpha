@@ -577,10 +577,10 @@ packages:
     dependency: "direct main"
     description:
       name: fvp
-      sha256: "77ce7d5a17d1b72ec5c0d129b4ef8f9b64f3de45084fb2cbbeb3711b59a4e568"
+      sha256: "23274616c8ba8e18b9e07d95c5a52c026aa5d0bb240bd24a04b181dd9c2c8b66"
       url: "https://pub.dev"
     source: hosted
-    version: "0.36.1"
+    version: "0.36.2"
   glob:
     dependency: transitive
     description:
