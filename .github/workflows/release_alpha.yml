@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*-alpha*'
 
+permissions:
+  contents: write
+
 env:
   FLUTTER_VERSION: '3.41.9'
   GO_VERSION: '1.26.2'
@@ -59,15 +62,13 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD}}
 
-      - name: Upload APKs to Release
-        uses: softprops/action-gh-release@v2
+      - name: Release Packages
+        uses: ncipollo/release-action@v1
         with:
+          artifacts: "build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk,build/app/outputs/flutter-apk/app-arm64-v8a-release.apk,build/app/outputs/flutter-apk/app-x86_64-release.apk"
+          allowUpdates: true
           prerelease: true
-          generate_release_notes: true
-          files: |
-            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            build/app/outputs/flutter-apk/app-x86_64-release.apk
+          generateReleaseNotes: true
 
   build-and-release-windows:
     runs-on: windows-latest
@@ -95,12 +96,13 @@ jobs:
       - name: Zip Release
         run: Compress-Archive -Path build/windows/x64/runner/Miru-alpha -DestinationPath Miru-Alpha-windows.zip
 
-      - name: Upload Windows Zip to Release
-        uses: softprops/action-gh-release@v2
+      - name: Release Packages
+        uses: ncipollo/release-action@v1
         with:
+          artifacts: "Miru-Alpha-windows.zip"
+          allowUpdates: true
           prerelease: true
-          generate_release_notes: true
-          files: Miru-Alpha-windows.zip
+          generateReleaseNotes: true
 
   build-and-release-linux:
     runs-on: ubuntu-latest
@@ -135,9 +137,10 @@ jobs:
       - name: Tar Release
         run: tar -czvf Miru-Alpha-linux.tar.gz -C build/linux/x64/release Miru-alpha
         
-      - name: Upload Linux Tar to Release
-        uses: softprops/action-gh-release@v2
+      - name: Release Packages
+        uses: ncipollo/release-action@v1
         with:
+          artifacts: "Miru-Alpha-linux.tar.gz"
+          allowUpdates: true
           prerelease: true
-          generate_release_notes: true
-          files: Miru-Alpha-linux.tar.gz
+          generateReleaseNotes: true
