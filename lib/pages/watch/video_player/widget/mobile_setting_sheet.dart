@@ -19,10 +19,10 @@ class MobileVideoSheet extends HookConsumerWidget {
   final EpisodeNotifierProvider epProvdier;
 
   static const _navItems = [
-    NavItem(text: 'Episode', icon: FIcons.tv),
-    NavItem(text: 'Resolution', icon: FIcons.ratio),
-    NavItem(text: 'Subtitle', icon: FIcons.captions),
-    NavItem(text: 'Settings', icon: FIcons.bolt),
+    NavItem(text: 'Episode', icon: FLucideIcons.tv),
+    NavItem(text: 'Resolution', icon: FLucideIcons.ratio),
+    NavItem(text: 'Subtitle', icon: FLucideIcons.captions),
+    NavItem(text: 'Settings', icon: FLucideIcons.bolt),
   ];
 
   @override
@@ -126,8 +126,9 @@ class MobileVideoSheet extends HookConsumerWidget {
           child: FCard.raw(
             style: .delta(
               decoration: .boxDelta(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(10)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(10),
+                ),
                 color: context.theme.colors.background.withAlpha(230),
               ),
             ),

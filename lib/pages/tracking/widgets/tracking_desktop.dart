@@ -73,13 +73,13 @@ class _DesktopUserHeader extends ConsumerWidget {
                 Row(
                   children: [
                     _StatChip(
-                      icon: FIcons.tv,
+                      icon: FLucideIcons.tv,
                       label:
                           '${user.statistics.anime.episodesWatched} Episodes',
                     ),
                     const SizedBox(width: 12),
                     _StatChip(
-                      icon: FIcons.bookOpen,
+                      icon: FLucideIcons.bookOpen,
                       label: '${user.statistics.manga.chaptersRead} Chapters',
                     ),
                   ],
@@ -89,7 +89,7 @@ class _DesktopUserHeader extends ConsumerWidget {
           ),
           FButton.icon(
             onPress: () => ref.read(anilistAccountProvider.notifier).logout(),
-            child: const Icon(FIcons.logOut),
+            child: const Icon(FLucideIcons.logOut),
           ),
         ],
       ),

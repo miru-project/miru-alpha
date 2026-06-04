@@ -135,7 +135,7 @@ class ContinueWatchingSection extends HookConsumerWidget {
                                   );
                                 },
                                 variant: .outline,
-                                child: const Icon(FIcons.chevronLeft),
+                                child: const Icon(FLucideIcons.chevronLeft),
                               ),
                             ),
                           ),
@@ -156,7 +156,7 @@ class ContinueWatchingSection extends HookConsumerWidget {
                                   );
                                 },
                                 variant: .outline,
-                                child: const Icon(FIcons.chevronRight),
+                                child: const Icon(FLucideIcons.chevronRight),
                               ),
                             ),
                           ),
@@ -257,7 +257,9 @@ class _ContinueWatchingCard extends ConsumerWidget {
                   child: ImageWidget(
                     imageUrl: item.cover,
                     width: double.infinity,
-                    errChild: Center(child: const Icon(FIcons.cloudAlert)),
+                    errChild: Center(
+                      child: const Icon(FLucideIcons.cloudAlert),
+                    ),
                     fit: BoxFit.cover,
                     borderRadius: 0,
                   ),
@@ -271,7 +273,7 @@ class _ContinueWatchingCard extends ConsumerWidget {
                   //       return Container(
                   //         height: 140,
                   //         color: Colors.grey[800],
-                  //         child: const Icon(FIcons.cloudAlert),
+                  //         child: const Icon(FLucideIcons.cloudAlert),
                   //       );
                   //     }
                   //     return null;

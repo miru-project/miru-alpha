@@ -37,7 +37,7 @@ class MobileSearchPage extends HookConsumerWidget {
               return FButton.icon(
                 variant: .ghost,
                 onPress: () {},
-                child: Icon(FIcons.pin, size: 24),
+                child: Icon(FLucideIcons.pin, size: 24),
               );
             },
           ),
@@ -73,7 +73,7 @@ class MobileSearchPage extends HookConsumerWidget {
             hint: "common.search_by_keywords".i18n,
             prefixBuilder: (context, style, states) => Padding(
               padding: EdgeInsetsGeometry.only(left: 12, right: 10),
-              child: Icon(FIcons.search),
+              child: Icon(FLucideIcons.search),
             ),
           ),
         ),
@@ -146,8 +146,8 @@ class MobileSearchPage extends HookConsumerWidget {
                             //       pinnedExtensions.value.contains(
                             //         ext.packageName,
                             //       )
-                            //       ? Icon(FIcons.pinOff)
-                            //       : Icon(FIcons.pin),
+                            //       ? Icon(FLucideIcons.pinOff)
+                            //       : Icon(FLucideIcons.pin),
                             // ),
                           );
                         }
@@ -269,7 +269,7 @@ class MobileSearchPage extends HookConsumerWidget {
                                   ),
                                 );
                               },
-                              child: Icon(FIcons.settings),
+                              child: Icon(FLucideIcons.settings),
                             ),
                             FButton.icon(
                               variant: .ghost,
@@ -287,7 +287,9 @@ class MobileSearchPage extends HookConsumerWidget {
                                 );
                               },
                               child: Icon(
-                                isPinned ? FIcons.pinOff : FIcons.pin,
+                                isPinned
+                                    ? FLucideIcons.pinOff
+                                    : FLucideIcons.pin,
                                 size: 20,
                                 color: isPinned
                                     ? context.theme.colors.primary

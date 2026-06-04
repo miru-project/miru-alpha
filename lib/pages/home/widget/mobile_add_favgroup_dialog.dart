@@ -77,7 +77,7 @@ class MobileAddFAVDialog extends HookConsumerWidget {
                             .addFavoriteGroupbyName(newFavGroupName);
                         textController.clear();
                       },
-                      child: Icon(FIcons.plus),
+                      child: Icon(FLucideIcons.plus),
                     ),
                   ),
                 ],

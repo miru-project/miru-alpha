@@ -75,7 +75,10 @@ class AnilistProgressPage extends HookConsumerWidget {
           animation: animation,
           title: Text('common.warning'.i18n),
           body: Text(
-            'tracking.anilist.delete_warning'.i18n.replaceAll('{provider}', 'AniList'),
+            'tracking.anilist.delete_warning'.i18n.replaceAll(
+              '{provider}',
+              'AniList',
+            ),
           ),
           actions: [
             FButton(
@@ -332,7 +335,7 @@ class AnilistProgressPage extends HookConsumerWidget {
                           FButton.icon(
                             variant: .outline,
                             onPress: state.isSaving ? null : unlinkTracker,
-                            child: const Icon(FIcons.unlink),
+                            child: const Icon(FLucideIcons.unlink),
                           ),
                         ],
                         if (state.entry != null) ...[
@@ -342,7 +345,7 @@ class AnilistProgressPage extends HookConsumerWidget {
                             onPress: state.isSaving
                                 ? null
                                 : showDeleteConfirmation,
-                            child: const Icon(FIcons.trash2),
+                            child: const Icon(FLucideIcons.trash2),
                           ),
                         ],
                       ],

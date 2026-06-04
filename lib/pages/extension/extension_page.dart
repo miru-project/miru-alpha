@@ -34,7 +34,11 @@ class CatEntry {
 
 class _MobileExtensionModal extends HookConsumerWidget {
   const _MobileExtensionModal();
-  static const categories = ['common.status', 'common.type', 'extension.repo.repository'];
+  static const categories = [
+    'common.status',
+    'common.type',
+    'extension.repo.repository',
+  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,7 +51,7 @@ class _MobileExtensionModal extends HookConsumerWidget {
           'common.all',
           'extension.installed',
           'extension.not_installed',
-          'extension.update_available'
+          'extension.update_available',
         ],
         onpress: (val) {
           extNotifier.filterByInstalled(val);
@@ -142,7 +146,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
             hint: "extension.search_hint".i18n,
             prefixBuilder: (context, style, states) => Padding(
               padding: EdgeInsetsGeometry.only(left: 12, right: 10),
-              child: Icon(FIcons.search),
+              child: Icon(FLucideIcons.search),
             ),
           ),
         ),

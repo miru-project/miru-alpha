@@ -92,11 +92,11 @@ class DesktopPlayerFooterMenu extends HookConsumerWidget {
             const SizedBox(width: 10),
             PlayerButton(
               onPressed: () => ref.read(vidPr.notifier).toggleSettings(),
-              icon: FIcons.captions,
+              icon: FLucideIcons.captions,
             ),
             // 播放列表
             PlayerButton(
-              icon: FIcons.listVideo,
+              icon: FLucideIcons.listVideo,
               onPressed: () {
                 ref.read(vidPr.notifier).toggleSettings(); // Open sidebar
               },

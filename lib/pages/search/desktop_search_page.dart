@@ -60,7 +60,7 @@ class DesktopSearchPage extends HookConsumerWidget {
                                     ),
                                   );
                                 },
-                                child: Icon(FIcons.cog),
+                                child: Icon(FLucideIcons.cog),
                               ),
                               FButton.icon(
                                 selected: true,
@@ -83,8 +83,8 @@ class DesktopSearchPage extends HookConsumerWidget {
                                     existedPinnedExtensions.contains(
                                       ext.packageName,
                                     )
-                                    ? Icon(FIcons.pinOff)
-                                    : Icon(FIcons.pin),
+                                    ? Icon(FLucideIcons.pinOff)
+                                    : Icon(FLucideIcons.pin),
                               ),
                             ],
                           ),
@@ -118,7 +118,7 @@ class DesktopSearchPage extends HookConsumerWidget {
                                   ),
                                 );
                               },
-                              child: Icon(FIcons.settings),
+                              child: Icon(FLucideIcons.settings),
                             ),
                             FButton.icon(
                               variant: .ghost,
@@ -131,7 +131,7 @@ class DesktopSearchPage extends HookConsumerWidget {
                                   ),
                                 );
                               },
-                              child: Icon(FIcons.globe),
+                              child: Icon(FLucideIcons.globe),
                             ),
                             SizedBox(width: 8),
                             FButton.icon(
@@ -155,8 +155,8 @@ class DesktopSearchPage extends HookConsumerWidget {
                                   existedPinnedExtensions.contains(
                                     ext.packageName,
                                   )
-                                  ? Icon(FIcons.pinOff)
-                                  : Icon(FIcons.pin),
+                                  ? Icon(FLucideIcons.pinOff)
+                                  : Icon(FLucideIcons.pin),
                             ),
                           ],
                         ),
@@ -186,8 +186,8 @@ class DesktopSearchPage extends HookConsumerWidget {
                       },
                       child: Icon(
                         variant.value == FButtonVariant.windows
-                            ? FIcons.pin
-                            : FIcons.pinOff,
+                            ? FLucideIcons.pin
+                            : FLucideIcons.pinOff,
                       ),
                     );
                   },
@@ -203,7 +203,7 @@ class DesktopSearchPage extends HookConsumerWidget {
                   prefixBuilder: (context, style, states) {
                     return Padding(
                       padding: const EdgeInsets.only(left: 8.0, right: 4),
-                      child: Icon(FIcons.search),
+                      child: Icon(FLucideIcons.search),
                     );
                   },
                   suffixBuilder: (context, style, states) {

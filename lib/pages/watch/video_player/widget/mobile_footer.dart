@@ -66,12 +66,12 @@ class MobilePlayerFooter extends ConsumerWidget {
                               );
                             }
                           : null,
-                      icon: FIcons.skipBack,
+                      icon: FLucideIcons.skipBack,
                     ),
                     if (isPlaying)
-                      PlayerButton(onPressed: c.pause, icon: FIcons.pause)
+                      PlayerButton(onPressed: c.pause, icon: FLucideIcons.pause)
                     else
-                      PlayerButton(onPressed: c.play, icon: FIcons.play),
+                      PlayerButton(onPressed: c.play, icon: FLucideIcons.play),
                     PlayerButton(
                       onPressed: epIndex < epLength - 1
                           ? () {
@@ -81,7 +81,7 @@ class MobilePlayerFooter extends ConsumerWidget {
                               );
                             }
                           : null,
-                      icon: FIcons.skipForward,
+                      icon: FLucideIcons.skipForward,
                     ),
                     const SizedBox(width: 10),
                     Text(

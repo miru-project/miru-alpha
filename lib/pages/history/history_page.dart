@@ -69,7 +69,7 @@ class _HistoryPageState extends ConsumerState<HistoryPage>
                   builder: (context, ref, child) => FTileGroup(
                     children: [
                       FTile(
-                        prefix: Icon(FIcons.bookX),
+                        prefix: Icon(FLucideIcons.bookX),
                         title: Text('common.remove_history'.i18n),
                         onPress: () {
                           ref

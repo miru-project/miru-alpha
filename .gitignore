@@ -67,6 +67,8 @@ Output/
 miru
 src/miru_core/miru-core
 flutter_*.png
+.agents
 .agent
 # Ignore mingw
 /src/miru_core/mingw64
+skills-lock.json

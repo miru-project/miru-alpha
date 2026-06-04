@@ -75,7 +75,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(FIcons.plus),
+                      const Icon(FLucideIcons.plus),
                       const SizedBox(width: 4),
                       Text(
                         "common.new_tag".i18n,
@@ -207,7 +207,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
                   FButton(
                     onPress: () {},
                     variant: .outline,
-                    prefix: Icon(FIcons.listFilter),
+                    prefix: Icon(FLucideIcons.listFilter),
                     child: Text(
                       'common.more_filter'.i18n,
                       style: TextStyle(fontWeight: .normal),

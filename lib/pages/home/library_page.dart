@@ -65,10 +65,10 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                   onPress: () {
                     iconsMessageToast(
                       title: 'common.web_dav_sync_wip'.i18n,
-                      icon: FIcons.construction,
+                      icon: FLucideIcons.construction,
                     );
                   },
-                  child: Icon(FIcons.cloudSync),
+                  child: Icon(FLucideIcons.cloudSync),
                 ),
               ],
             ),
@@ -154,7 +154,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                   },
                   children: [
                     FTabEntry(
-                      label: Icon(FIcons.libraryBig),
+                      label: Icon(FLucideIcons.libraryBig),
                       child: Padding(
                         padding: .symmetric(horizontal: 10),
                         child: FTileGroup(
@@ -171,7 +171,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                                 ),
                               ),
                               title: Text('tracking.anilist.name'.i18n),
-                              suffix: Icon(FIcons.chevronRight),
+                              suffix: Icon(FLucideIcons.chevronRight),
                               onPress: () {
                                 context.push('/tracking');
                               },
@@ -181,7 +181,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                       ),
                     ),
                     FTabEntry(
-                      label: Icon(FIcons.history),
+                      label: Icon(FLucideIcons.history),
                       child: ListView(
                         padding: .all(0),
                         children: [
@@ -214,7 +214,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                                     return FButton.icon(
                                       variant: .ghost,
                                       onPress: () {},
-                                      child: Icon(FIcons.boxes),
+                                      child: Icon(FLucideIcons.boxes),
                                     );
                                   },
                                   prefixBuilder: (context, style, states) =>
@@ -223,7 +223,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                                           left: 12,
                                           right: 10,
                                         ),
-                                        child: Icon(FIcons.history),
+                                        child: Icon(FLucideIcons.history),
                                       ),
                                   hint: 'common.search_for_histories'.i18n,
                                 );
@@ -258,7 +258,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                       ),
                     ),
                     FTabEntry(
-                      label: Icon(FIcons.heart),
+                      label: Icon(FLucideIcons.heart),
                       child: ListView(
                         padding: .all(0),
                         children: [
@@ -291,7 +291,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                                     return FButton.icon(
                                       variant: .ghost,
                                       onPress: () {},
-                                      child: Icon(FIcons.boxes),
+                                      child: Icon(FLucideIcons.boxes),
                                     );
                                   },
                                   prefixBuilder: (context, style, states) =>
@@ -300,7 +300,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                                           left: 12,
                                           right: 10,
                                         ),
-                                        child: Icon(FIcons.heart),
+                                        child: Icon(FLucideIcons.heart),
                                       ),
                                   hint: 'common.search_for_favorites'.i18n,
                                   // onTapOutside: (event) {
@@ -338,7 +338,7 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                       ),
                     ),
                     FTabEntry(
-                      label: Icon(FIcons.download),
+                      label: Icon(FLucideIcons.download),
                       child: Center(child: Text('common.wip'.i18n)),
                     ),
                   ],

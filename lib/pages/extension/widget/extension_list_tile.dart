@@ -78,17 +78,17 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
           if (widget.needUpdate)
             FButton.icon(
               onPress: widget.onInstall,
-              child: Icon(FIcons.circleFadingArrowUp),
+              child: Icon(FLucideIcons.circleFadingArrowUp),
             )
           else if (widget.isInstalled)
             FButton.icon(
               onPress: widget.onUninstall,
-              child: Icon(FIcons.trash2),
+              child: Icon(FLucideIcons.trash2),
             )
           else
             FButton.icon(
               onPress: widget.onInstall,
-              child: Icon(FIcons.download),
+              child: Icon(FLucideIcons.download),
             ),
         ],
       ),
@@ -200,14 +200,14 @@ class ExtensionGridTile extends StatelessWidget {
                       Expanded(
                         child: FButton(
                           onPress: onUninstall,
-                          prefix: Icon(FIcons.trash2),
+                          prefix: Icon(FLucideIcons.trash2),
                           child: Text('extension.uninstall'.i18n),
                         ),
                       ),
                       if (needUpdate)
                         FButton.icon(
                           onPress: onInstall,
-                          child: Icon(FIcons.circleFadingArrowUp),
+                          child: Icon(FLucideIcons.circleFadingArrowUp),
                         ),
                       FTooltip(
                         tipBuilder: (context, controller) =>
@@ -223,7 +223,7 @@ class ExtensionGridTile extends StatelessWidget {
                               ),
                             );
                           },
-                          child: Icon(FIcons.cog),
+                          child: Icon(FLucideIcons.cog),
                         ),
                       ),
                     ],
@@ -231,7 +231,7 @@ class ExtensionGridTile extends StatelessWidget {
                 else
                   FButton(
                     onPress: onInstall,
-                    prefix: Icon(FIcons.download),
+                    prefix: Icon(FLucideIcons.download),
                     child: Text('common.install'.i18n),
                   ),
               ],

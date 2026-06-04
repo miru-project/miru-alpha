@@ -38,7 +38,7 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
         title: Text(title.i18n),
         subtitle: subtitle == null ? null : Text(subtitle!.i18n),
         details: Icon(
-          FIcons.chevronsLeftRightEllipsis,
+          FLucideIcons.chevronsLeftRightEllipsis,
           color: context.theme.colors.mutedForeground,
         ),
         onPress: () {

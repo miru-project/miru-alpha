@@ -155,12 +155,15 @@ class FavoriteDialog extends HookConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  FButton(onPress: handleCreateGroup, child: Text("common.add".i18n)),
+                  FButton(
+                    onPress: handleCreateGroup,
+                    child: Text("common.add".i18n),
+                  ),
                   const SizedBox(width: 8),
                   FButton(
                     variant: .ghost,
                     onPress: () => isCreatingGroup.value = false,
-                    child: const Icon(FIcons.x),
+                    child: const Icon(FLucideIcons.x),
                   ),
                 ],
               )

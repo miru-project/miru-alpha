@@ -76,17 +76,17 @@ class SettingGeneral extends HookConsumerWidget {
                 RadioTileEntry(
                   value: 'system',
                   title: 'settings.labels.system',
-                  icon: FIcons.sunMoon,
+                  icon: FLucideIcons.sunMoon,
                 ),
                 RadioTileEntry(
                   value: 'light',
                   title: 'settings.labels.light',
-                  icon: FIcons.sun,
+                  icon: FLucideIcons.sun,
                 ),
                 RadioTileEntry(
                   value: 'dark',
                   title: 'settings.labels.dark',
-                  icon: FIcons.moon,
+                  icon: FLucideIcons.moon,
                 ),
               ],
             ),

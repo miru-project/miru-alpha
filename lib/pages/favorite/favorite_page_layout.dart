@@ -121,7 +121,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
                         ),
                         children: [
                           FTile(
-                            prefix: Icon(FIcons.heartMinus),
+                            prefix: Icon(FLucideIcons.heartMinus),
                             title: Text('common.remove_favorite'.i18n),
                             onPress: () {
                               ref

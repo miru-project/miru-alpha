@@ -105,7 +105,7 @@ class DesktopSearchSingleFilterBox extends HookConsumerWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          const Icon(FIcons.listFilter),
+          const Icon(FLucideIcons.listFilter),
           if (selected.values.any((e) => e.isNotEmpty))
             Positioned(
               right: -2,
@@ -144,7 +144,7 @@ class DesktopSearchSingleFilterBox extends HookConsumerWidget {
           children: [
             const Padding(
               padding: EdgeInsets.only(left: 12.0, right: 4),
-              child: Icon(FIcons.search),
+              child: Icon(FLucideIcons.search),
             ),
             if (filterSummary.isNotEmpty)
               Padding(
@@ -188,7 +188,7 @@ class DesktopSearchSingleFilterBox extends HookConsumerWidget {
             .read(searchPageSingleProviderProvider.notifier)
             .setQuery(searchQuery.value);
       },
-      child: const Icon(FIcons.refreshCcw),
+      child: const Icon(FLucideIcons.refreshCcw),
     );
   }
 }

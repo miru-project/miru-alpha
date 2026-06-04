@@ -33,7 +33,7 @@ class EpisodeSelect extends HookConsumerWidget {
           control: FPopoverControl.managed(controller: controller),
           child: FButton(
             suffix: Icon(
-              FIcons.chevronsUpDown,
+              FLucideIcons.chevronsUpDown,
               color: context.theme.colors.primary,
             ),
             mainAxisAlignment: .start,
@@ -49,7 +49,7 @@ class EpisodeSelect extends HookConsumerWidget {
         ),
 
         FTileGroup.builder(
-          cacheExtent: 3,
+          scrollCacheExtent: .viewport(3),
           tileBuilder: (context, idx) {
             return FTile(
               onPress: () {

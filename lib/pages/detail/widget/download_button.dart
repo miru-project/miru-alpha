@@ -38,12 +38,12 @@ class DownloadButton extends StatelessWidget {
       return FButton.icon(
         variant: varient ?? .secondary,
         onPress: () => onTap(context),
-        child: Icon(FIcons.download),
+        child: Icon(FLucideIcons.download),
       );
     }
     return FButton(
       variant: varient ?? .secondary,
-      prefix: Icon(FIcons.download),
+      prefix: Icon(FLucideIcons.download),
       onPress: () => onTap(context),
       child: Text('common.download'.i18n),
     );
@@ -215,7 +215,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                     )
                                   : (progress != null || isDownloaded
                                         ? Icon(
-                                            FIcons.check,
+                                            FLucideIcons.check,
                                             color: context.theme.colors.primary,
                                           )
                                         : null),
@@ -285,7 +285,8 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
                                         if (videoUrl.isEmpty) {
                                           if (mounted) {
                                             showSimpleToast(
-                                              'media.failed_to_fetch_video_url'.i18n,
+                                              'media.failed_to_fetch_video_url'
+                                                  .i18n,
                                             );
                                           }
                                           return;

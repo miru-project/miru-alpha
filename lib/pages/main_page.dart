@@ -59,51 +59,55 @@ class _MainPageState extends ConsumerState<MainPage>
   ];
 
   static final List<FIconNavItem> _fIconNavItem = [
-    FIconNavItem(text: 'common.home', icon: FIcons.house, page: "/home"),
+    FIconNavItem(text: 'common.home', icon: FLucideIcons.house, page: "/home"),
     FIconNavItem(
       text: 'common.history',
-      icon: FIcons.history,
+      icon: FLucideIcons.history,
       page: "/home/history",
     ),
     FIconNavItem(
       text: 'common.favorite.name',
-      icon: FIcons.bookHeart,
+      icon: FLucideIcons.bookHeart,
       page: "/home/favorite",
     ),
     FIconNavItem(
       text: 'common.download',
-      icon: FIcons.download,
+      icon: FLucideIcons.download,
       page: "/home/download",
     ),
-    FIconNavItem(text: 'common.search', icon: FIcons.search, page: "/search"),
+    FIconNavItem(
+      text: 'common.search',
+      icon: FLucideIcons.search,
+      page: "/search",
+    ),
     FIconNavItem(
       text: 'extension.name',
-      icon: FIcons.blocks,
+      icon: FLucideIcons.blocks,
       page: "/extension",
     ),
     FIconNavItem(
       text: 'tracking.name',
-      icon: FIcons.clipboardClock,
+      icon: FLucideIcons.clipboardClock,
       page: "/tracking",
     ),
     FIconNavItem(
       text: 'common.settings',
-      icon: FIcons.settings,
-      subItems: _fIconSettingSubItem,
+      icon: FLucideIcons.settings,
+      subItems: _fLucideIconsettingSubItem,
     ),
   ];
 
   static const sideBarIconMap = <SideBarName, IconData>{
-    SideBarName.general: FIcons.menu,
-    SideBarName.extension: FIcons.blocks,
-    SideBarName.player: FIcons.youtube,
-    SideBarName.network: FIcons.server,
-    SideBarName.reader: FIcons.bookOpen,
-    SideBarName.advanced: FIcons.cog,
-    SideBarName.download: FIcons.download,
-    SideBarName.about: FIcons.inbox,
-    SideBarName.tracking: FIcons.arrowUpDown,
-    SideBarName.developer: FIcons.code,
+    SideBarName.general: FLucideIcons.menu,
+    SideBarName.extension: FLucideIcons.blocks,
+    SideBarName.player: FLucideIcons.play,
+    SideBarName.network: FLucideIcons.server,
+    SideBarName.reader: FLucideIcons.bookOpen,
+    SideBarName.advanced: FLucideIcons.cog,
+    SideBarName.download: FLucideIcons.download,
+    SideBarName.about: FLucideIcons.inbox,
+    SideBarName.tracking: FLucideIcons.arrowUpDown,
+    SideBarName.developer: FLucideIcons.code,
   };
   static const sideBarTranslationMap = <SideBarName, String>{
     SideBarName.general: 'common.general',
@@ -118,7 +122,7 @@ class _MainPageState extends ConsumerState<MainPage>
     SideBarName.developer: 'common.developer',
   };
 
-  static final List<FIconNavItem> _fIconSettingSubItem = [
+  static final List<FIconNavItem> _fLucideIconsettingSubItem = [
     for (var item in SideBarName.values)
       FIconNavItem(
         text: sideBarTranslationMap[item]!,
@@ -287,7 +291,7 @@ class _MainPageState extends ConsumerState<MainPage>
                   onPress: () {
                     iconsMessageToast(
                       title: 'common.wip'.i18n,
-                      icon: FIcons.construction,
+                      icon: FLucideIcons.construction,
                     );
                   },
                   child: FCard.raw(
@@ -301,7 +305,7 @@ class _MainPageState extends ConsumerState<MainPage>
                         children: [
                           FAvatar.raw(
                             child: Icon(
-                              FIcons.userRound,
+                              FLucideIcons.userRound,
                               size: 18,
                               color: context.theme.colors.mutedForeground,
                             ),

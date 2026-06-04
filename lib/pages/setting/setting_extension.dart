@@ -296,7 +296,7 @@ class SettingExtension extends HookConsumerWidget {
 
                     return FTile(
                       prefix: selected.value.contains(url)
-                          ? Icon(FIcons.check)
+                          ? Icon(FLucideIcons.check)
                           : SizedBox(width: 18),
                       title: Text(
                         name,
@@ -318,7 +318,7 @@ class SettingExtension extends HookConsumerWidget {
                   if (selected.value.isEmpty)
                     FTile(
                       title: Text('common.add'.i18n),
-                      prefix: Icon(FIcons.plus),
+                      prefix: Icon(FLucideIcons.plus),
                       onPress: () {
                         showFDialog(
                           context: context,
@@ -334,12 +334,12 @@ class SettingExtension extends HookConsumerWidget {
                   else
                     FTile(
                       title: Text('extension.uninstall'.i18n),
-                      prefix: Icon(FIcons.trash),
+                      prefix: Icon(FLucideIcons.trash),
                       onPress: () {
                         showRepoRemoveDialog(context, ref, selected.value);
                       },
                     ),
-                  // FTile.raw(, child: Icon(FIcons.plus), onPress: () {}),
+                  // FTile.raw(, child: Icon(FLucideIcons.plus), onPress: () {}),
                   // FSelectTile(title: Text(''), value: 'Text('')'),
                 ],
               );

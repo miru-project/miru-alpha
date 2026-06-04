@@ -88,13 +88,13 @@ class ErrorDisplay extends ConsumerWidget {
             ),
           ),
           FButton(
-            prefix: Icon(FIcons.refreshCcw),
+            prefix: Icon(FLucideIcons.refreshCcw),
             onPress: () => onRefresh?.call(),
             child: Text('Reload'),
           ),
           SizedBox(height: 10),
           FButton(
-            prefix: Icon(FIcons.copy),
+            prefix: Icon(FLucideIcons.copy),
             variant: .secondary,
             onPress: () {
               Clipboard.setData(ClipboardData(text: errContent));
@@ -137,7 +137,7 @@ class ErrorDisplay extends ConsumerWidget {
                               child: FButton.icon(
                                 variant: FButtonVariant.outline,
                                 onPress: onRefresh,
-                                child: const Icon(FIcons.refreshCcw),
+                                child: const Icon(FLucideIcons.refreshCcw),
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -152,7 +152,7 @@ class ErrorDisplay extends ConsumerWidget {
                                     ClipboardData(text: errContent),
                                   );
                                 },
-                                child: const Icon(FIcons.copy),
+                                child: const Icon(FLucideIcons.copy),
                               ),
                             ),
                           ],

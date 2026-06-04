@@ -40,7 +40,7 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
         trailing: Row(
           children: [
             FButton(
-              suffix: Icon(FIcons.rotateCcw),
+              suffix: Icon(FLucideIcons.rotateCcw),
               variant: .outline,
               onPress: () {
                 ref.invalidate(fetchDetailProvider);

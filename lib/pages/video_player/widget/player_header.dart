@@ -102,12 +102,12 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
                   onPressed: () {
                     WindowManager.instance.minimize();
                   },
-                  icon: FIcons.minus,
+                  icon: FLucideIcons.minus,
                 ),
               ],
               const SizedBox(width: 10),
               if (!DeviceUtil.isMobile)
-                PlayerButton(onPressed: widget.onClose, icon: FIcons.x)
+                PlayerButton(onPressed: widget.onClose, icon: FLucideIcons.x)
               else ...[
                 PlayerButton(
                   onPressed: () {
@@ -149,7 +149,7 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
                       ),
                     );
                   },
-                  icon: FIcons.settings,
+                  icon: FLucideIcons.settings,
                 ),
               ],
             ],

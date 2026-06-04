@@ -27,10 +27,11 @@ class SideSettingsMenu extends HookConsumerWidget {
     final notifier = ref.read(vidPr.notifier);
 
     final tabs = [
-      (icon: FIcons.tv, text: 'Episode'),
-      if (controller.v2watch != null) (icon: FIcons.layers, text: 'Mirror'),
-      (icon: FIcons.ratio, text: 'Resolution'),
-      (icon: FIcons.captions, text: 'Subtitle'),
+      (icon: FLucideIcons.tv, text: 'Episode'),
+      if (controller.v2watch != null)
+        (icon: FLucideIcons.layers, text: 'Mirror'),
+      (icon: FLucideIcons.ratio, text: 'Resolution'),
+      (icon: FLucideIcons.captions, text: 'Subtitle'),
     ];
 
     final dialogContent = [

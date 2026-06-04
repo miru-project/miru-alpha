@@ -8,6 +8,11 @@ import 'package:path/path.dart' as path;
 typedef StartNative = Int32 Function(Int32 num, Pointer<Pointer<Utf8>> files);
 typedef Start = int Function(int num, Pointer<Pointer<Utf8>> files);
 
+/// Native function binding via Dart hooks (Android only).
+/// The asset ID matches the CodeAsset registered in hook/build.dart.
+@Native<StartNative>(assetId: 'package:miru_alpha/ffmpeg_merge')
+external int _startNative(int num, Pointer<Pointer<Utf8>> files);
+
 class FFMpegUtils {
   static late Start start;
   static late DynamicLibrary _lib;
@@ -17,6 +22,20 @@ class FFMpegUtils {
   static void openlib() {
     if (Platform.isMacOS || Platform.isFuchsia) {
       return;
+    }
+
+    // On Android, use the hooks-integrated @Native binding
+    if (Platform.isAndroid) {
+      try {
+        start = (int num, Pointer<Pointer<Utf8>> files) =>
+            _startNative(num, files);
+        _isInitialized = true;
+        logger.info('FFmpeg merge loaded via native asset hooks.');
+        return;
+      } catch (e) {
+        logger.severe('Failed to load via native asset hooks: $e');
+        // Fall through to DynamicLibrary.open() as fallback
+      }
     }
 
     String libName = Platform.isWindows

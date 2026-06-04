@@ -59,7 +59,7 @@ class DevToolPanel extends ConsumerWidget {
           Row(
             children: [
               Icon(
-                FIcons.terminal,
+                FLucideIcons.terminal,
                 size: 16,
                 color: context.theme.colors.primary,
               ),
@@ -75,7 +75,7 @@ class DevToolPanel extends ConsumerWidget {
           FButton.icon(
             variant: FButtonVariant.ghost,
             onPress: () => notifier.setShow(false),
-            child: Icon(FIcons.x, size: 16),
+            child: Icon(FLucideIcons.x, size: 16),
           ),
         ],
       ),
@@ -127,7 +127,7 @@ class _DevToolFilter extends ConsumerWidget {
           .map(
             (e) => FSelectItem(
               // prefix: meta.firstWhere((m) => m.packageName == e).icon == null
-              //     ? Icon(FIcons.toyBrick)
+              //     ? Icon(FLucideIcons.toyBrick)
               //     : ImageWidget(
               //         imageUrl: meta
               //             .firstWhere((m) => m.packageName == e)

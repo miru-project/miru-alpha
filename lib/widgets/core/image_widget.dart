@@ -10,7 +10,7 @@ class ImageWidget extends StatelessWidget {
     this.width,
     this.height,
     this.fit,
-    this.errChild = const Icon(FIcons.cloudAlert),
+    this.errChild = const Icon(FLucideIcons.cloudAlert),
     this.loadingChild = const Center(child: FCircularProgress()),
     this.borderRadius = 10,
     this.clipBehavior = Clip.antiAlias,

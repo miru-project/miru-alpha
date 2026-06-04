@@ -52,7 +52,7 @@ class _SourceCodePageState extends State<SourceCodePage> {
           title: 'extension.source_code'.i18n,
           suffix: FButton.icon(
             variant: .ghost,
-            child: Icon(FIcons.save),
+            child: Icon(FLucideIcons.save),
             onPress: () {
               controller.saveFile();
             },

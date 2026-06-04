@@ -83,7 +83,7 @@ class AnilistSearchDialog extends HookConsumerWidget {
             FTextField(
               prefixBuilder: (context, style, states) => const Padding(
                 padding: EdgeInsets.only(left: 12, right: 10),
-                child: Icon(FIcons.search, size: 16),
+                child: Icon(FLucideIcons.search, size: 16),
               ),
               control: FTextFieldControl.managed(
                 initial: TextEditingValue(text: query.value),

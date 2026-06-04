@@ -18,10 +18,10 @@ class DesktopSettingDialog extends HookConsumerWidget {
   final VideoPlayerNotifierProvider vidPr;
   final EpisodeNotifierProvider epProvdier;
   static const _navItems = [
-    NavItem(text: 'Episode', icon: FIcons.tv),
-    NavItem(text: 'Resolution', icon: FIcons.ratio),
-    NavItem(text: 'Subtitle', icon: FIcons.captions),
-    NavItem(text: 'Settings', icon: FIcons.bolt),
+    NavItem(text: 'Episode', icon: FLucideIcons.tv),
+    NavItem(text: 'Resolution', icon: FLucideIcons.ratio),
+    NavItem(text: 'Subtitle', icon: FLucideIcons.captions),
+    NavItem(text: 'Settings', icon: FLucideIcons.bolt),
   ];
   final int initialIndex;
   @override

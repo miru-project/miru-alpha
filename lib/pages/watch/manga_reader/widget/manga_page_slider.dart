@@ -47,7 +47,7 @@ class MangaMobileSliderState extends ConsumerState<MangaPageSlider> {
                   );
                 }
               : null,
-          child: const Icon(FIcons.skipBack),
+          child: const Icon(FLucideIcons.skipBack),
         ),
         const SizedBox(width: 10),
         Text(
@@ -113,7 +113,7 @@ class MangaMobileSliderState extends ConsumerState<MangaPageSlider> {
                   );
                 }
               : null,
-          child: const Icon(FIcons.skipForward),
+          child: const Icon(FLucideIcons.skipForward),
         ),
       ],
     );

@@ -115,7 +115,7 @@ class MobileProxyPage extends HookWidget {
                   ),
                 );
               },
-              child: Icon(FIcons.plus, size: 24),
+              child: Icon(FLucideIcons.plus, size: 24),
             ),
             FButton.icon(
               variant: isDelete.value ? .destructive : .ghost,
@@ -182,7 +182,7 @@ class MobileProxyPage extends HookWidget {
                 );
                 isDelete.value = !isDelete.value;
               },
-              child: Icon(FIcons.trash, size: 20),
+              child: Icon(FLucideIcons.trash, size: 20),
             ),
           ],
         ),
@@ -207,7 +207,7 @@ class MobileProxyPage extends HookWidget {
                       final proxy = proxyList.value.elementAt(index);
                       final uri = Uri.parse(proxy);
                       return FSelectTile.tile(
-                        checkedIcon: Icon(FIcons.trash),
+                        checkedIcon: Icon(FLucideIcons.trash),
                         value: proxy,
                         title: Text(uri.host),
                         subtitle: Text('${'common.port'.i18n} : ${uri.port}'),
@@ -247,7 +247,7 @@ class MobileProxyPage extends HookWidget {
                         title: Text(uri.host),
                         subtitle: Text('${'common.port'.i18n} : ${uri.port}'),
                         suffix: selectToRemove.value.contains(proxy)
-                            ? Icon(FIcons.trash)
+                            ? Icon(FLucideIcons.trash)
                             : Text(uri.scheme.toUpperCase()),
                       );
                     },

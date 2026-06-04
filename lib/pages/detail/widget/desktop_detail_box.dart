@@ -51,7 +51,8 @@ class DetailDesktopBox extends HookConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (favorite != null) FBadge(child: Text('media.favorited'.i18n)),
+                if (favorite != null)
+                  FBadge(child: Text('media.favorited'.i18n)),
                 const SizedBox(height: 10),
                 if (isTablet)
                   SizedBox(
@@ -115,7 +116,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                 Row(
                   children: [
                     FButton(
-                      suffix: Icon(FIcons.play),
+                      suffix: Icon(FLucideIcons.play),
                       onPress: () {},
                       child: Text("media.video_player.play".i18n),
                     ),
@@ -157,7 +158,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                     SizedBox(width: 15),
                     FButton(
                       variant: .outline,
-                      suffix: Icon(FIcons.globe),
+                      suffix: Icon(FLucideIcons.globe),
                       onPress: () {
                         context.push(
                           '/mobileWebView',

@@ -71,7 +71,7 @@ class ExtensionSettingPage extends HookConsumerWidget {
                 isMobileLayout: isMobile,
                 title: 'extension.source_code'.i18n,
                 subtitle: 'extension.source_code_description'.i18n,
-                prefix: Icon(FIcons.code),
+                prefix: Icon(FLucideIcons.code),
                 onPress: () {
                   final extPath = Core.getExtensionPath;
                   final codePath = p.join(extPath, '$pkg.js');
@@ -82,7 +82,7 @@ class ExtensionSettingPage extends HookConsumerWidget {
                 isMobileLayout: isMobile,
                 subtitle: 'extension.cookie_clear_description'.i18n,
                 title: 'extension.cookie_clear'.i18n,
-                prefix: Icon(FIcons.cookie),
+                prefix: Icon(FLucideIcons.cookie),
                 onPress: () {},
               ),
             ],
@@ -153,9 +153,7 @@ class _RadioSetting extends HookWidget with FTileMixin {
           final decoded = json.decode(setting.options!);
           if (decoded is Map) {
             return decoded
-                .map(
-                  (key, value) => MapEntry(value.toString(), key.toString()),
-                )
+                .map((key, value) => MapEntry(value.toString(), key.toString()))
                 .cast<String, String>();
           } else if (decoded is List) {
             return <String, String>{

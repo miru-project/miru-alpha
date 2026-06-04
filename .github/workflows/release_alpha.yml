@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 env:
-  FLUTTER_VERSION: '3.41.9'
-  GO_VERSION: '1.26.2'
+  FLUTTER_VERSION: '3.44.0'
+  GO_VERSION: '1.26.3'
 
 jobs:
   build-and-release-android:
