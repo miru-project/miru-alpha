@@ -142,7 +142,7 @@ jobs:
           channel: stable
 
       - name: Build artifacts
-        run: flutter build linux --release --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
+        run: flutter build linux --release -v --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
       - name: Rename Release Directory Name to Miru-alpha # 为了解压缩后更好看一点
         run: |
           mv build/linux/x64/release/bundle build/linux/x64/release/Miru-alpha

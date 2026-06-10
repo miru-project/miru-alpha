@@ -197,55 +197,75 @@ Future<FFmpegBuildResult> _buildLinux(
   final libraries = <String>[];
   final libraryDirectories = <Uri>[];
 
-  final ffmpegDir = input.packageRoot.resolve(
-    '.dart_tool/ffmpeg-8.0-linux-clang-lite-lto/',
-  );
+  final includeDir = input.packageRoot.resolve('.dart_tool/ffmpeg-include/');
   final archiveFile = input.packageRoot.resolve(
     '.dart_tool/ffmpeg-8.0-linux-clang-lite-lto.tar.xz',
   );
-  final archName = _linuxArchName(input.config.code.targetArchitecture);
+  final fullArchiveDir = input.packageRoot.resolve(
+    '.dart_tool/ffmpeg-8.0-linux-clang-lite-lto/',
+  );
 
-  // Download and extract FFmpeg if not already present
-  if (!Directory.fromUri(ffmpegDir).existsSync()) {
-    logger.info('Downloading FFmpeg prebuilt binaries for Linux...');
-    final dio = Dio();
-    final response = await dio.download(
-      'https://sourceforge.net/projects/avbuild/files/linux/ffmpeg-8.0-linux-clang-lite-lto.tar.xz/download',
-      archiveFile.toFilePath(),
-      options: Options(followRedirects: true, responseType: ResponseType.bytes),
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to download FFmpeg: HTTP ${response.statusCode}');
+  // Extract only FFmpeg C headers from avbuild archive.
+  if (!Directory.fromUri(includeDir).existsSync()) {
+    if (!Directory.fromUri(fullArchiveDir).existsSync()) {
+      logger.info('Downloading FFmpeg headers for Linux...');
+      final dio = Dio();
+      final response = await dio.download(
+        'https://sourceforge.net/projects/avbuild/files/linux/ffmpeg-8.0-linux-clang-lite-lto.tar.xz/download',
+        archiveFile.toFilePath(),
+        options: Options(
+          followRedirects: true,
+          responseType: ResponseType.bytes,
+        ),
+      );
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Failed to download FFmpeg: HTTP ${response.statusCode}',
+        );
+      }
+
+      logger.info('Extracting FFmpeg headers...');
+      final bytes = await File(archiveFile.toFilePath()).readAsBytes();
+      final tarBytes = XZDecoder().decodeBytes(bytes);
+      final archive = TarDecoder().decodeBytes(tarBytes);
+      final outputDir = input.packageRoot.resolve('.dart_tool/').toFilePath();
+      for (final file in archive) {
+        // Only extract files under include/ – we only need the C headers.
+        if (file.name.isEmpty) continue;
+        if (!file.name.startsWith('ffmpeg-8.0-linux-clang-lite-lto/include/')) {
+          continue;
+        }
+        final filePath = p.join(outputDir, file.name);
+        if (file.isFile) {
+          await File(filePath).create(recursive: true);
+          await File(filePath).writeAsBytes(file.content as List<int>);
+        } else {
+          await Directory(filePath).create(recursive: true);
+        }
+      }
     }
 
-    logger.info('Extracting FFmpeg...');
-    final bytes = await File(archiveFile.toFilePath()).readAsBytes();
-    final tarBytes = XZDecoder().decodeBytes(bytes);
-    final archive = TarDecoder().decodeBytes(tarBytes);
-    final outputDir = input.packageRoot.resolve('.dart_tool/').toFilePath();
-    for (final file in archive) {
-      if (file.name.isEmpty) continue;
-      final filePath = p.join(outputDir, file.name);
-      if (file.isFile) {
-        await File(filePath).create(recursive: true);
-        await File(filePath).writeAsBytes(file.content as List<int>);
-      } else {
-        await Directory(filePath).create(recursive: true);
-      }
+    // Rename/move the include tree to a shorter path so we don't carry the
+    // full original directory tree.
+    final extracted = fullArchiveDir.resolve('include/');
+    if (Directory.fromUri(extracted).existsSync()) {
+      await Directory.fromUri(extracted).rename(includeDir.toFilePath());
+    }
+    // Clean up the extracted full archive (only needed for its headers).
+    if (Directory.fromUri(fullArchiveDir).existsSync()) {
+      await Directory.fromUri(fullArchiveDir).delete(recursive: true);
     }
   }
 
-  includes.add(ffmpegDir.resolve('include/'));
-  final libArchDir = ffmpegDir.resolve('lib/$archName/');
-  libraryDirectories.add(libArchDir);
-  libraries.add('ffmpeg');
+  includes.add(includeDir);
+  libraryDirectories.add(
+    input.packageRoot.resolve(
+      'linux/flutter/ephemeral/.plugin_symlinks/fvp/linux/mdk-sdk/lib/amd64/',
+    ),
+  );
+  // Use -l:libffmpeg.so.8 to link against the exact versioned file.
+  libraries.add(':libffmpeg.so.8');
 
-  // Fix broken symlinks that may result from tar extraction
-  _fixBrokenSymlinks(Directory.fromUri(libArchDir));
-
-  // No need to manually bundle libffmpeg here – native_toolchain_c
-  // automatically bundles all shared libraries that libffmpeg_merge.so
-  // links against (e.g. libffmpeg.so.8 via its NEEDED entry).
   return FFmpegBuildResult(
     includes: includes,
     libraries: libraries,
