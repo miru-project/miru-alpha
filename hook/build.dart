@@ -8,33 +8,6 @@ import 'package:archive/archive.dart';
 import 'package:archive/archive_io.dart';
 import 'package:path/path.dart' as p;
 
-/// Fix broken symlinks in extracted FFmpeg directory.
-/// The tar archive sometimes stores symlinks as empty files.
-/// This recreates proper symlinks for 0-byte .so files.
-void _fixBrokenSymlinks(Directory dir) {
-  for (final entity in dir.listSync(recursive: true)) {
-    if (entity is File && entity.existsSync() && entity.lengthSync() == 0) {
-      final name = p.basename(entity.path);
-      if (!name.endsWith('.so')) continue;
-
-      final parent = entity.parent;
-      final matches = parent.listSync().whereType<File>().where((f) {
-        final bn = p.basename(f.path);
-        return bn.startsWith(name) && bn != name && f.lengthSync() > 0;
-      }).toList();
-
-      if (matches.isNotEmpty) {
-        matches.sort(
-          (a, b) =>
-              p.basename(b.path).length.compareTo(p.basename(a.path).length),
-        );
-        entity.deleteSync();
-        Link(entity.path).createSync(p.basename(matches.first.path));
-      }
-    }
-  }
-}
-
 /// Result of a platform-specific FFmpeg build step.
 class FFmpegBuildResult {
   final List<Uri> includes;
@@ -172,20 +145,6 @@ Future<FFmpegBuildResult> _buildAndroid(
     libraries: libraries,
     libraryDirectories: libraryDirectories,
   );
-}
-
-/// Map Dart Architecture to Linux architecture subdirectory name.
-String _linuxArchName(Architecture arch) {
-  switch (arch) {
-    case Architecture.x64:
-      return 'amd64';
-    case Architecture.arm64:
-      return 'arm64';
-    case Architecture.arm:
-      return 'armhf';
-    default:
-      throw Exception('Unsupported Linux architecture: $arch');
-  }
 }
 
 /// Linux build step – mirrors Android but uses Linux FFmpeg archive.

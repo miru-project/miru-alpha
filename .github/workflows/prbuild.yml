@@ -28,7 +28,10 @@ jobs:
         with:
           flutter-version:  ${{ env.FLUTTER_VERSION }}
           channel: stable
-
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Add Android targets
+        run: rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
+        
       - name: Decode keystore
         run: |
           echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
@@ -53,7 +56,7 @@ jobs:
       - run: flutter pub get
       # 打包apk
       - name: Collect Apks
-        run: flutter build apk --release --split-per-abi --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
+        run: flutter build apk -v --release --split-per-abi --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -97,8 +100,17 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
 
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: x86_64-pc-windows-msvc
+
+      - name: Cache Cargo Dependencies
+        uses: Swatinem/rust-cache@v2
+
       - name: Build artifacts
-        run: flutter build windows --release --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
+        run: flutter build windows -v --release --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
 
       - name: Rename Release Directory Name to Miru-alpha # 为了解压缩后更好看一点
         run: |
@@ -141,6 +153,15 @@ jobs:
           flutter-version:  ${{ env.FLUTTER_VERSION }}
           channel: stable
 
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Cache Cargo Dependencies
+        uses: Swatinem/rust-cache@v2
+        
       - name: Build artifacts
         run: flutter build linux --release -v --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
       - name: Rename Release Directory Name to Miru-alpha # 为了解压缩后更好看一点
