@@ -85,6 +85,7 @@ dependencies:
   hooks: any
   native_toolchain_c: any
   archive: ^4.0.9
+  re_highlight: ^0.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

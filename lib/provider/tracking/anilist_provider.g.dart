@@ -39,7 +39,7 @@ abstract class _$AnilistAccount extends $AsyncNotifier<AnilistUser?> {
   FutureOr<AnilistUser?> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<AsyncValue<AnilistUser?>, AnilistUser?>;
     final element =
         ref.element
@@ -49,7 +49,7 @@ abstract class _$AnilistAccount extends $AsyncNotifier<AnilistUser?> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -92,7 +92,7 @@ abstract class _$TrackingStatusFilter extends $Notifier<String?> {
   String? build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<String?, String?>;
     final element =
         ref.element
@@ -102,7 +102,7 @@ abstract class _$TrackingStatusFilter extends $Notifier<String?> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }
 
@@ -185,7 +185,7 @@ abstract class _$AnilistCollectionNotifier
   FutureOr<List<AnilistList>> build(AnilistType type);
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<AsyncValue<List<AnilistList>>, List<AnilistList>>;
     final element =
@@ -196,6 +196,6 @@ abstract class _$AnilistCollectionNotifier
               Object?,
               Object?
             >;
-    element.handleCreate(ref, () => build(_$args));
+    return element.handleCreate(ref, () => build(_$args));
   }
 }

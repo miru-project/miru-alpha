@@ -135,9 +135,17 @@ class MiruSettings {
         }
         return val.split(',').map((e) => e.trim()).toSet() as T;
       case const (MangaReadMode):
-        return MangaReadMode.values.where((e) => e.name == value).first as T;
+        return (MangaReadMode.values
+                    .where((e) => e.name == value)
+                    .firstOrNull ??
+                MangaReadMode.standard)
+            as T;
       case const (NovelReadMode):
-        return NovelReadMode.values.where((e) => e.name == value).first as T;
+        return (NovelReadMode.values
+                    .where((e) => e.name == value)
+                    .firstOrNull ??
+                NovelReadMode.webToon)
+            as T;
       default:
         throw Exception('Unknown $T');
     }

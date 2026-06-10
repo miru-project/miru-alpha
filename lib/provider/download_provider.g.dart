@@ -47,7 +47,7 @@ abstract class _$DownloadNotifier extends $Notifier<AsyncValue<DownloadState>> {
   AsyncValue<DownloadState> build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<AsyncValue<DownloadState>, AsyncValue<DownloadState>>;
     final element =
@@ -58,6 +58,6 @@ abstract class _$DownloadNotifier extends $Notifier<AsyncValue<DownloadState>> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

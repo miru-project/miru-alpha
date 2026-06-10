@@ -48,7 +48,7 @@ abstract class _$ExtensionPageNotifier extends $Notifier<ExtensionPageModel> {
   ExtensionPageModel build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<ExtensionPageModel, ExtensionPageModel>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$ExtensionPageNotifier extends $Notifier<ExtensionPageModel> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

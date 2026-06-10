@@ -110,7 +110,7 @@ abstract class _$MangaReader extends $Notifier<MangaReaderState> {
   });
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<MangaReaderState, MangaReaderState>;
     final element =
         ref.element
@@ -120,7 +120,7 @@ abstract class _$MangaReader extends $Notifier<MangaReaderState> {
               Object?,
               Object?
             >;
-    element.handleCreate(
+    return element.handleCreate(
       ref,
       () => build(_$args.$1, _$args.$2, _$args.$3, headers: _$args.headers),
     );
