@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -12,6 +11,7 @@ import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/widgets/core/outter_card.dart';
 import 'package:miru_alpha/widgets/index.dart';
 import 'package:miru_alpha/widgets/core/seperator.dart';
+import 'package:miru_alpha/widgets/dialog/dialog.dart';
 
 class MobileRepoDialog extends HookConsumerWidget {
   const MobileRepoDialog({
@@ -222,17 +222,7 @@ class SettingExtension extends HookConsumerWidget {
     WidgetRef ref,
     Set<String> selected,
   ) {
-    showFDialog(
-      routeStyle: .delta(
-        barrierFilter: () =>
-            (animation) => ImageFilter.compose(
-              outer: ImageFilter.blur(
-                sigmaX: animation * 5,
-                sigmaY: animation * 5,
-              ),
-              inner: ColorFilter.mode(context.theme.colors.barrier, .srcOver),
-            ),
-      ),
+    showMiruDialog(
       context: context,
       builder: (context, style, animation) {
         return FDialog(
@@ -364,20 +354,7 @@ class SettingExtension extends HookConsumerWidget {
                         SizedBox(width: 10),
                       ],
                       FButton(
-                        onPress: () => showFDialog(
-                          routeStyle: .delta(
-                            barrierFilter: () =>
-                                (animation) => ImageFilter.compose(
-                                  outer: ImageFilter.blur(
-                                    sigmaX: animation * 5,
-                                    sigmaY: animation * 5,
-                                  ),
-                                  inner: ColorFilter.mode(
-                                    context.theme.colors.barrier,
-                                    .srcOver,
-                                  ),
-                                ),
-                          ),
+                        onPress: () => showMiruDialog(
                           context: context,
                           builder: (context, style, animation) {
                             return RepoDialog(

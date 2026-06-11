@@ -30,7 +30,9 @@ class MangaSettingGeneral extends ConsumerWidget {
           value: MiruSettings.getSettingSync(SettingKey.mangaReadingMode),
           onChanged: (val) {
             MiruSettings.setSetting(SettingKey.mangaReadingMode, val);
-            ref.read(mangaProvider.notifier).changeReadMode(
+            ref
+                .read(mangaProvider.notifier)
+                .changeReadMode(
                   MangaReadMode.values.firstWhere((e) => e.name == val),
                 );
           },

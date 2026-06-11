@@ -14,14 +14,8 @@ class DevToolPage extends HookConsumerWidget {
       mobileHeader: const SnapSheetHeader(title: 'Developer Tool'),
       body: FTabs(
         children: [
-          FTabEntry(
-            label: const Text('Console'),
-            child: const ConsoleView(),
-          ),
-          FTabEntry(
-            label: const Text('Network'),
-            child: const NetworkView(),
-          ),
+          FTabEntry(label: const Text('Console'), child: const ConsoleView()),
+          FTabEntry(label: const Text('Network'), child: const NetworkView()),
         ],
       ),
     );

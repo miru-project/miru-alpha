@@ -158,10 +158,11 @@
     "import": {
       "title": "Import Extension",
       "url_label": "Extension URL",
-      "tips": "You can import extensions through a link, or click on the extension directory below and place the extension file there.",
+      "tips": "You can import extensions through a link, or click on the extension directory below and select the extension file there.",
       "extension_dir": "Extension Directory",
       "import_by_url": "Import by URL",
-      "import_by_local": "Import Locally"
+      "import_by_local": "Import Locally",
+      "invalid_url": "Invalid url need a .js file"
     },
     "repo": {
       "error": "An error occurred!",

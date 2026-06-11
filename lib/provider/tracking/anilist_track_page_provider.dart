@@ -176,7 +176,8 @@ class AnilistTrackPage extends _$AnilistTrackPage {
               ..status = AniListProvider.mediaListStatusToQuery(state.status)
               ..progress = state.progress
               ..score = state.score.toInt()
-              ..totalProgress = state.media?.episodes ?? state.media?.chapters ?? 0),
+              ..totalProgress =
+                  state.media?.episodes ?? state.media?.chapters ?? 0),
         );
       } catch (e) {
         showSimpleToast('Failed to save to local database');

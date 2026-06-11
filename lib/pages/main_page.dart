@@ -16,6 +16,7 @@ import 'package:miru_alpha/widgets/animted_icon/compass.dart';
 import 'package:miru_alpha/widgets/animted_icon/home.dart';
 import 'package:miru_alpha/widgets/animted_icon/settings_cog.dart';
 import 'package:miru_alpha/widgets/core/toast.dart';
+import 'package:miru_alpha/widgets/dialog/dialog.dart';
 import 'package:miru_alpha/widgets/index.dart';
 
 import '../model/setting_items.dart';
@@ -155,27 +156,25 @@ class _MainPageState extends ConsumerState<MainPage>
           SettingKey.downloadPath,
         );
         if (downloadPath.isEmpty && context.mounted) {
-          showFDialog(
+          showMiruDialog(
             context: context,
-            builder: (context, _, _) => FDialog(
-              title: Text('settings.download_directory'.i18n),
-              body: Text('settings.select_download_directory'.i18n),
-              actions: [
-                FButton(
-                  onPress: () async {
-                    String? result = await FilePicker.getDirectoryPath();
-                    if (result != null) {
-                      MiruSettings.setSettingSync(
-                        SettingKey.downloadPath,
-                        result,
-                      );
-                      if (context.mounted) Navigator.of(context).pop();
-                    }
-                  },
-                  child: Text('settings.select_directory'.i18n),
-                ),
-              ],
-            ),
+            actions: [
+              FButton(
+                onPress: () async {
+                  String? result = await FilePicker.getDirectoryPath();
+                  if (result != null) {
+                    MiruSettings.setSettingSync(
+                      SettingKey.downloadPath,
+                      result,
+                    );
+                    if (context.mounted) Navigator.of(context).pop();
+                  }
+                },
+                child: Text('settings.select_directory'.i18n),
+              ),
+            ],
+            title: Text('settings.download_directory'.i18n),
+            body: Text('settings.select_download_directory'.i18n),
           );
         }
       });

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -8,6 +7,7 @@ import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
 import 'package:miru_alpha/widgets/core/search_filter_card.dart';
 import './search_filter_dialog.dart';
+import 'package:miru_alpha/widgets/dialog/dialog.dart';
 
 class DesktopSearchSingleFilterBox extends HookConsumerWidget {
   const DesktopSearchSingleFilterBox({super.key, required this.meta});
@@ -73,21 +73,8 @@ class DesktopSearchSingleFilterBox extends HookConsumerWidget {
             .selected
             .map((k, v) => MapEntry(k, [...v]));
 
-        final confirm = await showFDialog<bool>(
+        final confirm = await showMiruDialog<bool>(
           context: context,
-          routeStyle: FDialogRouteStyleDelta.delta(
-            barrierFilter: () =>
-                (animation) => ImageFilter.compose(
-                  outer: ImageFilter.blur(
-                    sigmaX: animation * 5,
-                    sigmaY: animation * 5,
-                  ),
-                  inner: ColorFilter.mode(
-                    theme.colors.barrier,
-                    BlendMode.srcOver,
-                  ),
-                ),
-          ),
           builder: (context, style, animation) => FTheme(
             data: theme,
             child: SearchFilterDialog(

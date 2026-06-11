@@ -70,7 +70,8 @@ class TMDBDetail {
       status: json['status'] ?? '',
       casts: castList,
       releaseDate: json['release_date'] ?? json['first_air_date'] ?? '',
-      runtime: json['runtime'] ??
+      runtime:
+          json['runtime'] ??
           (json['episode_run_time'] as List?)?.firstOrNull ??
           0,
       originalTitle: json['original_title'] ?? json['original_name'] ?? '',
@@ -80,11 +81,7 @@ class TMDBDetail {
 
 @JsonSerializable()
 class TMDBCast {
-  TMDBCast({
-    required this.name,
-    required this.character,
-    this.profilePath,
-  });
+  TMDBCast({required this.name, required this.character, this.profilePath});
 
   final String name;
   final String character;

@@ -10,6 +10,7 @@ import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'package:miru_alpha/widgets/core/image_widget.dart';
 import 'package:miru_alpha/widgets/core/toast.dart';
+import 'package:miru_alpha/widgets/dialog/dialog.dart';
 
 class AnilistTrackingDialog extends HookConsumerWidget {
   final AnilistProgressParam param;
@@ -111,50 +112,46 @@ class AnilistTrackingDialog extends HookConsumerWidget {
     }
 
     Future<void> showDeleteConfirmation() async {
-      showFDialog(
+      showMiruDialog(
         context: context,
-        builder: (context, style, animation) => FDialog(
-          style: style,
-          animation: animation,
-          title: Text('common.warning'.i18n),
-          body: Text(
-            'tracking.anilist.delete_warning'.i18n.replaceAll(
-              '{provider}',
-              'AniList',
-            ),
+        title: Text('common.warning'.i18n),
+        body: Text(
+          'tracking.anilist.delete_warning'.i18n.replaceAll(
+            '{provider}',
+            'AniList',
           ),
-          actions: [
-            FButton(
-              variant: .destructive,
-              onPress: () async {
-                Navigator.of(context).pop();
-                final success = await notifier.deleteEntry(
-                  detailUrl: param.detailUrl,
-                  package: param.package,
-                );
-                if (context.mounted) {
-                  showSimpleToast(
-                    success
-                        ? 'tracking.anilist.entry_deleted'.i18n
-                        : 'tracking.anilist.entry_delete_failed'.i18n,
-                  );
-                  if (success) {
-                    ref
-                        .read(detailPr.notifier)
-                        .fetchDetailInfo(param.package, param.detailUrl);
-                    Navigator.of(context).pop();
-                  }
-                }
-              },
-              child: Text('common.delete'.i18n),
-            ),
-            FButton(
-              variant: .ghost,
-              onPress: () => Navigator.of(context).pop(),
-              child: Text('common.cancel'.i18n),
-            ),
-          ],
         ),
+        actions: [
+          FButton(
+            variant: .destructive,
+            onPress: () async {
+              Navigator.of(context).pop();
+              final success = await notifier.deleteEntry(
+                detailUrl: param.detailUrl,
+                package: param.package,
+              );
+              if (context.mounted) {
+                showSimpleToast(
+                  success
+                      ? 'tracking.anilist.entry_deleted'.i18n
+                      : 'tracking.anilist.entry_delete_failed'.i18n,
+                );
+                if (success) {
+                  ref
+                      .read(detailPr.notifier)
+                      .fetchDetailInfo(param.package, param.detailUrl);
+                  Navigator.of(context).pop();
+                }
+              }
+            },
+            child: Text('common.delete'.i18n),
+          ),
+          FButton(
+            variant: .ghost,
+            onPress: () => Navigator.of(context).pop(),
+            child: Text('common.cancel'.i18n),
+          ),
+        ],
       );
     }
 

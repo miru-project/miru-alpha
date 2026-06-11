@@ -32,7 +32,9 @@ class _MiruLicensePageState extends State<MiruLicensePage> {
           }
 
           if (snapshot.hasError) {
-            return Center(child: Text('${'common.error'.i18n}: ${snapshot.error}'));
+            return Center(
+              child: Text('${'common.error'.i18n}: ${snapshot.error}'),
+            );
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -62,7 +64,9 @@ class _MiruLicensePageState extends State<MiruLicensePage> {
 
               return FTile(
                 title: Text(packageName),
-                subtitle: Text('${paragraphs.length} ${'common.paragraphs'.i18n}'),
+                subtitle: Text(
+                  '${paragraphs.length} ${'common.paragraphs'.i18n}',
+                ),
                 onPress: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(

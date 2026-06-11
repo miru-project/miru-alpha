@@ -19,9 +19,9 @@ import 'package:miru_alpha/pages/home/widget/download.dart';
 import 'package:miru_alpha/pages/home/widget/favorite.dart';
 import 'package:miru_alpha/widgets/core/toast.dart';
 import 'package:miru_alpha/widgets/index.dart';
-import 'dart:ui';
 
 import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:miru_alpha/widgets/dialog/dialog.dart';
 
 // shell scaffold for tab navigation in history / home / favorite / download
 class MiruMobileShellScaffold extends StatefulHookWidget {
@@ -78,21 +78,8 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
               suffix: [
                 FTappable(
                   onPress: () {
-                    showFDialog(
+                    showMiruDialog(
                       context: context,
-                      routeStyle: .delta(
-                        barrierFilter: () =>
-                            (animation) => ImageFilter.compose(
-                              outer: ImageFilter.blur(
-                                sigmaX: animation * 5,
-                                sigmaY: animation * 5,
-                              ),
-                              inner: ColorFilter.mode(
-                                context.theme.colors.barrier,
-                                .srcOver,
-                              ),
-                            ),
-                      ),
                       builder: (context, style, animation) {
                         return MobileAddFAVDialog(
                           animation: animation,
