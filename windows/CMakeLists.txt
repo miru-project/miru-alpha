@@ -58,8 +58,10 @@ include(flutter/generated_plugins.cmake)
 
 # Custom native libraries - These must be added BEFORE the installation section
 # so they can contribute to PLUGIN_BUNDLED_LIBRARIES.
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/ffmpeg_merge/windows ${CMAKE_BINARY_DIR}/lib)
-list(APPEND PLUGIN_BUNDLED_LIBRARIES ${ffmpeg_merge_bundled_libraries})
+# ffmpeg_merge is now built via hook/build.dart native assets (see NATIVE_ASSETS_DIR below).
+# Linking against fvp's bundled ffmpeg-8.dll to avoid duplicating FFmpeg DLLs.
+# add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/ffmpeg_merge/windows ${CMAKE_BINARY_DIR}/lib)
+# list(APPEND PLUGIN_BUNDLED_LIBRARIES ${ffmpeg_merge_bundled_libraries})
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/miru_core/windows ${CMAKE_BINARY_DIR}/miru_core)
 list(APPEND PLUGIN_BUNDLED_LIBRARIES ${miru_core_bundled_libraries})

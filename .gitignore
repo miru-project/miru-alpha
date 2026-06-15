@@ -72,3 +72,5 @@ flutter_*.png
 # Ignore mingw
 /src/miru_core/mingw64
 skills-lock.json
+src/miru_core/windows/miru_core.h
+src/miru_core/windows/miru_core.dll

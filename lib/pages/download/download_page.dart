@@ -87,52 +87,105 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(downloadProvider);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          state.when(
-            loading: () => const Center(child: FCircularProgress()),
-            error: (e, s) => ErrorDisplay.grpc(err: e, stack: s),
-            data: (downloadState) {
-              final activeTasks = downloadState.active;
-
-              return Column(
-                children: [
-                  if (activeTasks.isNotEmpty)
-                    FTileGroup.builder(
-                      label: Text("common.active_tasks".i18n),
-                      count: activeTasks.length,
-                      tileBuilder: (context, index) =>
-                          DownloadProcessTile(progress: activeTasks[index]),
-                    ),
-                  const SizedBox(height: 24),
-                  FTileGroup.builder(
-                    label: Text("common.downloads_history".i18n),
-                    count: downloadState.history.length,
-                    tileBuilder: (context, index) => DownloadHistoryTile(
-                      download: downloadState.history[index],
-                    ),
-                  ),
-                  if (downloadState.hasMore)
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Center(
-                        child: FButton(
-                          onPress: () => ref
-                              .read(downloadProvider.notifier)
-                              .loadMoreHistory(),
-                          child: Text("common.load_more".i18n),
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
-        ],
+    return state.when(
+      loading: () => const Center(child: FCircularProgress()),
+      error: (e, s) => Center(
+        child: ErrorDisplay.grpc(
+          err: e,
+          stack: s,
+          onRefresh: () {
+            ref.invalidate(downloadProvider);
+            ref.read(downloadProvider);
+          },
+        ),
       ),
+      data: (downloadState) {
+        final activeTasks = downloadState.active;
+
+        return ListView(
+          children: [
+            if (activeTasks.isNotEmpty)
+              FTileGroup.builder(
+                label: Text("common.active_tasks".i18n),
+                count: activeTasks.length,
+                tileBuilder: (context, index) =>
+                    DownloadProcessTile(progress: activeTasks[index]),
+              ),
+            const SizedBox(height: 24),
+            FTileGroup.builder(
+              label: Text("common.downloads_history".i18n),
+              count: downloadState.history.length,
+              tileBuilder: (context, index) =>
+                  DownloadHistoryTile(download: downloadState.history[index]),
+            ),
+            if (downloadState.hasMore)
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Center(
+                  child: FButton(
+                    onPress: () =>
+                        ref.read(downloadProvider.notifier).loadMoreHistory(),
+                    child: Text("common.load_more".i18n),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
+    // SingleChildScrollView(
+    //   padding: const EdgeInsets.all(16),
+    //   child: Column(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: [
+    //       state.when(
+    //         loading: () => const Center(child: FCircularProgress()),
+    //         error: (e, s) => ErrorDisplay.grpc(
+    //           err: e,
+    //           stack: s,
+    //           onRefresh: () {
+    //             ref.invalidate(downloadProvider);
+    //             ref.read(downloadProvider);
+    //           },
+    //         ),
+    //         data: (downloadState) {
+    //           final activeTasks = downloadState.active;
+
+    //           return Column(
+    //             children: [
+    //               if (activeTasks.isNotEmpty)
+    //                 FTileGroup.builder(
+    //                   label: Text("common.active_tasks".i18n),
+    //                   count: activeTasks.length,
+    //                   tileBuilder: (context, index) =>
+    //                       DownloadProcessTile(progress: activeTasks[index]),
+    //                 ),
+    //               const SizedBox(height: 24),
+    //               FTileGroup.builder(
+    //                 label: Text("common.downloads_history".i18n),
+    //                 count: downloadState.history.length,
+    //                 tileBuilder: (context, index) => DownloadHistoryTile(
+    //                   download: downloadState.history[index],
+    //                 ),
+    //               ),
+    //               if (downloadState.hasMore)
+    //                 Padding(
+    //                   padding: const EdgeInsets.all(20.0),
+    //                   child: Center(
+    //                     child: FButton(
+    //                       onPress: () => ref
+    //                           .read(downloadProvider.notifier)
+    //                           .loadMoreHistory(),
+    //                       child: Text("common.load_more".i18n),
+    //                     ),
+    //                   ),
+    //                 ),
+    //             ],
+    //           );
+    //         },
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 }

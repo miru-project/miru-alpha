@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
   std::cout << "output" << argv[1] << std::endl;
 
   for (int i = 2; i < argc; i++) {
-    std::cout << "input" << argv[i] << std::endl;
+    std::cout << "input: " << argv[i] << std::endl;
   }
   if (argc < 3) {
     std::cerr << "Usage: " << argv[0] << " output.mp4 input1.ts [input2.ts ...]"

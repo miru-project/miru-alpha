@@ -8,24 +8,12 @@ class MiruDirectory {
   static late final Directory _appSupportDir;
   static late final Directory _cacheDir;
   static late final Directory _mirDonwloadDir;
-  static late final Directory _moviesDir;
 
   static Future<void> ensureInitialized() async {
     _appDocDir = await getApplicationDocumentsDirectory();
     _appSupportDir = await getApplicationSupportDirectory();
     _cacheDir = await getTemporaryDirectory();
     _mirDonwloadDir = await getDownloadsDirectory() ?? _cacheDir;
-
-    if (Platform.isAndroid) {
-      // await _requestMediaPermissions();
-      // For Android, we don't necessarily want to use the hardcoded Movies path anymore
-      // if we're moving towards user-specified SAF paths.
-      // But we still need a default.
-      _moviesDir = Directory(path.join('/storage/emulated/0/Movies', 'Miru'));
-      return;
-    }
-
-    _moviesDir = _mirDonwloadDir;
   }
 
   static Future<String> getTempDownloadDirectory() async {
@@ -85,8 +73,6 @@ class MiruDirectory {
   static String get getCacheDirectory => _miruDir(_cacheDir);
 
   static String get getDownloadDirectory => _miruDir(_mirDonwloadDir);
-
-  static String get getMoviesDirectory => _miruDir(_moviesDir);
 
   static String _miruDir(Directory directory) {
     try {

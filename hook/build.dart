@@ -43,6 +43,12 @@ void main(List<String> args) async {
           libraries = linuxResult.libraries;
           libraryDirectories = linuxResult.libraryDirectories;
           break;
+        case OS.windows:
+          final windowsResult = await _buildWindows(input, output);
+          includes = windowsResult.includes;
+          libraries = windowsResult.libraries;
+          libraryDirectories = windowsResult.libraryDirectories;
+          break;
       }
 
       // Build the ffmpeg_merge C++ code, linking against the bundled
@@ -224,6 +230,100 @@ Future<FFmpegBuildResult> _buildLinux(
   );
   // Use -l:libffmpeg.so.8 to link against the exact versioned file.
   libraries.add(':libffmpeg.so.8');
+
+  return FFmpegBuildResult(
+    includes: includes,
+    libraries: libraries,
+    libraryDirectories: libraryDirectories,
+  );
+}
+
+/// Windows build step – downloads the FFmpeg mingw archive from sourceforge
+/// and fully extracts it (headers, DLLs, and import libs). Uses the downloaded
+/// ffmpeg-8.dll for both linking and bundling, so there is no dependency on
+/// fvp's FFmpeg. Only ffmpeg-8.dll is bundled (not the individual av* DLLs)
+/// since it re-exports all the symbols needed by ffmpeg_merge.
+Future<FFmpegBuildResult> _buildWindows(
+  BuildInput input,
+  BuildOutputBuilder output,
+) async {
+  final includes = <Uri>[];
+  final libraries = <String>[];
+  final libraryDirectories = <Uri>[];
+
+  // Download and fully extract FFmpeg mingw archive to .dart_tool/
+  final archiveName = 'ffmpeg-master-mingw-gcc-lite';
+  final ffmpegDir = input.packageRoot.resolve('.dart_tool/$archiveName/');
+  final downloadUrl =
+      'https://sourceforge.net/projects/avbuild/files/windows-desktop/$archiveName.tar.xz/download';
+  final archiveFile = input.packageRoot.resolve(
+    '.dart_tool/$archiveName.tar.xz',
+  );
+
+  if (!Directory.fromUri(ffmpegDir).existsSync()) {
+    logger.info('Downloading FFmpeg for Windows...');
+    final dio = Dio();
+    final response = await dio.download(
+      downloadUrl,
+      archiveFile.toFilePath(),
+      options: Options(followRedirects: true, responseType: ResponseType.bytes),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to download FFmpeg: HTTP ${response.statusCode}');
+    }
+
+    logger.info('Extracting FFmpeg...');
+    final bytes = await File(archiveFile.toFilePath()).readAsBytes();
+    final tarBytes = XZDecoder().decodeBytes(bytes);
+    final archive = TarDecoder().decodeBytes(tarBytes);
+    final outputDir = input.packageRoot.resolve('.dart_tool/').toFilePath();
+    for (final file in archive) {
+      if (file.name.isEmpty) continue;
+      final filePath = p.join(outputDir, file.name);
+      if (file.isFile) {
+        await File(filePath).create(recursive: true);
+        await File(filePath).writeAsBytes(file.content as List<int>);
+      } else {
+        await Directory(filePath).create(recursive: true);
+      }
+    }
+    logger.info('FFmpeg extracted to $ffmpegDir');
+  }
+
+  final includeDir = ffmpegDir.resolve('include/');
+  final libDir = ffmpegDir.resolve('lib/x86_64/');
+  final binDir = ffmpegDir.resolve('bin/x86_64/');
+  final ffmpegDll = binDir.resolve('ffmpeg-8.dll');
+
+  if (!File.fromUri(ffmpegDll).existsSync()) {
+    throw Exception(
+      'Downloaded FFmpeg build is incomplete: ffmpeg-8.dll not found at $ffmpegDll.',
+    );
+  }
+  if (!Directory.fromUri(libDir).existsSync()) {
+    throw Exception(
+      'Downloaded FFmpeg build is incomplete: lib/x86_64/ not found at $libDir.',
+    );
+  }
+
+  includes.add(includeDir);
+  libraryDirectories.add(libDir);
+  // Link against ffmpeg.lib (import library from the downloaded archive).
+  // native_toolchain_c appends .lib automatically on Windows.
+  libraries.add('ffmpeg');
+
+  // Register only ffmpeg-8.dll as a bundled code asset.
+  // ffmpeg-8.dll re-exports all the avcodec/avformat/avutil symbols, so the
+  // individual av* DLLs are not needed at link time or runtime.
+  output.assets.code.add(
+    CodeAsset(
+      package: input.packageName,
+      name: 'ffmpeg-8.dll',
+      file: ffmpegDll,
+      linkMode: DynamicLoadingBundled(),
+    ),
+  );
+  logger.info('Registered ffmpeg-8.dll as bundled code asset.');
 
   return FFmpegBuildResult(
     includes: includes,
