@@ -27,7 +27,6 @@ class WatchLoadEntry extends StatefulHookConsumerWidget {
 class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
   late double maxHeight;
   late double maxWidth;
-  late EpisodeNotifier _episodeNotifier;
   late EpisodeNotifierProvider _epProvider;
   bool _hasOriented = false;
 
@@ -35,7 +34,6 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
   void initState() {
     super.initState();
     _epProvider = episodeProvider(widget.param);
-    _episodeNotifier = ref.read(_epProvider.notifier);
     WakelockPlus.enable();
   }
 
@@ -50,7 +48,6 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
         ]);
       });
     }
-    _episodeNotifier.saveHistory();
     super.dispose();
   }
 

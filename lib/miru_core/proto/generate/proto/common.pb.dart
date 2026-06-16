@@ -15,7 +15,11 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'common.pbenum.dart';
+
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
+
+export 'common.pbenum.dart';
 
 class ExtensionMeta extends $pb.GeneratedMessage {
   factory ExtensionMeta({
@@ -214,7 +218,7 @@ class DownloadProgress extends $pb.GeneratedMessage {
     $core.int? progress,
     $core.Iterable<$core.String>? names,
     $core.int? total,
-    $core.String? status,
+    DownloadStatus? status,
     $core.String? mediaType,
     $core.String? currentDownloading,
     $core.int? taskId,
@@ -253,7 +257,8 @@ class DownloadProgress extends $pb.GeneratedMessage {
     ..aI(1, _omitFieldNames ? '' : 'progress')
     ..pPS(2, _omitFieldNames ? '' : 'names')
     ..aI(3, _omitFieldNames ? '' : 'total')
-    ..aOS(4, _omitFieldNames ? '' : 'status')
+    ..aE<DownloadStatus>(4, _omitFieldNames ? '' : 'status',
+        enumValues: DownloadStatus.values)
     ..aOS(5, _omitFieldNames ? '' : 'mediaType')
     ..aOS(6, _omitFieldNames ? '' : 'currentDownloading')
     ..aI(7, _omitFieldNames ? '' : 'taskId')
@@ -303,9 +308,9 @@ class DownloadProgress extends $pb.GeneratedMessage {
   void clearTotal() => $_clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get status => $_getSZ(3);
+  DownloadStatus get status => $_getN(3);
   @$pb.TagNumber(4)
-  set status($core.String value) => $_setString(3, value);
+  set status(DownloadStatus value) => $_setField(4, value);
   @$pb.TagNumber(4)
   $core.bool hasStatus() => $_has(3);
   @$pb.TagNumber(4)
@@ -521,7 +526,7 @@ class Download extends $pb.GeneratedMessage {
     $core.String? key,
     $core.String? title,
     $core.String? mediaType,
-    $core.String? status,
+    DownloadStatus? status,
     $core.String? savePath,
     $core.String? date,
     $core.String? downloadUrl,
@@ -569,7 +574,8 @@ class Download extends $pb.GeneratedMessage {
     ..aOS(6, _omitFieldNames ? '' : 'key')
     ..aOS(7, _omitFieldNames ? '' : 'title')
     ..aOS(8, _omitFieldNames ? '' : 'mediaType')
-    ..aOS(9, _omitFieldNames ? '' : 'status')
+    ..aE<DownloadStatus>(9, _omitFieldNames ? '' : 'status',
+        enumValues: DownloadStatus.values)
     ..aOS(10, _omitFieldNames ? '' : 'savePath')
     ..aOS(11, _omitFieldNames ? '' : 'date')
     ..aOS(12, _omitFieldNames ? '' : 'downloadUrl')
@@ -649,9 +655,9 @@ class Download extends $pb.GeneratedMessage {
   void clearMediaType() => $_clearField(8);
 
   @$pb.TagNumber(9)
-  $core.String get status => $_getSZ(8);
+  DownloadStatus get status => $_getN(8);
   @$pb.TagNumber(9)
-  set status($core.String value) => $_setString(8, value);
+  set status(DownloadStatus value) => $_setField(9, value);
   @$pb.TagNumber(9)
   $core.bool hasStatus() => $_has(8);
   @$pb.TagNumber(9)

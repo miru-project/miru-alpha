@@ -43,6 +43,7 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
 
   @override
   void dispose() {
+    ref.read(widget.epProvider.notifier).saveHistory();
     scrollController.dispose();
     super.dispose();
   }

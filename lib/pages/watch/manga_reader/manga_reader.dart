@@ -16,7 +16,7 @@ import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/widgets/index.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-class MiruMangaReader extends HookConsumerWidget {
+class MiruMangaReader extends StatefulHookConsumerWidget {
   const MiruMangaReader({
     super.key,
     required this.value,
@@ -43,23 +43,39 @@ class MiruMangaReader extends HookConsumerWidget {
   final String? localPath;
   // final String detailImageUrl;
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // final scrollController = useScrollController();
+  MiruMangaReaderState createState() {
+    return MiruMangaReaderState();
+  }
+}
 
-    final epcontroller = ref.read(epProvider);
+class MiruMangaReaderState extends ConsumerState<MiruMangaReader> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    ref.read(widget.epProvider.notifier).saveHistory();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final epcontroller = ref.read(widget.epProvider);
     final currentEpIndex = epcontroller.selectedEpisodeIndex;
     final epurl = epcontroller.epGroup[epcontroller.selectedGroupIndex].urls;
 
     final mangaProvider = mangaReaderProvider(
       currentEpIndex,
       epurl.length,
-      value,
+      widget.value,
     );
     final controls = [
       Padding(
         padding: .symmetric(horizontal: 10),
         child: MangaPageSlider(
-          epProvider: epProvider,
+          epProvider: widget.epProvider,
           mangaProvider: mangaProvider,
         ),
       ),
@@ -70,7 +86,7 @@ class MiruMangaReader extends HookConsumerWidget {
           children: [
             FTabEntry(
               label: Icon(FLucideIcons.tableOfContents),
-              child: EpisodeSelect(epProvider: epProvider),
+              child: EpisodeSelect(epProvider: widget.epProvider),
             ),
             FTabEntry(
               label: Icon(FLucideIcons.book),
@@ -91,16 +107,16 @@ class MiruMangaReader extends HookConsumerWidget {
       ),
     ];
     final readView = _MiruMangaReadView(
-      data: value,
-      epProvider: epProvider,
+      data: widget.value,
+      epProvider: widget.epProvider,
       mangaProvider: mangaProvider,
-      meta: meta,
-      name: name,
+      meta: widget.meta,
+      name: widget.name,
     );
     return MiruScaffold(
       childPad: false,
       snapSheet: controls,
-      mobileHeader: SnapSheetNested.back(title: name),
+      mobileHeader: SnapSheetNested.back(title: widget.name),
       mobileBody: readView,
       desktopBody: Row(
         children: [
@@ -129,7 +145,7 @@ class MiruMangaReader extends HookConsumerWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          name,
+                          widget.name,
                           overflow: TextOverflow.ellipsis,
                           style: context.theme.typography.xl2.copyWith(
                             fontWeight: FontWeight.bold,
@@ -155,7 +171,7 @@ class MiruMangaReader extends HookConsumerWidget {
   }
 }
 
-class _MiruMangaReadView extends StatefulHookConsumerWidget {
+class _MiruMangaReadView extends HookConsumerWidget {
   const _MiruMangaReadView({
     required this.data,
     required this.epProvider,
@@ -169,20 +185,10 @@ class _MiruMangaReadView extends StatefulHookConsumerWidget {
   final ExtensionMeta meta;
   final String name;
   @override
-  createState() => _MiruMangaReadViewState();
-}
-
-class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final item = widget.data?.urls;
-    final mode = ref.watch(widget.mangaProvider.select((e) => e.readMode));
-    final c = ref.read(widget.mangaProvider.notifier);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final item = data?.urls;
+    final mode = ref.watch(mangaProvider.select((e) => e.readMode));
+    final c = ref.read(mangaProvider.notifier);
 
     switch (mode) {
       case MangaReadMode.rightToLeft || MangaReadMode.standard:
@@ -204,21 +210,19 @@ class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
             pointer.add(event.pointer);
             if (pointer.length == 2) {
               logger.info('zoom');
-              ref.read(widget.mangaProvider.notifier).changeZoomMode(true);
+              ref.read(mangaProvider.notifier).changeZoomMode(true);
             }
           },
           onPointerUp: (event) {
             // if (pointer.length != 1) return;
-            ref.read(widget.mangaProvider.notifier).changeZoomMode(false);
+            ref.read(mangaProvider.notifier).changeZoomMode(false);
             logger.info('end  zoom');
             pointer.remove(event.pointer);
             // if (pointer.length == 1) {}
           },
           child: Consumer(
             builder: (context, ref, child) {
-              final isZoom = ref.watch(
-                widget.mangaProvider.select((e) => e.isZoom),
-              );
+              final isZoom = ref.watch(mangaProvider.select((e) => e.isZoom));
               return SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
@@ -250,3 +254,11 @@ class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
     }
   }
 }
+
+// class _MiruMangaReadViewState extends ConsumerState<_MiruMangaReadView> {
+//   @override
+//   void initState() {
+//     super.initState();
+//   }
+
+// }

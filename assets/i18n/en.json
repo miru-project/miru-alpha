@@ -391,5 +391,17 @@
     "weeks_ago": "{weeks} weeks ago",
     "months_ago": "{months} months ago",
     "years_ago": "{years} years ago"
+  },
+  "download": {
+    "status": {
+      "queued": "Queued",
+      "downloading": "Downloading",
+      "paused": "Paused",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "converting": "Converting",
+      "unknown": "Unknown"
+    }
   }
 }

@@ -97,13 +97,14 @@ const SearchResponse$json = {
       '6': '.miru.ExtensionListItem',
       '10': 'items'
     },
+    {'1': 'raw', '3': 2, '4': 1, '5': 9, '10': 'raw'},
   ],
 };
 
 /// Descriptor for `SearchResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List searchResponseDescriptor = $convert.base64Decode(
     'Cg5TZWFyY2hSZXNwb25zZRItCgVpdGVtcxgBIAMoCzIXLm1pcnUuRXh0ZW5zaW9uTGlzdEl0ZW'
-    '1SBWl0ZW1z');
+    '1SBWl0ZW1zEhAKA3JhdxgCIAEoCVIDcmF3');
 
 @$core.Deprecated('Use latestRequestDescriptor instead')
 const LatestRequest$json = {
@@ -130,13 +131,14 @@ const LatestResponse$json = {
       '6': '.miru.ExtensionListItem',
       '10': 'items'
     },
+    {'1': 'raw', '3': 2, '4': 1, '5': 9, '10': 'raw'},
   ],
 };
 
 /// Descriptor for `LatestResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List latestResponseDescriptor = $convert.base64Decode(
     'Cg5MYXRlc3RSZXNwb25zZRItCgVpdGVtcxgBIAMoCzIXLm1pcnUuRXh0ZW5zaW9uTGlzdEl0ZW'
-    '1SBWl0ZW1z');
+    '1SBWl0ZW1zEhAKA3JhdxgCIAEoCVIDcmF3');
 
 @$core.Deprecated('Use detailRequestDescriptor instead')
 const DetailRequest$json = {
@@ -163,13 +165,14 @@ const DetailResponse$json = {
       '6': '.miru.ExtensionDetail',
       '10': 'data'
     },
+    {'1': 'raw', '3': 2, '4': 1, '5': 9, '10': 'raw'},
   ],
 };
 
 /// Descriptor for `DetailResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List detailResponseDescriptor = $convert.base64Decode(
     'Cg5EZXRhaWxSZXNwb25zZRIpCgRkYXRhGAEgASgLMhUubWlydS5FeHRlbnNpb25EZXRhaWxSBG'
-    'RhdGE=');
+    'RhdGESEAoDcmF3GAIgASgJUgNyYXc=');
 
 @$core.Deprecated('Use watchRequestDescriptor instead')
 const WatchRequest$json = {

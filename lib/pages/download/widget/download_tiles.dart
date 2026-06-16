@@ -4,6 +4,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/download/download_utils.dart';
 
 class DownloadProcessTile extends ConsumerWidget {
   const DownloadProcessTile({super.key, required this.progress});
@@ -18,7 +20,7 @@ class DownloadProcessTile extends ConsumerWidget {
           FLabel(
             layout: .vertical,
             description: Text(
-              '${progress.progress}/${progress.total} - ${progress.status}',
+              '${progress.progress}/${progress.total} - ${DownloadUtils.statusToI18N(progress.status).i18n}',
             ),
             child: Row(
               children: [
@@ -44,10 +46,12 @@ class DownloadProcessTile extends ConsumerWidget {
                       .sendAction(
                         context,
                         progress.taskId.toString(),
-                        progress.status == 'Paused' ? 'resume' : 'pause',
+                        progress.status == DownloadStatus.PAUSED
+                            ? DownloadAction.RESUME
+                            : DownloadAction.PAUSE,
                       ),
                   child: Icon(
-                    progress.status == 'Paused'
+                    progress.status == DownloadStatus.PAUSED
                         ? Icons.play_arrow
                         : Icons.pause,
                   ),
@@ -59,7 +63,7 @@ class DownloadProcessTile extends ConsumerWidget {
                       .sendAction(
                         context,
                         progress.taskId.toString(),
-                        'cancel',
+                        DownloadAction.CANCEL,
                       ),
                   child: const Icon(Icons.delete),
                 ),
@@ -88,7 +92,7 @@ class DownloadHistoryTile extends ConsumerWidget {
         children: [
           FLabel(
             layout: .vertical,
-            description: Text(download.status),
+            description: Text(DownloadUtils.statusToI18N(download.status).i18n),
             child: Row(
               children: [
                 FCard.raw(

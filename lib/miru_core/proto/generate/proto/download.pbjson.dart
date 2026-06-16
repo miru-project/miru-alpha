@@ -470,7 +470,14 @@ const UpdateDownloadStatusRequest$json = {
   '1': 'UpdateDownloadStatusRequest',
   '2': [
     {'1': 'task_id', '3': 1, '4': 1, '5': 5, '10': 'taskId'},
-    {'1': 'status', '3': 2, '4': 1, '5': 9, '10': 'status'},
+    {
+      '1': 'status',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.miru.DownloadStatus',
+      '10': 'status'
+    },
     {
       '1': 'save_path',
       '3': 3,
@@ -489,9 +496,9 @@ const UpdateDownloadStatusRequest$json = {
 /// Descriptor for `UpdateDownloadStatusRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List updateDownloadStatusRequestDescriptor =
     $convert.base64Decode(
-        'ChtVcGRhdGVEb3dubG9hZFN0YXR1c1JlcXVlc3QSFwoHdGFza19pZBgBIAEoBVIGdGFza0lkEh'
-        'YKBnN0YXR1cxgCIAEoCVIGc3RhdHVzEiAKCXNhdmVfcGF0aBgDIAEoCUgAUghzYXZlUGF0aIgB'
-        'AUIMCgpfc2F2ZV9wYXRo');
+        'ChtVcGRhdGVEb3dubG9hZFN0YXR1c1JlcXVlc3QSFwoHdGFza19pZBgBIAEoBVIGdGFza0lkEi'
+        'wKBnN0YXR1cxgCIAEoDjIULm1pcnUuRG93bmxvYWRTdGF0dXNSBnN0YXR1cxIgCglzYXZlX3Bh'
+        'dGgYAyABKAlIAFIIc2F2ZVBhdGiIAQFCDAoKX3NhdmVfcGF0aA==');
 
 @$core.Deprecated('Use updateDownloadStatusResponseDescriptor instead')
 const UpdateDownloadStatusResponse$json = {

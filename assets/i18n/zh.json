@@ -391,5 +391,15 @@
     "weeks_ago": "{weeks} 周前",
     "months_ago": "{months} 个月前",
     "years_ago": "{years} 年前"
+  },
+  "download": {
+    "status": {
+      "queued": "等待",
+      "downloading": "下载中",
+      "paused": "已暂停",
+      "failed": "失败",
+      "completed": "已完成",
+      "converting": "转换中"
+    }
   }
 }

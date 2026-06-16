@@ -231,9 +231,11 @@ class CreateFilterResponse extends $pb.GeneratedMessage {
 class SearchResponse extends $pb.GeneratedMessage {
   factory SearchResponse({
     $core.Iterable<$1.ExtensionListItem>? items,
+    $core.String? raw,
   }) {
     final result = create();
     if (items != null) result.items.addAll(items);
+    if (raw != null) result.raw = raw;
     return result;
   }
 
@@ -252,6 +254,7 @@ class SearchResponse extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..pPM<$1.ExtensionListItem>(1, _omitFieldNames ? '' : 'items',
         subBuilder: $1.ExtensionListItem.create)
+    ..aOS(2, _omitFieldNames ? '' : 'raw')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -275,6 +278,15 @@ class SearchResponse extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $pb.PbList<$1.ExtensionListItem> get items => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.String get raw => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set raw($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasRaw() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRaw() => $_clearField(2);
 }
 
 class LatestRequest extends $pb.GeneratedMessage {
@@ -346,9 +358,11 @@ class LatestRequest extends $pb.GeneratedMessage {
 class LatestResponse extends $pb.GeneratedMessage {
   factory LatestResponse({
     $core.Iterable<$1.ExtensionListItem>? items,
+    $core.String? raw,
   }) {
     final result = create();
     if (items != null) result.items.addAll(items);
+    if (raw != null) result.raw = raw;
     return result;
   }
 
@@ -367,6 +381,7 @@ class LatestResponse extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..pPM<$1.ExtensionListItem>(1, _omitFieldNames ? '' : 'items',
         subBuilder: $1.ExtensionListItem.create)
+    ..aOS(2, _omitFieldNames ? '' : 'raw')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -390,6 +405,15 @@ class LatestResponse extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(1)
   $pb.PbList<$1.ExtensionListItem> get items => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $core.String get raw => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set raw($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasRaw() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRaw() => $_clearField(2);
 }
 
 class DetailRequest extends $pb.GeneratedMessage {
@@ -461,9 +485,11 @@ class DetailRequest extends $pb.GeneratedMessage {
 class DetailResponse extends $pb.GeneratedMessage {
   factory DetailResponse({
     $1.ExtensionDetail? data,
+    $core.String? raw,
   }) {
     final result = create();
     if (data != null) result.data = data;
+    if (raw != null) result.raw = raw;
     return result;
   }
 
@@ -482,6 +508,7 @@ class DetailResponse extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..aOM<$1.ExtensionDetail>(1, _omitFieldNames ? '' : 'data',
         subBuilder: $1.ExtensionDetail.create)
+    ..aOS(2, _omitFieldNames ? '' : 'raw')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -513,6 +540,15 @@ class DetailResponse extends $pb.GeneratedMessage {
   void clearData() => $_clearField(1);
   @$pb.TagNumber(1)
   $1.ExtensionDetail ensureData() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  $core.String get raw => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set raw($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasRaw() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearRaw() => $_clearField(2);
 }
 
 class WatchRequest extends $pb.GeneratedMessage {

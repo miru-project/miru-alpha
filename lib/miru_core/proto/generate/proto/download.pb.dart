@@ -1671,7 +1671,7 @@ class AddMagnetResponse extends $pb.GeneratedMessage {
 class UpdateDownloadStatusRequest extends $pb.GeneratedMessage {
   factory UpdateDownloadStatusRequest({
     $core.int? taskId,
-    $core.String? status,
+    $1.DownloadStatus? status,
     $core.String? savePath,
   }) {
     final result = create();
@@ -1695,7 +1695,8 @@ class UpdateDownloadStatusRequest extends $pb.GeneratedMessage {
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
     ..aI(1, _omitFieldNames ? '' : 'taskId')
-    ..aOS(2, _omitFieldNames ? '' : 'status')
+    ..aE<$1.DownloadStatus>(2, _omitFieldNames ? '' : 'status',
+        enumValues: $1.DownloadStatus.values)
     ..aOS(3, _omitFieldNames ? '' : 'savePath')
     ..hasRequiredFields = false;
 
@@ -1731,9 +1732,9 @@ class UpdateDownloadStatusRequest extends $pb.GeneratedMessage {
   void clearTaskId() => $_clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get status => $_getSZ(1);
+  $1.DownloadStatus get status => $_getN(1);
   @$pb.TagNumber(2)
-  set status($core.String value) => $_setString(1, value);
+  set status($1.DownloadStatus value) => $_setField(2, value);
   @$pb.TagNumber(2)
   $core.bool hasStatus() => $_has(1);
   @$pb.TagNumber(2)

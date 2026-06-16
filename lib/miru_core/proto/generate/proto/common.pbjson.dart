@@ -15,6 +15,40 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use downloadStatusDescriptor instead')
+const DownloadStatus$json = {
+  '1': 'DownloadStatus',
+  '2': [
+    {'1': 'DOWNLOADING', '2': 0},
+    {'1': 'PAUSED', '2': 1},
+    {'1': 'COMPLETED', '2': 2},
+    {'1': 'FAILED', '2': 3},
+    {'1': 'CANCELLED', '2': 4},
+    {'1': 'QUEUED', '2': 5},
+    {'1': 'CONVERTING', '2': 6},
+  ],
+};
+
+/// Descriptor for `DownloadStatus`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List downloadStatusDescriptor = $convert.base64Decode(
+    'Cg5Eb3dubG9hZFN0YXR1cxIPCgtET1dOTE9BRElORxAAEgoKBlBBVVNFRBABEg0KCUNPTVBMRV'
+    'RFRBACEgoKBkZBSUxFRBADEg0KCUNBTkNFTExFRBAEEgoKBlFVRVVFRBAFEg4KCkNPTlZFUlRJ'
+    'TkcQBg==');
+
+@$core.Deprecated('Use downloadActionDescriptor instead')
+const DownloadAction$json = {
+  '1': 'DownloadAction',
+  '2': [
+    {'1': 'PAUSE', '2': 0},
+    {'1': 'RESUME', '2': 1},
+    {'1': 'CANCEL', '2': 2},
+  ],
+};
+
+/// Descriptor for `DownloadAction`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List downloadActionDescriptor = $convert.base64Decode(
+    'Cg5Eb3dubG9hZEFjdGlvbhIJCgVQQVVTRRAAEgoKBlJFU1VNRRABEgoKBkNBTkNFTBAC');
+
 @$core.Deprecated('Use extensionMetaDescriptor instead')
 const ExtensionMeta$json = {
   '1': 'ExtensionMeta',
@@ -51,7 +85,14 @@ const DownloadProgress$json = {
     {'1': 'progress', '3': 1, '4': 1, '5': 5, '10': 'progress'},
     {'1': 'names', '3': 2, '4': 3, '5': 9, '10': 'names'},
     {'1': 'total', '3': 3, '4': 1, '5': 5, '10': 'total'},
-    {'1': 'status', '3': 4, '4': 1, '5': 9, '10': 'status'},
+    {
+      '1': 'status',
+      '3': 4,
+      '4': 1,
+      '5': 14,
+      '6': '.miru.DownloadStatus',
+      '10': 'status'
+    },
     {'1': 'media_type', '3': 5, '4': 1, '5': 9, '10': 'mediaType'},
     {
       '1': 'current_downloading',
@@ -70,11 +111,11 @@ const DownloadProgress$json = {
 /// Descriptor for `DownloadProgress`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List downloadProgressDescriptor = $convert.base64Decode(
     'ChBEb3dubG9hZFByb2dyZXNzEhoKCHByb2dyZXNzGAEgASgFUghwcm9ncmVzcxIUCgVuYW1lcx'
-    'gCIAMoCVIFbmFtZXMSFAoFdG90YWwYAyABKAVSBXRvdGFsEhYKBnN0YXR1cxgEIAEoCVIGc3Rh'
-    'dHVzEh0KCm1lZGlhX3R5cGUYBSABKAlSCW1lZGlhVHlwZRIvChNjdXJyZW50X2Rvd25sb2FkaW'
-    '5nGAYgASgJUhJjdXJyZW50RG93bmxvYWRpbmcSFwoHdGFza19pZBgHIAEoBVIGdGFza0lkEhQK'
-    'BXRpdGxlGAggASgJUgV0aXRsZRIYCgdwYWNrYWdlGAkgASgJUgdwYWNrYWdlEhAKA2tleRgKIA'
-    'EoCVIDa2V5');
+    'gCIAMoCVIFbmFtZXMSFAoFdG90YWwYAyABKAVSBXRvdGFsEiwKBnN0YXR1cxgEIAEoDjIULm1p'
+    'cnUuRG93bmxvYWRTdGF0dXNSBnN0YXR1cxIdCgptZWRpYV90eXBlGAUgASgJUgltZWRpYVR5cG'
+    'USLwoTY3VycmVudF9kb3dubG9hZGluZxgGIAEoCVISY3VycmVudERvd25sb2FkaW5nEhcKB3Rh'
+    'c2tfaWQYByABKAVSBnRhc2tJZBIUCgV0aXRsZRgIIAEoCVIFdGl0bGUSGAoHcGFja2FnZRgJIA'
+    'EoCVIHcGFja2FnZRIQCgNrZXkYCiABKAlSA2tleQ==');
 
 @$core.Deprecated('Use torrentStatsDescriptor instead')
 const TorrentStats$json = {
@@ -124,7 +165,14 @@ const Download$json = {
     {'1': 'key', '3': 6, '4': 1, '5': 9, '10': 'key'},
     {'1': 'title', '3': 7, '4': 1, '5': 9, '10': 'title'},
     {'1': 'media_type', '3': 8, '4': 1, '5': 9, '10': 'mediaType'},
-    {'1': 'status', '3': 9, '4': 1, '5': 9, '10': 'status'},
+    {
+      '1': 'status',
+      '3': 9,
+      '4': 1,
+      '5': 14,
+      '6': '.miru.DownloadStatus',
+      '10': 'status'
+    },
     {'1': 'save_path', '3': 10, '4': 1, '5': 9, '10': 'savePath'},
     {'1': 'date', '3': 11, '4': 1, '5': 9, '10': 'date'},
     {'1': 'download_url', '3': 12, '4': 1, '5': 9, '10': 'downloadUrl'},
@@ -149,10 +197,11 @@ final $typed_data.Uint8List downloadDescriptor = $convert.base64Decode(
     'gDIAMoCzIbLm1pcnUuRG93bmxvYWQuSGVhZGVyc0VudHJ5UgdoZWFkZXJzEhgKB3BhY2thZ2UY'
     'BCABKAlSB3BhY2thZ2USGgoIcHJvZ3Jlc3MYBSADKAVSCHByb2dyZXNzEhAKA2tleRgGIAEoCV'
     'IDa2V5EhQKBXRpdGxlGAcgASgJUgV0aXRsZRIdCgptZWRpYV90eXBlGAggASgJUgltZWRpYVR5'
-    'cGUSFgoGc3RhdHVzGAkgASgJUgZzdGF0dXMSGwoJc2F2ZV9wYXRoGAogASgJUghzYXZlUGF0aB'
-    'ISCgRkYXRlGAsgASgJUgRkYXRlEiEKDGRvd25sb2FkX3VybBgMIAEoCVILZG93bmxvYWRVcmwS'
-    'HQoKZGV0YWlsX3VybBgNIAEoCVIJZGV0YWlsVXJsGjoKDEhlYWRlcnNFbnRyeRIQCgNrZXkYAS'
-    'ABKAlSA2tleRIUCgV2YWx1ZRgCIAEoCVIFdmFsdWU6AjgB');
+    'cGUSLAoGc3RhdHVzGAkgASgOMhQubWlydS5Eb3dubG9hZFN0YXR1c1IGc3RhdHVzEhsKCXNhdm'
+    'VfcGF0aBgKIAEoCVIIc2F2ZVBhdGgSEgoEZGF0ZRgLIAEoCVIEZGF0ZRIhCgxkb3dubG9hZF91'
+    'cmwYDCABKAlSC2Rvd25sb2FkVXJsEh0KCmRldGFpbF91cmwYDSABKAlSCWRldGFpbFVybBo6Cg'
+    'xIZWFkZXJzRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdWUYAiABKAlSBXZhbHVlOgI4'
+    'AQ==');
 
 @$core.Deprecated('Use torrentResultDescriptor instead')
 const TorrentResult$json = {

@@ -3,7 +3,7 @@ import 'package:path/path.dart' as p;
 import 'package:miru_alpha/utils/download/ffmpeg_util.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
-import 'package:miru_alpha/miru_core/proto/proto.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 
 class DownloadUtils {
   static String filter(String path) {
@@ -17,13 +17,12 @@ class DownloadUtils {
     required String title,
   }) async {
     logger.info("Converting HLS segments to MP4: $targetPath");
-    // updateStatus(taskId: taskId, status: "Completed");
 
     FFMpegUtils.combineToMp4(segments, targetPath);
 
     await updateStatus(
       taskId: taskId,
-      status: "Converted",
+      status: proto.DownloadStatus.COMPLETED,
       savePath: targetPath,
     );
 
@@ -43,7 +42,7 @@ class DownloadUtils {
     }
   }
 
-  static Future<String> hadleFile({
+  static Future<String> handleFile({
     required String taskId,
     required String currentPath,
     required String targetDir,
@@ -71,12 +70,12 @@ class DownloadUtils {
 
   static Future<void> updateStatus({
     required String taskId,
-    required String status,
+    required proto.DownloadStatus status,
     String? savePath,
   }) async {
     try {
       await MiruGrpcClient.downloadClient.updateDownloadStatus(
-        UpdateDownloadStatusRequest(
+        proto.UpdateDownloadStatusRequest(
           taskId: int.parse(taskId),
           status: status,
           savePath: savePath,
@@ -96,7 +95,7 @@ class DownloadUtils {
     required String title,
   }) async {
     try {
-      final targetPath = await hadleFile(
+      final targetPath = await handleFile(
         taskId: taskId,
         currentPath: currentPath,
         targetDir: targetDir,
@@ -126,7 +125,7 @@ class DownloadUtils {
         }
         await updateStatus(
           taskId: taskId,
-          status: "Converted",
+          status: proto.DownloadStatus.COMPLETED,
           savePath: targetPath,
         );
       }
@@ -135,6 +134,27 @@ class DownloadUtils {
     } catch (e) {
       logger.severe("Failed to process download: $e");
       rethrow;
+    }
+  }
+
+  static String statusToI18N(proto.DownloadStatus status) {
+    switch (status) {
+      case proto.DownloadStatus.QUEUED:
+        return 'download.status.queued';
+      case proto.DownloadStatus.DOWNLOADING:
+        return 'download.status.downloading';
+      case proto.DownloadStatus.PAUSED:
+        return 'download.status.paused';
+      case proto.DownloadStatus.COMPLETED:
+        return 'download.status.completed';
+      case proto.DownloadStatus.FAILED:
+        return 'download.status.failed';
+      case proto.DownloadStatus.CANCELLED:
+        return 'download.status.cancelled';
+      case proto.DownloadStatus.CONVERTING:
+        return 'download.status.converting';
+      default:
+        return 'download.status.unknown';
     }
   }
 }

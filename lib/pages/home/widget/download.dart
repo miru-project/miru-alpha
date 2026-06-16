@@ -15,7 +15,7 @@ class DownloadItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final progress = task.total > 0 ? task.progress / task.total : 0.0;
-    final isDownloading = task.status != 'Completed' && task.status != 'Failed';
+    final isDownloading = task.status.isActive;
 
     // Try to find matching history item for cover
     final history = ref.watch(historyPageProvider).history;
@@ -64,7 +64,7 @@ class DownloadItem extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${task.status.toLowerCase().i18n} • ${task.progress}/${task.total}',
+                '${task.status.name.toLowerCase().i18n} • ${task.progress}/${task.total}',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 12, color: Colors.grey[400]),
@@ -95,11 +95,13 @@ class DownloadItem extends ConsumerWidget {
               .sendAction(
                 context,
                 task.taskId.toString(),
-                task.status == 'Paused' ? 'resume' : 'pause',
+                task.status == common.DownloadStatus.PAUSED
+                    ? common.DownloadAction.RESUME
+                    : common.DownloadAction.PAUSE,
               ),
           variant: .outline,
           child: Icon(
-            task.status == 'Paused'
+            task.status == common.DownloadStatus.PAUSED
                 ? Icons.play_arrow
                 : (isDownloading ? Icons.pause : Icons.check),
             size: 16,

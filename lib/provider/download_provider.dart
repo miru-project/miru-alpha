@@ -17,11 +17,15 @@ class DownloadState {
   final int page;
   final bool hasMore;
 
+  /// Keys of episodes currently being fetched/resolved before download starts.
+  final Set<String> preparingKeys;
+
   DownloadState({
     this.history = const [],
     this.active = const [],
     this.page = 1,
     this.hasMore = true,
+    this.preparingKeys = const {},
   });
 
   DownloadState copyWith({
@@ -29,14 +33,29 @@ class DownloadState {
     List<proto.DownloadProgress>? active,
     int? page,
     bool? hasMore,
+    Set<String>? preparingKeys,
   }) {
     return DownloadState(
       history: history ?? this.history,
       active: active ?? this.active,
       page: page ?? this.page,
       hasMore: hasMore ?? this.hasMore,
+      preparingKeys: preparingKeys ?? this.preparingKeys,
     );
   }
+}
+
+extension DownloadStatusX on proto.DownloadStatus {
+  /// Whether the task is still in a pending/active state (not terminal).
+  bool get isActive =>
+      this == proto.DownloadStatus.DOWNLOADING ||
+      this == proto.DownloadStatus.PAUSED ||
+      this == proto.DownloadStatus.CONVERTING;
+}
+
+/// Statuses that trigger frontend processing (e.g. FFmpeg conversion for HLS).
+bool _isProcessingStatus(proto.DownloadStatus status) {
+  return status == proto.DownloadStatus.CONVERTING;
 }
 
 @Riverpod(keepAlive: true)
@@ -64,6 +83,12 @@ class DownloadNotifier extends _$DownloadNotifier {
     }
   }
 
+  static List<proto.DownloadProgress> filterActive(
+    Iterable<proto.DownloadProgress> tasks,
+  ) {
+    return tasks.where((e) => e.status.isActive).toList();
+  }
+
   Future<void> _fetchInitialData() async {
     const pageSize = 20;
     final historyFuture = MiruGrpcClient.downloadClient.getAllDownloads(
@@ -79,41 +104,38 @@ class DownloadNotifier extends _$DownloadNotifier {
     final historyRes = results[0] as proto.GetAllDownloadsResponse;
     final statusRes = results[1] as proto.GetDownloadStatusResponse;
 
+    final allTasks = statusRes.downloadStatus.values;
+
     state = AsyncData(
       DownloadState(
         history: historyRes.downloads,
-        active: statusRes.downloadStatus.values
-            .where((e) => e.status == 'Downloading' || e.status == 'Paused')
-            .toList(),
+        active: filterActive(allTasks),
         page: 1,
         hasMore: historyRes.downloads.length >= pageSize,
       ),
     );
 
-    // Check for completed tasks in initial status
-    for (final download in statusRes.downloadStatus.values) {
-      if (download.status == 'Completed') {
-        _handleCompletion(download);
+    // Process any tasks that need frontend processing (e.g. HLS conversion)
+    for (final download in allTasks) {
+      if (_isProcessingStatus(download.status)) {
+        _processDownload(download);
       }
     }
   }
 
   void _startStream() {
     _subscription = miruEventService.downloadStream.listen((status) {
-      final activeList = status.values.toList();
-      final uiList = activeList
-          .where((e) => e.status == 'Downloading' || e.status == 'Paused')
-          .toList();
+      final allTasks = status.values;
+      final activeTasks = filterActive(allTasks);
 
-      // Update state with new active list
       state.whenData((currentState) {
-        state = AsyncData(currentState.copyWith(active: uiList));
+        state = AsyncData(currentState.copyWith(active: activeTasks));
       });
 
-      // Handle completions
-      for (final download in activeList) {
-        if (download.status == 'Completed') {
-          _handleCompletion(download);
+      // Process tasks needing frontend processing (e.g. HLS conversion)
+      for (final download in allTasks) {
+        if (_isProcessingStatus(download.status)) {
+          _processDownload(download);
         }
       }
     });
@@ -185,7 +207,7 @@ class DownloadNotifier extends _$DownloadNotifier {
     }
   }
 
-  Future<void> _handleCompletion(proto.DownloadProgress download) async {
+  Future<void> _processDownload(proto.DownloadProgress download) async {
     final key = download.key;
     if (_processedTasks.contains(key)) return;
     _processedTasks.add(key);
@@ -196,17 +218,19 @@ class DownloadNotifier extends _$DownloadNotifier {
       );
       if (downloadPath.isEmpty) {
         logger.warning(
-          "Download path not set, skipping move for ${download.title}",
+          "Download path not set, skipping processing for ${download.title}",
         );
         return;
       }
 
+      // Only HLS downloads need FFmpeg conversion on the frontend
+      final isHls = download.mediaType == 'hls';
       await DownloadUtils.processFinishedDownload(
         taskId: download.taskId.toString(),
         segments: download.names,
         currentPath: download.currentDownloading,
         targetDir: downloadPath,
-        isHls: download.mediaType == 'hls',
+        isHls: isHls,
         title: download.title,
       );
 
@@ -214,54 +238,55 @@ class DownloadNotifier extends _$DownloadNotifier {
 
       await _refreshHistory();
     } catch (e) {
-      logger.severe("Failed to process finished download: $e");
+      logger.severe("Failed to process download: $e");
     } finally {}
+  }
+
+  /// Mark an episode key as "preparing" (fetching watch URL before download).
+  void startPreparing(String key) {
+    state.whenData((currentState) {
+      state = AsyncData(
+        currentState.copyWith(
+          preparingKeys: {...currentState.preparingKeys, key},
+        ),
+      );
+    });
+  }
+
+  /// Mark an episode key as no longer preparing.
+  void finishPreparing(String key) {
+    state.whenData((currentState) {
+      final updated = {...currentState.preparingKeys}..remove(key);
+      state = AsyncData(currentState.copyWith(preparingKeys: updated));
+    });
   }
 
   Future<void> sendAction(
     BuildContext context,
     String id,
-    String action,
+    proto.DownloadAction action,
   ) async {
     final taskId = int.tryParse(id);
     if (taskId == null) return;
 
     try {
       switch (action) {
-        case 'pause':
+        case proto.DownloadAction.PAUSE:
           await MiruGrpcClient.downloadClient.pauseDownload(
             proto.PauseDownloadRequest()..taskId = taskId,
           );
-          break;
-        case 'continue':
-        case 'resume':
+        case proto.DownloadAction.RESUME:
           await MiruGrpcClient.downloadClient.resumeDownload(
             proto.ResumeDownloadRequest()..taskId = taskId,
           );
-          break;
-        case 'cancel':
+        case proto.DownloadAction.CANCEL:
           await MiruGrpcClient.downloadClient.cancelDownload(
             proto.CancelDownloadRequest()..taskId = taskId,
           );
-          break;
-        default:
-          return;
       }
-      // Re-fetch status to update UI immediately for actions like pause/resume
-      // Although stream should handle it, explicit fetch ensures immediate feedback
-      final statusRes = await MiruGrpcClient.downloadClient.getDownloadStatus(
-        proto.GetDownloadStatusRequest(),
-      );
-      state.whenData((currentState) {
-        state = AsyncData(
-          currentState.copyWith(
-            active: statusRes.downloadStatus.values.toList(),
-          ),
-        );
-      });
     } catch (e) {
       if (!context.mounted) return;
-      showSimpleToast('Failed to $action download: $e');
+      showSimpleToast('Failed to ${action.name} download: $e');
     }
   }
 }

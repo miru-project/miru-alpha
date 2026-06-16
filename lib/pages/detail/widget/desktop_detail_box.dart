@@ -122,6 +122,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                     ),
 
                     SizedBox(width: 15),
+
                     DownloadButton(
                       varient: .secondary,
                       isIcon: false,
@@ -129,11 +130,17 @@ class DetailDesktopBox extends HookConsumerWidget {
                       meta: meta,
                       detailUrl: detailUrl,
                     ),
+                    // FButton(
+                    //   variant: .secondary,
+                    //   prefix: Icon(FLucideIcons.download),
+                    //   onPress: () {},
+                    //   child: Text('common.download'.i18n),
+                    // ),
                     const SizedBox(width: 15),
                     FButton(
                       variant: .secondary,
                       suffix: HeartButton(
-                        size: 22,
+                        size: 15,
                         activeColor: context.theme.colors.primary,
                         inactiveColor: context.theme.colors.primary,
                         isLiked: favorite != null,

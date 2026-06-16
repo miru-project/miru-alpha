@@ -19,7 +19,7 @@ class DownloadProgressCard extends ConsumerWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("${"common.status".i18n}: ${task.status}"),
+          Text("${"common.status".i18n}: ${task.status.name}"),
           const SizedBox(height: 8),
           FDeterminateProgress(value: progress),
           const SizedBox(height: 4),
@@ -38,10 +38,14 @@ class DownloadProgressCard extends ConsumerWidget {
                 .sendAction(
                   context,
                   task.taskId.toString(),
-                  task.status == 'Paused' ? 'resume' : 'pause',
+                  task.status == proto.DownloadStatus.PAUSED
+                      ? proto.DownloadAction.RESUME
+                      : proto.DownloadAction.PAUSE,
                 ),
             child: Icon(
-              task.status == 'Paused' ? Icons.play_arrow : Icons.pause,
+              task.status == proto.DownloadStatus.PAUSED
+                  ? Icons.play_arrow
+                  : Icons.pause,
             ),
           ),
           const SizedBox(width: 8),
@@ -49,7 +53,11 @@ class DownloadProgressCard extends ConsumerWidget {
             variant: .destructive,
             onPress: () => ref
                 .read(downloadProvider.notifier)
-                .sendAction(context, task.taskId.toString(), 'cancel'),
+                .sendAction(
+                  context,
+                  task.taskId.toString(),
+                  proto.DownloadAction.CANCEL,
+                ),
             child: const Icon(Icons.delete),
           ),
         ],
