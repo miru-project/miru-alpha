@@ -143,7 +143,7 @@ class GlobalSearch extends HookConsumerWidget {
                           extra: SearchPageParam(meta: meta),
                         );
                       },
-                      suffix: Icon(FIcons.chevronRight),
+                      suffix: Icon(FLucideIcons.chevronRight),
                       child: Text(
                         meta.name,
                         style: TextStyle(fontWeight: .bold, fontSize: 20),

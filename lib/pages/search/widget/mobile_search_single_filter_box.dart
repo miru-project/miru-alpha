@@ -65,7 +65,7 @@ class MobileSearchSingleFilterBox extends HookConsumerWidget {
               children: [
                 const Padding(
                   padding: EdgeInsets.only(left: 12.0, right: 4),
-                  child: Icon(FIcons.search),
+                  child: Icon(FLucideIcons.search),
                 ),
                 if (filterSummary.isNotEmpty)
                   ConstrainedBox(

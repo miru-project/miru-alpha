@@ -82,13 +82,13 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
               ),
               // 置顶
               if (!DeviceUtil.isMobile)
-                PlayerButton(onPressed: widget.onClose, icon: FIcons.x)
+                PlayerButton(onPressed: widget.onClose, icon: FLucideIcons.x)
               else ...[
                 PlayerButton(
                   onPressed: () {
                     ref.read(widget.vidPr.notifier).toggleSettings();
                   },
-                  icon: FIcons.settings,
+                  icon: FLucideIcons.settings,
                 ),
               ],
             ],

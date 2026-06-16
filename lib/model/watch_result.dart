@@ -5,8 +5,5 @@ class WatchResult {
   final dynamic data;
   final pb_extension.ExtensionWatch? v2watch;
 
-  WatchResult({
-    required this.data,
-    this.v2watch,
-  });
+  WatchResult({required this.data, this.v2watch});
 }

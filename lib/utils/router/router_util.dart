@@ -77,7 +77,10 @@ class RouterUtil {
     routes: [
       GoRoute(path: '/', redirect: (context, state) => '/home'),
       GoRoute(path: '/license', builder: (context, state) => MiruLicensePage()),
-      GoRoute(path: '/devTool', builder: (context, state) => const DevToolPage()),
+      GoRoute(
+        path: '/devTool',
+        builder: (context, state) => const DevToolPage(),
+      ),
       GoRoute(
         path: '/watch',
         builder: (context, state) {

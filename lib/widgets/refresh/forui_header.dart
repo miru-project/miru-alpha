@@ -128,14 +128,14 @@ class _ForuiIndicatorState extends State<_ForuiIndicator> {
     if (_mode == IndicatorMode.processed || _mode == IndicatorMode.done) {
       if (widget.state.result == IndicatorResult.fail) {
         return Icon(
-          FIcons.octagonAlert,
+          FLucideIcons.octagonAlert,
           key: const ValueKey('error'),
           color: theme.colors.error,
           size: 28,
         );
       }
       return Icon(
-        FIcons.check,
+        FLucideIcons.check,
         key: const ValueKey('check'),
         color: theme.colors.primary,
         size: 28,
@@ -251,14 +251,14 @@ class _ForuiFooterIndicatorState extends State<_ForuiFooterIndicator> {
     if (_mode == IndicatorMode.processed || _mode == IndicatorMode.done) {
       if (widget.state.result == IndicatorResult.fail) {
         return Icon(
-          FIcons.octagonAlert,
+          FLucideIcons.octagonAlert,
           key: const ValueKey('error'),
           color: theme.colors.error,
           size: 28,
         );
       }
       return Icon(
-        FIcons.check,
+        FLucideIcons.check,
         key: const ValueKey('check'),
         color: theme.colors.primary,
         size: 28,

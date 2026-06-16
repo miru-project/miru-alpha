@@ -71,7 +71,11 @@ class ExtensionView extends HookConsumerWidget {
                             ClearableSelect(
                               hintText: 'common.all'.i18n.toUpperCase(),
                               title: "common.type".i18n,
-                              items: ['media.video'.i18n, 'media.manga'.i18n, 'media.novel'.i18n],
+                              items: [
+                                'media.video'.i18n,
+                                'media.manga'.i18n,
+                                'media.novel'.i18n,
+                              ],
                               onChange: (val) {
                                 if (val == 'media.video'.i18n) {
                                   val = 'bangumi';
@@ -153,7 +157,7 @@ class ExtensionView extends HookConsumerWidget {
                                       left: 10,
                                       right: 5,
                                     ),
-                                    child: Icon(FIcons.search, size: 16),
+                                    child: Icon(FLucideIcons.search, size: 16),
                                   );
                                 },
                                 hint: "extension.search_hint".i18n,

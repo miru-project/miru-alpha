@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/pages/search/global_search.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/hook/sheet_controller.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/utils/store/storage_index.dart';
@@ -32,14 +33,10 @@ class MobileSearchPage extends HookConsumerWidget {
         children: [
           SnapSheetHeader(title: 'common.search'.i18n),
           const Spacer(),
-          HookBuilder(
-            builder: (context) {
-              return FButton.icon(
-                variant: .ghost,
-                onPress: () {},
-                child: Icon(FIcons.pin, size: 24),
-              );
-            },
+          FButton.icon(
+            variant: .ghost,
+            onPress: () {},
+            child: Icon(FLucideIcons.pin, size: 24),
           ),
           SizedBox(width: 10),
         ],
@@ -48,10 +45,19 @@ class MobileSearchPage extends HookConsumerWidget {
         Padding(
           padding: .symmetric(horizontal: 10),
           child: FTextField(
+            // onTapOutside: (event) {
+            //   logger.info('complete');
+            //   sheetController.animateTo(
+            //     SheetOffset.absolute(190),
+            //     duration: const Duration(milliseconds: 700),
+            //   );
+            // },
             onTap: () {
+              logger.info(sheetController.value);
               if (((sheetController.value ?? 190.0).toInt() - 190).abs() < 2) {
                 sheetController.animateTo(
                   SheetOffset.proportionalToViewport(.5),
+                  duration: const Duration(milliseconds: 150),
                 );
               }
             },
@@ -73,7 +79,7 @@ class MobileSearchPage extends HookConsumerWidget {
             hint: "common.search_by_keywords".i18n,
             prefixBuilder: (context, style, states) => Padding(
               padding: EdgeInsetsGeometry.only(left: 12, right: 10),
-              child: Icon(FIcons.search),
+              child: Icon(FLucideIcons.search),
             ),
           ),
         ),
@@ -146,16 +152,17 @@ class MobileSearchPage extends HookConsumerWidget {
                             //       pinnedExtensions.value.contains(
                             //         ext.packageName,
                             //       )
-                            //       ? Icon(FIcons.pinOff)
-                            //       : Icon(FIcons.pin),
+                            //       ? Icon(FLucideIcons.pinOff)
+                            //       : Icon(FLucideIcons.pin),
                             // ),
                           );
                         }
                       }),
                     ),
                   ),
-                SliverToBoxAdapter(child: FDivider(style: .delta(width: 3))),
-                if (metaData.isNotEmpty)
+
+                if (metaData.isNotEmpty) ...[
+                  SliverToBoxAdapter(child: FDivider(style: .delta(width: 3))),
                   SliverList.separated(
                     separatorBuilder: (context, index) {
                       return FDivider(
@@ -269,7 +276,7 @@ class MobileSearchPage extends HookConsumerWidget {
                                   ),
                                 );
                               },
-                              child: Icon(FIcons.settings),
+                              child: Icon(FLucideIcons.settings),
                             ),
                             FButton.icon(
                               variant: .ghost,
@@ -287,7 +294,9 @@ class MobileSearchPage extends HookConsumerWidget {
                                 );
                               },
                               child: Icon(
-                                isPinned ? FIcons.pinOff : FIcons.pin,
+                                isPinned
+                                    ? FLucideIcons.pinOff
+                                    : FLucideIcons.pin,
                                 size: 20,
                                 color: isPinned
                                     ? context.theme.colors.primary
@@ -298,8 +307,8 @@ class MobileSearchPage extends HookConsumerWidget {
                         ),
                       );
                     },
-                  )
-                else
+                  ),
+                ] else
                   SliverToBoxAdapter(
                     child: Center(
                       child: Text(

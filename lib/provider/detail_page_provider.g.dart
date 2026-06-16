@@ -48,7 +48,7 @@ abstract class _$DetailPageProvider extends $Notifier<DetailPageProviderState> {
   DetailPageProviderState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref =
         this.ref as $Ref<DetailPageProviderState, DetailPageProviderState>;
     final element =
@@ -59,6 +59,6 @@ abstract class _$DetailPageProvider extends $Notifier<DetailPageProviderState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

@@ -69,21 +69,21 @@ class MiruMangaReader extends HookConsumerWidget {
         child: FTabs(
           children: [
             FTabEntry(
-              label: Icon(FIcons.tableOfContents),
+              label: Icon(FLucideIcons.tableOfContents),
               child: EpisodeSelect(epProvider: epProvider),
             ),
             FTabEntry(
-              label: Icon(FIcons.book),
+              label: Icon(FLucideIcons.book),
               child: MangaPageSetting(mangaProvider: mangaProvider),
             ),
             FTabEntry(
-              label: Icon(FIcons.alignHorizontalJustifyEnd),
+              label: Icon(FLucideIcons.alignHorizontalJustifyEnd),
               child: Center(
                 child: Text('reader.manga.alignment_settings.name'.i18n),
               ),
             ),
             FTabEntry(
-              label: Icon(FIcons.settings),
+              label: Icon(FLucideIcons.settings),
               child: MangaSettingGeneral(mangaProvider: mangaProvider),
             ),
           ],
@@ -122,7 +122,7 @@ class MiruMangaReader extends HookConsumerWidget {
                         onPress: () {
                           Navigator.of(context).pop();
                         },
-                        child: Icon(FIcons.chevronLeft),
+                        child: Icon(FLucideIcons.chevronLeft),
                       ),
                     ),
                     Expanded(

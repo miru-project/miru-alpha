@@ -85,7 +85,7 @@ class SearchGridView extends HookConsumerWidget {
               iconsMessageToast(
                 title:
                     "Failed to get ${c.query.isEmpty ? "latest" : "search"} on ${meta.name} \n${e.message} ",
-                icon: FIcons.octagonX,
+                icon: FLucideIcons.octagonX,
               );
             }
           }

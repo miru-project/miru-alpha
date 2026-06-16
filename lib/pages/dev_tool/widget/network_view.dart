@@ -71,7 +71,7 @@ class NetworkView extends ConsumerWidget {
           padding: const EdgeInsets.all(8.0),
           child: FButton(
             onPress: notifier.clearRequests,
-            prefix: Icon(FIcons.trash),
+            prefix: Icon(FLucideIcons.trash),
             child: const Text('Clear'),
           ),
         ),

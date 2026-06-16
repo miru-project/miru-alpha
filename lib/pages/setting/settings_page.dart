@@ -75,7 +75,7 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
                   isMobileLayout: false,
                   title: 'common.developer'.i18n,
                   subtitle: 'Open DevTools for JS extensions',
-                  prefix: Icon(FIcons.terminal),
+                  prefix: Icon(FLucideIcons.terminal),
                   onPress: () => ref.read(devToolProvider.notifier).toggle(),
                 ),
               ),
@@ -100,9 +100,9 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
             description: Text('settings.general.information'.i18n),
             children: [
               FTile(
-                prefix: Icon(FIcons.menu),
+                prefix: Icon(FLucideIcons.menu),
                 title: Text('common.general'.i18n),
-                suffix: Icon(FIcons.chevronRight),
+                suffix: Icon(FLucideIcons.chevronRight),
                 subtitle: Text('settings.general.information'.i18n),
                 onPress: () {
                   _pushtoPage(
@@ -122,11 +122,11 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
             description: Text('settings.extension.information'.i18n),
             children: [
               FTile(
-                prefix: Icon(FIcons.blocks),
+                prefix: Icon(FLucideIcons.blocks),
                 title: Text('extension.name'.i18n),
                 subtitle: Text('settings.extension.information'.i18n),
                 // details: const Text('Forus Labs (5G)'),
-                suffix: Icon(FIcons.chevronRight),
+                suffix: Icon(FLucideIcons.chevronRight),
                 onPress: () {
                   _pushtoPage(
                     context,
@@ -138,11 +138,11 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
                 },
               ),
               FTile(
-                prefix: Icon(FIcons.serverCog),
+                prefix: Icon(FLucideIcons.serverCog),
                 title: Text('settings.miru_core.name'.i18n),
                 subtitle: Text('settings.miru_core.information'.i18n),
                 // details: const Text('Forus Labs (5G)'),
-                suffix: Icon(FIcons.chevronRight),
+                suffix: Icon(FLucideIcons.chevronRight),
                 onPress: () {
                   _pushtoPage(
                     context,
@@ -161,19 +161,19 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
             description: Text('settings.watch.information'.i18n),
             children: [
               FTile(
-                prefix: Icon(FIcons.tv),
+                prefix: Icon(FLucideIcons.tv),
                 title: Text('common.player'.i18n),
                 subtitle: Text('settings.watch.information'.i18n),
                 // details: const Text('Forus Labs (5G)'),
-                suffix: Icon(FIcons.chevronRight),
+                suffix: Icon(FLucideIcons.chevronRight),
                 onPress: () {},
               ),
               FTile(
-                prefix: Icon(FIcons.bookOpen),
+                prefix: Icon(FLucideIcons.bookOpen),
                 title: Text('common.reader'.i18n),
                 subtitle: Text('settings.watch.information'.i18n),
                 // details: const Text('Forus Labs (5G)'),
-                suffix: Icon(FIcons.chevronRight),
+                suffix: Icon(FLucideIcons.chevronRight),
                 onPress: () {},
               ),
             ],
@@ -183,18 +183,18 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
             // description: const Text('Personalize your experience'),
             children: [
               FTile(
-                prefix: Icon(FIcons.code),
+                prefix: Icon(FLucideIcons.code),
                 title: Text('common.licenses'.i18n),
                 // details: const Text('Forus Labs (5G)'),
-                suffix: Icon(FIcons.chevronRight),
+                suffix: Icon(FLucideIcons.chevronRight),
                 onPress: () {
                   context.push('/license');
                 },
               ),
               FTile(
-                prefix: Icon(FIcons.terminal),
+                prefix: Icon(FLucideIcons.terminal),
                 title: const Text('Developer Tool'),
-                suffix: Icon(FIcons.chevronRight),
+                suffix: Icon(FLucideIcons.chevronRight),
                 onPress: () {
                   context.push('/devTool');
                 },

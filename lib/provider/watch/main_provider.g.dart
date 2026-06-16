@@ -47,7 +47,7 @@ abstract class _$MainNotifier extends $Notifier<MainPageState> {
   MainPageState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<MainPageState, MainPageState>;
     final element =
         ref.element
@@ -57,6 +57,6 @@ abstract class _$MainNotifier extends $Notifier<MainPageState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

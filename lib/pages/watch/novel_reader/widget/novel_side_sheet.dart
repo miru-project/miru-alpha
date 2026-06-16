@@ -27,18 +27,21 @@ class NovelSideSheet extends StatelessWidget {
         FTabs(
           children: [
             FTabEntry(
-              label: Icon(FIcons.tableOfContents),
+              label: Icon(FLucideIcons.tableOfContents),
               child: Center(child: EpisodeSelect(epProvider: epProvider)),
             ),
-            FTabEntry(label: Icon(FIcons.book), child: NovelPageSetting()),
             FTabEntry(
-              label: Icon(FIcons.alignHorizontalJustifyEnd),
+              label: Icon(FLucideIcons.book),
+              child: NovelPageSetting(),
+            ),
+            FTabEntry(
+              label: Icon(FLucideIcons.alignHorizontalJustifyEnd),
               child: Center(
                 child: Text('reader.novel.alignment_settings.name'.i18n),
               ),
             ),
             FTabEntry(
-              label: Icon(FIcons.settings),
+              label: Icon(FLucideIcons.settings),
               child: NovelSettingGeneral(),
             ),
           ],

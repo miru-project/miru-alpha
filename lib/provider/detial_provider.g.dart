@@ -92,7 +92,7 @@ abstract class _$Detial extends $Notifier<DetialState> {
   DetialState build(String detailUrl, {required ExtensionMeta meta});
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<DetialState, DetialState>;
     final element =
         ref.element
@@ -102,6 +102,6 @@ abstract class _$Detial extends $Notifier<DetialState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, () => build(_$args.$1, meta: _$args.meta));
+    return element.handleCreate(ref, () => build(_$args.$1, meta: _$args.meta));
   }
 }

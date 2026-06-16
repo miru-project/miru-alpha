@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -12,6 +11,7 @@ import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/widgets/core/outter_card.dart';
 import 'package:miru_alpha/widgets/index.dart';
 import 'package:miru_alpha/widgets/core/seperator.dart';
+import 'package:miru_alpha/widgets/dialog/dialog.dart';
 
 class MobileRepoDialog extends HookConsumerWidget {
   const MobileRepoDialog({
@@ -222,17 +222,7 @@ class SettingExtension extends HookConsumerWidget {
     WidgetRef ref,
     Set<String> selected,
   ) {
-    showFDialog(
-      routeStyle: .delta(
-        barrierFilter: () =>
-            (animation) => ImageFilter.compose(
-              outer: ImageFilter.blur(
-                sigmaX: animation * 5,
-                sigmaY: animation * 5,
-              ),
-              inner: ColorFilter.mode(context.theme.colors.barrier, .srcOver),
-            ),
-      ),
+    showMiruDialog(
       context: context,
       builder: (context, style, animation) {
         return FDialog(
@@ -296,7 +286,7 @@ class SettingExtension extends HookConsumerWidget {
 
                     return FTile(
                       prefix: selected.value.contains(url)
-                          ? Icon(FIcons.check)
+                          ? Icon(FLucideIcons.check)
                           : SizedBox(width: 18),
                       title: Text(
                         name,
@@ -318,7 +308,7 @@ class SettingExtension extends HookConsumerWidget {
                   if (selected.value.isEmpty)
                     FTile(
                       title: Text('common.add'.i18n),
-                      prefix: Icon(FIcons.plus),
+                      prefix: Icon(FLucideIcons.plus),
                       onPress: () {
                         showFDialog(
                           context: context,
@@ -334,12 +324,12 @@ class SettingExtension extends HookConsumerWidget {
                   else
                     FTile(
                       title: Text('extension.uninstall'.i18n),
-                      prefix: Icon(FIcons.trash),
+                      prefix: Icon(FLucideIcons.trash),
                       onPress: () {
                         showRepoRemoveDialog(context, ref, selected.value);
                       },
                     ),
-                  // FTile.raw(, child: Icon(FIcons.plus), onPress: () {}),
+                  // FTile.raw(, child: Icon(FLucideIcons.plus), onPress: () {}),
                   // FSelectTile(title: Text(''), value: 'Text('')'),
                 ],
               );
@@ -364,20 +354,7 @@ class SettingExtension extends HookConsumerWidget {
                         SizedBox(width: 10),
                       ],
                       FButton(
-                        onPress: () => showFDialog(
-                          routeStyle: .delta(
-                            barrierFilter: () =>
-                                (animation) => ImageFilter.compose(
-                                  outer: ImageFilter.blur(
-                                    sigmaX: animation * 5,
-                                    sigmaY: animation * 5,
-                                  ),
-                                  inner: ColorFilter.mode(
-                                    context.theme.colors.barrier,
-                                    .srcOver,
-                                  ),
-                                ),
-                          ),
+                        onPress: () => showMiruDialog(
                           context: context,
                           builder: (context, style, animation) {
                             return RepoDialog(

@@ -48,7 +48,7 @@ abstract class _$SearchPageNotifier extends $Notifier<SearchPageState> {
   SearchPageState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<SearchPageState, SearchPageState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$SearchPageNotifier extends $Notifier<SearchPageState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

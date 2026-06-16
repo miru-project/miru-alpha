@@ -10,6 +10,7 @@ import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'package:miru_alpha/provider/tracking/anilist_track_page_provider.dart';
 import 'package:miru_alpha/widgets/core/image_widget.dart';
 import 'package:miru_alpha/widgets/core/toast.dart';
+import 'package:miru_alpha/widgets/dialog/dialog.dart';
 import 'package:miru_alpha/widgets/index.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
@@ -68,49 +69,48 @@ class AnilistProgressPage extends HookConsumerWidget {
     }
 
     Future<void> showDeleteConfirmation() async {
-      showFDialog(
+      showMiruDialog(
         context: context,
-        builder: (context, style, animation) => FDialog(
-          style: style,
-          animation: animation,
-          title: Text('common.warning'.i18n),
-          body: Text(
-            'tracking.anilist.delete_warning'.i18n.replaceAll('{provider}', 'AniList'),
+        title: Text('common.warning'.i18n),
+        body: Text(
+          'tracking.anilist.delete_warning'.i18n.replaceAll(
+            '{provider}',
+            'AniList',
           ),
-          actions: [
-            FButton(
-              variant: .destructive,
-              onPress: () async {
-                Navigator.of(context).pop();
-                final success = await notifier.deleteEntry(
-                  detailUrl: param.detailUrl,
-                  package: param.package,
-                );
-                if (context.mounted) {
-                  showSimpleToast(
-                    success
-                        ? 'tracking.anilist.entry_deleted'.i18n
-                        : 'tracking.anilist.entry_delete_failed'.i18n,
-                  );
-                  if (success) {
-                    if (param.detailPr != null) {
-                      ref
-                          .read(param.detailPr!.notifier)
-                          .fetchDetailInfo(param.package, param.detailUrl);
-                    }
-                    context.pop();
-                  }
-                }
-              },
-              child: Text('common.delete'.i18n),
-            ),
-            FButton(
-              variant: .ghost,
-              onPress: () => Navigator.of(context).pop(),
-              child: Text('common.cancel'.i18n),
-            ),
-          ],
         ),
+        actions: [
+          FButton(
+            variant: .destructive,
+            onPress: () async {
+              Navigator.of(context).pop();
+              final success = await notifier.deleteEntry(
+                detailUrl: param.detailUrl,
+                package: param.package,
+              );
+              if (context.mounted) {
+                showSimpleToast(
+                  success
+                      ? 'tracking.anilist.entry_deleted'.i18n
+                      : 'tracking.anilist.entry_delete_failed'.i18n,
+                );
+                if (success) {
+                  if (param.detailPr != null) {
+                    ref
+                        .read(param.detailPr!.notifier)
+                        .fetchDetailInfo(param.package, param.detailUrl);
+                  }
+                  context.pop();
+                }
+              }
+            },
+            child: Text('common.delete'.i18n),
+          ),
+          FButton(
+            variant: .ghost,
+            onPress: () => Navigator.of(context).pop(),
+            child: Text('common.cancel'.i18n),
+          ),
+        ],
       );
     }
 
@@ -332,7 +332,7 @@ class AnilistProgressPage extends HookConsumerWidget {
                           FButton.icon(
                             variant: .outline,
                             onPress: state.isSaving ? null : unlinkTracker,
-                            child: const Icon(FIcons.unlink),
+                            child: const Icon(FLucideIcons.unlink),
                           ),
                         ],
                         if (state.entry != null) ...[
@@ -342,7 +342,7 @@ class AnilistProgressPage extends HookConsumerWidget {
                             onPress: state.isSaving
                                 ? null
                                 : showDeleteConfirmation,
-                            child: const Icon(FIcons.trash2),
+                            child: const Icon(FLucideIcons.trash2),
                           ),
                         ],
                       ],

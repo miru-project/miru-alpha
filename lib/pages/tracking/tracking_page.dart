@@ -48,7 +48,7 @@ class TrackingPage extends HookConsumerWidget {
         suffix: FButton.icon(
           variant: .secondary,
           onPress: () => ref.read(anilistAccountProvider.notifier).logout(),
-          child: const Icon(FIcons.logOut),
+          child: const Icon(FLucideIcons.logOut),
         ),
       ),
       snapSheet: account.when(
@@ -138,7 +138,7 @@ class TrackingPage extends HookConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(FIcons.circleAlert, size: 48),
+              const Icon(FLucideIcons.circleAlert, size: 48),
               const SizedBox(height: 16),
               const Text('Error'),
               const SizedBox(height: 16),
@@ -165,7 +165,7 @@ class _LoginPrompt extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            FIcons.clipboardClock,
+            FLucideIcons.clipboardClock,
             size: 64,
             color: context.theme.colors.mutedForeground,
           ),
@@ -186,7 +186,7 @@ class _LoginPrompt extends ConsumerWidget {
           const SizedBox(height: 32),
           FButton(
             onPress: () => ref.read(anilistAccountProvider.notifier).login(),
-            prefix: const Icon(FIcons.logIn),
+            prefix: const Icon(FLucideIcons.logIn),
             child: const Text('Login with Anilist'),
           ),
         ],

@@ -92,7 +92,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
                 ),
               ),
               FTile(
-                prefix: const Icon(FIcons.trash),
+                prefix: const Icon(FLucideIcons.trash),
                 title: Text('extension.uninstall'.i18n),
                 onPress: () {
                   // final context = RouterUtil.rootNavigatorKey.currentContext;
@@ -109,7 +109,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
                 },
               ),
               FTile(
-                prefix: const Icon(FIcons.bolt),
+                prefix: const Icon(FLucideIcons.bolt),
                 title: Text("extension.setting_wip".i18n),
                 onPress: () {},
               ),
@@ -131,7 +131,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
                         child: SizedBox.square(
                           dimension: 40,
                           child: ext.icon == null
-                              ? Icon(FIcons.toyBrick)
+                              ? Icon(FLucideIcons.toyBrick)
                               : ImageWidget(imageUrl: ext.icon!),
                         ),
                       ),

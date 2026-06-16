@@ -40,13 +40,13 @@ final class DevToolProvider extends $NotifierProvider<DevTool, DevToolState> {
   }
 }
 
-String _$devToolHash() => r'35ede84ac1dd8897d81b35263b90e0148669b3c8';
+String _$devToolHash() => r'71199861a17470741be927b0efab939972b79f19';
 
 abstract class _$DevTool extends $Notifier<DevToolState> {
   DevToolState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<DevToolState, DevToolState>;
     final element =
         ref.element
@@ -56,6 +56,6 @@ abstract class _$DevTool extends $Notifier<DevToolState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

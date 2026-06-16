@@ -48,7 +48,7 @@ abstract class _$FavoritePageNotifier extends $Notifier<FavoritePageState> {
   FavoritePageState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<FavoritePageState, FavoritePageState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$FavoritePageNotifier extends $Notifier<FavoritePageState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

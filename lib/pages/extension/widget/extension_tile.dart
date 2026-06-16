@@ -13,7 +13,6 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
   final String repoUrl;
   const ExtensionTile({super.key, required this.data, required this.repoUrl});
 
-
   void oninstall(
     GithubExtension data,
     String repoUrl,
@@ -22,7 +21,7 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
     await notifier.installPackage(data.package, repoUrl);
     iconsMessageToast(
       title: "Installed ${data.name}",
-      icon: FIcons.blocks,
+      icon: FLucideIcons.blocks,
       duration: 1,
     );
   }
@@ -35,7 +34,7 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
     await notifier.uninstallPackage(data.package);
     iconsMessageToast(
       title: "Uninstalled ${data.name}",
-      icon: FIcons.blocks,
+      icon: FLucideIcons.blocks,
       duration: 1,
     );
   }

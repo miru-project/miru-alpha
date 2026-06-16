@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
@@ -9,6 +8,7 @@ import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/widgets/index.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:miru_alpha/widgets/dialog/dialog.dart';
 
 class PlayerHeader extends ConsumerStatefulWidget {
   const PlayerHeader({
@@ -102,29 +102,16 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
                   onPressed: () {
                     WindowManager.instance.minimize();
                   },
-                  icon: FIcons.minus,
+                  icon: FLucideIcons.minus,
                 ),
               ],
               const SizedBox(width: 10),
               if (!DeviceUtil.isMobile)
-                PlayerButton(onPressed: widget.onClose, icon: FIcons.x)
+                PlayerButton(onPressed: widget.onClose, icon: FLucideIcons.x)
               else ...[
                 PlayerButton(
                   onPressed: () {
-                    showFDialog(
-                      routeStyle: .delta(
-                        barrierFilter: () =>
-                            (animation) => ImageFilter.compose(
-                              outer: ImageFilter.blur(
-                                sigmaX: animation * 5,
-                                sigmaY: animation * 5,
-                              ),
-                              inner: ColorFilter.mode(
-                                context.theme.colors.barrier,
-                                .srcOver,
-                              ),
-                            ),
-                      ),
+                    showMiruDialog(
                       context: context,
                       builder: (context, style, animation) => FDialog(
                         style: style,
@@ -149,7 +136,7 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
                       ),
                     );
                   },
-                  icon: FIcons.settings,
+                  icon: FLucideIcons.settings,
                 ),
               ],
             ],

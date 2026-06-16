@@ -75,7 +75,7 @@ class AnilistSearchPage extends HookConsumerWidget {
           child: FTextField(
             prefixBuilder: (context, style, states) => Padding(
               padding: EdgeInsetsGeometry.only(left: 12, right: 10),
-              child: Icon(FIcons.search),
+              child: Icon(FLucideIcons.search),
             ),
             control: .managed(
               initial: TextEditingValue(text: query.value),

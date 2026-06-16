@@ -376,11 +376,11 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
 
         await vidController.initialize();
         vidController.addListener(_updatePosition);
-        
+
         if (isPlaying) {
           vidController.play();
         }
-        
+
         await vidController.seekTo(currentPosition);
 
         state = state.copyWith(
@@ -393,7 +393,7 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
 
         // Subtitles re-init if needed
         initSubtitle(watchResult.subtitles);
-        
+
         // Quality re-init
         getQuality(watchResult.url, watchResult.headers).then((val) {
           state = state.copyWith(qualityMap: val);

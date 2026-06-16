@@ -10,6 +10,7 @@ import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'package:miru_alpha/widgets/core/image_widget.dart';
 import 'package:miru_alpha/widgets/core/toast.dart';
+import 'package:miru_alpha/widgets/dialog/dialog.dart';
 
 class AnilistTrackingDialog extends HookConsumerWidget {
   final AnilistProgressParam param;
@@ -111,47 +112,46 @@ class AnilistTrackingDialog extends HookConsumerWidget {
     }
 
     Future<void> showDeleteConfirmation() async {
-      showFDialog(
+      showMiruDialog(
         context: context,
-        builder: (context, style, animation) => FDialog(
-          style: style,
-          animation: animation,
-          title: Text('common.warning'.i18n),
-          body: Text(
-            'tracking.anilist.delete_warning'.i18n.replaceAll('{provider}', 'AniList'),
+        title: Text('common.warning'.i18n),
+        body: Text(
+          'tracking.anilist.delete_warning'.i18n.replaceAll(
+            '{provider}',
+            'AniList',
           ),
-          actions: [
-            FButton(
-              variant: .destructive,
-              onPress: () async {
-                Navigator.of(context).pop();
-                final success = await notifier.deleteEntry(
-                  detailUrl: param.detailUrl,
-                  package: param.package,
-                );
-                if (context.mounted) {
-                  showSimpleToast(
-                    success
-                        ? 'tracking.anilist.entry_deleted'.i18n
-                        : 'tracking.anilist.entry_delete_failed'.i18n,
-                  );
-                  if (success) {
-                    ref
-                        .read(detailPr.notifier)
-                        .fetchDetailInfo(param.package, param.detailUrl);
-                    Navigator.of(context).pop();
-                  }
-                }
-              },
-              child: Text('common.delete'.i18n),
-            ),
-            FButton(
-              variant: .ghost,
-              onPress: () => Navigator.of(context).pop(),
-              child: Text('common.cancel'.i18n),
-            ),
-          ],
         ),
+        actions: [
+          FButton(
+            variant: .destructive,
+            onPress: () async {
+              Navigator.of(context).pop();
+              final success = await notifier.deleteEntry(
+                detailUrl: param.detailUrl,
+                package: param.package,
+              );
+              if (context.mounted) {
+                showSimpleToast(
+                  success
+                      ? 'tracking.anilist.entry_deleted'.i18n
+                      : 'tracking.anilist.entry_delete_failed'.i18n,
+                );
+                if (success) {
+                  ref
+                      .read(detailPr.notifier)
+                      .fetchDetailInfo(param.package, param.detailUrl);
+                  Navigator.of(context).pop();
+                }
+              }
+            },
+            child: Text('common.delete'.i18n),
+          ),
+          FButton(
+            variant: .ghost,
+            onPress: () => Navigator.of(context).pop(),
+            child: Text('common.cancel'.i18n),
+          ),
+        ],
       );
     }
 
@@ -280,7 +280,10 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildSectionTitle(context, 'tracking.anilist.progress'.i18n),
+                        _buildSectionTitle(
+                          context,
+                          'tracking.anilist.progress'.i18n,
+                        ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -288,7 +291,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                               variant: .outline,
                               onPress: () =>
                                   notifier.setProgress(progress.toInt() - 1),
-                              child: const Icon(FIcons.minus, size: 14),
+                              child: const Icon(FLucideIcons.minus, size: 14),
                             ),
                             const SizedBox(width: 8),
                             Expanded(
@@ -319,7 +322,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                               variant: .outline,
                               onPress: () =>
                                   notifier.setProgress(progress.toInt() + 1),
-                              child: const Icon(FIcons.plus, size: 14),
+                              child: const Icon(FLucideIcons.plus, size: 14),
                             ),
                           ],
                         ),
@@ -331,14 +334,17 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildSectionTitle(context, 'tracking.anilist.score'.i18n),
+                        _buildSectionTitle(
+                          context,
+                          'tracking.anilist.score'.i18n,
+                        ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
                             FButton.icon(
                               variant: .outline,
                               onPress: () => notifier.setScore(score - 0.5),
-                              child: const Icon(FIcons.minus, size: 14),
+                              child: const Icon(FLucideIcons.minus, size: 14),
                             ),
                             const SizedBox(width: 8),
                             Expanded(
@@ -372,7 +378,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                             FButton.icon(
                               variant: .outline,
                               onPress: () => notifier.setScore(score + 0.5),
-                              child: const Icon(FIcons.plus, size: 14),
+                              child: const Icon(FLucideIcons.plus, size: 14),
                             ),
                           ],
                         ),
@@ -387,7 +393,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
       ),
       actions: [
         FButton(
-          prefix: Icon(FIcons.save),
+          prefix: Icon(FLucideIcons.save),
           onPress: isSaving ? null : saveProgress,
           child: isSaving
               ? const FCircularProgress.loader()
@@ -395,14 +401,14 @@ class AnilistTrackingDialog extends HookConsumerWidget {
         ),
         if (param.isLinked)
           FButton(
-            prefix: const Icon(FIcons.unlink),
+            prefix: const Icon(FLucideIcons.unlink),
             variant: .secondary,
             onPress: isSaving ? null : unlinkTracker,
             child: Text('tracking.unlink'.i18n),
           ),
         if (entry != null)
           FButton(
-            prefix: const Icon(FIcons.trash),
+            prefix: const Icon(FLucideIcons.trash),
             variant: .destructive,
             onPress: isSaving ? null : showDeleteConfirmation,
             child: Text('tracking.delete_entry'.i18n),

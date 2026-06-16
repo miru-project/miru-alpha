@@ -93,7 +93,7 @@ abstract class _$NovelReader extends $Notifier<NovelReaderState> {
   NovelReaderState build(List<String>? content, String? localPath);
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<NovelReaderState, NovelReaderState>;
     final element =
         ref.element
@@ -103,6 +103,6 @@ abstract class _$NovelReader extends $Notifier<NovelReaderState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, () => build(_$args.$1, _$args.$2));
+    return element.handleCreate(ref, () => build(_$args.$1, _$args.$2));
   }
 }

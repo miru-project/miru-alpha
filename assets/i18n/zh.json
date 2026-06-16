@@ -158,10 +158,11 @@
     "import": {
       "title": "导入扩展",
       "url_label": "扩展链接",
-      "tips": "您可以通过链接导入扩展，或者点击下方的扩展目录并将扩展文件放入其中。",
+      "tips": "您可以通过链接导入扩展，或者点击下方的扩展目录并选择扩展文件。",
       "extension_dir": "扩展目录",
       "import_by_url": "通过链接导入",
-      "import_by_local": "本地导入"
+      "import_by_local": "本地导入",
+      "invalid_url": "无效链接,需要.js文件"
     },
     "repo": {
       "error": "发生错误！",

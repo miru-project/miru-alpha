@@ -39,7 +39,7 @@ class MobileLoadedPage extends HookConsumerWidget {
       scrollController: scrollController,
       child: CustomScrollView(
         controller: scrollController,
-        cacheExtent: 20,
+        scrollCacheExtent: .viewport(10),
         slivers: [
           SliverPadding(
             padding: EdgeInsets.fromLTRB(8, (8 + padding.top), 8, 0),
@@ -62,7 +62,7 @@ class MobileLoadedPage extends HookConsumerWidget {
                           imageUrl: detail.cover ?? '',
                           fit: BoxFit.cover,
                           errChild: FCard.raw(
-                            child: Center(child: Icon(FIcons.cloudAlert)),
+                            child: Center(child: Icon(FLucideIcons.cloudAlert)),
                           ),
                         ),
                       ),
@@ -80,10 +80,11 @@ class MobileLoadedPage extends HookConsumerWidget {
                               description: Row(
                                 children: [
                                   Icon(switch (meta.type) {
-                                    ExtensionType.manga => FIcons.book,
-                                    ExtensionType.bangumi => FIcons.film,
-                                    ExtensionType.fikushon => FIcons.bookText,
-                                    ExtensionType.all => FIcons.rows3,
+                                    ExtensionType.manga => FLucideIcons.book,
+                                    ExtensionType.bangumi => FLucideIcons.film,
+                                    ExtensionType.fikushon =>
+                                      FLucideIcons.bookText,
+                                    ExtensionType.all => FLucideIcons.rows3,
                                   }),
                                   Text(' • '),
                                   FTappable(

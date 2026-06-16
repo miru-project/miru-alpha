@@ -25,7 +25,7 @@ class DownloadProcessTile extends ConsumerWidget {
                 FCard.raw(
                   child: const SizedBox.square(
                     dimension: 40,
-                    child: Icon(FIcons.filePlay, size: 20),
+                    child: Icon(FLucideIcons.filePlay, size: 20),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -94,7 +94,7 @@ class DownloadHistoryTile extends ConsumerWidget {
                 FCard.raw(
                   child: const SizedBox.square(
                     dimension: 40,
-                    child: Icon(FIcons.filePlay, size: 20),
+                    child: Icon(FLucideIcons.filePlay, size: 20),
                   ),
                 ),
                 const SizedBox(width: 12),

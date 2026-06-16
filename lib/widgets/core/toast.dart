@@ -3,7 +3,7 @@ import 'package:forui/theme.dart';
 import 'package:forui/widgets/toast.dart';
 import 'package:miru_alpha/utils/router/router_util.dart';
 
-void showSimpleToast(String title, [int duration = 3]) {
+void showSimpleToast(String title, [int duration = 1]) {
   final ctx = RouterUtil.rootNavigatorKey.currentContext;
   if (ctx == null || !ctx.mounted) return;
   showFToast(

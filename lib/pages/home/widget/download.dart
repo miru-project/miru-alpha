@@ -37,7 +37,7 @@ class DownloadItem extends ConsumerWidget {
               width: 60,
               height: 60,
               color: context.theme.colors.muted,
-              child: const Icon(FIcons.cloudAlert, size: 20),
+              child: const Icon(FLucideIcons.cloudAlert, size: 20),
             ),
             imageUrl: matchingHistory.cover,
             width: 60,

@@ -25,7 +25,7 @@ class ConsoleView extends ConsumerWidget {
           padding: const EdgeInsets.all(8.0),
           child: FButton(
             onPress: notifier.clearLogs,
-            prefix: Icon(FIcons.trash),
+            prefix: Icon(FLucideIcons.trash),
             child: const Text('Clear'),
           ),
         ),
@@ -44,15 +44,15 @@ class ConsoleView extends ConsumerWidget {
               switch (log.level) {
                 case 'warn':
                   textColor = Colors.orange;
-                  icon = FIcons.triangleAlert;
+                  icon = FLucideIcons.triangleAlert;
                   break;
                 case 'error':
                   textColor = Colors.red;
-                  icon = FIcons.circleX;
+                  icon = FLucideIcons.circleX;
                   break;
                 default:
                   textColor = null;
-                  icon = FIcons.info;
+                  icon = FLucideIcons.info;
               }
 
               return FTile(

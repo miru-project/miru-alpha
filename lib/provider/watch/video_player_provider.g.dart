@@ -152,7 +152,7 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
   });
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<VideoPlayerTickState, VideoPlayerTickState>;
     final element =
         ref.element
@@ -162,7 +162,7 @@ abstract class _$VideoPlayerNotifier extends $Notifier<VideoPlayerTickState> {
               Object?,
               Object?
             >;
-    element.handleCreate(
+    return element.handleCreate(
       ref,
       () => build(
         _$args.$1,

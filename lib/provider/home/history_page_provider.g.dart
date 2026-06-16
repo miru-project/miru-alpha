@@ -48,7 +48,7 @@ abstract class _$HistoryPageNotifier extends $Notifier<HistoryPageState> {
   HistoryPageState build();
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<HistoryPageState, HistoryPageState>;
     final element =
         ref.element
@@ -58,6 +58,6 @@ abstract class _$HistoryPageNotifier extends $Notifier<HistoryPageState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, build);
+    return element.handleCreate(ref, build);
   }
 }

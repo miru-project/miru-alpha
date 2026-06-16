@@ -50,7 +50,7 @@ class SearchPageSingleView extends HookConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.only(right: 12.0, top: 4, left: 10),
                 child: Icon(
-                  FIcons.chevronLeft,
+                  FLucideIcons.chevronLeft,
                   size: 28,
                   color: context.theme.colors.primary,
                 ),

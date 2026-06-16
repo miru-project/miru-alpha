@@ -38,7 +38,9 @@ class MobileDetailSilverlist extends HookConsumerWidget {
     final historyList = ref.watch(detailPr.select((s) => s.historyList));
 
     if (detail.episodes?.isEmpty ?? true) {
-      return SliverToBoxAdapter(child: Center(child: Text('media.no_episodes'.i18n)));
+      return SliverToBoxAdapter(
+        child: Center(child: Text('media.no_episodes'.i18n)),
+      );
     }
     final selectGroup = detail.episodes![epGroupIdx].urls;
 
@@ -57,7 +59,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                     child: FButton(
                       mainAxisAlignment: .center,
                       onPress: () {},
-                      prefix: Icon(FIcons.play),
+                      prefix: Icon(FLucideIcons.play),
                       child: Text("common.play".i18n),
                     ),
                   ),
@@ -113,7 +115,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                         control: .managed(controller: controller),
                         child: FButton(
                           suffix: Icon(
-                            FIcons.chevronsUpDown,
+                            FLucideIcons.chevronsUpDown,
                             color: context.theme.colors.primary,
                           ),
                           mainAxisAlignment: .start,
@@ -137,8 +139,8 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                       isReverse.value = !isReverse.value;
                     },
                     child: isReverse.value
-                        ? Icon(FIcons.arrowUpNarrowWide)
-                        : Icon(FIcons.arrowDownNarrowWide),
+                        ? Icon(FLucideIcons.arrowUpNarrowWide)
+                        : Icon(FLucideIcons.arrowDownNarrowWide),
                   ),
                 ],
               ),
@@ -154,7 +156,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                   suffix: FButton.icon(
                     variant: .ghost,
                     onPress: () {},
-                    child: Icon(FIcons.arrowDownToLine),
+                    child: Icon(FLucideIcons.arrowDownToLine),
                   ),
                   title: Text(item.name),
                   onPress: () {

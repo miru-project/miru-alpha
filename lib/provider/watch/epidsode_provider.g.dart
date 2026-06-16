@@ -92,7 +92,7 @@ abstract class _$EpisodeNotifier extends $Notifier<EpisodeNotifierState> {
   EpisodeNotifierState build(WatchParams param);
   @$mustCallSuper
   @override
-  void runBuild() {
+  WhenComplete runBuild() {
     final ref = this.ref as $Ref<EpisodeNotifierState, EpisodeNotifierState>;
     final element =
         ref.element
@@ -102,6 +102,6 @@ abstract class _$EpisodeNotifier extends $Notifier<EpisodeNotifierState> {
               Object?,
               Object?
             >;
-    element.handleCreate(ref, () => build(_$args));
+    return element.handleCreate(ref, () => build(_$args));
   }
 }

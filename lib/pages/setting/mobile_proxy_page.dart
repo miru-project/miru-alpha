@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -6,7 +5,7 @@ import 'package:forui/forui.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/setting_dir_index.dart';
 import 'package:miru_alpha/widgets/index.dart';
-
+import 'package:miru_alpha/widgets/dialog/dialog.dart';
 class MobileProxyPage extends HookWidget {
   const MobileProxyPage({super.key});
   @override
@@ -30,21 +29,8 @@ class MobileProxyPage extends HookWidget {
             FButton.icon(
               variant: .ghost,
               onPress: () {
-                showFDialog(
+                showMiruDialog(
                   context: context,
-                  routeStyle: .delta(
-                    barrierFilter: () =>
-                        (animation) => ImageFilter.compose(
-                          outer: ImageFilter.blur(
-                            sigmaX: animation * 5,
-                            sigmaY: animation * 5,
-                          ),
-                          inner: ColorFilter.mode(
-                            context.theme.colors.barrier,
-                            .srcOver,
-                          ),
-                        ),
-                  ),
                   builder: (context, style, animation) => FDialog(
                     style: style,
                     animation: animation,
@@ -115,7 +101,7 @@ class MobileProxyPage extends HookWidget {
                   ),
                 );
               },
-              child: Icon(FIcons.plus, size: 24),
+              child: Icon(FLucideIcons.plus, size: 24),
             ),
             FButton.icon(
               variant: isDelete.value ? .destructive : .ghost,
@@ -126,21 +112,8 @@ class MobileProxyPage extends HookWidget {
                 }
                 isDelete.value = false;
                 if (selectToRemove.value.isEmpty) return;
-                showFDialog(
+                showMiruDialog(
                   context: context,
-                  routeStyle: .delta(
-                    barrierFilter: () =>
-                        (animation) => ImageFilter.compose(
-                          outer: ImageFilter.blur(
-                            sigmaX: animation * 5,
-                            sigmaY: animation * 5,
-                          ),
-                          inner: ColorFilter.mode(
-                            context.theme.colors.barrier,
-                            .srcOver,
-                          ),
-                        ),
-                  ),
                   builder: (context, style, animation) => FDialog(
                     style: style,
                     animation: animation,
@@ -182,7 +155,7 @@ class MobileProxyPage extends HookWidget {
                 );
                 isDelete.value = !isDelete.value;
               },
-              child: Icon(FIcons.trash, size: 20),
+              child: Icon(FLucideIcons.trash, size: 20),
             ),
           ],
         ),
@@ -207,7 +180,7 @@ class MobileProxyPage extends HookWidget {
                       final proxy = proxyList.value.elementAt(index);
                       final uri = Uri.parse(proxy);
                       return FSelectTile.tile(
-                        checkedIcon: Icon(FIcons.trash),
+                        checkedIcon: Icon(FLucideIcons.trash),
                         value: proxy,
                         title: Text(uri.host),
                         subtitle: Text('${'common.port'.i18n} : ${uri.port}'),
@@ -247,7 +220,7 @@ class MobileProxyPage extends HookWidget {
                         title: Text(uri.host),
                         subtitle: Text('${'common.port'.i18n} : ${uri.port}'),
                         suffix: selectToRemove.value.contains(proxy)
-                            ? Icon(FIcons.trash)
+                            ? Icon(FLucideIcons.trash)
                             : Text(uri.scheme.toUpperCase()),
                       );
                     },

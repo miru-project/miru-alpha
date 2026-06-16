@@ -77,7 +77,7 @@ class DesktopProxyDialog extends HookWidget {
                       );
                       textController.clear();
                     },
-                    child: Icon(FIcons.plus),
+                    child: Icon(FLucideIcons.plus),
                   ),
                 ),
               ),
@@ -122,7 +122,7 @@ class DesktopProxyDialog extends HookWidget {
                                       proxyList.value,
                                     );
                                   },
-                                  child: Icon(FIcons.trash),
+                                  child: Icon(FLucideIcons.trash),
                                 ),
                               ],
                             ),

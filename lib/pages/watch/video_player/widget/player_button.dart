@@ -37,7 +37,7 @@ class MainPlayerButton extends ConsumerWidget {
                 onPress: () {
                   ref.read(vidPr.notifier).play();
                 },
-                child: Icon(FIcons.play, size: size),
+                child: Icon(FLucideIcons.play, size: size),
               ),
             )
           : Container(color: Colors.transparent),
