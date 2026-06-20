@@ -37,7 +37,7 @@ class SearchPageSingleView extends HookConsumerWidget {
       });
       return null;
     }, [meta.packageName]);
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       sheetController: sheetController,
       mobileHeader: Padding(
         padding: EdgeInsetsGeometry.only(bottom: 10),

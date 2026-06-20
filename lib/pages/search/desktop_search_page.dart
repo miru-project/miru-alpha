@@ -16,7 +16,7 @@ class DesktopSearchPage extends HookConsumerWidget {
   const DesktopSearchPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metaData = ref.watch(searchPageProvider.select((e) => e.metaData));
+    final metaData = ref.watch(searchPageProvider).filteredMetaData;
     final existedPinnedExtensions = ref.watch(
       searchPageProvider.select((e) => e.existedPinnedExtensions),
     );

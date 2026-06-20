@@ -13,14 +13,16 @@ class MobileActiveDownloadSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(downloadProvider);
     return state.when(
-      data: (data) => FTileGroup.builder(
-        label: Text("common.active_tasks".i18n),
-        count: data.active.length,
-        tileBuilder: (context, index) {
-          final item = data.active[index];
-          return DownloadProcessTile(progress: item);
-        },
-      ),
+      data: (data) => data.active.isEmpty
+          ? Center(child: Text("download.no_active_downloads".i18n))
+          : FTileGroup.builder(
+              label: Text("download.active_tasks".i18n),
+              count: data.active.length,
+              tileBuilder: (context, index) {
+                final item = data.active[index];
+                return DownloadProcessTile(progress: item);
+              },
+            ),
       error: (err, stack) => ErrorDisplay.grpc(err: err, stack: stack),
       loading: () => const FCircularProgress(),
     );

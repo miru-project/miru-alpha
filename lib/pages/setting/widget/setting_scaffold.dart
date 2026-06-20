@@ -9,7 +9,7 @@ class SettingScaffold extends StatelessWidget {
   final String title;
   @override
   Widget build(BuildContext context) {
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       resizeToAvoidBottomInset: false,
       mobileHeader: SnapSheetNested(
         title: title.i18n,

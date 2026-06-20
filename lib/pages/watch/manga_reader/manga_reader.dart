@@ -113,7 +113,7 @@ class MiruMangaReaderState extends ConsumerState<MiruMangaReader> {
       meta: widget.meta,
       name: widget.name,
     );
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       childPad: false,
       snapSheet: controls,
       mobileHeader: SnapSheetNested.back(title: widget.name),

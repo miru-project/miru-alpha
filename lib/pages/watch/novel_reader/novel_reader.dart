@@ -54,7 +54,7 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
       widget.value?.content,
       widget.localPath,
     );
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       scrollController: scrollController,
       mobileHeader: SnapSheetNested.back(title: widget.name),
       snapSheet: [

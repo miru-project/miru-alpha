@@ -32,14 +32,14 @@ class ExtensionSettingPage extends HookConsumerWidget {
     final snapshot = useFuture(settingsFuture);
 
     if (snapshot.connectionState == ConnectionState.waiting) {
-      return MiruScaffold(
+      return MiruScaffold.mobile(
         mobileHeader: SnapSheetNested.back(title: name),
         body: const Center(child: FCircularProgress()),
       );
     }
 
     if (snapshot.hasError) {
-      return MiruScaffold(
+      return MiruScaffold.mobile(
         mobileHeader: SnapSheetNested.back(title: name),
         body: Center(child: Text('Error: ${snapshot.error}')),
       );
@@ -48,10 +48,11 @@ class ExtensionSettingPage extends HookConsumerWidget {
     final settings = snapshot.data ?? [];
     final isMobile = DeviceUtil.isMobileLayout(context);
 
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       childPad: false,
       mobileHeader: SnapSheetNested.back(title: name),
-      body: MiruListView(
+      body: ListView(
+        padding: .symmetric(horizontal: 8),
         children: [
           if (settings.isNotEmpty)
             SettingGroup(

@@ -22,7 +22,7 @@ class DownloadPage extends ConsumerWidget {
       ),
     );
 
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       childPad: false,
       mobileHeader: _buildmobileHeader(context, ref, downloadPath),
       body: const PlatformWidget(

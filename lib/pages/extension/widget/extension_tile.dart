@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -51,7 +52,8 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
     if (isInstalled) {
       needUpdate = VersionUtil.isVersionGreaterThan(
         data.version,
-        meta.where((e) => e.packageName == data.package).first.version,
+        meta.firstWhereOrNull((e) => e.packageName == data.package)?.version ??
+            "0.0.0",
       );
     }
     return DeviceUtil.deviceWidget(

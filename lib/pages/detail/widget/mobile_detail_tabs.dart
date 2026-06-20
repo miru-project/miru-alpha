@@ -61,7 +61,7 @@ class MobileDetailTabs extends HookConsumerWidget {
             child: Text(
               detail.desc ?? 'media.no_description'.i18n,
               textAlign: TextAlign.start,
-              style: const TextStyle(height: 1.4, fontWeight: .w600),
+              style: const TextStyle(height: 1.3, fontSize: 15),
             ),
           ),
         ],

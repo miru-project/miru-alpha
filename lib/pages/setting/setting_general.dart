@@ -13,7 +13,8 @@ class SettingGeneral extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = ref.read(applicationControllerProvider.notifier);
-    return MiruListView(
+    return ListView(
+      padding: .all(0),
       children: [
         SettingGroup(
           isMobileLayout: isMobileLayout,

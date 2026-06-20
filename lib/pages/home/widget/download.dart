@@ -127,7 +127,7 @@ class DownloadsList extends ConsumerWidget {
           return SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
-              child: Text("common.no_active_downloads".i18n),
+              child: Text("download.no_active_downloads".i18n),
             ),
           );
         }
@@ -162,7 +162,7 @@ class DownloadsText extends StatelessWidget {
       child: Padding(
         padding: padding,
         child: Text(
-          'common.download'.i18n,
+          'download.name'.i18n,
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,

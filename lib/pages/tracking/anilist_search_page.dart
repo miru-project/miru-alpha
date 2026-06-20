@@ -62,7 +62,7 @@ class AnilistSearchPage extends HookConsumerWidget {
       return null;
     }, []);
 
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       mobileHeader: SnapSheetNested.back(title: "common.search".i18n),
       snappingOffsets: [
         AbsoluteSheetOffset(140),

@@ -127,7 +127,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
       return null;
     }, const []);
 
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       sheetController: sheetController,
       scrollController: scrollController,
 
@@ -277,7 +277,8 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                   onRefresh: () async {
                     await extNotifier.reloadRepos();
                   },
-                  child: MiruListView.builder(
+                  child: ListView.builder(
+                    padding: .all(0),
                     controller: scrollController,
                     itemBuilder: (context, index) {
                       final pair = extensionsWithRepo[index];

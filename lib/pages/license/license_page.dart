@@ -22,7 +22,7 @@ class _MiruLicensePageState extends State<MiruLicensePage> {
 
   @override
   Widget build(BuildContext context) {
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       mobileHeader: SnapSheetNested.back(title: 'common.licenses'.i18n),
       body: FutureBuilder<List<LicenseEntry>>(
         future: _licensesFuture,
@@ -97,7 +97,7 @@ class _LicenseDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       mobileHeader: SnapSheetNested.back(title: packageName),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),

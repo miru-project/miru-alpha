@@ -46,7 +46,7 @@ class _SourceCodePageState extends State<SourceCodePage> {
           }
         }
       },
-      child: MiruScaffold(
+      child: MiruScaffold.mobile(
         childPad: false,
         mobileHeader: SnapSheetNested.back(
           title: 'extension.source_code'.i18n,

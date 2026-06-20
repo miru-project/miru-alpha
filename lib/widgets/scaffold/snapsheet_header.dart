@@ -20,7 +20,7 @@ class SnapSheetHeader extends StatelessWidget {
       decoration: context.theme.scaffoldStyle.headerDecoration,
       child: Padding(
         padding:
-            padding ?? EdgeInsetsGeometry.only(left: 12, bottom: 6, right: 10),
+            padding ?? EdgeInsetsGeometry.only(left: 0, bottom: 15, right: 10),
         child: FLabel(
           layout: .vertical,
           description: (description != null) ? Text(description!) : null,

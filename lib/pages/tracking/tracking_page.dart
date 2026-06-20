@@ -37,7 +37,7 @@ class TrackingPage extends HookConsumerWidget {
       return () => tabController.removeListener(listener);
     }, [tabController]);
 
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       snappingOffsets: const [
         AbsoluteSheetOffset(190),
         ProportionalToViewportSheetOffset(0.5),

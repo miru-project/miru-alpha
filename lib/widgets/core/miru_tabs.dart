@@ -72,37 +72,34 @@ class _MiruTabsState extends State<MiruTabs>
     final style =
         widget.style?.call(context.theme.tabsStyle) ?? context.theme.tabsStyle;
 
-    return Material(
-      color: Colors.transparent,
-      child: Column(
-        children: [
-          DecoratedBox(
-            decoration: style.decoration,
-            child: TabBar(
-              tabs: [
-                for (final tab in widget.children)
-                  _MiruTab(style: style, label: tab.label),
-              ],
-              controller: _controller,
-              padding: style.padding,
-              indicator: style.indicatorDecoration,
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerColor: Colors.transparent,
-              dividerHeight: 0,
-              splashFactory: NoSplash.splashFactory,
-              labelColor: context.theme.colors.foreground,
-            ),
+    return Column(
+      children: [
+        DecoratedBox(
+          decoration: style.decoration,
+          child: TabBar(
+            tabs: [
+              for (final tab in widget.children)
+                _MiruTab(style: style, label: tab.label),
+            ],
+            controller: _controller,
+            padding: style.padding,
+            indicator: style.indicatorDecoration,
+            indicatorSize: TabBarIndicatorSize.tab,
+            dividerColor: Colors.transparent,
+            dividerHeight: 0,
+            splashFactory: NoSplash.splashFactory,
+            labelColor: context.theme.colors.foreground,
           ),
-          SizedBox(height: style.spacing),
-          Expanded(
-            child: TabBarView(
-              controller: _controller,
-              physics: widget.physics,
-              children: widget.children.map((e) => e.child).toList(),
-            ),
+        ),
+        SizedBox(height: style.spacing),
+        Expanded(
+          child: TabBarView(
+            controller: _controller,
+            physics: widget.physics,
+            children: widget.children.map((e) => e.child).toList(),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

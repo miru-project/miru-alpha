@@ -9,7 +9,6 @@ import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/provider/setting_page_provider.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/widgets/core/outter_card.dart';
-import 'package:miru_alpha/widgets/index.dart';
 import 'package:miru_alpha/widgets/core/seperator.dart';
 import 'package:miru_alpha/widgets/dialog/dialog.dart';
 
@@ -266,7 +265,8 @@ class SettingExtension extends HookConsumerWidget {
     final selected = useState(<String>{});
     final selectAll = useState(false);
     final reposAsync = ref.watch(extensionRepoProvider);
-    return (MiruListView(
+    return (ListView(
+      padding: .all(0),
       children: [
         if (isMobile)
           reposAsync.when(

@@ -74,3 +74,5 @@ flutter_*.png
 skills-lock.json
 src/miru_core/windows/miru_core.h
 src/miru_core/windows/miru_core.dll
+.cocoindex_code
+

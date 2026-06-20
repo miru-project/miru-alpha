@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/pages/detail/detail_loading_page.dart';
 import 'package:miru_alpha/pages/download/download_page.dart';
+import 'package:miru_alpha/pages/download/widget/mobile_finish_download.dart';
 import 'package:miru_alpha/pages/extension_settings/extension_settings.dart';
 import 'package:miru_alpha/pages/home/library_page.dart';
 import 'package:miru_alpha/pages/license/license_page.dart';
@@ -143,6 +144,20 @@ class RouterUtil {
                     path: 'download',
                     pageBuilder: (context, state) =>
                         noTransitionPage(state: state, child: DownloadPage()),
+                    routes: [
+                      // for mobile layout  only
+                      GoRoute(
+                        path: 'history',
+                        pageBuilder: (context, state) => noTransitionPage(
+                          state: state,
+                          child: DeviceUtil.deviceWidget(
+                            context: context,
+                            desktop: DownloadPage(),
+                            mobile: MobileFinishedDownloadSection(),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
                 path: '/home',

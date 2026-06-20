@@ -13,7 +13,6 @@
       "current_groups": "CURRENT GROUPS"
     },
     "history": "History",
-    "download": "Download",
     "library": "Library",
     "your_library": "Your Library",
     "library_description": "Pick up where you left off or manage your downloads.",
@@ -73,16 +72,13 @@
     "select_tags_groups": "Select tags/groups",
     "custom_context_menu": "Custom Context Menu",
     "search_globally": "Search Globally",
+    "filters": "Filters",
     "search_by_keywords": "Search by Keywords",
     "search_for_favorites": "Search for Favorites",
     "search_for_histories": "Search for Histories",
     "active_tasks": "Active Tasks",
-    "downloads_history": "Download History",
-    "no_download_history": "No download history",
-    "no_active_downloads": "No active downloads",
     "no_results": "No Results Found",
     "no_licenses_found": "No licenses found",
-    "error_loading_downloads": "Error loading downloads",
     "remove_history": "Remove History",
     "remove_favorite": "Remove Favorite",
     "package_not_found": "Package not found",
@@ -126,9 +122,6 @@
       "settings_placeholder_title": "Settings",
       "settings_placeholder_body": "No settings available"
     },
-    "download_started": "Download started",
-    "failed_to_start_download": "Failed to start download",
-    "downloaded": "Downloaded",
     "failed_to_fetch_video_url": "Failed to fetch video URL",
     "select_resolution": "Select Resolution",
     "no_description": "Currently no description ... ",
@@ -393,6 +386,7 @@
     "years_ago": "{years} years ago"
   },
   "download": {
+    "name": "Download",
     "status": {
       "queued": "Queued",
       "downloading": "Downloading",
@@ -402,6 +396,16 @@
       "cancelled": "Cancelled",
       "converting": "Converting",
       "unknown": "Unknown"
-    }
+    },
+    "downloads_history": "Download History",
+    "no_download_history": "No download history",
+    "no_active_downloads": "No active downloads",
+    "error_loading_downloads": "Error loading downloads",
+    "download_started": "Download started",
+    "failed_to_start_download": "Failed to start download",
+    "downloaded": "Downloaded"
+  },
+  "languages": {
+    "name": "Languages"
   }
 }

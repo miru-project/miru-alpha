@@ -39,13 +39,30 @@ class MobileSeachGridLoadingWidget extends StatelessWidget {
         scrollController: scrollController,
         mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.6,
+          childAspectRatio: 0.65,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
         ),
         desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: cons.maxWidth ~/ 180,
           childAspectRatio: 0.6,
         ),
-        itemBuilder: (context, index) => const MobileTileLoadingBox(),
+        itemBuilder: (context, index) {
+          final delay = (index % 4) * 150;
+          return TweenAnimationBuilder(
+            duration: Duration(milliseconds: 800 + delay),
+            tween: Tween(begin: 0.0, end: 1.0),
+            builder: (context, value, child) {
+              return Transform.scale(
+                scale: value,
+                child: Opacity(
+                  opacity: value,
+                  child: const MobileTileLoadingBox(),
+                ),
+              );
+            },
+          );
+        },
         itemCount: 20,
       ),
     );

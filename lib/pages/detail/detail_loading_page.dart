@@ -37,7 +37,7 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
     );
     final favorite = ref.watch(detailPr.select((value) => value.favorite));
     return detial.when(
-      data: (detial) => MiruScaffold(
+      data: (detial) => MiruScaffold.mobile(
         snappingOffsets: const [
           AbsoluteSheetOffset(150),
           ProportionalToViewportSheetOffset(0.5),

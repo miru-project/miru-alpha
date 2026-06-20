@@ -10,7 +10,7 @@ class DevToolPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       mobileHeader: const SnapSheetHeader(title: 'Developer Tool'),
       body: FTabs(
         children: [

@@ -5,8 +5,8 @@ import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/pages/search/global_search.dart';
-import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
-import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/pages/search/widget/mobile_search_filter.dart';
+import 'package:miru_alpha/provider/search/search_page_provider.dart';
 import 'package:miru_alpha/utils/hook/sheet_controller.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/utils/store/storage_index.dart';
@@ -18,17 +18,27 @@ class MobileSearchPage extends HookConsumerWidget {
   const MobileSearchPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metaData = ref.watch(extensionPageProvider).metaData;
+    final searchState = ref.watch(searchPageProvider);
+    final metaData = searchState.filteredMetaData;
     final pinnedExtensions = useState(
       MiruSettings.getSettingSync<Set<String>>(SettingKey.pinnedExtension),
     );
     final containedPinned = metaData.where((ext) {
       return pinnedExtensions.value.contains(ext.packageName);
     });
-    final searchQuery = useState('');
     final sheetController = useSheetController();
-    return MiruScaffold(
-      sheetController: sheetController,
+    final searchQuery = useState('');
+    return MiruScaffold.mobile(
+      onHeaderScroll: (context, header, scrollOffset, headerHeight) {
+        final progress = (scrollOffset / headerHeight).clamp(0.0, 1.0);
+        return SizedBox(
+          height: headerHeight - scrollOffset,
+          child: Transform.scale(
+            scale: 1 - progress * 0.3,
+            child: Opacity(opacity: 1 - progress, child: header),
+          ),
+        );
+      },
       mobileHeader: Row(
         children: [
           SnapSheetHeader(title: 'common.search'.i18n),
@@ -41,26 +51,10 @@ class MobileSearchPage extends HookConsumerWidget {
           SizedBox(width: 10),
         ],
       ),
-      snapSheet: [
-        Padding(
-          padding: .symmetric(horizontal: 10),
-          child: FTextField(
-            // onTapOutside: (event) {
-            //   logger.info('complete');
-            //   sheetController.animateTo(
-            //     SheetOffset.absolute(190),
-            //     duration: const Duration(milliseconds: 700),
-            //   );
-            // },
-            onTap: () {
-              logger.info(sheetController.value);
-              if (((sheetController.value ?? 190.0).toInt() - 190).abs() < 2) {
-                sheetController.animateTo(
-                  SheetOffset.proportionalToViewport(.5),
-                  duration: const Duration(milliseconds: 150),
-                );
-              }
-            },
+      mobilePinnedHeader: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FTextField(
             maxLines: 1,
             onSubmit: (value) {
               searchQuery.value = value;
@@ -73,94 +67,41 @@ class MobileSearchPage extends HookConsumerWidget {
               },
             ),
             clearable: (value) => value.text.isNotEmpty,
-            // onTapOutside: (event) {
-            //   FocusScope.of(context).unfocus();
-            // },
             hint: "common.search_by_keywords".i18n,
             prefixBuilder: (context, style, states) => Padding(
               padding: EdgeInsetsGeometry.only(left: 12, right: 10),
               child: Icon(FLucideIcons.search),
             ),
           ),
-        ),
-        SizedBox(height: 10),
-        Padding(
-          padding: .symmetric(horizontal: 10),
-          child: FTabs(
-            children: [
-              FTabEntry(
-                label: Text('common.type'.i18n),
-                child: CategoryMultiGroup(
-                  items: ['bangumi', 'manga', 'novel'],
-                  onpress: (val) {},
-                ),
-              ),
-              FTabEntry(
-                label: Text('common.language'.i18n),
-                child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
-              ),
-              FTabEntry(
-                label: Text('extension.name'.i18n),
-                child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
-              ),
-            ],
-          ),
-        ),
-      ],
+          const SizedBox(height: 10),
+          const MobileSearchFilter(),
+        ],
+      ),
       body: searchQuery.value.isEmpty
           ? CustomScrollView(
               slivers: [
-                SliverToBoxAdapter(child: SizedBox(height: 30)),
                 if (containedPinned.isNotEmpty)
                   SliverToBoxAdapter(
                     child: FTileGroup(
                       label: Text('extension.pinned'.i18n),
-                      // description: Text('extension.pinned_extensions'.i18n),
-                      children: List.generate(containedPinned.length, (index) {
-                        {
-                          final ext = containedPinned.elementAt(index);
-
-                          return FTile(
-                            onPress: () {
-                              context.push(
-                                '/search/single',
-                                extra: SearchPageParam(meta: ext),
-                              );
-                            },
-                            title: Text(ext.name),
-                            prefix: SizedBox(
-                              height: 40,
-                              width: 40,
-                              child: ImageWidget(imageUrl: ext.icon ?? ""),
-                            ),
-                            // suffix: FButton.icon(
-                            //   selected: true,
-                            //   onPress: () {
-                            //     final newSet = {...pinnedExtensions.value};
-                            //     if (newSet.contains(ext.packageName)) {
-                            //       newSet.remove(ext.packageName);
-                            //     } else {
-                            //       newSet.add(ext.packageName);
-                            //     }
-                            //     pinnedExtensions.value = newSet;
-                            //     MiruSettings.setSettingSync(
-                            //       SettingKey.pinnedExtension,
-                            //       newSet.toString(),
-                            //     );
-                            //   },
-                            //   child:
-                            //       pinnedExtensions.value.contains(
-                            //         ext.packageName,
-                            //       )
-                            //       ? Icon(FLucideIcons.pinOff)
-                            //       : Icon(FLucideIcons.pin),
-                            // ),
-                          );
-                        }
-                      }),
+                      children: containedPinned.map((ext) {
+                        return FTile(
+                          onPress: () {
+                            context.push(
+                              '/search/single',
+                              extra: SearchPageParam(meta: ext),
+                            );
+                          },
+                          title: Text(ext.name),
+                          prefix: SizedBox(
+                            height: 40,
+                            width: 40,
+                            child: ImageWidget(imageUrl: ext.icon ?? ""),
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ),
-
                 if (metaData.isNotEmpty) ...[
                   SliverToBoxAdapter(child: FDivider(style: .delta(width: 3))),
                   SliverList.separated(
@@ -309,21 +250,83 @@ class MobileSearchPage extends HookConsumerWidget {
                     },
                   ),
                 ] else
-                  SliverToBoxAdapter(
+                  const SliverToBoxAdapter(
                     child: Center(
-                      child: Text(
-                        'extension.no_extensions_installed'.i18n,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 40),
+                        child: Text(
+                          'extension.no_extensions_installed',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                SliverToBoxAdapter(child: SizedBox(height: 200)),
+                const SliverToBoxAdapter(child: SizedBox(height: 10)),
               ],
             )
           : GlobalSearch(searchQuery: searchQuery.value, isMobile: true),
+      snapSheet: [
+        Padding(
+          padding: .symmetric(horizontal: 10),
+          child: FTextField(
+            // onTapOutside: (event) {
+            onTap: () {
+              if (((sheetController.value ?? 190.0).toInt() - 190).abs() < 2) {
+                sheetController.animateTo(
+                  SheetOffset.proportionalToViewport(.5),
+                  duration: const Duration(milliseconds: 150),
+                );
+              }
+            },
+            maxLines: 1,
+            onSubmit: (value) {
+              searchQuery.value = value;
+            },
+            control: .managed(
+              onChange: (value) {
+                if (value.text.isEmpty) {
+                  searchQuery.value = value.text;
+                }
+              },
+            ),
+            clearable: (value) => value.text.isNotEmpty,
+            // onTapOutside: (event) {
+            //   FocusScope.of(context).unfocus();
+            // },
+            hint: "common.search_by_keywords".i18n,
+            prefixBuilder: (context, style, states) => Padding(
+              padding: EdgeInsetsGeometry.only(left: 12, right: 10),
+              child: Icon(FLucideIcons.search),
+            ),
+          ),
+        ),
+        SizedBox(height: 10),
+        Padding(
+          padding: .symmetric(horizontal: 10),
+          child: FTabs(
+            children: [
+              FTabEntry(
+                label: Text('common.type'.i18n),
+                child: CategoryMultiGroup(
+                  items: ['bangumi', 'manga', 'novel'],
+                  onpress: (val) {},
+                ),
+              ),
+              FTabEntry(
+                label: Text('common.language'.i18n),
+                child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
+              ),
+              FTabEntry(
+                label: Text('extension.name'.i18n),
+                child: CategoryMultiGroup(items: ['WIP'], onpress: (val) {}),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

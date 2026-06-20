@@ -36,7 +36,7 @@ class DownloadButton extends StatelessWidget {
       variant: varient ?? .secondary,
       prefix: Icon(FLucideIcons.download),
       onPress: () => onTap(context),
-      child: Text('common.download'.i18n),
+      child: Text('download.name'.i18n),
     );
   }
 

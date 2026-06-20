@@ -74,7 +74,7 @@ class MiruSettings {
     SettingKey.subtitleBackgroundOpacity: "0.5",
     SettingKey.subtitleTextAlign: TextAlign.center.index.toString(),
     SettingKey.accentColor: "zinc",
-    SettingKey.mobiletitleIsonTop: "false",
+    SettingKey.mobiletitleIsonTop: "true",
     SettingKey.btServerLink: "https://github.com/miru-project/bt-server",
     SettingKey.maxConnection: "3",
     SettingKey.showDeleteExtensionDialog: "true",

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -6,6 +5,7 @@ import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/setting_dir_index.dart';
 import 'package:miru_alpha/widgets/index.dart';
 import 'package:miru_alpha/widgets/dialog/dialog.dart';
+
 class MobileProxyPage extends HookWidget {
   const MobileProxyPage({super.key});
   @override
@@ -20,7 +20,7 @@ class MobileProxyPage extends HookWidget {
       MiruSettings.getSetting<String>(SettingKey.proxy) ?? '',
     );
     final selectToRemove = useState<Set<String>>({});
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       resizeToAvoidBottomInset: false,
       mobileHeader: SnapSheetNested.back(
         title: 'settings.proxy.name'.i18n,

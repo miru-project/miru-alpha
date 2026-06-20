@@ -198,7 +198,7 @@ class AnilistProgressPage extends HookConsumerWidget {
       );
     }
 
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       mobileHeader: SnapSheetNested.back(
         title: "tracking.anilist.tracking_progress".i18n,
       ),

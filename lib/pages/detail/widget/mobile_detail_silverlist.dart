@@ -1,17 +1,17 @@
-import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:forui_hooks/forui_hooks.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/pages/detail/widget/download_button.dart';
+import 'package:miru_alpha/pages/detail/widget/mobile_detail_tile.dart';
 import 'package:miru_alpha/provider/detail_page_provider.dart';
+import 'package:miru_alpha/provider/download_provider.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
-import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 
 class MobileDetailSilverlist extends HookConsumerWidget {
   final Detail detail;
@@ -93,7 +93,7 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                       return FPopoverMenu.tiles(
                         menuAnchor: .topCenter,
                         menu: [
-                          FTileGroup(
+                          .group(
                             children: List.generate(
                               detail.episodes?.length ?? 0,
                               (idx) {
@@ -152,50 +152,24 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                 final h = historyList.firstWhereOrNull(
                   (element) => element.url == item.url,
                 );
-                return FTile(
-                  suffix: FButton.icon(
-                    variant: .ghost,
-                    onPress: () {},
-                    child: Icon(FLucideIcons.arrowDownToLine),
-                  ),
-                  title: Text(item.name),
-                  onPress: () {
-                    final donwloadList = ref.watch(
-                      detailPr.select((value) => value.downloadList),
-                    );
-                    final savePath = donwloadList
-                        .firstWhereOrNull(
-                          (element) =>
-                              element.key ==
-                              "${detail.title}-${detail.episodes?[selectedGpIndex].title}-${item.name}",
-                        )
-                        ?.savePath;
-                    context.push<WatchParams>(
-                      "/watch",
-                      extra: WatchParams(
-                        detailPr: detailPr,
-                        name: detail.title,
-                        savePath: savePath,
-                        detailImageUrl: detail.cover ?? '',
-                        selectedEpisodeIndex: idx,
-                        selectedGroupIndex: selectedGpIndex,
-                        epGroup: detail.episodes,
-                        detailUrl: detailUrl,
-                        url: item.url,
-                        meta: meta,
-                        type: meta.type,
-                      ),
-                    );
-                  },
-                  subtitle: (h == null && item.update.isEmpty)
-                      ? SizedBox.shrink()
-                      : Row(
-                          children: [
-                            Text(dateFormatter(DateTime.tryParse(item.update))),
-                            Text(' • '),
-                            h != null ? Text(progressIndicator(h)) : SizedBox(),
-                          ],
-                        ),
+                final key =
+                    "${meta.packageName}_${detail.episodes?[selectedGpIndex].title}_${item.name}";
+                final isDownloaded = ref.watch(
+                  downloadProvider.select((s) {
+                    final history = s.value?.history ?? [];
+                    return history.any((e) => e.key == key);
+                  }),
+                );
+                return MobileDetailTile(
+                  item: item,
+                  idx: idx,
+                  selectedGpIndex: selectedGpIndex,
+                  detail: detail,
+                  meta: meta,
+                  detailUrl: detailUrl,
+                  detailPr: detailPr,
+                  history: h,
+                  isDownloaded: isDownloaded,
                 );
               },
               count: selectGroup.length,
@@ -204,63 +178,5 @@ class MobileDetailSilverlist extends HookConsumerWidget {
         ),
       ),
     );
-  }
-
-  String dateFormatter(DateTime? date) {
-    if (date == null) return "";
-    final now = DateTime.now();
-    final diff = now.difference(date);
-    if (diff.inDays == 0) {
-      if (diff.inHours == 0) {
-        if (diff.inMinutes == 0) {
-          return "time.just_now".i18n;
-        }
-        return "time.minutes_ago".fill({"minutes": diff.inMinutes.toString()});
-      }
-      return "time.hours_ago".fill({"hours": diff.inHours.toString()});
-    }
-    if (diff.inDays == 1) {
-      return "time.yesterday".i18n;
-    }
-    if (diff.inDays < 7) {
-      return "time.days_ago".fill({"days": diff.inDays.toString()});
-    }
-    if (diff.inDays < 30) {
-      return "time.weeks_ago".fill({"weeks": (diff.inDays ~/ 7).toString()});
-    }
-    if (diff.inDays < 365) {
-      return "time.months_ago".fill({"months": (diff.inDays ~/ 30).toString()});
-    }
-    return "time.years_ago".fill({"years": (diff.inDays ~/ 365).toString()});
-  }
-
-  String progressIndicator(History h) {
-    final type =
-        ExtensionType.values.firstWhereOrNull(
-          (e) => e.name == h.type || e.toString() == h.type,
-        ) ??
-        ExtensionType.all;
-    switch (type) {
-      case ExtensionType.manga:
-        return "${h.progress} ${"common.page".i18n} / ${h.totalProgress} ${"common.page".i18n}";
-      case ExtensionType.bangumi:
-        final dur = Duration(seconds: h.progress);
-        final totalDur = Duration(seconds: h.totalProgress);
-        return "${formatDuration(dur)} / ${formatDuration(totalDur)}";
-      case ExtensionType.fikushon:
-        return "${h.progress}/${h.totalProgress}";
-      default:
-        return "";
-    }
-  }
-
-  String formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, "0");
-    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    if (duration.inHours > 0) {
-      return "${duration.inHours}:$twoDigitMinutes:$twoDigitSeconds";
-    }
-    return "$twoDigitMinutes:$twoDigitSeconds";
   }
 }

@@ -31,8 +31,7 @@ class _FavoritePageState extends ConsumerState<FavoritePage> {
       favoritePageProvider.select((state) => state.filteredFavorites),
     );
     return PlatformWidget(
-      desktopWidget: MiruScaffold(
-        mobileHeader: SnapSheetHeader(title: 'common.home'.i18n),
+      desktopWidget: MiruScaffold.desktop(
         body: Column(
           children: [
             FavoriteTab(),

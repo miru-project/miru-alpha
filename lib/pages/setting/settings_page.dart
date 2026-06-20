@@ -20,7 +20,7 @@ class SettingsPage extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final select = useState(SideBarName.general);
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       mobileHeader: SnapSheetHeader(title: 'common.settings'.i18n),
       body: SettingPage(selected: select.value),
     );
@@ -89,11 +89,11 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
       Navigator.of(context).push(RouterUtil.createRoute(page));
   @override
   Widget build(BuildContext context) {
-    return MiruScaffold(
+    return MiruScaffold.mobile(
       mobileHeader: SnapSheetHeader(title: 'common.settings'.i18n),
       desktopBody: selected(widget.selected, context),
       mobileBody: ListView(
-        padding: .only(top: 30, bottom: 80),
+        padding: .only(bottom: 80),
         children: [
           FTileGroup(
             label: Text("settings.general.name".i18n),

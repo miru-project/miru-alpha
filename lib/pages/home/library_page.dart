@@ -37,8 +37,11 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
   @override
   Widget build(BuildContext context) {
     final sheetController = useSheetController();
-    final tabController = useTabController(initialLength: 4);
-    return MiruScaffold(
+    final tabController = useTabController(
+      initialLength: 4,
+      vsync: useSingleTickerProvider(),
+    );
+    return MiruScaffold.mobile(
       sheetController: sheetController,
       snappingOffsets: const [
         AbsoluteSheetOffset(190),
@@ -111,7 +114,18 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
                 ),
               ],
             ),
-            3 => SnapSheetHeader(title: 'common.download'.i18n),
+            3 => SnapSheetHeader(
+              title: 'download.name'.i18n,
+              suffix: [
+                FButton.icon(
+                  variant: .ghost,
+                  onPress: () {
+                    context.push('/home/download/history');
+                  },
+                  child: Icon(FLucideIcons.folderClock),
+                ),
+              ],
+            ),
             _ => const SizedBox.shrink(),
           };
         },
