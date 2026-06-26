@@ -231,9 +231,8 @@ class AnilistProgressPage extends HookConsumerWidget {
                               Text(
                                 state.media!.title.userPreferred ??
                                     'common.unknown'.i18n,
-                                style: context.theme.typography.md.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: context.theme.typography.body.md
+                                    .copyWith(fontWeight: FontWeight.w600),
                                 maxLines: 2,
                               ),
                               const SizedBox(height: 4),

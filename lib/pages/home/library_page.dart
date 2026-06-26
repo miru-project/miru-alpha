@@ -2,25 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/pages/home/widget/mobile_add_favgroup_dialog.dart';
 import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
-import 'package:miru_alpha/provider/home/history_page_provider.dart';
 import 'package:miru_alpha/utils/hook/sheet_controller.dart';
-import 'package:miru_alpha/widgets/core/miru_tabs.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/pages/download/download_page.dart';
 import 'package:miru_alpha/pages/favorite/favorite_page_layout.dart';
 import 'package:miru_alpha/pages/history/history_page.dart';
 import 'package:miru_alpha/pages/home/widget/continue_watch.dart';
-import 'package:miru_alpha/pages/home/widget/download.dart';
 import 'package:miru_alpha/pages/home/widget/favorite.dart';
+import 'package:miru_alpha/pages/home/widget/library_bento_cards.dart';
+import 'package:miru_alpha/pages/home/widget/library_categories.dart';
+import 'package:miru_alpha/pages/home/widget/library_quick_actions.dart';
+import 'package:miru_alpha/pages/home/widget/library_search_bar.dart';
 import 'package:miru_alpha/widgets/core/toast.dart';
 import 'package:miru_alpha/widgets/index.dart';
-
-import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:miru_alpha/widgets/dialog/dialog.dart';
 
 // shell scaffold for tab navigation in history / home / favorite / download
@@ -43,11 +40,8 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
     );
     return MiruScaffold.mobile(
       sheetController: sheetController,
-      snappingOffsets: const [
-        AbsoluteSheetOffset(190),
-        ProportionalToViewportSheetOffset(0.55),
-        ProportionalToViewportSheetOffset(1.0),
-      ],
+      // Empty snapSheet list triggers non-snapSheet mode in MiruScaffold
+      snapSheet: const [],
       mobileHeader: HookBuilder(
         builder: (context) {
           final index = useState(tabController.index);
@@ -130,9 +124,8 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
           };
         },
       ),
-      body: TabBarView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: tabController,
+      body: IndexedStack(
+        index: tabController.index,
         children: [
           MobileLibraryPage(),
           HistoryPage(),
@@ -140,215 +133,6 @@ class _MiruMobileShellScaffoldState extends State<MiruMobileShellScaffold>
           DownloadPage(),
         ],
       ),
-      snapSheet: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.85,
-              child: Padding(
-                padding: .symmetric(horizontal: 5),
-                child: MiruTabs(
-                  physics: const NeverScrollableScrollPhysics(),
-                  controller: tabController,
-                  onChanged: (value) {
-                    tabController.animateTo(value);
-                  },
-                  children: [
-                    FTabEntry(
-                      label: Icon(FLucideIcons.libraryBig),
-                      child: Padding(
-                        padding: .symmetric(horizontal: 10),
-                        child: FTileGroup(
-                          label: Text('tracking.name'.i18n),
-                          children: [
-                            FTile(
-                              prefix: SvgPicture.asset(
-                                'assets/svg/anilist.svg',
-                                width: 24,
-                                height: 24,
-                                colorFilter: .mode(
-                                  context.theme.colors.foreground,
-                                  .srcIn,
-                                ),
-                              ),
-                              title: Text('tracking.anilist.name'.i18n),
-                              suffix: Icon(FLucideIcons.chevronRight),
-                              onPress: () {
-                                context.push('/tracking');
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    FTabEntry(
-                      label: Icon(FLucideIcons.history),
-                      child: ListView(
-                        padding: .all(0),
-                        children: [
-                          Padding(
-                            padding: .symmetric(horizontal: 10),
-                            child: HookConsumer(
-                              builder: (context, ref, child) {
-                                final input = useState('');
-                                return FTextField(
-                                  onTap: () {
-                                    if (((sheetController.value ?? 190.0)
-                                                    .toInt() -
-                                                190)
-                                            .abs() <
-                                        2) {
-                                      sheetController.animateTo(
-                                        SheetOffset.proportionalToViewport(.55),
-                                      );
-                                    }
-                                  },
-                                  control: .managed(
-                                    onChange: (value) {
-                                      input.value = value.text;
-                                      ref
-                                          .read(historyPageProvider.notifier)
-                                          .filterWithKeyword(input.value);
-                                    },
-                                  ),
-                                  suffixBuilder: (context, style, variants) {
-                                    return FButton.icon(
-                                      variant: .ghost,
-                                      onPress: () {},
-                                      child: Icon(FLucideIcons.boxes),
-                                    );
-                                  },
-                                  prefixBuilder: (context, style, states) =>
-                                      Padding(
-                                        padding: EdgeInsetsGeometry.only(
-                                          left: 12,
-                                          right: 10,
-                                        ),
-                                        child: Icon(FLucideIcons.history),
-                                      ),
-                                  hint: 'common.search_for_histories'.i18n,
-                                );
-                              },
-                            ),
-                          ),
-                          Consumer(
-                            builder: (context, ref, child) {
-                              return Padding(
-                                padding: .symmetric(horizontal: 10),
-                                child: CategoryMultiGroup(
-                                  title: 'type',
-                                  initialValue: {'video', 'manga', 'novel'},
-                                  items: ['video', 'manga', 'novel'],
-                                  onpress: (val) {
-                                    final Set<ExtensionType> type = {};
-                                    for (var element in val) {
-                                      final e = stringToExtensionType(element);
-                                      if (e != null) {
-                                        type.add(e);
-                                      }
-                                    }
-                                    ref
-                                        .read(historyPageProvider.notifier)
-                                        .filterWithType(type);
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    FTabEntry(
-                      label: Icon(FLucideIcons.heart),
-                      child: ListView(
-                        padding: .all(0),
-                        children: [
-                          Padding(
-                            padding: .symmetric(horizontal: 10),
-                            child: HookConsumer(
-                              builder: (context, ref, child) {
-                                final input = useState('');
-                                return FTextField(
-                                  onTap: () {
-                                    if (((sheetController.value ?? 190.0)
-                                                    .toInt() -
-                                                190)
-                                            .abs() <
-                                        2) {
-                                      sheetController.animateTo(
-                                        SheetOffset.proportionalToViewport(.55),
-                                      );
-                                    }
-                                  },
-                                  control: .managed(
-                                    onChange: (value) {
-                                      input.value = value.text;
-                                      ref
-                                          .read(favoritePageProvider.notifier)
-                                          .filterWithKeyword(input.value);
-                                    },
-                                  ),
-                                  suffixBuilder: (context, style, variants) {
-                                    return FButton.icon(
-                                      variant: .ghost,
-                                      onPress: () {},
-                                      child: Icon(FLucideIcons.boxes),
-                                    );
-                                  },
-                                  prefixBuilder: (context, style, states) =>
-                                      Padding(
-                                        padding: EdgeInsetsGeometry.only(
-                                          left: 12,
-                                          right: 10,
-                                        ),
-                                        child: Icon(FLucideIcons.heart),
-                                      ),
-                                  hint: 'common.search_for_favorites'.i18n,
-                                  // onTapOutside: (event) {
-                                  //   FocusScope.of(context).unfocus();
-                                  // },
-                                );
-                              },
-                            ),
-                          ),
-                          Consumer(
-                            builder: (context, ref, child) {
-                              return Padding(
-                                padding: .symmetric(horizontal: 10),
-                                child: CategoryMultiGroup(
-                                  title: 'common.type'.i18n,
-                                  initialValue: {'video', 'manga', 'novel'},
-                                  items: ['video', 'manga', 'novel'],
-                                  onpress: (val) {
-                                    final Set<ExtensionType> type = {};
-                                    for (var element in val) {
-                                      final e = stringToExtensionType(element);
-                                      if (e != null) {
-                                        type.add(e);
-                                      }
-                                    }
-                                    ref
-                                        .read(favoritePageProvider.notifier)
-                                        .filterWithType(type);
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    FTabEntry(
-                      label: Icon(FLucideIcons.download),
-                      child: Center(child: Text('common.wip'.i18n)),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ],
     );
   }
 }
@@ -362,28 +146,26 @@ class MobileLibraryPage extends HookConsumerWidget {
     return CustomScrollView(
       key: const PageStorageKey('LibraryPageScrollMobile'),
       slivers: [
-        const SliverToBoxAdapter(child: SizedBox(height: 30)),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+        // Search bar
+        SliverToBoxAdapter(child: LibrarySearchBar()),
+        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        // Continue Watching
         SliverToBoxAdapter(
           child: ContinueWatchingSection(
             scrollController: scrollController,
             horizontalTitlePadding: 16,
           ),
         ),
-        const SliverToBoxAdapter(child: SizedBox(height: 20)),
-        const DownloadsText(padding: EdgeInsets.symmetric(horizontal: 16)),
-        const SliverToBoxAdapter(child: SizedBox(height: 10)),
-        DownloadsList(padding: const EdgeInsets.symmetric(horizontal: 16)),
-        const SliverToBoxAdapter(child: SizedBox(height: 20)),
-        const FavoritesHeader(padding: EdgeInsets.symmetric(horizontal: 16)),
-        const SliverToBoxAdapter(child: SizedBox(height: 10)),
-        FavoritesGrid(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          crossAxisCount: (MediaQuery.of(context).size.width ~/ 160).clamp(
-            2,
-            6,
-          ),
-          childAspectRatio: 0.65,
-        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        // Bento cards (Favorites + Downloads)
+        const SliverToBoxAdapter(child: LibraryBentoCards()),
+        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        // Categories
+        const SliverToBoxAdapter(child: LibraryCategoryList()),
+        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        // Quick Actions
+        const SliverToBoxAdapter(child: LibraryQuickActions()),
         const SliverToBoxAdapter(
           child: SizedBox(height: 200),
         ), // Bottom padding for mobile

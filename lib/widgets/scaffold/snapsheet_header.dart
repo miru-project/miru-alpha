@@ -81,12 +81,14 @@ class SnapSheetNested extends StatelessWidget {
 }
 
 class HeaderBack extends StatelessWidget {
-  const HeaderBack({super.key});
+  const HeaderBack({super.key, this.onTap});
+
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: onTap ?? () {
         Navigator.of(context).pop();
       },
       child: Padding(

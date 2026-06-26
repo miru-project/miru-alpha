@@ -44,7 +44,10 @@ class DownloadPage extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("common.download".i18n, style: context.theme.typography.xl2),
+            Text(
+              "common.download".i18n,
+              style: context.theme.typography.body.xl2,
+            ),
             FTooltip(
               tipBuilder: (context, controller) =>
                   Text("settings.select_download_directory_tip".i18n),
@@ -68,7 +71,7 @@ class DownloadPage extends ConsumerWidget {
             padding: const EdgeInsets.only(top: 8.0),
             child: Text(
               "${"common.path".i18n}: $downloadPath",
-              style: context.theme.typography.sm.copyWith(
+              style: context.theme.typography.body.sm.copyWith(
                 color: context.theme.colors.mutedForeground,
               ),
               maxLines: 1,

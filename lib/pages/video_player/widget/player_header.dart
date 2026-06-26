@@ -77,7 +77,7 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
           child: Row(
             children: [
-              if (DeviceUtil.isMobile) HeaderBack(),
+              if (DeviceUtil.isMobile) HeaderBack(onTap: widget.onClose),
               const SizedBox(width: 10),
               Expanded(
                 child: DeviceUtil.isMobile

@@ -187,6 +187,15 @@ class MobileSearchFilter extends HookConsumerWidget {
                       }).toList(),
                     ),
                   ),
+
+                  Padding(
+                    padding: .only(left: 10, top: 10),
+                    child: FButton.icon(
+                      variant: .ghost,
+                      onPress: () {},
+                      child: Icon(FLucideIcons.pin, size: 25),
+                    ),
+                  ),
                 ],
               ),
             ),

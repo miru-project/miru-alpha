@@ -101,7 +101,7 @@ class _ForuiIndicatorState extends State<_ForuiIndicator> {
                 child: Text(
                   _getText(),
                   key: ValueKey(_mode),
-                  style: theme.typography.sm.copyWith(
+                  style: theme.typography.body.sm.copyWith(
                     color: theme.colors.mutedForeground,
                     fontWeight: FontWeight.w500,
                   ),
@@ -234,7 +234,7 @@ class _ForuiFooterIndicatorState extends State<_ForuiFooterIndicator> {
                 child: Text(
                   _getText(),
                   key: ValueKey(_mode),
-                  style: theme.typography.sm.copyWith(
+                  style: theme.typography.body.sm.copyWith(
                     color: theme.colors.mutedForeground,
                     fontWeight: FontWeight.w500,
                   ),

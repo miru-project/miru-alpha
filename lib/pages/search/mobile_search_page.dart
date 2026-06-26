@@ -39,18 +39,7 @@ class MobileSearchPage extends HookConsumerWidget {
           ),
         );
       },
-      mobileHeader: Row(
-        children: [
-          SnapSheetHeader(title: 'common.search'.i18n),
-          const Spacer(),
-          FButton.icon(
-            variant: .ghost,
-            onPress: () {},
-            child: Icon(FLucideIcons.pin, size: 24),
-          ),
-          SizedBox(width: 10),
-        ],
-      ),
+      mobileHeader: SnapSheetHeader(title: 'common.search'.i18n),
       mobilePinnedHeader: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

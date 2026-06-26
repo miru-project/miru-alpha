@@ -66,7 +66,7 @@ class DevToolPanel extends ConsumerWidget {
               const SizedBox(width: 8),
               Text(
                 'Dev Tools',
-                style: context.theme.typography.sm.copyWith(
+                style: context.theme.typography.body.sm.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),

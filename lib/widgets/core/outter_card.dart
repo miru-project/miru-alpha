@@ -23,7 +23,7 @@ class OutterCard extends StatelessWidget {
           child: trailing == null
               ? Text(
                   title.i18n,
-                  style: context.theme.typography.xl2.copyWith(
+                  style: context.theme.typography.body.xl2.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 )

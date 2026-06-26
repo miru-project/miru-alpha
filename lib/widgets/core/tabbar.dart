@@ -30,10 +30,10 @@ class MiruTabBar extends StatelessWidget {
         splashFactory: NoSplash.splashFactory,
         labelColor: context.theme.colors.foreground,
         unselectedLabelColor: context.theme.colors.mutedForeground,
-        labelStyle: context.theme.typography.sm.copyWith(
+        labelStyle: context.theme.typography.body.sm.copyWith(
           fontWeight: FontWeight.bold,
         ),
-        unselectedLabelStyle: context.theme.typography.sm,
+        unselectedLabelStyle: context.theme.typography.body.sm,
       ),
     );
   }

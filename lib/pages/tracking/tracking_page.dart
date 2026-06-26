@@ -172,14 +172,14 @@ class _LoginPrompt extends ConsumerWidget {
           const SizedBox(height: 16),
           Text(
             'Track your progress with Anilist',
-            style: context.theme.typography.lg.copyWith(
+            style: context.theme.typography.body.lg.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Login to sync your anime and manga progress.',
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               color: context.theme.colors.mutedForeground,
             ),
           ),

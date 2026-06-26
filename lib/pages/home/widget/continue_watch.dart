@@ -66,105 +66,84 @@ class ContinueWatchingSection extends HookConsumerWidget {
               color: value ? context.theme.colors.muted : Colors.transparent,
               borderRadius: BorderRadius.circular(6),
             ),
-            child: Padding(
-              padding: EdgeInsetsGeometry.symmetric(vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Padding(
-                  //   padding: EdgeInsets.symmetric(
-                  //     horizontal: horizontalTitlePadding,
-                  //   ),
-                  //   child: Text(
-                  //     'Continue Watching',
-                  //     style: TextStyle(
-                  //       fontSize: 20,
-                  //       fontWeight: FontWeight.bold,
-                  //     ),
-                  //   ),
-                  // ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 220,
-                    child: Stack(
-                      children: [
-                        ListView.builder(
-                          controller: scrollController,
-                          scrollDirection: Axis.horizontal,
-                          itemCount: history.length > 10 ? 10 : history.length,
-                          itemBuilder: (context, index) {
-                            final item = history[index];
-                            return Padding(
-                              padding: index == 0
-                                  ? const EdgeInsets.only(left: 16)
-                                  : EdgeInsetsGeometry.zero,
-                              child: MouseRegion(
-                                onHover: (_) {
-                                  insideHover = true;
-                                  ishover.value = !insideHover && outsideHover;
-                                },
-                                onExit: (_) {
-                                  insideHover = false;
-                                  ishover.value = !insideHover && outsideHover;
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(right: 16),
-                                  child: _ContinueWatchingCard(
-                                    key: ValueKey(item.url),
-                                    item: item,
-                                  ),
-                                ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 220,
+                  child: Stack(
+                    children: [
+                      ListView.builder(
+                        controller: scrollController,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: history.length > 10 ? 10 : history.length,
+                        itemBuilder: (context, index) {
+                          final item = history[index];
+                          return MouseRegion(
+                            onHover: (_) {
+                              insideHover = true;
+                              ishover.value = !insideHover && outsideHover;
+                            },
+                            onExit: (_) {
+                              insideHover = false;
+                              ishover.value = !insideHover && outsideHover;
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 16),
+                              child: _ContinueWatchingCard(
+                                key: ValueKey(item.url),
+                                item: item,
                               ),
-                            );
-                          },
+                            ),
+                          );
+                        },
+                      ),
+
+                      // Left Arrow
+                      if (canScrollLeft.value)
+                        Positioned(
+                          left: 8,
+                          top: 0,
+                          bottom: 0,
+                          child: Center(
+                            child: FButton.icon(
+                              onPress: () {
+                                scrollController.animateTo(
+                                  scrollController.offset - 300,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
+                              variant: .outline,
+                              child: const Icon(FLucideIcons.chevronLeft),
+                            ),
+                          ),
                         ),
 
-                        // Left Arrow
-                        if (canScrollLeft.value)
-                          Positioned(
-                            left: 8,
-                            top: 0,
-                            bottom: 0,
-                            child: Center(
-                              child: FButton.icon(
-                                onPress: () {
-                                  scrollController.animateTo(
-                                    scrollController.offset - 300,
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                },
-                                variant: .outline,
-                                child: const Icon(FLucideIcons.chevronLeft),
-                              ),
+                      // Right Arrow
+                      if (canScrollRight.value)
+                        Positioned(
+                          right: 8,
+                          top: 0,
+                          bottom: 0,
+                          child: Center(
+                            child: FButton.icon(
+                              onPress: () {
+                                scrollController.animateTo(
+                                  scrollController.offset + 300,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
+                              variant: .outline,
+                              child: const Icon(FLucideIcons.chevronRight),
                             ),
                           ),
-
-                        // Right Arrow
-                        if (canScrollRight.value)
-                          Positioned(
-                            right: 8,
-                            top: 0,
-                            bottom: 0,
-                            child: Center(
-                              child: FButton.icon(
-                                onPress: () {
-                                  scrollController.animateTo(
-                                    scrollController.offset + 300,
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                },
-                                variant: .outline,
-                                child: const Icon(FLucideIcons.chevronRight),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -263,22 +242,6 @@ class _ContinueWatchingCard extends ConsumerWidget {
                     fit: BoxFit.cover,
                     borderRadius: 0,
                   ),
-                  //  ExtendedImage.network(
-                  //   item.cover ?? '',
-                  //   borderRadius: BorderRadius.circular(10),
-                  //   width: double.infinity,
-                  //   fit: BoxFit.cover,
-                  //   loadStateChanged: (state) {
-                  //     if (state.extendedImageLoadState == LoadState.failed) {
-                  //       return Container(
-                  //         height: 140,
-                  //         color: Colors.grey[800],
-                  //         child: const Icon(FLucideIcons.cloudAlert),
-                  //       );
-                  //     }
-                  //     return null;
-                  //   },
-                  // ),
                 ),
                 SizedBox(
                   height: 4,

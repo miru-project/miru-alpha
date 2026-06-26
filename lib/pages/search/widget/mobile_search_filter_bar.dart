@@ -30,7 +30,7 @@ class MobileSearchFilterBar extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Text(
                     filter?.title ?? '',
-                    style: context.theme.typography.sm.copyWith(
+                    style: context.theme.typography.body.sm.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),

@@ -253,7 +253,7 @@ class _MainPageState extends ConsumerState<MainPage>
                       children: [
                         Text(
                           "common.miru".i18n,
-                          style: context.theme.typography.xl3.copyWith(
+                          style: context.theme.typography.body.xl3.copyWith(
                             fontWeight: .bold,
                           ),
                         ),
@@ -316,15 +316,18 @@ class _MainPageState extends ConsumerState<MainPage>
                               children: [
                                 Text(
                                   'common.webdav'.i18n,
-                                  style: context.theme.typography.sm.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: context.theme.typography.body.sm
+                                      .copyWith(fontWeight: FontWeight.w600),
                                 ),
                                 Text(
                                   'common.signin'.i18n,
-                                  style: context.theme.typography.xs.copyWith(
-                                    color: context.theme.colors.mutedForeground,
-                                  ),
+                                  style: context.theme.typography.body.xs
+                                      .copyWith(
+                                        color: context
+                                            .theme
+                                            .colors
+                                            .mutedForeground,
+                                      ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ],

@@ -147,7 +147,7 @@ class MiruMangaReaderState extends ConsumerState<MiruMangaReader> {
                         child: Text(
                           widget.name,
                           overflow: TextOverflow.ellipsis,
-                          style: context.theme.typography.xl2.copyWith(
+                          style: context.theme.typography.body.xl2.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),

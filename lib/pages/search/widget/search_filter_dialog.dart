@@ -58,7 +58,7 @@ class SearchFilterDialog extends ConsumerWidget {
                         ),
                         child: Text(
                           filter?.title ?? '',
-                          style: context.theme.typography.sm.copyWith(
+                          style: context.theme.typography.body.sm.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),

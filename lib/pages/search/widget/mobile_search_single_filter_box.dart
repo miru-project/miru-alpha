@@ -165,7 +165,7 @@ class MobileSearchSingleFilterBox extends HookConsumerWidget {
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Text(
             filter.title,
-            style: context.theme.typography.sm.copyWith(
+            style: context.theme.typography.body.sm.copyWith(
               fontWeight: FontWeight.w600,
               color: context.theme.colors.mutedForeground,
             ),

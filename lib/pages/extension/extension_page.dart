@@ -10,11 +10,9 @@ import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/pages/extension/widget/extension_desktop_grid_view.dart';
 import 'package:miru_alpha/pages/extension/widget/extension_tile.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
-import 'package:miru_alpha/utils/hook/sheet_controller.dart';
 import 'package:miru_alpha/widgets/core/toast.dart';
 import 'package:miru_alpha/widgets/index.dart';
 import 'package:path/path.dart' as p;
-import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:miru_alpha/widgets/dialog/dialog.dart';
 import '../../model/index.dart';
 
@@ -22,89 +20,6 @@ class ExtensionPage extends StatefulHookConsumerWidget {
   const ExtensionPage({super.key});
   @override
   createState() => _ExtensionPageState();
-}
-
-class CatEntry {
-  final String title;
-  final List<String> items;
-  final void Function(String) onpress;
-  final String? initialValue;
-  const CatEntry({
-    required this.title,
-    required this.items,
-    required this.onpress,
-    this.initialValue,
-  });
-}
-
-class _MobileExtensionModal extends HookConsumerWidget {
-  const _MobileExtensionModal();
-  static const categories = [
-    'common.status',
-    'common.type',
-    'extension.repo.repository',
-  ];
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final extNotifier = ref.read(extensionPageProvider.notifier);
-    final catentry = <String, CatEntry>{
-      'status': CatEntry(
-        initialValue: 'ALL',
-        title: 'Status',
-        items: [
-          'common.all',
-          'extension.installed',
-          'extension.not_installed',
-          'extension.update_available',
-        ],
-        onpress: (val) {
-          extNotifier.filterByInstalled(val);
-        },
-      ),
-      'type': CatEntry(
-        initialValue: 'ALL',
-        title: 'Type',
-        items: ['common.all', 'media.video', 'media.manga', 'media.novel'],
-        onpress: (val) {
-          switch (val) {
-            case 'video':
-              val = 'bangumi';
-              break;
-            case 'manga':
-              val = 'manga';
-              break;
-            case 'novel':
-              val = 'fikushon';
-              break;
-            default:
-              val = 'ALL';
-          }
-          extNotifier.filterByMediaType(val);
-        },
-      ),
-      'extension.repo.repository': CatEntry(
-        title: 'Repository',
-        items: extNotifier.getRepoNames(),
-        onpress: (val) {
-          extNotifier.filterByRepo(val);
-        },
-      ),
-    };
-    return FTabs(
-      children: List.generate(categories.length, (index) {
-        final entry = categories[index];
-        return FTabEntry(
-          label: Text(entry.i18n),
-          child: CategoryGroup(
-            items: catentry[entry]?.items ?? [],
-            initialValue: catentry[entry]?.initialValue,
-            onpress: catentry[entry]?.onpress ?? (String val) {},
-          ),
-        );
-      }),
-    );
-  }
 }
 
 class _ExtensionPageState extends ConsumerState<ExtensionPage> {
@@ -119,7 +34,6 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     final extNotifier = ref.read(extensionPageProvider.notifier);
 
     final scrollController = useScrollController();
-    final sheetController = useSheetController();
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         extNotifier.loadRepos();
@@ -128,13 +42,22 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
     }, const []);
 
     return MiruScaffold.mobile(
-      sheetController: sheetController,
+      onHeaderScroll: (context, header, scrollOffset, headerHeight) {
+        final progress = (scrollOffset / headerHeight).clamp(0.0, 1.0);
+        return SizedBox(
+          height: headerHeight - scrollOffset,
+          child: Transform.scale(
+            scale: 1 - progress * 0.3,
+            child: Opacity(opacity: 1 - progress, child: header),
+          ),
+        );
+      },
       scrollController: scrollController,
-
-      mobileHeader: Row(
-        children: [
-          SnapSheetHeader(title: 'extension.name'.i18n),
-          const Spacer(),
+      // Empty snapSheet triggers non-snapSheet mode
+      snapSheet: const [],
+      mobileHeader: SnapSheetHeader(
+        title: 'extension.name'.i18n,
+        suffix: [
           FButton.icon(
             variant: .ghost,
             onPress: () {
@@ -213,20 +136,13 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
             },
             child: Icon(FLucideIcons.plus, size: 24),
           ),
-          SizedBox(width: 10),
         ],
       ),
-      snapSheet: <Widget>[
-        Padding(
-          padding: .symmetric(horizontal: 10),
-          child: FTextField(
-            onTap: () {
-              if (((sheetController.value ?? 190.0).toInt() - 190).abs() < 2) {
-                sheetController.animateTo(
-                  SheetOffset.proportionalToViewport(.5),
-                );
-              }
-            },
+      // Pinned search bar + filter row
+      mobilePinnedHeader: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FTextField(
             maxLines: 1,
             control: .managed(
               onChange: (value) {
@@ -235,14 +151,14 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
             ),
             hint: "extension.search_hint".i18n,
             prefixBuilder: (context, style, states) => Padding(
-              padding: EdgeInsetsGeometry.only(left: 12, right: 10),
+              padding: const EdgeInsets.only(left: 12, right: 10),
               child: Icon(FLucideIcons.search),
             ),
           ),
-        ),
-        SizedBox(height: 10),
-        _MobileExtensionModal(),
-      ],
+          const SizedBox(height: 10),
+          _ExtensionFilterBar(extNotifier: extNotifier),
+        ],
+      ),
       body: Consumer(
         builder: (context, ref, child) {
           final extensionList = ref.watch(
@@ -278,13 +194,15 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                     await extNotifier.reloadRepos();
                   },
                   child: ListView.builder(
-                    padding: .all(0),
-                    controller: scrollController,
+                    padding: const EdgeInsets.only(top: 8, bottom: 100),
                     itemBuilder: (context, index) {
                       final pair = extensionsWithRepo[index];
                       final data = pair['ext'] as GithubExtension;
                       final repoUrl = pair['repoUrl'] as String;
-                      return ExtensionTile(data: data, repoUrl: repoUrl);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: ExtensionTile(data: data, repoUrl: repoUrl),
+                      );
                     },
                     itemCount: extensionsWithRepo.length,
                   ),
@@ -294,6 +212,140 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
           );
         },
       ),
+    );
+  }
+}
+
+class _ExtensionFilterBar extends HookConsumerWidget {
+  const _ExtensionFilterBar({required this.extNotifier});
+
+  final ExtensionPageNotifier extNotifier;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final expanded = useState(false);
+    final controller = useAnimationController(
+      duration: const Duration(milliseconds: 300),
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: FButton(
+            variant: .outline,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            prefix: Icon(FLucideIcons.listFilter),
+            suffix: AnimatedRotation(
+              turns: expanded.value ? 0.5 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: Icon(FLucideIcons.chevronDown, size: 18),
+            ),
+            onPress: () {
+              if (expanded.value) {
+                controller.reverse();
+              } else {
+                controller.forward();
+              }
+              expanded.value = !expanded.value;
+            },
+            child: Expanded(
+              child: Padding(
+                padding: .symmetric(horizontal: 10),
+                child: Text('common.filters'.i18n),
+              ),
+            ),
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: expanded.value
+              ? Padding(
+                  padding: .only(top: 10),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 180,
+                        child: FSelect<String>.rich(
+                          label: Text('common.type'.i18n),
+                          hint: 'common.all'.i18n,
+                          control: FSelectManagedControl<String>(
+                            onChange: (val) {
+                              final v = val;
+                              switch (v) {
+                                case 'media.video':
+                                  extNotifier.filterByMediaType('bangumi');
+                                  break;
+                                case 'media.manga':
+                                  extNotifier.filterByMediaType('manga');
+                                  break;
+                                case 'media.novel':
+                                  extNotifier.filterByMediaType('fikushon');
+                                  break;
+                                default:
+                                  extNotifier.filterByMediaType('ALL');
+                              }
+                            },
+                          ),
+                          children: [
+                            FSelectItem<String>(
+                              value: 'common.all',
+                              title: Text('common.all'.i18n),
+                            ),
+                            FSelectItem<String>(
+                              value: 'media.video',
+                              title: Text('media.video'.i18n),
+                            ),
+                            FSelectItem<String>(
+                              value: 'media.manga',
+                              title: Text('media.manga'.i18n),
+                            ),
+                            FSelectItem<String>(
+                              value: 'media.novel',
+                              title: Text('media.novel'.i18n),
+                            ),
+                          ],
+                          format: (value) => value.i18n,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 180,
+                        child: FSelect<String>.rich(
+                          label: Text('extension.repo.repository'.i18n),
+                          hint: 'common.all'.i18n,
+                          control: FSelectManagedControl<String>(
+                            onChange: (val) {
+                              final v = val;
+                              extNotifier.filterRepoByName(
+                                v == 'common.all' ? '' : v ?? '',
+                              );
+                            },
+                          ),
+                          children: [
+                            FSelectItem<String>(
+                              value: 'common.all',
+                              title: Text('common.all'.i18n),
+                            ),
+                            ...extNotifier.getRepoNames().map(
+                              (e) => FSelectItem<String>(
+                                value: e,
+                                title: Text(e.i18n),
+                              ),
+                            ),
+                          ],
+                          format: (value) => value.i18n,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+      ],
     );
   }
 }

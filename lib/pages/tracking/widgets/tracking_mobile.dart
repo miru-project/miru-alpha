@@ -31,13 +31,13 @@ class MobileUserHeader extends ConsumerWidget {
               children: [
                 Text(
                   user.name,
-                  style: context.theme.typography.sm.copyWith(
+                  style: context.theme.typography.body.sm.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   'ID: ${user.id}',
-                  style: context.theme.typography.xs.copyWith(
+                  style: context.theme.typography.body.xs.copyWith(
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),
@@ -90,7 +90,7 @@ class CollectionTab extends ConsumerWidget {
               AniListProvider.stringToMediaListStatus(list.status),
               type,
             ),
-            style: context.theme.typography.lg.copyWith(
+            style: context.theme.typography.body.lg.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),

@@ -111,21 +111,21 @@ class MobileDetailTabs extends HookConsumerWidget {
                             ? AnilistType.anime
                             : AnilistType.manga,
                       ),
-                      style: context.theme.typography.sm.copyWith(
+                      style: context.theme.typography.body.sm.copyWith(
                         fontWeight: FontWeight.w600,
                         color: context.theme.colors.mutedForeground,
                       ),
                     ),
                     Text(
                       ' • ',
-                      style: context.theme.typography.sm.copyWith(
+                      style: context.theme.typography.body.sm.copyWith(
                         fontWeight: FontWeight.w600,
                         color: context.theme.colors.mutedForeground,
                       ),
                     ),
                     Text(
                       '$progress / ${total != 0 ? total : '?'}',
-                      style: context.theme.typography.xs.copyWith(
+                      style: context.theme.typography.body.xs.copyWith(
                         color: context.theme.colors.mutedForeground,
                       ),
                     ),
@@ -134,7 +134,7 @@ class MobileDetailTabs extends HookConsumerWidget {
               }
               return Text(
                 'common.none'.i18n,
-                style: context.theme.typography.sm.copyWith(
+                style: context.theme.typography.body.sm.copyWith(
                   color: context.theme.colors.mutedForeground,
                 ),
               );

@@ -59,13 +59,13 @@ class _DesktopUserHeader extends ConsumerWidget {
               children: [
                 Text(
                   user.name,
-                  style: context.theme.typography.xl4.copyWith(
+                  style: context.theme.typography.body.xl4.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
                   'User ID: ${user.id}',
-                  style: context.theme.typography.md.copyWith(
+                  style: context.theme.typography.body.md.copyWith(
                     color: context.theme.colors.mutedForeground,
                   ),
                 ),
@@ -149,7 +149,7 @@ class _DesktopCollectionView extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(40, 32, 40, 16),
           child: Text(
             list.status,
-            style: context.theme.typography.xl2.copyWith(
+            style: context.theme.typography.body.xl2.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),

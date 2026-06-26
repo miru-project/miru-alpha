@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
-import 'package:forui/forui.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/widgets/core/image_widget.dart';
 
@@ -41,61 +41,137 @@ class ExtensionListTile extends StatefulWidget {
 class _ExtensionListTileState extends State<ExtensionListTile> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8, top: 8),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Row(
-              children: [
-                if (widget.icon != null)
-                  ImageWidget(imageUrl: widget.icon!, width: 50, height: 50),
-                const SizedBox(width: 8),
-                FLabel(
-                  layout: .vertical,
-                  description: Row(
-                    children: [
-                      Text(widget.type),
-                      if (widget.isNSFW)
-                        Text(
-                          ' • ${'extension.nsfw'.i18n}',
-                          style: TextStyle(color: Colors.red),
+    return FCard.raw(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            // Icon circle
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: context.theme.colors.muted,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: widget.icon != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Image.network(
+                        widget.icon!,
+                        width: 48,
+                        height: 48,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          FLucideIcons.toyBrick,
+                          size: 24,
+                          color: context.theme.colors.mutedForeground,
                         ),
+                      ),
+                    )
+                  : Icon(
+                      FLucideIcons.toyBrick,
+                      size: 24,
+                      color: context.theme.colors.mutedForeground,
+                    ),
+            ),
+            const SizedBox(width: 16),
+            // Name and badges
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    widget.type,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: context.theme.colors.mutedForeground,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      _Badge(text: widget.version),
+                      if (widget.isNSFW) ...[
+                        const SizedBox(width: 6),
+                        _Badge(text: 'NSFW', isDestructive: true),
+                      ],
                     ],
                   ),
-                  child: Text(widget.name),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: Text(
-              widget.version,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            const SizedBox(width: 12),
+            // Action button
+            FButton.icon(
+              variant: .ghost,
+              onPress: widget.isInstalled
+                  ? widget.onUninstall
+                  : widget.onInstall,
+              child: Icon(
+                widget.needUpdate
+                    ? FLucideIcons.circleFadingArrowUp
+                    : widget.isInstalled
+                    ? FLucideIcons.trash2
+                    : FLucideIcons.download,
+                size: 20,
+                color: widget.isInstalled && !widget.needUpdate
+                    ? context.theme.colors.mutedForeground
+                    : null,
+              ),
             ),
-          ),
-          if (widget.needUpdate)
-            FButton.icon(
-              onPress: widget.onInstall,
-              child: Icon(FLucideIcons.circleFadingArrowUp),
-            )
-          else if (widget.isInstalled)
-            FButton.icon(
-              onPress: widget.onUninstall,
-              child: Icon(FLucideIcons.trash2),
-            )
-          else
-            FButton.icon(
-              onPress: widget.onInstall,
-              child: Icon(FLucideIcons.download),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
+class _Badge extends StatelessWidget {
+  const _Badge({required this.text, this.isDestructive = false});
+
+  final String text;
+  final bool isDestructive;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: isDestructive
+            ? context.theme.colors.error.withAlpha(30)
+            : context.theme.colors.muted,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: isDestructive
+              ? context.theme.colors.error.withAlpha(60)
+              : context.theme.colors.mutedForeground.withAlpha(40),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: isDestructive
+              ? context.theme.colors.error
+              : context.theme.colors.mutedForeground,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+}
+
+/// Desktop grid tile - kept unchanged
 class ExtensionGridTile extends StatelessWidget {
   const ExtensionGridTile({
     super.key,
@@ -126,6 +202,7 @@ class ExtensionGridTile extends StatelessWidget {
   final void Function() onUninstall;
   final bool isInstalled;
   final bool needUpdate;
+
   @override
   Widget build(BuildContext context) {
     final badges = tags

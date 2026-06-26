@@ -57,7 +57,7 @@ class ExtensionSettingPage extends HookConsumerWidget {
           if (settings.isNotEmpty)
             SettingGroup(
               isMobileLayout: isMobile,
-              title: 'settings',
+              title: 'common.settings'.i18n,
               children: settings
                   .map((s) => _buildSettingItem(context, s, isMobile))
                   .cast<FTileMixin>()
@@ -66,7 +66,7 @@ class ExtensionSettingPage extends HookConsumerWidget {
           SizedBox(height: 10),
           SettingGroup(
             isMobileLayout: isMobile,
-            title: 'advanced',
+            title: 'common.advanced',
             children: [
               SettingPressTile(
                 isMobileLayout: isMobile,

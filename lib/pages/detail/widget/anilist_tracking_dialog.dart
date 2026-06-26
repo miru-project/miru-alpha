@@ -220,7 +220,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
                       children: [
                         Text(
                           media.title.userPreferred ?? 'common.unknown'.i18n,
-                          style: context.theme.typography.lg.copyWith(
+                          style: context.theme.typography.body.lg.copyWith(
                             fontWeight: FontWeight.w600,
                           ),
                           maxLines: 2,
@@ -421,7 +421,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
   Widget _buildSectionTitle(BuildContext context, String title) {
     return Text(
       title,
-      style: context.theme.typography.sm.copyWith(
+      style: context.theme.typography.body.sm.copyWith(
         fontWeight: FontWeight.w600,
         color: context.theme.colors.mutedForeground,
       ),
