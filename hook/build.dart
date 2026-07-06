@@ -228,8 +228,27 @@ Future<FFmpegBuildResult> _buildLinux(
       'linux/flutter/ephemeral/.plugin_symlinks/fvp/linux/mdk-sdk/lib/amd64/',
     ),
   );
-  // Use -l:libffmpeg.so.8 to link against the exact versioned file.
-  libraries.add(':libffmpeg.so.8');
+
+  // Detect the available FFmpeg shared library in the fvp mdk-sdk directory.
+  // CI environments may ship a different version than libffmpeg.so.8, so we
+  // scan for libffmpeg.so.* and fall back to the generic -lffmpeg if needed.
+  final ffmpegLibDir = input.packageRoot.resolve(
+    'linux/flutter/ephemeral/.plugin_symlinks/fvp/linux/mdk-sdk/lib/amd64/',
+  );
+  final dir = Directory.fromUri(ffmpegLibDir);
+  String? detectedLib;
+  if (dir.existsSync()) {
+    final matches = dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => p.basename(f.path).startsWith('libffmpeg.so.'))
+        .toList();
+    if (matches.isNotEmpty) {
+      matches.sort((a, b) => p.basename(b.path).compareTo(p.basename(a.path)));
+      detectedLib = ':${p.basename(matches.first.path)}';
+    }
+  }
+  libraries.add(detectedLib ?? 'ffmpeg');
 
   return FFmpegBuildResult(
     includes: includes,
