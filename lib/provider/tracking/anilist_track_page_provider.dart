@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:miru_alpha/model/anilist_model.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
-import 'package:miru_alpha/widgets/core/toast.dart';
+import 'package:miru_alpha/ui/core/core/toast.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;

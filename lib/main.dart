@@ -23,8 +23,8 @@ import 'package:miru_alpha/utils/core/miru_directory.dart';
 import 'package:miru_alpha/utils/download/ffmpeg_util.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/router/router_util.dart';
-import 'package:miru_alpha/widgets/core/toast.dart';
-import 'package:miru_alpha/widgets/error.dart';
+import 'package:miru_alpha/ui/core/core/toast.dart';
+import 'package:miru_alpha/ui/core/error.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 

@@ -1,0 +1,238 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/amination/animated_box.dart';
+import 'package:miru_alpha/ui/core/core/image_widget.dart';
+
+class MiruDesktopGridTile extends HookWidget {
+  const MiruDesktopGridTile({
+    super.key,
+    this.imageUrl,
+    required this.title,
+    required this.subtitle,
+    this.stackLabel,
+    this.width,
+    this.onTap,
+    this.height,
+    this.titleMaxline = 1,
+  });
+  final String? imageUrl;
+  final String title;
+  final String subtitle;
+  final void Function()? onTap;
+  final double? height;
+  final double? width;
+  final Widget? stackLabel;
+  final int titleMaxline;
+  @override
+  Widget build(BuildContext context) {
+    // no local hover state required for this simplified tile
+    return AnimatedBox(
+      onTap: onTap,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: FCard.raw(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Constrain the image's height so it cannot overflow the tile.
+              Expanded(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Image fills the area
+                    ImageWidget.defaultErr(
+                      imageUrl: imageUrl,
+                      fit: BoxFit.cover,
+                      title: title,
+                    ),
+                    // Bottom gradient shadow
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: 60,
+                      child: IgnorePointer(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.transparent, Colors.black54],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: titleMaxline == 1 ? 50 : 80,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: FLabel(
+                    description: Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    layout: .vertical,
+                    child: Text(
+                      title,
+                      maxLines: titleMaxline,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ),
+              if (stackLabel != null) ...[
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: stackLabel!,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MiruMobileTile extends StatelessWidget {
+  const MiruMobileTile({
+    super.key,
+    this.imageUrl,
+    required this.title,
+    required this.subtitle,
+    this.stackLabel,
+    this.width,
+    this.onTap,
+    this.height,
+    this.onLongPress,
+  });
+  final String? imageUrl;
+  final String title;
+  final String subtitle;
+  final void Function()? onTap;
+  final void Function()? onLongPress;
+  final double? height;
+  final double? width;
+  final Widget? stackLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    // if (imageUrl == null) {
+    //   return _TextTile(title: title, subtitle: subtitle);
+    // }
+    return SizedBox(
+      width: width,
+      height: height,
+      child: GestureDetector(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Image fills the area
+            if (imageUrl == null)
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: context.theme.cardStyle.decoration.borderRadius,
+                ),
+
+                child: Center(
+                  child: Text(
+                    title,
+                    softWrap: true,
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                  ),
+                ),
+              )
+            else
+              ImageWidget(
+                imageUrl: imageUrl!,
+                fit: BoxFit.cover,
+                errChild: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius:
+                        context.theme.cardStyle.decoration.borderRadius,
+                  ),
+
+                  child: Center(
+                    child: Text(
+                      title,
+                      softWrap: true,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+            // Bottom gradient shadow
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 80,
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Colors.black.withAlpha(200)],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: AlignmentGeometry.bottomLeft,
+              child: Padding(
+                padding: EdgeInsetsGeometry.symmetric(horizontal: 10),
+                child: subtitle.isEmpty
+                    ? Padding(
+                        padding: EdgeInsetsGeometry.symmetric(
+                          horizontal: 5,
+                          vertical: 5,
+                        ),
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 13, color: Colors.white),
+                        ),
+                      )
+                    : FLabel(
+                        description: Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        layout: .vertical,
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

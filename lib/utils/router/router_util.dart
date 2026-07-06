@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:miru_alpha/pages/detail/detail_loading_page.dart';
-import 'package:miru_alpha/pages/download/download_page.dart';
-import 'package:miru_alpha/pages/download/widget/mobile_finish_download.dart';
-import 'package:miru_alpha/pages/extension_settings/extension_settings.dart';
-import 'package:miru_alpha/pages/home/library_page.dart';
-import 'package:miru_alpha/pages/license/license_page.dart';
-import 'package:miru_alpha/pages/source_code/source_code_page.dart';
-import 'package:miru_alpha/pages/watch/load_entry.dart';
+import 'package:miru_alpha/ui/features/download/widget/mobile_finish_download.dart';
+import 'package:miru_alpha/ui/features/extension_settings/extension_settings.dart';
+import 'package:miru_alpha/ui/features/license/license_page.dart';
+import 'package:miru_alpha/ui/features/source_code/source_code_page.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
-import 'package:miru_alpha/widgets/index.dart';
-import 'package:miru_alpha/pages/favorite/favorite_page_layout.dart';
-import 'package:miru_alpha/pages/history/history_page.dart';
-import 'package:miru_alpha/pages/index.dart';
-import 'package:miru_alpha/pages/main_page.dart';
-import 'package:miru_alpha/pages/tracking/anilist_search_page.dart';
-import 'package:miru_alpha/pages/tracking/anilist_progress_page.dart';
-import 'package:miru_alpha/pages/webview/mobile_webview.dart';
-import 'package:miru_alpha/pages/search/search_page_single_view.dart';
+import 'package:miru_alpha/ui/features/index.dart';
+import 'package:miru_alpha/ui/features/main_page.dart';
+import 'package:miru_alpha/ui/features/webview/mobile_webview.dart';
 import 'package:miru_alpha/model/setting_items.dart';
-import 'package:miru_alpha/pages/tracking/tracking_page.dart';
-import 'package:miru_alpha/pages/dev_tool/dev_tool_page.dart';
+import 'package:miru_alpha/ui/features/dev_tool/dev_tool_page.dart';
+import 'package:miru_alpha/ui/features/detail/detail_loading_page.dart';
+import 'package:miru_alpha/ui/features/tracking/anilist_search_page.dart';
+import 'package:miru_alpha/ui/features/tracking/anilist_progress_page.dart';
+import 'package:miru_alpha/ui/features/search/search_page_single_view.dart';
+import 'package:miru_alpha/ui/features/home/home.dart';
+import 'package:miru_alpha/ui/features/favorite/favorite.dart';
+import 'package:miru_alpha/ui/features/history/history.dart';
+import 'package:miru_alpha/ui/features/search/search.dart';
+import 'package:miru_alpha/ui/features/download/download.dart';
+import 'package:miru_alpha/ui/features/watch/watch.dart';
+import 'package:miru_alpha/ui/features/extension/extension.dart';
+import 'package:miru_alpha/ui/features/tracking/tracking.dart';
 
 class ParamCache {
   static DetailParam? detailParam;
@@ -86,7 +87,7 @@ class RouterUtil {
         path: '/watch',
         builder: (context, state) {
           final extra = state.extra! as WatchParams;
-          return WatchLoadEntry(param: extra);
+          return WatchView(param: extra);
         },
       ),
       GoRoute(
@@ -130,20 +131,20 @@ class RouterUtil {
                     path: 'history',
                     pageBuilder: (context, state) => noTransitionPage(
                       state: state,
-                      child: const HistoryPage(),
+                      child: const HistoryView(),
                     ),
                   ),
                   GoRoute(
                     path: 'favorite',
                     pageBuilder: (context, state) => noTransitionPage(
                       state: state,
-                      child: const FavoritePage(),
+                      child: const FavoriteView(),
                     ),
                   ),
                   GoRoute(
                     path: 'download',
                     pageBuilder: (context, state) =>
-                        noTransitionPage(state: state, child: DownloadPage()),
+                        noTransitionPage(state: state, child: const DownloadView()),
                     routes: [
                       // for mobile layout  only
                       GoRoute(
@@ -152,7 +153,7 @@ class RouterUtil {
                           state: state,
                           child: DeviceUtil.deviceWidget(
                             context: context,
-                            desktop: DownloadPage(),
+                            desktop: const DownloadView(),
                             mobile: MobileFinishedDownloadSection(),
                           ),
                         ),
@@ -163,10 +164,7 @@ class RouterUtil {
                 path: '/home',
                 pageBuilder: (context, state) => noTransitionPage(
                   state: state,
-                  child: PlatformWidget(
-                    mobileWidget: MiruMobileShellScaffold(),
-                    desktopWidget: DesktopLibraryPage(),
-                  ),
+                  child: const HomeView(),
                 ),
               ),
             ],
@@ -177,7 +175,7 @@ class RouterUtil {
                 path: '/search',
                 pageBuilder: (context, state) => noTransitionPage(
                   state: state,
-                  child: SearchPage(search: state.extra as String?),
+                  child: SearchView(query: state.extra as String?),
                 ),
                 routes: [
                   GoRoute(
@@ -215,13 +213,13 @@ class RouterUtil {
                 path: '/extension',
                 pageBuilder: (context, state) => noTransitionPage(
                   state: state,
-                  child: const ExtensionPage(),
+                  child: const ExtensionListView(),
                 ),
               ),
               GoRoute(
                 path: '/tracking',
                 pageBuilder: (context, state) =>
-                    noTransitionPage(state: state, child: const TrackingPage()),
+                    noTransitionPage(state: state, child: const TrackingView()),
               ),
             ],
           ),

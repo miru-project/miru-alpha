@@ -1,0 +1,249 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_alpha/miru_core/core.dart';
+import 'package:miru_alpha/model/extension_setting.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/ui/core/index.dart';
+import 'package:path/path.dart' as p;
+
+class ExtensionSettingPage extends HookConsumerWidget {
+  final String pkg;
+  final String name;
+  const ExtensionSettingPage({
+    super.key,
+    required this.pkg,
+    required this.name,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingsFuture = useMemoized(
+      () => ExtensionSetting.getSettings(pkg),
+      [pkg],
+    );
+    final snapshot = useFuture(settingsFuture);
+
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return MiruScaffold.mobile(
+        sliverHeaders: [
+          SimpleSliverHeaderDelegate(
+            maxExtent: 56,
+            child: SnapSheetNested.back(title: name),
+          ),
+        ],
+        body: const Center(child: FCircularProgress()),
+      );
+    }
+
+    if (snapshot.hasError) {
+      return MiruScaffold.mobile(
+        sliverHeaders: [
+          SimpleSliverHeaderDelegate(
+            maxExtent: 56,
+            child: SnapSheetNested.back(title: name),
+          ),
+        ],
+        body: Center(child: Text('Error: ${snapshot.error}')),
+      );
+    }
+
+    final settings = snapshot.data ?? [];
+    final isMobile = DeviceUtil.isMobileLayout(context);
+
+    return MiruScaffold.mobile(
+      childPad: false,
+      sliverHeaders: [
+        SimpleSliverHeaderDelegate(
+          maxExtent: 56,
+          child: SnapSheetNested.back(title: name),
+        ),
+      ],
+      body: ListView(
+        padding: .symmetric(horizontal: 8),
+        children: [
+          if (settings.isNotEmpty)
+            SettingGroup(
+              isMobileLayout: isMobile,
+              title: 'common.settings'.i18n,
+              children: settings
+                  .map((s) => _buildSettingItem(context, s, isMobile))
+                  .cast<FTileMixin>()
+                  .toList(),
+            ),
+          SizedBox(height: 10),
+          SettingGroup(
+            isMobileLayout: isMobile,
+            title: 'common.advanced',
+            children: [
+              SettingPressTile(
+                isMobileLayout: isMobile,
+                title: 'extension.source_code'.i18n,
+                subtitle: 'extension.source_code_description'.i18n,
+                prefix: Icon(FLucideIcons.code),
+                onPress: () {
+                  final extPath = Core.getExtensionPath;
+                  final codePath = p.join(extPath, '$pkg.js');
+                  context.push('/sourceCode', extra: codePath);
+                },
+              ),
+              SettingPressTile(
+                isMobileLayout: isMobile,
+                subtitle: 'extension.cookie_clear_description'.i18n,
+                title: 'extension.cookie_clear'.i18n,
+                prefix: Icon(FLucideIcons.cookie),
+                onPress: () {},
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingItem(
+    BuildContext context,
+    ExtensionSetting setting,
+    bool isMobile,
+  ) {
+    switch (setting.type) {
+      case ExtensionSettingType.input:
+        return _InputSetting(setting: setting, isMobile: isMobile);
+      case ExtensionSettingType.radio:
+        return _RadioSetting(setting: setting, isMobile: isMobile);
+      case ExtensionSettingType.toggle:
+        return _ToggleSetting(setting: setting, isMobile: isMobile);
+    }
+  }
+}
+
+class _InputSetting extends HookWidget with FTileMixin {
+  final ExtensionSetting setting;
+  final bool isMobile;
+  const _InputSetting({required this.setting, required this.isMobile});
+
+  @override
+  Widget build(BuildContext context) {
+    // final controller = useTextEditingController(
+    //   text: setting.value ?? setting.defaultValue,
+    // );
+    final timer = useState<Timer?>(null);
+
+    void saveWithTimer(String value) {
+      timer.value?.cancel();
+      timer.value = Timer(const Duration(milliseconds: 500), () {
+        setting.value = value;
+        ExtensionSetting.saveSettings(setting.package, [setting]);
+      });
+    }
+
+    return SettingsInputTile(
+      defaultValue: setting.defaultValue,
+      description: setting.description,
+      isMobileLayout: isMobile,
+      title: setting.title,
+      subtitle: setting.description,
+      initialValue: setting.value ?? setting.defaultValue,
+      onChanged: saveWithTimer,
+    );
+  }
+}
+
+class _RadioSetting extends HookWidget with FTileMixin {
+  final ExtensionSetting setting;
+  final bool isMobile;
+  const _RadioSetting({required this.setting, required this.isMobile});
+
+  @override
+  Widget build(BuildContext context) {
+    final options = useMemoized(() {
+      try {
+        if (setting.options != null && setting.options!.isNotEmpty) {
+          final decoded = json.decode(setting.options!);
+          if (decoded is Map) {
+            return decoded
+                .map((key, value) => MapEntry(value.toString(), key.toString()))
+                .cast<String, String>();
+          } else if (decoded is List) {
+            return <String, String>{
+              for (var e in decoded) e.toString(): e.toString(),
+            };
+          }
+        }
+      } catch (e) {
+        logger.severe("Error parsing extension setting options: $e");
+      }
+      return <String, String>{};
+    }, [setting.options]);
+
+    final value = useState(setting.value ?? setting.defaultValue);
+
+    // Ensure initial value is present in options to prevent FSelect from crashing
+    final safeOptions = useMemoized(() {
+      final items = options;
+      final current = value.value;
+      if (items.values.every((v) => v != current)) {
+        return {...items, current: current};
+      }
+      return items;
+    }, [options, value.value]);
+
+    return SettingsRadiosTile.detailed(
+      isMobileLayout: isMobile,
+      title: setting.title,
+      subtitle: setting.description,
+      entry: safeOptions.entries
+          .map((e) => RadioTileEntry(value: e.key, title: e.value))
+          .toList(),
+      value: value.value,
+      onChanged: (val) {
+        value.value = val;
+        setting.value = val;
+        ExtensionSetting.saveSettings(setting.package, [setting]);
+      },
+    );
+  }
+}
+
+class _ToggleSetting extends HookWidget with FTileMixin {
+  final ExtensionSetting setting;
+  final bool isMobile;
+  const _ToggleSetting({required this.setting, required this.isMobile});
+
+  @override
+  Widget build(BuildContext context) {
+    final isSwitched = useState(
+      (setting.value ?? setting.defaultValue) == 'true',
+    );
+
+    return SettingsToggleTile(
+      title: setting.title,
+      subtitle: setting.description,
+      value: isSwitched.value,
+      onChanged: (val) {
+        isSwitched.value = val;
+        setting.value = val.toString();
+        ExtensionSetting.saveSettings(setting.package, [setting]);
+      },
+    );
+    // SettingBaseTile(
+    //   isMobileLayout: isMobile,
+    //   title: setting.title,
+    //   subtitle: setting.description,
+    //   child: FSwitch(
+    //     value: isSwitched.value,
+    //     onChange: (val) {
+    //       isSwitched.value = val;
+    //       setting.value = val.toString();
+    //       ExtensionSetting.saveSettings(setting.package, [setting]);
+    //     },
+    //   ),
+    // );
+  }
+}

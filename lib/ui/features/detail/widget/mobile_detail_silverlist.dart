@@ -1,0 +1,182 @@
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:forui/forui.dart';
+import 'package:forui_hooks/forui_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/ui/features/detail/widget/download_button.dart';
+import 'package:miru_alpha/ui/features/detail/widget/mobile_detail_tile.dart';
+import 'package:miru_alpha/provider/detail_page_provider.dart';
+import 'package:miru_alpha/provider/download_provider.dart';
+import 'package:miru_alpha/provider/detial_provider.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
+
+class MobileDetailSilverlist extends HookConsumerWidget {
+  final Detail detail;
+  final ExtensionMeta meta;
+  final String detailUrl;
+  final DetialProvider detailPr;
+  const MobileDetailSilverlist({
+    super.key,
+    required this.detail,
+    required this.meta,
+    required this.detailUrl,
+    required this.detailPr,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isReverse = useState(false);
+    final epGroupIdx = ref.watch(
+      detailPageProviderProvider.select((e) => e.epGroupIdx),
+    );
+    final selectedGpIndex = ref.watch(
+      detailPageProviderProvider.select((e) => e.epGroupIdx),
+    );
+    final historyList = ref.watch(detailPr.select((s) => s.historyList));
+
+    if (detail.episodes?.isEmpty ?? true) {
+      return SliverToBoxAdapter(
+        child: Center(child: Text('media.no_episodes'.i18n)),
+      );
+    }
+    final selectGroup = detail.episodes![epGroupIdx].urls;
+
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: EdgeInsetsGeometry.symmetric(vertical: 20),
+        child: Column(
+          crossAxisAlignment: .start,
+          children: [
+            Padding(
+              padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
+              child: Row(
+                mainAxisSize: .max,
+                children: [
+                  Expanded(
+                    child: FButton(
+                      mainAxisAlignment: .center,
+                      onPress: () {},
+                      prefix: Icon(FLucideIcons.play),
+                      child: Text("common.play".i18n),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: DownloadButton(
+                      varient: .secondary,
+                      isIcon: false,
+                      detail: detail,
+                      meta: meta,
+                      detailUrl: detailUrl,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 10),
+
+            FTileGroup.builder(
+              physics: NeverScrollableScrollPhysics(),
+              divider: .full,
+              label: Row(
+                children: [
+                  HookConsumer(
+                    builder: (context, ref, _) {
+                      final selectedEpGroup = ref.watch(
+                        detailPageProviderProvider.select((e) => e.epGroupIdx),
+                      );
+                      final controller = useFPopoverController();
+
+                      return FPopoverMenu.tiles(
+                        menuAnchor: .topCenter,
+                        menu: [
+                          .group(
+                            children: List.generate(
+                              detail.episodes?.length ?? 0,
+                              (idx) {
+                                return FTile(
+                                  onPress: () {
+                                    ref
+                                        .read(
+                                          detailPageProviderProvider.notifier,
+                                        )
+                                        .setEpGroup(idx);
+                                    controller.toggle();
+                                  },
+                                  title: Text(detail.episodes![idx].title),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                        control: .managed(controller: controller),
+                        child: FButton(
+                          suffix: Icon(
+                            FLucideIcons.chevronsUpDown,
+                            color: context.theme.colors.primary,
+                          ),
+                          mainAxisAlignment: .start,
+                          variant: .ghost,
+                          onPress: () {
+                            controller.toggle();
+                          },
+                          child: Text(
+                            detail.episodes?[selectedEpGroup].title ??
+                                "media.no_episodes".i18n,
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  Spacer(),
+                  FButton.icon(
+                    variant: .ghost,
+                    onPress: () {
+                      isReverse.value = !isReverse.value;
+                    },
+                    child: isReverse.value
+                        ? Icon(FLucideIcons.arrowUpNarrowWide)
+                        : Icon(FLucideIcons.arrowDownNarrowWide),
+                  ),
+                ],
+              ),
+              tileBuilder: (context, idx) {
+                final reverseIdx = isReverse.value
+                    ? selectGroup.length - 1 - idx
+                    : idx;
+                final item = selectGroup[reverseIdx];
+                final h = historyList.firstWhereOrNull(
+                  (element) => element.url == item.url,
+                );
+                final key =
+                    "${meta.packageName}_${detail.episodes?[selectedGpIndex].title}_${item.name}";
+                final isDownloaded = ref.watch(
+                  downloadProvider.select((s) {
+                    final history = s.value?.history ?? [];
+                    return history.any((e) => e.key == key);
+                  }),
+                );
+                return MobileDetailTile(
+                  item: item,
+                  idx: idx,
+                  selectedGpIndex: selectedGpIndex,
+                  detail: detail,
+                  meta: meta,
+                  detailUrl: detailUrl,
+                  detailPr: detailPr,
+                  history: h,
+                  isDownloaded: isDownloaded,
+                );
+              },
+              count: selectGroup.length,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

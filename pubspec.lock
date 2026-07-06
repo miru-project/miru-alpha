@@ -581,8 +581,16 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.23.0"
+  freezed:
+    dependency: "direct dev"
+    description:
+      name: freezed
+      sha256: "8599ba37236328ff6f97269ecce875d251a367eb2929c9bbf9b811b2ce56c74e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.6-dev.1"
   freezed_annotation:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: freezed_annotation
       sha256: "7294967ff0a6d98638e7acb774aac3af2550777accd8149c90af5b014e6d44d8"

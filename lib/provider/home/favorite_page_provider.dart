@@ -9,11 +9,15 @@ class FavoritePageState {
   final List<Favorite> filteredFavorites;
   final List<FavoriteGroup> favoriteGroups;
   final List<FavoriteGroup> selectedFavoriteGroups;
+  final String query;
+  final String filterSummary;
   FavoritePageState({
     required this.favorites,
     required this.favoriteGroups,
     required this.filteredFavorites,
     required this.selectedFavoriteGroups,
+    this.query = '',
+    this.filterSummary = '',
   });
 
   FavoritePageState copyWith({
@@ -21,6 +25,8 @@ class FavoritePageState {
     List<FavoriteGroup>? favoriteGroups,
     List<Favorite>? filteredFavorites,
     List<FavoriteGroup>? selectedFavoriteGroups,
+    String? query,
+    String? filterSummary,
   }) {
     return FavoritePageState(
       filteredFavorites: filteredFavorites ?? this.filteredFavorites,
@@ -28,6 +34,8 @@ class FavoritePageState {
       favoriteGroups: favoriteGroups ?? this.favoriteGroups,
       selectedFavoriteGroups:
           selectedFavoriteGroups ?? this.selectedFavoriteGroups,
+      query: query ?? this.query,
+      filterSummary: filterSummary ?? this.filterSummary,
     );
   }
 }
@@ -124,7 +132,18 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
           .where((e) => now.difference(e.date) <= duration)
           .toList();
     }
-    state = state.copyWith(filteredFavorites: durationResult);
+    final summary = <String>[];
+    if (type.isNotEmpty) {
+      summary.add('type: ${type.map((e) => e.name).join(',')}');
+    }
+    if (keyword.isNotEmpty) {
+      summary.add('keyword: $keyword');
+    }
+    state = state.copyWith(
+      filteredFavorites: durationResult,
+      query: keyword,
+      filterSummary: summary.join(' | '),
+    );
   }
 
   void filterWithType(Set<ExtensionType> type) {

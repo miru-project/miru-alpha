@@ -1,0 +1,151 @@
+import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/ui/features/watch/novel_reader/widget/novel_side_sheet.dart';
+import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
+import 'package:miru_alpha/provider/watch/novel_reader_provider.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/ui/core/index.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+
+class MiruNovelReader extends StatefulHookConsumerWidget {
+  const MiruNovelReader.local({
+    super.key,
+    required this.name,
+    required this.meta,
+    required this.epProvider,
+    required this.detailImageUrl,
+    required this.localPath,
+  }) : value = null;
+  const MiruNovelReader({
+    super.key,
+    required this.value,
+    required this.name,
+    required this.meta,
+    required this.epProvider,
+    required this.detailImageUrl,
+  }) : localPath = null;
+  final ExtensionFikushonWatch? value;
+  final String name;
+  final ExtensionMeta meta;
+  final EpisodeNotifierProvider epProvider;
+  final String detailImageUrl;
+  final String? localPath;
+  @override
+  createState() => _MiruNovelReaderState();
+}
+
+class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
+  final ScrollController scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    ref.read(widget.epProvider.notifier).saveHistory();
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final novelProvider = novelReaderProvider(
+      widget.value?.content,
+      widget.localPath,
+    );
+    return MiruScaffold.mobile(
+      scrollController: scrollController,
+      sliverHeaders: [
+        SimpleSliverHeaderDelegate(
+          maxExtent: 56,
+          child: SnapSheetNested.back(title: widget.name),
+        ),
+      ],
+      snapSheet: [
+        NovelSideSheet(
+          epProvider: widget.epProvider,
+          novelProvider: novelProvider,
+        ),
+      ],
+      body: DeviceUtil.deviceWidget(
+        mobile: _MiruNovelReadView(
+          data: widget.value,
+          meta: widget.meta,
+          imgUrl: widget.detailImageUrl,
+          // detailUrl: widget.detailUrl,
+          epProvider: widget.epProvider,
+          novelProvider: novelProvider,
+        ),
+        desktop: Row(
+          children: [
+            Expanded(
+              child: _MiruNovelReadView(
+                data: widget.value,
+                meta: widget.meta,
+                imgUrl: widget.detailImageUrl,
+                // detailUrl: widget.detailUrl,
+                epProvider: widget.epProvider,
+                novelProvider: novelProvider,
+              ),
+            ),
+            FDivider(axis: .vertical),
+            SizedBox(
+              width: 400,
+              child: NovelSideSheet(
+                epProvider: widget.epProvider,
+                novelProvider: novelProvider,
+              ),
+            ),
+          ],
+        ),
+        context: context,
+      ),
+    );
+  }
+}
+
+class _MiruNovelReadView extends StatefulHookConsumerWidget {
+  const _MiruNovelReadView({
+    required this.data,
+    required this.meta,
+    required this.imgUrl,
+    required this.epProvider,
+    required this.novelProvider,
+  });
+  final ExtensionFikushonWatch? data;
+  final ExtensionMeta meta;
+  final String imgUrl;
+  final EpisodeNotifierProvider epProvider;
+  final NovelReaderProvider novelProvider;
+
+  @override
+  createState() => _MiruNovelReadViewState();
+}
+
+class _MiruNovelReadViewState extends ConsumerState<_MiruNovelReadView> {
+  @override
+  Widget build(BuildContext context) {
+    final urlRegex = RegExp(r'^https?:\/\/.+$');
+    final item = widget.data?.content ?? [];
+    final c = ref.watch(widget.novelProvider.notifier);
+    return ScrollablePositionedList.builder(
+      scrollOffsetController: c.scrollOffsetController,
+      itemScrollController: c.itemScrollController,
+      itemPositionsListener: c.itemPositionsListener,
+      scrollOffsetListener: c.scrollOffsetListener,
+      itemCount: item.length,
+      itemBuilder: (context, index) {
+        final i = item[index];
+        if (i.startsWith(urlRegex)) {
+          return SizedBox(height: 300, child: ImageWidget(imageUrl: i));
+        }
+        return SelectableText.rich(
+          TextSpan(
+            text: item[index],
+            style: const TextStyle(fontSize: 20, height: 1.5),
+          ),
+        );
+      },
+    );
+  }
+}
