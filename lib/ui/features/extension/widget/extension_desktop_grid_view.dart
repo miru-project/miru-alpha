@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/domain/models/extension.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/ui/core/core/search_filter_card.dart';
 import 'package:miru_alpha/ui/features/extension/widget/extension_tile.dart';
@@ -45,7 +45,7 @@ class ExtensionView extends HookConsumerWidget {
                   ),
                   itemBuilder: (context, index) {
                     final pair = extensionsWithRepo[index];
-                    final data = pair['ext'] as GithubExtension;
+                    final data = pair['ext'] as DomainExtensionMeta;
                     final repoUrl = pair['repoUrl'] as String;
                     return ExtensionTile(data: data, repoUrl: repoUrl);
                   },

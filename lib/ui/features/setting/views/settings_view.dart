@@ -28,57 +28,60 @@ class SettingsView extends HookConsumerWidget {
           },
         ),
       ],
-      body: viewModelAsync.when(
-        loading: () => const LoadingState(),
-        error: (error, stack) =>
-            ErrorState(message: 'settings.load_failed'.i18n),
-        data: (settings) {
-          final items = <_SettingItem>[
-            _SettingItem(
-              'settings.theme'.i18n,
-              settings.theme,
-              (value) => ref
-                  .read(settingsViewModelProvider.notifier)
-                  .updateTheme(value),
-            ),
-            _SettingItem(
-              'settings.language'.i18n,
-              settings.language,
-              (value) => ref
-                  .read(settingsViewModelProvider.notifier)
-                  .updateLanguage(value),
-            ),
-            _SettingItem(
-              'settings.mobile_title_on_top'.i18n,
-              settings.isMobileTitleOnTop ? 'ON' : 'OFF',
-              (value) => ref
-                  .read(settingsViewModelProvider.notifier)
-                  .updateMobileTitleOnTop(value == 'ON'),
-            ),
-          ];
-
-          return ListView.builder(
+      slivers: [
+        if (viewModelAsync.isLoading)
+          const SliverFillRemaining(child: LoadingState())
+        else if (viewModelAsync.hasError)
+          SliverFillRemaining(
+            child: ErrorState(message: 'settings.load_failed'.i18n),
+          )
+        else
+          SliverPadding(
             padding: const EdgeInsets.all(16),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  title: Text(item.label),
-                  subtitle: Text(item.value),
-                  trailing: FSwitch(
-                    value: item.value == 'ON',
-                    onChange: (value) {
-                      item.onChanged(value ? 'ON' : 'OFF');
-                    },
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final settings = viewModelAsync.value!;
+                final items = <_SettingItem>[
+                  _SettingItem(
+                    'settings.theme'.i18n,
+                    settings.theme,
+                    (value) => ref
+                        .read(settingsViewModelProvider.notifier)
+                        .updateTheme(value),
                   ),
-                ),
-              );
-            },
-          );
-        },
-      ),
+                  _SettingItem(
+                    'settings.language'.i18n,
+                    settings.language,
+                    (value) => ref
+                        .read(settingsViewModelProvider.notifier)
+                        .updateLanguage(value),
+                  ),
+                  _SettingItem(
+                    'settings.mobile_title_on_top'.i18n,
+                    settings.isMobileTitleOnTop ? 'ON' : 'OFF',
+                    (value) => ref
+                        .read(settingsViewModelProvider.notifier)
+                        .updateMobileTitleOnTop(value == 'ON'),
+                  ),
+                ];
+                final item = items[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    title: Text(item.label),
+                    subtitle: Text(item.value),
+                    trailing: FSwitch(
+                      value: item.value == 'ON',
+                      onChange: (value) {
+                        item.onChanged(value ? 'ON' : 'OFF');
+                      },
+                    ),
+                  ),
+                );
+              }, childCount: 3),
+            ),
+          ),
+      ],
     );
   }
 }

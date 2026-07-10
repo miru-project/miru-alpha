@@ -60,6 +60,7 @@ _DomainExtensionMeta _$DomainExtensionMetaFromJson(Map<String, dynamic> json) =>
       api: json['api'] as String? ?? '',
       type: $enumDecode(_$ExtensionTypeEnumMap, json['type']),
       error: json['error'] as String?,
+      nsfw: json['nsfw'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$DomainExtensionMetaToJson(
@@ -78,6 +79,7 @@ Map<String, dynamic> _$DomainExtensionMetaToJson(
   'api': instance.api,
   'type': _$ExtensionTypeEnumMap[instance.type]!,
   'error': instance.error,
+  'nsfw': instance.nsfw,
 };
 
 _DomainExtensionRepo _$DomainExtensionRepoFromJson(Map<String, dynamic> json) =>

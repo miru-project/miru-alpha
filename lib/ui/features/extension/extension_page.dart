@@ -12,7 +12,7 @@ import 'package:miru_alpha/ui/features/extension/widget/extension_tile.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:path/path.dart' as p;
-import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/domain/models/extension.dart';
 
 class ExtensionPage extends StatefulHookConsumerWidget {
   const ExtensionPage({super.key});
@@ -192,7 +192,7 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                     padding: const EdgeInsets.only(top: 8, bottom: 100),
                     itemBuilder: (context, index) {
                       final pair = extensionsWithRepo[index];
-                      final data = pair['ext'] as GithubExtension;
+                      final data = pair['ext'] as DomainExtensionMeta;
                       final repoUrl = pair['repoUrl'] as String;
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),

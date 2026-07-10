@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DomainExtensionViewState {
 
- List<DomainExtensionRepo> get repos; List<DomainExtensionRepo> get extensions; List<String> get installedPackages; List<DomainExtensionMeta> get metadata; String get selectedRepoName; String get query; String get typeFilter; String get installFilter; bool get isLoading;
+ List<DomainExtensionRepo> get repos; List<DomainExtensionRepo> get extensions; List<String> get installedPackages; List<DomainExtensionMeta> get metadata; String get selectedRepoName; String get query; ExtensionType get typeFilter; ExtensionInstallStatus get installFilter; bool get isLoading;
 /// Create a copy of DomainExtensionViewState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $DomainExtensionViewStateCopyWith<$Res>  {
   factory $DomainExtensionViewStateCopyWith(DomainExtensionViewState value, $Res Function(DomainExtensionViewState) _then) = _$DomainExtensionViewStateCopyWithImpl;
 @useResult
 $Res call({
- List<DomainExtensionRepo> repos, List<DomainExtensionRepo> extensions, List<String> installedPackages, List<DomainExtensionMeta> metadata, String selectedRepoName, String query, String typeFilter, String installFilter, bool isLoading
+ List<DomainExtensionRepo> repos, List<DomainExtensionRepo> extensions, List<String> installedPackages, List<DomainExtensionMeta> metadata, String selectedRepoName, String query, ExtensionType typeFilter, ExtensionInstallStatus installFilter, bool isLoading
 });
 
 
@@ -74,8 +74,8 @@ as List<String>,metadata: null == metadata ? _self.metadata : metadata // ignore
 as List<DomainExtensionMeta>,selectedRepoName: null == selectedRepoName ? _self.selectedRepoName : selectedRepoName // ignore: cast_nullable_to_non_nullable
 as String,query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
 as String,typeFilter: null == typeFilter ? _self.typeFilter : typeFilter // ignore: cast_nullable_to_non_nullable
-as String,installFilter: null == installFilter ? _self.installFilter : installFilter // ignore: cast_nullable_to_non_nullable
-as String,isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as ExtensionType,installFilter: null == installFilter ? _self.installFilter : installFilter // ignore: cast_nullable_to_non_nullable
+as ExtensionInstallStatus,isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }
@@ -161,7 +161,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DomainExtensionRepo> repos,  List<DomainExtensionRepo> extensions,  List<String> installedPackages,  List<DomainExtensionMeta> metadata,  String selectedRepoName,  String query,  String typeFilter,  String installFilter,  bool isLoading)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<DomainExtensionRepo> repos,  List<DomainExtensionRepo> extensions,  List<String> installedPackages,  List<DomainExtensionMeta> metadata,  String selectedRepoName,  String query,  ExtensionType typeFilter,  ExtensionInstallStatus installFilter,  bool isLoading)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DomainExtensionViewState() when $default != null:
 return $default(_that.repos,_that.extensions,_that.installedPackages,_that.metadata,_that.selectedRepoName,_that.query,_that.typeFilter,_that.installFilter,_that.isLoading);case _:
@@ -182,7 +182,7 @@ return $default(_that.repos,_that.extensions,_that.installedPackages,_that.metad
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DomainExtensionRepo> repos,  List<DomainExtensionRepo> extensions,  List<String> installedPackages,  List<DomainExtensionMeta> metadata,  String selectedRepoName,  String query,  String typeFilter,  String installFilter,  bool isLoading)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<DomainExtensionRepo> repos,  List<DomainExtensionRepo> extensions,  List<String> installedPackages,  List<DomainExtensionMeta> metadata,  String selectedRepoName,  String query,  ExtensionType typeFilter,  ExtensionInstallStatus installFilter,  bool isLoading)  $default,) {final _that = this;
 switch (_that) {
 case _DomainExtensionViewState():
 return $default(_that.repos,_that.extensions,_that.installedPackages,_that.metadata,_that.selectedRepoName,_that.query,_that.typeFilter,_that.installFilter,_that.isLoading);case _:
@@ -202,7 +202,7 @@ return $default(_that.repos,_that.extensions,_that.installedPackages,_that.metad
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DomainExtensionRepo> repos,  List<DomainExtensionRepo> extensions,  List<String> installedPackages,  List<DomainExtensionMeta> metadata,  String selectedRepoName,  String query,  String typeFilter,  String installFilter,  bool isLoading)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<DomainExtensionRepo> repos,  List<DomainExtensionRepo> extensions,  List<String> installedPackages,  List<DomainExtensionMeta> metadata,  String selectedRepoName,  String query,  ExtensionType typeFilter,  ExtensionInstallStatus installFilter,  bool isLoading)?  $default,) {final _that = this;
 switch (_that) {
 case _DomainExtensionViewState() when $default != null:
 return $default(_that.repos,_that.extensions,_that.installedPackages,_that.metadata,_that.selectedRepoName,_that.query,_that.typeFilter,_that.installFilter,_that.isLoading);case _:
@@ -217,7 +217,7 @@ return $default(_that.repos,_that.extensions,_that.installedPackages,_that.metad
 @JsonSerializable()
 
 class _DomainExtensionViewState implements DomainExtensionViewState {
-  const _DomainExtensionViewState({final  List<DomainExtensionRepo> repos = const [], final  List<DomainExtensionRepo> extensions = const [], final  List<String> installedPackages = const [], final  List<DomainExtensionMeta> metadata = const [], this.selectedRepoName = '', this.query = '', this.typeFilter = 'ALL', this.installFilter = 'ALL', this.isLoading = false}): _repos = repos,_extensions = extensions,_installedPackages = installedPackages,_metadata = metadata;
+  const _DomainExtensionViewState({final  List<DomainExtensionRepo> repos = const [], final  List<DomainExtensionRepo> extensions = const [], final  List<String> installedPackages = const [], final  List<DomainExtensionMeta> metadata = const [], this.selectedRepoName = '', this.query = '', this.typeFilter = ExtensionType.all, this.installFilter = ExtensionInstallStatus.all, this.isLoading = false}): _repos = repos,_extensions = extensions,_installedPackages = installedPackages,_metadata = metadata;
   factory _DomainExtensionViewState.fromJson(Map<String, dynamic> json) => _$DomainExtensionViewStateFromJson(json);
 
  final  List<DomainExtensionRepo> _repos;
@@ -250,8 +250,8 @@ class _DomainExtensionViewState implements DomainExtensionViewState {
 
 @override@JsonKey() final  String selectedRepoName;
 @override@JsonKey() final  String query;
-@override@JsonKey() final  String typeFilter;
-@override@JsonKey() final  String installFilter;
+@override@JsonKey() final  ExtensionType typeFilter;
+@override@JsonKey() final  ExtensionInstallStatus installFilter;
 @override@JsonKey() final  bool isLoading;
 
 /// Create a copy of DomainExtensionViewState
@@ -287,7 +287,7 @@ abstract mixin class _$DomainExtensionViewStateCopyWith<$Res> implements $Domain
   factory _$DomainExtensionViewStateCopyWith(_DomainExtensionViewState value, $Res Function(_DomainExtensionViewState) _then) = __$DomainExtensionViewStateCopyWithImpl;
 @override @useResult
 $Res call({
- List<DomainExtensionRepo> repos, List<DomainExtensionRepo> extensions, List<String> installedPackages, List<DomainExtensionMeta> metadata, String selectedRepoName, String query, String typeFilter, String installFilter, bool isLoading
+ List<DomainExtensionRepo> repos, List<DomainExtensionRepo> extensions, List<String> installedPackages, List<DomainExtensionMeta> metadata, String selectedRepoName, String query, ExtensionType typeFilter, ExtensionInstallStatus installFilter, bool isLoading
 });
 
 
@@ -313,8 +313,8 @@ as List<String>,metadata: null == metadata ? _self._metadata : metadata // ignor
 as List<DomainExtensionMeta>,selectedRepoName: null == selectedRepoName ? _self.selectedRepoName : selectedRepoName // ignore: cast_nullable_to_non_nullable
 as String,query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
 as String,typeFilter: null == typeFilter ? _self.typeFilter : typeFilter // ignore: cast_nullable_to_non_nullable
-as String,installFilter: null == installFilter ? _self.installFilter : installFilter // ignore: cast_nullable_to_non_nullable
-as String,isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
+as ExtensionType,installFilter: null == installFilter ? _self.installFilter : installFilter // ignore: cast_nullable_to_non_nullable
+as ExtensionInstallStatus,isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

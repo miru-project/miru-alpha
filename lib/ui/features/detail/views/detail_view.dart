@@ -62,120 +62,131 @@ class DetailView extends HookConsumerWidget {
           },
         ),
       ],
-      body: viewModelAsync.when(
-        loading: () => const LoadingState(),
-        error: (error, stack) => ErrorState(
-          message: 'detail.load_failed'.i18n,
-          onRetry: notifier.refresh,
-          retryLabel: 'common.retry'.i18n,
-        ),
-        data: (detail) {
-          if (detail == null) {
-            return const Center(child: FCircularProgress());
-          }
-
-          return ListView(
+      slivers: [
+        if (viewModelAsync.isLoading)
+          const SliverFillRemaining(child: LoadingState())
+        else if (viewModelAsync.hasError)
+          SliverFillRemaining(
+            child: ErrorState(
+              message: 'detail.load_failed'.i18n,
+              onRetry: notifier.refresh,
+              retryLabel: 'common.retry'.i18n,
+            ),
+          )
+        else if (viewModelAsync.value == null)
+          const SliverFillRemaining(child: Center(child: FCircularProgress()))
+        else
+          SliverPadding(
             padding: const EdgeInsets.all(16),
-            children: [
-              if (detail.cover != null)
-                Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      detail.cover!,
-                      width: 160,
-                      height: 220,
-                      fit: BoxFit.cover,
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                if (viewModelAsync.value!.cover != null)
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        viewModelAsync.value!.cover!,
+                        width: 160,
+                        height: 220,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-              const SizedBox(height: 24),
-              Text(
-                detail.title,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                detail.detailUrl,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 16),
-              if (detail.desc != null)
+                const SizedBox(height: 24),
                 Text(
-                  detail.desc!,
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  viewModelAsync.value!.title,
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-              const SizedBox(height: 24),
-              if (detail.episodes != null) ...[
-                for (
-                  var groupIndex = 0;
-                  groupIndex < detail.episodes!.length;
-                  groupIndex++
-                )
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        detail.episodes![groupIndex].name ?? '',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: detail.episodes![groupIndex].episodes
-                            .asMap()
-                            .entries
-                            .map(
-                              (entry) => FButton(
-                                variant: FButtonVariant.outline,
-                                onPress: () {
-                                  final epGroup = detail.episodes!
-                                      .map(
-                                        (g) => ExtensionEpisodeGroup(
-                                          title: g.name,
-                                          urls: g.episodes
-                                              .map(
-                                                (e) => ExtensionEpisode(
-                                                  name: e.name,
-                                                  url: e.url,
-                                                ),
-                                              )
-                                              .toList(),
-                                        ),
-                                      )
-                                      .toList();
-                                  context.push<WatchParams>(
-                                    '/watch',
-                                    extra: WatchParams(
-                                      meta: meta,
-                                      type: meta.type,
-                                      url: entry.value.url,
-                                      selectedGroupIndex: groupIndex,
-                                      selectedEpisodeIndex: entry.key,
-                                      name: detail.title,
-                                      detailImageUrl: detail.cover ?? '',
-                                      detailUrl: detail.detailUrl,
-                                      epGroup: epGroup,
-                                      savePath: null,
-                                    ),
-                                  );
-                                },
-                                child: Text(entry.value.name ?? ''),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
+                const SizedBox(height: 8),
+                Text(
+                  viewModelAsync.value!.detailUrl,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-              ],
-            ],
-          );
-        },
-      ),
+                ),
+                const SizedBox(height: 16),
+                if (viewModelAsync.value!.desc != null)
+                  Text(
+                    viewModelAsync.value!.desc!,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                const SizedBox(height: 24),
+                if (viewModelAsync.value!.episodes != null) ...[
+                  for (
+                    var groupIndex = 0;
+                    groupIndex < viewModelAsync.value!.episodes!.length;
+                    groupIndex++
+                  )
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          viewModelAsync.value!.episodes![groupIndex].name ??
+                              '',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: viewModelAsync
+                              .value!
+                              .episodes![groupIndex]
+                              .episodes
+                              .asMap()
+                              .entries
+                              .map(
+                                (entry) => FButton(
+                                  variant: FButtonVariant.outline,
+                                  onPress: () {
+                                    final epGroup = viewModelAsync
+                                        .value!
+                                        .episodes!
+                                        .map(
+                                          (g) => ExtensionEpisodeGroup(
+                                            title: g.name,
+                                            urls: g.episodes
+                                                .map(
+                                                  (e) => ExtensionEpisode(
+                                                    name: e.name,
+                                                    url: e.url,
+                                                  ),
+                                                )
+                                                .toList(),
+                                          ),
+                                        )
+                                        .toList();
+                                    context.push<WatchParams>(
+                                      '/watch',
+                                      extra: WatchParams(
+                                        meta: meta,
+                                        type: meta.type,
+                                        url: entry.value.url,
+                                        selectedGroupIndex: groupIndex,
+                                        selectedEpisodeIndex: entry.key,
+                                        name: viewModelAsync.value!.title,
+                                        detailImageUrl:
+                                            viewModelAsync.value!.cover ?? '',
+                                        detailUrl:
+                                            viewModelAsync.value!.detailUrl,
+                                        epGroup: epGroup,
+                                        savePath: null,
+                                      ),
+                                    );
+                                  },
+                                  child: Text(entry.value.name ?? ''),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                ],
+              ]),
+            ),
+          ),
+      ],
     );
   }
 }

@@ -26,6 +26,18 @@ abstract class DomainExtension with _$DomainExtension {
 
 enum ExtensionType { manga, bangumi, fikushon, all }
 
+/// Filter value for the extension install-status selector.
+enum ExtensionInstallStatus { all, installed, notInstalled }
+
+extension ExtensionInstallStatusX on ExtensionInstallStatus {
+  /// Parse a raw string into the matching install-status value.
+  static ExtensionInstallStatus fromRaw(String? value) => switch (value) {
+    'extension.installed' => ExtensionInstallStatus.installed,
+    'extension.not_installed' => ExtensionInstallStatus.notInstalled,
+    _ => ExtensionInstallStatus.all,
+  };
+}
+
 @freezed
 abstract class DomainExtensionMeta with _$DomainExtensionMeta {
   const factory DomainExtensionMeta({
@@ -42,6 +54,7 @@ abstract class DomainExtensionMeta with _$DomainExtensionMeta {
     @Default('') String api,
     required ExtensionType type,
     String? error,
+    @Default(false) bool nsfw,
   }) = _DomainExtensionMeta;
 
   factory DomainExtensionMeta.fromJson(Map<String, dynamic> json) =>

@@ -109,27 +109,30 @@ class _LicenseDetailPage extends StatelessWidget {
           child: SnapSheetNested.back(title: packageName),
         ),
       ],
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: paragraphs.length,
-        itemBuilder: (context, index) {
-          final paragraph = paragraphs[index];
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: 12,
-              left: paragraph.indent == LicenseParagraph.centeredIndent
-                  ? 0
-                  : paragraph.indent * 16.0,
-            ),
-            child: Text(
-              paragraph.text,
-              textAlign: paragraph.indent == LicenseParagraph.centeredIndent
-                  ? TextAlign.center
-                  : TextAlign.left,
-            ),
-          );
-        },
-      ),
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(16),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final paragraph = paragraphs[index];
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: 12,
+                  left: paragraph.indent == LicenseParagraph.centeredIndent
+                      ? 0
+                      : paragraph.indent * 16.0,
+                ),
+                child: Text(
+                  paragraph.text,
+                  textAlign: paragraph.indent == LicenseParagraph.centeredIndent
+                      ? TextAlign.center
+                      : TextAlign.left,
+                ),
+              );
+            }, childCount: paragraphs.length),
+          ),
+        ),
+      ],
     );
   }
 }

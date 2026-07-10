@@ -31,8 +31,15 @@ _DomainExtensionViewState _$DomainExtensionViewStateFromJson(
       const [],
   selectedRepoName: json['selectedRepoName'] as String? ?? '',
   query: json['query'] as String? ?? '',
-  typeFilter: json['typeFilter'] as String? ?? 'ALL',
-  installFilter: json['installFilter'] as String? ?? 'ALL',
+  typeFilter:
+      $enumDecodeNullable(_$ExtensionTypeEnumMap, json['typeFilter']) ??
+      ExtensionType.all,
+  installFilter:
+      $enumDecodeNullable(
+        _$ExtensionInstallStatusEnumMap,
+        json['installFilter'],
+      ) ??
+      ExtensionInstallStatus.all,
   isLoading: json['isLoading'] as bool? ?? false,
 );
 
@@ -45,7 +52,20 @@ Map<String, dynamic> _$DomainExtensionViewStateToJson(
   'metadata': instance.metadata,
   'selectedRepoName': instance.selectedRepoName,
   'query': instance.query,
-  'typeFilter': instance.typeFilter,
-  'installFilter': instance.installFilter,
+  'typeFilter': _$ExtensionTypeEnumMap[instance.typeFilter]!,
+  'installFilter': _$ExtensionInstallStatusEnumMap[instance.installFilter]!,
   'isLoading': instance.isLoading,
+};
+
+const _$ExtensionTypeEnumMap = {
+  ExtensionType.manga: 'manga',
+  ExtensionType.bangumi: 'bangumi',
+  ExtensionType.fikushon: 'fikushon',
+  ExtensionType.all: 'all',
+};
+
+const _$ExtensionInstallStatusEnumMap = {
+  ExtensionInstallStatus.all: 'all',
+  ExtensionInstallStatus.installed: 'installed',
+  ExtensionInstallStatus.notInstalled: 'notInstalled',
 };

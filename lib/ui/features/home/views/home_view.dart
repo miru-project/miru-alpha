@@ -4,20 +4,17 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
-import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/provider/home/home_view_model.dart';
 import 'package:miru_alpha/ui/core/scaffold/miru_scaffold.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
-import 'package:miru_alpha/ui/core/dialog/dialog.dart';
 import 'package:miru_alpha/ui/features/home/widget/continue_watch.dart';
 import 'package:miru_alpha/ui/features/home/widget/favorite.dart';
 import 'package:miru_alpha/ui/features/home/widget/library_bento_cards.dart';
 import 'package:miru_alpha/ui/features/home/widget/library_categories.dart';
 import 'package:miru_alpha/ui/features/home/widget/library_quick_actions.dart';
 import 'package:miru_alpha/ui/features/home/widget/library_search_bar.dart';
-import 'package:miru_alpha/ui/features/home/widget/mobile_add_favgroup_dialog.dart';
 import 'package:miru_alpha/ui/features/download/download.dart';
 import 'package:miru_alpha/ui/features/favorite/favorite.dart';
 import 'package:miru_alpha/ui/features/history/history.dart';
@@ -72,106 +69,27 @@ class HomeViewMobile extends HookConsumerWidget {
       snapSheet: const [],
       sliverHeaders: [
         StaticSliverHeaderDelegate(
-          maxExtent: 50,
+          maxExtent: 120,
           child: HookBuilder(
             builder: (context) {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  switch (selectedTab) {
-                    0 => SnapSheetHeader(
-                      title: 'common.library'.i18n,
-                      suffix: [
-                        FButton.icon(
-                          variant: FButtonVariant.ghost,
-                          onPress: () {
-                            iconsMessageToast(
-                              title: 'common.web_dav_sync_wip'.i18n,
-                              icon: FLucideIcons.construction,
-                            );
-                          },
-                          child: const Icon(FLucideIcons.cloudSync),
-                        ),
-                      ],
-                    ),
-                    1 => SnapSheetHeader(title: 'common.history'.i18n),
-                    2 => SnapSheetHeader(
-                      title: 'common.favorite.name',
-                      suffix: [
-                        FTappable(
-                          onPress: () {
-                            showMiruDialog(
-                              context: context,
-                              builder: (context, style, animation) {
-                                return MobileAddFAVDialog(
-                                  animation: animation,
-                                  context: context,
-                                  style: style,
-                                );
-                              },
-                            );
-                          },
-                          child: Consumer(
-                            builder: (context, ref, child) {
-                              final favGrp = ref.watch(
-                                favoritePageProvider.select(
-                                  (e) => e.selectedFavoriteGroups,
-                                ),
-                              );
-                              if (favGrp.isEmpty) {
-                                return FBadge(child: Text('common.all'.i18n));
-                              }
-                              if (favGrp.length == 1) {
-                                return FBadge(child: Text(favGrp.first.name));
-                              }
-                              final firstTwo = favGrp.take(2).toList();
-                              final remaining = favGrp.length - 2;
-                              return Wrap(
-                                spacing: 3,
-                                runSpacing: 2,
-                                children: [
-                                  ...firstTwo.map(
-                                    (e) => FBadge(child: Text(e.name)),
-                                  ),
-                                  FBadge(
-                                    variant: FBadgeVariant.secondary,
-                                    child: FTappable(
-                                      onPress: () {
-                                        showMiruDialog(
-                                          context: context,
-                                          builder: (context, style, animation) {
-                                            return MobileAddFAVDialog(
-                                              animation: animation,
-                                              context: context,
-                                              style: style,
-                                            );
-                                          },
-                                        );
-                                      },
-                                      child: Text('+$remaining more'),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    3 => SnapSheetHeader(
-                      title: 'download.name'.i18n,
-                      suffix: [
-                        FButton.icon(
-                          variant: FButtonVariant.ghost,
-                          onPress: () {
-                            GoRouter.of(context).push('/home/download/history');
-                          },
-                          child: const Icon(FLucideIcons.folderClock),
-                        ),
-                      ],
-                    ),
-                    _ => const SizedBox.shrink(),
-                  },
+                  SnapSheetHeader(
+                    title: 'common.library'.i18n,
+                    suffix: [
+                      FButton.icon(
+                        variant: FButtonVariant.ghost,
+                        onPress: () {
+                          iconsMessageToast(
+                            title: 'common.web_dav_sync_wip'.i18n,
+                            icon: FLucideIcons.construction,
+                          );
+                        },
+                        child: const Icon(FLucideIcons.cloudSync),
+                      ),
+                    ],
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: LibrarySearchBar(),
@@ -216,9 +134,7 @@ class HomeViewDesktop extends ConsumerWidget {
               padding: EdgeInsetsGeometryDelta.value(EdgeInsets.zero),
             ),
           ),
-          Expanded(
-            child: DesktopLibraryPage(),
-          ),
+          Expanded(child: DesktopLibraryPage()),
         ],
       ),
     );

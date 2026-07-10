@@ -65,45 +65,49 @@ class ExtensionSettingPage extends HookConsumerWidget {
           child: SnapSheetNested.back(title: name),
         ),
       ],
-      body: ListView(
-        padding: .symmetric(horizontal: 8),
-        children: [
-          if (settings.isNotEmpty)
-            SettingGroup(
-              isMobileLayout: isMobile,
-              title: 'common.settings'.i18n,
-              children: settings
-                  .map((s) => _buildSettingItem(context, s, isMobile))
-                  .cast<FTileMixin>()
-                  .toList(),
-            ),
-          SizedBox(height: 10),
-          SettingGroup(
-            isMobileLayout: isMobile,
-            title: 'common.advanced',
-            children: [
-              SettingPressTile(
+      slivers: [
+        SliverPadding(
+          padding: .symmetric(horizontal: 8),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              if (settings.isNotEmpty)
+                SettingGroup(
+                  isMobileLayout: isMobile,
+                  title: 'common.settings'.i18n,
+                  children: settings
+                      .map((s) => _buildSettingItem(context, s, isMobile))
+                      .cast<FTileMixin>()
+                      .toList(),
+                ),
+              SizedBox(height: 10),
+              SettingGroup(
                 isMobileLayout: isMobile,
-                title: 'extension.source_code'.i18n,
-                subtitle: 'extension.source_code_description'.i18n,
-                prefix: Icon(FLucideIcons.code),
-                onPress: () {
-                  final extPath = Core.getExtensionPath;
-                  final codePath = p.join(extPath, '$pkg.js');
-                  context.push('/sourceCode', extra: codePath);
-                },
+                title: 'common.advanced',
+                children: [
+                  SettingPressTile(
+                    isMobileLayout: isMobile,
+                    title: 'extension.source_code'.i18n,
+                    subtitle: 'extension.source_code_description'.i18n,
+                    prefix: Icon(FLucideIcons.code),
+                    onPress: () {
+                      final extPath = Core.getExtensionPath;
+                      final codePath = p.join(extPath, '$pkg.js');
+                      context.push('/sourceCode', extra: codePath);
+                    },
+                  ),
+                  SettingPressTile(
+                    isMobileLayout: isMobile,
+                    subtitle: 'extension.cookie_clear_description'.i18n,
+                    title: 'extension.cookie_clear'.i18n,
+                    prefix: Icon(FLucideIcons.cookie),
+                    onPress: () {},
+                  ),
+                ],
               ),
-              SettingPressTile(
-                isMobileLayout: isMobile,
-                subtitle: 'extension.cookie_clear_description'.i18n,
-                title: 'extension.cookie_clear'.i18n,
-                prefix: Icon(FLucideIcons.cookie),
-                onPress: () {},
-              ),
-            ],
+            ]),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

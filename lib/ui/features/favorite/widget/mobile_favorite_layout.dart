@@ -32,10 +32,11 @@ class _MobileFavoriteLayoutState extends ConsumerState<MobileFavoriteLayout> {
 
     return MiruScaffold.mobile(
       sliverHeaders: [
-        StaticSliverHeaderDelegate(
+        SimpleSliverHeaderDelegate(
           maxExtent: 100,
+          minExtent: 100,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
             children: [
               SnapSheetNested.back(
                 title: 'favorite.name'.i18n,
@@ -122,66 +123,72 @@ class _MobileFavoriteLayoutState extends ConsumerState<MobileFavoriteLayout> {
           ),
         ),
       ],
-      body: ListView.builder(
-        itemCount: fav.length,
-        itemBuilder: (context, index) {
-          final favorite = fav[index];
-          final ExtensionMeta? ext = meta.firstWhereOrNull(
-            (element) => element.packageName == favorite.package,
-          );
-          return MiruMobileTile(
-            title: favorite.title,
-            subtitle: ext?.name ?? 'common.package_not_found'.i18n,
-            imageUrl: favorite.cover,
-            onTap: () {
-              if (ext == null) return;
-              context.push(
-                '/search/single/detail',
-                extra: DetailParam(meta: ext, url: favorite.url),
-              );
-            },
-            onLongPress: () {
-              showFSheet(
-                context: context,
-                style: .delta(
-                  barrierFilter: (value) =>
-                      ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                ),
-                builder: (context) => Consumer(
-                  builder: (context, ref, child) => FCard.raw(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        top: 10,
-                        left: 10,
-                        right: 10,
-                        bottom: 20,
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: fav.length,
+              itemBuilder: (context, index) {
+                final favorite = fav[index];
+                final ExtensionMeta? ext = meta.firstWhereOrNull(
+                  (element) => element.packageName == favorite.package,
+                );
+                return MiruMobileTile(
+                  title: favorite.title,
+                  subtitle: ext?.name ?? 'common.package_not_found'.i18n,
+                  imageUrl: favorite.cover,
+                  onTap: () {
+                    if (ext == null) return;
+                    context.push(
+                      '/search/single/detail',
+                      extra: DetailParam(meta: ext, url: favorite.url),
+                    );
+                  },
+                  onLongPress: () {
+                    showFSheet(
+                      context: context,
+                      style: .delta(
+                        barrierFilter: (value) =>
+                            ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                       ),
-                      child: FTileGroup(
-                        label: Padding(
-                          padding: const EdgeInsets.only(left: 6),
-                          child: Text(favorite.title),
-                        ),
-                        children: [
-                          FTile(
-                            prefix: const Icon(FLucideIcons.heartMinus),
-                            title: Text('common.remove_favorite'.i18n),
-                            onPress: () {
-                              ref
-                                  .read(favoritePageProvider.notifier)
-                                  .deleteFavorite(favorite);
-                              Navigator.pop(context);
-                            },
+                      builder: (context) => Consumer(
+                        builder: (context, ref, child) => FCard.raw(
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              top: 10,
+                              left: 10,
+                              right: 10,
+                              bottom: 20,
+                            ),
+                            child: FTileGroup(
+                              label: Padding(
+                                padding: const EdgeInsets.only(left: 6),
+                                child: Text(favorite.title),
+                              ),
+                              children: [
+                                FTile(
+                                  prefix: const Icon(FLucideIcons.heartMinus),
+                                  title: Text('common.remove_favorite'.i18n),
+                                  onPress: () {
+                                    ref
+                                        .read(favoritePageProvider.notifier)
+                                        .deleteFavorite(favorite);
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
-                side: .btt,
-              );
-            },
-          );
-        },
+                      side: .btt,
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -56,42 +56,46 @@ class ExtensionDetailView extends HookConsumerWidget {
           },
         ),
       ],
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          if (extension.icon != null)
-            Center(
-              child: Image.network(
-                extension.icon!,
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(16),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              if (extension.icon != null)
+                Center(
+                  child: Image.network(
+                    extension.icon!,
+                    width: 120,
+                    height: 120,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              const SizedBox(height: 24),
+              Text(
+                extension.name,
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
-            ),
-          const SizedBox(height: 24),
-          Text(
-            extension.name,
-            style: Theme.of(context).textTheme.headlineMedium,
+              const SizedBox(height: 8),
+              Text(
+                extension.version,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                extension.description ?? '',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                '${'extension.author'.i18n}: ${extension.author}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ]),
           ),
-          const SizedBox(height: 8),
-          Text(
-            extension.version,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            extension.description ?? '',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            '${'extension.author'.i18n}: ${extension.author}',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

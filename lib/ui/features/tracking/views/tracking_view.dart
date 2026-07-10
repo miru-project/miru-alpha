@@ -29,38 +29,39 @@ class TrackingView extends HookConsumerWidget {
           },
         ),
       ],
-      body: viewModelAsync.when(
-        loading: () => const LoadingState(),
-        error: (error, stack) =>
-            ErrorState(message: 'tracking.load_failed'.i18n),
-        data: (state) {
-          final account = state.anilistAccount;
-          final progress = state.progress;
-
-          if (account == null && progress.isEmpty) {
-            return EmptyState(
+      slivers: [
+        if (viewModelAsync.isLoading)
+          const SliverFillRemaining(child: LoadingState())
+        else if (viewModelAsync.hasError)
+          SliverFillRemaining(
+            child: ErrorState(message: 'tracking.load_failed'.i18n),
+          )
+        else if (viewModelAsync.value!.anilistAccount == null &&
+            viewModelAsync.value!.progress.isEmpty)
+          SliverFillRemaining(
+            child: EmptyState(
               icon: FLucideIcons.clipboardClock,
               message: 'tracking.empty'.i18n,
-            );
-          }
-
-          return ListView.builder(
+            ),
+          )
+        else
+          SliverPadding(
             padding: const EdgeInsets.all(16),
-            itemCount: progress.length,
-            itemBuilder: (context, index) {
-              final item = progress[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: const Icon(FLucideIcons.user),
-                  title: Text(item.title ?? ''),
-                  subtitle: Text(item.progress.toString()),
-                ),
-              );
-            },
-          );
-        },
-      ),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final item = viewModelAsync.value!.progress[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    leading: const Icon(FLucideIcons.user),
+                    title: Text(item.title ?? ''),
+                    subtitle: Text(item.progress.toString()),
+                  ),
+                );
+              }, childCount: viewModelAsync.value!.progress.length),
+            ),
+          ),
+      ],
     );
   }
 }

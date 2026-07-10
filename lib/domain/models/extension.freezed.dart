@@ -311,7 +311,7 @@ as String?,
 /// @nodoc
 mixin _$DomainExtensionMeta {
 
- String get name; String get version; String get author; String get license; String get lang; String? get icon; String get packageName; String get webSite; String? get description; List<dynamic> get tags; String get api; ExtensionType get type; String? get error;
+ String get name; String get version; String get author; String get license; String get lang; String? get icon; String get packageName; String get webSite; String? get description; List<dynamic> get tags; String get api; ExtensionType get type; String? get error; bool get nsfw;
 /// Create a copy of DomainExtensionMeta
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -324,16 +324,16 @@ $DomainExtensionMetaCopyWith<DomainExtensionMeta> get copyWith => _$DomainExtens
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainExtensionMeta&&(identical(other.name, name) || other.name == name)&&(identical(other.version, version) || other.version == version)&&(identical(other.author, author) || other.author == author)&&(identical(other.license, license) || other.license == license)&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.webSite, webSite) || other.webSite == webSite)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.api, api) || other.api == api)&&(identical(other.type, type) || other.type == type)&&(identical(other.error, error) || other.error == error));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainExtensionMeta&&(identical(other.name, name) || other.name == name)&&(identical(other.version, version) || other.version == version)&&(identical(other.author, author) || other.author == author)&&(identical(other.license, license) || other.license == license)&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.webSite, webSite) || other.webSite == webSite)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.api, api) || other.api == api)&&(identical(other.type, type) || other.type == type)&&(identical(other.error, error) || other.error == error)&&(identical(other.nsfw, nsfw) || other.nsfw == nsfw));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,version,author,license,lang,icon,packageName,webSite,description,const DeepCollectionEquality().hash(tags),api,type,error);
+int get hashCode => Object.hash(runtimeType,name,version,author,license,lang,icon,packageName,webSite,description,const DeepCollectionEquality().hash(tags),api,type,error,nsfw);
 
 @override
 String toString() {
-  return 'DomainExtensionMeta(name: $name, version: $version, author: $author, license: $license, lang: $lang, icon: $icon, packageName: $packageName, webSite: $webSite, description: $description, tags: $tags, api: $api, type: $type, error: $error)';
+  return 'DomainExtensionMeta(name: $name, version: $version, author: $author, license: $license, lang: $lang, icon: $icon, packageName: $packageName, webSite: $webSite, description: $description, tags: $tags, api: $api, type: $type, error: $error, nsfw: $nsfw)';
 }
 
 
@@ -344,7 +344,7 @@ abstract mixin class $DomainExtensionMetaCopyWith<$Res>  {
   factory $DomainExtensionMetaCopyWith(DomainExtensionMeta value, $Res Function(DomainExtensionMeta) _then) = _$DomainExtensionMetaCopyWithImpl;
 @useResult
 $Res call({
- String name, String version, String author, String license, String lang, String? icon, String packageName, String webSite, String? description, List<dynamic> tags, String api, ExtensionType type, String? error
+ String name, String version, String author, String license, String lang, String? icon, String packageName, String webSite, String? description, List<dynamic> tags, String api, ExtensionType type, String? error, bool nsfw
 });
 
 
@@ -361,7 +361,7 @@ class _$DomainExtensionMetaCopyWithImpl<$Res>
 
 /// Create a copy of DomainExtensionMeta
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? version = null,Object? author = null,Object? license = null,Object? lang = null,Object? icon = freezed,Object? packageName = null,Object? webSite = null,Object? description = freezed,Object? tags = null,Object? api = null,Object? type = null,Object? error = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? version = null,Object? author = null,Object? license = null,Object? lang = null,Object? icon = freezed,Object? packageName = null,Object? webSite = null,Object? description = freezed,Object? tags = null,Object? api = null,Object? type = null,Object? error = freezed,Object? nsfw = null,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
@@ -376,7 +376,8 @@ as String?,tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_no
 as List<dynamic>,api: null == api ? _self.api : api // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as ExtensionType,error: freezed == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,nsfw: null == nsfw ? _self.nsfw : nsfw // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -461,10 +462,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String version,  String author,  String license,  String lang,  String? icon,  String packageName,  String webSite,  String? description,  List<dynamic> tags,  String api,  ExtensionType type,  String? error)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String name,  String version,  String author,  String license,  String lang,  String? icon,  String packageName,  String webSite,  String? description,  List<dynamic> tags,  String api,  ExtensionType type,  String? error,  bool nsfw)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DomainExtensionMeta() when $default != null:
-return $default(_that.name,_that.version,_that.author,_that.license,_that.lang,_that.icon,_that.packageName,_that.webSite,_that.description,_that.tags,_that.api,_that.type,_that.error);case _:
+return $default(_that.name,_that.version,_that.author,_that.license,_that.lang,_that.icon,_that.packageName,_that.webSite,_that.description,_that.tags,_that.api,_that.type,_that.error,_that.nsfw);case _:
   return orElse();
 
 }
@@ -482,10 +483,10 @@ return $default(_that.name,_that.version,_that.author,_that.license,_that.lang,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String version,  String author,  String license,  String lang,  String? icon,  String packageName,  String webSite,  String? description,  List<dynamic> tags,  String api,  ExtensionType type,  String? error)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String name,  String version,  String author,  String license,  String lang,  String? icon,  String packageName,  String webSite,  String? description,  List<dynamic> tags,  String api,  ExtensionType type,  String? error,  bool nsfw)  $default,) {final _that = this;
 switch (_that) {
 case _DomainExtensionMeta():
-return $default(_that.name,_that.version,_that.author,_that.license,_that.lang,_that.icon,_that.packageName,_that.webSite,_that.description,_that.tags,_that.api,_that.type,_that.error);case _:
+return $default(_that.name,_that.version,_that.author,_that.license,_that.lang,_that.icon,_that.packageName,_that.webSite,_that.description,_that.tags,_that.api,_that.type,_that.error,_that.nsfw);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -502,10 +503,10 @@ return $default(_that.name,_that.version,_that.author,_that.license,_that.lang,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String version,  String author,  String license,  String lang,  String? icon,  String packageName,  String webSite,  String? description,  List<dynamic> tags,  String api,  ExtensionType type,  String? error)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String name,  String version,  String author,  String license,  String lang,  String? icon,  String packageName,  String webSite,  String? description,  List<dynamic> tags,  String api,  ExtensionType type,  String? error,  bool nsfw)?  $default,) {final _that = this;
 switch (_that) {
 case _DomainExtensionMeta() when $default != null:
-return $default(_that.name,_that.version,_that.author,_that.license,_that.lang,_that.icon,_that.packageName,_that.webSite,_that.description,_that.tags,_that.api,_that.type,_that.error);case _:
+return $default(_that.name,_that.version,_that.author,_that.license,_that.lang,_that.icon,_that.packageName,_that.webSite,_that.description,_that.tags,_that.api,_that.type,_that.error,_that.nsfw);case _:
   return null;
 
 }
@@ -517,7 +518,7 @@ return $default(_that.name,_that.version,_that.author,_that.license,_that.lang,_
 @JsonSerializable()
 
 class _DomainExtensionMeta implements DomainExtensionMeta {
-  const _DomainExtensionMeta({this.name = '', this.version = '', this.author = '', this.license = '', this.lang = '', this.icon, this.packageName = '', this.webSite = '', this.description, final  List<dynamic> tags = const [], this.api = '', required this.type, this.error}): _tags = tags;
+  const _DomainExtensionMeta({this.name = '', this.version = '', this.author = '', this.license = '', this.lang = '', this.icon, this.packageName = '', this.webSite = '', this.description, final  List<dynamic> tags = const [], this.api = '', required this.type, this.error, this.nsfw = false}): _tags = tags;
   factory _DomainExtensionMeta.fromJson(Map<String, dynamic> json) => _$DomainExtensionMetaFromJson(json);
 
 @override@JsonKey() final  String name;
@@ -539,6 +540,7 @@ class _DomainExtensionMeta implements DomainExtensionMeta {
 @override@JsonKey() final  String api;
 @override final  ExtensionType type;
 @override final  String? error;
+@override@JsonKey() final  bool nsfw;
 
 /// Create a copy of DomainExtensionMeta
 /// with the given fields replaced by the non-null parameter values.
@@ -553,16 +555,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainExtensionMeta&&(identical(other.name, name) || other.name == name)&&(identical(other.version, version) || other.version == version)&&(identical(other.author, author) || other.author == author)&&(identical(other.license, license) || other.license == license)&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.webSite, webSite) || other.webSite == webSite)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.api, api) || other.api == api)&&(identical(other.type, type) || other.type == type)&&(identical(other.error, error) || other.error == error));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainExtensionMeta&&(identical(other.name, name) || other.name == name)&&(identical(other.version, version) || other.version == version)&&(identical(other.author, author) || other.author == author)&&(identical(other.license, license) || other.license == license)&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.webSite, webSite) || other.webSite == webSite)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.api, api) || other.api == api)&&(identical(other.type, type) || other.type == type)&&(identical(other.error, error) || other.error == error)&&(identical(other.nsfw, nsfw) || other.nsfw == nsfw));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,version,author,license,lang,icon,packageName,webSite,description,const DeepCollectionEquality().hash(_tags),api,type,error);
+int get hashCode => Object.hash(runtimeType,name,version,author,license,lang,icon,packageName,webSite,description,const DeepCollectionEquality().hash(_tags),api,type,error,nsfw);
 
 @override
 String toString() {
-  return 'DomainExtensionMeta(name: $name, version: $version, author: $author, license: $license, lang: $lang, icon: $icon, packageName: $packageName, webSite: $webSite, description: $description, tags: $tags, api: $api, type: $type, error: $error)';
+  return 'DomainExtensionMeta(name: $name, version: $version, author: $author, license: $license, lang: $lang, icon: $icon, packageName: $packageName, webSite: $webSite, description: $description, tags: $tags, api: $api, type: $type, error: $error, nsfw: $nsfw)';
 }
 
 
@@ -573,7 +575,7 @@ abstract mixin class _$DomainExtensionMetaCopyWith<$Res> implements $DomainExten
   factory _$DomainExtensionMetaCopyWith(_DomainExtensionMeta value, $Res Function(_DomainExtensionMeta) _then) = __$DomainExtensionMetaCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String version, String author, String license, String lang, String? icon, String packageName, String webSite, String? description, List<dynamic> tags, String api, ExtensionType type, String? error
+ String name, String version, String author, String license, String lang, String? icon, String packageName, String webSite, String? description, List<dynamic> tags, String api, ExtensionType type, String? error, bool nsfw
 });
 
 
@@ -590,7 +592,7 @@ class __$DomainExtensionMetaCopyWithImpl<$Res>
 
 /// Create a copy of DomainExtensionMeta
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? version = null,Object? author = null,Object? license = null,Object? lang = null,Object? icon = freezed,Object? packageName = null,Object? webSite = null,Object? description = freezed,Object? tags = null,Object? api = null,Object? type = null,Object? error = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? version = null,Object? author = null,Object? license = null,Object? lang = null,Object? icon = freezed,Object? packageName = null,Object? webSite = null,Object? description = freezed,Object? tags = null,Object? api = null,Object? type = null,Object? error = freezed,Object? nsfw = null,}) {
   return _then(_DomainExtensionMeta(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
@@ -605,7 +607,8 @@ as String?,tags: null == tags ? _self._tags : tags // ignore: cast_nullable_to_n
 as List<dynamic>,api: null == api ? _self.api : api // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as ExtensionType,error: freezed == error ? _self.error : error // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,nsfw: null == nsfw ? _self.nsfw : nsfw // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

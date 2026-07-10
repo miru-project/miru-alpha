@@ -25,41 +25,45 @@ class FavoriteView extends HookConsumerWidget {
           maxExtent: 180,
           minExtent: 120,
           builder: (context, shrinkOffset, shrinkProgress) {
-            return SnapSheetHeader(title: 'favorite.title'.i18n, suffix: []);
+            return SizedBox(
+              height: 110,
+              child: SnapSheetHeader(title: 'favorite.title'.i18n, suffix: []),
+            );
           },
         ),
       ],
-      body: viewModelAsync.when(
-        loading: () => const LoadingState(),
-        error: (error, stack) =>
-            ErrorState(message: 'favorite.load_failed'.i18n),
-        data: (state) {
-          if (state.groups.isEmpty) {
-            return EmptyState(
+      slivers: [
+        if (viewModelAsync.isLoading)
+          const SliverFillRemaining(child: LoadingState())
+        else if (viewModelAsync.hasError)
+          SliverFillRemaining(
+            child: ErrorState(message: 'favorite.load_failed'.i18n),
+          )
+        else if (viewModelAsync.value!.groups.isEmpty)
+          SliverFillRemaining(
+            child: EmptyState(
               icon: FLucideIcons.heart,
               message: 'favorite.empty'.i18n,
-            );
-          }
-
-          final favorites = state.favorites;
-
-          return ListView.builder(
+            ),
+          )
+        else
+          SliverPadding(
             padding: const EdgeInsets.all(16),
-            itemCount: favorites.length,
-            itemBuilder: (context, index) {
-              final favorite = favorites[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: const Icon(FLucideIcons.heart),
-                  title: Text(favorite.title),
-                  subtitle: Text(favorite.package),
-                ),
-              );
-            },
-          );
-        },
-      ),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final favorite = viewModelAsync.value!.favorites[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    leading: const Icon(FLucideIcons.heart),
+                    title: Text(favorite.title),
+                    subtitle: Text(favorite.package),
+                  ),
+                );
+              }, childCount: viewModelAsync.value!.favorites.length),
+            ),
+          ),
+      ],
     );
   }
 }

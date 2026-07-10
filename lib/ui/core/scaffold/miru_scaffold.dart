@@ -19,7 +19,8 @@ class MiruScaffold extends StatefulHookConsumerWidget {
     this.scrollThrottle = ScrollUpdateThrottle.none,
     this.headerHeight = 50,
     this.sliverHeaders = const [],
-  }) : assert(desktopBody != null || body != null),
+    this.slivers,
+  }) : assert(desktopBody != null || body != null || slivers != null),
        mobileBody = null,
        snapSheet = const [],
        sheetController = null,
@@ -41,7 +42,8 @@ class MiruScaffold extends StatefulHookConsumerWidget {
     this.resizeToAvoidBottomInset = false,
     this.onScrollChange,
     this.scrollThrottle = ScrollUpdateThrottle.none,
-  }) : assert(mobileBody != null || body != null);
+    this.slivers,
+  }) : assert(mobileBody != null || body != null || slivers != null);
 
   final Widget? desktopBody;
   final Widget? mobileBody;
@@ -52,6 +54,11 @@ class MiruScaffold extends StatefulHookConsumerWidget {
 
   /// List of sliver persistent header delegates for animated/shrinkable headers
   final List<SliverPersistentHeaderDelegate> sliverHeaders;
+
+  /// Content slivers injected directly into the CustomScrollView, replacing the
+  /// default [body]. Use this to share the same scroll context as the headers
+  /// so scrolling feels unified instead of nested.
+  final List<Widget>? slivers;
 
   /// Snapping offsets for snap sheet mode
   final List<SheetOffset>? snappingOffsets;
@@ -140,7 +147,6 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 5),
       child: CustomScrollView(
-        controller: scrollController,
         physics: const NeverScrollableScrollPhysics(),
         slivers: widget.sliverHeaders
             .map(
@@ -158,17 +164,25 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
   // ---------------------------------------------------------------------------
   Widget _buildNonSnapSheetMode() {
     final slivers = <Widget>[
-      // Add all sliver headers at the top wrapped in SliverPersistentHeader
       ...widget.sliverHeaders.map(
         (delegate) => SliverPersistentHeader(delegate: delegate, pinned: true),
       ),
-      SliverFillRemaining(
-        child: NotificationListener<ScrollNotification>(
-          onNotification: _handleScrollNotification,
-          child: widget.mobileBody ?? widget.body!,
-        ),
-      ),
     ];
+
+    if (widget.slivers != null) {
+      // Content provided as slivers shares the same CustomScrollView as the
+      // headers, giving a single unified scroll context.
+      slivers.addAll(widget.slivers!);
+    } else {
+      slivers.add(
+        SliverFillRemaining(
+          child: NotificationListener<ScrollNotification>(
+            onNotification: _handleScrollNotification,
+            child: widget.mobileBody ?? widget.body ?? const SizedBox.shrink(),
+          ),
+        ),
+      );
+    }
 
     return FScaffold(
       childPad: widget.childPad,

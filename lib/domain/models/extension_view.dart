@@ -13,8 +13,8 @@ abstract class DomainExtensionViewState with _$DomainExtensionViewState {
     @Default([]) List<DomainExtensionMeta> metadata,
     @Default('') String selectedRepoName,
     @Default('') String query,
-    @Default('ALL') String typeFilter,
-    @Default('ALL') String installFilter,
+    @Default(ExtensionType.all) ExtensionType typeFilter,
+    @Default(ExtensionInstallStatus.all) ExtensionInstallStatus installFilter,
     @Default(false) bool isLoading,
   }) = _DomainExtensionViewState;
 

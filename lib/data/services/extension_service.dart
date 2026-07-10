@@ -6,6 +6,7 @@ import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dar
     as ext_model;
 import 'package:miru_alpha/miru_core/proto/generate/proto/common.pb.dart'
     as common_model;
+import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 
 class ExtensionService {
@@ -58,18 +59,43 @@ class ExtensionService {
 
   Future<List<ext_model.ExtensionRepo>> getRepos() async {
     try {
-      final response = await MiruGrpcClient.repoClient.getRepos(
-        GetReposRequest(),
+      final response = await MiruGrpcClient.repoClient.fetchRepoList(
+        FetchRepoListRequest(),
       );
-      final data = jsonDecode(response.data) as List<dynamic>;
-      return data
-          .map(
-            (e) => ext_model.ExtensionRepo.fromJson(
-              jsonEncode(e as Map<String, dynamic>),
-            ),
-          )
-          .toList();
+      // The response.data is a JSON string, need to decode it first
+      final Map<String, dynamic> data =
+          jsonDecode(response.data) as Map<String, dynamic>;
+      return data.entries.map((e) {
+        final repoData = e.value as List<dynamic>;
+        final extensions = repoData.map((ext) {
+          return ext_model.GithubExtension(
+            name: ext['name'] as String? ?? '',
+            description: ext['description'] as String?,
+            license: ext['license'] as String? ?? '',
+            version: ext['version'] as String? ?? '',
+            author: ext['author'] as String? ?? '',
+            icon: ext['icon'] as String?,
+            type: ext['type'] as String? ?? '',
+            lang: ext['lang'] as String? ?? '',
+            webSite: ext['webSite'] as String? ?? '',
+            nsfw: ext['nsfw'] as bool? ?? false,
+            package: ext['package'] as String? ?? '',
+            tags:
+                (ext['tags'] as List<dynamic>?)
+                    ?.map((t) => t as String)
+                    .toList() ??
+                [],
+          );
+        }).toList();
+
+        return ext_model.ExtensionRepo(
+          extensions: extensions,
+          name: e.key,
+          url: e.key,
+        );
+      }).toList();
     } catch (e) {
+      logger.severe(e.toString());
       return [];
     }
   }
@@ -102,8 +128,24 @@ class ExtensionService {
       if (response is List) {
         return response
             .map(
-              (e) => common_model.ExtensionMeta.fromJson(
-                jsonEncode(e as Map<String, dynamic>),
+              (e) => common_model.ExtensionMeta(
+                name: e['name'] as String? ?? '',
+                version: e['version'] as String? ?? '',
+                author: e['author'] as String? ?? '',
+                license: e['license'] as String? ?? '',
+                lang: e['lang'] as String? ?? '',
+                icon: e['icon'] as String?,
+                package: e['package'] as String? ?? '',
+                webSite: e['webSite'] as String? ?? '',
+                description: e['description'] as String?,
+                tags:
+                    (e['tags'] as List<dynamic>?)
+                        ?.map((t) => t as String)
+                        .toList() ??
+                    [],
+                api: e['api'] as String? ?? '',
+                type: _mapExtensionType(e['type'] as String?),
+                error: e['error'] as String?,
               ),
             )
             .toList();
@@ -111,6 +153,22 @@ class ExtensionService {
       return [];
     } catch (e) {
       return [];
+    }
+  }
+
+  String _mapExtensionType(String? type) {
+    if (type == null) return 'all';
+    switch (type.toLowerCase()) {
+      case 'manga':
+        return 'manga';
+      case 'bangumi':
+      case 'video':
+        return 'bangumi';
+      case 'fikushon':
+      case 'novel':
+        return 'fikushon';
+      default:
+        return 'all';
     }
   }
 }

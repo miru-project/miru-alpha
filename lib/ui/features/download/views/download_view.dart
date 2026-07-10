@@ -63,43 +63,46 @@ class DownloadView extends HookConsumerWidget {
           },
         ),
       ],
-      body: viewModelAsync.when(
-        loading: () => const LoadingState(),
-        error: (error, stack) =>
-            ErrorState(message: 'download.load_failed'.i18n),
-        data: (downloads) {
-          if (downloads.isEmpty) {
-            return EmptyState(
+      slivers: [
+        if (viewModelAsync.isLoading)
+          const SliverFillRemaining(child: LoadingState())
+        else if (viewModelAsync.hasError)
+          SliverFillRemaining(
+            child: ErrorState(message: 'download.load_failed'.i18n),
+          )
+        else if (viewModelAsync.value!.isEmpty)
+          SliverFillRemaining(
+            child: EmptyState(
               icon: FLucideIcons.download,
               message: 'download.empty'.i18n,
-            );
-          }
-
-          return ListView.builder(
+            ),
+          )
+        else
+          SliverPadding(
             padding: const EdgeInsets.all(16),
-            itemCount: downloads.length,
-            itemBuilder: (context, index) {
-              final download = downloads[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: const Icon(FLucideIcons.fileText),
-                  title: Text(download.title),
-                  subtitle: Text(download.status.label),
-                  trailing: download.status == DownloadStatus.downloading
-                      ? SizedBox(
-                          width: 60,
-                          child: LinearProgressIndicator(
-                            value: download.progress,
-                          ),
-                        )
-                      : null,
-                ),
-              );
-            },
-          );
-        },
-      ),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final download = viewModelAsync.value![index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    leading: const Icon(FLucideIcons.fileText),
+                    title: Text(download.title),
+                    subtitle: Text(download.status.label),
+                    trailing: download.status == DownloadStatus.downloading
+                        ? SizedBox(
+                            width: 60,
+                            child: LinearProgressIndicator(
+                              value: download.progress,
+                            ),
+                          )
+                        : null,
+                  ),
+                );
+              }, childCount: viewModelAsync.value!.length),
+            ),
+          ),
+      ],
     );
   }
 }

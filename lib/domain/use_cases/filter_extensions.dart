@@ -5,8 +5,8 @@ class FilterExtensionsUseCase {
     required List<DomainExtensionRepo> repos,
     String? repoName,
     String? query,
-    String? typeFilter,
-    String? installFilter,
+    ExtensionType typeFilter = ExtensionType.all,
+    ExtensionInstallStatus installFilter = ExtensionInstallStatus.all,
     required List<String> installedPackages,
   }) {
     List<DomainExtensionRepo> repoResult = repos;
@@ -15,28 +15,29 @@ class FilterExtensionsUseCase {
       repoResult = repoResult.where((r) => r.name == repoName).toList();
     }
 
+    // `all` means no type restriction.
+    final targetType = typeFilter == ExtensionType.all ? null : typeFilter;
+
     final filteredRepos = <DomainExtensionRepo>[];
 
     for (final repo in repoResult) {
       var exts = repo.extensions;
 
-      if (typeFilter != null && typeFilter.isNotEmpty && typeFilter != 'ALL') {
-        exts = exts
-            .where(
-              (e) =>
-                  e.type.name.toLowerCase() == typeFilter.toLowerCase(),
-            )
-            .toList();
+      if (targetType != null) {
+        exts = exts.where((e) => e.type == targetType).toList();
       }
 
-      if (installFilter == 'extension.installed') {
-        exts = exts
-            .where((e) => installedPackages.contains(e.packageName))
-            .toList();
-      } else if (installFilter == 'extension.not_installed') {
-        exts = exts
-            .where((e) => !installedPackages.contains(e.packageName))
-            .toList();
+      switch (installFilter) {
+        case ExtensionInstallStatus.installed:
+          exts = exts
+              .where((e) => installedPackages.contains(e.packageName))
+              .toList();
+        case ExtensionInstallStatus.notInstalled:
+          exts = exts
+              .where((e) => !installedPackages.contains(e.packageName))
+              .toList();
+        case ExtensionInstallStatus.all:
+          break;
       }
 
       if (query != null && query.isNotEmpty) {
@@ -45,8 +46,8 @@ class FilterExtensionsUseCase {
       }
 
       if (exts.isNotEmpty ||
-          (typeFilter == 'ALL' &&
-              installFilter == 'ALL' &&
+          (typeFilter == ExtensionType.all &&
+              installFilter == ExtensionInstallStatus.all &&
               (query == null || query.isEmpty))) {
         filteredRepos.add(
           DomainExtensionRepo(name: repo.name, url: repo.url, extensions: exts),

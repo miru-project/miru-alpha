@@ -204,154 +204,162 @@ class AnilistProgressPage extends HookConsumerWidget {
           ),
         ),
       ],
-      body: state.isLoading
-          ? const Center(child: FCircularProgress.loader())
-          : state.media == null
-          ? const Center(child: Text('tracking.anilist.failed_load_media'))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        if (state.media!.coverImage.large != null)
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: ImageWidget(
-                              imageUrl: state.media!.coverImage.large!,
-                              width: 60,
-                              height: 90,
-                            ),
-                          ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                state.media!.title.userPreferred ??
-                                    'common.unknown'.i18n,
-                                style: context.theme.typography.body.md
-                                    .copyWith(fontWeight: FontWeight.w600),
-                                maxLines: 2,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                [
-                                  state.media!.status,
-                                  if (state.media!.episodes != null)
-                                    '${'tracking.anilist.total'.i18n}: ${state.media!.episodes} ${'media.episodes'.i18n}',
-                                  if (state.media!.chapters != null)
-                                    '${'tracking.anilist.total'.i18n}: ${state.media!.chapters} ${'media.chapters'.i18n}',
-                                  if (state.media!.status == "RELEASING" &&
-                                      state.media!.nextAiringEpisode != null)
-                                    '${'tracking.anilist.aired'.i18n}: ${state.media!.nextAiringEpisode!.episode - 1}',
-                                ].join(' • '),
-                                style: TextStyle(
-                                  color: context.theme.colors.mutedForeground,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  FTileGroup(
+      slivers: [
+        if (state.isLoading)
+          const SliverFillRemaining(
+            child: Center(child: FCircularProgress.loader()),
+          )
+        else if (state.media == null)
+          const SliverFillRemaining(
+            child: Center(child: Text('tracking.anilist.failed_load_media')),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
                     children: [
-                      FTile(
-                        title: Text('common.status'.i18n),
-                        subtitle: Text(
-                          AniListProvider.mediaListStatusToTranslate(
-                            state.status,
-                            state.media!.type == "MANGA"
-                                ? AnilistType.manga
-                                : AnilistType.anime,
+                      if (state.media!.coverImage.large != null)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: ImageWidget(
+                            imageUrl: state.media!.coverImage.large!,
+                            width: 60,
+                            height: 90,
                           ),
                         ),
-                        onPress: () => showPicker(
-                          title: 'common.status'.i18n,
-                          count: AnilistMediaListStatus.values.length,
-                          initialIndex: AnilistMediaListStatus.values.indexOf(
-                            state.status,
-                          ),
-                          onSelected: (index) => notifier.setStatus(
-                            AnilistMediaListStatus.values[index],
-                          ),
-                          labelBuilder: (index) =>
-                              AniListProvider.mediaListStatusToTranslate(
-                                AnilistMediaListStatus.values[index],
-                                state.media!.type == "MANGA"
-                                    ? AnilistType.manga
-                                    : AnilistType.anime,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              state.media!.title.userPreferred ??
+                                  'common.unknown'.i18n,
+                              style: context.theme.typography.body.md.copyWith(
+                                fontWeight: FontWeight.w600,
                               ),
+                              maxLines: 2,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              [
+                                state.media!.status,
+                                if (state.media!.episodes != null)
+                                  '${'tracking.anilist.total'.i18n}: ${state.media!.episodes} ${'media.episodes'.i18n}',
+                                if (state.media!.chapters != null)
+                                  '${'tracking.anilist.total'.i18n}: ${state.media!.chapters} ${'media.chapters'.i18n}',
+                                if (state.media!.status == "RELEASING" &&
+                                    state.media!.nextAiringEpisode != null)
+                                  '${'tracking.anilist.aired'.i18n}: ${state.media!.nextAiringEpisode!.episode - 1}',
+                              ].join(' • '),
+                              style: TextStyle(
+                                color: context.theme.colors.mutedForeground,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      FTile(
-                        title: Text('tracking.anilist.progress'.i18n),
-                        subtitle: Text(
-                          '${state.progress} / ${state.media!.episodes ?? state.media!.chapters ?? '?'}',
-                        ),
-                        onPress: () => showPicker(
-                          title: 'tracking.anilist.progress'.i18n,
-                          count:
-                              (state.media!.episodes ??
-                                  state.media!.chapters ??
-                                  1000) +
-                              1,
-                          initialIndex: state.progress.toInt(),
-                          onSelected: (index) => notifier.setProgress(index),
-                          labelBuilder: (index) => index.toString(),
-                        ),
-                      ),
-                      FTile(
-                        title: Text('tracking.anilist.score'.i18n),
-                        subtitle: Text(state.score.toString()),
-                        onPress: showScorePicker,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: FButton(
-                            onPress: state.isSaving ? null : saveProgress,
-                            child: state.isSaving
-                                ? const FCircularProgress.loader()
-                                : Text('tracking.anilist.save_progress'.i18n),
-                          ),
+                ),
+                const SizedBox(height: 24),
+                FTileGroup(
+                  children: [
+                    FTile(
+                      title: Text('common.status'.i18n),
+                      subtitle: Text(
+                        AniListProvider.mediaListStatusToTranslate(
+                          state.status,
+                          state.media!.type == "MANGA"
+                              ? AnilistType.manga
+                              : AnilistType.anime,
                         ),
-                        if (param.isLinked) ...[
-                          const SizedBox(width: 12),
-                          FButton.icon(
-                            variant: .outline,
-                            onPress: state.isSaving ? null : unlinkTracker,
-                            child: const Icon(FLucideIcons.unlink),
-                          ),
-                        ],
-                        if (state.entry != null) ...[
-                          const SizedBox(width: 12),
-                          FButton.icon(
-                            variant: .destructive,
-                            onPress: state.isSaving
-                                ? null
-                                : showDeleteConfirmation,
-                            child: const Icon(FLucideIcons.trash2),
-                          ),
-                        ],
-                      ],
+                      ),
+                      onPress: () => showPicker(
+                        title: 'common.status'.i18n,
+                        count: AnilistMediaListStatus.values.length,
+                        initialIndex: AnilistMediaListStatus.values.indexOf(
+                          state.status,
+                        ),
+                        onSelected: (index) => notifier.setStatus(
+                          AnilistMediaListStatus.values[index],
+                        ),
+                        labelBuilder: (index) =>
+                            AniListProvider.mediaListStatusToTranslate(
+                              AnilistMediaListStatus.values[index],
+                              state.media!.type == "MANGA"
+                                  ? AnilistType.manga
+                                  : AnilistType.anime,
+                            ),
+                      ),
                     ),
+                    FTile(
+                      title: Text('tracking.anilist.progress'.i18n),
+                      subtitle: Text(
+                        '${state.progress} / ${state.media!.episodes ?? state.media!.chapters ?? '?'}',
+                      ),
+                      onPress: () => showPicker(
+                        title: 'tracking.anilist.progress'.i18n,
+                        count:
+                            (state.media!.episodes ??
+                                state.media!.chapters ??
+                                1000) +
+                            1,
+                        initialIndex: state.progress.toInt(),
+                        onSelected: (index) => notifier.setProgress(index),
+                        labelBuilder: (index) => index.toString(),
+                      ),
+                    ),
+                    FTile(
+                      title: Text('tracking.anilist.score'.i18n),
+                      subtitle: Text(state.score.toString()),
+                      onPress: showScorePicker,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: FButton(
+                          onPress: state.isSaving ? null : saveProgress,
+                          child: state.isSaving
+                              ? const FCircularProgress.loader()
+                              : Text('tracking.anilist.save_progress'.i18n),
+                        ),
+                      ),
+                      if (param.isLinked) ...[
+                        const SizedBox(width: 12),
+                        FButton.icon(
+                          variant: .outline,
+                          onPress: state.isSaving ? null : unlinkTracker,
+                          child: const Icon(FLucideIcons.unlink),
+                        ),
+                      ],
+                      if (state.entry != null) ...[
+                        const SizedBox(width: 12),
+                        FButton.icon(
+                          variant: .destructive,
+                          onPress: state.isSaving
+                              ? null
+                              : showDeleteConfirmation,
+                          child: const Icon(FLucideIcons.trash2),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ]),
             ),
+          ),
+      ],
     );
   }
 }

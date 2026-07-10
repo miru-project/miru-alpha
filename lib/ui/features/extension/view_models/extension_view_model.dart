@@ -52,7 +52,7 @@ class ExtensionViewModel extends _$ExtensionViewModel {
     _applyFilters();
   }
 
-  void filterByType(String type) {
+  void filterByType(ExtensionType type) {
     final current = state;
     state = current.copyWith(typeFilter: type);
     _applyFilters();
@@ -60,7 +60,9 @@ class ExtensionViewModel extends _$ExtensionViewModel {
 
   void filterByInstallStatus(String status) {
     final current = state;
-    state = current.copyWith(installFilter: status);
+    state = current.copyWith(
+      installFilter: ExtensionInstallStatusX.fromRaw(status),
+    );
     _applyFilters();
   }
 

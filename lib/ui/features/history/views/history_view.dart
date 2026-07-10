@@ -41,36 +41,39 @@ class HistoryView extends HookConsumerWidget {
           },
         ),
       ],
-      body: viewModelAsync.when(
-        loading: () => const LoadingState(),
-        error: (error, stack) =>
-            ErrorState(message: 'history.load_failed'.i18n),
-        data: (history) {
-          if (history.isEmpty) {
-            return EmptyState(
+      slivers: [
+        if (viewModelAsync.isLoading)
+          const SliverFillRemaining(child: LoadingState())
+        else if (viewModelAsync.hasError)
+          SliverFillRemaining(
+            child: ErrorState(message: 'history.load_failed'.i18n),
+          )
+        else if (viewModelAsync.value!.isEmpty)
+          SliverFillRemaining(
+            child: EmptyState(
               icon: FLucideIcons.clock,
               message: 'history.empty'.i18n,
-            );
-          }
-
-          return ListView.builder(
+            ),
+          )
+        else
+          SliverPadding(
             padding: const EdgeInsets.all(16),
-            itemCount: history.length,
-            itemBuilder: (context, index) {
-              final item = history[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: ListTile(
-                  leading: const Icon(FLucideIcons.clock),
-                  title: Text(item.title),
-                  subtitle: Text(item.package),
-                  trailing: Text(item.progress.toStringAsFixed(2)),
-                ),
-              );
-            },
-          );
-        },
-      ),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final item = viewModelAsync.value![index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    leading: const Icon(FLucideIcons.clock),
+                    title: Text(item.title),
+                    subtitle: Text(item.package),
+                    trailing: Text(item.progress.toStringAsFixed(2)),
+                  ),
+                );
+              }, childCount: viewModelAsync.value!.length),
+            ),
+          ),
+      ],
     );
   }
 }

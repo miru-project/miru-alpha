@@ -62,7 +62,7 @@ void main() {
       final useCase = FilterExtensionsUseCase();
       final result = useCase(
         repos: sampleRepos,
-        typeFilter: 'bangumi',
+        typeFilter: ExtensionType.bangumi,
         installedPackages: const [],
       );
 
@@ -75,7 +75,7 @@ void main() {
       final useCase = FilterExtensionsUseCase();
       final result = useCase(
         repos: sampleRepos,
-        installFilter: 'extension.installed',
+        installFilter: ExtensionInstallStatus.installed,
         installedPackages: const ['manga.ext'],
       );
 

@@ -65,7 +65,25 @@ class ExtensionRepository {
           (repo) => DomainExtensionRepo(
             name: repo.name,
             url: repo.url,
-            extensions: [],
+            extensions: repo.extensions
+                .map(
+                  (ext) => DomainExtensionMeta(
+                    name: ext.name,
+                    version: ext.version,
+                    author: ext.author,
+                    license: ext.license,
+                    lang: ext.lang,
+                    icon: ext.icon,
+                    packageName: ext.package,
+                    webSite: ext.webSite,
+                    description: ext.description,
+                    tags: ext.tags.toList(),
+                    api: '',
+                    type: _mapExtensionType(ext.type),
+                    error: null,
+                  ),
+                )
+                .toList(),
           ),
         )
         .toList();
