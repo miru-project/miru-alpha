@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -91,7 +92,10 @@ class ExtensionSettingPage extends HookConsumerWidget {
                     prefix: Icon(FLucideIcons.code),
                     onPress: () {
                       final extPath = Core.getExtensionPath;
-                      final codePath = p.join(extPath, '$pkg.js');
+                      final goPath = p.join(extPath, '$pkg.go');
+                      final codePath = File(goPath).existsSync()
+                          ? goPath
+                          : p.join(extPath, '$pkg.js');
                       context.push('/sourceCode', extra: codePath);
                     },
                   ),

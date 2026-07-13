@@ -3,106 +3,224 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_alpha/domain/models/download.dart';
-import 'package:miru_alpha/ui/features/download/view_models/download_view_model.dart';
-import 'package:miru_alpha/utils/core/i18n.dart';
-import 'package:miru_alpha/ui/core/scaffold/miru_scaffold.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/provider/download_provider.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/core/empty_state.dart';
 import 'package:miru_alpha/ui/core/loading_state.dart';
 import 'package:miru_alpha/ui/core/error_state.dart';
-import 'package:miru_alpha/ui/core/scaffold/custom_silver_header.dart';
-import 'package:miru_alpha/ui/core/scaffold/snapsheet_header.dart';
-import 'package:miru_alpha/utils/store/miru_settings.dart';
-
-Future<void> _openDownloadFolder() async {
-  final downloadPath = MiruSettings.getSettingSync<String>(
-    SettingKey.downloadPath,
-  );
-  if (downloadPath.isEmpty) return;
-
-  try {
-    if (Platform.isWindows) {
-      await Process.run('explorer.exe', [downloadPath]);
-    } else if (Platform.isMacOS) {
-      await Process.run('open', [downloadPath]);
-    } else if (Platform.isLinux) {
-      await Process.run('xdg-open', [downloadPath]);
-    }
-  } catch (e) {
-    // Silently fail if unable to open folder
-  }
-}
+import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:collection/collection.dart';
 
 class DownloadView extends HookConsumerWidget {
   const DownloadView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final viewModelAsync = ref.watch(downloadViewModelProvider);
+    final downloadAsync = ref.watch(downloadProvider);
+    final scrollController = useScrollController();
 
     return MiruScaffold.mobile(
-      sliverHeaders: [
-        FlexibleHeaderDelegate(
-          scrollPosition: useValueNotifier(0.0),
-          maxExtent: 180,
-          minExtent: 120,
-          builder: (context, shrinkOffset, shrinkProgress) {
-            return SnapSheetHeader(
-              title: 'download.title'.i18n,
-              suffix: [
-                FButton.icon(
-                  variant: FButtonVariant.ghost,
-                  onPress: () async {
-                    await _openDownloadFolder();
-                  },
-                  child: const Icon(FLucideIcons.folderOpen),
-                ),
-              ],
-            );
-          },
+      snapSheet: [SnapSheetNested.back(title: 'download.name'.i18n)],
+      childPad: true,
+      body: downloadAsync.when(
+        loading: () => const Center(child: LoadingState()),
+        error: (error, _) => Center(
+          child: ErrorState(message: 'download.error_loading_downloads'.i18n),
         ),
-      ],
-      slivers: [
-        if (viewModelAsync.isLoading)
-          const SliverFillRemaining(child: LoadingState())
-        else if (viewModelAsync.hasError)
-          SliverFillRemaining(
-            child: ErrorState(message: 'download.load_failed'.i18n),
-          )
-        else if (viewModelAsync.value!.isEmpty)
-          SliverFillRemaining(
-            child: EmptyState(
-              icon: FLucideIcons.download,
-              message: 'download.empty'.i18n,
-            ),
-          )
-        else
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final download = viewModelAsync.value![index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: const Icon(FLucideIcons.fileText),
-                    title: Text(download.title),
-                    subtitle: Text(download.status.label),
-                    trailing: download.status == DownloadStatus.downloading
-                        ? SizedBox(
-                            width: 60,
-                            child: LinearProgressIndicator(
-                              value: download.progress,
-                            ),
-                          )
-                        : null,
+        data: (state) {
+          final active = state.active;
+          final history = state.history;
+
+          if (active.isEmpty && history.isEmpty) {
+            return Center(
+              child: EmptyState(
+                icon: FLucideIcons.download,
+                message: 'download.no_download_history'.i18n,
+              ),
+            );
+          }
+
+          return NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is ScrollEndNotification &&
+                  scrollController.position.pixels >=
+                      scrollController.position.maxScrollExtent - 200) {
+                ref.read(downloadProvider.notifier).loadMoreHistory();
+              }
+              return false;
+            },
+            child: ListView(
+              controller: scrollController,
+              padding: const EdgeInsets.all(16),
+              children: [
+                if (active.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8, left: 4),
+                    child: Text(
+                      'download.no_active_downloads'.i18n,
+                      style: context.theme.typography.body.lg,
+                    ),
                   ),
-                );
-              }, childCount: viewModelAsync.value!.length),
+                  ...active.map((task) => _ActiveDownloadTile(task: task)),
+                  const SizedBox(height: 16),
+                ],
+                if (history.isNotEmpty) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8, left: 4),
+                    child: Text(
+                      'download.downloads_history'.i18n,
+                      style: context.theme.typography.body.lg,
+                    ),
+                  ),
+                  ...history.map(
+                    (download) => _FinishedDownloadTile(download: download),
+                  ),
+                  if (state.hasMore)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                ],
+              ],
             ),
-          ),
-      ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ActiveDownloadTile extends ConsumerWidget {
+  const _ActiveDownloadTile({required this.task});
+
+  final proto.DownloadProgress task;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final status = task.status;
+    final isPaused = status == proto.DownloadStatus.PAUSED;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: const Icon(FLucideIcons.download),
+        title: Text(task.title),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(_statusLabel(status)),
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: (task.total > 0 ? task.progress / task.total : 0)
+                  .toDouble()
+                  .clamp(0.0, 1.0),
+            ),
+          ],
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: Icon(isPaused ? FLucideIcons.play : FLucideIcons.pause),
+              onPressed: () {
+                ref
+                    .read(downloadProvider.notifier)
+                    .sendAction(
+                      context,
+                      task.taskId.toString(),
+                      isPaused
+                          ? proto.DownloadAction.RESUME
+                          : proto.DownloadAction.PAUSE,
+                    );
+              },
+            ),
+            IconButton(
+              icon: const Icon(FLucideIcons.x),
+              onPressed: () {
+                ref
+                    .read(downloadProvider.notifier)
+                    .sendAction(
+                      context,
+                      task.taskId.toString(),
+                      proto.DownloadAction.CANCEL,
+                    );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _statusLabel(proto.DownloadStatus status) {
+    return switch (status) {
+      proto.DownloadStatus.DOWNLOADING => 'download.status.downloading'.i18n,
+      proto.DownloadStatus.PAUSED => 'download.status.paused'.i18n,
+      proto.DownloadStatus.CONVERTING => 'download.status.converting'.i18n,
+      _ => 'download.status.unknown'.i18n,
+    };
+  }
+}
+
+class _FinishedDownloadTile extends ConsumerWidget {
+  const _FinishedDownloadTile({required this.download});
+
+  final proto.Download download;
+
+  void _openDetail(BuildContext context, WidgetRef ref) {
+    final meta = ref
+        .read(extensionPageProvider)
+        .metaData
+        .where((e) => e.packageName == download.package)
+        .firstOrNull;
+    if (meta == null) return;
+    context.push(
+      '/detail',
+      extra: DetailParam(meta: meta, url: download.detailUrl),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        leading: const Icon(FLucideIcons.fileCheck),
+        title: Text(download.title),
+        subtitle: Text(download.savePath),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(FLucideIcons.folderOpen),
+              onPressed: () async {
+                final path = download.savePath;
+                if (path.isEmpty) return;
+                try {
+                  if (Platform.isWindows) {
+                    await Process.run('explorer.exe', [path]);
+                  } else if (Platform.isMacOS) {
+                    await Process.run('open', [path]);
+                  } else if (Platform.isLinux) {
+                    await Process.run('xdg-open', [path]);
+                  }
+                } catch (e) {
+                  // ignore
+                }
+              },
+            ),
+            IconButton(
+              icon: const Icon(FLucideIcons.info),
+              onPressed: () => _openDetail(context, ref),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

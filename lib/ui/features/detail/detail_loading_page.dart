@@ -7,6 +7,7 @@ import 'package:miru_alpha/ui/features/detail/desktop_loaded_page.dart';
 import 'package:miru_alpha/ui/features/detail/mobile_loaded_page.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
 import 'package:miru_alpha/provider/extension_provider.dart';
+import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 
 import 'package:miru_alpha/ui/core/index.dart';
@@ -50,70 +51,110 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
           ),
         ],
         sliverHeaders: [
-          SimpleSliverHeaderDelegate(
-            maxExtent: 80,
-            child: Padding(
-              padding: EdgeInsetsGeometry.only(right: 10, left: 5, bottom: 0),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 12.0, top: 4, left: 10),
+          CustomSliverHeaderDelegate(
+            maxExtent: 120,
+            minExtent: 60,
+            builder: (context, offset, progress) {
+              logger.info('progress: $progress', 'offset: $offset');
+              final titleVisible = progress > 0.3;
+              return Padding(
+                padding: EdgeInsetsGeometry.only(right: 10, left: 5, bottom: 0),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          right: 12.0,
+                          top: 4,
+                          left: 10,
+                        ),
+                        child: Icon(
+                          FLucideIcons.chevronLeft,
+                          size: 28,
+                          color: context.theme.colors.primary,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: AnimatedOpacity(
+                        opacity: titleVisible ? 1.0 : 0.0,
+                        duration: const Duration(milliseconds: 150),
+                        curve: Curves.easeInOut,
+                        child: AnimatedSlide(
+                          offset: titleVisible
+                              ? Offset.zero
+                              : const Offset(0, -0.3),
+                          duration: const Duration(milliseconds: 150),
+                          curve: Curves.easeInOut,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                              top: 8.0,
+                              bottom: 8.0,
+                            ),
+                            child: Text(
+                              detial.title,
+                              style: TextStyle(
+                                height: 1.2,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: context.theme.colors.primary,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Spacer(),
+                    FButton.icon(
+                      variant: .ghost,
+                      onPress: () {
+                        context.push(
+                          '/mobileWebView',
+                          extra: WebviewParam(
+                            meta: widget.meta,
+                            url: widget.detailUrl,
+                          ),
+                        );
+                      },
                       child: Icon(
-                        FLucideIcons.chevronLeft,
+                        FLucideIcons.globe,
                         size: 28,
                         color: context.theme.colors.primary,
                       ),
                     ),
-                  ),
-                  Spacer(),
-                  FButton.icon(
-                    variant: .ghost,
-                    onPress: () {
-                      context.push(
-                        '/mobileWebView',
-                        extra: WebviewParam(
-                          meta: widget.meta,
-                          url: widget.detailUrl,
-                        ),
-                      );
-                    },
-                    child: Icon(
-                      FLucideIcons.globe,
-                      size: 28,
-                      color: context.theme.colors.primary,
+                    FButton.icon(
+                      variant: .ghost,
+                      onPress: () {
+                        if (favorite != null) {
+                          ref.read(detailPr.notifier).removeFavorite(favorite);
+                          return;
+                        }
+                        showDialog(
+                          context: context,
+                          builder: (context) => FavoriteDialog(
+                            meta: widget.meta,
+                            detailUrl: widget.detailUrl,
+                            detail: detial,
+                            detailPr: detailPr,
+                          ),
+                        );
+                      },
+                      child: HeartButton(
+                        size: 28,
+                        activeColor: context.theme.colors.primary,
+                        inactiveColor: context.theme.colors.primary,
+                        isLiked: favorite != null,
+                      ),
                     ),
-                  ),
-                  FButton.icon(
-                    variant: .ghost,
-                    onPress: () {
-                      if (favorite != null) {
-                        ref.read(detailPr.notifier).removeFavorite(favorite);
-                        return;
-                      }
-                      showDialog(
-                        context: context,
-                        builder: (context) => FavoriteDialog(
-                          meta: widget.meta,
-                          detailUrl: widget.detailUrl,
-                          detail: detial,
-                          detailPr: detailPr,
-                        ),
-                      );
-                    },
-                    child: HeartButton(
-                      size: 28,
-                      activeColor: context.theme.colors.primary,
-                      inactiveColor: context.theme.colors.primary,
-                      isLiked: favorite != null,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
         desktopBody: DesktopLoadedPage(

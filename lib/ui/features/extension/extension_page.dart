@@ -70,13 +70,13 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                           try {
                             final result = await FilePicker.pickFiles(
                               type: .custom,
-                              allowedExtensions: ['js'],
+                              allowedExtensions: ['js', 'go'],
                             );
                             if (result != null &&
                                 result.files.single.path != null) {
                               final pickedPath = result.files.single.path!;
                               final filename = p.basename(pickedPath);
-                              final reg = RegExp(r'^\w.+\.\w+\.js$');
+                              final reg = RegExp(r'^\w.+\.\w+\.(js|go)$');
                               if (!reg.hasMatch(filename)) {
                                 showSimpleToast('Invalid extension name');
                                 return;
@@ -110,7 +110,8 @@ class _ExtensionPageState extends ConsumerState<ExtensionPage> {
                             validator: (value) =>
                                 ((value?.startsWith('https') ?? false) ||
                                         (value?.startsWith('http') ?? false)) &&
-                                    (value?.endsWith('.js') ?? false)
+                                    ((value?.endsWith('.js') ?? false) ||
+                                        (value?.endsWith('.go') ?? false))
                                 ? null
                                 : 'extension.import.invalid_url'.i18n,
                             hint: 'https://example.com/ext.js',

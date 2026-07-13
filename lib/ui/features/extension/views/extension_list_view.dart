@@ -1,19 +1,19 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/domain/models/extension.dart';
+import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/ui/features/extension/view_models/extension_view_model.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/features/extension/widget/extension_tile.dart';
-import 'package:miru_alpha/ui/core/core/search_filter_card.dart';
 import 'package:miru_alpha/ui/features/extension/widget/clearable_select.dart';
-import 'package:miru_alpha/ui/core/grid_view/index.dart';
-import 'package:miru_alpha/ui/core/scaffold/custom_silver_header.dart';
-import 'package:miru_alpha/ui/core/scaffold/snapsheet_header.dart';
-import 'package:miru_alpha/ui/core/scaffold/miru_scaffold.dart';
+import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/core/empty_state.dart';
 import 'package:miru_alpha/ui/core/loading_state.dart';
+import 'package:path/path.dart' as p;
 
 class ExtensionListView extends HookConsumerWidget {
   const ExtensionListView({super.key});
@@ -57,7 +57,91 @@ class ExtensionListView extends HookConsumerWidget {
           maxExtent: 50,
           minExtent: 0,
           builder: (context, shrinkOffset, shrinkProgress) {
-            return SnapSheetHeader(title: 'extension.name'.i18n, suffix: []);
+            return SnapSheetHeader(
+              title: 'extension.name'.i18n,
+              suffix: [
+                FButton.icon(
+                  variant: .ghost,
+                  onPress: () {
+                    String? editValue;
+                    showMiruDialog(
+                      context: context,
+                      title: Text('extension.import.title'.i18n),
+                      actions: [
+                        FButton(
+                          variant: .secondary,
+                          onPress: () {
+                            if (editValue == null) return;
+                          },
+                          child: Text('extension.import.import_by_url'.i18n),
+                        ),
+                        FButton(
+                          onPress: () async {
+                            Navigator.of(context).pop();
+                            try {
+                              final result = await FilePicker.pickFiles(
+                                type: .custom,
+                                allowedExtensions: ['js', 'go'],
+                              );
+                              if (result != null &&
+                                  result.files.single.path != null) {
+                                final pickedPath = result.files.single.path!;
+                                final filename = p.basename(pickedPath);
+                                final reg = RegExp(r'^\w.+\.\w+\.(js|go)$');
+                                if (!reg.hasMatch(filename)) {
+                                  showSimpleToast('Invalid extension name');
+                                  return;
+                                }
+                                final targetPath = p.join(
+                                  Core.extensionPath,
+                                  filename,
+                                );
+                                final targetDir = Directory(Core.extensionPath);
+                                if (!targetDir.existsSync()) {
+                                  await targetDir.create(recursive: true);
+                                }
+                                await File(pickedPath).copy(targetPath);
+                                showSimpleToast('Install Success');
+                              }
+                            } catch (e) {
+                              showSimpleToast('Install Failed: $e');
+                            }
+                          },
+                          child: Text('extension.import.import_by_local'.i18n),
+                        ),
+                      ],
+                      body: Form(
+                        child: Column(
+                          mainAxisSize: .min,
+                          children: [
+                            Text('extension.import.tips'.i18n),
+                            SizedBox(height: 10),
+                            FTextFormField(
+                              autovalidateMode: .onUserInteraction,
+                              validator: (value) =>
+                                  ((value?.startsWith('https') ?? false) ||
+                                          (value?.startsWith('http') ??
+                                              false)) &&
+                                      ((value?.endsWith('.js') ?? false) ||
+                                          (value?.endsWith('.go') ?? false))
+                                  ? null
+                                  : 'extension.import.invalid_url'.i18n,
+                              hint: 'https://example.com/ext.js',
+                              control: .managed(
+                                onChange: (value) {
+                                  editValue = value.text;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  child: Icon(FLucideIcons.plus, size: 24),
+                ),
+              ],
+            );
           },
           scrollPosition: scrollPosition,
         ),
@@ -111,7 +195,7 @@ class ExtensionListView extends HookConsumerWidget {
           SliverFillRemaining(
             child: EmptyState(
               icon: FLucideIcons.package,
-              message: 'extension.'.i18n,
+              message: 'extension.no_extensions_installed'.i18n,
             ),
           )
         else

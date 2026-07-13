@@ -40,7 +40,7 @@ class SearchPageSingleView extends HookConsumerWidget {
       sheetController: sheetController,
       sliverHeaders: [
         SimpleSliverHeaderDelegate(
-          maxExtent: 80,
+          maxExtent: 50,
           child: Padding(
             padding: EdgeInsetsGeometry.only(bottom: 10),
             child: Row(
@@ -50,7 +50,11 @@ class SearchPageSingleView extends HookConsumerWidget {
                     Navigator.of(context).pop();
                   },
                   child: Padding(
-                    padding: const EdgeInsets.only(right: 12.0, top: 4, left: 10),
+                    padding: const EdgeInsets.only(
+                      right: 12.0,
+                      top: 4,
+                      left: 10,
+                    ),
                     child: Icon(
                       FLucideIcons.chevronLeft,
                       size: 28,
@@ -73,7 +77,9 @@ class SearchPageSingleView extends HookConsumerWidget {
                       Consumer(
                         builder: (context, ref, _) {
                           final page = ref.watch(
-                            searchPageSingleProviderProvider.select((v) => v.page),
+                            searchPageSingleProviderProvider.select(
+                              (v) => v.page,
+                            ),
                           );
                           return Text(
                             'page: ${page.toString()}',

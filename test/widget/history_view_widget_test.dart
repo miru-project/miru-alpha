@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_alpha/ui/features/history/views/history_view.dart';
-import 'package:miru_alpha/ui/features/history/view_models/history_view_model.dart';
+import 'package:miru_alpha/model/user_data.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
-import 'package:miru_alpha/domain/models/history.dart';
+import 'package:miru_alpha/ui/core/grid_view/miru_grid_tile.dart';
+import 'package:miru_alpha/provider/home/history_page_provider.dart';
+import 'package:miru_alpha/ui/features/history/views/history_view.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
 import 'package:forui/forui.dart';
 
-class _FakeHistoryViewModel extends HistoryViewModel {
-  _FakeHistoryViewModel(this._items);
-  final List<DomainHistoryItem> _items;
+class _FakeHistoryPageNotifier extends HistoryPageNotifier {
+  _FakeHistoryPageNotifier(this._state);
+  final HistoryPageState _state;
 
   @override
-  Future<List<DomainHistoryItem>> build() => Future.value(_items);
+  HistoryPageState build() => _state;
 }
 
 class _FakeApplicationController extends ApplicationController {
@@ -27,20 +28,10 @@ class _FakeApplicationController extends ApplicationController {
 
 void main() {
   testWidgets('HistoryView renders correctly', (WidgetTester tester) async {
-    final historyItems = [
-      DomainHistoryItem(
-        id: '1',
-        title: 'Test Title',
-        package: 'test.package',
-        progress: 0.5,
-        cover: '',
-        detailUrl: '',
-        episodeIndex: 0,
-        watchedDuration: 0,
-        totalDuration: 0,
-        watchedAt: DateTime.now(),
-      ),
-    ];
+    final historyState = HistoryPageState(
+      history: const [],
+      filteredHistory: const [],
+    );
 
     final appState = ApplicationState(
       themeText: 'light',
@@ -52,14 +43,18 @@ void main() {
 
     final container = ProviderContainer(
       overrides: [
-        historyViewModelProvider.overrideWith(() => _FakeHistoryViewModel(historyItems)),
-        applicationControllerProvider.overrideWith(() => _FakeApplicationController(appState)),
+        historyPageProvider.overrideWith(
+          () => _FakeHistoryPageNotifier(historyState),
+        ),
+        applicationControllerProvider.overrideWith(
+          () => _FakeApplicationController(appState),
+        ),
       ],
     );
 
     addTearDown(container.dispose);
 
-    await tester.binding.setSurfaceSize(const Size(1200, 800));
+    await tester.binding.setSurfaceSize(const Size(400, 800));
     addTearDown(() async => tester.binding.setSurfaceSize(null));
 
     await tester.pumpWidget(
@@ -68,7 +63,7 @@ void main() {
         child: FTheme(
           data: ThemeUtils.getThemeData(FThemes.zinc.light),
           child: MediaQuery(
-            data: const MediaQueryData(size: Size(1200, 800)),
+            data: const MediaQueryData(size: Size(400, 800)),
             child: MaterialApp.router(
               routerConfig: GoRouter(
                 routes: [
@@ -88,5 +83,80 @@ void main() {
 
     // HistoryView should build without throwing.
     expect(find.byType(HistoryView), findsOneWidget);
+  });
+
+  testWidgets('HistoryView shows histories in a grid', (
+    WidgetTester tester,
+  ) async {
+    final histories = [
+      History(
+        package: 'test.package',
+        url: 'https://example.com/1',
+        detailUrl: 'https://example.com/1',
+        type: 'manga',
+        episodeGroupId: 0,
+        episodeId: 0,
+        title: 'Test History',
+        episodeTitle: 'Ep 1',
+        progress: 5,
+        totalProgress: 10,
+        date: DateTime.now(),
+      ),
+    ];
+    final historyState = HistoryPageState(
+      history: histories,
+      filteredHistory: histories,
+    );
+
+    final appState = ApplicationState(
+      themeText: 'light',
+      accentColor: AccentColors.zinc,
+      themeData: ThemeUtils.getThemeData(FThemes.zinc.light),
+      themeMode: ThemeMode.system,
+      language: 'en',
+    );
+
+    final container = ProviderContainer(
+      overrides: [
+        historyPageProvider.overrideWith(
+          () => _FakeHistoryPageNotifier(historyState),
+        ),
+        applicationControllerProvider.overrideWith(
+          () => _FakeApplicationController(appState),
+        ),
+      ],
+    );
+
+    addTearDown(container.dispose);
+
+    await tester.binding.setSurfaceSize(const Size(400, 800));
+    addTearDown(() async => tester.binding.setSurfaceSize(null));
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: FTheme(
+          data: ThemeUtils.getThemeData(FThemes.zinc.light),
+          child: MediaQuery(
+            data: const MediaQueryData(size: Size(400, 800)),
+            child: MaterialApp.router(
+              routerConfig: GoRouter(
+                routes: [
+                  GoRoute(
+                    path: '/',
+                    builder: (context, state) => const HistoryView(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HistoryView), findsOneWidget);
+    expect(find.byType(MiruMobileTile), findsOneWidget);
   });
 }

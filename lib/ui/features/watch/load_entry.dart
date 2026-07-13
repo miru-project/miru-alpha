@@ -17,6 +17,90 @@ import 'package:miru_alpha/ui/core/error.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+// The Go engine returns the resolved watch result as a raw `Map`/`String` for
+// V2 ("api == 2" / raw) extensions (see `MiruCoreEndpoint.mirror`). The player
+// widgets however expect a typed protobuf object. Normalize the raw data here
+// so a `Map`/`String` does not crash the widget tree with a _TypeError
+// ("type 'X' is not a subtype of type 'Y'") during build.
+ExtensionBangumiWatch _toBangumiWatch(dynamic data) {
+  if (data is ExtensionBangumiWatch) return data;
+  if (data is String) return ExtensionBangumiWatch()..url = data;
+  if (data is List) return _bangumiFromList(data);
+  if (data is Map) {
+    return ExtensionBangumiWatch()
+      ..mergeFromProto3Json(
+        Map<String, dynamic>.from(data),
+        ignoreUnknownFields: true,
+      );
+  }
+  throw Exception('Unsupported bangumi watch data type: ${data.runtimeType}');
+}
+
+// The Go engine may resolve a mirror into a list of candidate sources
+// (e.g. multiple qualities / mirrors). Pick the first usable one.
+ExtensionBangumiWatch _bangumiFromList(List list) {
+  for (final item in list) {
+    if (item is String && item.isNotEmpty) {
+      return ExtensionBangumiWatch()..url = item;
+    }
+    if (item is Map && item['url'] != null) {
+      return ExtensionBangumiWatch()
+        ..mergeFromProto3Json(
+          Map<String, dynamic>.from(item),
+          ignoreUnknownFields: true,
+        );
+    }
+  }
+  if (list.isNotEmpty) return ExtensionBangumiWatch()..url = list.first.toString();
+  throw Exception('Empty watch data list');
+}
+
+ExtensionMangaWatch _toMangaWatch(dynamic data) {
+  if (data is ExtensionMangaWatch) return data;
+  if (data is List) {
+    final urls = <String>[];
+    for (final item in data) {
+      if (item is String && item.isNotEmpty) {
+        urls.add(item);
+      } else if (item is Map && item['url'] != null) {
+        urls.add(item['url'].toString());
+      }
+    }
+    return ExtensionMangaWatch()..urls.addAll(urls);
+  }
+  if (data is Map) {
+    return ExtensionMangaWatch()
+      ..mergeFromProto3Json(
+        Map<String, dynamic>.from(data),
+        ignoreUnknownFields: true,
+      );
+  }
+  throw Exception('Unsupported manga watch data type: ${data.runtimeType}');
+}
+
+ExtensionFikushonWatch _toNovelWatch(dynamic data) {
+  if (data is ExtensionFikushonWatch) return data;
+  if (data is List) {
+    final content = <String>[];
+    for (final item in data) {
+      if (item is String && item.isNotEmpty) {
+        content.add(item);
+      } else if (item is Map && item['content'] != null) {
+        content.add(item['content'].toString());
+      }
+    }
+    return ExtensionFikushonWatch()..content.addAll(content);
+  }
+  if (data is Map) {
+    return ExtensionFikushonWatch()
+      ..mergeFromProto3Json(
+        Map<String, dynamic>.from(data),
+        ignoreUnknownFields: true,
+      );
+  }
+  throw Exception('Unsupported novel watch data type: ${data.runtimeType}');
+}
+
 class WatchLoadEntry extends StatefulHookConsumerWidget {
   const WatchLoadEntry({super.key, required this.param});
   final WatchParams param;
@@ -126,7 +210,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
               }
               switch (extra.type) {
                 case ExtensionType.bangumi:
-                  final data = value.data as ExtensionBangumiWatch;
+                  final data = _toBangumiWatch(value.data);
                   return MiruVideoPlayer(
                     name: extra.name,
                     value: data,
@@ -138,7 +222,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     v2watch: value.v2watch,
                   );
                 case ExtensionType.manga:
-                  final data = value.data as ExtensionMangaWatch;
+                  final data = _toMangaWatch(value.data);
                   return MiruMangaReader(
                     name: extra.name,
                     value: data,
@@ -148,7 +232,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     epProvider: _epProvider,
                   );
                 default:
-                  final data = value.data as ExtensionFikushonWatch;
+                  final data = _toNovelWatch(value.data);
                   return MiruNovelReader(
                     meta: meta,
                     name: extra.name,

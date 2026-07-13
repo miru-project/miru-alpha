@@ -28,7 +28,6 @@ class MobileLoadedPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
     final favGrp = ref.watch(detailPr.select((value) => value.favoriateGroup));
-    final EdgeInsets padding = MediaQuery.paddingOf(context);
     return EasyRefresh(
       header: const ForuiHeader(),
       onRefresh: () async {
@@ -40,9 +39,6 @@ class MobileLoadedPage extends HookConsumerWidget {
         controller: scrollController,
         scrollCacheExtent: .viewport(10),
         slivers: [
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(8, (8 + padding.top), 8, 0),
-          ),
           SliverToBoxAdapter(
             child: Column(
               children: [

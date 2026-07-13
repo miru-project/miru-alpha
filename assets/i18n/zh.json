@@ -10,9 +10,24 @@
       "manage_tags_desc": "通过创建和管理收藏组来组织您的分组。",
       "add_new_group": "添加新的收藏组",
       "enter_group_name": "输入组名...",
-      "current_groups": "当前分组"
+      "current_groups": "当前分组",
+      "groups": "分组",
+      "new_group": "新建分组",
+      "create_group": "创建分组",
+      "delete_group": "删除分组",
+      "delete_group_confirm": "删除此分组及其下所有收藏？",
+      "remove_favorite_confirm": "从收藏中移除该项？",
+      "all_favorites": "全部",
+      "select_groups": "选择分组",
+      "select_groups_desc": "选择要筛选的收藏分组",
+      "filter_mode": "筛选模式",
+      "and": "且",
+      "or": "或"
     },
     "history": "历史",
+    "history_empty": "暂无历史记录",
+    "history_delete_confirm": "移除该历史记录？",
+    "no_history": "无历史记录",
     "download": "下载",
     "library": "媒体库",
     "your_library": "媒体库",
@@ -97,7 +112,32 @@
     "days_ago": "{days} 天前",
     "weeks_ago": "{weeks} 周前",
     "months_ago": "{months} 个月前",
-    "years_ago": "{years} 年前"
+    "years_ago": "{years} 年前",
+    "history_tools": {
+      "clear_all": "清空全部",
+      "clear_all_confirm": "清空所有观看历史？",
+      "remove_item_confirm": "移除该历史记录？",
+      "today": "今天",
+      "yesterday": "昨天",
+      "older": "更早",
+      "resume": "继续",
+      "episode": "剧集"
+    },
+    "download_tools": {
+      "pause": "暂停",
+      "resume": "继续",
+      "cancel": "取消",
+      "retry": "重试",
+      "open_file": "打开文件",
+      "delete_file": "删除文件",
+      "delete_confirm": "删除此下载？",
+      "speed": "速度",
+      "size": "大小",
+      "downloading": "下载中",
+      "completed_section": "已完成",
+      "active_section": "进行中",
+      "failed_section": "失败"
+    }
   },
   "media": {
     "episode": {
@@ -394,13 +434,23 @@
     "years_ago": "{years} 年前"
   },
   "download": {
+    "name": "下载",
     "status": {
       "queued": "等待",
       "downloading": "下载中",
       "paused": "已暂停",
       "failed": "失败",
       "completed": "已完成",
-      "converting": "转换中"
-    }
+      "cancelled": "已取消",
+      "converting": "转换中",
+      "unknown": "未知"
+    },
+    "downloads_history": "下载历史",
+    "no_download_history": "无下载历史",
+    "no_active_downloads": "无活动下载",
+    "error_loading_downloads": "加载下载失败",
+    "download_started": "已开始下载",
+    "failed_to_start_download": "开始下载失败",
+    "downloaded": "已下载"
   }
 }
