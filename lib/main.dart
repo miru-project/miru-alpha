@@ -219,6 +219,7 @@ class _App extends ConsumerState<App> {
       data: c.themeData,
       child: FToaster(
         child: MaterialApp.router(
+          showPerformanceOverlay: kProfileMode,
           supportedLocales: FLocalizations.supportedLocales,
           key: ValueKey(c.language),
           theme: c.themeData.toApproximateMaterialTheme(),

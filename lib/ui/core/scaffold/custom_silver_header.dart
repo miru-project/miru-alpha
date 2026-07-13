@@ -278,11 +278,24 @@ class SimpleSliverHeaderDelegate extends BaseSliverHeaderDelegate {
 }
 
 /// Generic delegate that accepts a builder function for full control.
+///
+/// By default the [builder] receives the sliver's own `shrinkOffset` (and a
+/// normalized `progress`). That value only changes while the *enclosing*
+/// [CustomScrollView] scrolls. When the header lives inside a layout where the
+/// body is a separate (nested) scroll view — e.g. a [MiruScaffold] whose
+/// `mobileBody` scrolls on its own — the outer sliver never receives a changing
+/// `shrinkOffset`, so the header would never update.
+///
+/// Pass [scrollPosition] (a [ValueListenable] fed by the real scroll, such as
+/// the [MiruScaffold.onScrollChange] callback) to drive the header from that
+/// scroll position instead. The returned widget then rebuilds on every change
+/// via a [ValueListenableBuilder] without requiring the sliver itself to scroll.
 class CustomSliverHeaderDelegate extends BaseSliverHeaderDelegate {
   const CustomSliverHeaderDelegate({
     required this.builder,
     required super.maxExtent,
     super.minExtent = 0.0,
+    this.scrollPosition,
   });
 
   final Widget Function(
@@ -292,10 +305,25 @@ class CustomSliverHeaderDelegate extends BaseSliverHeaderDelegate {
   )
   builder;
 
+  /// Optional external scroll position. When provided, the header is driven by
+  /// this value (via a [ValueListenableBuilder]) instead of the sliver's own
+  /// `shrinkOffset`. This is required when the header's enclosing scroll view
+  /// does not actually scroll (e.g. the body is a nested scroll view).
+  final ValueListenable<double>? scrollPosition;
+
   @override
   Widget buildContent(BuildContext context, double shrinkOffset) {
-    final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
-    return builder(context, shrinkOffset, progress);
+    if (scrollPosition == null) {
+      final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+      return builder(context, shrinkOffset, progress);
+    }
+    return ValueListenableBuilder<double>(
+      valueListenable: scrollPosition!,
+      builder: (context, offset, _) {
+        final progress = (offset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+        return builder(context, offset, progress);
+      },
+    );
   }
 
   @override
