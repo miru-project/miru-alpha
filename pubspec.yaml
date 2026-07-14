@@ -53,7 +53,7 @@ dependencies:
   volume_controller: ^3.3.1
   screen_brightness: ^2.0.1
   hooks_riverpod: ^3.0.1
-  fvp: ^0.37.0
+  fvp: ^0.37.3
   video_player: ^2.9.1
   flutter_hooks: ^0.21.2
   easy_refresh: ^3.4.0
