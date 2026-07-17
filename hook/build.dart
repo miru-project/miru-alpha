@@ -259,8 +259,8 @@ Future<FFmpegBuildResult> _buildLinux(
 
 /// Windows build step – downloads the FFmpeg mingw archive from sourceforge
 /// and fully extracts it (headers, DLLs, and import libs). Uses the downloaded
-/// ffmpeg-8.dll for both linking and bundling, so there is no dependency on
-/// fvp's FFmpeg. Only ffmpeg-8.dll is bundled (not the individual av* DLLs)
+/// ffmpeg-9.dll for both linking and bundling, so there is no dependency on
+/// fvp's FFmpeg. Only ffmpeg-9.dll is bundled (not the individual av* DLLs)
 /// since it re-exports all the symbols needed by ffmpeg_merge.
 Future<FFmpegBuildResult> _buildWindows(
   BuildInput input,
@@ -312,11 +312,11 @@ Future<FFmpegBuildResult> _buildWindows(
   final includeDir = ffmpegDir.resolve('include/');
   final libDir = ffmpegDir.resolve('lib/x86_64/');
   final binDir = ffmpegDir.resolve('bin/x86_64/');
-  final ffmpegDll = binDir.resolve('ffmpeg-8.dll');
+  final ffmpegDll = binDir.resolve('ffmpeg-9.dll');
 
   if (!File.fromUri(ffmpegDll).existsSync()) {
     throw Exception(
-      'Downloaded FFmpeg build is incomplete: ffmpeg-8.dll not found at $ffmpegDll.',
+      'Downloaded FFmpeg build is incomplete: ffmpeg-9.dll not found at $ffmpegDll.',
     );
   }
   if (!Directory.fromUri(libDir).existsSync()) {
@@ -331,18 +331,18 @@ Future<FFmpegBuildResult> _buildWindows(
   // native_toolchain_c appends .lib automatically on Windows.
   libraries.add('ffmpeg');
 
-  // Register only ffmpeg-8.dll as a bundled code asset.
-  // ffmpeg-8.dll re-exports all the avcodec/avformat/avutil symbols, so the
+  // Register only ffmpeg-9.dll as a bundled code asset.
+  // ffmpeg-9.dll re-exports all the avcodec/avformat/avutil symbols, so the
   // individual av* DLLs are not needed at link time or runtime.
   output.assets.code.add(
     CodeAsset(
       package: input.packageName,
-      name: 'ffmpeg-8.dll',
+      name: 'ffmpeg-9.dll',
       file: ffmpegDll,
       linkMode: DynamicLoadingBundled(),
     ),
   );
-  logger.info('Registered ffmpeg-8.dll as bundled code asset.');
+  logger.info('Registered ffmpeg-9.dll as bundled code asset.');
 
   return FFmpegBuildResult(
     includes: includes,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
@@ -104,7 +105,7 @@ class FavoriteDialog extends HookConsumerWidget {
       }
     }
 
-    return FDialog(
+    return MiruDialog(
       title: Text("media.add_to_favorites".i18n),
       body: Padding(
         padding: EdgeInsetsGeometry.only(top: 16),

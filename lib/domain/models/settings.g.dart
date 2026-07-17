@@ -9,6 +9,7 @@ part of 'settings.dart';
 _DomainAppSettings _$DomainAppSettingsFromJson(Map<String, dynamic> json) =>
     _DomainAppSettings(
       theme: json['theme'] as String? ?? 'system',
+      baseColor: json['baseColor'] as String? ?? 'zinc',
       accentColor: (json['accentColor'] as num?)?.toInt() ?? 0xFF2196F3,
       language: json['language'] as String? ?? 'en',
       isMobileTitleOnTop: json['isMobileTitleOnTop'] as bool? ?? false,
@@ -46,6 +47,7 @@ _DomainAppSettings _$DomainAppSettingsFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$DomainAppSettingsToJson(_DomainAppSettings instance) =>
     <String, dynamic>{
       'theme': instance.theme,
+      'baseColor': instance.baseColor,
       'accentColor': instance.accentColor,
       'language': instance.language,
       'isMobileTitleOnTop': instance.isMobileTitleOnTop,

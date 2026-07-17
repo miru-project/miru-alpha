@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/anilist_model.dart';
 import 'package:miru_alpha/model/model.dart';
@@ -71,7 +72,7 @@ class AnilistSearchDialog extends HookConsumerWidget {
       return null;
     }, []);
 
-    return FDialog(
+    return MiruDialog(
       style: style,
       animation: animation,
       title: Text('common.search'.i18n),

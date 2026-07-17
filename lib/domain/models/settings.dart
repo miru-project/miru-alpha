@@ -7,6 +7,7 @@ part 'settings.g.dart';
 abstract class DomainAppSettings with _$DomainAppSettings {
   const factory DomainAppSettings({
     @Default('system') String theme,
+    @Default('zinc') String baseColor,
     @Default(0xFF2196F3) int accentColor,
     @Default('en') String language,
     @Default(false) bool isMobileTitleOnTop,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/ui/core/amination/animated_box.dart';
 import 'package:miru_alpha/ui/core/core/image_widget.dart';
@@ -91,7 +92,7 @@ class DetailImageView extends StatelessWidget {
       },
       child: Hero(
         tag: 'detail-card',
-        child: FCard.raw(
+        child: MiruCard(
           style: .delta(
             decoration: .boxDelta(borderRadius: BorderRadius.circular(10)),
           ),

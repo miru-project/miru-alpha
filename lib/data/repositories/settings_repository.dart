@@ -10,6 +10,7 @@ class SettingsRepository {
     final settings = await _settingsService.getAllSettings();
     return DomainAppSettings(
       theme: settings['theme'] ?? 'system',
+      baseColor: settings['baseColor'] ?? 'zinc',
       accentColor: int.tryParse(settings['accentColor'] ?? '') ?? 0xFF2196F3,
       language: settings['language'] ?? 'en',
       isMobileTitleOnTop: settings['isMobileTitleOnTop'] == 'true',
@@ -46,6 +47,7 @@ class SettingsRepository {
   Future<void> updateAppSettings(DomainAppSettings settings) async {
     final map = <String, String>{
       'theme': settings.theme,
+      'baseColor': settings.baseColor,
       'accentColor': settings.accentColor.toString(),
       'language': settings.language,
       'isMobileTitleOnTop': settings.isMobileTitleOnTop.toString(),

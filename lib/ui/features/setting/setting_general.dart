@@ -93,23 +93,45 @@ class SettingGeneral extends HookConsumerWidget {
             ),
             SettingsRadiosTile.detailed(
               isMobileLayout: isMobileLayout,
-              title: 'settings.labels.accent_color.name',
-              subtitle: 'settings.labels.accent_color.information',
-              value: MiruSettings.getSettingSync<String>(
-                SettingKey.accentColor,
-              ),
-              onChanged: (val) {
-                c.changeAccentColor(val);
-                MiruSettings.setSettingSync(SettingKey.accentColor, val);
-              },
-              entry: ThemeUtils.accentToBright.keys
+              title: 'settings.labels.base_color.name',
+              subtitle: 'settings.labels.base_color.information',
+              value: MiruSettings.getSettingSync<String>(SettingKey.baseColor),
+              onChanged: (val) => c.changeBaseColor(val),
+              entry: baseColorNames
                   .map(
                     (e) => RadioTileEntry(
-                      value: e.name,
-                      title: 'settings.labels.${e.name}',
+                      value: e,
+                      title: 'settings.labels.$e',
                     ),
                   )
                   .toList(),
+            ),
+            SettingsRadiosTile.detailed(
+              isMobileLayout: isMobileLayout,
+              title: 'settings.labels.primary_color.name',
+              subtitle: 'settings.labels.primary_color.information',
+              value: MiruSettings.getSettingSync<String>(
+                SettingKey.accentColor,
+              ),
+              onChanged: (val) => c.changePrimaryColor(val),
+              entry: primaryColorNames
+                  .map(
+                    (e) => RadioTileEntry(
+                      value: e,
+                      title: 'settings.labels.$e',
+                    ),
+                  )
+                  .toList(),
+            ),
+            SettingsSliderTile(
+              isMobileLayout: isMobileLayout,
+              title: 'settings.labels.base_color_tint_strength.name',
+              subtitle: 'settings.labels.base_color_tint_strength.information',
+              value: ref.watch(applicationControllerProvider).tintStrength,
+              min: 0,
+              max: 1,
+              stepPercentage: 0.01,
+              onChanged: (value) => c.changeTintStrength(value),
             ),
           ],
         ),

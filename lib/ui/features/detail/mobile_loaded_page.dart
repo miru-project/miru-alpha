@@ -3,6 +3,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/index.dart';
@@ -56,7 +57,7 @@ class MobileLoadedPage extends HookConsumerWidget {
                         child: ImageWidget(
                           imageUrl: detail.cover ?? '',
                           fit: BoxFit.cover,
-                          errChild: FCard.raw(
+                          errChild: MiruCard(
                             child: Center(child: Icon(FLucideIcons.cloudAlert)),
                           ),
                         ),

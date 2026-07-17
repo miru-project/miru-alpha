@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:forui_hooks/forui_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/ui/features/watch/video_player/widget/player_button.dart';
@@ -25,7 +26,7 @@ class DesktopPlayerFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: (FCard.raw(
+      child: (MiruCard(
         style: .delta(
           decoration: .boxDelta(
             borderRadius: BorderRadius.circular(10),

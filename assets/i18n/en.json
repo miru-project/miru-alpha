@@ -286,6 +286,18 @@
         "name": "Accent Color",
         "information": "Change the application accent color"
       },
+      "base_color": {
+        "name": "Base Color",
+        "information": "Change the neutral base palette (background, surface, text)"
+      },
+      "primary_color": {
+        "name": "Primary Color",
+        "information": "Change the primary accent color"
+      },
+      "base_color_tint_strength": {
+        "name": "Base Color Tint",
+        "information": "How strongly the base hue tints the background (0% = pure white)"
+      },
       "others": {
         "name": "Others",
         "information": ""
@@ -308,16 +320,32 @@
       },
       "en": "English",
       "zh": "Chinese",
-      "zinc": "Zinc",
+      "none": "None (use base)",
       "neutral": "Neutral",
-      "slate": "Slate",
+      "stone": "Stone",
+      "zinc": "Zinc",
+      "mauve": "Mauve",
+      "olive": "Olive",
+      "mist": "Mist",
+      "taupe": "Taupe",
+      "amber": "Amber",
+      "blue": "Blue",
+      "cyan": "Cyan",
+      "emerald": "Emerald",
+      "fuchsia": "Fuchsia",
+      "green": "Green",
+      "indigo": "Indigo",
+      "lime": "Lime",
+      "orange": "Orange",
+      "pink": "Pink",
+      "purple": "Purple",
       "red": "Red",
       "rose": "Rose",
-      "orange": "Orange",
-      "green": "Green",
-      "blue": "Blue",
-      "yellow": "Yellow",
-      "violet": "Violet"
+      "sky": "Sky",
+      "slate": "Slate",
+      "teal": "Teal",
+      "violet": "Violet",
+      "yellow": "Yellow"
     },
     "general": {
       "name": "General Settings",

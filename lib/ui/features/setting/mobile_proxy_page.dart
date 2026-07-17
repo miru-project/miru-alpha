@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/setting_dir_index.dart';
 import 'package:miru_alpha/ui/core/index.dart';
@@ -33,7 +34,7 @@ class MobileProxyPage extends HookWidget {
                   onPress: () {
                     showMiruDialog(
                       context: context,
-                      builder: (context, style, animation) => FDialog(
+                      builder: (context, style, animation) => MiruDialog(
                         style: style,
                         animation: animation,
                         title: Text('settings.proxy.add_proxy'.i18n),
@@ -116,7 +117,7 @@ class MobileProxyPage extends HookWidget {
                     if (selectToRemove.value.isEmpty) return;
                     showMiruDialog(
                       context: context,
-                      builder: (context, style, animation) => FDialog(
+                      builder: (context, style, animation) => MiruDialog(
                         style: style,
                         animation: animation,
                         title: Text(

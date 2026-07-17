@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/model.dart';
@@ -228,7 +229,7 @@ class _ContinueWatchingCard extends ConsumerWidget {
         child: SizedBox(
           width: 320,
           height: 450,
-          child: FCard.raw(
+          child: MiruCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -2,6 +2,7 @@ import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:forui_hooks/forui_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/network.dart';
@@ -27,7 +28,7 @@ class MobileRepoDialog extends HookConsumerWidget {
     return MediaQuery.removeViewInsets(
       context: context,
       removeBottom: true,
-      child: FDialog(
+      child: MiruDialog(
         style: .delta(),
         animation: animation,
         direction: Axis.horizontal,
@@ -104,7 +105,7 @@ class RepoDialog extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final name = useState('');
     final url = useState('');
-    return FDialog(
+    return MiruDialog(
       style: style,
       animation: animation,
       direction: Axis.horizontal,
@@ -224,7 +225,7 @@ class SettingExtension extends HookConsumerWidget {
     showMiruDialog(
       context: context,
       builder: (context, style, animation) {
-        return FDialog(
+        return MiruDialog(
           direction: Axis.horizontal,
           style: style,
           animation: animation,

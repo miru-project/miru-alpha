@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
 import 'package:miru_alpha/provider/tracking/anilist_track_page_provider.dart';
@@ -156,7 +157,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
     }
 
     if (isLoading) {
-      return FDialog(
+      return MiruDialog(
         style: style,
         animation: animation,
         actions: [
@@ -176,7 +177,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
     }
 
     if (media == null) {
-      return FDialog(
+      return MiruDialog(
         style: style,
         animation: animation,
         title: Text('tracking.anilist.tracking_progress'.i18n),
@@ -190,7 +191,7 @@ class AnilistTrackingDialog extends HookConsumerWidget {
       );
     }
 
-    return FDialog(
+    return MiruDialog(
       style: style,
       animation: animation,
       body: SizedBox(

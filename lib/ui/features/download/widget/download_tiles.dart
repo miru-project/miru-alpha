@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
@@ -24,7 +25,7 @@ class DownloadProcessTile extends ConsumerWidget {
             ),
             child: Row(
               children: [
-                FCard.raw(
+                MiruCard(
                   child: const SizedBox.square(
                     dimension: 40,
                     child: Icon(FLucideIcons.filePlay, size: 20),
@@ -95,7 +96,7 @@ class DownloadHistoryTile extends ConsumerWidget {
             description: Text(DownloadUtils.statusToI18N(download.status).i18n),
             child: Row(
               children: [
-                FCard.raw(
+                MiruCard(
                   child: const SizedBox.square(
                     dimension: 40,
                     child: Icon(FLucideIcons.filePlay, size: 20),

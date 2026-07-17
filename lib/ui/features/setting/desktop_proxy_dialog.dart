@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:miru_alpha/utils/setting_dir_index.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
@@ -23,7 +25,7 @@ class DesktopProxyDialog extends HookWidget {
     final selectedProxy = useState<String>(
       MiruSettings.getSetting<String>(SettingKey.proxy) ?? '',
     );
-    return FDialog(
+    return MiruDialog(
       style: style,
       animation: animation,
       title: Text('settings.proxy.proxy_settings'.i18n),
@@ -96,7 +98,7 @@ class DesktopProxyDialog extends HookWidget {
                   },
                   child: FFocusedOutline(
                     focused: selectedProxy.value == proxy,
-                    child: FCard.raw(
+                    child: MiruCard(
                       child: Padding(
                         padding: const .symmetric(vertical: 10, horizontal: 20),
                         child: Column(

@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
@@ -152,7 +153,7 @@ class _MobileFavoriteLayoutState extends ConsumerState<MobileFavoriteLayout> {
                             ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                       ),
                       builder: (context) => Consumer(
-                        builder: (context, ref, child) => FCard.raw(
+                        builder: (context, ref, child) => MiruCard(
                           child: Padding(
                             padding: const EdgeInsets.only(
                               top: 10,

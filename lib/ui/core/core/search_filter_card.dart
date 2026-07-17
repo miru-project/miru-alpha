@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:miru_alpha/ui/core/core/blur.dart';
 
 class SearchFilterCard extends StatelessWidget {
@@ -9,7 +10,7 @@ class SearchFilterCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Blur(
       borderRadius: context.theme.style.borderRadius.md,
-      child: FCard(
+      child: MiruCard(
         style: .delta(
           decoration: .boxDelta(
             borderRadius: context.theme.style.borderRadius.md,
@@ -17,7 +18,7 @@ class SearchFilterCard extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10),
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           child: child,
         ),
       ),

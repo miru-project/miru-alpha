@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
@@ -24,7 +26,7 @@ class DesktopSearchListTile extends HookConsumerWidget {
         return HookConsumer(
           builder: (context, WidgetRef ref, _) {
             final checkboxVal = useState(false);
-            return FDialog(
+            return MiruDialog(
               animation: animation,
               direction: Axis.horizontal,
               title: Text(
@@ -120,14 +122,14 @@ class DesktopSearchListTile extends HookConsumerWidget {
           onSecondaryTap: () => controller.show(),
           onLongPress: () => controller.show(),
           behavior: HitTestBehavior.translucent,
-          child: FCard(
+          child: MiruCard(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
               child: Row(
                 children: [
                   Row(
                     children: [
-                      FCard.raw(
+                      MiruCard(
                         child: SizedBox.square(
                           dimension: 40,
                           child: ext.icon == null

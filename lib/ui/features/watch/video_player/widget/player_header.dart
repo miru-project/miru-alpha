@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/ui/features/watch/video_player/widget/player_button.dart';
 
@@ -55,7 +56,7 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
   @override
   Widget build(BuildContext context) {
     final epNotifier = ref.watch(widget.episodeProvider);
-    return FCard.raw(
+    return MiruCard(
       style: .delta(
         decoration: .boxDelta(
           color: context.theme.colors.background.withAlpha(200),

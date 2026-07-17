@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
 
@@ -23,7 +24,7 @@ class SearchFilterDialog extends ConsumerWidget {
     final selected = state.selected;
     final order = state.filterOrder;
 
-    return FDialog(
+    return MiruDialog(
       style: style,
       animation: animation,
       direction: Axis.horizontal,

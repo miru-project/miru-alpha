@@ -132,7 +132,7 @@ class _MiruTabState extends State<_MiruTab> {
   Widget build(BuildContext _) => FFocusedOutline(
     style: widget.style.focusedOutlineStyle,
     focused: _focused,
-    child: Tab(height: widget.style.height, child: widget.label),
+    child: Tab(height: widget.style.minHeight, child: widget.label),
   );
 
   void _handleFocusChange() =>

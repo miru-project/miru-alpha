@@ -8,6 +8,7 @@ import 'package:miru_alpha/ui/core/grid_view/miru_grid_tile.dart';
 import 'package:miru_alpha/provider/home/history_page_provider.dart';
 import 'package:miru_alpha/ui/features/history/views/history_view.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
+import 'package:miru_alpha/utils/theme/miru_themes.dart';
 import 'package:forui/forui.dart';
 
 class _FakeHistoryPageNotifier extends HistoryPageNotifier {
@@ -35,8 +36,9 @@ void main() {
 
     final appState = ApplicationState(
       themeText: 'light',
-      accentColor: AccentColors.zinc,
-      themeData: ThemeUtils.getThemeData(FThemes.zinc.light),
+      baseColor: 'zinc',
+      primaryColor: 'zinc',
+      themeData: ThemeUtils.getThemeData(MiruThemes.zinc.light),
       themeMode: ThemeMode.system,
       language: 'en',
     );
@@ -61,7 +63,7 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: FTheme(
-          data: ThemeUtils.getThemeData(FThemes.zinc.light),
+          data: ThemeUtils.getThemeData(MiruThemes.zinc.light),
           child: MediaQuery(
             data: const MediaQueryData(size: Size(400, 800)),
             child: MaterialApp.router(
@@ -110,8 +112,9 @@ void main() {
 
     final appState = ApplicationState(
       themeText: 'light',
-      accentColor: AccentColors.zinc,
-      themeData: ThemeUtils.getThemeData(FThemes.zinc.light),
+      baseColor: 'zinc',
+      primaryColor: 'zinc',
+      themeData: ThemeUtils.getThemeData(MiruThemes.zinc.light),
       themeMode: ThemeMode.system,
       language: 'en',
     );
@@ -136,7 +139,7 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: FTheme(
-          data: ThemeUtils.getThemeData(FThemes.zinc.light),
+          data: ThemeUtils.getThemeData(MiruThemes.zinc.light),
           child: MediaQuery(
             data: const MediaQueryData(size: Size(400, 800)),
             child: MaterialApp.router(

@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
@@ -202,7 +203,7 @@ class MobileDetailTile extends ConsumerWidget {
         if (!context.mounted) return;
         showFDialog(
           context: context,
-          builder: (context, _, animation) => FDialog(
+          builder: (context, _, animation) => MiruDialog(
             animation: animation,
             title: Text('media.select_resolution'.i18n),
             body: SizedBox(

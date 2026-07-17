@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
@@ -101,7 +102,7 @@ class DesktopSettingDialog extends HookConsumerWidget {
       child: SizedBox(
         height: height * dialogFactor,
         width: width * dialogFactor,
-        child: FCard.raw(
+        child: MiruCard(
           child: Padding(
             padding: EdgeInsetsGeometry.symmetric(horizontal: 5, vertical: 15),
             child: FScaffold(

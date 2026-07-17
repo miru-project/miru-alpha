@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
 import 'package:miru_alpha/provider/download_provider.dart';
@@ -14,7 +15,7 @@ class DownloadProgressCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     double progress = task.total > 0 ? task.progress / task.total : 0.0;
 
-    return FCard(
+    return MiruCard(
       title: Text(task.title.isNotEmpty ? task.title : "common.unknown".i18n),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

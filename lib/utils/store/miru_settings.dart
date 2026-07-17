@@ -73,7 +73,9 @@ class MiruSettings {
     SettingKey.subtitleBackgroundColor: Colors.black.toARGB32().toString(),
     SettingKey.subtitleBackgroundOpacity: "0.5",
     SettingKey.subtitleTextAlign: TextAlign.center.index.toString(),
-    SettingKey.accentColor: "zinc",
+    SettingKey.accentColor: "none",
+    SettingKey.baseColor: "zinc",
+    SettingKey.baseColorTintStrength: "0.5",
     SettingKey.mobiletitleIsonTop: "true",
     SettingKey.btServerLink: "https://github.com/miru-project/bt-server",
     SettingKey.maxConnection: "3",
@@ -186,6 +188,8 @@ class SettingKey {
   static const subtitleLastLanguageSelected = "SubtitleLastLanguageSelected";
   static const subtitleLastTitleSelected = "SubtitleLastTitleSelected";
   static const accentColor = "AccentColor";
+  static const baseColor = "BaseColor";
+  static const baseColorTintStrength = "BaseColorTintStrength";
   static const mobiletitleIsonTop = "MobileTitleIsOnTop";
   static const btServerLink = "BtServerLink";
   static const maxConnection = "MaxConnection";

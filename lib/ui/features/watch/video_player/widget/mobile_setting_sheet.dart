@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
@@ -47,7 +48,7 @@ class MobileVideoSheet extends HookConsumerWidget {
                 epController.epGroup.length,
                 (index) => Column(
                   children: [
-                    FCard.raw(
+                    MiruCard(
                       child: Padding(
                         padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
                         child: FAccordion(
@@ -123,7 +124,7 @@ class MobileVideoSheet extends HookConsumerWidget {
 
         return Blur(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-          child: FCard.raw(
+          child: MiruCard(
             style: .delta(
               decoration: .boxDelta(
                 borderRadius: const BorderRadius.vertical(

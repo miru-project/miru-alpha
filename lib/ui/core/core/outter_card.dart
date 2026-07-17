@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 
 class OutterCard extends StatelessWidget {
   const OutterCard({
@@ -43,9 +44,9 @@ class OutterCard extends StatelessWidget {
         ),
         SizedBox(
           width: double.infinity,
-          child: FCard(
+          child: MiruCard(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               child: LayoutBuilder(builder: (context, constraints) => child),
             ),
           ),

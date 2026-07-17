@@ -21,7 +21,6 @@ import 'package:miru_alpha/ui/features/history/history.dart';
 import 'package:miru_alpha/ui/core/scaffold/custom_silver_header.dart';
 import 'package:miru_alpha/ui/core/scaffold/snapsheet_header.dart';
 import 'package:miru_alpha/utils/hook/sheet_controller.dart';
-import 'package:window_manager/window_manager.dart';
 
 class HomeView extends ConsumerWidget {
   const HomeView({super.key, this.navigationShell});
@@ -128,7 +127,6 @@ class HomeViewDesktop extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const DragWindows(),
           const FDivider(
             style: FDividerStyleDelta.delta(
               padding: EdgeInsetsGeometryDelta.value(EdgeInsets.zero),
@@ -137,71 +135,6 @@ class HomeViewDesktop extends ConsumerWidget {
           Expanded(child: DesktopLibraryPage()),
         ],
       ),
-    );
-  }
-}
-
-class DragWindows extends StatelessWidget {
-  const DragWindows({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DragToMoveArea(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const BreadCrumb(),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 200, maxHeight: 35),
-            child: const WindowCaption(
-              brightness: Brightness.dark,
-              backgroundColor: Colors.transparent,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class BreadCrumb extends HookWidget {
-  const BreadCrumb({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final routeInfoProvider = GoRouter.of(context).routeInformationProvider;
-    useListenable(routeInfoProvider);
-
-    final currentLocation =
-        GoRouter.of(context).routerDelegate.state.fullPath ??
-        GoRouter.of(context).routerDelegate.currentConfiguration.fullPath;
-
-    final segments = currentLocation
-        .split('/')
-        .where((s) => s.isNotEmpty)
-        .toList();
-
-    return FBreadcrumb(
-      children: [
-        for (final seg in segments)
-          FBreadcrumbItem(
-            onPress: () {
-              if (seg == segments.last) return;
-              if (!GoRouter.of(context).canPop()) return;
-              if (seg == 'search' && segments.last == 'detail') {
-                GoRouter.of(context).pop();
-                GoRouter.of(context).pop();
-                return;
-              }
-              if ((seg == 'single' && segments.last == 'detail') ||
-                  (seg == 'search' && segments.last == 'single')) {
-                GoRouter.of(context).pop();
-                return;
-              }
-            },
-            child: Text(seg.i18n),
-          ),
-      ],
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
@@ -96,7 +97,7 @@ class _BentoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: FCard.raw(
+      child: MiruCard(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

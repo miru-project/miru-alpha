@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
@@ -41,7 +42,7 @@ class ExtensionListTile extends StatefulWidget {
 class _ExtensionListTileState extends State<ExtensionListTile> {
   @override
   Widget build(BuildContext context) {
-    return FCard.raw(
+    return MiruCard(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
@@ -225,7 +226,7 @@ class ExtensionGridTile extends StatelessWidget {
       child: SizedBox(
         width: 400,
         height: 240,
-        child: FCard.raw(
+        child: MiruCard(
           child: Padding(
             padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 15),
             child: Column(

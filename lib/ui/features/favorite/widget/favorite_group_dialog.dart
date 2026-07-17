@@ -31,8 +31,9 @@ class FavoriteGroupDialog extends HookConsumerWidget {
     String newFavGroupName = '';
     return Container(
       alignment: .topStart,
-      child: FDialog.raw(
+      child: FDialog(
         animation: animation,
+        style: style,
         builder: (context, style) => Padding(
           padding: .symmetric(vertical: 20, horizontal: 25),
           child: Column(

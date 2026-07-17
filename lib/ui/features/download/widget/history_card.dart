@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
 import 'package:miru_alpha/provider/download_provider.dart';
@@ -13,7 +14,7 @@ class DownloadHistoryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FCard(
+    return MiruCard(
       title: Text(download.title),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

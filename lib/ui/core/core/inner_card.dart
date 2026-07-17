@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 
 class InnerCard extends StatelessWidget {
   const InnerCard({
@@ -17,7 +18,7 @@ class InnerCard extends StatelessWidget {
   final Widget? trailing;
   @override
   Widget build(BuildContext context) {
-    return FCard.raw(
+    return MiruCard(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 20.0),
         child: Column(

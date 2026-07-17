@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/model/extension_setting.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/provider/setting_page_provider.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
@@ -107,6 +109,20 @@ class ExtensionSettingPage extends HookConsumerWidget {
                     onPress: () {},
                   ),
                 ],
+              ),
+              SizedBox(height: 20),
+              Consumer(
+                builder: (context, ref, child) => FButton(
+                  onPress: () {
+                    ref
+                        .read(extensionPageProvider.notifier)
+                        .uninstallPackage(pkg);
+                    context.pop();
+                  },
+                  variant: .destructive,
+                  prefix: Icon(FLucideIcons.trash),
+                  child: Text('common.delete'.i18n),
+                ),
               ),
             ]),
           ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
@@ -66,7 +67,7 @@ class _MainPageState extends ConsumerState<MainPage>
       page: "/home/history",
     ),
     FIconNavItem(
-      text: 'common.favorite.name',
+      text: 'favorite.name',
       icon: FLucideIcons.bookHeart,
       page: "/home/favorite",
     ),
@@ -289,7 +290,7 @@ class _MainPageState extends ConsumerState<MainPage>
                       icon: FLucideIcons.construction,
                     );
                   },
-                  child: FCard.raw(
+                  child: MiruCard(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         vertical: 12,

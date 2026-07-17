@@ -2,6 +2,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
@@ -32,7 +33,7 @@ class DetailDesktopBox extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final favorite = ref.watch(detailPr.select((value) => value.favorite));
     return AnimatedBox(
-      child: FCard.raw(
+      child: MiruCard(
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),

@@ -16,6 +16,7 @@ import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/utils/theme/miru_themes.dart';
 import 'package:miru_alpha/miru_core/event_service.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/utils/core/log.dart';
@@ -147,8 +148,8 @@ class _EntryLoadingState extends State<EntryLoadingState> {
 
     return FTheme(
       data: MediaQuery.of(context).platformBrightness == .dark
-          ? FThemes.zinc.dark.desktop
-          : FThemes.zinc.light.desktop,
+          ? MiruThemes.neutral.dark.desktop
+          : MiruThemes.neutral.light.desktop,
       child: FScaffold(
         child: Center(
           child: Column(
@@ -181,10 +182,11 @@ class App extends ConsumerStatefulWidget {
   createState() => _App();
 }
 
-class _App extends ConsumerState<App> {
+class _App extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   void initState() {
     VolumeController.instance.showSystemUI = false;
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
     registerWith(
       options: {
@@ -213,6 +215,20 @@ class _App extends ConsumerState<App> {
   }
 
   @override
+  void didChangePlatformBrightness() {
+    // Re-derive the Forui theme so that, in 'system' mode, an OS light/dark
+    // switch updates every colour-dependent widget style, not just Material's.
+    ref.read(applicationControllerProvider.notifier).onPlatformBrightnessChanged();
+    super.didChangePlatformBrightness();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final c = ref.watch(applicationControllerProvider);
     return FTheme(
@@ -222,7 +238,12 @@ class _App extends ConsumerState<App> {
           showPerformanceOverlay: kProfileMode,
           supportedLocales: FLocalizations.supportedLocales,
           key: ValueKey(c.language),
+          // `c.themeData` is already resolved to the effective brightness
+          // (light / dark / system-derived), so use it for both Material theme
+          // slots to guarantee Material widgets match the Forui palette exactly
+          // regardless of the selected [themeMode].
           theme: c.themeData.toApproximateMaterialTheme(),
+          darkTheme: c.themeData.toApproximateMaterialTheme(),
           themeMode: c.themeMode,
           title: 'Miru Alpha',
           localizationsDelegates: [

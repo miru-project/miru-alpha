@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:miru_alpha/ui/core/amination/animated_box.dart';
 import 'package:miru_alpha/ui/core/core/image_widget.dart';
 
@@ -32,7 +33,7 @@ class MiruDesktopGridTile extends HookWidget {
       child: SizedBox(
         width: width,
         height: height,
-        child: FCard.raw(
+        child: MiruCard(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,

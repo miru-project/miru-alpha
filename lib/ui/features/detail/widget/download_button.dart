@@ -2,6 +2,7 @@ import 'package:miru_alpha/ui/features/download/widget/desktop_download_tile_lis
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/index.dart';
@@ -64,7 +65,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
   @override
   Widget build(BuildContext context) {
     final episodes = widget.detail.episodes;
-    return FDialog(
+    return MiruDialog(
       animation: widget.animation,
       title: Text('common.download'.i18n),
       body: episodes == null || episodes.isEmpty

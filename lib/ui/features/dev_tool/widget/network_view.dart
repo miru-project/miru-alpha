@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/dev_tool_provider.dart';
 import 'package:intl/intl.dart';
@@ -89,7 +90,7 @@ class NetworkView extends ConsumerWidget {
             ),
       ),
       context: context,
-      builder: (context, style, animation) => FDialog(
+      builder: (context, style, animation) => MiruDialog(
         constraints: BoxConstraints(minWidth: 400, maxWidth: 700),
         title: const Text('Request Details'),
         body: SingleChildScrollView(

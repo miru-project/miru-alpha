@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -100,7 +100,7 @@ class FavoriteCard extends ConsumerWidget {
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: FCard.raw(
+              child: MiruCard(
                 child: ImageWidget.defaultErr(
                   title: item.title,
                   width: 210,

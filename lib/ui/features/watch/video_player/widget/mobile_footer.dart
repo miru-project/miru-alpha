@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:miru_alpha/ui/features/watch/video_player/widget/player_button.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/provider/watch/video_player_provider.dart';
@@ -23,7 +24,7 @@ class MobilePlayerFooter extends ConsumerWidget {
     final epGroupIndex = epController.selectedGroupIndex;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: (FCard.raw(
+      child: (MiruCard(
         style: .delta(
           decoration: .boxDelta(
             borderRadius: BorderRadius.circular(10),

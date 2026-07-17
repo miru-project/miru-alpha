@@ -40,3 +40,4 @@ export '../features/setting/widget/setting_press_tile.dart';
 export '../features/setting/widget/settings_input_tile.dart';
 export '../features/setting/widget/settings_radios_tile.dart';
 export '../features/setting/widget/settings_toggle_tile.dart';
+export '../features/setting/widget/settings_slider_tile.dart';

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
 import 'package:miru_alpha/ui/core/index.dart';
@@ -277,7 +278,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     return Blur(
       blurDensity: 10,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-      child: FCard.raw(
+      child: MiruCard(
         style: .delta(
           decoration: .boxDelta(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),

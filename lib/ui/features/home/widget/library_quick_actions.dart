@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class LibraryQuickActions extends ConsumerWidget {
@@ -63,7 +64,7 @@ class _QuickActionItem extends StatelessWidget {
           children: [
             AspectRatio(
               aspectRatio: 1,
-              child: FCard.raw(
+              child: MiruCard(
                 child: Icon(
                   icon,
                   size: 22,

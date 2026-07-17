@@ -293,6 +293,18 @@
         "name": "强调颜色",
         "information": "更改应用程序强调颜色"
       },
+      "base_color": {
+        "name": "基础颜色",
+        "information": "更改中性基础调色板（背景、表面、文字）"
+      },
+      "primary_color": {
+        "name": "主色",
+        "information": "更改主强调颜色"
+      },
+      "base_color_tint_strength": {
+        "name": "基础色调强度",
+        "information": "基础色调对背景的着色强度（0% = 纯白）"
+      },
       "others": {
         "name": "其他",
         "information": ""
@@ -315,16 +327,32 @@
       },
       "en": "英语",
       "zh": "简体中文",
-      "zinc": "锌色",
+      "none": "无（使用基础色）",
       "neutral": "中性",
-      "slate": "石板色",
+      "stone": "石灰",
+      "zinc": "锌色",
+      "mauve": "紫灰",
+      "olive": "橄榄",
+      "mist": "薄雾",
+      "taupe": "灰褐",
+      "amber": "琥珀",
+      "blue": "蓝色",
+      "cyan": "青色",
+      "emerald": "翡翠",
+      "fuchsia": "品红",
+      "green": "绿色",
+      "indigo": "靛蓝",
+      "lime": "青柠",
+      "orange": "橙色",
+      "pink": "粉红",
+      "purple": "紫色",
       "red": "红色",
       "rose": "玫瑰色",
-      "orange": "橙色",
-      "green": "绿色",
-      "blue": "蓝色",
-      "yellow": "黄色",
-      "violet": "紫色"
+      "sky": "天蓝",
+      "slate": "石板色",
+      "teal": "蓝绿",
+      "violet": "紫罗兰",
+      "yellow": "黄色"
     },
     "general": {
       "name": "通用设置",
