@@ -156,16 +156,17 @@ class ExtensionService {
     }
   }
 
+  // Normalize an extension type to the canonical backend values:
+  // all, manga, fikushon, bangumi. Legacy aliases are no longer accepted; any
+  // other value falls back to 'all'.
   String _mapExtensionType(String? type) {
     if (type == null) return 'all';
     switch (type.toLowerCase()) {
       case 'manga':
         return 'manga';
       case 'bangumi':
-      case 'video':
         return 'bangumi';
       case 'fikushon':
-      case 'novel':
         return 'fikushon';
       default:
         return 'all';

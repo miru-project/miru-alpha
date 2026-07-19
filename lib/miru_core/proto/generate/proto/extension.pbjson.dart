@@ -231,7 +231,15 @@ const MirrorResponse$json = {
       '9': 0,
       '10': 'fikushon'
     },
-    {'1': 'raw', '3': 4, '4': 1, '5': 9, '9': 0, '10': 'raw'},
+    {
+      '1': 'all',
+      '3': 5,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionAllWatch',
+      '9': 0,
+      '10': 'all'
+    },
   ],
   '8': [
     {'1': 'data'},
@@ -243,7 +251,8 @@ final $typed_data.Uint8List mirrorResponseDescriptor = $convert.base64Decode(
     'Cg5NaXJyb3JSZXNwb25zZRI3CgdiYW5ndW1pGAEgASgLMhsubWlydS5FeHRlbnNpb25CYW5ndW'
     '1pV2F0Y2hIAFIHYmFuZ3VtaRIxCgVtYW5nYRgCIAEoCzIZLm1pcnUuRXh0ZW5zaW9uTWFuZ2FX'
     'YXRjaEgAUgVtYW5nYRI6CghmaWt1c2hvbhgDIAEoCzIcLm1pcnUuRXh0ZW5zaW9uRmlrdXNob2'
-    '5XYXRjaEgAUghmaWt1c2hvbhISCgNyYXcYBCABKAlIAFIDcmF3QgYKBGRhdGE=');
+    '5XYXRjaEgAUghmaWt1c2hvbhIrCgNhbGwYBSABKAsyFy5taXJ1LkV4dGVuc2lvbkFsbFdhdGNo'
+    'SABSA2FsbEIGCgRkYXRh');
 
 @$core.Deprecated('Use watchResponseDescriptor instead')
 const WatchResponse$json = {
@@ -285,7 +294,15 @@ const WatchResponse$json = {
       '9': 0,
       '10': 'watch'
     },
-    {'1': 'raw', '3': 5, '4': 1, '5': 9, '9': 0, '10': 'raw'},
+    {
+      '1': 'all',
+      '3': 6,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionAllWatch',
+      '9': 0,
+      '10': 'all'
+    },
   ],
   '8': [
     {'1': 'data'},
@@ -298,7 +315,8 @@ final $typed_data.Uint8List watchResponseDescriptor = $convert.base64Decode(
     'lXYXRjaEgAUgdiYW5ndW1pEjEKBW1hbmdhGAIgASgLMhkubWlydS5FeHRlbnNpb25NYW5nYVdh'
     'dGNoSABSBW1hbmdhEjoKCGZpa3VzaG9uGAMgASgLMhwubWlydS5FeHRlbnNpb25GaWt1c2hvbl'
     'dhdGNoSABSCGZpa3VzaG9uEiwKBXdhdGNoGAQgASgLMhQubWlydS5FeHRlbnNpb25XYXRjaEgA'
-    'UgV3YXRjaBISCgNyYXcYBSABKAlIAFIDcmF3QgYKBGRhdGE=');
+    'UgV3YXRjaBIrCgNhbGwYBiABKAsyFy5taXJ1LkV4dGVuc2lvbkFsbFdhdGNoSABSA2FsbEIGCg'
+    'RkYXRh');
 
 @$core.Deprecated('Use downloadExtensionRequestDescriptor instead')
 const DownloadExtensionRequest$json = {

@@ -165,6 +165,13 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     filter(type, cacheKeyword, cacheDuration);
   }
 
+  /// Convenience used by the router-driven list views. `null` or
+  /// [ExtensionType.all] clears the type filter; otherwise a single type is
+  /// applied.
+  void setTypeFilter(ExtensionType? type) {
+    filterWithType(type == null || type == ExtensionType.all ? {} : {type});
+  }
+
   /// Toggle the AND/OR filtering mode for selected favorite groups.
   void setFilterMode(FavoriteFilterMode mode) {
     cacheFilterMode = mode;

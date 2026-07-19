@@ -33,50 +33,51 @@ class MiruDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => FDialog(
-        style: style,
-        animation: animation,
-        semanticsLabel: semanticsLabel,
-        constraints: constraints ?? const BoxConstraints(minWidth: 280, maxWidth: 560),
-        resizeToAvoidInsets: resizeToAvoidInsets,
-        clipBehavior: clipBehavior,
-        builder: (context, dialogStyle) {
-          final touch = context.platformVariant.touch;
-          return Padding(
-            padding: switch (touch) {
-              true => const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-              false => const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (title != null)
-                  Padding(
-                    padding: switch (touch) {
-                      true => const EdgeInsets.only(left: 8, right: 8, bottom: 20),
-                      false => const EdgeInsets.only(bottom: 16),
-                    },
-                    child: DefaultTextStyle.merge(
-                      style: dialogStyle.titleTextStyle,
-                      child: title!,
-                    ),
-                  ),
-                if (body != null) body!, // ignore: use_null_aware_elements
-                if (actions case final a? when a.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Flex(
-                      direction: direction,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      spacing: touch ? 10 : 8,
-                      children: touch
-                          ? [for (final action in a) Expanded(child: action)]
-                          : a,
-                    ),
-                  ),
-              ],
-            ),
-          );
+    style: style,
+    animation: animation,
+    semanticsLabel: semanticsLabel,
+    constraints:
+        constraints ?? const BoxConstraints(minWidth: 280, maxWidth: 560),
+    resizeToAvoidInsets: resizeToAvoidInsets,
+    clipBehavior: clipBehavior,
+    builder: (context, dialogStyle) {
+      final touch = context.platformVariant.touch;
+      return Padding(
+        padding: switch (touch) {
+          true => const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          false => const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (title != null)
+              Padding(
+                padding: switch (touch) {
+                  true => const EdgeInsets.only(left: 8, right: 8, bottom: 20),
+                  false => const EdgeInsets.only(bottom: 16),
+                },
+                child: DefaultTextStyle.merge(
+                  style: dialogStyle.titleTextStyle,
+                  child: title!,
+                ),
+              ),
+            if (body != null) body!, // ignore: use_null_aware_elements
+            if (actions case final a? when a.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Flex(
+                  direction: direction,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  spacing: touch ? 10 : 8,
+                  children: touch
+                      ? [for (final action in a) Expanded(child: action)]
+                      : a,
+                ),
+              ),
+          ],
+        ),
       );
+    },
+  );
 }

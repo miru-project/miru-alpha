@@ -83,6 +83,13 @@ class HistoryPageNotifier extends _$HistoryPageNotifier {
     );
   }
 
+  /// Convenience used by the router-driven list views. `null` or
+  /// [ExtensionType.all] clears the type filter; otherwise a single type is
+  /// applied.
+  void setTypeFilter(ExtensionType? type) {
+    filterWithType(type == null || type == ExtensionType.all ? {} : {type});
+  }
+
   void filter(Set<ExtensionType> type, String keyword, Duration duration) {
     final now = DateTime.now();
     List<History> typeResult = state.history;

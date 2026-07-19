@@ -69,6 +69,14 @@ class AnilistSearchParam {
   });
 }
 
+class ListPageParam {
+  const ListPageParam({this.type});
+
+  /// Optional [ExtensionType] used to pre-filter the history / favorite list
+  /// (e.g. when navigating from the library category tiles). `null` means "all".
+  final ExtensionType? type;
+}
+
 class AnilistProgressParam {
   final int mediaId;
   final String detailUrl;

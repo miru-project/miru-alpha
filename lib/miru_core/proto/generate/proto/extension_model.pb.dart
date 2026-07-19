@@ -472,10 +472,12 @@ class ExtensionMirror extends $pb.GeneratedMessage {
   factory ExtensionMirror({
     $core.String? name,
     $core.String? url,
+    $core.Iterable<$core.MapEntry<$core.String, $core.String>>? headers,
   }) {
     final result = create();
     if (name != null) result.name = name;
     if (url != null) result.url = url;
+    if (headers != null) result.headers.addEntries(headers);
     return result;
   }
 
@@ -494,6 +496,11 @@ class ExtensionMirror extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'name')
     ..aOS(2, _omitFieldNames ? '' : 'url')
+    ..m<$core.String, $core.String>(3, _omitFieldNames ? '' : 'headers',
+        entryClassName: 'ExtensionMirror.HeadersEntry',
+        keyFieldType: $pb.PbFieldType.OS,
+        valueFieldType: $pb.PbFieldType.OS,
+        packageName: const $pb.PackageName('miru'))
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -532,6 +539,12 @@ class ExtensionMirror extends $pb.GeneratedMessage {
   $core.bool hasUrl() => $_has(1);
   @$pb.TagNumber(2)
   void clearUrl() => $_clearField(2);
+
+  /// Headers the client must send when fetching the mirror stream (e.g.
+  /// Referer/User-Agent required by the source CDN). Populated by the golang
+  /// (V2) runtime from the resolved stream's referer and the browser UA.
+  @$pb.TagNumber(3)
+  $pb.PbMap<$core.String, $core.String> get headers => $_getMap(2);
 }
 
 class ExtensionMirrorGroup extends $pb.GeneratedMessage {
@@ -676,6 +689,9 @@ class ExtensionBangumiWatchSubtitle extends $pb.GeneratedMessage {
   void clearUrl() => $_clearField(3);
 }
 
+/// Torrent resolution is handled on the frontend, not by the extension. These
+/// messages describe the resolved torrent's metainfo and file tree so the
+/// frontend can read the tree and decide which files to download.
 class ExtensionBangumiWatchTorrentFileTreeFile extends $pb.GeneratedMessage {
   factory ExtensionBangumiWatchTorrentFileTreeFile({
     $fixnum.Int64? length,
@@ -1154,6 +1170,9 @@ class ExtensionBangumiWatch extends $pb.GeneratedMessage {
   @$pb.TagNumber(5)
   void clearAudioTrack() => $_clearField(5);
 
+  /// Resolved torrent handle. Populated when the extension's Watch returns a
+  /// magnet:/torrent URL (or resolves one explicitly); the frontend reads it to
+  /// render the file tree and pick files to download. Absent for plain streams.
   @$pb.TagNumber(6)
   ExtensionBangumiWatchTorrent get torrent => $_getN(5);
   @$pb.TagNumber(6)
@@ -1295,6 +1314,97 @@ class ExtensionFikushonWatch extends $pb.GeneratedMessage {
   $core.bool hasSubtitle() => $_has(2);
   @$pb.TagNumber(3)
   void clearSubtitle() => $_clearField(3);
+}
+
+/// ExtensionAllWatch bundles the three per-type watch shapes (manga, fikushon and
+/// bangumi) behind a single "all" extension type. An extension that declares
+/// @type all returns this message so the client can render any of the three
+/// media kinds from one watch call.
+class ExtensionAllWatch extends $pb.GeneratedMessage {
+  factory ExtensionAllWatch({
+    ExtensionMangaWatch? manga,
+    ExtensionFikushonWatch? fikushon,
+    ExtensionBangumiWatch? bangumi,
+  }) {
+    final result = create();
+    if (manga != null) result.manga = manga;
+    if (fikushon != null) result.fikushon = fikushon;
+    if (bangumi != null) result.bangumi = bangumi;
+    return result;
+  }
+
+  ExtensionAllWatch._();
+
+  factory ExtensionAllWatch.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ExtensionAllWatch.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ExtensionAllWatch',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOM<ExtensionMangaWatch>(1, _omitFieldNames ? '' : 'manga',
+        subBuilder: ExtensionMangaWatch.create)
+    ..aOM<ExtensionFikushonWatch>(2, _omitFieldNames ? '' : 'fikushon',
+        subBuilder: ExtensionFikushonWatch.create)
+    ..aOM<ExtensionBangumiWatch>(3, _omitFieldNames ? '' : 'bangumi',
+        subBuilder: ExtensionBangumiWatch.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionAllWatch clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionAllWatch copyWith(void Function(ExtensionAllWatch) updates) =>
+      super.copyWith((message) => updates(message as ExtensionAllWatch))
+          as ExtensionAllWatch;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ExtensionAllWatch create() => ExtensionAllWatch._();
+  @$core.override
+  ExtensionAllWatch createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ExtensionAllWatch getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ExtensionAllWatch>(create);
+  static ExtensionAllWatch? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  ExtensionMangaWatch get manga => $_getN(0);
+  @$pb.TagNumber(1)
+  set manga(ExtensionMangaWatch value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasManga() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearManga() => $_clearField(1);
+  @$pb.TagNumber(1)
+  ExtensionMangaWatch ensureManga() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  ExtensionFikushonWatch get fikushon => $_getN(1);
+  @$pb.TagNumber(2)
+  set fikushon(ExtensionFikushonWatch value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasFikushon() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFikushon() => $_clearField(2);
+  @$pb.TagNumber(2)
+  ExtensionFikushonWatch ensureFikushon() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  ExtensionBangumiWatch get bangumi => $_getN(2);
+  @$pb.TagNumber(3)
+  set bangumi(ExtensionBangumiWatch value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasBangumi() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearBangumi() => $_clearField(3);
+  @$pb.TagNumber(3)
+  ExtensionBangumiWatch ensureBangumi() => $_ensure(2);
 }
 
 /// V2

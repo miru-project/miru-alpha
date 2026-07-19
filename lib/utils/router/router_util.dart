@@ -9,6 +9,7 @@ import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/features/index.dart';
 import 'package:miru_alpha/ui/features/main_page.dart';
 import 'package:miru_alpha/ui/features/webview/mobile_webview.dart';
+import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/model/setting_items.dart';
 import 'package:miru_alpha/ui/features/dev_tool/dev_tool_page.dart';
 import 'package:miru_alpha/ui/features/detail/detail_loading_page.dart';
@@ -16,8 +17,8 @@ import 'package:miru_alpha/ui/features/tracking/anilist_search_page.dart';
 import 'package:miru_alpha/ui/features/tracking/anilist_progress_page.dart';
 import 'package:miru_alpha/ui/features/search/search_page_single_view.dart';
 import 'package:miru_alpha/ui/features/home/home.dart';
-import 'package:miru_alpha/ui/features/favorite/favorite.dart';
-import 'package:miru_alpha/ui/features/history/history.dart';
+import 'package:miru_alpha/ui/features/favorite/views/favorite_view.dart';
+import 'package:miru_alpha/ui/features/history/views/history_view.dart';
 import 'package:miru_alpha/ui/features/search/search.dart';
 import 'package:miru_alpha/ui/features/download/download.dart';
 import 'package:miru_alpha/ui/features/watch/watch.dart';
@@ -62,6 +63,15 @@ class RouterUtil {
         return SlideTransition(position: offsetAnimation, child: child);
       },
     );
+  }
+
+  /// Reads the optional `?type=` query parameter used by the history / favorite
+  /// list routes and converts it into an [ExtensionType] filter.
+  static ExtensionType? _listPageType(GoRouterState state) {
+    final raw = state.uri.queryParameters['type'];
+    if (raw == null || raw.isEmpty) return null;
+    final type = stringToExtensionType(raw);
+    return type == ExtensionType.all ? null : type;
   }
 
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -131,14 +141,18 @@ class RouterUtil {
                     path: 'history',
                     pageBuilder: (context, state) => noTransitionPage(
                       state: state,
-                      child: const HistoryView(),
+                      child: HistoryView(
+                        type: _listPageType(state),
+                      ),
                     ),
                   ),
                   GoRoute(
                     path: 'favorite',
                     pageBuilder: (context, state) => noTransitionPage(
                       state: state,
-                      child: const FavoriteView(),
+                      child: FavoriteView(
+                        type: _listPageType(state),
+                      ),
                     ),
                   ),
                   GoRoute(

@@ -212,13 +212,34 @@ const ExtensionMirror$json = {
   '2': [
     {'1': 'name', '3': 1, '4': 1, '5': 9, '10': 'name'},
     {'1': 'url', '3': 2, '4': 1, '5': 9, '10': 'url'},
+    {
+      '1': 'headers',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.ExtensionMirror.HeadersEntry',
+      '10': 'headers'
+    },
   ],
+  '3': [ExtensionMirror_HeadersEntry$json],
+};
+
+@$core.Deprecated('Use extensionMirrorDescriptor instead')
+const ExtensionMirror_HeadersEntry$json = {
+  '1': 'HeadersEntry',
+  '2': [
+    {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    {'1': 'value', '3': 2, '4': 1, '5': 9, '10': 'value'},
+  ],
+  '7': {'7': true},
 };
 
 /// Descriptor for `ExtensionMirror`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List extensionMirrorDescriptor = $convert.base64Decode(
-    'Cg9FeHRlbnNpb25NaXJyb3ISEgoEbmFtZRgBIAEoCVIEbmFtZRIQCgN1cmwYAiABKAlSA3VybA'
-    '==');
+    'Cg9FeHRlbnNpb25NaXJyb3ISEgoEbmFtZRgBIAEoCVIEbmFtZRIQCgN1cmwYAiABKAlSA3VybB'
+    'I8CgdoZWFkZXJzGAMgAygLMiIubWlydS5FeHRlbnNpb25NaXJyb3IuSGVhZGVyc0VudHJ5Ugdo'
+    'ZWFkZXJzGjoKDEhlYWRlcnNFbnRyeRIQCgNrZXkYASABKAlSA2tleRIUCgV2YWx1ZRgCIAEoCV'
+    'IFdmFsdWU6AjgB');
 
 @$core.Deprecated('Use extensionMirrorGroupDescriptor instead')
 const ExtensionMirrorGroup$json = {
@@ -551,6 +572,44 @@ final $typed_data.Uint8List extensionFikushonWatchDescriptor = $convert.base64De
     'ChZFeHRlbnNpb25GaWt1c2hvbldhdGNoEhgKB2NvbnRlbnQYASADKAlSB2NvbnRlbnQSFAoFdG'
     'l0bGUYAiABKAlSBXRpdGxlEh8KCHN1YnRpdGxlGAMgASgJSABSCHN1YnRpdGxliAEBQgsKCV9z'
     'dWJ0aXRsZQ==');
+
+@$core.Deprecated('Use extensionAllWatchDescriptor instead')
+const ExtensionAllWatch$json = {
+  '1': 'ExtensionAllWatch',
+  '2': [
+    {
+      '1': 'manga',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionMangaWatch',
+      '10': 'manga'
+    },
+    {
+      '1': 'fikushon',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionFikushonWatch',
+      '10': 'fikushon'
+    },
+    {
+      '1': 'bangumi',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.ExtensionBangumiWatch',
+      '10': 'bangumi'
+    },
+  ],
+};
+
+/// Descriptor for `ExtensionAllWatch`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List extensionAllWatchDescriptor = $convert.base64Decode(
+    'ChFFeHRlbnNpb25BbGxXYXRjaBIvCgVtYW5nYRgBIAEoCzIZLm1pcnUuRXh0ZW5zaW9uTWFuZ2'
+    'FXYXRjaFIFbWFuZ2ESOAoIZmlrdXNob24YAiABKAsyHC5taXJ1LkV4dGVuc2lvbkZpa3VzaG9u'
+    'V2F0Y2hSCGZpa3VzaG9uEjUKB2Jhbmd1bWkYAyABKAsyGy5taXJ1LkV4dGVuc2lvbkJhbmd1bW'
+    'lXYXRjaFIHYmFuZ3VtaQ==');
 
 @$core.Deprecated('Use extensionWatchDescriptor instead')
 const ExtensionWatch$json = {

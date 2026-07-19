@@ -30,30 +30,7 @@ class DesktopFavoriteSearchBar extends HookConsumerWidget {
                 },
                 initial: TextEditingValue(text: state.query),
               ),
-              prefixBuilder: (context, style, states) {
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 12.0, right: 4),
-                      child: Icon(FLucideIcons.search),
-                    ),
-                    if (state.filterSummary.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: FBadge(
-                          variant: .secondary,
-                          child: Text(
-                            state.filterSummary,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
-              hint: 'search.hint'.i18n,
+              hint: 'common.search_for_favorites'.i18n,
               onSubmit: (value) {
                 ref
                     .read(favoritePageProvider.notifier)

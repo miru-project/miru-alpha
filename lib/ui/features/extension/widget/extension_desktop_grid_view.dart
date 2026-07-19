@@ -58,6 +58,7 @@ class ExtensionView extends HookConsumerWidget {
             height: 110,
             width: constraints.maxWidth - 30,
             child: SearchFilterCard(
+              trailing: const SearchFilterImportButton(),
               child: Column(
                 children: [
                   SingleChildScrollView(

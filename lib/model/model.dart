@@ -19,18 +19,24 @@ typedef ExtensionBangumiWatchSubtitle =
 
 enum ExtensionType { manga, bangumi, fikushon, all }
 
-ExtensionType? stringToExtensionType(String type) {
+// Parse a raw extension `@type` string into the canonical ExtensionType.
+//
+// The supported types are exactly: all, manga, fikushon, bangumi. Any other
+// value (including legacy aliases such as "video"/"novel") is treated as
+// [ExtensionType.all] so the frontend never fails on an unknown type. Display
+// labels are handle by i18n keys, not by these raw strings.
+ExtensionType stringToExtensionType(String type) {
   switch (type) {
-    case 'bangumi' || 'video' || 'Bangumi' || 'Video':
+    case 'bangumi':
       return ExtensionType.bangumi;
-    case 'manga' || 'Manga':
+    case 'manga':
       return ExtensionType.manga;
-    case 'fikushon' || 'novel' || 'Fikushon' || 'Novel':
+    case 'fikushon':
       return ExtensionType.fikushon;
     case 'all':
       return ExtensionType.all;
     default:
-      return null;
+      return ExtensionType.all;
   }
 }
 

@@ -9,7 +9,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/model/extension_setting.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
-import 'package:miru_alpha/provider/setting_page_provider.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';

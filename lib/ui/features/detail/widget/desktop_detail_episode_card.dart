@@ -80,78 +80,68 @@ class DesktopDetailEpisodeCard extends HookConsumerWidget {
                   );
                   final isWatched =
                       h != null && (h.progress / h.totalProgress) >= 0.95;
-                  return Container(
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: context.theme.colors.border,
-                        width: 1,
-                      ),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: FButton.raw(
-                      variant: .outline,
-                      onPress: () {
-                        final donwloadList = ref.watch(
-                          detailPr.select((value) => value.downloadList),
-                        );
-                        final savePath = donwloadList
-                            .firstWhereOrNull(
-                              (element) =>
-                                  element.key ==
-                                  "${detail.title}-${ep[selected.value].title}-${item.name}",
-                            )
-                            ?.savePath;
-                        context.push(
-                          '/watch',
-                          extra: WatchParams(
-                            detailPr: detailPr,
-                            name: detail.title,
-                            detailImageUrl: detail.cover ?? '',
-                            selectedEpisodeIndex: detail
-                                .episodes![selected.value]
-                                .urls
-                                .indexOf(item),
-                            selectedGroupIndex: selected.value,
-                            epGroup: detail.episodes,
-                            detailUrl: detailUrl,
-                            url: item.url,
-                            savePath: savePath,
-                            meta: meta,
-                            type: meta.type,
-                          ),
-                        );
-                      },
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                            child: Text(
-                              item.name,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: isWatched
-                                    ? context.theme.colors.mutedForeground
-                                    : null,
-                              ),
+                  return FButton.raw(
+                    variant: .outline,
+                    onPress: () {
+                      final donwloadList = ref.watch(
+                        detailPr.select((value) => value.downloadList),
+                      );
+                      final savePath = donwloadList
+                          .firstWhereOrNull(
+                            (element) =>
+                                element.key ==
+                                "${detail.title}-${ep[selected.value].title}-${item.name}",
+                          )
+                          ?.savePath;
+                      context.push(
+                        '/watch',
+                        extra: WatchParams(
+                          detailPr: detailPr,
+                          name: detail.title,
+                          detailImageUrl: detail.cover ?? '',
+                          selectedEpisodeIndex: detail
+                              .episodes![selected.value]
+                              .urls
+                              .indexOf(item),
+                          selectedGroupIndex: selected.value,
+                          epGroup: detail.episodes,
+                          detailUrl: detailUrl,
+                          url: item.url,
+                          savePath: savePath,
+                          meta: meta,
+                          type: meta.type,
+                        ),
+                      );
+                    },
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                          child: Text(
+                            item.name,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: isWatched
+                                  ? context.theme.colors.mutedForeground
+                                  : null,
                             ),
                           ),
-                          Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            child: SizedBox(
-                              height: 3,
-                              child: FDeterminateProgress(
-                                value:
-                                    (h?.progress ?? 0).toDouble() /
-                                    (h?.totalProgress ?? 1).toDouble(),
-                              ),
+                        ),
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: SizedBox(
+                            height: 3,
+                            child: FDeterminateProgress(
+                              value:
+                                  (h?.progress ?? 0).toDouble() /
+                                  (h?.totalProgress ?? 1).toDouble(),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   );
                 },

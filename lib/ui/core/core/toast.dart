@@ -17,7 +17,7 @@ void showSimpleToast(String title, [int duration = 1]) {
 void iconsMessageToast({
   required String title,
   required IconData icon,
-  int duration = 3,
+  int duration = 1,
 }) {
   final ctx = RouterUtil.rootNavigatorKey.currentContext;
   if (ctx == null) return;
@@ -27,5 +27,6 @@ void iconsMessageToast({
     icon: Icon(icon, color: ctx.theme.colors.primary),
     duration: Duration(seconds: duration),
     alignment: FToastAlignment.bottomCenter,
+    swipeToDismiss: [.down, .left, .right],
   );
 }

@@ -56,8 +56,11 @@ class _MiruTabsState extends State<MiruTabs>
       );
       _controller.addListener(_handleTabChange);
     } else if (widget.initialIndex != oldWidget.initialIndex) {
+      // Only reposition the tab indicator. Do NOT call [onChanged] here: the
+      // caller (e.g. the favorite view) drives the underlying state from the
+      // same provider that produced [initialIndex], so firing [onChanged]
+      // during a rebuild would mutate that provider mid-frame and throw.
       _controller.animateTo(widget.initialIndex);
-      widget.onChanged?.call(widget.initialIndex);
     }
   }
 

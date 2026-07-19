@@ -1,11 +1,9 @@
-import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_alpha/utils/router/router_util.dart';
 import 'package:miru_alpha/utils/theme/miru_colors.dart';
 import 'package:miru_alpha/utils/theme/miru_themes.dart';
+import 'dart:ui';
 
 /// Ordered list of selectable base (greyscale) colors, matching forui_cli's
 /// [BaseColor] values.
@@ -49,9 +47,17 @@ class ThemeUtils {
 
   /// Blends [from] a [t] fraction (0..1) towards [to] in sRGB.
   static int _blend(int from, int to, double t) {
-    final a = (((from >> 24) & 0xFF) + (((to >> 24 & 0xFF) - (from >> 24 & 0xFF)) * t)).round();
-    final r = (((from >> 16) & 0xFF) + (((to >> 16 & 0xFF) - (from >> 16 & 0xFF)) * t)).round();
-    final g = (((from >> 8) & 0xFF) + (((to >> 8 & 0xFF) - (from >> 8 & 0xFF)) * t)).round();
+    final a =
+        (((from >> 24) & 0xFF) +
+                (((to >> 24 & 0xFF) - (from >> 24 & 0xFF)) * t))
+            .round();
+    final r =
+        (((from >> 16) & 0xFF) +
+                (((to >> 16 & 0xFF) - (from >> 16 & 0xFF)) * t))
+            .round();
+    final g =
+        (((from >> 8) & 0xFF) + (((to >> 8 & 0xFF) - (from >> 8 & 0xFF)) * t))
+            .round();
     final b = ((from & 0xFF) + (((to & 0xFF) - (from & 0xFF)) * t)).round();
     return (a << 24) | (r << 16) | (g << 8) | b;
   }
@@ -172,21 +178,13 @@ class ThemeUtils {
   }
 
   static FThemeData getThemeData(MiruPlatformTheme theme) {
-    double width = 0;
-    if (RouterUtil.rootNavigatorKey.currentContext == null) {
-      if (Platform.isAndroid || Platform.isIOS) {
-        return theme.touch;
-      } else {
-        return theme.desktop;
-      }
-    }
-    width = MediaQuery.of(
-      RouterUtil.rootNavigatorKey.currentContext!,
-    ).size.width;
+    final FlutterView view = PlatformDispatcher.instance.views.first;
+    final Size physicalSize = view.physicalSize;
+    final double devicePixelRatio = view.devicePixelRatio;
+    final double width = physicalSize.width / devicePixelRatio;
     final breakpoints = theme.desktop.breakpoints;
     return switch (width) {
       _ when width < breakpoints.sm => theme.touch,
-      _ when width < breakpoints.lg => theme.desktop,
       _ => theme.desktop,
     };
   }

@@ -683,20 +683,20 @@ class MirrorRequest extends $pb.GeneratedMessage {
   void clearUrl() => $_clearField(2);
 }
 
-enum MirrorResponse_Data { bangumi, manga, fikushon, raw, notSet }
+enum MirrorResponse_Data { bangumi, manga, fikushon, all, notSet }
 
 class MirrorResponse extends $pb.GeneratedMessage {
   factory MirrorResponse({
     $1.ExtensionBangumiWatch? bangumi,
     $1.ExtensionMangaWatch? manga,
     $1.ExtensionFikushonWatch? fikushon,
-    $core.String? raw,
+    $1.ExtensionAllWatch? all,
   }) {
     final result = create();
     if (bangumi != null) result.bangumi = bangumi;
     if (manga != null) result.manga = manga;
     if (fikushon != null) result.fikushon = fikushon;
-    if (raw != null) result.raw = raw;
+    if (all != null) result.all = all;
     return result;
   }
 
@@ -714,21 +714,22 @@ class MirrorResponse extends $pb.GeneratedMessage {
     1: MirrorResponse_Data.bangumi,
     2: MirrorResponse_Data.manga,
     3: MirrorResponse_Data.fikushon,
-    4: MirrorResponse_Data.raw,
+    5: MirrorResponse_Data.all,
     0: MirrorResponse_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'MirrorResponse',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
-    ..oo(0, [1, 2, 3, 4])
+    ..oo(0, [1, 2, 3, 5])
     ..aOM<$1.ExtensionBangumiWatch>(1, _omitFieldNames ? '' : 'bangumi',
         subBuilder: $1.ExtensionBangumiWatch.create)
     ..aOM<$1.ExtensionMangaWatch>(2, _omitFieldNames ? '' : 'manga',
         subBuilder: $1.ExtensionMangaWatch.create)
     ..aOM<$1.ExtensionFikushonWatch>(3, _omitFieldNames ? '' : 'fikushon',
         subBuilder: $1.ExtensionFikushonWatch.create)
-    ..aOS(4, _omitFieldNames ? '' : 'raw')
+    ..aOM<$1.ExtensionAllWatch>(5, _omitFieldNames ? '' : 'all',
+        subBuilder: $1.ExtensionAllWatch.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -753,13 +754,13 @@ class MirrorResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   @$pb.TagNumber(2)
   @$pb.TagNumber(3)
-  @$pb.TagNumber(4)
+  @$pb.TagNumber(5)
   MirrorResponse_Data whichData() =>
       _MirrorResponse_DataByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(1)
   @$pb.TagNumber(2)
   @$pb.TagNumber(3)
-  @$pb.TagNumber(4)
+  @$pb.TagNumber(5)
   void clearData() => $_clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
@@ -795,17 +796,19 @@ class MirrorResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   $1.ExtensionFikushonWatch ensureFikushon() => $_ensure(2);
 
-  @$pb.TagNumber(4)
-  $core.String get raw => $_getSZ(3);
-  @$pb.TagNumber(4)
-  set raw($core.String value) => $_setString(3, value);
-  @$pb.TagNumber(4)
-  $core.bool hasRaw() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearRaw() => $_clearField(4);
+  @$pb.TagNumber(5)
+  $1.ExtensionAllWatch get all => $_getN(3);
+  @$pb.TagNumber(5)
+  set all($1.ExtensionAllWatch value) => $_setField(5, value);
+  @$pb.TagNumber(5)
+  $core.bool hasAll() => $_has(3);
+  @$pb.TagNumber(5)
+  void clearAll() => $_clearField(5);
+  @$pb.TagNumber(5)
+  $1.ExtensionAllWatch ensureAll() => $_ensure(3);
 }
 
-enum WatchResponse_Data { bangumi, manga, fikushon, watch, raw, notSet }
+enum WatchResponse_Data { bangumi, manga, fikushon, watch, all, notSet }
 
 class WatchResponse extends $pb.GeneratedMessage {
   factory WatchResponse({
@@ -813,14 +816,14 @@ class WatchResponse extends $pb.GeneratedMessage {
     $1.ExtensionMangaWatch? manga,
     $1.ExtensionFikushonWatch? fikushon,
     $1.ExtensionWatch? watch,
-    $core.String? raw,
+    $1.ExtensionAllWatch? all,
   }) {
     final result = create();
     if (bangumi != null) result.bangumi = bangumi;
     if (manga != null) result.manga = manga;
     if (fikushon != null) result.fikushon = fikushon;
     if (watch != null) result.watch = watch;
-    if (raw != null) result.raw = raw;
+    if (all != null) result.all = all;
     return result;
   }
 
@@ -839,14 +842,14 @@ class WatchResponse extends $pb.GeneratedMessage {
     2: WatchResponse_Data.manga,
     3: WatchResponse_Data.fikushon,
     4: WatchResponse_Data.watch,
-    5: WatchResponse_Data.raw,
+    6: WatchResponse_Data.all,
     0: WatchResponse_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'WatchResponse',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
-    ..oo(0, [1, 2, 3, 4, 5])
+    ..oo(0, [1, 2, 3, 4, 6])
     ..aOM<$1.ExtensionBangumiWatch>(1, _omitFieldNames ? '' : 'bangumi',
         subBuilder: $1.ExtensionBangumiWatch.create)
     ..aOM<$1.ExtensionMangaWatch>(2, _omitFieldNames ? '' : 'manga',
@@ -855,7 +858,8 @@ class WatchResponse extends $pb.GeneratedMessage {
         subBuilder: $1.ExtensionFikushonWatch.create)
     ..aOM<$1.ExtensionWatch>(4, _omitFieldNames ? '' : 'watch',
         subBuilder: $1.ExtensionWatch.create)
-    ..aOS(5, _omitFieldNames ? '' : 'raw')
+    ..aOM<$1.ExtensionAllWatch>(6, _omitFieldNames ? '' : 'all',
+        subBuilder: $1.ExtensionAllWatch.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -881,13 +885,13 @@ class WatchResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   @$pb.TagNumber(3)
   @$pb.TagNumber(4)
-  @$pb.TagNumber(5)
+  @$pb.TagNumber(6)
   WatchResponse_Data whichData() => _WatchResponse_DataByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(1)
   @$pb.TagNumber(2)
   @$pb.TagNumber(3)
   @$pb.TagNumber(4)
-  @$pb.TagNumber(5)
+  @$pb.TagNumber(6)
   void clearData() => $_clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
@@ -934,14 +938,16 @@ class WatchResponse extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   $1.ExtensionWatch ensureWatch() => $_ensure(3);
 
-  @$pb.TagNumber(5)
-  $core.String get raw => $_getSZ(4);
-  @$pb.TagNumber(5)
-  set raw($core.String value) => $_setString(4, value);
-  @$pb.TagNumber(5)
-  $core.bool hasRaw() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearRaw() => $_clearField(5);
+  @$pb.TagNumber(6)
+  $1.ExtensionAllWatch get all => $_getN(4);
+  @$pb.TagNumber(6)
+  set all($1.ExtensionAllWatch value) => $_setField(6, value);
+  @$pb.TagNumber(6)
+  $core.bool hasAll() => $_has(4);
+  @$pb.TagNumber(6)
+  void clearAll() => $_clearField(6);
+  @$pb.TagNumber(6)
+  $1.ExtensionAllWatch ensureAll() => $_ensure(4);
 }
 
 /// Extension Management

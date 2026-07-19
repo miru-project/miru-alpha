@@ -161,7 +161,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                           ),
                         );
                       },
-                      child: Text("common.favorite.title".i18n),
+                      child: Text("favorite.title".i18n),
                     ),
                     SizedBox(width: 15),
                     FButton(

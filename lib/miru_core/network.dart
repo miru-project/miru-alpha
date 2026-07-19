@@ -131,15 +131,6 @@ class MiruCoreEndpoint {
     return _detailFromProto(response.detail);
   }
 
-  static ExtensionBangumiWatchTorrent _handleTorrent(
-    Map<String, dynamic> data,
-    String mediaType,
-  ) {
-    if (mediaType != "torrent") return ExtensionBangumiWatchTorrent();
-    return ExtensionBangumiWatchTorrent()
-      ..mergeFromProto3Json(data["torrent"], ignoreUnknownFields: true);
-  }
-
   static Future<dynamic> watch(
     String url,
     String pkg,
@@ -149,35 +140,37 @@ class MiruCoreEndpoint {
       proto.WatchRequest(pkg: pkg, url: url),
     );
 
+    // The golang (Scriggo) V2 backend only ever emits ExtensionWatch (the V2
+    // source/group list) or ExtensionAllWatch (the "all" bundle) from watch().
+    // The per-type bangumi/manga/fikushon oneof variants are produced by the
+    // legacy V1 (JS) runtime only; they are kept here purely so the switch stays
+    // exhaustive and V1 extensions keep working.
     switch (response.whichData()) {
+      // V2 golang: source/group list. The resolved stream is fetched via
+      // mirror(), which returns an ExtensionAllWatch.
+      case proto.WatchResponse_Data.watch:
+        return response.watch;
+      // V2 golang: "all" extension. The bundle carries every shape; pick the
+      // one matching the extension's declared @type.
+      case proto.WatchResponse_Data.all:
+        final all = response.all;
+        switch (meta.type) {
+          case ExtensionType.bangumi:
+            return all.bangumi;
+          case ExtensionType.manga:
+            return all.manga;
+          case ExtensionType.fikushon:
+            return all.fikushon;
+          case ExtensionType.all:
+            return all;
+        }
+      // V1 (JS) only — golang V2 never returns these directly.
       case proto.WatchResponse_Data.bangumi:
         return response.bangumi;
       case proto.WatchResponse_Data.manga:
         return response.manga;
       case proto.WatchResponse_Data.fikushon:
         return response.fikushon;
-      case proto.WatchResponse_Data.raw:
-        final data = jsonDecode(response.raw);
-        final String mediaType = data["type"] ?? "";
-        switch (meta.type) {
-          case ExtensionType.bangumi:
-            final watch = ExtensionBangumiWatch()
-              ..mergeFromProto3Json(data, ignoreUnknownFields: true);
-            watch.torrent = _handleTorrent(data, mediaType);
-            return watch;
-          case ExtensionType.manga:
-            return ExtensionMangaWatch()
-              ..mergeFromProto3Json(data, ignoreUnknownFields: true);
-          case ExtensionType.fikushon:
-            return ExtensionFikushonWatch()
-              ..mergeFromProto3Json(data, ignoreUnknownFields: true);
-
-          default:
-            return response.raw;
-        }
-      // V2
-      case proto.WatchResponse_Data.watch:
-        return response.watch;
       case proto.WatchResponse_Data.notSet:
         throw Exception("Watch response data not set");
     }
@@ -195,13 +188,14 @@ class MiruCoreEndpoint {
         return response.manga;
       case proto.MirrorResponse_Data.fikushon:
         return response.fikushon;
-      case proto.MirrorResponse_Data.raw:
-        try {
-          // If raw is JSON, it might be a backward compatible object
-          return jsonDecode(response.raw);
-        } catch (e) {
-          return response.raw;
-        }
+      case proto.MirrorResponse_Data.all:
+        final all = response.all;
+        // A mirror resolves a single stream, so the extension populates exactly
+        // one of the bundled watch shapes. Return whichever was set.
+        if (all.hasBangumi()) return all.bangumi;
+        if (all.hasManga()) return all.manga;
+        if (all.hasFikushon()) return all.fikushon;
+        return all;
       case proto.MirrorResponse_Data.notSet:
         throw Exception("Mirror response data not set");
     }

@@ -15,6 +15,15 @@ class WatchService {
 
       dynamic data;
       switch (response.whichData()) {
+        // V2 golang emits either the source/group list (watch) or the "all"
+        // bundle. The load entry unwraps ExtensionAllWatch by declared @type.
+        case WatchResponse_Data.watch:
+          data = response.watch;
+          break;
+        case WatchResponse_Data.all:
+          data = response.all;
+          break;
+        // V1 (JS) only — golang V2 never returns these directly.
         case WatchResponse_Data.bangumi:
           data = response.bangumi;
           break;
@@ -24,8 +33,6 @@ class WatchService {
         case WatchResponse_Data.fikushon:
           data = response.fikushon;
           break;
-        case WatchResponse_Data.watch:
-        case WatchResponse_Data.raw:
         default:
           break;
       }

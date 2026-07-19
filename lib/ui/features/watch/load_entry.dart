@@ -15,6 +15,8 @@ import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/core/error.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
+    as pb_extension;
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 // The Go engine returns the resolved watch result as a raw `Map`/`String` for
@@ -99,6 +101,27 @@ ExtensionFikushonWatch _toNovelWatch(dynamic data) {
       );
   }
   throw Exception('Unsupported novel watch data type: ${data.runtimeType}');
+}
+
+// An "all" extension (golang) returns an ExtensionAllWatch that bundles the
+// bangumi/manga/fikushon shapes. Unwrap it to the single shape that matches
+// the extension's declared @type so the existing typed readers can consume it.
+dynamic _unwrapAll(dynamic data, ExtensionType type) {
+  if (data is! pb_extension.ExtensionAllWatch) return data;
+  switch (type) {
+    case ExtensionType.bangumi:
+      return data.bangumi;
+    case ExtensionType.manga:
+      return data.manga;
+    case ExtensionType.fikushon:
+      return data.fikushon;
+    case ExtensionType.all:
+      // No single declared shape; prefer bangumi, then manga, then fikushon.
+      if (data.hasBangumi()) return data.bangumi;
+      if (data.hasManga()) return data.manga;
+      if (data.hasFikushon()) return data.fikushon;
+      return data;
+  }
 }
 
 class WatchLoadEntry extends StatefulHookConsumerWidget {
@@ -210,7 +233,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
               }
               switch (extra.type) {
                 case ExtensionType.bangumi:
-                  final data = _toBangumiWatch(value.data);
+                  final data = _toBangumiWatch(_unwrapAll(value.data, extra.type));
                   return MiruVideoPlayer(
                     name: extra.name,
                     value: data,
@@ -222,7 +245,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     v2watch: value.v2watch,
                   );
                 case ExtensionType.manga:
-                  final data = _toMangaWatch(value.data);
+                  final data = _toMangaWatch(_unwrapAll(value.data, extra.type));
                   return MiruMangaReader(
                     name: extra.name,
                     value: data,
@@ -232,7 +255,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     epProvider: _epProvider,
                   );
                 default:
-                  final data = _toNovelWatch(value.data);
+                  final data = _toNovelWatch(_unwrapAll(value.data, extra.type));
                   return MiruNovelReader(
                     meta: meta,
                     name: extra.name,

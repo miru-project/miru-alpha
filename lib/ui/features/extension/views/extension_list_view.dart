@@ -451,62 +451,55 @@ class ExtensionGridView extends HookConsumerWidget {
             height: 110,
             width: constraints.maxWidth - 30,
             child: SearchFilterCard(
-              child: Column(
+              trailing: const SearchFilterImportButton(),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
                 children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            ClearableSelect(
-                              hintText: 'common.all'.i18n.toUpperCase(),
-                              title: "common.type".i18n,
-                              items: [
-                                'media.video'.i18n,
-                                'media.manga'.i18n,
-                                'media.novel'.i18n,
-                              ],
-                              onChange: (val) {
-                                if (val == 'media.video'.i18n) {
-                                  notifier.filterByType(.bangumi);
-                                } else if (val == 'media.manga'.i18n) {
-                                  notifier.filterByType(.manga);
-                                } else if (val == 'media.novel'.i18n) {
-                                  notifier.filterByType(.fikushon);
-                                } else {
-                                  notifier.filterByType(.all);
-                                }
-                              },
-                            ),
-                            const SizedBox(width: 10),
-                            ClearableSelect(
-                              hintText: 'common.all'.i18n.toUpperCase(),
-                              title: "common.install_status".i18n,
-                              items: [
-                                'common.installed'.i18n,
-                                'common.not_installed'.i18n,
-                              ],
-                              onChange: (val) {
-                                if (val == 'common.installed'.i18n) {
-                                  notifier.filterByInstallStatus(
-                                    'extension.installed',
-                                  );
-                                } else if (val == 'common.not_installed'.i18n) {
-                                  notifier.filterByInstallStatus(
-                                    'extension.not_installed',
-                                  );
-                                } else {
-                                  notifier.filterByInstallStatus('ALL');
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                  Row(
+                    children: [
+                      ClearableSelect(
+                        hintText: 'common.all'.i18n.toUpperCase(),
+                        title: "common.type".i18n,
+                        items: [
+                          'media.video'.i18n,
+                          'media.manga'.i18n,
+                          'media.novel'.i18n,
+                        ],
+                        onChange: (val) {
+                          if (val == 'media.video'.i18n) {
+                            notifier.filterByType(.bangumi);
+                          } else if (val == 'media.manga'.i18n) {
+                            notifier.filterByType(.manga);
+                          } else if (val == 'media.novel'.i18n) {
+                            notifier.filterByType(.fikushon);
+                          } else {
+                            notifier.filterByType(.all);
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 10),
+                      ClearableSelect(
+                        hintText: 'common.all'.i18n.toUpperCase(),
+                        title: "common.install_status".i18n,
+                        items: [
+                          'common.installed'.i18n,
+                          'common.not_installed'.i18n,
+                        ],
+                        onChange: (val) {
+                          if (val == 'common.installed'.i18n) {
+                            notifier.filterByInstallStatus(
+                              'extension.installed',
+                            );
+                          } else if (val == 'common.not_installed'.i18n) {
+                            notifier.filterByInstallStatus(
+                              'extension.not_installed',
+                            );
+                          } else {
+                            notifier.filterByInstallStatus('ALL');
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
