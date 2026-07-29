@@ -479,6 +479,10 @@
     "error_loading_downloads": "加载下载失败",
     "download_started": "已开始下载",
     "failed_to_start_download": "开始下载失败",
-    "downloaded": "已下载"
+    "downloaded": "已下载",
+    "max_concurrent": "最大同时下载数",
+    "show_missing": "显示缺失文件（{count}）",
+    "hide_missing": "隐藏缺失文件",
+    "drag_to_reorder_tip": "拖动以重新排序，越靠上优先级越高。"
   }
 }

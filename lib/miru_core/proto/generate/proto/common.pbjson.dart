@@ -105,6 +105,7 @@ const DownloadProgress$json = {
     {'1': 'title', '3': 8, '4': 1, '5': 9, '10': 'title'},
     {'1': 'package', '3': 9, '4': 1, '5': 9, '10': 'package'},
     {'1': 'key', '3': 10, '4': 1, '5': 9, '10': 'key'},
+    {'1': 'priority', '3': 11, '4': 1, '5': 5, '10': 'priority'},
   ],
 };
 
@@ -115,7 +116,8 @@ final $typed_data.Uint8List downloadProgressDescriptor = $convert.base64Decode(
     'cnUuRG93bmxvYWRTdGF0dXNSBnN0YXR1cxIdCgptZWRpYV90eXBlGAUgASgJUgltZWRpYVR5cG'
     'USLwoTY3VycmVudF9kb3dubG9hZGluZxgGIAEoCVISY3VycmVudERvd25sb2FkaW5nEhcKB3Rh'
     'c2tfaWQYByABKAVSBnRhc2tJZBIUCgV0aXRsZRgIIAEoCVIFdGl0bGUSGAoHcGFja2FnZRgJIA'
-    'EoCVIHcGFja2FnZRIQCgNrZXkYCiABKAlSA2tleQ==');
+    'EoCVIHcGFja2FnZRIQCgNrZXkYCiABKAlSA2tleRIaCghwcmlvcml0eRgLIAEoBVIIcHJpb3Jp'
+    'dHk=');
 
 @$core.Deprecated('Use torrentStatsDescriptor instead')
 const TorrentStats$json = {
@@ -177,6 +179,7 @@ const Download$json = {
     {'1': 'date', '3': 11, '4': 1, '5': 9, '10': 'date'},
     {'1': 'download_url', '3': 12, '4': 1, '5': 9, '10': 'downloadUrl'},
     {'1': 'detail_url', '3': 13, '4': 1, '5': 9, '10': 'detailUrl'},
+    {'1': 'priority', '3': 14, '4': 1, '5': 5, '10': 'priority'},
   ],
   '3': [Download_HeadersEntry$json],
 };
@@ -199,9 +202,9 @@ final $typed_data.Uint8List downloadDescriptor = $convert.base64Decode(
     'IDa2V5EhQKBXRpdGxlGAcgASgJUgV0aXRsZRIdCgptZWRpYV90eXBlGAggASgJUgltZWRpYVR5'
     'cGUSLAoGc3RhdHVzGAkgASgOMhQubWlydS5Eb3dubG9hZFN0YXR1c1IGc3RhdHVzEhsKCXNhdm'
     'VfcGF0aBgKIAEoCVIIc2F2ZVBhdGgSEgoEZGF0ZRgLIAEoCVIEZGF0ZRIhCgxkb3dubG9hZF91'
-    'cmwYDCABKAlSC2Rvd25sb2FkVXJsEh0KCmRldGFpbF91cmwYDSABKAlSCWRldGFpbFVybBo6Cg'
-    'xIZWFkZXJzRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdWUYAiABKAlSBXZhbHVlOgI4'
-    'AQ==');
+    'cmwYDCABKAlSC2Rvd25sb2FkVXJsEh0KCmRldGFpbF91cmwYDSABKAlSCWRldGFpbFVybBIaCg'
+    'hwcmlvcml0eRgOIAEoBVIIcHJpb3JpdHkaOgoMSGVhZGVyc0VudHJ5EhAKA2tleRgBIAEoCVID'
+    'a2V5EhQKBXZhbHVlGAIgASgJUgV2YWx1ZToCOAE=');
 
 @$core.Deprecated('Use torrentResultDescriptor instead')
 const TorrentResult$json = {

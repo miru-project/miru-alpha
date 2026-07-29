@@ -20,13 +20,17 @@ class DownloadUtils {
 
     FFMpegUtils.combineToMp4(segments, targetPath);
 
-    await updateStatus(
+    // The status update MUST succeed before we delete the source segments.
+    // If this call fails and we proceed to delete, the DB stays "Converting"
+    // while segments are gone — on restart the task would be stuck at
+    // "Paused with zero progress" because Init() cannot recover it.
+    await updateStatusOrThrow(
       taskId: taskId,
       status: proto.DownloadStatus.COMPLETED,
       savePath: targetPath,
     );
 
-    // Remove segments after conversion
+    // Only remove segments after the backend confirmed the Completed status.
     for (var segment in segments) {
       final file = File(segment);
       if (await file.exists()) {
@@ -84,6 +88,23 @@ class DownloadUtils {
     } catch (e) {
       logger.severe("Failed to update status to $status: $e");
     }
+  }
+
+  /// Like [updateStatus] but propagates errors instead of swallowing them.
+  /// Use this when the caller MUST know whether the update succeeded (e.g.
+  /// before deleting source segments after FFmpeg conversion).
+  static Future<void> updateStatusOrThrow({
+    required String taskId,
+    required proto.DownloadStatus status,
+    String? savePath,
+  }) async {
+    await MiruGrpcClient.downloadClient.updateDownloadStatus(
+      proto.UpdateDownloadStatusRequest(
+        taskId: int.parse(taskId),
+        status: status,
+        savePath: savePath,
+      ),
+    );
   }
 
   static Future<String> processFinishedDownload({

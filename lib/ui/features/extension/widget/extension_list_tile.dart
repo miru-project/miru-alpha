@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/http/request.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
@@ -59,7 +60,7 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(24),
                       child: Image.network(
-                        widget.icon!,
+                        MiruRequest.proxyUrl(widget.icon!).toString(),
                         width: 48,
                         height: 48,
                         fit: BoxFit.cover,

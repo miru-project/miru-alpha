@@ -84,6 +84,8 @@ class MiruSettings {
     SettingKey.showPageNumber: "false",
     SettingKey.novelReadingMode: "webToon",
     SettingKey.downloadPath: "",
+    SettingKey.downloadConcurrent: "3",
+    SettingKey.hideMissingDownloads: "true",
   };
   static Future<void> _initSettings() async {
     for (final entry in _defaultSettings.entries) {
@@ -96,6 +98,14 @@ class MiruSettings {
   static void setSettingSync(String key, String value) {
     _settingsCache[key] = value;
     setSetting(key, value);
+  }
+
+  /// Test-only: seeds the in-memory settings cache with the default values
+  /// without contacting the gRPC backend.
+  static void seedDefaultsForTest() {
+    for (final entry in _defaultSettings.entries) {
+      _settingsCache[entry.key] ??= entry.value;
+    }
   }
 
   static T? getSetting<T>(String key) {
@@ -198,6 +208,11 @@ class SettingKey {
   static const showPageNumber = 'ShowPageNumber';
   static const novelReadingMode = 'NovelReadingMode';
   static const downloadPath = 'DownloadPath';
+  static const downloadConcurrent = 'downloadConcurrent';
+  // When true (default), download entries whose file no longer exists on disk
+  // are hidden in the desktop download list unless the user expands "show
+  // missing" files.
+  static const hideMissingDownloads = 'hideMissingDownloads';
   static const proxyActivate = 'ProxyActivate';
   static const proxyList = 'ProxyList';
 }

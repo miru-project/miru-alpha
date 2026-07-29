@@ -225,6 +225,7 @@ class DownloadProgress extends $pb.GeneratedMessage {
     $core.String? title,
     $core.String? package,
     $core.String? key,
+    $core.int? priority,
   }) {
     final result = create();
     if (progress != null) result.progress = progress;
@@ -238,6 +239,7 @@ class DownloadProgress extends $pb.GeneratedMessage {
     if (title != null) result.title = title;
     if (package != null) result.package = package;
     if (key != null) result.key = key;
+    if (priority != null) result.priority = priority;
     return result;
   }
 
@@ -265,6 +267,7 @@ class DownloadProgress extends $pb.GeneratedMessage {
     ..aOS(8, _omitFieldNames ? '' : 'title')
     ..aOS(9, _omitFieldNames ? '' : 'package')
     ..aOS(10, _omitFieldNames ? '' : 'key')
+    ..aI(11, _omitFieldNames ? '' : 'priority')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -369,6 +372,16 @@ class DownloadProgress extends $pb.GeneratedMessage {
   $core.bool hasKey() => $_has(9);
   @$pb.TagNumber(10)
   void clearKey() => $_clearField(10);
+
+  /// Priority used by the concurrency-limited scheduler. Higher runs first.
+  @$pb.TagNumber(11)
+  $core.int get priority => $_getIZ(10);
+  @$pb.TagNumber(11)
+  set priority($core.int value) => $_setSignedInt32(10, value);
+  @$pb.TagNumber(11)
+  $core.bool hasPriority() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearPriority() => $_clearField(11);
 }
 
 class TorrentStats extends $pb.GeneratedMessage {
@@ -531,6 +544,7 @@ class Download extends $pb.GeneratedMessage {
     $core.String? date,
     $core.String? downloadUrl,
     $core.String? detailUrl,
+    $core.int? priority,
   }) {
     final result = create();
     if (id != null) result.id = id;
@@ -546,6 +560,7 @@ class Download extends $pb.GeneratedMessage {
     if (date != null) result.date = date;
     if (downloadUrl != null) result.downloadUrl = downloadUrl;
     if (detailUrl != null) result.detailUrl = detailUrl;
+    if (priority != null) result.priority = priority;
     return result;
   }
 
@@ -580,6 +595,7 @@ class Download extends $pb.GeneratedMessage {
     ..aOS(11, _omitFieldNames ? '' : 'date')
     ..aOS(12, _omitFieldNames ? '' : 'downloadUrl')
     ..aOS(13, _omitFieldNames ? '' : 'detailUrl')
+    ..aI(14, _omitFieldNames ? '' : 'priority')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -698,6 +714,16 @@ class Download extends $pb.GeneratedMessage {
   $core.bool hasDetailUrl() => $_has(12);
   @$pb.TagNumber(13)
   void clearDetailUrl() => $_clearField(13);
+
+  /// Priority used by the concurrency-limited scheduler. Higher runs first.
+  @$pb.TagNumber(14)
+  $core.int get priority => $_getIZ(13);
+  @$pb.TagNumber(14)
+  set priority($core.int value) => $_setSignedInt32(13, value);
+  @$pb.TagNumber(14)
+  $core.bool hasPriority() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearPriority() => $_clearField(14);
 }
 
 /// Torrent

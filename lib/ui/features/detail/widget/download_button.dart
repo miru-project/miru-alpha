@@ -67,7 +67,7 @@ class _DownloadDialogState extends ConsumerState<_DownloadDialog>
     final episodes = widget.detail.episodes;
     return MiruDialog(
       animation: widget.animation,
-      title: Text('common.download'.i18n),
+      title: Text('download.name'.i18n),
       body: episodes == null || episodes.isEmpty
           ? Text('media.no_episodes'.i18n)
           : SizedBox(

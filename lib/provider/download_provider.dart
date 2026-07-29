@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:miru_alpha/miru_core/event_service.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
@@ -7,6 +8,7 @@ import 'package:miru_alpha/utils/download/download_utils.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
+import 'package:path/path.dart' as p;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'download_provider.g.dart';
@@ -50,7 +52,9 @@ extension DownloadStatusX on proto.DownloadStatus {
   bool get isActive =>
       this == proto.DownloadStatus.DOWNLOADING ||
       this == proto.DownloadStatus.PAUSED ||
-      this == proto.DownloadStatus.CONVERTING;
+      this == proto.DownloadStatus.CONVERTING ||
+      this == proto.DownloadStatus.FAILED ||
+      this == proto.DownloadStatus.QUEUED;
 }
 
 /// Statuses that trigger frontend processing (e.g. FFmpeg conversion for HLS).
@@ -63,15 +67,57 @@ class DownloadNotifier extends _$DownloadNotifier {
   StreamSubscription? _subscription;
   final Set<String> _processedTasks = {};
 
+  /// User-defined task order from drag reordering. Preserved across stream
+  /// updates so progress ticks never reset the visual order.
+  List<int> _userOrderedTaskIds = [];
+
+  /// When true the user is mid-drag; stream updates must not replace [active]
+  /// because that would cancel the ReorderableListView gesture.
+  bool _dragInProgress = false;
+
+  Timer? _pollTimer;
+
   @override
   AsyncValue<DownloadState> build() {
     _init();
 
     ref.onDispose(() {
       _subscription?.cancel();
+      _pollTimer?.cancel();
     });
 
     return const AsyncLoading();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Drag-order helpers
+  // ---------------------------------------------------------------------------
+
+  /// Mark drag start/end so stream updates can skip list replacement.
+  void setDragging(bool dragging) {
+    _dragInProgress = dragging;
+  }
+
+  /// Sort [tasks] by [_userOrderedTaskIds], appending unknowns at the end.
+  /// Also syncs [_userOrderedTaskIds] so completed / cancelled tasks drop out.
+  List<proto.DownloadProgress> _sortActiveByOrder(
+    Iterable<proto.DownloadProgress> tasks,
+  ) {
+    final activeTasks = tasks.where((e) => e.status.isActive).toList();
+    final taskMap = {for (final t in activeTasks) t.taskId: t};
+    final ordered = <proto.DownloadProgress>[];
+
+    for (final id in _userOrderedTaskIds) {
+      final task = taskMap.remove(id);
+      if (task != null) ordered.add(task);
+    }
+
+    // New tasks not yet in user order → append
+    ordered.addAll(taskMap.values);
+
+    // Sync order list to current active set
+    _userOrderedTaskIds = ordered.map((t) => t.taskId).toList();
+    return ordered;
   }
 
   Future<void> _init() async {
@@ -106,10 +152,13 @@ class DownloadNotifier extends _$DownloadNotifier {
 
     final allTasks = statusRes.downloadStatus.values;
 
+    final activeTasks = filterActive(allTasks);
+    _userOrderedTaskIds = activeTasks.map((t) => t.taskId).toList();
+
     state = AsyncData(
       DownloadState(
         history: historyRes.downloads,
-        active: filterActive(allTasks),
+        active: activeTasks,
         page: 1,
         hasMore: historyRes.downloads.length >= pageSize,
       ),
@@ -121,23 +170,77 @@ class DownloadNotifier extends _$DownloadNotifier {
         _processDownload(download);
       }
     }
+
+    // Periodic poll to keep progress fresh — covers gaps where the event
+    // stream misses ticks or the backend delays progress updates.
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      _refreshActiveStatus();
+    });
   }
 
   void _startStream() {
     _subscription = miruEventService.downloadStream.listen((status) {
       final allTasks = status.values;
-      final activeTasks = filterActive(allTasks);
 
-      state.whenData((currentState) {
-        state = AsyncData(currentState.copyWith(active: activeTasks));
-      });
+      // Merge incoming data with the current state so that the stream never
+      // regresses progress (e.g. backend re-sends a stale tick with
+      // progress=0 right after the app recovers a task that already had
+      // progress=50).  We keep the higher progress value as long as the
+      // task's status hasn't moved to a terminal state.
+      final merged = _mergeProgress(allTasks);
+
+      // Sort by user drag order (unknown tasks appended at end).
+      final sortedActive = _sortActiveByOrder(merged);
+
+      // While the user is dragging, never replace the active list – doing so
+      // rebuilds the ReorderableListView and cancels the in-flight gesture.
+      // The sorted list is stored so the next non-drag update picks it up.
+      if (!_dragInProgress) {
+        state.whenData((currentState) {
+          state = AsyncData(currentState.copyWith(active: sortedActive));
+        });
+      }
 
       // Process tasks needing frontend processing (e.g. HLS conversion)
-      for (final download in allTasks) {
+      for (final download in merged) {
         if (_isProcessingStatus(download.status)) {
           _processDownload(download);
         }
       }
+    });
+  }
+
+  /// Merge [incoming] tasks with the current active state, keeping the higher
+  /// [DownloadProgress.progress] value when the status hasn't changed. This
+  /// prevents the event stream from resetting visible progress to 0 when the
+  /// backend re-emits a stale snapshot (e.g. right after app restart).
+  Iterable<proto.DownloadProgress> _mergeProgress(
+    Iterable<proto.DownloadProgress> incoming,
+  ) {
+    final currentState = state.value;
+    if (currentState == null) return incoming;
+
+    // Build a taskId → existing task lookup.
+    final existingMap = <int, proto.DownloadProgress>{};
+    for (final t in currentState.active) {
+      existingMap[t.taskId] = t;
+    }
+
+    return incoming.map((newTask) {
+      final existing = existingMap[newTask.taskId];
+      if (existing == null) return newTask;
+
+      // If the status is unchanged and the incoming progress is lower,
+      // keep the existing (higher) progress value so the UI never regresses.
+      if (existing.progress > newTask.progress &&
+          existing.status == newTask.status) {
+        // Return a copy with the higher progress.
+        return proto.DownloadProgress()
+          ..mergeFromMessage(newTask)
+          ..progress = existing.progress;
+      }
+      return newTask;
     });
   }
 
@@ -210,7 +313,6 @@ class DownloadNotifier extends _$DownloadNotifier {
   Future<void> _processDownload(proto.DownloadProgress download) async {
     final key = download.key;
     if (_processedTasks.contains(key)) return;
-    _processedTasks.add(key);
 
     try {
       final downloadPath = MiruSettings.getSettingSync<String>(
@@ -225,9 +327,31 @@ class DownloadNotifier extends _$DownloadNotifier {
 
       // Only HLS downloads need FFmpeg conversion on the frontend
       final isHls = download.mediaType == 'hls';
+
+      // If names is empty but this is an HLS task, try to rebuild the
+      // segment list from the segment directory on disk.  After a backend
+      // restart, the Names field is not persisted in the DB, so the
+      // frontend receives an empty list.  The segments are still in the
+      // savePath directory and can be discovered by scanning for files
+      // whose base name is a number (e.g. 0.ts, 1.ts).
+      List<String> segments = download.names;
+      if (isHls && segments.isEmpty && download.currentDownloading.isNotEmpty) {
+        segments = await discoverHlsSegments(download.currentDownloading);
+        if (segments.isEmpty) {
+          logger.warning(
+            "HLS conversion: no segment files found in "
+            '${download.currentDownloading}',
+          );
+        }
+      }
+
+      // Mark as processing *after* all pre-flight checks pass so a
+      // transient error allows the next stream tick to retry.
+      _processedTasks.add(key);
+
       await DownloadUtils.processFinishedDownload(
         taskId: download.taskId.toString(),
-        segments: download.names,
+        segments: segments,
         currentPath: download.currentDownloading,
         targetDir: downloadPath,
         isHls: isHls,
@@ -239,7 +363,47 @@ class DownloadNotifier extends _$DownloadNotifier {
       await _refreshHistory();
     } catch (e) {
       logger.severe("Failed to process download: $e");
-    } finally {}
+      // Report the failure to the backend so the task moves to FAILED
+      // instead of being stuck in CONVERTING forever.
+      await DownloadUtils.updateStatus(
+        taskId: download.taskId.toString(),
+        status: proto.DownloadStatus.FAILED,
+      );
+      // Optimistically update local state too.
+      _optimisticallyUpdateStatus(download.taskId, proto.DownloadStatus.FAILED);
+      // Remove from _processedTasks so the user can retry by hitting Resume.
+      _processedTasks.remove(key);
+    }
+  }
+
+  /// Scan a segment directory and return sorted absolute paths of segment
+  /// files whose base name is a number (e.g. 0.ts, 1.ts).  Returns an empty
+  /// list if the directory doesn't exist or has no segments.
+  static Future<List<String>> discoverHlsSegments(String dirPath) async {
+    try {
+      final dir = Directory(dirPath);
+      if (!await dir.exists()) return [];
+
+      final segments = <MapEntry<int, String>>[];
+      await for (final entity in dir.list()) {
+        if (entity is! File) continue;
+        final name = p.basename(entity.path);
+        // Strip extension and check if the base is a number.
+        final dotIndex = name.lastIndexOf('.');
+        final base = dotIndex > 0 ? name.substring(0, dotIndex) : name;
+        final index = int.tryParse(base);
+        if (index != null) {
+          segments.add(MapEntry(index, entity.path));
+        }
+      }
+
+      // Sort by numeric index for correct FFmpeg concatenation order.
+      segments.sort((a, b) => a.key.compareTo(b.key));
+      return segments.map((e) => e.value).toList();
+    } catch (e) {
+      logger.warning("Failed to discover HLS segments: $e");
+      return [];
+    }
   }
 
   /// Mark an episode key as "preparing" (fetching watch URL before download).
@@ -261,6 +425,79 @@ class DownloadNotifier extends _$DownloadNotifier {
     });
   }
 
+  /// Returns the configured max concurrent download count (read from settings,
+  /// which mirrors what the backend scheduler uses).
+  int get maxConcurrent {
+    return MiruSettings.getSettingSync<int>(SettingKey.downloadConcurrent);
+  }
+
+  /// Persists and pushes the max concurrent download count to the backend so
+  /// the scheduler cap updates immediately.
+  Future<void> setMaxConcurrent(int value) async {
+    final n = value.clamp(1, 32);
+    MiruSettings.setSettingSync(SettingKey.downloadConcurrent, n.toString());
+    try {
+      await MiruGrpcClient.downloadClient.setDownloadConcurrent(
+        proto.SetDownloadConcurrentRequest()..maxConcurrent = n,
+      );
+    } catch (e) {
+      logger.severe('Failed to set max concurrent downloads: $e');
+    }
+  }
+
+  /// Sends a new desired order for the active tasks to the backend, which
+  /// reassigns priorities (front = highest) and re-runs the scheduler.
+  Future<void> reorderActive(List<int> orderedTaskIds) async {
+    // Preserve locally so the next stream tick maintains this order.
+    _userOrderedTaskIds = orderedTaskIds;
+    try {
+      await MiruGrpcClient.downloadClient.reorderDownloads(
+        proto.ReorderDownloadsRequest()
+          ..orderedTaskIds.addAll(orderedTaskIds),
+      );
+    } catch (e) {
+      logger.severe('Failed to reorder downloads: $e');
+    }
+  }
+
+  /// Sets the priority of a single active task and re-runs the scheduler.
+  Future<void> setDownloadPriority(int taskId, int priority) async {
+    try {
+      await MiruGrpcClient.downloadClient.setDownloadPriority(
+        proto.SetDownloadPriorityRequest()
+          ..taskId = taskId
+          ..priority = priority,
+      );
+    } catch (e) {
+      logger.severe('Failed to set download priority: $e');
+    }
+  }
+
+  /// Whether the download file at [savePath] still exists on disk. An empty
+  /// path is treated as existing so we never hide entries without a known path.
+  static Future<bool> downloadFileExists(String? savePath) async {
+    if (savePath == null || savePath.isEmpty) return true;
+    try {
+      return await File(savePath).exists();
+    } catch (_) {
+      return true;
+    }
+  }
+
+  /// Returns true if the file at [savePath] exists **and** has at least one
+  /// byte. An empty or missing file indicates the download did not actually
+  /// persist any data (e.g. backend was killed mid-stream).
+  static Future<bool> downloadFileHasContent(String? savePath) async {
+    if (savePath == null || savePath.isEmpty) return true;
+    try {
+      final file = File(savePath);
+      if (!await file.exists()) return false;
+      return (await file.length()) > 0;
+    } catch (_) {
+      return true;
+    }
+  }
+
   Future<void> sendAction(
     BuildContext context,
     String id,
@@ -275,18 +512,80 @@ class DownloadNotifier extends _$DownloadNotifier {
           await MiruGrpcClient.downloadClient.pauseDownload(
             proto.PauseDownloadRequest()..taskId = taskId,
           );
+          _optimisticallyUpdateStatus(taskId, proto.DownloadStatus.PAUSED);
         case proto.DownloadAction.RESUME:
           await MiruGrpcClient.downloadClient.resumeDownload(
             proto.ResumeDownloadRequest()..taskId = taskId,
           );
+          // Clear processed-tasks entry so a failed Converting task can be
+          // retried (e.g. when user resumes after FFmpeg failure).
+          final task = state.value?.active.where((t) => t.taskId == taskId);
+          if (task != null && task.isNotEmpty) {
+            _processedTasks.remove(task.first.key);
+          }
+          _optimisticallyUpdateStatus(taskId, proto.DownloadStatus.DOWNLOADING);
+          // Refresh from backend after short delay to confirm real state.
+          Future.delayed(const Duration(seconds: 1), _refreshActiveStatus);
+          Future.delayed(const Duration(seconds: 3), _refreshActiveStatus);
         case proto.DownloadAction.CANCEL:
           await MiruGrpcClient.downloadClient.cancelDownload(
             proto.CancelDownloadRequest()..taskId = taskId,
           );
+          // Remove cancelled task from active list.
+          state.whenData((currentState) {
+            state = AsyncData(
+              currentState.copyWith(
+                active: currentState.active
+                    .where((t) => t.taskId != taskId)
+                    .toList(),
+              ),
+            );
+          });
       }
     } catch (e) {
       if (!context.mounted) return;
       showSimpleToast('Failed to ${action.name} download: $e');
+    }
+  }
+
+  /// Immediately update a task's status in local state so the UI reflects the
+  /// action without waiting for the next backend event tick.
+  void _optimisticallyUpdateStatus(
+    int taskId,
+    proto.DownloadStatus newStatus,
+  ) {
+    state.whenData((currentState) {
+      final updatedActive = currentState.active.map((task) {
+        if (task.taskId == taskId) {
+          // Create a copy to avoid mutating the original protobuf message,
+          // which could corrupt shared references held by the event stream.
+          return proto.DownloadProgress()
+            ..mergeFromMessage(task)
+            ..status = newStatus;
+        }
+        return task;
+      }).toList();
+      state = AsyncData(currentState.copyWith(active: updatedActive));
+    });
+  }
+
+  /// Re-fetch active download status from the backend. Used after resume to
+  /// pick up the real state the backend settled on (handles cases where the
+  /// event stream is delayed or the backend re-queued the task).
+  Future<void> _refreshActiveStatus() async {
+    try {
+      final statusRes = await MiruGrpcClient.downloadClient.getDownloadStatus(
+        proto.GetDownloadStatusRequest(),
+      );
+      final allTasks = statusRes.downloadStatus.values;
+      // Merge so the poll never regresses progress either.
+      final merged = _mergeProgress(allTasks);
+      final sortedActive = _sortActiveByOrder(merged);
+      state.whenData((currentState) {
+        state = AsyncData(currentState.copyWith(active: sortedActive));
+      });
+    } catch (e) {
+      // Silently ignore — the event stream will eventually catch up.
     }
   }
 }

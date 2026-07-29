@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/http/request.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
@@ -66,8 +67,8 @@ class DetailImageView extends StatelessWidget {
                         clipBehavior: Clip.antiAlias,
                         borderRadius: BorderRadius.circular(10),
                         child: ExtendedImage.network(
+                          MiruRequest.proxyUrl(coverUrl).toString(),
                           mode: .gesture,
-                          coverUrl,
                           initGestureConfigHandler: (state) => GestureConfig(
                             minScale: 0.9,
                             animationMinScale: 0.7,

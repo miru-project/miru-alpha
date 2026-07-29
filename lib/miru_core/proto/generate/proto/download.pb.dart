@@ -1668,6 +1668,352 @@ class AddMagnetResponse extends $pb.GeneratedMessage {
   $pb.PbList<$core.String> get files => $_getList(2);
 }
 
+class SetDownloadPriorityRequest extends $pb.GeneratedMessage {
+  factory SetDownloadPriorityRequest({
+    $core.int? taskId,
+    $core.int? priority,
+  }) {
+    final result = create();
+    if (taskId != null) result.taskId = taskId;
+    if (priority != null) result.priority = priority;
+    return result;
+  }
+
+  SetDownloadPriorityRequest._();
+
+  factory SetDownloadPriorityRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory SetDownloadPriorityRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SetDownloadPriorityRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aI(1, _omitFieldNames ? '' : 'taskId')
+    ..aI(2, _omitFieldNames ? '' : 'priority')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetDownloadPriorityRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetDownloadPriorityRequest copyWith(
+          void Function(SetDownloadPriorityRequest) updates) =>
+      super.copyWith(
+              (message) => updates(message as SetDownloadPriorityRequest))
+          as SetDownloadPriorityRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SetDownloadPriorityRequest create() => SetDownloadPriorityRequest._();
+  @$core.override
+  SetDownloadPriorityRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static SetDownloadPriorityRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SetDownloadPriorityRequest>(create);
+  static SetDownloadPriorityRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get taskId => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set taskId($core.int value) => $_setSignedInt32(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTaskId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTaskId() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get priority => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set priority($core.int value) => $_setSignedInt32(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasPriority() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPriority() => $_clearField(2);
+}
+
+class SetDownloadPriorityResponse extends $pb.GeneratedMessage {
+  factory SetDownloadPriorityResponse({
+    $core.String? message,
+  }) {
+    final result = create();
+    if (message != null) result.message = message;
+    return result;
+  }
+
+  SetDownloadPriorityResponse._();
+
+  factory SetDownloadPriorityResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory SetDownloadPriorityResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SetDownloadPriorityResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'message')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetDownloadPriorityResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetDownloadPriorityResponse copyWith(
+          void Function(SetDownloadPriorityResponse) updates) =>
+      super.copyWith(
+              (message) => updates(message as SetDownloadPriorityResponse))
+          as SetDownloadPriorityResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SetDownloadPriorityResponse create() =>
+      SetDownloadPriorityResponse._();
+  @$core.override
+  SetDownloadPriorityResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static SetDownloadPriorityResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SetDownloadPriorityResponse>(create);
+  static SetDownloadPriorityResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get message => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set message($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasMessage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMessage() => $_clearField(1);
+}
+
+class SetDownloadConcurrentRequest extends $pb.GeneratedMessage {
+  factory SetDownloadConcurrentRequest({
+    $core.int? maxConcurrent,
+  }) {
+    final result = create();
+    if (maxConcurrent != null) result.maxConcurrent = maxConcurrent;
+    return result;
+  }
+
+  SetDownloadConcurrentRequest._();
+
+  factory SetDownloadConcurrentRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory SetDownloadConcurrentRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SetDownloadConcurrentRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aI(1, _omitFieldNames ? '' : 'maxConcurrent')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetDownloadConcurrentRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetDownloadConcurrentRequest copyWith(
+          void Function(SetDownloadConcurrentRequest) updates) =>
+      super.copyWith(
+              (message) => updates(message as SetDownloadConcurrentRequest))
+          as SetDownloadConcurrentRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SetDownloadConcurrentRequest create() =>
+      SetDownloadConcurrentRequest._();
+  @$core.override
+  SetDownloadConcurrentRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static SetDownloadConcurrentRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SetDownloadConcurrentRequest>(create);
+  static SetDownloadConcurrentRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get maxConcurrent => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set maxConcurrent($core.int value) => $_setSignedInt32(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasMaxConcurrent() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMaxConcurrent() => $_clearField(1);
+}
+
+class SetDownloadConcurrentResponse extends $pb.GeneratedMessage {
+  factory SetDownloadConcurrentResponse({
+    $core.String? message,
+  }) {
+    final result = create();
+    if (message != null) result.message = message;
+    return result;
+  }
+
+  SetDownloadConcurrentResponse._();
+
+  factory SetDownloadConcurrentResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory SetDownloadConcurrentResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SetDownloadConcurrentResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'message')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetDownloadConcurrentResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SetDownloadConcurrentResponse copyWith(
+          void Function(SetDownloadConcurrentResponse) updates) =>
+      super.copyWith(
+              (message) => updates(message as SetDownloadConcurrentResponse))
+          as SetDownloadConcurrentResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SetDownloadConcurrentResponse create() =>
+      SetDownloadConcurrentResponse._();
+  @$core.override
+  SetDownloadConcurrentResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static SetDownloadConcurrentResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SetDownloadConcurrentResponse>(create);
+  static SetDownloadConcurrentResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get message => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set message($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasMessage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMessage() => $_clearField(1);
+}
+
+/// Reorders active/queued tasks. `ordered_task_ids` is the full desired order
+/// (front = highest priority). The backend reassigns priorities accordingly.
+class ReorderDownloadsRequest extends $pb.GeneratedMessage {
+  factory ReorderDownloadsRequest({
+    $core.Iterable<$core.int>? orderedTaskIds,
+  }) {
+    final result = create();
+    if (orderedTaskIds != null) result.orderedTaskIds.addAll(orderedTaskIds);
+    return result;
+  }
+
+  ReorderDownloadsRequest._();
+
+  factory ReorderDownloadsRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ReorderDownloadsRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ReorderDownloadsRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..p<$core.int>(
+        1, _omitFieldNames ? '' : 'orderedTaskIds', $pb.PbFieldType.K3)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ReorderDownloadsRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ReorderDownloadsRequest copyWith(
+          void Function(ReorderDownloadsRequest) updates) =>
+      super.copyWith((message) => updates(message as ReorderDownloadsRequest))
+          as ReorderDownloadsRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ReorderDownloadsRequest create() => ReorderDownloadsRequest._();
+  @$core.override
+  ReorderDownloadsRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ReorderDownloadsRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ReorderDownloadsRequest>(create);
+  static ReorderDownloadsRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<$core.int> get orderedTaskIds => $_getList(0);
+}
+
+class ReorderDownloadsResponse extends $pb.GeneratedMessage {
+  factory ReorderDownloadsResponse({
+    $core.String? message,
+  }) {
+    final result = create();
+    if (message != null) result.message = message;
+    return result;
+  }
+
+  ReorderDownloadsResponse._();
+
+  factory ReorderDownloadsResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ReorderDownloadsResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ReorderDownloadsResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'message')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ReorderDownloadsResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ReorderDownloadsResponse copyWith(
+          void Function(ReorderDownloadsResponse) updates) =>
+      super.copyWith((message) => updates(message as ReorderDownloadsResponse))
+          as ReorderDownloadsResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ReorderDownloadsResponse create() => ReorderDownloadsResponse._();
+  @$core.override
+  ReorderDownloadsResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ReorderDownloadsResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ReorderDownloadsResponse>(create);
+  static ReorderDownloadsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get message => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set message($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasMessage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMessage() => $_clearField(1);
+}
+
 class UpdateDownloadStatusRequest extends $pb.GeneratedMessage {
   factory UpdateDownloadStatusRequest({
     $core.int? taskId,

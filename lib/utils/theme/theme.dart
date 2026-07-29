@@ -178,7 +178,12 @@ class ThemeUtils {
   }
 
   static FThemeData getThemeData(MiruPlatformTheme theme) {
-    final FlutterView view = PlatformDispatcher.instance.views.first;
+    final views = PlatformDispatcher.instance.views;
+    if (views.isEmpty) {
+      // No views available (e.g. during headless testing or early startup).
+      return theme.desktop;
+    }
+    final FlutterView view = views.first;
     final Size physicalSize = view.physicalSize;
     final double devicePixelRatio = view.devicePixelRatio;
     final double width = physicalSize.width / devicePixelRatio;

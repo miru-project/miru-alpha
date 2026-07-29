@@ -167,7 +167,7 @@ class RouterUtil {
                           state: state,
                           child: DeviceUtil.deviceWidget(
                             context: context,
-                            desktop: const DownloadView(),
+                            desktop: const DesktopFinishedDownloadSection(),
                             mobile: MobileFinishedDownloadSection(),
                           ),
                         ),

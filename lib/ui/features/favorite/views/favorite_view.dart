@@ -156,6 +156,7 @@ class _FavoriteDesktopView extends ConsumerWidget {
             delegate: _PinnedBoxDelegate(
               extent: 60,
               child: FScaffold(
+                childPad: false,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -195,6 +196,7 @@ class _FavoriteDesktopView extends ConsumerWidget {
             delegate: _PinnedBoxDelegate(
               extent: 60,
               child: FScaffold(
+                childPad: false,
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: DesktopFavoriteSearchBar(),
@@ -513,7 +515,7 @@ class _GroupBadgeRow extends ConsumerWidget {
 
     final badges = <Widget>[];
     if (selectedGroups.isEmpty) {
-      badges.add(FBadge(child: Text('common.all'.i18n)));
+      badges.add(FBadge(child: Text('favorite.all-tags'.i18n)));
     } else if (selectedGroups.length <= 2) {
       badges.addAll(
         selectedGroups.map(

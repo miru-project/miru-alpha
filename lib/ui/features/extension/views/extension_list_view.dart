@@ -364,33 +364,6 @@ class _ExtensionFilterBar extends HookConsumerWidget {
                               value == 'common.all' ? 'common.all'.i18n : value,
                         )),
                       ),
-                      // const SizedBox(width: 8),
-                      // Expanded(
-                      //   child: FSelect<String>.rich(
-                      //     label: Text('common.install_status'.i18n),
-                      //     hint: 'common.all'.i18n,
-                      //     control: FSelectManagedControl<String>(
-                      //       onChange: (val) => onInstallChanged(
-                      //         val == 'common.all' ? 'ALL' : val ?? 'ALL',
-                      //       ),
-                      //     ),
-                      //     children: [
-                      //       FSelectItem<String>(
-                      //         value: 'common.all',
-                      //         title: Text('common.all'.i18n),
-                      //       ),
-                      //       FSelectItem<String>(
-                      //         value: 'extension.installed',
-                      //         title: Text('common.installed'.i18n),
-                      //       ),
-                      //       FSelectItem<String>(
-                      //         value: 'extension.not_installed',
-                      //         title: Text('common.not_installed'.i18n),
-                      //       ),
-                      //     ],
-                      //     format: (value) => value.i18n,
-                      //   ),
-                      // ),
                     ],
                   ),
                 )
@@ -480,7 +453,7 @@ class ExtensionGridView extends HookConsumerWidget {
                       const SizedBox(width: 10),
                       ClearableSelect(
                         hintText: 'common.all'.i18n.toUpperCase(),
-                        title: "common.install_status".i18n,
+                        title: "common.status".i18n,
                         items: [
                           'common.installed'.i18n,
                           'common.not_installed'.i18n,

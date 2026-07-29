@@ -133,7 +133,8 @@
     "select_groups_desc": "Choose which favorite groups to filter by",
     "filter_mode": "Filter Mode",
     "and": "AND",
-    "or": "OR"
+    "or": "OR",
+    "all-tags": "All tags"
   },
   "media": {
     "episode": {
@@ -472,7 +473,11 @@
     "error_loading_downloads": "Error loading downloads",
     "download_started": "Download started",
     "failed_to_start_download": "Failed to start download",
-    "downloaded": "Downloaded"
+    "downloaded": "Downloaded",
+    "max_concurrent": "Max concurrent downloads",
+    "show_missing": "Show missing files ({count})",
+    "hide_missing": "Hide missing files",
+    "drag_to_reorder_tip": "Drag to reorder. Top = higher priority."
   },
   "languages": {
     "name": "Languages"

@@ -1,6 +1,7 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/http/request.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
@@ -39,7 +40,7 @@ class DetailDesktopBox extends HookConsumerWidget {
             borderRadius: BorderRadius.circular(12),
             image: DecorationImage(
               fit: BoxFit.fitWidth,
-              image: ExtendedNetworkImageProvider(coverUrl),
+              image: ExtendedNetworkImageProvider(MiruRequest.proxyUrl(coverUrl).toString()),
               colorFilter: ColorFilter.mode(
                 Colors.black.withAlpha(200), // optional dark overlay
                 BlendMode.darken,

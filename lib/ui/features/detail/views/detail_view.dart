@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miru_alpha/utils/http/request.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -85,7 +86,7 @@ class DetailView extends HookConsumerWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        viewModelAsync.value!.cover!,
+                        MiruRequest.proxyUrl(viewModelAsync.value!.cover!).toString(),
                         width: 160,
                         height: 220,
                         fit: BoxFit.cover,

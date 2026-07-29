@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/model.dart';
@@ -11,7 +10,6 @@ import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
     as pb_extension;
 
-late final Dio dio;
 
 /// Endpoint helpers for application settings
 class AppSettingEndpoint {
@@ -62,7 +60,6 @@ class CoreNetwork {
   }
 
   static Future<void> ensureInitialized() async {
-    dio = Dio();
   }
 }
 

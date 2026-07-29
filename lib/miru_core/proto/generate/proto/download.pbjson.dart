@@ -465,6 +465,90 @@ final $typed_data.Uint8List addMagnetResponseDescriptor = $convert.base64Decode(
     'ChFBZGRNYWduZXRSZXNwb25zZRIbCglpbmZvX2hhc2gYASABKAlSCGluZm9IYXNoEh8KC2RldG'
     'FpbF9qc29uGAIgASgJUgpkZXRhaWxKc29uEhQKBWZpbGVzGAMgAygJUgVmaWxlcw==');
 
+@$core.Deprecated('Use setDownloadPriorityRequestDescriptor instead')
+const SetDownloadPriorityRequest$json = {
+  '1': 'SetDownloadPriorityRequest',
+  '2': [
+    {'1': 'task_id', '3': 1, '4': 1, '5': 5, '10': 'taskId'},
+    {'1': 'priority', '3': 2, '4': 1, '5': 5, '10': 'priority'},
+  ],
+};
+
+/// Descriptor for `SetDownloadPriorityRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDownloadPriorityRequestDescriptor =
+    $convert.base64Decode(
+        'ChpTZXREb3dubG9hZFByaW9yaXR5UmVxdWVzdBIXCgd0YXNrX2lkGAEgASgFUgZ0YXNrSWQSGg'
+        'oIcHJpb3JpdHkYAiABKAVSCHByaW9yaXR5');
+
+@$core.Deprecated('Use setDownloadPriorityResponseDescriptor instead')
+const SetDownloadPriorityResponse$json = {
+  '1': 'SetDownloadPriorityResponse',
+  '2': [
+    {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `SetDownloadPriorityResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDownloadPriorityResponseDescriptor =
+    $convert.base64Decode(
+        'ChtTZXREb3dubG9hZFByaW9yaXR5UmVzcG9uc2USGAoHbWVzc2FnZRgBIAEoCVIHbWVzc2FnZQ'
+        '==');
+
+@$core.Deprecated('Use setDownloadConcurrentRequestDescriptor instead')
+const SetDownloadConcurrentRequest$json = {
+  '1': 'SetDownloadConcurrentRequest',
+  '2': [
+    {'1': 'max_concurrent', '3': 1, '4': 1, '5': 5, '10': 'maxConcurrent'},
+  ],
+};
+
+/// Descriptor for `SetDownloadConcurrentRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDownloadConcurrentRequestDescriptor =
+    $convert.base64Decode(
+        'ChxTZXREb3dubG9hZENvbmN1cnJlbnRSZXF1ZXN0EiUKDm1heF9jb25jdXJyZW50GAEgASgFUg'
+        '1tYXhDb25jdXJyZW50');
+
+@$core.Deprecated('Use setDownloadConcurrentResponseDescriptor instead')
+const SetDownloadConcurrentResponse$json = {
+  '1': 'SetDownloadConcurrentResponse',
+  '2': [
+    {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `SetDownloadConcurrentResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDownloadConcurrentResponseDescriptor =
+    $convert.base64Decode(
+        'Ch1TZXREb3dubG9hZENvbmN1cnJlbnRSZXNwb25zZRIYCgdtZXNzYWdlGAEgASgJUgdtZXNzYW'
+        'dl');
+
+@$core.Deprecated('Use reorderDownloadsRequestDescriptor instead')
+const ReorderDownloadsRequest$json = {
+  '1': 'ReorderDownloadsRequest',
+  '2': [
+    {'1': 'ordered_task_ids', '3': 1, '4': 3, '5': 5, '10': 'orderedTaskIds'},
+  ],
+};
+
+/// Descriptor for `ReorderDownloadsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List reorderDownloadsRequestDescriptor =
+    $convert.base64Decode(
+        'ChdSZW9yZGVyRG93bmxvYWRzUmVxdWVzdBIoChBvcmRlcmVkX3Rhc2tfaWRzGAEgAygFUg5vcm'
+        'RlcmVkVGFza0lkcw==');
+
+@$core.Deprecated('Use reorderDownloadsResponseDescriptor instead')
+const ReorderDownloadsResponse$json = {
+  '1': 'ReorderDownloadsResponse',
+  '2': [
+    {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `ReorderDownloadsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List reorderDownloadsResponseDescriptor =
+    $convert.base64Decode(
+        'ChhSZW9yZGVyRG93bmxvYWRzUmVzcG9uc2USGAoHbWVzc2FnZRgBIAEoCVIHbWVzc2FnZQ==');
+
 @$core.Deprecated('Use updateDownloadStatusRequestDescriptor instead')
 const UpdateDownloadStatusRequest$json = {
   '1': 'UpdateDownloadStatusRequest',

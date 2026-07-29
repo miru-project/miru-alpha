@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
@@ -8,6 +7,7 @@ import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/ui/core/dialog/dialog.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
+import 'package:miru_alpha/utils/http/request.dart';
 import 'package:path/path.dart' as p;
 
 /// Shows the extension import dialog, mirroring the mobile import flow.
@@ -40,7 +40,7 @@ Future<void> showExtensionImportDialog(BuildContext context) async {
               await targetDir.create(recursive: true);
             }
             final targetPath = p.join(Core.extensionPath, filename);
-            await Dio().download(editValue!, targetPath);
+            await MiruRequest.rawDownload(editValue!, targetPath);
             showSimpleToast('Install Success');
           } catch (e) {
             showSimpleToast('Install Failed: $e');
@@ -59,7 +59,7 @@ Future<void> showExtensionImportDialog(BuildContext context) async {
             if (result != null && result.files.single.path != null) {
               final pickedPath = result.files.single.path!;
               final filename = p.basename(pickedPath);
-              final reg = RegExp(r'^\w.+\.\w+\.(js|go)$');
+              final reg = RegExp(r'^[\w.-]+\.(js|go)$');
               if (!reg.hasMatch(filename)) {
                 showSimpleToast('Invalid extension name');
                 return;

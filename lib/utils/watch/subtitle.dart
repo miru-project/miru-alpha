@@ -1,9 +1,10 @@
-import 'package:miru_alpha/miru_core/network.dart';
+import 'package:miru_alpha/utils/http/request.dart';
 
 class SubtitleUtil {
   static Future<List<Subtitle>> parseVttSubtitles(String url) async {
     // #todo
-    final String data = (await dio.get<String>(url)).data!;
+    final dynamic rawData = await MiruRequest.get(url);
+    final String data = rawData as String;
     final List<Subtitle> subtitles = [];
     RegExp regExp = RegExp(
       r'(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})\n(.+)',
