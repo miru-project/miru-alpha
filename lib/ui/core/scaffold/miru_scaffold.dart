@@ -187,6 +187,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
 
     return FScaffold(
       childPad: widget.childPad,
+      resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
       child: CustomScrollView(
         controller: scrollController,
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -261,6 +262,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     return Positioned.fill(
       child: FScaffold(
         childPad: widget.childPad,
+        resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
         child: widget.mobileBody ?? widget.body ?? const SizedBox.shrink(),
       ),
     );

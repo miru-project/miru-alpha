@@ -109,7 +109,12 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
-                                color: context.theme.colors.primary,
+                                color: Color.alphaBlend(
+                                  context.theme.colors.primary.withAlpha(
+                                    128,
+                                  ), // Foreground
+                                  context.theme.colors.foreground, // Background
+                                ),
                               ),
                               // Let the title fill the full width of the Expanded
                               // and wrap onto multiple lines instead of being

@@ -157,6 +157,7 @@ class _FavoriteDesktopView extends ConsumerWidget {
               extent: 60,
               child: FScaffold(
                 childPad: false,
+                resizeToAvoidBottomInset: false,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -197,6 +198,7 @@ class _FavoriteDesktopView extends ConsumerWidget {
               extent: 60,
               child: FScaffold(
                 childPad: false,
+                resizeToAvoidBottomInset: false,
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: DesktopFavoriteSearchBar(),
@@ -442,6 +444,7 @@ class _FavoriteHeader extends ConsumerWidget {
 
     return FScaffold(
       childPad: false,
+      resizeToAvoidBottomInset: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
         child: Column(

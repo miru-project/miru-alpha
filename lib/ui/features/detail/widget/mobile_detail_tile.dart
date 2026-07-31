@@ -119,7 +119,10 @@ class MobileDetailTile extends ConsumerWidget {
                   Text(_dateFormatter(DateTime.tryParse(item.update))),
                   Text(' • '),
                 ],
-                if (history != null) Text(_progressIndicator(history!)),
+                if (history != null) ...[
+                  Text(_progressIndicator(history!)),
+                  Text(' • '),
+                ],
                 if (downloadProgress != null)
                   Text(
                     "${downloadProgress.status.name} - ${(downloadProgress.progress / (downloadProgress.total == 0 ? 1 : downloadProgress.total) * 100).toStringAsFixed(1)}%",

@@ -150,6 +150,7 @@ class ExtensionListView extends HookConsumerWidget {
           minExtentValue: filterExpanded.value ? 210 : 120,
           child: FScaffold(
             childPad: false,
+            resizeToAvoidBottomInset: false,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

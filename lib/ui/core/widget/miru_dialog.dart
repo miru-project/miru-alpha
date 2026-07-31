@@ -62,7 +62,11 @@ class MiruDialog extends StatelessWidget {
                   child: title!,
                 ),
               ),
-            if (body != null) body!, // ignore: use_null_aware_elements
+            if (body != null)
+              DefaultTextStyle.merge(
+                style: dialogStyle.bodyTextStyle,
+                child: body!,
+              ), // ignore: use_null_aware_elements
             if (actions case final a? when a.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 16),

@@ -186,53 +186,57 @@ class _MainPageState extends ConsumerState<MainPage>
         mobileWidget: Column(
           children: [
             Expanded(child: widget.child ?? const SizedBox()),
-            FBottomNavigationBar(
-              index: selected.value,
-              onChange: (value) {
-                if (widget.child != null) {
-                  widget.child!.goBranch(value);
-                }
-                selected.value = value;
-              },
-              children: [
-                FBottomNavigationBarItem(
-                  label: Text(_navItems[0].text.i18n),
-                  icon: HomeIcon(
-                    color: selected.value == 0
-                        ? themeData.colors.primary
-                        : themeData.colors.mutedForeground,
-                    isTriggered: selected.value == 0,
+            // Hide the bottom navigation bar when the keyboard is open to
+            // prevent its solid background from appearing as a black box
+            // above the keyboard.
+            if (MediaQuery.viewInsetsOf(context).bottom == 0)
+              FBottomNavigationBar(
+                index: selected.value,
+                onChange: (value) {
+                  if (widget.child != null) {
+                    widget.child!.goBranch(value);
+                  }
+                  selected.value = value;
+                },
+                children: [
+                  FBottomNavigationBarItem(
+                    label: Text(_navItems[0].text.i18n),
+                    icon: HomeIcon(
+                      color: selected.value == 0
+                          ? themeData.colors.primary
+                          : themeData.colors.mutedForeground,
+                      isTriggered: selected.value == 0,
+                    ),
                   ),
-                ),
-                FBottomNavigationBarItem(
-                  label: Text(_navItems[1].text.i18n),
-                  icon: CompassIcon(
-                    color: selected.value == 1
-                        ? themeData.colors.primary
-                        : themeData.colors.mutedForeground,
-                    isTriggered: selected.value == 1,
+                  FBottomNavigationBarItem(
+                    label: Text(_navItems[1].text.i18n),
+                    icon: CompassIcon(
+                      color: selected.value == 1
+                          ? themeData.colors.primary
+                          : themeData.colors.mutedForeground,
+                      isTriggered: selected.value == 1,
+                    ),
                   ),
-                ),
-                FBottomNavigationBarItem(
-                  label: Text(_navItems[2].text.i18n),
-                  icon: BlocksPathLoopIcon(
-                    color: selected.value == 2
-                        ? themeData.colors.primary
-                        : themeData.colors.mutedForeground,
-                    isTriggered: selected.value == 2,
+                  FBottomNavigationBarItem(
+                    label: Text(_navItems[2].text.i18n),
+                    icon: BlocksPathLoopIcon(
+                      color: selected.value == 2
+                          ? themeData.colors.primary
+                          : themeData.colors.mutedForeground,
+                      isTriggered: selected.value == 2,
+                    ),
                   ),
-                ),
-                FBottomNavigationBarItem(
-                  label: Text(_navItems[3].text.i18n),
-                  icon: SettingsIcon(
-                    color: selected.value == 3
-                        ? themeData.colors.primary
-                        : themeData.colors.mutedForeground,
-                    isTriggered: selected.value == 3,
+                  FBottomNavigationBarItem(
+                    label: Text(_navItems[3].text.i18n),
+                    icon: SettingsIcon(
+                      color: selected.value == 3
+                          ? themeData.colors.primary
+                          : themeData.colors.mutedForeground,
+                      isTriggered: selected.value == 3,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
         desktopWidget: FScaffold(
