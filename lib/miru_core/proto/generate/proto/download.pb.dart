@@ -12,6 +12,7 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 import 'common.pb.dart' as $1;
@@ -450,12 +451,13 @@ class DownloadRequest extends $pb.GeneratedMessage {
     $core.String? url,
     $core.String? downloadPath,
     $core.Iterable<$core.MapEntry<$core.String, $core.String>>? headers,
-    $core.String? mediaType,
+    $1.DownloadMediaType? mediaType,
     $core.String? package,
     $core.String? key,
     $core.String? title,
     $core.String? detailUrl,
     $core.String? watchUrl,
+    $1.DownloadCategory? category,
   }) {
     final result = create();
     if (url != null) result.url = url;
@@ -467,6 +469,7 @@ class DownloadRequest extends $pb.GeneratedMessage {
     if (title != null) result.title = title;
     if (detailUrl != null) result.detailUrl = detailUrl;
     if (watchUrl != null) result.watchUrl = watchUrl;
+    if (category != null) result.category = category;
     return result;
   }
 
@@ -490,12 +493,15 @@ class DownloadRequest extends $pb.GeneratedMessage {
         keyFieldType: $pb.PbFieldType.OS,
         valueFieldType: $pb.PbFieldType.OS,
         packageName: const $pb.PackageName('miru'))
-    ..aOS(4, _omitFieldNames ? '' : 'mediaType')
+    ..aE<$1.DownloadMediaType>(4, _omitFieldNames ? '' : 'mediaType',
+        enumValues: $1.DownloadMediaType.values)
     ..aOS(5, _omitFieldNames ? '' : 'package')
     ..aOS(6, _omitFieldNames ? '' : 'key')
     ..aOS(7, _omitFieldNames ? '' : 'title')
     ..aOS(8, _omitFieldNames ? '' : 'detailUrl')
     ..aOS(9, _omitFieldNames ? '' : 'watchUrl')
+    ..aE<$1.DownloadCategory>(10, _omitFieldNames ? '' : 'category',
+        enumValues: $1.DownloadCategory.values)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -539,9 +545,9 @@ class DownloadRequest extends $pb.GeneratedMessage {
   $pb.PbMap<$core.String, $core.String> get headers => $_getMap(2);
 
   @$pb.TagNumber(4)
-  $core.String get mediaType => $_getSZ(3);
+  $1.DownloadMediaType get mediaType => $_getN(3);
   @$pb.TagNumber(4)
-  set mediaType($core.String value) => $_setString(3, value);
+  set mediaType($1.DownloadMediaType value) => $_setField(4, value);
   @$pb.TagNumber(4)
   $core.bool hasMediaType() => $_has(3);
   @$pb.TagNumber(4)
@@ -591,6 +597,16 @@ class DownloadRequest extends $pb.GeneratedMessage {
   $core.bool hasWatchUrl() => $_has(8);
   @$pb.TagNumber(9)
   void clearWatchUrl() => $_clearField(9);
+
+  /// Content category (video / manga / novel) used for storage grouping.
+  @$pb.TagNumber(10)
+  $1.DownloadCategory get category => $_getN(9);
+  @$pb.TagNumber(10)
+  set category($1.DownloadCategory value) => $_setField(10, value);
+  @$pb.TagNumber(10)
+  $core.bool hasCategory() => $_has(9);
+  @$pb.TagNumber(10)
+  void clearCategory() => $_clearField(10);
 }
 
 class DownloadResponse extends $pb.GeneratedMessage {
@@ -1666,6 +1682,224 @@ class AddMagnetResponse extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(3)
   $pb.PbList<$core.String> get files => $_getList(2);
+}
+
+/// StorageStats groups occupied bytes by content category plus temp downloads.
+class StorageStats extends $pb.GeneratedMessage {
+  factory StorageStats({
+    $fixnum.Int64? videoBytes,
+    $fixnum.Int64? mangaBytes,
+    $fixnum.Int64? novelBytes,
+    $fixnum.Int64? tempBytes,
+    $fixnum.Int64? totalBytes,
+  }) {
+    final result = create();
+    if (videoBytes != null) result.videoBytes = videoBytes;
+    if (mangaBytes != null) result.mangaBytes = mangaBytes;
+    if (novelBytes != null) result.novelBytes = novelBytes;
+    if (tempBytes != null) result.tempBytes = tempBytes;
+    if (totalBytes != null) result.totalBytes = totalBytes;
+    return result;
+  }
+
+  StorageStats._();
+
+  factory StorageStats.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory StorageStats.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'StorageStats',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aInt64(1, _omitFieldNames ? '' : 'videoBytes')
+    ..aInt64(2, _omitFieldNames ? '' : 'mangaBytes')
+    ..aInt64(3, _omitFieldNames ? '' : 'novelBytes')
+    ..aInt64(4, _omitFieldNames ? '' : 'tempBytes')
+    ..aInt64(5, _omitFieldNames ? '' : 'totalBytes')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  StorageStats clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  StorageStats copyWith(void Function(StorageStats) updates) =>
+      super.copyWith((message) => updates(message as StorageStats))
+          as StorageStats;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static StorageStats create() => StorageStats._();
+  @$core.override
+  StorageStats createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static StorageStats getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<StorageStats>(create);
+  static StorageStats? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $fixnum.Int64 get videoBytes => $_getI64(0);
+  @$pb.TagNumber(1)
+  set videoBytes($fixnum.Int64 value) => $_setInt64(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasVideoBytes() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearVideoBytes() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $fixnum.Int64 get mangaBytes => $_getI64(1);
+  @$pb.TagNumber(2)
+  set mangaBytes($fixnum.Int64 value) => $_setInt64(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasMangaBytes() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMangaBytes() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get novelBytes => $_getI64(2);
+  @$pb.TagNumber(3)
+  set novelBytes($fixnum.Int64 value) => $_setInt64(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasNovelBytes() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearNovelBytes() => $_clearField(3);
+
+  /// Bytes occupied by in-progress downloads (partial files not yet completed).
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get tempBytes => $_getI64(3);
+  @$pb.TagNumber(4)
+  set tempBytes($fixnum.Int64 value) => $_setInt64(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasTempBytes() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTempBytes() => $_clearField(4);
+
+  /// Total of video + manga + novel + temp.
+  @$pb.TagNumber(5)
+  $fixnum.Int64 get totalBytes => $_getI64(4);
+  @$pb.TagNumber(5)
+  set totalBytes($fixnum.Int64 value) => $_setInt64(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasTotalBytes() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearTotalBytes() => $_clearField(5);
+}
+
+class GetStorageStatsRequest extends $pb.GeneratedMessage {
+  factory GetStorageStatsRequest({
+    $core.String? downloadPath,
+  }) {
+    final result = create();
+    if (downloadPath != null) result.downloadPath = downloadPath;
+    return result;
+  }
+
+  GetStorageStatsRequest._();
+
+  factory GetStorageStatsRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetStorageStatsRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetStorageStatsRequest',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'downloadPath')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetStorageStatsRequest clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetStorageStatsRequest copyWith(
+          void Function(GetStorageStatsRequest) updates) =>
+      super.copyWith((message) => updates(message as GetStorageStatsRequest))
+          as GetStorageStatsRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetStorageStatsRequest create() => GetStorageStatsRequest._();
+  @$core.override
+  GetStorageStatsRequest createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetStorageStatsRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetStorageStatsRequest>(create);
+  static GetStorageStatsRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get downloadPath => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set downloadPath($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasDownloadPath() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDownloadPath() => $_clearField(1);
+}
+
+class GetStorageStatsResponse extends $pb.GeneratedMessage {
+  factory GetStorageStatsResponse({
+    StorageStats? stats,
+  }) {
+    final result = create();
+    if (stats != null) result.stats = stats;
+    return result;
+  }
+
+  GetStorageStatsResponse._();
+
+  factory GetStorageStatsResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory GetStorageStatsResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'GetStorageStatsResponse',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOM<StorageStats>(1, _omitFieldNames ? '' : 'stats',
+        subBuilder: StorageStats.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetStorageStatsResponse clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetStorageStatsResponse copyWith(
+          void Function(GetStorageStatsResponse) updates) =>
+      super.copyWith((message) => updates(message as GetStorageStatsResponse))
+          as GetStorageStatsResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetStorageStatsResponse create() => GetStorageStatsResponse._();
+  @$core.override
+  GetStorageStatsResponse createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static GetStorageStatsResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<GetStorageStatsResponse>(create);
+  static GetStorageStatsResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  StorageStats get stats => $_getN(0);
+  @$pb.TagNumber(1)
+  set stats(StorageStats value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasStats() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStats() => $_clearField(1);
+  @$pb.TagNumber(1)
+  StorageStats ensureStats() => $_ensure(0);
 }
 
 class SetDownloadPriorityRequest extends $pb.GeneratedMessage {

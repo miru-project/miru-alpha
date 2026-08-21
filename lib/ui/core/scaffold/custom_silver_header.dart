@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Base delegate for all sliver headers.
 /// Wraps content in a [SizedBox] to ensure [paintExtent] always matches

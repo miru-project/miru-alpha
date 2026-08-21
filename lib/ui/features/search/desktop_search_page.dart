@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -9,28 +8,36 @@ import 'package:miru_alpha/provider/search/search_page_provider.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/utils/store/storage_index.dart';
 import 'package:miru_alpha/ui/core/core/inner_card.dart';
-import 'package:miru_alpha/ui/core/core/search_filter_card.dart';
 import 'package:miru_alpha/ui/features/search/widget/desktop_search_list_tile.dart';
 
 class DesktopSearchPage extends HookConsumerWidget {
-  const DesktopSearchPage({super.key});
+  const DesktopSearchPage({super.key, this.search});
+  final String? search;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final metaData = ref.watch(searchPageProvider).filteredMetaData;
     final existedPinnedExtensions = ref.watch(
       searchPageProvider.select((e) => e.existedPinnedExtensions),
     );
-    // query for the global search
-    final searchQuery = useState("");
+
+    // Seed the global-search query from a deep-link keyword (e.g. the
+    // top-bar popup or /search?q=). Source of truth stays in the provider.
+    useEffect(() {
+      if (search != null && search!.isNotEmpty) {
+        ref.read(searchPageProvider.notifier).setQuery(search!);
+      }
+      return null;
+    }, [search]);
+
+    final searchQuery = ref.watch(searchPageProvider.select((e) => e.query));
 
     return Stack(
       children: [
-        if (searchQuery.value.isNotEmpty)
-          GlobalSearch(searchQuery: searchQuery.value, isMobile: false)
+        if (searchQuery.isNotEmpty)
+          GlobalSearch(searchQuery: searchQuery, isMobile: false)
         else
           CustomScrollView(
             slivers: [
-              SliverToBoxAdapter(child: SizedBox(height: 150)),
               if (existedPinnedExtensions.isNotEmpty)
                 SliverToBoxAdapter(
                   child: InnerCard(
@@ -44,7 +51,11 @@ class DesktopSearchPage extends HookConsumerWidget {
                         );
                         final ext = metaData
                             .where((ext) => ext.packageName == pinnedPkg)
-                            .first;
+                            .firstOrNull;
+                        // Skip pinned packages that are no longer present in
+                        // the metadata (e.g. uninstalled or not yet loaded) to
+                        // avoid a "No element" crash.
+                        if (ext == null) return const SizedBox.shrink();
                         return DesktopSearchListTile(
                           ext: ext,
                           trailing: Row(
@@ -168,64 +179,6 @@ class DesktopSearchPage extends HookConsumerWidget {
               ),
             ],
           ),
-        SearchFilterCard(
-          child: Row(
-            children: [
-              FTooltip(
-                tipBuilder: (context, controller) =>
-                    Text('extension.search_with_pinned_extensions'.i18n),
-                child: HookBuilder(
-                  builder: (context) {
-                    final variant = useState(FButtonVariant.windows);
-                    return FButton.icon(
-                      variant: variant.value,
-                      onPress: () {
-                        variant.value = variant.value == FButtonVariant.windows
-                            ? FButtonVariant.outline
-                            : FButtonVariant.windows;
-                      },
-                      child: Icon(
-                        variant.value == FButtonVariant.windows
-                            ? FLucideIcons.pin
-                            : FLucideIcons.pinOff,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: FTextField(
-                  clearable: (value) => value.text.isNotEmpty,
-                  onSubmit: (value) {
-                    searchQuery.value = value;
-                  },
-                  prefixBuilder: (context, style, states) {
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 4),
-                      child: Icon(FLucideIcons.search),
-                    );
-                  },
-                  suffixBuilder: (context, style, states) {
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 4.0, right: 8),
-                      child: FBadge(child: Text('↵')),
-                    );
-                  },
-                  contextMenuBuilder: (context, editableTextState) {
-                    return Column(
-                      children: [
-                        Text('common.custom_context_menu'.i18n),
-                        // Add more context menu items here
-                      ],
-                    );
-                  },
-                  hint: 'common.search_globally'.i18n,
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }

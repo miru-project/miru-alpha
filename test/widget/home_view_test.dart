@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -70,12 +70,14 @@ void main() {
       history: const [],
       filteredHistory: const [],
     );
-    final downloadState = AsyncData(DownloadState(
-      history: const [],
-      active: const [],
-      page: 1,
-      hasMore: true,
-    ));
+    final downloadState = AsyncData(
+      DownloadState(
+        history: const [],
+        active: const [],
+        page: 1,
+        hasMore: true,
+      ),
+    );
     final appState = ApplicationState(
       themeText: 'light',
       baseColor: 'zinc',
@@ -88,10 +90,18 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         homeViewModelProvider.overrideWith(() => _FakeHomeViewModel(homeState)),
-        favoritePageProvider.overrideWith(() => _FakeFavoritePageNotifier(favoriteState)),
-        historyPageProvider.overrideWith(() => _FakeHistoryPageNotifier(historyState)),
-        downloadProvider.overrideWith(() => _FakeDownloadNotifier(downloadState)),
-        applicationControllerProvider.overrideWith(() => _FakeApplicationController(appState)),
+        favoritePageProvider.overrideWith(
+          () => _FakeFavoritePageNotifier(favoriteState),
+        ),
+        historyPageProvider.overrideWith(
+          () => _FakeHistoryPageNotifier(historyState),
+        ),
+        downloadProvider.overrideWith(
+          () => _FakeDownloadNotifier(downloadState),
+        ),
+        applicationControllerProvider.overrideWith(
+          () => _FakeApplicationController(appState),
+        ),
       ],
     );
 

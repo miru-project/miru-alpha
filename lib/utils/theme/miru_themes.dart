@@ -24,14 +24,28 @@ class MiruPlatformTheme {
 class MiruThemes {
   /// Builds a light/dark [MiruPlatformTheme] pair for a [base] color with no
   /// primary override (`'none'`), used for splash and widget tests.
-  static ({MiruPlatformTheme light, MiruPlatformTheme dark}) _baseTheme(String base) => (
+  static ({MiruPlatformTheme light, MiruPlatformTheme dark}) _baseTheme(
+    String base,
+  ) => (
     light: MiruPlatformTheme(
-      desktop: FThemeData(touch: false, colors: ThemeUtils.composeColors(base, 'none', true)),
-      touch: FThemeData(touch: true, colors: ThemeUtils.composeColors(base, 'none', true)),
+      desktop: FThemeData(
+        touch: false,
+        colors: ThemeUtils.composeColors(base, 'none', true),
+      ),
+      touch: FThemeData(
+        touch: true,
+        colors: ThemeUtils.composeColors(base, 'none', true),
+      ),
     ),
     dark: MiruPlatformTheme(
-      desktop: FThemeData(touch: false, colors: ThemeUtils.composeColors(base, 'none', false)),
-      touch: FThemeData(touch: true, colors: ThemeUtils.composeColors(base, 'none', false)),
+      desktop: FThemeData(
+        touch: false,
+        colors: ThemeUtils.composeColors(base, 'none', false),
+      ),
+      touch: FThemeData(
+        touch: true,
+        colors: ThemeUtils.composeColors(base, 'none', false),
+      ),
     ),
   );
 
@@ -41,4 +55,3 @@ class MiruThemes {
   /// color (see [baseColorsData]); this returns the zinc base with no accent.
   static final zinc = _baseTheme('zinc');
 }
-

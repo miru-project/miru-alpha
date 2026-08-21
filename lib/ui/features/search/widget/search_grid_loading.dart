@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/ui/core/grid_view/index.dart';
 
 class SearchGridLoadingWidget extends StatelessWidget {

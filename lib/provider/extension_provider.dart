@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:miru_alpha/miru_core/grpc_client.dart';
@@ -128,12 +127,8 @@ Future<List<ExtensionListItem>> fetchExtensionSearch(
   String package,
   String query,
   int page, {
-  String? filterJson,
+  proto.FilterSelection? filter,
 }) async {
-  Map<String, dynamic>? filter;
-  if (filterJson != null && filterJson.isNotEmpty) {
-    filter = jsonDecode(filterJson) as Map<String, dynamic>;
-  }
   final result = await MiruCoreEndpoint.search(
     package,
     query,
@@ -149,13 +144,13 @@ Future<List<ExtensionListItem>> fetchExtensionSearchLatest(
   String package,
   int page, {
   String? query,
-  String? filterJson,
+  proto.FilterSelection? filter,
 }) async {
-  Map<String, dynamic>? filter;
-  if (filterJson != null && filterJson.isNotEmpty) {
-    filter = jsonDecode(filterJson) as Map<String, dynamic>;
-  }
-  final hasFilter = filter?.values.any((e) => e != "" && e != null) ?? false;
+  final hasFilter =
+      filter?.selections.values.any(
+        (v) => v.values.where((e) => e.isNotEmpty).isNotEmpty,
+      ) ??
+      false;
   if ((query == null || query.isEmpty) && !hasFilter) {
     final result = await MiruCoreEndpoint.latest(package, page);
     return result;

@@ -31,9 +31,20 @@ class WatchParams {
 }
 
 class DetailParam {
-  const DetailParam({required this.meta, required this.url});
+  const DetailParam({
+    required this.meta,
+    required this.url,
+    this.items,
+    this.index = 0,
+  });
   final ExtensionMeta meta;
   final String url;
+
+  /// When the detail page is opened from a search/latest results grid, the full
+  /// result list and the tapped index are passed so the desktop header can show
+  /// "previous / next" navigation through the result pages.
+  final List<ExtensionListItem>? items;
+  final int index;
 }
 
 class SearchPageParam {

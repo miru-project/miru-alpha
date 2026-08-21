@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 
 class SnapSheetHeader extends StatelessWidget {
@@ -61,7 +61,7 @@ class SnapSheetNested extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsetsGeometry.only(bottom: 2, right: 12),
+      padding: .only(bottom: 2, right: 12),
       child: Row(
         children: [
           prefix ?? const SizedBox.shrink(),

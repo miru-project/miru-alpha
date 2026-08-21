@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/ui/core/dialog/dialog.dart';
@@ -56,22 +56,22 @@ Future<void> showExtensionImportDialog(BuildContext context) async {
               type: .custom,
               allowedExtensions: ['js', 'go'],
             );
-            if (result != null && result.files.single.path != null) {
-              final pickedPath = result.files.single.path!;
-              final filename = p.basename(pickedPath);
-              final reg = RegExp(r'^[\w.-]+\.(js|go)$');
-              if (!reg.hasMatch(filename)) {
+            if (result.isEmpty) return;
+            final reg = RegExp(r'^\w.+\.\w+\.(js|go)$');
+            for (final file in result) {
+              if (!reg.hasMatch(file.name)) {
                 showSimpleToast('Invalid extension name');
-                return;
+                continue;
               }
-              final targetPath = p.join(Core.extensionPath, filename);
+              final targetPath = p.join(Core.extensionPath, file.name);
               final targetDir = Directory(Core.extensionPath);
               if (!targetDir.existsSync()) {
                 await targetDir.create(recursive: true);
               }
-              await File(pickedPath).copy(targetPath);
-              showSimpleToast('Install Success');
+              await File(file.path!).copy(targetPath);
             }
+
+            showSimpleToast('Install Success');
           } catch (e) {
             showSimpleToast('Install Failed: $e');
           }
@@ -92,8 +92,8 @@ Future<void> showExtensionImportDialog(BuildContext context) async {
                         (value?.startsWith('http') ?? false)) &&
                     ((value?.endsWith('.js') ?? false) ||
                         (value?.endsWith('.go') ?? false))
-                    ? null
-                    : 'extension.import.invalid_url'.i18n,
+                ? null
+                : 'extension.import.invalid_url'.i18n,
             hint: 'https://example.com/ext.js',
             control: .managed(
               onChange: (value) {

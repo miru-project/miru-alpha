@@ -156,12 +156,27 @@ const DownloadRequest$json = {
       '6': '.miru.DownloadRequest.HeadersEntry',
       '10': 'headers'
     },
-    {'1': 'media_type', '3': 4, '4': 1, '5': 9, '10': 'mediaType'},
+    {
+      '1': 'media_type',
+      '3': 4,
+      '4': 1,
+      '5': 14,
+      '6': '.miru.DownloadMediaType',
+      '10': 'mediaType'
+    },
     {'1': 'package', '3': 5, '4': 1, '5': 9, '10': 'package'},
     {'1': 'key', '3': 6, '4': 1, '5': 9, '10': 'key'},
     {'1': 'title', '3': 7, '4': 1, '5': 9, '10': 'title'},
     {'1': 'detail_url', '3': 8, '4': 1, '5': 9, '10': 'detailUrl'},
     {'1': 'watch_url', '3': 9, '4': 1, '5': 9, '10': 'watchUrl'},
+    {
+      '1': 'category',
+      '3': 10,
+      '4': 1,
+      '5': 14,
+      '6': '.miru.DownloadCategory',
+      '10': 'category'
+    },
   ],
   '3': [DownloadRequest_HeadersEntry$json],
 };
@@ -180,11 +195,12 @@ const DownloadRequest_HeadersEntry$json = {
 final $typed_data.Uint8List downloadRequestDescriptor = $convert.base64Decode(
     'Cg9Eb3dubG9hZFJlcXVlc3QSEAoDdXJsGAEgASgJUgN1cmwSIwoNZG93bmxvYWRfcGF0aBgCIA'
     'EoCVIMZG93bmxvYWRQYXRoEjwKB2hlYWRlcnMYAyADKAsyIi5taXJ1LkRvd25sb2FkUmVxdWVz'
-    'dC5IZWFkZXJzRW50cnlSB2hlYWRlcnMSHQoKbWVkaWFfdHlwZRgEIAEoCVIJbWVkaWFUeXBlEh'
-    'gKB3BhY2thZ2UYBSABKAlSB3BhY2thZ2USEAoDa2V5GAYgASgJUgNrZXkSFAoFdGl0bGUYByAB'
-    'KAlSBXRpdGxlEh0KCmRldGFpbF91cmwYCCABKAlSCWRldGFpbFVybBIbCgl3YXRjaF91cmwYCS'
-    'ABKAlSCHdhdGNoVXJsGjoKDEhlYWRlcnNFbnRyeRIQCgNrZXkYASABKAlSA2tleRIUCgV2YWx1'
-    'ZRgCIAEoCVIFdmFsdWU6AjgB');
+    'dC5IZWFkZXJzRW50cnlSB2hlYWRlcnMSNgoKbWVkaWFfdHlwZRgEIAEoDjIXLm1pcnUuRG93bm'
+    'xvYWRNZWRpYVR5cGVSCW1lZGlhVHlwZRIYCgdwYWNrYWdlGAUgASgJUgdwYWNrYWdlEhAKA2tl'
+    'eRgGIAEoCVIDa2V5EhQKBXRpdGxlGAcgASgJUgV0aXRsZRIdCgpkZXRhaWxfdXJsGAggASgJUg'
+    'lkZXRhaWxVcmwSGwoJd2F0Y2hfdXJsGAkgASgJUgh3YXRjaFVybBIyCghjYXRlZ29yeRgKIAEo'
+    'DjIWLm1pcnUuRG93bmxvYWRDYXRlZ29yeVIIY2F0ZWdvcnkaOgoMSGVhZGVyc0VudHJ5EhAKA2'
+    'tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGAIgASgJUgV2YWx1ZToCOAE=');
 
 @$core.Deprecated('Use downloadResponseDescriptor instead')
 const DownloadResponse$json = {
@@ -464,6 +480,60 @@ const AddMagnetResponse$json = {
 final $typed_data.Uint8List addMagnetResponseDescriptor = $convert.base64Decode(
     'ChFBZGRNYWduZXRSZXNwb25zZRIbCglpbmZvX2hhc2gYASABKAlSCGluZm9IYXNoEh8KC2RldG'
     'FpbF9qc29uGAIgASgJUgpkZXRhaWxKc29uEhQKBWZpbGVzGAMgAygJUgVmaWxlcw==');
+
+@$core.Deprecated('Use storageStatsDescriptor instead')
+const StorageStats$json = {
+  '1': 'StorageStats',
+  '2': [
+    {'1': 'video_bytes', '3': 1, '4': 1, '5': 3, '10': 'videoBytes'},
+    {'1': 'manga_bytes', '3': 2, '4': 1, '5': 3, '10': 'mangaBytes'},
+    {'1': 'novel_bytes', '3': 3, '4': 1, '5': 3, '10': 'novelBytes'},
+    {'1': 'temp_bytes', '3': 4, '4': 1, '5': 3, '10': 'tempBytes'},
+    {'1': 'total_bytes', '3': 5, '4': 1, '5': 3, '10': 'totalBytes'},
+  ],
+};
+
+/// Descriptor for `StorageStats`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List storageStatsDescriptor = $convert.base64Decode(
+    'CgxTdG9yYWdlU3RhdHMSHwoLdmlkZW9fYnl0ZXMYASABKANSCnZpZGVvQnl0ZXMSHwoLbWFuZ2'
+    'FfYnl0ZXMYAiABKANSCm1hbmdhQnl0ZXMSHwoLbm92ZWxfYnl0ZXMYAyABKANSCm5vdmVsQnl0'
+    'ZXMSHQoKdGVtcF9ieXRlcxgEIAEoA1IJdGVtcEJ5dGVzEh8KC3RvdGFsX2J5dGVzGAUgASgDUg'
+    'p0b3RhbEJ5dGVz');
+
+@$core.Deprecated('Use getStorageStatsRequestDescriptor instead')
+const GetStorageStatsRequest$json = {
+  '1': 'GetStorageStatsRequest',
+  '2': [
+    {'1': 'download_path', '3': 1, '4': 1, '5': 9, '10': 'downloadPath'},
+  ],
+};
+
+/// Descriptor for `GetStorageStatsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getStorageStatsRequestDescriptor =
+    $convert.base64Decode(
+        'ChZHZXRTdG9yYWdlU3RhdHNSZXF1ZXN0EiMKDWRvd25sb2FkX3BhdGgYASABKAlSDGRvd25sb2'
+        'FkUGF0aA==');
+
+@$core.Deprecated('Use getStorageStatsResponseDescriptor instead')
+const GetStorageStatsResponse$json = {
+  '1': 'GetStorageStatsResponse',
+  '2': [
+    {
+      '1': 'stats',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.StorageStats',
+      '10': 'stats'
+    },
+  ],
+};
+
+/// Descriptor for `GetStorageStatsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getStorageStatsResponseDescriptor =
+    $convert.base64Decode(
+        'ChdHZXRTdG9yYWdlU3RhdHNSZXNwb25zZRIoCgVzdGF0cxgBIAEoCzISLm1pcnUuU3RvcmFnZV'
+        'N0YXRzUgVzdGF0cw==');
 
 @$core.Deprecated('Use setDownloadPriorityRequestDescriptor instead')
 const SetDownloadPriorityRequest$json = {

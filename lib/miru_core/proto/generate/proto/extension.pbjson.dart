@@ -15,6 +15,59 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
+@$core.Deprecated('Use filterSelectionValueDescriptor instead')
+const FilterSelectionValue$json = {
+  '1': 'FilterSelectionValue',
+  '2': [
+    {'1': 'values', '3': 1, '4': 3, '5': 9, '10': 'values'},
+  ],
+};
+
+/// Descriptor for `FilterSelectionValue`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List filterSelectionValueDescriptor =
+    $convert.base64Decode(
+        'ChRGaWx0ZXJTZWxlY3Rpb25WYWx1ZRIWCgZ2YWx1ZXMYASADKAlSBnZhbHVlcw==');
+
+@$core.Deprecated('Use filterSelectionDescriptor instead')
+const FilterSelection$json = {
+  '1': 'FilterSelection',
+  '2': [
+    {
+      '1': 'selections',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.FilterSelection.SelectionsEntry',
+      '10': 'selections'
+    },
+  ],
+  '3': [FilterSelection_SelectionsEntry$json],
+};
+
+@$core.Deprecated('Use filterSelectionDescriptor instead')
+const FilterSelection_SelectionsEntry$json = {
+  '1': 'SelectionsEntry',
+  '2': [
+    {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    {
+      '1': 'value',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.FilterSelectionValue',
+      '10': 'value'
+    },
+  ],
+  '7': {'7': true},
+};
+
+/// Descriptor for `FilterSelection`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List filterSelectionDescriptor = $convert.base64Decode(
+    'Cg9GaWx0ZXJTZWxlY3Rpb24SRQoKc2VsZWN0aW9ucxgBIAMoCzIlLm1pcnUuRmlsdGVyU2VsZW'
+    'N0aW9uLlNlbGVjdGlvbnNFbnRyeVIKc2VsZWN0aW9ucxpZCg9TZWxlY3Rpb25zRW50cnkSEAoD'
+    'a2V5GAEgASgJUgNrZXkSMAoFdmFsdWUYAiABKAsyGi5taXJ1LkZpbHRlclNlbGVjdGlvblZhbH'
+    'VlUgV2YWx1ZToCOAE=');
+
 @$core.Deprecated('Use searchRequestDescriptor instead')
 const SearchRequest$json = {
   '1': 'SearchRequest',
@@ -22,28 +75,43 @@ const SearchRequest$json = {
     {'1': 'pkg', '3': 1, '4': 1, '5': 9, '10': 'pkg'},
     {'1': 'kw', '3': 2, '4': 1, '5': 9, '10': 'kw'},
     {'1': 'page', '3': 3, '4': 1, '5': 5, '10': 'page'},
-    {'1': 'filter', '3': 4, '4': 1, '5': 9, '10': 'filter'},
+    {
+      '1': 'filter',
+      '3': 4,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.FilterSelection',
+      '10': 'filter'
+    },
   ],
 };
 
 /// Descriptor for `SearchRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List searchRequestDescriptor = $convert.base64Decode(
     'Cg1TZWFyY2hSZXF1ZXN0EhAKA3BrZxgBIAEoCVIDcGtnEg4KAmt3GAIgASgJUgJrdxISCgRwYW'
-    'dlGAMgASgFUgRwYWdlEhYKBmZpbHRlchgEIAEoCVIGZmlsdGVy');
+    'dlGAMgASgFUgRwYWdlEi0KBmZpbHRlchgEIAEoCzIVLm1pcnUuRmlsdGVyU2VsZWN0aW9uUgZm'
+    'aWx0ZXI=');
 
 @$core.Deprecated('Use createFilterRequestDescriptor instead')
 const CreateFilterRequest$json = {
   '1': 'CreateFilterRequest',
   '2': [
     {'1': 'pkg', '3': 1, '4': 1, '5': 9, '10': 'pkg'},
-    {'1': 'filter', '3': 2, '4': 1, '5': 9, '10': 'filter'},
+    {
+      '1': 'filter',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.FilterSelection',
+      '10': 'filter'
+    },
   ],
 };
 
 /// Descriptor for `CreateFilterRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List createFilterRequestDescriptor = $convert.base64Decode(
-    'ChNDcmVhdGVGaWx0ZXJSZXF1ZXN0EhAKA3BrZxgBIAEoCVIDcGtnEhYKBmZpbHRlchgCIAEoCV'
-    'IGZmlsdGVy');
+    'ChNDcmVhdGVGaWx0ZXJSZXF1ZXN0EhAKA3BrZxgBIAEoCVIDcGtnEi0KBmZpbHRlchgCIAEoCz'
+    'IVLm1pcnUuRmlsdGVyU2VsZWN0aW9uUgZmaWx0ZXI=');
 
 @$core.Deprecated('Use createFilterResponseDescriptor instead')
 const CreateFilterResponse$json = {

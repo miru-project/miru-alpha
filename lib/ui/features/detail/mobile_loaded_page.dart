@@ -1,6 +1,6 @@
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -90,7 +90,9 @@ class MobileLoadedPage extends HookConsumerWidget {
                                       children: [
                                         if (meta.icon != null)
                                           ExtendedImage.network(
-                                            MiruRequest.proxyUrl(meta.icon!).toString(),
+                                            MiruRequest.proxyUrl(
+                                              meta.icon!,
+                                            ).toString(),
                                             width: 20,
                                             height: 20,
                                           ),

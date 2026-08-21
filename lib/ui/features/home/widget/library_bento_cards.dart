@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
@@ -60,22 +60,24 @@ class LibraryBentoCards extends ConsumerWidget {
     if (difference.inMinutes < 1) {
       return 'common.just_now'.i18n;
     } else if (difference.inHours < 1) {
-      return '${difference.inMinutes} ${'common.minutes_ago'.i18n}';
+      return 'common.minutes_ago'.fill({
+        'minutes': difference.inMinutes.toString(),
+      });
     } else if (difference.inDays < 1) {
-      return '${difference.inHours} ${'common.hours_ago'.i18n}';
+      return 'common.hours_ago'.fill({'hours': difference.inHours.toString()});
     } else if (difference.inDays == 1) {
       return 'common.yesterday'.i18n;
     } else if (difference.inDays < 7) {
-      return '${difference.inDays} ${'common.days_ago'.i18n}';
+      return 'common.days_ago'.fill({'days': difference.inDays.toString()});
     } else if (difference.inDays < 30) {
       final weeks = (difference.inDays / 7).floor();
-      return '$weeks ${'common.weeks_ago'.i18n}';
+      return 'common.weeks_ago'.fill({'weeks': weeks.toString()});
     } else if (difference.inDays < 365) {
       final months = (difference.inDays / 30).floor();
-      return '$months ${'common.months_ago'.i18n}';
+      return 'common.months_ago'.fill({'months': months.toString()});
     } else {
       final years = (difference.inDays / 365).floor();
-      return '$years ${'common.years_ago'.i18n}';
+      return 'common.years_ago'.fill({'years': years.toString()});
     }
   }
 }

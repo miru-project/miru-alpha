@@ -121,65 +121,204 @@ class ExtensionListItem extends $pb.GeneratedMessage {
   $pb.PbMap<$core.String, $core.String> get headers => $_getMap(4);
 }
 
-class ExtensionFilter extends $pb.GeneratedMessage {
-  factory ExtensionFilter({
-    $core.String? title,
-    $core.int? min,
-    $core.int? max,
-    $core.String? default_4,
-    $core.Iterable<$core.MapEntry<$core.String, $core.String>>? options,
+/// FilterOption pairs a stable option key with a display label.
+class FilterOption extends $pb.GeneratedMessage {
+  factory FilterOption({
+    $core.String? label,
   }) {
     final result = create();
-    if (title != null) result.title = title;
-    if (min != null) result.min = min;
-    if (max != null) result.max = max;
-    if (default_4 != null) result.default_4 = default_4;
-    if (options != null) result.options.addEntries(options);
+    if (label != null) result.label = label;
     return result;
   }
 
-  ExtensionFilter._();
+  FilterOption._();
 
-  factory ExtensionFilter.fromBuffer($core.List<$core.int> data,
+  factory FilterOption.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory ExtensionFilter.fromJson($core.String json,
+  factory FilterOption.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'ExtensionFilter',
+      _omitMessageNames ? '' : 'FilterOption',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'title')
-    ..aI(2, _omitFieldNames ? '' : 'min')
-    ..aI(3, _omitFieldNames ? '' : 'max')
-    ..aOS(4, _omitFieldNames ? '' : 'default')
-    ..m<$core.String, $core.String>(5, _omitFieldNames ? '' : 'options',
-        entryClassName: 'ExtensionFilter.OptionsEntry',
-        keyFieldType: $pb.PbFieldType.OS,
-        valueFieldType: $pb.PbFieldType.OS,
-        packageName: const $pb.PackageName('miru'))
+    ..aOS(1, _omitFieldNames ? '' : 'label')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  ExtensionFilter clone() => deepCopy();
+  FilterOption clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  ExtensionFilter copyWith(void Function(ExtensionFilter) updates) =>
-      super.copyWith((message) => updates(message as ExtensionFilter))
-          as ExtensionFilter;
+  FilterOption copyWith(void Function(FilterOption) updates) =>
+      super.copyWith((message) => updates(message as FilterOption))
+          as FilterOption;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static ExtensionFilter create() => ExtensionFilter._();
+  static FilterOption create() => FilterOption._();
   @$core.override
-  ExtensionFilter createEmptyInstance() => create();
+  FilterOption createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static ExtensionFilter getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<ExtensionFilter>(create);
-  static ExtensionFilter? _defaultInstance;
+  static FilterOption getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<FilterOption>(create);
+  static FilterOption? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get label => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set label($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasLabel() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearLabel() => $_clearField(1);
+}
+
+/// SelectFilter is a single-value filter: the user picks exactly one option
+/// (max == 1). Default is the key of the pre-selected option.
+class SelectFilter extends $pb.GeneratedMessage {
+  factory SelectFilter({
+    $core.String? title,
+    $core.String? default_2,
+    $core.Iterable<$core.MapEntry<$core.String, FilterOption>>? options,
+  }) {
+    final result = create();
+    if (title != null) result.title = title;
+    if (default_2 != null) result.default_2 = default_2;
+    if (options != null) result.options.addEntries(options);
+    return result;
+  }
+
+  SelectFilter._();
+
+  factory SelectFilter.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory SelectFilter.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'SelectFilter',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'title')
+    ..aOS(2, _omitFieldNames ? '' : 'default')
+    ..m<$core.String, FilterOption>(3, _omitFieldNames ? '' : 'options',
+        entryClassName: 'SelectFilter.OptionsEntry',
+        keyFieldType: $pb.PbFieldType.OS,
+        valueFieldType: $pb.PbFieldType.OM,
+        valueCreator: FilterOption.create,
+        valueDefaultOrMaker: FilterOption.getDefault,
+        packageName: const $pb.PackageName('miru'))
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SelectFilter clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SelectFilter copyWith(void Function(SelectFilter) updates) =>
+      super.copyWith((message) => updates(message as SelectFilter))
+          as SelectFilter;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SelectFilter create() => SelectFilter._();
+  @$core.override
+  SelectFilter createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static SelectFilter getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<SelectFilter>(create);
+  static SelectFilter? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get title => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set title($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTitle() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTitle() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get default_2 => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set default_2($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasDefault_2() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDefault_2() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $pb.PbMap<$core.String, FilterOption> get options => $_getMap(2);
+}
+
+/// MultiSelectFilter is a multi-value filter: the user picks between min and
+/// max options. Default is the list of pre-selected option keys.
+class MultiSelectFilter extends $pb.GeneratedMessage {
+  factory MultiSelectFilter({
+    $core.String? title,
+    $core.int? min,
+    $core.int? max,
+    $core.Iterable<$core.String>? default_4,
+    $core.Iterable<$core.MapEntry<$core.String, FilterOption>>? options,
+  }) {
+    final result = create();
+    if (title != null) result.title = title;
+    if (min != null) result.min = min;
+    if (max != null) result.max = max;
+    if (default_4 != null) result.default_4.addAll(default_4);
+    if (options != null) result.options.addEntries(options);
+    return result;
+  }
+
+  MultiSelectFilter._();
+
+  factory MultiSelectFilter.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory MultiSelectFilter.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'MultiSelectFilter',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'title')
+    ..aI(2, _omitFieldNames ? '' : 'min')
+    ..aI(3, _omitFieldNames ? '' : 'max')
+    ..pPS(4, _omitFieldNames ? '' : 'default')
+    ..m<$core.String, FilterOption>(5, _omitFieldNames ? '' : 'options',
+        entryClassName: 'MultiSelectFilter.OptionsEntry',
+        keyFieldType: $pb.PbFieldType.OS,
+        valueFieldType: $pb.PbFieldType.OM,
+        valueCreator: FilterOption.create,
+        valueDefaultOrMaker: FilterOption.getDefault,
+        packageName: const $pb.PackageName('miru'))
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  MultiSelectFilter clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  MultiSelectFilter copyWith(void Function(MultiSelectFilter) updates) =>
+      super.copyWith((message) => updates(message as MultiSelectFilter))
+          as MultiSelectFilter;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static MultiSelectFilter create() => MultiSelectFilter._();
+  @$core.override
+  MultiSelectFilter createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static MultiSelectFilter getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<MultiSelectFilter>(create);
+  static MultiSelectFilter? _defaultInstance;
 
   @$pb.TagNumber(1)
   $core.String get title => $_getSZ(0);
@@ -209,16 +348,224 @@ class ExtensionFilter extends $pb.GeneratedMessage {
   void clearMax() => $_clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get default_4 => $_getSZ(3);
-  @$pb.TagNumber(4)
-  set default_4($core.String value) => $_setString(3, value);
-  @$pb.TagNumber(4)
-  $core.bool hasDefault_4() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearDefault_4() => $_clearField(4);
+  $pb.PbList<$core.String> get default_4 => $_getList(3);
 
   @$pb.TagNumber(5)
-  $pb.PbMap<$core.String, $core.String> get options => $_getMap(4);
+  $pb.PbMap<$core.String, FilterOption> get options => $_getMap(4);
+}
+
+/// RangeFilter is a numeric range filter with inclusive min/max bounds and
+/// separate default values. No options map; the UI typically renders a
+/// slider or two number inputs.
+class RangeFilter extends $pb.GeneratedMessage {
+  factory RangeFilter({
+    $core.String? title,
+    $core.int? min,
+    $core.int? max,
+    $core.int? defaultMin,
+    $core.int? defaultMax,
+  }) {
+    final result = create();
+    if (title != null) result.title = title;
+    if (min != null) result.min = min;
+    if (max != null) result.max = max;
+    if (defaultMin != null) result.defaultMin = defaultMin;
+    if (defaultMax != null) result.defaultMax = defaultMax;
+    return result;
+  }
+
+  RangeFilter._();
+
+  factory RangeFilter.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory RangeFilter.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RangeFilter',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'title')
+    ..aI(2, _omitFieldNames ? '' : 'min')
+    ..aI(3, _omitFieldNames ? '' : 'max')
+    ..aI(4, _omitFieldNames ? '' : 'defaultMin')
+    ..aI(5, _omitFieldNames ? '' : 'defaultMax')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RangeFilter clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RangeFilter copyWith(void Function(RangeFilter) updates) =>
+      super.copyWith((message) => updates(message as RangeFilter))
+          as RangeFilter;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RangeFilter create() => RangeFilter._();
+  @$core.override
+  RangeFilter createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static RangeFilter getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RangeFilter>(create);
+  static RangeFilter? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get title => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set title($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTitle() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTitle() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get min => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set min($core.int value) => $_setSignedInt32(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasMin() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMin() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get max => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set max($core.int value) => $_setSignedInt32(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasMax() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearMax() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get defaultMin => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set defaultMin($core.int value) => $_setSignedInt32(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasDefaultMin() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearDefaultMin() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.int get defaultMax => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set defaultMax($core.int value) => $_setSignedInt32(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasDefaultMax() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearDefaultMax() => $_clearField(5);
+}
+
+enum ExtensionFilter_Kind { select, multiSelect, range, notSet }
+
+/// ExtensionFilter is the typed filter definition returned by CreateFilter.
+/// Exactly one of its variants is set; consumers switch on the oneof.
+class ExtensionFilter extends $pb.GeneratedMessage {
+  factory ExtensionFilter({
+    SelectFilter? select,
+    MultiSelectFilter? multiSelect,
+    RangeFilter? range,
+  }) {
+    final result = create();
+    if (select != null) result.select = select;
+    if (multiSelect != null) result.multiSelect = multiSelect;
+    if (range != null) result.range = range;
+    return result;
+  }
+
+  ExtensionFilter._();
+
+  factory ExtensionFilter.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ExtensionFilter.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static const $core.Map<$core.int, ExtensionFilter_Kind>
+      _ExtensionFilter_KindByTag = {
+    1: ExtensionFilter_Kind.select,
+    2: ExtensionFilter_Kind.multiSelect,
+    3: ExtensionFilter_Kind.range,
+    0: ExtensionFilter_Kind.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ExtensionFilter',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..oo(0, [1, 2, 3])
+    ..aOM<SelectFilter>(1, _omitFieldNames ? '' : 'select',
+        subBuilder: SelectFilter.create)
+    ..aOM<MultiSelectFilter>(2, _omitFieldNames ? '' : 'multiSelect',
+        subBuilder: MultiSelectFilter.create)
+    ..aOM<RangeFilter>(3, _omitFieldNames ? '' : 'range',
+        subBuilder: RangeFilter.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionFilter clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ExtensionFilter copyWith(void Function(ExtensionFilter) updates) =>
+      super.copyWith((message) => updates(message as ExtensionFilter))
+          as ExtensionFilter;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ExtensionFilter create() => ExtensionFilter._();
+  @$core.override
+  ExtensionFilter createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static ExtensionFilter getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ExtensionFilter>(create);
+  static ExtensionFilter? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  @$pb.TagNumber(2)
+  @$pb.TagNumber(3)
+  ExtensionFilter_Kind whichKind() =>
+      _ExtensionFilter_KindByTag[$_whichOneof(0)]!;
+  @$pb.TagNumber(1)
+  @$pb.TagNumber(2)
+  @$pb.TagNumber(3)
+  void clearKind() => $_clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  SelectFilter get select => $_getN(0);
+  @$pb.TagNumber(1)
+  set select(SelectFilter value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasSelect() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSelect() => $_clearField(1);
+  @$pb.TagNumber(1)
+  SelectFilter ensureSelect() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  MultiSelectFilter get multiSelect => $_getN(1);
+  @$pb.TagNumber(2)
+  set multiSelect(MultiSelectFilter value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasMultiSelect() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearMultiSelect() => $_clearField(2);
+  @$pb.TagNumber(2)
+  MultiSelectFilter ensureMultiSelect() => $_ensure(1);
+
+  @$pb.TagNumber(3)
+  RangeFilter get range => $_getN(2);
+  @$pb.TagNumber(3)
+  set range(RangeFilter value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasRange() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRange() => $_clearField(3);
+  @$pb.TagNumber(3)
+  RangeFilter ensureRange() => $_ensure(2);
 }
 
 class ExtensionDetail extends $pb.GeneratedMessage {

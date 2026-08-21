@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -33,7 +33,17 @@ class SearchPageSingleView extends HookConsumerWidget {
         ref
             .read(searchPageSingleProviderProvider.notifier)
             .fetchInitialFilters();
+        // Carry the global query into this extension's search so the user keeps
+        // the context of what they were looking for.
+        final incoming = query;
+        if (incoming != null && incoming.isNotEmpty) {
+          ref
+              .read(searchPageSingleProviderProvider.notifier)
+              .setQuery(incoming);
+        }
       });
+      // Entering the extension's latest page marks it as recently visited.
+      MiruSettings.addRecentExtension(meta.packageName);
       return null;
     }, [meta.packageName]);
     return MiruScaffold.mobile(
@@ -116,7 +126,7 @@ class SearchPageSingleView extends HookConsumerWidget {
               meta.packageName,
               1,
               query: state.query,
-              filterJson: state.appliedFilterJson,
+              filter: state.appliedFilter,
             ),
           );
 

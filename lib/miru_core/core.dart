@@ -44,6 +44,8 @@ class Core {
 
     configLoc = p.join(appSupportDir, 'config.json');
     extensionPath = p.join(appSupportDir, 'extensions');
+
+    bool shouldWrite = false;
     if (File(configLoc).existsSync()) {
       logger.info('Config file exists: $configLoc');
       configData = jsonDecode(File(configLoc).readAsStringSync());
@@ -53,25 +55,56 @@ class Core {
       if (!configDir.existsSync()) {
         configDir.createSync(recursive: true);
       }
-      configData = {
-        "database": {
-          "driver": "sqlite3",
-          "host": "localhost",
-          "port": 5432,
-          "user": "miru",
-          "password": "",
-          "dbname": p.join(appSupportDir, 'miru.db'),
-          "sslmode": "disable",
-        },
-        "cookieStoreLocation": Platform.isAndroid ? appSupportDir : "",
-        "extensionPath": extensionPath,
-        "address": "127.0.0.1",
-        "port": "3000",
-      };
+      configData = {};
+      shouldWrite = true;
+    }
 
+    // Apply defaults for missing fields so the config always contains the
+    // full set of keys the Go backend + Dart gRPC client rely on.
+    final defaultConfig = {
+      "database": {
+        "driver": "sqlite3",
+        "host": "localhost",
+        "port": 5432,
+        "user": "miru",
+        "password": "",
+        "dbname": p.join(appSupportDir, 'miru.db'),
+        "sslmode": "disable",
+      },
+      "cookieStoreLocation": Platform.isAndroid ? appSupportDir : "",
+      "extensionPath": extensionPath,
+      "address": "127.0.0.1",
+      "port": "3000",
+      "gRPCPort": "3001",
+    };
+
+    defaultConfig.forEach((key, value) {
+      if (!configData.containsKey(key)) {
+        logger.info('Config missing "$key", applying default: $value');
+        configData[key] = value;
+        shouldWrite = true;
+      }
+    });
+    // Also ensure the fields are non-empty, e.g. an old config could carry an
+    // empty string that would otherwise break port resolution on the backend.
+    for (final key in ["address", "port", "gRPCPort"]) {
+      final v = configData[key];
+      if (v == null || (v is String && v.isEmpty)) {
+        logger.info(
+          'Config "$key" empty, applying default: ${defaultConfig[key]}',
+        );
+        configData[key] = defaultConfig[key];
+        shouldWrite = true;
+      }
+    }
+
+    if (shouldWrite) {
+      final configDir = Directory(appSupportDir);
+      if (!configDir.existsSync()) {
+        configDir.createSync(recursive: true);
+      }
       File(configLoc).writeAsStringSync(jsonEncode(configData));
-      logger.info('Default configuration written to config file');
-      logger.info('Config file created: $configLoc');
+      logger.info('Configuration written to: $configLoc');
     }
   }
 

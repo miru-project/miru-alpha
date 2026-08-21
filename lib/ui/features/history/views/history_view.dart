@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/model.dart';
@@ -103,10 +103,7 @@ class _HistoryViewState extends ConsumerState<HistoryView> {
     return DeviceUtil.deviceWidget(
       context: context,
       desktop: _HistoryDesktopView(histories: histories, onTap: _openDetail),
-      mobile: _HistoryMobileView(
-        histories: histories,
-        buildTile: _buildTile,
-      ),
+      mobile: _HistoryMobileView(histories: histories, buildTile: _buildTile),
     );
   }
 }
@@ -146,32 +143,27 @@ class _HistoryDesktopView extends ConsumerWidget {
               padding: const EdgeInsets.all(15.0),
               sliver: SliverGrid(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount:
-                      DeviceUtil.getWidth(context) * .875 ~/ 220,
+                  crossAxisCount: DeviceUtil.getWidth(context) * .875 ~/ 220,
                   childAspectRatio: 0.6,
                 ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final history = histories[index];
-                    return MiruDesktopGridTile(
-                      title: history.title,
-                      titleMaxline: 2,
-                      subtitle: ref
-                              .watch(
-                                extensionPageProvider.select(
-                                  (s) => s.metaData,
-                                ),
-                              )
-                              .where((e) => e.packageName == history.package)
-                              .firstOrNull
-                              ?.name ??
-                          'common.package_not_found'.i18n,
-                      imageUrl: history.cover,
-                      onTap: () => onTap(context, history),
-                    );
-                  },
-                  childCount: histories.length,
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final history = histories[index];
+                  return MiruDesktopGridTile(
+                    title: history.title,
+                    titleMaxline: 2,
+                    subtitle:
+                        ref
+                            .watch(
+                              extensionPageProvider.select((s) => s.metaData),
+                            )
+                            .where((e) => e.packageName == history.package)
+                            .firstOrNull
+                            ?.name ??
+                        'common.package_not_found'.i18n,
+                    imageUrl: history.cover,
+                    onTap: () => onTap(context, history),
+                  );
+                }, childCount: histories.length),
               ),
             ),
         ],
@@ -181,10 +173,7 @@ class _HistoryDesktopView extends ConsumerWidget {
 }
 
 class _HistoryMobileView extends StatelessWidget {
-  const _HistoryMobileView({
-    required this.histories,
-    required this.buildTile,
-  });
+  const _HistoryMobileView({required this.histories, required this.buildTile});
 
   final List<History> histories;
   final Widget Function(BuildContext, History) buildTile;

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
@@ -223,99 +223,94 @@ class ExtensionGridTile extends StatelessWidget {
         ),
       );
     }
-    return Center(
-      child: SizedBox(
-        width: 400,
-        height: 240,
-        child: MiruCard(
-          child: Padding(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 15),
-            child: Column(
+    return MiruCard(
+      child: Padding(
+        padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Padding(
-                      padding: EdgeInsetsGeometry.only(right: 15),
-                      child: SizedBox(
-                        width: 70,
-                        height: 70,
-                        child: ImageWidget(
-                          imageUrl: icon,
-                          width: 70,
-                          height: 70,
-                        ),
-                      ),
-                    ),
-                    FLabel(
-                      layout: .vertical,
-                      description: Row(
-                        children: [
-                          FBadge(variant: .secondary, child: Text(version)),
-                          SizedBox(width: 5),
-                          FBadge(variant: .secondary, child: Text(type)),
-                        ],
-                      ),
-                      child: Text(
-                        name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                SizedBox(
-                  height: 55,
-                  child: Wrap(spacing: 5, runSpacing: 5, children: badges),
-                ),
-                if (isInstalled)
-                  Row(
-                    spacing: 10,
-                    mainAxisSize: .max,
-                    children: [
-                      Expanded(
-                        child: FButton(
-                          onPress: onUninstall,
-                          prefix: Icon(FLucideIcons.trash2),
-                          child: Text('extension.uninstall'.i18n),
-                        ),
-                      ),
-                      if (needUpdate)
-                        FButton.icon(
-                          onPress: onInstall,
-                          child: Icon(FLucideIcons.circleFadingArrowUp),
-                        ),
-                      FTooltip(
-                        tipBuilder: (context, controller) =>
-                            Text('common.settings'.i18n),
-                        child: FButton.icon(
-                          variant: .secondary,
-                          onPress: () {
-                            context.push(
-                              "/extensionSettings",
-                              extra: ExtensionSettingParam(
-                                pkg: package,
-                                name: name,
-                              ),
-                            );
-                          },
-                          child: Icon(FLucideIcons.cog),
-                        ),
-                      ),
-                    ],
-                  )
-                else
-                  FButton(
-                    onPress: onInstall,
-                    prefix: Icon(FLucideIcons.download),
-                    child: Text('common.install'.i18n),
+                Padding(
+                  padding: EdgeInsetsGeometry.only(right: 15),
+                  child: SizedBox(
+                    width: 70,
+                    height: 70,
+                    child: ImageWidget(imageUrl: icon, width: 70, height: 70),
                   ),
+                ),
+                Expanded(
+                  child: FLabel(
+                    layout: .vertical,
+                    description: Wrap(
+                      spacing: 5,
+                      runSpacing: 5,
+                      children: [
+                        FBadge(variant: .secondary, child: Text(version)),
+                        FBadge(variant: .secondary, child: Text(type)),
+                      ],
+                    ),
+                    child: Text(
+                      name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
+                    ),
+                  ),
+                ),
               ],
             ),
-          ),
+            SizedBox(height: 10),
+            SizedBox(
+              height: 55,
+              child: Wrap(spacing: 5, runSpacing: 5, children: badges),
+            ),
+            if (isInstalled)
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  FButton(
+                    onPress: onUninstall,
+                    prefix: Icon(FLucideIcons.trash2),
+                    child: Text('extension.uninstall'.i18n),
+                  ),
+                  if (needUpdate)
+                    FButton.icon(
+                      onPress: onInstall,
+                      child: Icon(FLucideIcons.circleFadingArrowUp),
+                    ),
+                  FTooltip(
+                    tipBuilder: (context, controller) =>
+                        Text('common.settings'.i18n),
+                    child: FButton.icon(
+                      variant: .secondary,
+                      onPress: () {
+                        context.push(
+                          "/extensionSettings",
+                          extra: ExtensionSettingParam(
+                            pkg: package,
+                            name: name,
+                          ),
+                        );
+                      },
+                      child: Icon(FLucideIcons.cog),
+                    ),
+                  ),
+                ],
+              )
+            else
+              FButton(
+                onPress: onInstall,
+                prefix: Icon(FLucideIcons.download),
+                child: Text('common.install'.i18n),
+              ),
+          ],
         ),
       ),
     );

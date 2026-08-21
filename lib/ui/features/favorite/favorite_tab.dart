@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -90,9 +90,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
           Row(
             mainAxisAlignment: .spaceBetween,
             children: [
-              SizedBox(
-                width: 400,
-                height: 60,
+              Expanded(
                 child: FTabs(
                   scrollable: false,
                   physics: null,

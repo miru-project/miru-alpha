@@ -6,7 +6,7 @@ import FlutterMacOS
 import Foundation
 
 import device_info_plus
-import file_picker
+import file_picker_darwin
 import flutter_inappwebview_macos
 import fvp
 import macos_window_utils

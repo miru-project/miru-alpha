@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'package:easy_refresh/easy_refresh.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 
 /// A custom EasyRefresh header that uses Forui components.

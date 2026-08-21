@@ -157,6 +157,15 @@ class DownloadServiceClient extends $grpc.Client {
     return $createUnaryCall(_$reorderDownloads, request, options: options);
   }
 
+  /// Returns per-category storage usage for the given download path, including
+  /// bytes occupied by in-progress (temp) downloads.
+  $grpc.ResponseFuture<$0.GetStorageStatsResponse> getStorageStats(
+    $0.GetStorageStatsRequest request, {
+    $grpc.CallOptions? options,
+  }) {
+    return $createUnaryCall(_$getStorageStats, request, options: options);
+  }
+
   // method descriptors
 
   static final _$getDownloadStatus = $grpc.ClientMethod<
@@ -248,6 +257,11 @@ class DownloadServiceClient extends $grpc.Client {
       '/miru.DownloadService/ReorderDownloads',
       ($0.ReorderDownloadsRequest value) => value.writeToBuffer(),
       $0.ReorderDownloadsResponse.fromBuffer);
+  static final _$getStorageStats =
+      $grpc.ClientMethod<$0.GetStorageStatsRequest, $0.GetStorageStatsResponse>(
+          '/miru.DownloadService/GetStorageStats',
+          ($0.GetStorageStatsRequest value) => value.writeToBuffer(),
+          $0.GetStorageStatsResponse.fromBuffer);
 }
 
 @$pb.GrpcServiceName('miru.DownloadService')
@@ -405,6 +419,15 @@ abstract class DownloadServiceBase extends $grpc.Service {
         ($core.List<$core.int> value) =>
             $0.ReorderDownloadsRequest.fromBuffer(value),
         ($0.ReorderDownloadsResponse value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.GetStorageStatsRequest,
+            $0.GetStorageStatsResponse>(
+        'GetStorageStats',
+        getStorageStats_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) =>
+            $0.GetStorageStatsRequest.fromBuffer(value),
+        ($0.GetStorageStatsResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.GetDownloadStatusResponse> getDownloadStatus_Pre(
@@ -561,4 +584,13 @@ abstract class DownloadServiceBase extends $grpc.Service {
 
   $async.Future<$0.ReorderDownloadsResponse> reorderDownloads(
       $grpc.ServiceCall call, $0.ReorderDownloadsRequest request);
+
+  $async.Future<$0.GetStorageStatsResponse> getStorageStats_Pre(
+      $grpc.ServiceCall $call,
+      $async.Future<$0.GetStorageStatsRequest> $request) async {
+    return getStorageStats($call, await $request);
+  }
+
+  $async.Future<$0.GetStorageStatsResponse> getStorageStats(
+      $grpc.ServiceCall call, $0.GetStorageStatsRequest request);
 }

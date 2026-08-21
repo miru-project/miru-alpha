@@ -14,6 +14,7 @@ export 'animted_icon/home.dart';
 export 'animted_icon/settings_cog.dart';
 export 'core/image_widget.dart';
 export 'core/inner_card.dart';
+export 'core/miru_expandable_tabs.dart';
 export 'core/miru_tabs.dart';
 export 'core/outline_text.dart';
 export 'core/outter_card.dart';

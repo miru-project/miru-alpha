@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -341,8 +341,38 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
           ),
         ),
       ),
-      desktopWidget:
-          widget.desktopBody ?? widget.body ?? const SizedBox.shrink(),
+      desktopWidget: _buildDesktopWidget(),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Desktop mode
+  // Composition: sliver headers + body/slivers in a CustomScrollView.
+  // Mirrors the mobile non-snapSheet path so callers may pass content via
+  // [slivers] (a list of slivers) instead of a box [body] on desktop too.
+  // ---------------------------------------------------------------------------
+  Widget _buildDesktopWidget() {
+    if (widget.desktopBody != null || widget.body != null) {
+      return widget.desktopBody ?? widget.body!;
+    }
+
+    final slivers = <Widget>[
+      ...widget.sliverHeaders.map(
+        (delegate) => SliverPersistentHeader(delegate: delegate, pinned: true),
+      ),
+      if (widget.slivers != null)
+        ...widget.slivers!
+      else
+        const SliverFillRemaining(child: SizedBox.shrink()),
+    ];
+
+    // On desktop, we don't use FScaffold when slivers are provided because
+    // FScaffold expects a RenderBox child, but CustomScrollView with slivers
+    // produces a RenderSliverPadding child which is incompatible.
+    return CustomScrollView(
+      controller: scrollController,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      slivers: slivers,
     );
   }
 }

@@ -18,12 +18,120 @@ import 'extension_model.pb.dart' as $1;
 
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
 
+/// FilterSelectionValue holds the selected option keys for a single filter.
+class FilterSelectionValue extends $pb.GeneratedMessage {
+  factory FilterSelectionValue({
+    $core.Iterable<$core.String>? values,
+  }) {
+    final result = create();
+    if (values != null) result.values.addAll(values);
+    return result;
+  }
+
+  FilterSelectionValue._();
+
+  factory FilterSelectionValue.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory FilterSelectionValue.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'FilterSelectionValue',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..pPS(1, _omitFieldNames ? '' : 'values')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  FilterSelectionValue clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  FilterSelectionValue copyWith(void Function(FilterSelectionValue) updates) =>
+      super.copyWith((message) => updates(message as FilterSelectionValue))
+          as FilterSelectionValue;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static FilterSelectionValue create() => FilterSelectionValue._();
+  @$core.override
+  FilterSelectionValue createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static FilterSelectionValue getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<FilterSelectionValue>(create);
+  static FilterSelectionValue? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<$core.String> get values => $_getList(0);
+}
+
+/// FilterSelection is the typed filter selection the frontend sends. It
+/// replaces the former JSON string so the entire filter pipeline (proto,
+/// Go runtime, gRPC handlers) is statically typed with zero JSON strings.
+class FilterSelection extends $pb.GeneratedMessage {
+  factory FilterSelection({
+    $core.Iterable<$core.MapEntry<$core.String, FilterSelectionValue>>?
+        selections,
+  }) {
+    final result = create();
+    if (selections != null) result.selections.addEntries(selections);
+    return result;
+  }
+
+  FilterSelection._();
+
+  factory FilterSelection.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory FilterSelection.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'FilterSelection',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..m<$core.String, FilterSelectionValue>(
+        1, _omitFieldNames ? '' : 'selections',
+        entryClassName: 'FilterSelection.SelectionsEntry',
+        keyFieldType: $pb.PbFieldType.OS,
+        valueFieldType: $pb.PbFieldType.OM,
+        valueCreator: FilterSelectionValue.create,
+        valueDefaultOrMaker: FilterSelectionValue.getDefault,
+        packageName: const $pb.PackageName('miru'))
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  FilterSelection clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  FilterSelection copyWith(void Function(FilterSelection) updates) =>
+      super.copyWith((message) => updates(message as FilterSelection))
+          as FilterSelection;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static FilterSelection create() => FilterSelection._();
+  @$core.override
+  FilterSelection createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static FilterSelection getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<FilterSelection>(create);
+  static FilterSelection? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbMap<$core.String, FilterSelectionValue> get selections => $_getMap(0);
+}
+
 class SearchRequest extends $pb.GeneratedMessage {
   factory SearchRequest({
     $core.String? pkg,
     $core.String? kw,
     $core.int? page,
-    $core.String? filter,
+    FilterSelection? filter,
   }) {
     final result = create();
     if (pkg != null) result.pkg = pkg;
@@ -49,7 +157,8 @@ class SearchRequest extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'pkg')
     ..aOS(2, _omitFieldNames ? '' : 'kw')
     ..aI(3, _omitFieldNames ? '' : 'page')
-    ..aOS(4, _omitFieldNames ? '' : 'filter')
+    ..aOM<FilterSelection>(4, _omitFieldNames ? '' : 'filter',
+        subBuilder: FilterSelection.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -99,19 +208,21 @@ class SearchRequest extends $pb.GeneratedMessage {
   void clearPage() => $_clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get filter => $_getSZ(3);
+  FilterSelection get filter => $_getN(3);
   @$pb.TagNumber(4)
-  set filter($core.String value) => $_setString(3, value);
+  set filter(FilterSelection value) => $_setField(4, value);
   @$pb.TagNumber(4)
   $core.bool hasFilter() => $_has(3);
   @$pb.TagNumber(4)
   void clearFilter() => $_clearField(4);
+  @$pb.TagNumber(4)
+  FilterSelection ensureFilter() => $_ensure(3);
 }
 
 class CreateFilterRequest extends $pb.GeneratedMessage {
   factory CreateFilterRequest({
     $core.String? pkg,
-    $core.String? filter,
+    FilterSelection? filter,
   }) {
     final result = create();
     if (pkg != null) result.pkg = pkg;
@@ -133,7 +244,8 @@ class CreateFilterRequest extends $pb.GeneratedMessage {
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'pkg')
-    ..aOS(2, _omitFieldNames ? '' : 'filter')
+    ..aOM<FilterSelection>(2, _omitFieldNames ? '' : 'filter',
+        subBuilder: FilterSelection.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -165,13 +277,15 @@ class CreateFilterRequest extends $pb.GeneratedMessage {
   void clearPkg() => $_clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get filter => $_getSZ(1);
+  FilterSelection get filter => $_getN(1);
   @$pb.TagNumber(2)
-  set filter($core.String value) => $_setString(1, value);
+  set filter(FilterSelection value) => $_setField(2, value);
   @$pb.TagNumber(2)
   $core.bool hasFilter() => $_has(1);
   @$pb.TagNumber(2)
   void clearFilter() => $_clearField(2);
+  @$pb.TagNumber(2)
+  FilterSelection ensureFilter() => $_ensure(1);
 }
 
 class CreateFilterResponse extends $pb.GeneratedMessage {

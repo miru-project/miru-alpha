@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
@@ -29,11 +29,10 @@ ExtensionBangumiWatch _toBangumiWatch(dynamic data) {
   if (data is String) return ExtensionBangumiWatch()..url = data;
   if (data is List) return _bangumiFromList(data);
   if (data is Map) {
-    return ExtensionBangumiWatch()
-      ..mergeFromProto3Json(
-        Map<String, dynamic>.from(data),
-        ignoreUnknownFields: true,
-      );
+    return ExtensionBangumiWatch()..mergeFromProto3Json(
+      Map<String, dynamic>.from(data),
+      ignoreUnknownFields: true,
+    );
   }
   throw Exception('Unsupported bangumi watch data type: ${data.runtimeType}');
 }
@@ -46,14 +45,13 @@ ExtensionBangumiWatch _bangumiFromList(List list) {
       return ExtensionBangumiWatch()..url = item;
     }
     if (item is Map && item['url'] != null) {
-      return ExtensionBangumiWatch()
-        ..mergeFromProto3Json(
-          Map<String, dynamic>.from(item),
-          ignoreUnknownFields: true,
-        );
+      return ExtensionBangumiWatch()..mergeFromProto3Json(
+        Map<String, dynamic>.from(item),
+        ignoreUnknownFields: true,
+      );
     }
   }
-  if (list.isNotEmpty) return ExtensionBangumiWatch()..url = list.first.toString();
+  if (list.isNotEmpty) return ExtensionBangumiWatch(url: list.first.toString());
   throw Exception('Empty watch data list');
 }
 
@@ -71,11 +69,10 @@ ExtensionMangaWatch _toMangaWatch(dynamic data) {
     return ExtensionMangaWatch()..urls.addAll(urls);
   }
   if (data is Map) {
-    return ExtensionMangaWatch()
-      ..mergeFromProto3Json(
-        Map<String, dynamic>.from(data),
-        ignoreUnknownFields: true,
-      );
+    return ExtensionMangaWatch()..mergeFromProto3Json(
+      Map<String, dynamic>.from(data),
+      ignoreUnknownFields: true,
+    );
   }
   throw Exception('Unsupported manga watch data type: ${data.runtimeType}');
 }
@@ -94,11 +91,10 @@ ExtensionFikushonWatch _toNovelWatch(dynamic data) {
     return ExtensionFikushonWatch()..content.addAll(content);
   }
   if (data is Map) {
-    return ExtensionFikushonWatch()
-      ..mergeFromProto3Json(
-        Map<String, dynamic>.from(data),
-        ignoreUnknownFields: true,
-      );
+    return ExtensionFikushonWatch()..mergeFromProto3Json(
+      Map<String, dynamic>.from(data),
+      ignoreUnknownFields: true,
+    );
   }
   throw Exception('Unsupported novel watch data type: ${data.runtimeType}');
 }
@@ -233,7 +229,9 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
               }
               switch (extra.type) {
                 case ExtensionType.bangumi:
-                  final data = _toBangumiWatch(_unwrapAll(value.data, extra.type));
+                  final data = _toBangumiWatch(
+                    _unwrapAll(value.data, extra.type),
+                  );
                   return MiruVideoPlayer(
                     name: extra.name,
                     value: data,
@@ -245,7 +243,9 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     v2watch: value.v2watch,
                   );
                 case ExtensionType.manga:
-                  final data = _toMangaWatch(_unwrapAll(value.data, extra.type));
+                  final data = _toMangaWatch(
+                    _unwrapAll(value.data, extra.type),
+                  );
                   return MiruMangaReader(
                     name: extra.name,
                     value: data,
@@ -255,7 +255,9 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     epProvider: _epProvider,
                   );
                 default:
-                  final data = _toNovelWatch(_unwrapAll(value.data, extra.type));
+                  final data = _toNovelWatch(
+                    _unwrapAll(value.data, extra.type),
+                  );
                   return MiruNovelReader(
                     meta: meta,
                     name: extra.name,

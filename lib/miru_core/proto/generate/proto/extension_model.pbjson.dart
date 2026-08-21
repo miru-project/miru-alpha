@@ -68,43 +68,166 @@ final $typed_data.Uint8List extensionListItemDescriptor = $convert.base64Decode(
     'Vycxo6CgxIZWFkZXJzRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdWUYAiABKAlSBXZh'
     'bHVlOgI4AQ==');
 
-@$core.Deprecated('Use extensionFilterDescriptor instead')
-const ExtensionFilter$json = {
-  '1': 'ExtensionFilter',
+@$core.Deprecated('Use filterOptionDescriptor instead')
+const FilterOption$json = {
+  '1': 'FilterOption',
+  '2': [
+    {'1': 'label', '3': 1, '4': 1, '5': 9, '10': 'label'},
+  ],
+};
+
+/// Descriptor for `FilterOption`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List filterOptionDescriptor =
+    $convert.base64Decode('CgxGaWx0ZXJPcHRpb24SFAoFbGFiZWwYASABKAlSBWxhYmVs');
+
+@$core.Deprecated('Use selectFilterDescriptor instead')
+const SelectFilter$json = {
+  '1': 'SelectFilter',
+  '2': [
+    {'1': 'title', '3': 1, '4': 1, '5': 9, '10': 'title'},
+    {'1': 'default', '3': 2, '4': 1, '5': 9, '10': 'default'},
+    {
+      '1': 'options',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.miru.SelectFilter.OptionsEntry',
+      '10': 'options'
+    },
+  ],
+  '3': [SelectFilter_OptionsEntry$json],
+};
+
+@$core.Deprecated('Use selectFilterDescriptor instead')
+const SelectFilter_OptionsEntry$json = {
+  '1': 'OptionsEntry',
+  '2': [
+    {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    {
+      '1': 'value',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.FilterOption',
+      '10': 'value'
+    },
+  ],
+  '7': {'7': true},
+};
+
+/// Descriptor for `SelectFilter`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List selectFilterDescriptor = $convert.base64Decode(
+    'CgxTZWxlY3RGaWx0ZXISFAoFdGl0bGUYASABKAlSBXRpdGxlEhgKB2RlZmF1bHQYAiABKAlSB2'
+    'RlZmF1bHQSOQoHb3B0aW9ucxgDIAMoCzIfLm1pcnUuU2VsZWN0RmlsdGVyLk9wdGlvbnNFbnRy'
+    'eVIHb3B0aW9ucxpOCgxPcHRpb25zRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSKAoFdmFsdWUYAi'
+    'ABKAsyEi5taXJ1LkZpbHRlck9wdGlvblIFdmFsdWU6AjgB');
+
+@$core.Deprecated('Use multiSelectFilterDescriptor instead')
+const MultiSelectFilter$json = {
+  '1': 'MultiSelectFilter',
   '2': [
     {'1': 'title', '3': 1, '4': 1, '5': 9, '10': 'title'},
     {'1': 'min', '3': 2, '4': 1, '5': 5, '10': 'min'},
     {'1': 'max', '3': 3, '4': 1, '5': 5, '10': 'max'},
-    {'1': 'default', '3': 4, '4': 1, '5': 9, '10': 'default'},
+    {'1': 'default', '3': 4, '4': 3, '5': 9, '10': 'default'},
     {
       '1': 'options',
       '3': 5,
       '4': 3,
       '5': 11,
-      '6': '.miru.ExtensionFilter.OptionsEntry',
+      '6': '.miru.MultiSelectFilter.OptionsEntry',
       '10': 'options'
     },
   ],
-  '3': [ExtensionFilter_OptionsEntry$json],
+  '3': [MultiSelectFilter_OptionsEntry$json],
 };
 
-@$core.Deprecated('Use extensionFilterDescriptor instead')
-const ExtensionFilter_OptionsEntry$json = {
+@$core.Deprecated('Use multiSelectFilterDescriptor instead')
+const MultiSelectFilter_OptionsEntry$json = {
   '1': 'OptionsEntry',
   '2': [
     {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
-    {'1': 'value', '3': 2, '4': 1, '5': 9, '10': 'value'},
+    {
+      '1': 'value',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.FilterOption',
+      '10': 'value'
+    },
   ],
   '7': {'7': true},
 };
 
+/// Descriptor for `MultiSelectFilter`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List multiSelectFilterDescriptor = $convert.base64Decode(
+    'ChFNdWx0aVNlbGVjdEZpbHRlchIUCgV0aXRsZRgBIAEoCVIFdGl0bGUSEAoDbWluGAIgASgFUg'
+    'NtaW4SEAoDbWF4GAMgASgFUgNtYXgSGAoHZGVmYXVsdBgEIAMoCVIHZGVmYXVsdBI+CgdvcHRp'
+    'b25zGAUgAygLMiQubWlydS5NdWx0aVNlbGVjdEZpbHRlci5PcHRpb25zRW50cnlSB29wdGlvbn'
+    'MaTgoMT3B0aW9uc0VudHJ5EhAKA2tleRgBIAEoCVIDa2V5EigKBXZhbHVlGAIgASgLMhIubWly'
+    'dS5GaWx0ZXJPcHRpb25SBXZhbHVlOgI4AQ==');
+
+@$core.Deprecated('Use rangeFilterDescriptor instead')
+const RangeFilter$json = {
+  '1': 'RangeFilter',
+  '2': [
+    {'1': 'title', '3': 1, '4': 1, '5': 9, '10': 'title'},
+    {'1': 'min', '3': 2, '4': 1, '5': 5, '10': 'min'},
+    {'1': 'max', '3': 3, '4': 1, '5': 5, '10': 'max'},
+    {'1': 'default_min', '3': 4, '4': 1, '5': 5, '10': 'defaultMin'},
+    {'1': 'default_max', '3': 5, '4': 1, '5': 5, '10': 'defaultMax'},
+  ],
+};
+
+/// Descriptor for `RangeFilter`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List rangeFilterDescriptor = $convert.base64Decode(
+    'CgtSYW5nZUZpbHRlchIUCgV0aXRsZRgBIAEoCVIFdGl0bGUSEAoDbWluGAIgASgFUgNtaW4SEA'
+    'oDbWF4GAMgASgFUgNtYXgSHwoLZGVmYXVsdF9taW4YBCABKAVSCmRlZmF1bHRNaW4SHwoLZGVm'
+    'YXVsdF9tYXgYBSABKAVSCmRlZmF1bHRNYXg=');
+
+@$core.Deprecated('Use extensionFilterDescriptor instead')
+const ExtensionFilter$json = {
+  '1': 'ExtensionFilter',
+  '2': [
+    {
+      '1': 'select',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.SelectFilter',
+      '9': 0,
+      '10': 'select'
+    },
+    {
+      '1': 'multi_select',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.MultiSelectFilter',
+      '9': 0,
+      '10': 'multiSelect'
+    },
+    {
+      '1': 'range',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.RangeFilter',
+      '9': 0,
+      '10': 'range'
+    },
+  ],
+  '8': [
+    {'1': 'kind'},
+  ],
+};
+
 /// Descriptor for `ExtensionFilter`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List extensionFilterDescriptor = $convert.base64Decode(
-    'Cg9FeHRlbnNpb25GaWx0ZXISFAoFdGl0bGUYASABKAlSBXRpdGxlEhAKA21pbhgCIAEoBVIDbW'
-    'luEhAKA21heBgDIAEoBVIDbWF4EhgKB2RlZmF1bHQYBCABKAlSB2RlZmF1bHQSPAoHb3B0aW9u'
-    'cxgFIAMoCzIiLm1pcnUuRXh0ZW5zaW9uRmlsdGVyLk9wdGlvbnNFbnRyeVIHb3B0aW9ucxo6Cg'
-    'xPcHRpb25zRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdWUYAiABKAlSBXZhbHVlOgI4'
-    'AQ==');
+    'Cg9FeHRlbnNpb25GaWx0ZXISLAoGc2VsZWN0GAEgASgLMhIubWlydS5TZWxlY3RGaWx0ZXJIAF'
+    'IGc2VsZWN0EjwKDG11bHRpX3NlbGVjdBgCIAEoCzIXLm1pcnUuTXVsdGlTZWxlY3RGaWx0ZXJI'
+    'AFILbXVsdGlTZWxlY3QSKQoFcmFuZ2UYAyABKAsyES5taXJ1LlJhbmdlRmlsdGVySABSBXJhbm'
+    'dlQgYKBGtpbmQ=');
 
 @$core.Deprecated('Use extensionDetailDescriptor instead')
 const ExtensionDetail$json = {

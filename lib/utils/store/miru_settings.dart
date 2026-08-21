@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
@@ -81,6 +83,8 @@ class MiruSettings {
     SettingKey.maxConnection: "3",
     SettingKey.showDeleteExtensionDialog: "true",
     SettingKey.pinnedExtension: {}.toString(),
+    SettingKey.searchHistory: '[]',
+    SettingKey.recentExtensions: '[]',
     SettingKey.showPageNumber: "false",
     SettingKey.novelReadingMode: "webToon",
     SettingKey.downloadPath: "",
@@ -122,6 +126,30 @@ class MiruSettings {
       throw Exception('Setting $key not found');
     }
     return convertStringToObj<T>(value);
+  }
+
+  /// Returns the recent extension package names (newest first), persisted as a
+  /// JSON array under [SettingKey.recentExtensions].
+  static List<String> getRecentExtensions() {
+    final raw = _settingsCache[SettingKey.recentExtensions];
+    if (raw == null || raw.isEmpty) return const [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is List) {
+        return decoded.map((e) => e.toString()).toList();
+      }
+    } catch (_) {}
+    return const [];
+  }
+
+  /// Pushes [pkg] to the front of the recent extensions list, dedupes, and
+  /// persists the result capped at [SettingKey.recentExtensionsMax].
+  static void addRecentExtension(String pkg) {
+    final next = [
+      pkg,
+      ...getRecentExtensions().where((e) => e != pkg),
+    ].take(SettingKey.recentExtensionsMax).toList();
+    setSettingSync(SettingKey.recentExtensions, jsonEncode(next));
   }
 
   static T convertStringToObj<T>(String value) {
@@ -215,4 +243,9 @@ class SettingKey {
   static const hideMissingDownloads = 'hideMissingDownloads';
   static const proxyActivate = 'ProxyActivate';
   static const proxyList = 'ProxyList';
+  static const searchHistory = 'SearchHistory';
+  // Most recently visited extensions (entering their latest page), stored as a
+  // JSON array of package names, newest first, capped at [recentExtensionsMax].
+  static const recentExtensions = 'RecentExtensions';
+  static const recentExtensionsMax = 6;
 }

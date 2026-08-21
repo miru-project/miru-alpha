@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -83,26 +83,25 @@ class ExtensionListView extends HookConsumerWidget {
                                 type: .custom,
                                 allowedExtensions: ['js', 'go'],
                               );
-                              if (result != null &&
-                                  result.files.single.path != null) {
-                                final pickedPath = result.files.single.path!;
-                                final filename = p.basename(pickedPath);
-                                final reg = RegExp(r'^\w.+\.\w+\.(js|go)$');
-                                if (!reg.hasMatch(filename)) {
+                              if (result.isEmpty) return;
+                              final reg = RegExp(r'^\w.+\.\w+\.(js|go)$');
+                              for (final file in result) {
+                                if (!reg.hasMatch(file.name)) {
                                   showSimpleToast('Invalid extension name');
-                                  return;
+                                  continue;
                                 }
                                 final targetPath = p.join(
                                   Core.extensionPath,
-                                  filename,
+                                  file.name,
                                 );
                                 final targetDir = Directory(Core.extensionPath);
                                 if (!targetDir.existsSync()) {
                                   await targetDir.create(recursive: true);
                                 }
-                                await File(pickedPath).copy(targetPath);
-                                showSimpleToast('Install Success');
+                                await File(file.path!).copy(targetPath);
                               }
+
+                              showSimpleToast('Install Success');
                             } catch (e) {
                               showSimpleToast('Install Failed: $e');
                             }

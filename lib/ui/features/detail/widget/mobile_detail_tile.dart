@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:go_router/go_router.dart';
@@ -193,7 +193,8 @@ class MobileDetailTile extends ConsumerWidget {
         proto.DownloadRequest(
           url: videoUrl,
           downloadPath: p.join(tempDir, title),
-          mediaType: videoType,
+          mediaType: downloadMediaTypeFromString(videoType),
+          category: meta.type.category,
           package: meta.packageName,
           detailUrl: detailUrl,
           title: title,
@@ -225,7 +226,7 @@ class MobileDetailTile extends ConsumerWidget {
                         proto.DownloadRequest(
                           url: variant.url,
                           downloadPath: p.join(tempDir, title),
-                          mediaType: videoType,
+                          mediaType: downloadMediaTypeFromString(videoType),
                           package: meta.packageName,
                           detailUrl: detailUrl,
                           title: title,

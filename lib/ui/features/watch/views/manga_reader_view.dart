@@ -1,6 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
@@ -109,42 +109,44 @@ class MangaReaderView extends HookConsumerWidget {
                 left: BorderSide(color: context.theme.colors.border, width: 1),
               ),
             ),
-            width: 400,
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: FButton.icon(
-                        onPress: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Icon(FLucideIcons.chevronLeft),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
+            child: Flexible(
+              flex: 2,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          name,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.theme.typography.body.xl2.copyWith(
-                            fontWeight: FontWeight.bold,
+                        child: FButton.icon(
+                          onPress: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Icon(FLucideIcons.chevronLeft),
+                        ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            name,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.theme.typography.body.xl2.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const Divider(),
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.all(8.0),
-                    children: controls,
+                    ],
                   ),
-                ),
-              ],
+                  const Divider(),
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.all(8.0),
+                      children: controls,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

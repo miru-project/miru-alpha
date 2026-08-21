@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
+import 'package:miru_alpha/ui/features/search/extension_filter_view.dart';
 
 class SearchFilterDialog extends ConsumerWidget {
   const SearchFilterDialog({
@@ -43,9 +44,16 @@ class SearchFilterDialog extends ConsumerWidget {
               const SizedBox(height: 8),
               for (var i = 0; i < order.length; i++) ...[
                 () {
-                  final filter = filters[order[i]];
-                  final min = (filter?.min ?? 0) == 0 ? 1 : (filter?.min ?? 1);
-                  final max = (filter?.max ?? 0) == 0 ? 1 : (filter?.max ?? 1);
+                  final raw = filters[order[i]];
+                  final filter = raw == null
+                      ? null
+                      : ExtensionFilterView.from(raw);
+                  final min = filter?.isSingleSelect == true
+                      ? 1
+                      : (filter?.min ?? 1);
+                  final max = filter?.isSingleSelect == true
+                      ? 1
+                      : (filter?.max ?? 1);
                   final hasError = min > max;
 
                   return Column(
@@ -86,9 +94,9 @@ class SearchFilterDialog extends ConsumerWidget {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              for (final option
-                                  in (filter?.options.entries.toList() ?? [])
-                                    ..sort((a, b) => a.key.compareTo(b.key)))
+                              for (final option in [
+                                ...?filter?.options,
+                              ]..sort((a, b) => a.key.compareTo(b.key)))
                                 () {
                                   final filterKey = order[i];
                                   final isSelected = (selected[filterKey] ?? [])
@@ -107,7 +115,7 @@ class SearchFilterDialog extends ConsumerWidget {
                                     },
                                     child: FBadge(
                                       variant: isSelected ? .primary : .outline,
-                                      child: Text(option.value),
+                                      child: Text(option.label),
                                     ),
                                   );
                                 }(),

@@ -66,7 +66,8 @@ void main() {
       expect(
         entry.value,
         isNot(0xFFFFFFFF),
-        reason: '${entry.key} light background should be tinted, not pure white',
+        reason:
+            '${entry.key} light background should be tinted, not pure white',
       );
     }
     // All 7 bases produce a unique background so they are distinguishable.
@@ -96,17 +97,33 @@ void main() {
     );
   });
 
-  test('tintStrength 0 leaves light background pure white (forui_cli faithful)',
-      () {
-    final colors = ThemeUtils.composeColors('zinc', 'none', true, tintStrength: 0);
-    expect(colors.background.toARGB32(), 0xFFFFFFFF);
-    expect(colors.card.toARGB32(), 0xFFFFFFFF);
-  });
+  test(
+    'tintStrength 0 leaves light background pure white (forui_cli faithful)',
+    () {
+      final colors = ThemeUtils.composeColors(
+        'zinc',
+        'none',
+        true,
+        tintStrength: 0,
+      );
+      expect(colors.background.toARGB32(), 0xFFFFFFFF);
+      expect(colors.card.toARGB32(), 0xFFFFFFFF);
+    },
+  );
 
   test('higher tintStrength produces a stronger per-base background tint', () {
-    final weak = ThemeUtils.composeColors('zinc', 'none', true, tintStrength: 0.1);
-    final strong =
-        ThemeUtils.composeColors('zinc', 'none', true, tintStrength: 0.9);
+    final weak = ThemeUtils.composeColors(
+      'zinc',
+      'none',
+      true,
+      tintStrength: 0.1,
+    );
+    final strong = ThemeUtils.composeColors(
+      'zinc',
+      'none',
+      true,
+      tintStrength: 0.9,
+    );
     // Both are non-white, but the stronger tint is further from pure white.
     expect(weak.background.toARGB32(), isNot(0xFFFFFFFF));
     expect(strong.background.toARGB32(), isNot(0xFFFFFFFF));
@@ -117,15 +134,25 @@ void main() {
     );
   });
 
-  test('tint only affects light surfaces, dark backgrounds stay base-distinct',
-      () {
-    final light =
-        ThemeUtils.composeColors('taupe', 'none', true, tintStrength: 0.5);
-    final dark =
-        ThemeUtils.composeColors('taupe', 'none', false, tintStrength: 0.5);
-    // light is tinted away from pure white; dark is untouched (still opaque).
-    expect(light.background.toARGB32(), isNot(0xFFFFFFFF));
-    expect(dark.background.a, 1.0);
-    expect(dark.background.toARGB32(), 0xFF0C0A09); // taupe dark bg
-  });
+  test(
+    'tint only affects light surfaces, dark backgrounds stay base-distinct',
+    () {
+      final light = ThemeUtils.composeColors(
+        'taupe',
+        'none',
+        true,
+        tintStrength: 0.5,
+      );
+      final dark = ThemeUtils.composeColors(
+        'taupe',
+        'none',
+        false,
+        tintStrength: 0.5,
+      );
+      // light is tinted away from pure white; dark is untouched (still opaque).
+      expect(light.background.toARGB32(), isNot(0xFFFFFFFF));
+      expect(dark.background.a, 1.0);
+      expect(dark.background.toARGB32(), 0xFF0C0A09); // taupe dark bg
+    },
+  );
 }

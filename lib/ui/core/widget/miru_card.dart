@@ -84,10 +84,6 @@ class MiruCard extends StatelessWidget {
       content = child ?? const SizedBox.shrink();
     }
 
-    return FCard(
-      style: style,
-      clipBehavior: clipBehavior,
-      child: content,
-    );
+    return FCard(style: style, clipBehavior: clipBehavior, child: content);
   }
 }

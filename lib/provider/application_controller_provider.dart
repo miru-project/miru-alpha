@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/theme.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -13,6 +13,7 @@ class ApplicationState {
   final ThemeMode themeMode;
   final bool isMobileTitleOnTop;
   final String language;
+
   /// Strength (0..1) of the per-base `background`/`card` tint in light mode.
   /// 0 = faithful to forui_cli (pure white); higher = stronger base hue.
   final double tintStrength;
@@ -55,9 +56,7 @@ class ApplicationController extends _$ApplicationController {
   @override
   ApplicationState build() {
     final themeText = MiruSettings.getSettingSync<String>(SettingKey.theme);
-    final baseColor = MiruSettings.getSettingSync<String>(
-      SettingKey.baseColor,
-    );
+    final baseColor = MiruSettings.getSettingSync<String>(SettingKey.baseColor);
     final primaryColor = MiruSettings.getSettingSync<String>(
       SettingKey.accentColor,
     );
@@ -153,7 +152,11 @@ class ApplicationController extends _$ApplicationController {
     final baseColor = baseColorNames.contains(color) ? color : 'zinc';
     state = state.copyWith(
       baseColor: baseColor,
-      themeData: currentThemeData(state.themeText, baseColor, state.primaryColor),
+      themeData: currentThemeData(
+        state.themeText,
+        baseColor,
+        state.primaryColor,
+      ),
     );
   }
 
@@ -162,7 +165,11 @@ class ApplicationController extends _$ApplicationController {
     final primaryColor = primaryColorNames.contains(color) ? color : 'none';
     state = state.copyWith(
       primaryColor: primaryColor,
-      themeData: currentThemeData(state.themeText, state.baseColor, primaryColor),
+      themeData: currentThemeData(
+        state.themeText,
+        state.baseColor,
+        primaryColor,
+      ),
     );
   }
 

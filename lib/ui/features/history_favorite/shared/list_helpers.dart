@@ -1,5 +1,5 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -21,7 +21,10 @@ ExtensionMeta? findMeta(WidgetRef ref, String package) {
 
 /// Navigates to the detail page for the given [meta] and [url].
 void openDetail(BuildContext context, ExtensionMeta meta, String url) {
-  context.push('/search/single/detail', extra: DetailParam(meta: meta, url: url));
+  context.push(
+    '/search/single/detail',
+    extra: DetailParam(meta: meta, url: url),
+  );
 }
 
 /// Opens a confirmation dialog and calls [onConfirm] when the user agrees.
@@ -65,7 +68,12 @@ void showRemoveSheet({
     side: .btt,
     builder: (context) => MiruCard(
       child: Padding(
-        padding: const EdgeInsets.only(top: 10, left: 10, right: 10, bottom: 20),
+        padding: const EdgeInsets.only(
+          top: 10,
+          left: 10,
+          right: 10,
+          bottom: 20,
+        ),
         child: FTileGroup(
           label: Padding(
             padding: const EdgeInsets.only(left: 6),

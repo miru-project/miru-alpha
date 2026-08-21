@@ -222,7 +222,12 @@
     "cookie_clear": "Clear Cookie",
     "cookie_clear_description": "Clear extension cookies",
     "search_with_pinned_extensions": "Search with pinned extensions",
-    "setting_wip": "Extension settings (WIP)"
+    "setting_wip": "Extension settings (WIP)",
+    "history": "History",
+    "search_across_extensions": "Search across extensions...",
+    "recent_searches": "Recent Searches",
+    "frequent_extensions": "Frequently Used Extensions",
+    "content_from_extensions": "Content is gathered from your active third-party extensions."
   },
   "tracking": {
     "name": "Tracking",
@@ -477,9 +482,23 @@
     "max_concurrent": "Max concurrent downloads",
     "show_missing": "Show missing files ({count})",
     "hide_missing": "Hide missing files",
-    "drag_to_reorder_tip": "Drag to reorder. Top = higher priority."
+    "drag_to_reorder_tip": "Drag to reorder. Top = higher priority.",
+    "all_downloads": "All Downloads",
+    "series": "Series",
+    "movies": "Movies",
+    "delete_all_finished": "Delete All Finished",
+    "device_storage": "Device Storage",
+    "temp": "Temp",
+    "storage_used": "{used} of {total} used",
+    "storage_hint": "You have enough space for approximately {count} more episodes in High Definition.",
+    "in_progress": "In Progress",
+    "path_not_set": "Download path not set"
   },
   "languages": {
     "name": "Languages"
+  },
+  "detail": {
+    "previous": "Previous",
+    "next": "Next"
   }
 }

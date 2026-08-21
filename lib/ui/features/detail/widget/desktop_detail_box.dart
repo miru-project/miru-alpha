@@ -1,6 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
@@ -40,7 +40,9 @@ class DetailDesktopBox extends HookConsumerWidget {
             borderRadius: BorderRadius.circular(12),
             image: DecorationImage(
               fit: BoxFit.fitWidth,
-              image: ExtendedNetworkImageProvider(MiruRequest.proxyUrl(coverUrl).toString()),
+              image: ExtendedNetworkImageProvider(
+                MiruRequest.proxyUrl(coverUrl).toString(),
+              ),
               colorFilter: ColorFilter.mode(
                 Colors.black.withAlpha(200), // optional dark overlay
                 BlendMode.darken,
@@ -61,12 +63,12 @@ class DetailDesktopBox extends HookConsumerWidget {
                     height: 200,
                     child: LayoutBuilder(
                       builder: (context, constraints) {
+                        // Use Flexible/Expanded to prevent overflow
                         return Row(
                           children: [
                             DetailImageView(detail: detail, coverUrl: coverUrl),
                             const SizedBox(width: 25),
-                            SizedBox(
-                              width: constraints.maxWidth - 300,
+                            Expanded(
                               child: Text(
                                 detail.title,
                                 maxLines: 3,
@@ -115,15 +117,16 @@ class DetailDesktopBox extends HookConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                Row(
+                // Use Wrap for responsive layout that wraps on small screens
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
                   children: [
                     FButton(
                       suffix: Icon(FLucideIcons.play),
                       onPress: () {},
                       child: Text("media.video_player.play".i18n),
                     ),
-
-                    SizedBox(width: 15),
 
                     DownloadButton(
                       varient: .secondary,
@@ -132,13 +135,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                       meta: meta,
                       detailUrl: detailUrl,
                     ),
-                    // FButton(
-                    //   variant: .secondary,
-                    //   prefix: Icon(FLucideIcons.download),
-                    //   onPress: () {},
-                    //   child: Text('common.download'.i18n),
-                    // ),
-                    const SizedBox(width: 15),
+
                     FButton(
                       variant: .secondary,
                       suffix: HeartButton(
@@ -164,7 +161,7 @@ class DetailDesktopBox extends HookConsumerWidget {
                       },
                       child: Text("favorite.title".i18n),
                     ),
-                    SizedBox(width: 15),
+
                     FButton(
                       variant: .outline,
                       suffix: Icon(FLucideIcons.globe),

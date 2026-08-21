@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/ui/features/download/widget/mobile_finish_download.dart';
 import 'package:miru_alpha/ui/features/extension_settings/extension_settings.dart';
@@ -81,7 +81,12 @@ class RouterUtil {
 
     builder: (context, state) {
       final extra = ParamCache.getDetailParam(state.extra as DetailParam);
-      return DetailLoadingPage(meta: extra.meta, detailUrl: extra.url);
+      return DetailLoadingPage(
+        meta: extra.meta,
+        detailUrl: extra.url,
+        items: extra.items,
+        index: extra.index,
+      );
     },
   );
   static final appRouter = GoRouter(
@@ -141,24 +146,26 @@ class RouterUtil {
                     path: 'history',
                     pageBuilder: (context, state) => noTransitionPage(
                       state: state,
-                      child: HistoryView(
-                        type: _listPageType(state),
-                      ),
+                      child: HistoryView(type: _listPageType(state)),
                     ),
                   ),
                   GoRoute(
                     path: 'favorite',
                     pageBuilder: (context, state) => noTransitionPage(
                       state: state,
-                      child: FavoriteView(
-                        type: _listPageType(state),
-                      ),
+                      child: FavoriteView(type: _listPageType(state)),
                     ),
                   ),
                   GoRoute(
                     path: 'download',
-                    pageBuilder: (context, state) =>
-                        noTransitionPage(state: state, child: const DownloadView()),
+                    pageBuilder: (context, state) => noTransitionPage(
+                      state: state,
+                      child: DeviceUtil.deviceWidget(
+                        context: context,
+                        desktop: const DesktopDownloadView(),
+                        mobile: const MobileDownloadView(),
+                      ),
+                    ),
                     routes: [
                       // for mobile layout  only
                       GoRoute(
@@ -176,10 +183,8 @@ class RouterUtil {
                   ),
                 ],
                 path: '/home',
-                pageBuilder: (context, state) => noTransitionPage(
-                  state: state,
-                  child: const HomeView(),
-                ),
+                pageBuilder: (context, state) =>
+                    noTransitionPage(state: state, child: const HomeView()),
               ),
             ],
           ),

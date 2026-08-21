@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -12,6 +12,8 @@ import 'package:miru_alpha/provider/application_controller_provider.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/index.dart';
+import 'package:miru_alpha/ui/features/search/widget/desktop_search_overlay.dart';
+import 'package:miru_alpha/provider/search/search_page_provider.dart';
 
 import 'package:miru_alpha/model/setting_items.dart';
 import 'package:window_manager/window_manager.dart';
@@ -400,25 +402,30 @@ class _MainPageState extends ConsumerState<MainPage>
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 7),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Stack(
                     children: [
-                      if (!DeviceUtil.isMobile) ...[
-                        const DragWindows(),
-                        const FDivider(
-                          style: FDividerStyleDelta.delta(
-                            padding: EdgeInsetsGeometryDelta.value(
-                              EdgeInsets.zero,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (!DeviceUtil.isMobile) ...[
+                            const DragWindows(),
+                            const FDivider(
+                              style: FDividerStyleDelta.delta(
+                                padding: EdgeInsetsGeometryDelta.value(
+                                  EdgeInsets.zero,
+                                ),
+                              ),
+                            ),
+                          ],
+                          FTheme(
+                            data: themeData,
+                            child: Expanded(
+                              child: widget.child ?? const SizedBox(),
                             ),
                           ),
-                        ),
-                      ],
-                      FTheme(
-                        data: themeData,
-                        child: Expanded(
-                          child: widget.child ?? const SizedBox(),
-                        ),
+                        ],
                       ),
+                      if (!DeviceUtil.isMobile) const _DesktopSearchOverlay(),
                     ],
                   ),
                 ),
@@ -441,7 +448,16 @@ class DragWindows extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          BreadCrumb(),
+          Expanded(
+            child: Center(
+              child: LayoutBuilder(
+                builder: (context, constraints) => SizedBox(
+                  width: constraints.maxWidth * .5,
+                  child: const SearchTrigger(),
+                ),
+              ),
+            ),
+          ),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 200, maxHeight: 35),
             child: Platform.isWindows || Platform.isLinux || Platform.isMacOS
@@ -457,45 +473,16 @@ class DragWindows extends StatelessWidget {
   }
 }
 
-class BreadCrumb extends HookWidget {
-  const BreadCrumb({super.key});
+/// Desktop-only: renders the search overlay popup when the search state is
+/// opened from the top-bar [SearchTrigger].
+class _DesktopSearchOverlay extends ConsumerWidget {
+  const _DesktopSearchOverlay();
 
   @override
-  Widget build(BuildContext context) {
-    final routeInfoProvider = GoRouter.of(context).routeInformationProvider;
-    useListenable(routeInfoProvider);
-
-    final currentLocation =
-        GoRouter.of(context).routerDelegate.state.fullPath ??
-        GoRouter.of(context).routerDelegate.currentConfiguration.fullPath;
-
-    final segments = currentLocation
-        .split('/')
-        .where((s) => s.isNotEmpty)
-        .toList();
-
-    return FBreadcrumb(
-      children: [
-        for (final seg in segments)
-          FBreadcrumbItem(
-            onPress: () {
-              if (seg == segments.last) return;
-              if (!context.canPop()) return;
-              if (seg == 'search' && segments.last == 'detail') {
-                context.pop();
-                context.pop();
-                return;
-              }
-              if ((seg == 'single' && segments.last == 'detail') ||
-                  (seg == 'search' && segments.last == 'single')) {
-                context.pop();
-                return;
-              }
-            },
-            child: Text(seg.i18n),
-          ),
-      ],
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final open = ref.watch(searchPageProvider.select((e) => e.open));
+    if (!open) return const SizedBox();
+    return const SearchOverlayPopup();
   }
 }
 

@@ -49,8 +49,7 @@ class SearchGridView extends HookConsumerWidget {
           final c = ref.read(searchPageSingleProviderProvider);
           try {
             // Serach Mode
-            if (c.query.isNotEmpty ||
-                c.filterSelection.values.any((v) => v != "" && v != null)) {
+            if (c.query.isNotEmpty || c.filterSelection.selections.isNotEmpty) {
               final res = await MiruCoreEndpoint.search(
                 meta.packageName,
                 c.query,
@@ -125,7 +124,12 @@ class SearchGridView extends HookConsumerWidget {
               onTap: () {
                 context.push(
                   '/search/single/detail',
-                  extra: DetailParam(meta: meta, url: result[index].url),
+                  extra: DetailParam(
+                    meta: meta,
+                    url: result[index].url,
+                    items: result,
+                    index: index,
+                  ),
                 );
               },
               title: result[index].title,
@@ -158,7 +162,12 @@ class SearchGridView extends HookConsumerWidget {
               onTap: () {
                 context.push(
                   '/search/single/detail',
-                  extra: DetailParam(meta: meta, url: result[index].url),
+                  extra: DetailParam(
+                    meta: meta,
+                    url: result[index].url,
+                    items: result,
+                    index: index,
+                  ),
                 );
               },
               title: result[index].title,

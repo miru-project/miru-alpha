@@ -9,11 +9,7 @@ part 'search_view_model.g.dart';
 class SearchViewModel extends _$SearchViewModel {
   @override
   Future<DomainSearchState> build() async {
-    return const DomainSearchState(
-      extensions: [],
-      query: '',
-      isLoading: false,
-    );
+    return const DomainSearchState(extensions: [], query: '', isLoading: false);
   }
 
   FilterSearchUseCase get _filterUseCase => FilterSearchUseCase();

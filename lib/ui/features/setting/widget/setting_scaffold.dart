@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/index.dart';
@@ -21,7 +21,7 @@ class SettingScaffold extends StatelessWidget {
                 Navigator.of(context).pop();
               },
               child: Padding(
-                padding: const EdgeInsets.only(right: 12.0, top: 4, left: 10),
+                padding: const EdgeInsets.only(right: 12.0, top: 4),
                 child: Icon(
                   FLucideIcons.chevronLeft,
                   size: 28,

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -29,8 +29,7 @@ DownloadState _buildState({
   List<proto.DownloadProgress> active = const [],
   List<proto.Download> history = const [],
   bool hasMore = false,
-}) =>
-    DownloadState(active: active, history: history, hasMore: hasMore);
+}) => DownloadState(active: active, history: history, hasMore: hasMore);
 
 class _FakeDownloadNotifier extends DownloadNotifier {
   _FakeDownloadNotifier(this._state);
@@ -49,30 +48,25 @@ class _FakeApplicationController extends ApplicationController {
 }
 
 ApplicationState _appState() => ApplicationState(
-      themeText: 'light',
-      baseColor: 'zinc',
-      primaryColor: 'zinc',
-      themeData: ThemeUtils.getThemeData(MiruThemes.zinc.light),
-      themeMode: ThemeMode.light,
-      language: 'en',
-    );
+  themeText: 'light',
+  baseColor: 'zinc',
+  primaryColor: 'zinc',
+  themeData: ThemeUtils.getThemeData(MiruThemes.zinc.light),
+  themeMode: ThemeMode.light,
+  language: 'en',
+);
 
 Widget _scaffoldFor(Widget child) => FTheme(
-      data: ThemeUtils.getThemeData(MiruThemes.zinc.light),
-      child: MediaQuery(
-        data: const MediaQueryData(size: Size(1280, 800)),
-        child: MaterialApp.router(
-          routerConfig: GoRouter(
-            routes: [
-              GoRoute(
-                path: '/',
-                builder: (context, state) => child,
-              ),
-            ],
-          ),
-        ),
+  data: ThemeUtils.getThemeData(MiruThemes.zinc.light),
+  child: MediaQuery(
+    data: const MediaQueryData(size: Size(1280, 800)),
+    child: MaterialApp.router(
+      routerConfig: GoRouter(
+        routes: [GoRoute(path: '/', builder: (context, state) => child)],
       ),
-    );
+    ),
+  ),
+);
 
 void main() {
   late final String existingPath;
@@ -81,10 +75,9 @@ void main() {
     _seedSettings();
     // Create a real file so the "hide missing files" logic has something that
     // genuinely exists on disk to keep visible.
-    existingPath =
-        File('${Directory.systemTemp.path}/miru_present_${DateTime.now().microsecondsSinceEpoch}.mp4')
-            .absolute
-            .path;
+    existingPath = File(
+      '${Directory.systemTemp.path}/miru_present_${DateTime.now().microsecondsSinceEpoch}.mp4',
+    ).absolute.path;
     File(existingPath).createSync(recursive: true);
   });
 
@@ -98,20 +91,25 @@ void main() {
   // =========================================================================
 
   group('DownloadPageDesktopLayout', () {
-    testWidgets('pinned header shows Download title and clock button',
-        (WidgetTester tester) async {
+    testWidgets('pinned header shows Download title and clock button', (
+      WidgetTester tester,
+    ) async {
       final container = ProviderContainer(
         overrides: [
           downloadProvider.overrideWith(
-            () => _FakeDownloadNotifier(_buildState(active: [
-              proto.DownloadProgress(
-                taskId: 1,
-                title: 'Episode 1',
-                progress: 50,
-                total: 100,
-                status: proto.DownloadStatus.DOWNLOADING,
+            () => _FakeDownloadNotifier(
+              _buildState(
+                active: [
+                  proto.DownloadProgress(
+                    taskId: 1,
+                    title: 'Episode 1',
+                    progress: 50,
+                    total: 100,
+                    status: proto.DownloadStatus.DOWNLOADING,
+                  ),
+                ],
               ),
-            ])),
+            ),
           ),
           applicationControllerProvider.overrideWith(
             () => _FakeApplicationController(_appState()),
@@ -137,8 +135,9 @@ void main() {
       expect(find.byIcon(FLucideIcons.folderOpen), findsWidgets);
     });
 
-    testWidgets('renders active task tiles with history section',
-        (WidgetTester tester) async {
+    testWidgets('renders active task tiles with history section', (
+      WidgetTester tester,
+    ) async {
       final active = [
         proto.DownloadProgress(
           taskId: 1,
@@ -186,19 +185,29 @@ void main() {
       expect(find.text('common.history'.i18n), findsOneWidget);
     });
 
-    testWidgets('drag handles exist for every active task',
-        (WidgetTester tester) async {
+    testWidgets('drag handles exist for every active task', (
+      WidgetTester tester,
+    ) async {
       final active = [
         proto.DownloadProgress(
-          taskId: 1, title: 'A', progress: 10, total: 100,
+          taskId: 1,
+          title: 'A',
+          progress: 10,
+          total: 100,
           status: proto.DownloadStatus.DOWNLOADING,
         ),
         proto.DownloadProgress(
-          taskId: 2, title: 'B', progress: 20, total: 100,
+          taskId: 2,
+          title: 'B',
+          progress: 20,
+          total: 100,
           status: proto.DownloadStatus.PAUSED,
         ),
         proto.DownloadProgress(
-          taskId: 3, title: 'C', progress: 30, total: 100,
+          taskId: 3,
+          title: 'C',
+          progress: 30,
+          total: 100,
           status: proto.DownloadStatus.QUEUED,
         ),
       ];
@@ -226,12 +235,15 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(ReorderableDelayedDragStartListener),
-          findsNWidgets(active.length));
+      expect(
+        find.byType(ReorderableDelayedDragStartListener),
+        findsNWidgets(active.length),
+      );
     });
 
-    testWidgets('shows empty state when no active tasks',
-        (WidgetTester tester) async {
+    testWidgets('shows empty state when no active tasks', (
+      WidgetTester tester,
+    ) async {
       final container = ProviderContainer(
         overrides: [
           downloadProvider.overrideWith(
@@ -260,10 +272,7 @@ void main() {
       // History section header should always be visible.
       expect(find.text('common.history'.i18n), findsOneWidget);
       // History is empty, so the empty history message should show.
-      expect(
-        find.text('download.no_download_history'.i18n),
-        findsOneWidget,
-      );
+      expect(find.text('download.no_download_history'.i18n), findsOneWidget);
     });
   });
 
@@ -272,8 +281,7 @@ void main() {
   // =========================================================================
 
   group('DesktopFinishedDownloadSection', () {
-    testWidgets('renders all history entries',
-        (WidgetTester tester) async {
+    testWidgets('renders all history entries', (WidgetTester tester) async {
       final history = [
         proto.Download(
           id: 10,
@@ -322,8 +330,9 @@ void main() {
       expect(find.byType(DownloadHistoryTile), findsNWidgets(2));
     });
 
-    testWidgets('shows empty state when no download history',
-        (WidgetTester tester) async {
+    testWidgets('shows empty state when no download history', (
+      WidgetTester tester,
+    ) async {
       final container = ProviderContainer(
         overrides: [
           downloadProvider.overrideWith(
@@ -348,10 +357,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(DownloadHistoryTile), findsNothing);
-      expect(
-        find.text('download.no_download_history'.i18n),
-        findsOneWidget,
-      );
+      expect(find.text('download.no_download_history'.i18n), findsOneWidget);
     });
   });
 }

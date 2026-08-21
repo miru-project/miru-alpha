@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -84,7 +84,7 @@ class NetworkView extends ConsumerWidget {
     showFDialog(
       routeStyle: .delta(
         barrierFilter: () =>
-            (animation) => .compose(
+            (context, animation) => .compose(
               outer: .blur(sigmaX: animation * 5, sigmaY: animation * 5),
               inner: ColorFilter.mode(context.theme.colors.barrier, .srcOver),
             ),

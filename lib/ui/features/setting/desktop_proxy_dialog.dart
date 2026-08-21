@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
@@ -29,7 +29,9 @@ class DesktopProxyDialog extends HookWidget {
       style: style,
       animation: animation,
       title: Text('settings.proxy.proxy_settings'.i18n),
-      body: ListView(
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
@@ -87,75 +89,92 @@ class DesktopProxyDialog extends HookWidget {
           ),
           FDivider(),
           if (proxyList.value.isNotEmpty)
-            ...proxyList.value.map((proxy) {
-              final uri = Uri.parse(proxy);
+            Flexible(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 300),
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    ...proxyList.value.map((proxy) {
+                      final uri = Uri.parse(proxy);
 
-              return Padding(
-                padding: .only(bottom: 5),
-                child: FTappable(
-                  onPress: () {
-                    selectedProxy.value = proxy;
-                  },
-                  child: FFocusedOutline(
-                    focused: selectedProxy.value == proxy,
-                    child: MiruCard(
-                      child: Padding(
-                        padding: const .symmetric(vertical: 10, horizontal: 20),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  uri.host,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: context.theme.colors.foreground,
-                                  ),
+                      return Padding(
+                        padding: .only(bottom: 5),
+                        child: FTappable(
+                          onPress: () {
+                            selectedProxy.value = proxy;
+                          },
+                          child: FFocusedOutline(
+                            focused: selectedProxy.value == proxy,
+                            child: MiruCard(
+                              child: Padding(
+                                padding: const .symmetric(
+                                  vertical: 10,
+                                  horizontal: 20,
                                 ),
-                                Spacer(),
-                                FButton.icon(
-                                  variant: .ghost,
-                                  onPress: () {
-                                    proxyList.value.remove(proxy);
-                                    proxyList.value = {...proxyList.value};
-                                    MiruSettings.setSetting(
-                                      SettingKey.proxyList,
-                                      proxyList.value,
-                                    );
-                                  },
-                                  child: Icon(FLucideIcons.trash),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          uri.host,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            color:
+                                                context.theme.colors.foreground,
+                                          ),
+                                        ),
+                                        Spacer(),
+                                        FButton.icon(
+                                          variant: .ghost,
+                                          onPress: () {
+                                            proxyList.value.remove(proxy);
+                                            proxyList.value = {
+                                              ...proxyList.value,
+                                            };
+                                            MiruSettings.setSetting(
+                                              SettingKey.proxyList,
+                                              proxyList.value,
+                                            );
+                                          },
+                                          child: Icon(FLucideIcons.trash),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          uri.scheme.toUpperCase(),
+                                          style: TextStyle(
+                                            fontWeight: .w500,
+                                            // fontSize: 16,
+                                            // color: context.theme.colors.foreground,
+                                          ),
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text('${'common.port'.i18n}:  '),
+                                        Text(
+                                          uri.port.toString(),
+                                          style: TextStyle(
+                                            color:
+                                                context.theme.colors.foreground,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
-                            Row(
-                              children: [
-                                Text(
-                                  uri.scheme.toUpperCase(),
-                                  style: TextStyle(
-                                    fontWeight: .w500,
-                                    // fontSize: 16,
-                                    // color: context.theme.colors.foreground,
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Text('${'common.port'.i18n}:  '),
-                                Text(
-                                  uri.port.toString(),
-                                  style: TextStyle(
-                                    color: context.theme.colors.foreground,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
+                      );
+                    }),
+                  ],
                 ),
-              );
-            })
+              ),
+            )
           else
             Center(child: Text('settings.proxy.no_proxy'.i18n)),
         ],

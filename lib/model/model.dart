@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
     as pb_extension;
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 
 part 'model.g.dart';
 
@@ -40,7 +41,63 @@ ExtensionType stringToExtensionType(String type) {
   }
 }
 
+// The content category used for storage grouping. Maps the extension type
+// to one of video / manga / novel; [ExtensionType.all] maps to unspecified.
+extension ExtensionTypeCategory on ExtensionType {
+  /// The content category used for storage grouping, as a proto enum.
+  /// [ExtensionType.all] has no category and returns
+  /// [proto.DownloadCategory.unspecified].
+  proto.DownloadCategory get category {
+    switch (this) {
+      case ExtensionType.bangumi:
+        return proto.DownloadCategory.video;
+      case ExtensionType.manga:
+        return proto.DownloadCategory.manga;
+      case ExtensionType.fikushon:
+        return proto.DownloadCategory.novel;
+      case ExtensionType.all:
+        return proto.DownloadCategory.unspecified;
+    }
+  }
+}
+
 enum ExtensionWatchBangumiType { hls, mp4, torrent, magnet }
+
+// Maps a raw extension watch type string ("hls", "mp4", "torrent", "magnet")
+// to the download media type proto enum. Unknown/empty values map to
+// [proto.DownloadMediaType.mediaTypeUnspecified] so the backend can infer the
+// type from the URL.
+proto.DownloadMediaType downloadMediaTypeFromString(String type) {
+  switch (type) {
+    case 'hls':
+      return proto.DownloadMediaType.hls;
+    case 'mp4':
+      return proto.DownloadMediaType.mp4;
+    case 'torrent':
+      return proto.DownloadMediaType.torrent;
+    case 'magnet':
+      return proto.DownloadMediaType.magnet;
+    default:
+      return proto.DownloadMediaType.media_type_unspecified;
+  }
+}
+
+// The download media type as a proto enum. This is the single source of truth
+// for mapping a fixed set of media types onto the wire enum.
+extension ExtensionWatchBangumiTypeMedia on ExtensionWatchBangumiType {
+  proto.DownloadMediaType get downloadMedia {
+    switch (this) {
+      case ExtensionWatchBangumiType.hls:
+        return proto.DownloadMediaType.hls;
+      case ExtensionWatchBangumiType.mp4:
+        return proto.DownloadMediaType.mp4;
+      case ExtensionWatchBangumiType.torrent:
+        return proto.DownloadMediaType.torrent;
+      case ExtensionWatchBangumiType.magnet:
+        return proto.DownloadMediaType.magnet;
+    }
+  }
+}
 
 enum ExtensionLogLevel { info, error }
 

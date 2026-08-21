@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/miru_core/event_service.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
@@ -8,6 +8,8 @@ import 'package:miru_alpha/utils/download/download_utils.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
+import 'package:miru_alpha/data/repositories/download_repository.dart';
+import 'package:miru_alpha/data/services/download_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -22,12 +24,17 @@ class DownloadState {
   /// Keys of episodes currently being fetched/resolved before download starts.
   final Set<String> preparingKeys;
 
+  /// Per-category storage usage for the configured download path, including
+  /// in-progress (temp) downloads. Null until the first stats fetch completes.
+  final proto.StorageStats? storageStats;
+
   DownloadState({
     this.history = const [],
     this.active = const [],
     this.page = 1,
     this.hasMore = true,
     this.preparingKeys = const {},
+    this.storageStats,
   });
 
   DownloadState copyWith({
@@ -36,6 +43,7 @@ class DownloadState {
     int? page,
     bool? hasMore,
     Set<String>? preparingKeys,
+    proto.StorageStats? storageStats,
   }) {
     return DownloadState(
       history: history ?? this.history,
@@ -43,6 +51,7 @@ class DownloadState {
       page: page ?? this.page,
       hasMore: hasMore ?? this.hasMore,
       preparingKeys: preparingKeys ?? this.preparingKeys,
+      storageStats: storageStats ?? this.storageStats,
     );
   }
 }
@@ -77,6 +86,10 @@ class DownloadNotifier extends _$DownloadNotifier {
 
   Timer? _pollTimer;
 
+  /// Tracks previous status of each task to detect status transitions.
+  /// Used to detect torrent/magnet download failures.
+  final Map<int, proto.DownloadStatus> _previousStatuses = {};
+
   @override
   AsyncValue<DownloadState> build() {
     _init();
@@ -87,6 +100,30 @@ class DownloadNotifier extends _$DownloadNotifier {
     });
 
     return const AsyncLoading();
+  }
+
+  /// Fetches per-category storage stats (incl. temp) for [downloadPath].
+  /// Returns null when the path is empty or the backend call fails.
+  Future<proto.StorageStats?> _fetchStorageStats(String downloadPath) async {
+    if (downloadPath.isEmpty) return null;
+    try {
+      final repository = DownloadRepository(DownloadService());
+      return await repository.getStorageStats(downloadPath);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Refreshes the cached storage stats from the backend and updates state.
+  Future<void> refreshStorageStats() async {
+    final currentState = state.value;
+    if (currentState == null) return;
+    final downloadPath = MiruSettings.getSettingSync<String>(
+      SettingKey.downloadPath,
+    );
+    final stats = await _fetchStorageStats(downloadPath);
+    final updated = currentState.copyWith(storageStats: stats);
+    if (state.value != null) state = AsyncData(updated);
   }
 
   // ---------------------------------------------------------------------------
@@ -155,12 +192,24 @@ class DownloadNotifier extends _$DownloadNotifier {
     final activeTasks = filterActive(allTasks);
     _userOrderedTaskIds = activeTasks.map((t) => t.taskId).toList();
 
+    // Populate previous statuses to avoid showing toasts for tasks
+    // that were already in a terminal state when the app started.
+    for (final task in allTasks) {
+      _previousStatuses[task.taskId] = task.status;
+    }
+
+    final downloadPath = MiruSettings.getSettingSync<String>(
+      SettingKey.downloadPath,
+    );
+    final stats = await _fetchStorageStats(downloadPath);
+
     state = AsyncData(
       DownloadState(
         history: historyRes.downloads,
         active: activeTasks,
         page: 1,
         hasMore: historyRes.downloads.length >= pageSize,
+        storageStats: stats,
       ),
     );
 
@@ -208,7 +257,55 @@ class DownloadNotifier extends _$DownloadNotifier {
           _processDownload(download);
         }
       }
+
+      // Detect download status transitions and show notifications
+      _handleStatusTransitions(merged);
     });
+  }
+
+  /// Detects download status transitions and shows notifications.
+  /// Called from the stream handler to log and show snackbar when a
+  /// download fails or completes. Handles ALL media types.
+  void _handleStatusTransitions(Iterable<proto.DownloadProgress> tasks) {
+    for (final task in tasks) {
+      final previousStatus = _previousStatuses[task.taskId];
+      _previousStatuses[task.taskId] = task.status;
+
+      // Detect transition to FAILED status
+      if (task.status == proto.DownloadStatus.FAILED &&
+          previousStatus != null &&
+          previousStatus != proto.DownloadStatus.FAILED) {
+        final urlInfo = task.url.isNotEmpty ? task.url : 'N/A';
+        final errorInfo = task.error.isNotEmpty ? task.error : 'Unknown reason';
+        logger.severe(
+          'Download failed: ${task.title} '
+          '(taskId: ${task.taskId}, mediaType: ${task.mediaType})\n'
+          '  URL: $urlInfo\n'
+          '  Reason: $errorInfo',
+        );
+        showSimpleToast(
+          'Failed to download ${task.title}\nURL: $urlInfo\nReason: $errorInfo',
+        );
+      }
+
+      // Detect transition to COMPLETED status
+      if (task.status == proto.DownloadStatus.COMPLETED &&
+          previousStatus != null &&
+          previousStatus != proto.DownloadStatus.COMPLETED) {
+        logger.info(
+          'Download completed: ${task.title} '
+          '(taskId: ${task.taskId}, mediaType: ${task.mediaType})',
+        );
+        showSimpleToast('Finished downloading ${task.title}');
+      }
+    }
+
+    // Clean up entries for tasks no longer in active list
+    final activeIds = tasks.map((t) => t.taskId).toSet();
+    _previousStatuses.keys
+        .where((id) => !activeIds.contains(id))
+        .toList()
+        .forEach(_previousStatuses.remove);
   }
 
   /// Merge [incoming] tasks with the current active state, keeping the higher
@@ -326,7 +423,7 @@ class DownloadNotifier extends _$DownloadNotifier {
       }
 
       // Only HLS downloads need FFmpeg conversion on the frontend
-      final isHls = download.mediaType == 'hls';
+      final isHls = download.mediaType == proto.DownloadMediaType.hls;
 
       // If names is empty but this is an HLS task, try to rebuild the
       // segment list from the segment directory on disk.  After a backend
@@ -452,8 +549,7 @@ class DownloadNotifier extends _$DownloadNotifier {
     _userOrderedTaskIds = orderedTaskIds;
     try {
       await MiruGrpcClient.downloadClient.reorderDownloads(
-        proto.ReorderDownloadsRequest()
-          ..orderedTaskIds.addAll(orderedTaskIds),
+        proto.ReorderDownloadsRequest()..orderedTaskIds.addAll(orderedTaskIds),
       );
     } catch (e) {
       logger.severe('Failed to reorder downloads: $e');
@@ -550,10 +646,7 @@ class DownloadNotifier extends _$DownloadNotifier {
 
   /// Immediately update a task's status in local state so the UI reflects the
   /// action without waiting for the next backend event tick.
-  void _optimisticallyUpdateStatus(
-    int taskId,
-    proto.DownloadStatus newStatus,
-  ) {
+  void _optimisticallyUpdateStatus(int taskId, proto.DownloadStatus newStatus) {
     state.whenData((currentState) {
       final updatedActive = currentState.active.map((task) {
         if (task.taskId == taskId) {
@@ -584,6 +677,12 @@ class DownloadNotifier extends _$DownloadNotifier {
       state.whenData((currentState) {
         state = AsyncData(currentState.copyWith(active: sortedActive));
       });
+
+      // Detect status transitions from poll as well, so
+      // failure/completion toasts fire even when the event stream misses ticks.
+      _handleStatusTransitions(merged);
+      // Storage footprint may have changed (temp -> completed file).
+      refreshStorageStats();
     } catch (e) {
       // Silently ignore — the event stream will eventually catch up.
     }

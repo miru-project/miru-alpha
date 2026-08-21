@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -27,7 +27,9 @@ class _FakeApplicationController extends ApplicationController {
 }
 
 void main() {
-  testWidgets('DownloadView renders correctly', (WidgetTester tester) async {
+  testWidgets('DesktopDownloadView renders correctly', (
+    WidgetTester tester,
+  ) async {
     final downloads = <DomainDownload>[];
 
     final appState = ApplicationState(
@@ -41,8 +43,12 @@ void main() {
 
     final container = ProviderContainer(
       overrides: [
-        downloadViewModelProvider.overrideWith(() => _FakeDownloadViewModel(downloads)),
-        applicationControllerProvider.overrideWith(() => _FakeApplicationController(appState)),
+        downloadViewModelProvider.overrideWith(
+          () => _FakeDownloadViewModel(downloads),
+        ),
+        applicationControllerProvider.overrideWith(
+          () => _FakeApplicationController(appState),
+        ),
       ],
     );
 
@@ -63,7 +69,7 @@ void main() {
                 routes: [
                   GoRoute(
                     path: '/',
-                    builder: (context, state) => const DownloadView(),
+                    builder: (context, state) => const DesktopDownloadView(),
                   ),
                 ],
               ),
@@ -73,7 +79,7 @@ void main() {
       ),
     );
 
-    // DownloadView should build without throwing.
-    expect(find.byType(DownloadView), findsOneWidget);
+    // DesktopDownloadView should build without throwing.
+    expect(find.byType(DesktopDownloadView), findsOneWidget);
   });
 }

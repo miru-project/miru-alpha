@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/model/anilist_model.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -35,7 +35,12 @@ class GlobalSearch extends HookConsumerWidget {
                 onTap: () {
                   context.push(
                     '/search/single/detail',
-                    extra: DetailParam(meta: meta, url: ext.url),
+                    extra: DetailParam(
+                      meta: meta,
+                      url: ext.url,
+                      items: data,
+                      index: index,
+                    ),
                   );
                 },
                 width: 200,
@@ -76,7 +81,12 @@ class GlobalSearch extends HookConsumerWidget {
                   onTap: () {
                     context.push(
                       '/search/single/detail',
-                      extra: DetailParam(meta: meta, url: ext.url),
+                      extra: DetailParam(
+                        meta: meta,
+                        url: ext.url,
+                        items: data,
+                        index: index,
+                      ),
                     );
                   },
                   width: 130,
@@ -102,10 +112,11 @@ class GlobalSearch extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final metaData = ref.watch(searchPageProvider.select((e) => e.metaData));
-    final existedPinnedExtensions = ref.watch(
-      searchPageProvider.select((e) => e.existedPinnedExtensions),
+    final scopePackages = ref.watch(
+      searchPageProvider.select((e) => e.searchScopePackages),
     );
     final listPadding = isMobile ? 0.0 : 70.0;
+    final scopeList = scopePackages.toList();
     return LayoutBuilder(
       builder: (context, constraints) {
         return SizedBox(
@@ -113,19 +124,16 @@ class GlobalSearch extends HookConsumerWidget {
           child: ListView.builder(
             padding: .symmetric(vertical: listPadding),
             itemBuilder: (context, index) {
+              final pkg = scopeList.elementAt(index);
               final snapshot = ref.watch(
                 fetchExtensionSearchLatestProvider.call(
-                  existedPinnedExtensions.elementAt(index),
+                  pkg,
                   1,
                   query: searchQuery,
                 ),
               );
               final meta = metaData
-                  .where(
-                    (ext) =>
-                        ext.packageName ==
-                        existedPinnedExtensions.elementAt(index),
-                  )
+                  .where((ext) => ext.packageName == pkg)
                   .first;
 
               return SizedBox(
@@ -140,7 +148,7 @@ class GlobalSearch extends HookConsumerWidget {
                       onPress: () {
                         context.push(
                           '/search/single',
-                          extra: SearchPageParam(meta: meta),
+                          extra: SearchPageParam(meta: meta, query: searchQuery),
                         );
                       },
                       suffix: Icon(FLucideIcons.chevronRight),
@@ -158,7 +166,7 @@ class GlobalSearch extends HookConsumerWidget {
                 ),
               );
             },
-            itemCount: existedPinnedExtensions.length,
+            itemCount: scopeList.length,
           ),
         );
       },

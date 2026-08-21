@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
+import 'package:miru_alpha/ui/features/search/extension_filter_view.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
 
 class MobileSearchSingleFilterBox extends HookConsumerWidget {
@@ -16,13 +18,13 @@ class MobileSearchSingleFilterBox extends HookConsumerWidget {
   final ExtensionMeta meta;
   final SheetController? sheetController;
 
-  void refresh(WidgetRef ref, String query, String filterJson) {
+  void refresh(WidgetRef ref, String query, proto.FilterSelection? filter) {
     ref.invalidate(
       fetchExtensionSearchLatestProvider.call(
         meta.packageName,
         1,
         query: query,
-        filterJson: filterJson,
+        filter: filter,
       ),
     );
     ref.read(searchPageSingleProviderProvider.notifier).setQuery(query);
@@ -87,7 +89,7 @@ class MobileSearchSingleFilterBox extends HookConsumerWidget {
           },
           hint: 'Search ',
           onSubmit: (value) {
-            refresh(ref, value, state.appliedFilterJson);
+            refresh(ref, value, state.appliedFilter);
           },
         ),
         if (filters.isNotEmpty) ...[
@@ -109,7 +111,7 @@ class MobileSearchSingleFilterBox extends HookConsumerWidget {
                       refresh(
                         ref,
                         updatedState.query,
-                        updatedState.appliedFilterJson,
+                        updatedState.appliedFilter,
                       );
                     },
                     child: Text(
@@ -149,13 +151,14 @@ class MobileSearchSingleFilterBox extends HookConsumerWidget {
     SingleSearchPageState state,
     String key,
   ) {
-    final filter = state.filter[key];
+    final raw = state.filter[key];
+    if (raw == null) return const SizedBox.shrink();
+    final filter = ExtensionFilterView.from(raw);
     final selected = (state.selected[key] ?? []).cast<String>();
-    if (filter == null) return const SizedBox.shrink();
 
     // Enforce selection logic
-    final min = (filter.min == 0) ? 1 : filter.min;
-    final max = (filter.max == 0) ? 1 : filter.max;
+    final min = filter.isSingleSelect ? 1 : filter.min;
+    final max = filter.isSingleSelect ? 1 : filter.max;
     final hasError = min > max;
 
     return Column(
@@ -182,8 +185,8 @@ class MobileSearchSingleFilterBox extends HookConsumerWidget {
             runSpacing: 8,
             children: [
               for (final option
-                  in (filter.options.entries.toList())
-                    ..sort((a, b) => a.key.compareTo(b.key)))
+                  in (filter.options.toList()
+                    ..sort((a, b) => a.key.compareTo(b.key))))
                 () {
                   final isSelected = selected.contains(option.key);
                   return FTappable(
@@ -198,7 +201,7 @@ class MobileSearchSingleFilterBox extends HookConsumerWidget {
                     },
                     child: FBadge(
                       variant: isSelected ? .primary : .outline,
-                      child: Text(option.value),
+                      child: Text(option.label),
                     ),
                   );
                 }(),

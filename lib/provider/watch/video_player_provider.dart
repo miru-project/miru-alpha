@@ -12,7 +12,7 @@ import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dar
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:video_player/video_player.dart';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 part 'video_player_provider.g.dart';
 
 class VideoPlayerTickState {

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -147,7 +147,8 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
                         children: [
                           FButton.icon(
                             variant: FButtonVariant.ghost,
-                            onPress: () => context.push('/home/download/history'),
+                            onPress: () =>
+                                context.push('/home/download/history'),
                             child: const Icon(FLucideIcons.clock),
                           ),
                           const SizedBox(width: 8),
@@ -157,7 +158,8 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
                             ),
                             child: FButton.icon(
                               onPress: () async {
-                                final result = await FilePicker.getDirectoryPath();
+                                final result =
+                                    await FilePicker.getDirectoryPath();
                                 if (result != null) {
                                   MiruSettings.setSettingSync(
                                     SettingKey.downloadPath,
@@ -239,7 +241,10 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
             // -- Active Tasks
             if (activeTasks.isNotEmpty) ...[
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
                 sliver: SliverToBoxAdapter(
                   child: Text(
                     "common.active_tasks".i18n,
@@ -258,16 +263,18 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
                       final oldId = (key as ValueKey<int>).value;
                       final newId = (nextKey as ValueKey<int>?)?.value;
                       final tasks = [...activeTasks];
-                      final oldIndex = tasks.indexWhere((t) => t.taskId == oldId);
+                      final oldIndex = tasks.indexWhere(
+                        (t) => t.taskId == oldId,
+                      );
                       final newIndex = newId == null
                           ? tasks.length - 1
                           : tasks.indexWhere((t) => t.taskId == newId);
                       if (oldIndex < 0 || newIndex < 0) return;
                       final moved = tasks.removeAt(oldIndex);
                       tasks.insert(newIndex, moved);
-                      ref.read(downloadProvider.notifier).reorderActive(
-                            tasks.map((t) => t.taskId).toList(),
-                          );
+                      ref
+                          .read(downloadProvider.notifier)
+                          .reorderActive(tasks.map((t) => t.taskId).toList());
                     },
                     children: [
                       for (final task in activeTasks)
@@ -291,13 +298,19 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
               sliver: SliverToBoxAdapter(
                 child: Text(
                   'common.history'.i18n,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 28,
+                  ),
                 ),
               ),
             ),
             if (history.isEmpty)
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
                 sliver: SliverToBoxAdapter(
                   child: Center(
                     child: EmptyState(
@@ -323,8 +336,9 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
                   sliver: SliverToBoxAdapter(
                     child: Center(
                       child: FButton(
-                        onPress: () =>
-                            ref.read(downloadProvider.notifier).loadMoreHistory(),
+                        onPress: () => ref
+                            .read(downloadProvider.notifier)
+                            .loadMoreHistory(),
                         child: Text("common.load_more".i18n),
                       ),
                     ),
@@ -353,14 +367,11 @@ class DesktopFinishedDownloadSection extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(
-                color: context.theme.colors.border,
-                width: 1,
-              ),
+              bottom: BorderSide(color: context.theme.colors.border, width: 1),
             ),
           ),
           child: Text(
-            "common.downloads_history".i18n,
+            "download.downloads_history".i18n,
             style: context.theme.typography.body.xl2,
           ),
         ),

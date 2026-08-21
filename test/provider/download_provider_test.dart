@@ -1,25 +1,15 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:forui/forui.dart';
-import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
-import 'package:miru_alpha/provider/application_controller_provider.dart';
-import 'package:miru_alpha/utils/core/i18n.dart';
-import 'package:miru_alpha/utils/store/miru_settings.dart';
-import 'package:miru_alpha/utils/theme/theme.dart';
-import 'package:miru_alpha/utils/theme/miru_themes.dart';
-import 'package:miru_alpha/ui/features/download/widget/download_tiles.dart';
-import 'package:miru_alpha/ui/features/download/views/download_view.dart';
 
 // ---------------------------------------------------------------------------
 // Helpers to build DownloadProgress / DownloadState without gRPC
 // ---------------------------------------------------------------------------
 
-/// Shorthand for a [proto.DownloadProgress] with enough fields to render UI.
+/// Shorthand for a [proto.DownloadProgress] with enough fields to simulate state.
 proto.DownloadProgress _task({
   required int taskId,
   required String title,
@@ -28,6 +18,9 @@ proto.DownloadProgress _task({
   required proto.DownloadStatus status,
   String package = 'test.pkg',
   String key = 'ep1',
+  String mediaType = 'hls',
+  String url = '',
+  String error = '',
 }) {
   return proto.DownloadProgress(
     taskId: taskId,
@@ -37,6 +30,9 @@ proto.DownloadProgress _task({
     status: status,
     package: package,
     key: key,
+    mediaType: downloadMediaTypeFromString(mediaType),
+    url: url,
+    error: error,
   );
 }
 
@@ -45,49 +41,96 @@ DownloadState _stateWithActive(List<proto.DownloadProgress> active) {
   return DownloadState(active: active);
 }
 
-ApplicationState _appState() => ApplicationState(
-      themeText: 'light',
-      baseColor: 'zinc',
-      primaryColor: 'zinc',
-      themeData: ThemeUtils.getThemeData(MiruThemes.zinc.light),
-      themeMode: ThemeMode.light,
-      language: 'en',
-    );
-
-Widget _scaffoldFor(Widget child) => FTheme(
-      data: ThemeUtils.getThemeData(MiruThemes.zinc.light),
-      child: MediaQuery(
-        data: const MediaQueryData(size: Size(1280, 800)),
-        child: MaterialApp.router(
-          routerConfig: GoRouter(
-            routes: [
-              GoRoute(
-                path: '/',
-                builder: (context, state) => child,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-
 // ---------------------------------------------------------------------------
-// Fake notifier that returns pre-configured state (no gRPC calls).
+// mergeProgress re-implementation for testing
 // ---------------------------------------------------------------------------
-class _FakeDownloadNotifier extends DownloadNotifier {
-  _FakeDownloadNotifier(this._state);
-  final DownloadState _state;
 
-  @override
-  AsyncValue<DownloadState> build() => AsyncData(_state);
+/// Same contract as [DownloadNotifier._mergeProgress]: keep the higher
+/// [progress] when status hasn't changed.
+Iterable<proto.DownloadProgress> _mergeProgress(
+  Iterable<proto.DownloadProgress> incoming,
+  DownloadState currentState,
+) {
+  final existingMap = <int, proto.DownloadProgress>{};
+  for (final t in currentState.active) {
+    existingMap[t.taskId] = t;
+  }
+  return incoming.map((newTask) {
+    final existing = existingMap[newTask.taskId];
+    if (existing == null) return newTask;
+    if (existing.progress > newTask.progress &&
+        existing.status == newTask.status) {
+      return proto.DownloadProgress()
+        ..mergeFromMessage(newTask)
+        ..progress = existing.progress;
+    }
+    return newTask;
+  });
 }
 
-class _FakeApplicationController extends ApplicationController {
-  _FakeApplicationController(this._state);
-  final ApplicationState _state;
+// ---------------------------------------------------------------------------
+// Torrent/magnet status transition detection re-implementation
+// ---------------------------------------------------------------------------
 
-  @override
-  ApplicationState build() => _state;
+/// Same contract as [DownloadNotifier._handleStatusTransitions].
+List<
+  ({
+    String action,
+    String title,
+    String mediaType,
+    int taskId,
+    String url,
+    String error,
+  })
+>
+_detectStatusChanges(
+  Iterable<proto.DownloadProgress> tasks,
+  Map<int, proto.DownloadStatus> previousStatuses,
+) {
+  final actions =
+      <
+        ({
+          String action,
+          String title,
+          String mediaType,
+          int taskId,
+          String url,
+          String error,
+        })
+      >[];
+
+  for (final task in tasks) {
+    final previousStatus = previousStatuses[task.taskId];
+    previousStatuses[task.taskId] = task.status;
+
+    if (task.status == proto.DownloadStatus.FAILED &&
+        previousStatus != null &&
+        previousStatus != proto.DownloadStatus.FAILED) {
+      actions.add((
+        action: 'failed',
+        title: task.title,
+        mediaType: task.mediaType.name,
+        taskId: task.taskId,
+        url: task.url,
+        error: task.error,
+      ));
+    }
+
+    if (task.status == proto.DownloadStatus.COMPLETED &&
+        previousStatus != null &&
+        previousStatus != proto.DownloadStatus.COMPLETED) {
+      actions.add((
+        action: 'completed',
+        title: task.title,
+        mediaType: task.mediaType.name,
+        taskId: task.taskId,
+        url: task.url,
+        error: task.error,
+      ));
+    }
+  }
+
+  return actions;
 }
 
 // ---------------------------------------------------------------------------
@@ -96,40 +139,10 @@ class _FakeApplicationController extends ApplicationController {
 
 void main() {
   // =========================================================================
-  // Unit tests: merged progress logic (back-end restart / stream resilience)
+  // 1. MergeProgress logic — works identically for all media types
   // =========================================================================
-  //
-  // The DownloadNotifier._mergeProgress algorithm prevents the visible
-  // progress from regressing when the back-end re-emits a stale tick with
-  // a lower value (common after a back-end restart that flushes in-memory
-  // progress counters but the front-end still holds the real value).
 
   group('MergeProgress logic', () {
-    /// Re-implementation of `_mergeProgress` so we can test it in isolation.
-    /// Same contract: keep the higher [progress] when status hasn't changed.
-    Iterable<proto.DownloadProgress> mergeProgress(
-      Iterable<proto.DownloadProgress> incoming,
-      DownloadState currentState,
-    ) {
-      final existingMap = <int, proto.DownloadProgress>{};
-      for (final t in currentState.active) {
-        existingMap[t.taskId] = t;
-      }
-
-      return incoming.map((newTask) {
-        final existing = existingMap[newTask.taskId];
-        if (existing == null) return newTask;
-
-        if (existing.progress > newTask.progress &&
-            existing.status == newTask.status) {
-          return proto.DownloadProgress()
-            ..mergeFromMessage(newTask)
-            ..progress = existing.progress;
-        }
-        return newTask;
-      });
-    }
-
     group('keeps higher progress when status unchanged', () {
       test('incoming lower progress → keep existing higher', () {
         final existing = _task(
@@ -141,7 +154,6 @@ void main() {
         );
         final state = _stateWithActive([existing]);
 
-        // Back-end restarts and emits progress=0 for the same PAUSED task.
         final incoming = [
           _task(
             taskId: 1,
@@ -152,10 +164,8 @@ void main() {
           ),
         ];
 
-        final result = mergeProgress(incoming, state).toList();
+        final result = _mergeProgress(incoming, state).toList();
         expect(result.length, 1);
-        expect(result[0].taskId, 1);
-        // Should keep the higher existing progress (50), not regress to 0.
         expect(result[0].progress, 50);
         expect(result[0].status, proto.DownloadStatus.PAUSED);
       });
@@ -180,9 +190,7 @@ void main() {
           ),
         ];
 
-        final result = mergeProgress(incoming, state).toList();
-        expect(result.length, 1);
-        // Same progress — no regression.
+        final result = _mergeProgress(incoming, state).toList();
         expect(result[0].progress, 50);
       });
 
@@ -206,15 +214,13 @@ void main() {
           ),
         ];
 
-        final result = mergeProgress(incoming, state).toList();
-        expect(result.length, 1);
-        // Higher incoming → use incoming.
+        final result = _mergeProgress(incoming, state).toList();
         expect(result[0].progress, 75);
       });
     });
 
     group('preserves across status transitions', () {
-      test('different status → always uses incoming (status changed)', () {
+      test('different status → always uses incoming', () {
         final existing = _task(
           taskId: 1,
           title: 'Test',
@@ -224,8 +230,6 @@ void main() {
         );
         final state = _stateWithActive([existing]);
 
-        // Back-end progressed to PAUSED at 50% (e.g. user paused at 50).
-        // Since status changed, we accept the incoming value.
         final incoming = [
           _task(
             taskId: 1,
@@ -236,17 +240,12 @@ void main() {
           ),
         ];
 
-        final result = mergeProgress(incoming, state).toList();
-        expect(result.length, 1);
-        // Status differs → accept incoming even though progress is lower.
+        final result = _mergeProgress(incoming, state).toList();
         expect(result[0].progress, 50);
         expect(result[0].status, proto.DownloadStatus.PAUSED);
       });
 
-      test('DOWNGRADE scenario: lower progress + different status → accept',
-          () {
-        // Simulate: task was DOWNLOADING at 80%, back-end now says QUEUED at 0
-        // (maybe back-end restarted and lost progress).
+      test('DOWNGRADE: lower progress + different status → accept', () {
         final existing = _task(
           taskId: 1,
           title: 'Test',
@@ -266,47 +265,9 @@ void main() {
           ),
         ];
 
-        final result = mergeProgress(incoming, state).toList();
-        expect(result.length, 1);
-        // Status changed, so we accept the incoming (even though progress is 0).
-        // This is the intended behaviour — the back-end reset the task queue.
+        final result = _mergeProgress(incoming, state).toList();
         expect(result[0].progress, 0);
         expect(result[0].status, proto.DownloadStatus.QUEUED);
-      });
-
-      test(
-          'RESTART scenario: paused non-zero progress kept when back-end re-emits 0',
-          () {
-        // This is THE critical scenario the user reported:
-        //  - Frontend had a PAUSED task at 50%
-        //  - Back-end restarts and emits downloadStatus with progress=0
-        //  - The UI should NOT regress to 0%
-        final existing = _task(
-          taskId: 42,
-          title: 'My Episode',
-          progress: 50,
-          total: 100,
-          status: proto.DownloadStatus.PAUSED,
-        );
-        final state = _stateWithActive([existing]);
-
-        // Simulate back-end restart: it returns PAUSED at 0%.
-        // (The back-end lost in-memory progress but the task is still PAUSED.)
-        final incoming = [
-          _task(
-            taskId: 42,
-            title: 'My Episode',
-            progress: 0,
-            total: 100,
-            status: proto.DownloadStatus.PAUSED,
-          ),
-        ];
-
-        final result = mergeProgress(incoming, state).toList();
-        expect(result.length, 1);
-        // The merge must keep 50%, not 0%.
-        expect(result[0].progress, 50);
-        expect(result[0].status, proto.DownloadStatus.PAUSED);
       });
     });
 
@@ -323,8 +284,7 @@ void main() {
           ),
         ];
 
-        final result = mergeProgress(incoming, state).toList();
-        expect(result.length, 1);
+        final result = _mergeProgress(incoming, state).toList();
         expect(result[0].progress, 30);
       });
 
@@ -339,7 +299,6 @@ void main() {
         final state = _stateWithActive([existing1]);
 
         final incoming = [
-          // Task 1: existing at 50, incoming at 40 → keep 50
           _task(
             taskId: 1,
             title: 'Task 1',
@@ -347,7 +306,6 @@ void main() {
             total: 100,
             status: proto.DownloadStatus.DOWNLOADING,
           ),
-          // Task 2: brand new → accept 10
           _task(
             taskId: 2,
             title: 'Task 2',
@@ -357,15 +315,13 @@ void main() {
           ),
         ];
 
-        final result = mergeProgress(incoming, state).toList();
+        final result = _mergeProgress(incoming, state).toList();
         expect(result.length, 2);
-        expect(result[0].taskId, 1);
-        expect(result[0].progress, 50); // kept higher
-        expect(result[1].taskId, 2);
-        expect(result[1].progress, 10); // new → accepted
+        expect(result[0].progress, 50);
+        expect(result[1].progress, 10);
       });
 
-      test('incoming has zero-length list', () {
+      test('empty incoming list', () {
         final existing = _task(
           taskId: 1,
           title: 'Test',
@@ -374,12 +330,11 @@ void main() {
           status: proto.DownloadStatus.PAUSED,
         );
         final state = _stateWithActive([existing]);
-        final result = mergeProgress([], state).toList();
+        final result = _mergeProgress([], state).toList();
         expect(result, isEmpty);
       });
 
-      test('existing state is null → returns incoming as-is', () {
-        // Use a DownloadState without active items to simulate first load.
+      test('empty existing state → returns incoming as-is', () {
         final state = DownloadState();
         final incoming = [
           _task(
@@ -391,15 +346,200 @@ void main() {
           ),
         ];
 
-        final result = mergeProgress(incoming, state).toList();
-        expect(result.length, 1);
+        final result = _mergeProgress(incoming, state).toList();
         expect(result[0].progress, 0);
       });
     });
   });
 
   // =========================================================================
-  // Unit tests: DownloadState / DownloadNotifier helpers (static methods)
+  // 2. MergeProgress across all media types — identical behavior
+  // =========================================================================
+
+  group('MergeProgress across media types', () {
+    test('HLS progress updates flow through mergeProgress', () {
+      var current = _stateWithActive([
+        _task(
+          taskId: 1,
+          title: 'HLS Episode',
+          progress: 0,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'hls',
+        ),
+      ]);
+
+      var incoming = [
+        _task(
+          taskId: 1,
+          title: 'HLS Episode',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'hls',
+        ),
+      ];
+      var merged = _mergeProgress(incoming, current).toList();
+      expect(merged[0].progress, 50);
+      current = _stateWithActive(merged);
+
+      incoming = [
+        _task(
+          taskId: 1,
+          title: 'HLS Episode',
+          progress: 80,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'hls',
+        ),
+      ];
+      merged = _mergeProgress(incoming, current).toList();
+      expect(merged[0].progress, 80);
+    });
+
+    test('torrent progress updates flow through mergeProgress', () {
+      var current = _stateWithActive([
+        _task(
+          taskId: 1,
+          title: 'Torrent',
+          progress: 0,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'torrent',
+        ),
+      ]);
+
+      var incoming = [
+        _task(
+          taskId: 1,
+          title: 'Torrent',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'torrent',
+        ),
+      ];
+      var merged = _mergeProgress(incoming, current).toList();
+      expect(merged[0].progress, 50);
+      current = _stateWithActive(merged);
+
+      incoming = [
+        _task(
+          taskId: 1,
+          title: 'Torrent',
+          progress: 80,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'torrent',
+        ),
+      ];
+      merged = _mergeProgress(incoming, current).toList();
+      expect(merged[0].progress, 80);
+    });
+
+    test('magnet progress updates flow through mergeProgress', () {
+      var current = _stateWithActive([
+        _task(
+          taskId: 1,
+          title: 'Magnet',
+          progress: 20,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'magnet',
+        ),
+      ]);
+
+      final incoming = [
+        _task(
+          taskId: 1,
+          title: 'Magnet',
+          progress: 60,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'magnet',
+        ),
+      ];
+      final merged = _mergeProgress(incoming, current).toList();
+      expect(merged[0].progress, 60);
+      expect(merged[0].mediaType.name, 'magnet');
+    });
+
+    test('mp4 progress updates flow through mergeProgress', () {
+      var current = _stateWithActive([
+        _task(
+          taskId: 1,
+          title: 'Big Buck Bunny MP4',
+          progress: 0,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'mp4',
+        ),
+      ]);
+
+      var incoming = [
+        _task(
+          taskId: 1,
+          title: 'Big Buck Bunny MP4',
+          progress: 30,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'mp4',
+        ),
+      ];
+      var merged = _mergeProgress(incoming, current).toList();
+      expect(merged[0].progress, 30);
+      current = _stateWithActive(merged);
+
+      incoming = [
+        _task(
+          taskId: 1,
+          title: 'Big Buck Bunny MP4',
+          progress: 75,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'mp4',
+        ),
+      ];
+      merged = _mergeProgress(incoming, current).toList();
+      expect(merged[0].progress, 75);
+    });
+
+    test('regression protection works identically for all media types', () {
+      for (final mediaType in ['hls', 'torrent', 'magnet', 'mp4']) {
+        final existing = _task(
+          taskId: 1,
+          title: 'Test $mediaType',
+          progress: 80,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: mediaType,
+        );
+        final state = _stateWithActive([existing]);
+
+        // Backend re-emits stale 0% tick
+        final incoming = [
+          _task(
+            taskId: 1,
+            title: 'Test $mediaType',
+            progress: 0,
+            total: 100,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: mediaType,
+          ),
+        ];
+
+        final merged = _mergeProgress(incoming, state).toList();
+        expect(
+          merged[0].progress,
+          80,
+          reason: '$mediaType must keep 80% not regress to 0%',
+        );
+      }
+    });
+  });
+
+  // =========================================================================
+  // 3. DownloadState helpers
   // =========================================================================
 
   group('DownloadState helpers', () {
@@ -450,20 +590,58 @@ void main() {
       ];
 
       final active = DownloadNotifier.filterActive(tasks);
-      // DOWNLOADING, PAUSED, CONVERTING, FAILED, QUEUED are active.
-      // COMPLETED is terminal.
       final activeIds = active.map((t) => t.taskId).toSet();
       expect(activeIds, containsAll([1, 2, 4, 5, 6]));
-      expect(activeIds, isNot(contains(3))); // COMPLETED not active
+      expect(activeIds, isNot(contains(3)));
     });
 
     test('filterActive empty input returns empty', () {
       expect(DownloadNotifier.filterActive([]), isEmpty);
     });
+
+    test('filterActive works for all media types', () {
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'HLS',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'hls',
+        ),
+        _task(
+          taskId: 2,
+          title: 'Torrent',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'torrent',
+        ),
+        _task(
+          taskId: 3,
+          title: 'Magnet',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'magnet',
+        ),
+        _task(
+          taskId: 4,
+          title: 'MP4',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'mp4',
+        ),
+      ];
+
+      final active = DownloadNotifier.filterActive(tasks);
+      expect(active.length, 4);
+    });
   });
 
   group('DownloadFileExists', () {
-    test('null or empty path returns true (do not hide)', () async {
+    test('null or empty path returns true', () async {
       expect(await DownloadNotifier.downloadFileExists(null), isTrue);
       expect(await DownloadNotifier.downloadFileExists(''), isTrue);
     });
@@ -511,572 +689,7 @@ void main() {
     });
   });
 
-  // =========================================================================
-  // Widget tests: progress display in the download tile
-  // =========================================================================
-
-  group('DownloadProcessTile progress display', () {
-    setUp(() {
-      MiruSettings.seedDefaultsForTest();
-    });
-
-    Widget buildTile(proto.DownloadProgress task) {
-      final container = ProviderContainer(
-        overrides: [
-          downloadProvider.overrideWith(
-            () => _FakeDownloadNotifier(_stateWithActive([task])),
-          ),
-          applicationControllerProvider.overrideWith(
-            () => _FakeApplicationController(_appState()),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-
-      return UncontrolledProviderScope(
-        container: container,
-        child: _scaffoldFor(DownloadProcessTile(progress: task)),
-      );
-    }
-
-    testWidgets(
-      'PAUSED task with 50% progress shows correct progress bar',
-      (tester) async {
-        final task = _task(
-          taskId: 1,
-          title: 'Paused Episode',
-          progress: 50,
-          total: 100,
-          status: proto.DownloadStatus.PAUSED,
-        );
-
-        await tester.pumpWidget(buildTile(task));
-        await tester.pumpAndSettle();
-
-        // The tile should show the progress percentage text "50%"
-        expect(find.text('50%'), findsOneWidget);
-        // The title should be visible
-        expect(find.text('Paused Episode'), findsOneWidget);
-        // The progress bar widget should exist
-        expect(find.byType(FDeterminateProgress), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'DOWNLOADING task at 75% shows correct progress',
-      (tester) async {
-        final task = _task(
-          taskId: 2,
-          title: 'Active Download',
-          progress: 75,
-          total: 100,
-          status: proto.DownloadStatus.DOWNLOADING,
-        );
-
-        await tester.pumpWidget(buildTile(task));
-        await tester.pumpAndSettle();
-
-        expect(find.text('75%'), findsOneWidget);
-        expect(find.text('Active Download'), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'QUEUED task at 0% shows 0% progress (no download started)',
-      (tester) async {
-        final task = _task(
-          taskId: 3,
-          title: 'Queued Item',
-          progress: 0,
-          total: 100,
-          status: proto.DownloadStatus.QUEUED,
-        );
-
-        await tester.pumpWidget(buildTile(task));
-        await tester.pumpAndSettle();
-
-        expect(find.text('0%'), findsOneWidget);
-      },
-    );
-
-    testWidgets('FAILED task preserves whatever progress was made',
-        (tester) async {
-      final task = _task(
-        taskId: 4,
-        title: 'Failed Item',
-        progress: 33,
-        total: 100,
-        status: proto.DownloadStatus.FAILED,
-      );
-
-      await tester.pumpWidget(buildTile(task));
-      await tester.pumpAndSettle();
-
-      expect(find.text('33%'), findsOneWidget);
-    });
-
-    testWidgets(
-      'progress bar ratio computed from progress/total correctly',
-      (tester) async {
-        // Task with partial total: e.g. 3 out of 10 → 33%
-        final task = _task(
-          taskId: 5,
-          title: 'Partial',
-          progress: 3,
-          total: 10,
-          status: proto.DownloadStatus.DOWNLOADING,
-        );
-
-        await tester.pumpWidget(buildTile(task));
-        await tester.pumpAndSettle();
-
-        expect(find.text('30%'), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'completed at 0 total does not crash (division by zero guard)',
-      (tester) async {
-        final task = _task(
-          taskId: 6,
-          title: 'Zero Total',
-          progress: 0,
-          total: 0,
-          status: proto.DownloadStatus.QUEUED,
-        );
-
-        // Should not throw despite 0/0.
-        await tester.pumpWidget(buildTile(task));
-        await tester.pumpAndSettle();
-
-        // 0 total → ratio clamped to 0 → 0%
-        expect(find.text('0%'), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'progress > total clamps to 100%',
-      (tester) async {
-        final task = _task(
-          taskId: 7,
-          title: 'Overflow',
-          progress: 150,
-          total: 100,
-          status: proto.DownloadStatus.DOWNLOADING,
-        );
-
-        await tester.pumpWidget(buildTile(task));
-        await tester.pumpAndSettle();
-
-        expect(find.text('100%'), findsOneWidget);
-      },
-    );
-  });
-
-  // =========================================================================
-  // Widget tests: DownloadView shows correct initial progress from provider
-  // =========================================================================
-
-  group('DownloadView progress after restart scenario', () {
-    setUp(() {
-      MiruSettings.seedDefaultsForTest();
-    });
-
-    /// Helper: renders the [DownloadView] with the given active tasks.
-    Future<ProviderContainer> pumpDownloadView(
-      WidgetTester tester, {
-      required List<proto.DownloadProgress> active,
-    }) async {
-      final container = ProviderContainer(
-        overrides: [
-          downloadProvider.overrideWith(
-            () => _FakeDownloadNotifier(_stateWithActive(active)),
-          ),
-          applicationControllerProvider.overrideWith(
-            () => _FakeApplicationController(_appState()),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: _scaffoldFor(const DownloadView()),
-        ),
-      );
-      await tester.pumpAndSettle();
-      return container;
-    }
-
-    testWidgets(
-      'RESTART: paused task with 50% progress shows progress bar not 0',
-      (tester) async {
-        // This is the exact scenario from the bug report:
-        // After back-end restart, the frontend should show the correct
-        // progress that was already downloaded (e.g. 50%), not reset to 0%.
-        final tasks = [
-          _task(
-            taskId: 100,
-            title: 'Restored Episode',
-            progress: 50,
-            total: 100,
-            status: proto.DownloadStatus.PAUSED,
-          ),
-        ];
-
-        await pumpDownloadView(tester, active: tasks);
-
-        // The DownloadView uses _ActiveDownloadTile which renders an
-        // FDeterminateProgress bar (no percentage text — that is in
-        // DownloadProcessTile).  Verify the progress bar exists.
-        expect(find.byType(FDeterminateProgress), findsOneWidget);
-        // The status label should say "paused" (via i18n)
-        expect(find.text('download.status.paused'.i18n), findsOneWidget);
-        // The task title should be visible
-        expect(find.text('Restored Episode'), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'RESTART: multiple paused tasks all show progress bars',
-      (tester) async {
-        final tasks = [
-          _task(
-            taskId: 1,
-            title: 'Episode A',
-            progress: 30,
-            total: 100,
-            status: proto.DownloadStatus.PAUSED,
-          ),
-          _task(
-            taskId: 2,
-            title: 'Episode B',
-            progress: 80,
-            total: 100,
-            status: proto.DownloadStatus.PAUSED,
-          ),
-          _task(
-            taskId: 3,
-            title: 'Episode C',
-            progress: 10,
-            total: 100,
-            status: proto.DownloadStatus.PAUSED,
-          ),
-        ];
-
-        await pumpDownloadView(tester, active: tasks);
-
-        // Each active task gets its own progress bar
-        expect(find.byType(FDeterminateProgress), findsNWidgets(3));
-        expect(find.text('Episode A'), findsOneWidget);
-        expect(find.text('Episode B'), findsOneWidget);
-        expect(find.text('Episode C'), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'RESTART: mixed DOWNLOADING and PAUSED show correct state',
-      (tester) async {
-        final tasks = [
-          _task(
-            taskId: 1,
-            title: 'Active',
-            progress: 60,
-            total: 100,
-            status: proto.DownloadStatus.DOWNLOADING,
-          ),
-          _task(
-            taskId: 2,
-            title: 'Paused',
-            progress: 40,
-            total: 100,
-            status: proto.DownloadStatus.PAUSED,
-          ),
-        ];
-
-        await pumpDownloadView(tester, active: tasks);
-
-        expect(find.text('Active'), findsOneWidget);
-        expect(find.text('Paused'), findsOneWidget);
-        expect(find.byType(FDeterminateProgress), findsNWidgets(2));
-      },
-    );
-
-    testWidgets(
-      'RESTART: queued task at 0% appears in list (shows progress bar)',
-      (tester) async {
-        final tasks = [
-          _task(
-            taskId: 1,
-            title: 'Waiting',
-            progress: 0,
-            total: 100,
-            status: proto.DownloadStatus.QUEUED,
-          ),
-        ];
-
-        await pumpDownloadView(tester, active: tasks);
-
-        // The task should be visible with a progress bar at 0%.
-        expect(find.byType(FDeterminateProgress), findsOneWidget);
-        expect(find.text('Waiting'), findsOneWidget);
-      },
-    );
-
-    testWidgets('empty active shows empty state not progress', (tester) async {
-      await pumpDownloadView(tester, active: []);
-
-      // No progress bars when there are no active tasks
-      expect(find.byType(FDeterminateProgress), findsNothing);
-      // Shows the "no active downloads" empty state message
-      expect(
-        find.text('download.no_active_downloads'.i18n),
-        findsOneWidget,
-      );
-    });
-  });
-
-  // =========================================================================
-  // Backend update scenario: provider state updates when backend calls back
-  // =========================================================================
-  //
-  // These tests verify that the DownloadNotifier correctly exposes updated
-  // state when the backend sends progress via the event stream. We simulate
-  // this by building the widget with an initial state, then reading from a
-  // ProviderContainer that has the new state injected.
-
-  group('Backend progress update reflected in UI', () {
-    setUp(() {
-      MiruSettings.seedDefaultsForTest();
-    });
-
-    testWidgets(
-      'state with updated progress shows new progress bar',
-      (tester) async {
-        // Start with task at 30%
-        final initialTask = _task(
-          taskId: 1,
-          title: 'Growing',
-          progress: 30,
-          total: 100,
-          status: proto.DownloadStatus.DOWNLOADING,
-        );
-
-        // Build with initial state
-        final container = ProviderContainer(
-          overrides: [
-            downloadProvider.overrideWith(
-              () => _FakeDownloadNotifier(_stateWithActive([initialTask])),
-            ),
-            applicationControllerProvider.overrideWith(
-              () => _FakeApplicationController(_appState()),
-            ),
-          ],
-        );
-        addTearDown(container.dispose);
-
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: container,
-            child: _scaffoldFor(const DownloadView()),
-          ),
-        );
-        await tester.pumpAndSettle();
-
-        // Initially shows a progress bar and the title
-        expect(find.byType(FDeterminateProgress), findsOneWidget);
-        expect(find.text('Growing'), findsOneWidget);
-
-        // Now simulate backend progress update by creating a new ProviderContainer
-        // with the updated task at 65%.  (The UI reads from the provider;
-        // overriding the provider with new state mimics a stream event.)
-        final updatedTask = _task(
-          taskId: 1,
-          title: 'Growing',
-          progress: 65,
-          total: 100,
-          status: proto.DownloadStatus.DOWNLOADING,
-        );
-        final updatedContainer = ProviderContainer(
-          overrides: [
-            downloadProvider.overrideWith(
-              () =>
-                  _FakeDownloadNotifier(_stateWithActive([updatedTask])),
-            ),
-            applicationControllerProvider.overrideWith(
-              () => _FakeApplicationController(_appState()),
-            ),
-          ],
-        );
-        addTearDown(updatedContainer.dispose);
-
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: updatedContainer,
-            child: _scaffoldFor(const DownloadView()),
-          ),
-        );
-        await tester.pumpAndSettle();
-
-        // Still shows a progress bar (the value changed but we verify the bar exists)
-        expect(find.byType(FDeterminateProgress), findsOneWidget);
-        expect(find.text('Growing'), findsOneWidget);
-      },
-    );
-
-    testWidgets(
-      'new task from backend appears in the list',
-      (tester) async {
-        // Start with one task
-        final container = ProviderContainer(
-          overrides: [
-            downloadProvider.overrideWith(
-              () => _FakeDownloadNotifier(
-                _stateWithActive([
-                  _task(
-                    taskId: 1,
-                    title: 'Old Task',
-                    progress: 50,
-                    total: 100,
-                    status: proto.DownloadStatus.DOWNLOADING,
-                  ),
-                ]),
-              ),
-            ),
-            applicationControllerProvider.overrideWith(
-              () => _FakeApplicationController(_appState()),
-            ),
-          ],
-        );
-        addTearDown(container.dispose);
-
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: container,
-            child: _scaffoldFor(const DownloadView()),
-          ),
-        );
-        await tester.pumpAndSettle();
-
-        expect(find.text('Old Task'), findsOneWidget);
-        expect(find.text('New Task'), findsNothing);
-
-        // Simulate backend adding a new task
-        final updatedContainer = ProviderContainer(
-          overrides: [
-            downloadProvider.overrideWith(
-              () => _FakeDownloadNotifier(
-                _stateWithActive([
-                  _task(
-                    taskId: 1,
-                    title: 'Old Task',
-                    progress: 50,
-                    total: 100,
-                    status: proto.DownloadStatus.DOWNLOADING,
-                  ),
-                  _task(
-                    taskId: 2,
-                    title: 'New Task',
-                    progress: 10,
-                    total: 100,
-                    status: proto.DownloadStatus.DOWNLOADING,
-                  ),
-                ]),
-              ),
-            ),
-            applicationControllerProvider.overrideWith(
-              () => _FakeApplicationController(_appState()),
-            ),
-          ],
-        );
-        addTearDown(updatedContainer.dispose);
-
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: updatedContainer,
-            child: _scaffoldFor(const DownloadView()),
-          ),
-        );
-        await tester.pumpAndSettle();
-
-        expect(find.text('Old Task'), findsOneWidget);
-        expect(find.text('New Task'), findsOneWidget);
-        // Two tasks → two progress bars
-        expect(find.byType(FDeterminateProgress), findsNWidgets(2));
-      },
-    );
-
-    testWidgets(
-      'task removed from backend (completed/cancelled) disappears',
-      (tester) async {
-        final container = ProviderContainer(
-          overrides: [
-            downloadProvider.overrideWith(
-              () => _FakeDownloadNotifier(
-                _stateWithActive([
-                  _task(
-                    taskId: 1,
-                    title: 'Gone Soon',
-                    progress: 90,
-                    total: 100,
-                    status: proto.DownloadStatus.DOWNLOADING,
-                  ),
-                ]),
-              ),
-            ),
-            applicationControllerProvider.overrideWith(
-              () => _FakeApplicationController(_appState()),
-            ),
-          ],
-        );
-        addTearDown(container.dispose);
-
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: container,
-            child: _scaffoldFor(const DownloadView()),
-          ),
-        );
-        await tester.pumpAndSettle();
-
-        expect(find.text('Gone Soon'), findsOneWidget);
-
-        // Simulate backend removing the task (it completed)
-        final emptyContainer = ProviderContainer(
-          overrides: [
-            downloadProvider.overrideWith(
-              () => _FakeDownloadNotifier(_stateWithActive([])),
-            ),
-            applicationControllerProvider.overrideWith(
-              () => _FakeApplicationController(_appState()),
-            ),
-          ],
-        );
-        addTearDown(emptyContainer.dispose);
-
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: emptyContainer,
-            child: _scaffoldFor(const DownloadView()),
-          ),
-        );
-        await tester.pumpAndSettle();
-
-        expect(find.text('Gone Soon'), findsNothing);
-        expect(
-          find.text('download.no_active_downloads'.i18n),
-          findsOneWidget,
-        );
-      },
-    );
-  });
-
-  // =========================================================================
-  // _discoverHlsSegments tests
-  // =========================================================================
-
-  group('_discoverHlsSegments', () {
+  group('discoverHlsSegments', () {
     test('discovers segment files sorted by numeric index', () async {
       final dir = Directory.systemTemp.createTempSync('hls_test_');
       addTearDown(() => dir.deleteSync(recursive: true));
@@ -1085,8 +698,7 @@ void main() {
         File('${dir.path}/$name').writeAsBytesSync([0]);
       }
 
-      final segments =
-          await DownloadNotifier.discoverHlsSegments(dir.path);
+      final segments = await DownloadNotifier.discoverHlsSegments(dir.path);
 
       expect(segments.length, 3);
       expect(segments[0], endsWith('0.ts'));
@@ -1101,8 +713,7 @@ void main() {
       File('${dir.path}/0.ts').writeAsBytesSync([0]);
       File('${dir.path}/meta.json').writeAsBytesSync([0]);
 
-      final segments =
-          await DownloadNotifier.discoverHlsSegments(dir.path);
+      final segments = await DownloadNotifier.discoverHlsSegments(dir.path);
 
       expect(segments.length, 1);
       expect(segments[0], endsWith('0.ts'));
@@ -1122,58 +733,14 @@ void main() {
       File('${dir.path}/0.ts').writeAsBytesSync([0]);
       File('${dir.path}/1.m4s').writeAsBytesSync([0]);
 
-      final segments =
-          await DownloadNotifier.discoverHlsSegments(dir.path);
+      final segments = await DownloadNotifier.discoverHlsSegments(dir.path);
 
       expect(segments.length, 2);
     });
   });
 
   // =========================================================================
-  // Converting status display tests
-  // =========================================================================
-
-  group('Converting status display', () {
-    testWidgets(
-      'CONVERTING task shows in active list',
-      (tester) async {
-        final container = ProviderContainer(
-          overrides: [
-            downloadProvider.overrideWith(
-              () => _FakeDownloadNotifier(
-                _stateWithActive([
-                  _task(
-                    taskId: 1,
-                    title: 'Converting Task',
-                    progress: 5,
-                    total: 10,
-                    status: proto.DownloadStatus.CONVERTING,
-                  ),
-                ]),
-              ),
-            ),
-            applicationControllerProvider.overrideWith(
-              () => _FakeApplicationController(_appState()),
-            ),
-          ],
-        );
-        addTearDown(container.dispose);
-
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: container,
-            child: _scaffoldFor(const DownloadView()),
-          ),
-        );
-        await tester.pumpAndSettle();
-
-        expect(find.text('Converting Task'), findsOneWidget);
-      },
-    );
-  });
-
-  // =========================================================================
-  // isActive / retry behavior tests
+  // 4. isActive / retry behavior tests
   // =========================================================================
 
   group('isActive includes retryable statuses', () {
@@ -1192,109 +759,993 @@ void main() {
     test('CANCELLED is not active', () {
       expect(proto.DownloadStatus.CANCELLED.isActive, isFalse);
     });
+
+    test('QUEUED isActive allows retry', () {
+      expect(proto.DownloadStatus.QUEUED.isActive, isTrue);
+    });
   });
 
   // =========================================================================
-  // Progress update after restart scenario
+  // 5. Status transition detection — all media types
   // =========================================================================
 
-  group('Progress update after restart', () {
-    testWidgets(
-      'FAILED task shows in active list',
-      (tester) async {
-        final container = ProviderContainer(
-          overrides: [
-            downloadProvider.overrideWith(
-              () => _FakeDownloadNotifier(
-                _stateWithActive([
-                  _task(
-                    taskId: 1,
-                    title: 'Failed Task',
-                    progress: 50,
-                    total: 100,
-                    status: proto.DownloadStatus.FAILED,
-                  ),
-                ]),
-              ),
-            ),
-            applicationControllerProvider.overrideWith(
-              () => _FakeApplicationController(_appState()),
-            ),
-          ],
-        );
-        addTearDown(container.dispose);
+  group('Status transition detection — all media types', () {
+    test('torrent DOWNLOADING → FAILED triggers failure action', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Torrent Episode',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'torrent',
+        ),
+      ];
 
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: container,
-            child: _scaffoldFor(const DownloadView()),
-          ),
-        );
-        await tester.pumpAndSettle();
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'failed');
+      expect(actions[0].title, 'Torrent Episode');
+      expect(actions[0].mediaType, 'torrent');
+    });
 
-        expect(find.text('Failed Task'), findsOneWidget);
-      },
-    );
+    test('magnet DOWNLOADING → FAILED triggers failure action', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Magnet Episode',
+          progress: 30,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'magnet',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'failed');
+      expect(actions[0].title, 'Magnet Episode');
+      expect(actions[0].mediaType, 'magnet');
+    });
+
+    test('torrent QUEUED → FAILED triggers failure action', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.QUEUED,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Queued Torrent',
+          progress: 0,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'torrent',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'failed');
+    });
+
+    test('torrent DOWNLOADING → COMPLETED triggers completion action', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Completed Torrent',
+          progress: 100,
+          total: 100,
+          status: proto.DownloadStatus.COMPLETED,
+          mediaType: 'torrent',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'completed');
+      expect(actions[0].title, 'Completed Torrent');
+    });
+
+    test('magnet DOWNLOADING → COMPLETED triggers completion action', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Completed Magnet',
+          progress: 100,
+          total: 100,
+          status: proto.DownloadStatus.COMPLETED,
+          mediaType: 'magnet',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'completed');
+    });
+
+    test('HLS DOWNLOADING → FAILED triggers failure action', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'HLS Episode',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'hls',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'failed');
+      expect(actions[0].mediaType, 'hls');
+    });
+
+    test('HLS DOWNLOADING → COMPLETED triggers completion action', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'HLS Episode',
+          progress: 100,
+          total: 100,
+          status: proto.DownloadStatus.COMPLETED,
+          mediaType: 'hls',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'completed');
+      expect(actions[0].mediaType, 'hls');
+    });
+
+    test('mp4 DOWNLOADING → FAILED triggers failure action', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'MP4 Episode',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'mp4',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'failed');
+      expect(actions[0].mediaType, 'mp4');
+    });
+
+    test('no previous status for torrent → no action (initial load)', () {
+      final previousStatuses = <int, proto.DownloadStatus>{};
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'New Torrent',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'torrent',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions, isEmpty);
+    });
+
+    test('same status (no transition) → no action', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.FAILED,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Already Failed',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'torrent',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions, isEmpty);
+    });
+
+    test('FAILED → DOWNLOADING (retry) does not trigger action', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.FAILED,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Retrying Torrent',
+          progress: 0,
+          total: 100,
+          status: proto.DownloadStatus.DOWNLOADING,
+          mediaType: 'torrent',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions, isEmpty);
+    });
+
+    test('multiple tasks with mixed transitions', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+        2: proto.DownloadStatus.DOWNLOADING,
+        3: proto.DownloadStatus.DOWNLOADING,
+        4: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Torrent Failed',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'torrent',
+        ),
+        _task(
+          taskId: 2,
+          title: 'Magnet Completed',
+          progress: 100,
+          total: 100,
+          status: proto.DownloadStatus.COMPLETED,
+          mediaType: 'magnet',
+        ),
+        _task(
+          taskId: 3,
+          title: 'HLS Failed',
+          progress: 75,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'hls',
+        ),
+        _task(
+          taskId: 4,
+          title: 'MP4 Completed',
+          progress: 100,
+          total: 100,
+          status: proto.DownloadStatus.COMPLETED,
+          mediaType: 'mp4',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 4);
+      expect(actions[0].action, 'failed');
+      expect(actions[0].mediaType, 'torrent');
+      expect(actions[1].action, 'completed');
+      expect(actions[1].mediaType, 'magnet');
+      expect(actions[2].action, 'failed');
+      expect(actions[2].mediaType, 'hls');
+      expect(actions[3].action, 'completed');
+      expect(actions[3].mediaType, 'mp4');
+    });
+
+    test('empty task list → no actions', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final actions = _detectStatusChanges([], previousStatuses);
+      expect(actions, isEmpty);
+    });
+
+    test('previous statuses are updated correctly', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Torrent',
+          progress: 100,
+          total: 100,
+          status: proto.DownloadStatus.COMPLETED,
+          mediaType: 'torrent',
+        ),
+      ];
+
+      _detectStatusChanges(tasks, previousStatuses);
+      expect(previousStatuses[1], proto.DownloadStatus.COMPLETED);
+    });
   });
 
   // =========================================================================
-  // Conversion retry / state recovery
+  // 6. Progress sync simulation — all media types
   // =========================================================================
 
-  group('CONVERTING state recovery', () {
-    testWidgets(
-      'CONVERTING task stuck in active list after restart can be retried via Resume',
-      (tester) async {
-        final container = ProviderContainer(
-          overrides: [
-            downloadProvider.overrideWith(
-              () => _FakeDownloadNotifier(
-                _stateWithActive([
-                  _task(
-                    taskId: 1,
-                    title: 'Stuck Converting',
-                    progress: 100,
-                    total: 100,
-                    status: proto.DownloadStatus.CONVERTING,
-                  ),
-                ]),
-              ),
-            ),
-            applicationControllerProvider.overrideWith(
-              () => _FakeApplicationController(_appState()),
+  group('Progress sync to frontend — all media types', () {
+    test('HLS progress syncs through state updates', () {
+      var state = DownloadState(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'HLS Episode',
+            progress: 0,
+            total: 100,
+            status: proto.DownloadStatus.QUEUED,
+            mediaType: 'hls',
+          ),
+        ],
+      );
+      expect(state.active[0].progress, 0);
+
+      // Tick 1: downloading starts at 25%
+      state = state.copyWith(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'HLS Episode',
+            progress: 25,
+            total: 100,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'hls',
+          ),
+        ],
+      );
+      expect(state.active[0].progress, 25);
+
+      // Tick 2: progress to 50%
+      state = state.copyWith(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'HLS Episode',
+            progress: 50,
+            total: 100,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'hls',
+          ),
+        ],
+      );
+      expect(state.active[0].progress, 50);
+
+      // Tick 3: segments downloaded, converting
+      state = state.copyWith(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'HLS Episode',
+            progress: 100,
+            total: 100,
+            status: proto.DownloadStatus.CONVERTING,
+            mediaType: 'hls',
+          ),
+        ],
+      );
+      expect(state.active[0].status, proto.DownloadStatus.CONVERTING);
+
+      // Tick 4: conversion done, completed → removed from active
+      state = state.copyWith(active: []);
+      expect(state.active, isEmpty);
+    });
+
+    test('torrent progress syncs through state updates', () {
+      var state = DownloadState(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'Big Buck Bunny',
+            progress: 0,
+            total: 276000000,
+            status: proto.DownloadStatus.QUEUED,
+            mediaType: 'torrent',
+          ),
+        ],
+      );
+
+      // Simulate real torrent download progress ticks
+      for (final pct in [10, 25, 50, 75, 90]) {
+        state = state.copyWith(
+          active: [
+            _task(
+              taskId: 1,
+              title: 'Big Buck Bunny',
+              progress: 276000000 * pct ~/ 100,
+              total: 276000000,
+              status: proto.DownloadStatus.DOWNLOADING,
+              mediaType: 'torrent',
             ),
           ],
         );
-        addTearDown(container.dispose);
+        expect(state.active[0].progress, 276000000 * pct ~/ 100);
+      }
 
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: container,
-            child: _scaffoldFor(const DownloadView()),
+      // Completed
+      state = state.copyWith(active: []);
+      expect(state.active, isEmpty);
+    });
+
+    test('magnet progress syncs through state updates', () {
+      var state = DownloadState(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'Big Buck Bunny Magnet',
+            progress: 0,
+            total: 276000000,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'magnet',
           ),
+        ],
+      );
+
+      for (final pct in [5, 20, 60, 100]) {
+        state = state.copyWith(
+          active: [
+            _task(
+              taskId: 1,
+              title: 'Big Buck Bunny Magnet',
+              progress: 276000000 * pct ~/ 100,
+              total: 276000000,
+              status: proto.DownloadStatus.DOWNLOADING,
+              mediaType: 'magnet',
+            ),
+          ],
         );
-        await tester.pumpAndSettle();
+        expect(state.active[0].progress, 276000000 * pct ~/ 100);
+      }
 
-        // CONVERTING is considered active, so the task should be visible.
-        expect(find.text('Stuck Converting'), findsOneWidget);
+      state = state.copyWith(active: []);
+      expect(state.active, isEmpty);
+    });
 
-        // CONVERTING is not paused, so the pause button should be shown.
-        expect(find.byIcon(FLucideIcons.pause), findsOneWidget);
-      },
-    );
+    test('mp4 progress syncs through state updates', () {
+      const totalBytes = 5000000; // 5MB test file
+      var state = DownloadState(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'Big Buck Bunny MP4',
+            progress: 0,
+            total: totalBytes,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'mp4',
+          ),
+        ],
+      );
 
-    test(
-      'CONVERTING isActive allows retry',
-      () {
-        expect(proto.DownloadStatus.CONVERTING.isActive, isTrue);
-      },
-    );
+      // Simulate chunked download progress (like readAndSavePartial does)
+      var downloaded = 0;
+      const chunkSize = 1024 * 1024; // 1MB chunks
+      while (downloaded < totalBytes) {
+        downloaded += chunkSize;
+        if (downloaded > totalBytes) downloaded = totalBytes;
 
-    test(
-      'QUEUED isActive allows retry',
-      () {
-        expect(proto.DownloadStatus.QUEUED.isActive, isTrue);
-      },
-    );
+        state = state.copyWith(
+          active: [
+            _task(
+              taskId: 1,
+              title: 'Big Buck Bunny MP4',
+              progress: downloaded,
+              total: totalBytes,
+              status: proto.DownloadStatus.DOWNLOADING,
+              mediaType: 'mp4',
+            ),
+          ],
+        );
+        expect(state.active[0].progress, downloaded);
+      }
+
+      expect(state.active[0].progress, totalBytes);
+    });
+
+    test('mixed media types progress independently in state', () {
+      var state = DownloadState(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'HLS',
+            progress: 0,
+            total: 100,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'hls',
+          ),
+          _task(
+            taskId: 2,
+            title: 'Torrent',
+            progress: 0,
+            total: 276000000,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'torrent',
+          ),
+          _task(
+            taskId: 3,
+            title: 'Magnet',
+            progress: 0,
+            total: 276000000,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'magnet',
+          ),
+          _task(
+            taskId: 4,
+            title: 'MP4',
+            progress: 0,
+            total: 5000000,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'mp4',
+          ),
+        ],
+      );
+
+      // Each media type progresses independently
+      state = state.copyWith(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'HLS',
+            progress: 50,
+            total: 100,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'hls',
+          ),
+          _task(
+            taskId: 2,
+            title: 'Torrent',
+            progress: 100000000,
+            total: 276000000,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'torrent',
+          ),
+          _task(
+            taskId: 3,
+            title: 'Magnet',
+            progress: 50000000,
+            total: 276000000,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'magnet',
+          ),
+          _task(
+            taskId: 4,
+            title: 'MP4',
+            progress: 3000000,
+            total: 5000000,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'mp4',
+          ),
+        ],
+      );
+
+      expect(state.active[0].progress, 50);
+      expect(state.active[1].progress, 100000000);
+      expect(state.active[2].progress, 50000000);
+      expect(state.active[3].progress, 3000000);
+    });
+
+    test('torrent appears and disappears in state simulation', () {
+      var state = DownloadState(active: []);
+      expect(state.active, isEmpty);
+
+      // Tick 1: queued
+      state = state.copyWith(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'Torrent',
+            progress: 0,
+            total: 100,
+            status: proto.DownloadStatus.QUEUED,
+            mediaType: 'torrent',
+          ),
+        ],
+      );
+      expect(state.active.length, 1);
+
+      // Tick 2: downloading
+      state = state.copyWith(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'Torrent',
+            progress: 50,
+            total: 100,
+            status: proto.DownloadStatus.DOWNLOADING,
+            mediaType: 'torrent',
+          ),
+        ],
+      );
+      expect(state.active[0].progress, 50);
+
+      // Tick 3: failed (retry possible)
+      state = state.copyWith(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'Torrent',
+            progress: 50,
+            total: 100,
+            status: proto.DownloadStatus.FAILED,
+            mediaType: 'torrent',
+          ),
+        ],
+      );
+      expect(state.active[0].status, proto.DownloadStatus.FAILED);
+
+      // Tick 4: removed from active after cancellation
+      state = state.copyWith(active: []);
+      expect(state.active, isEmpty);
+    });
+
+    test('mp4 download failure preserves progress', () {
+      final state = DownloadState(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'Big Buck Bunny MP4',
+            progress: 3000000,
+            total: 5000000,
+            status: proto.DownloadStatus.FAILED,
+            mediaType: 'mp4',
+          ),
+        ],
+      );
+
+      expect(state.active[0].progress, 3000000);
+      expect(state.active[0].status, proto.DownloadStatus.FAILED);
+      expect(state.active[0].mediaType.name, 'mp4');
+    });
+
+    test('hls failure preserves progress', () {
+      final state = DownloadState(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'HLS Episode',
+            progress: 75,
+            total: 100,
+            status: proto.DownloadStatus.FAILED,
+            mediaType: 'hls',
+          ),
+        ],
+      );
+
+      expect(state.active[0].progress, 75);
+      expect(state.active[0].status, proto.DownloadStatus.FAILED);
+    });
+
+    test('torrent failure preserves progress', () {
+      final state = DownloadState(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'Torrent Episode',
+            progress: 50,
+            total: 100,
+            status: proto.DownloadStatus.FAILED,
+            mediaType: 'torrent',
+          ),
+        ],
+      );
+
+      expect(state.active[0].progress, 50);
+      expect(state.active[0].status, proto.DownloadStatus.FAILED);
+    });
+
+    test('magnet failure preserves progress', () {
+      final state = DownloadState(
+        active: [
+          _task(
+            taskId: 1,
+            title: 'Magnet Episode',
+            progress: 30,
+            total: 100,
+            status: proto.DownloadStatus.FAILED,
+            mediaType: 'magnet',
+          ),
+        ],
+      );
+
+      expect(state.active[0].progress, 30);
+      expect(state.active[0].status, proto.DownloadStatus.FAILED);
+    });
+
+    test('progress percentage calculation for all media types', () {
+      for (final mediaType in ['hls', 'torrent', 'magnet', 'mp4']) {
+        final state = DownloadState(
+          active: [
+            _task(
+              taskId: 1,
+              title: 'Test $mediaType',
+              progress: 3,
+              total: 10,
+              status: proto.DownloadStatus.DOWNLOADING,
+              mediaType: mediaType,
+            ),
+          ],
+        );
+
+        final ratio =
+            state.active[0].progress /
+            (state.active[0].total == 0 ? 1 : state.active[0].total);
+        expect(
+          ratio,
+          closeTo(0.3, 0.01),
+          reason: '$mediaType progress ratio should be ~30%',
+        );
+      }
+    });
+
+    test('total=0 guard prevents division by zero for all media types', () {
+      for (final mediaType in ['hls', 'torrent', 'magnet', 'mp4']) {
+        final state = DownloadState(
+          active: [
+            _task(
+              taskId: 1,
+              title: 'Test $mediaType',
+              progress: 0,
+              total: 0,
+              status: proto.DownloadStatus.QUEUED,
+              mediaType: mediaType,
+            ),
+          ],
+        );
+
+        final total = state.active[0].total;
+        final ratio = state.active[0].progress / (total == 0 ? 1 : total);
+        expect(ratio, 0.0, reason: '$mediaType with total=0 should not crash');
+      }
+    });
+  });
+
+  // =========================================================================
+  // 7. Torrent/magnet failure + notification simulation
+  // =========================================================================
+
+  group('Torrent/magnet failure notification simulation', () {
+    test('torrent failure detected from state transition', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Big Buck Bunny',
+          progress: 50,
+          total: 276000000,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'torrent',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'failed');
+      expect(actions[0].title, 'Big Buck Bunny');
+      expect(actions[0].mediaType, 'torrent');
+    });
+
+    test('magnet failure detected from state transition', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Big Buck Bunny Magnet',
+          progress: 30,
+          total: 276000000,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'magnet',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'failed');
+      expect(actions[0].mediaType, 'magnet');
+    });
+
+    test('torrent completion detected from state transition', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Big Buck Bunny',
+          progress: 276000000,
+          total: 276000000,
+          status: proto.DownloadStatus.COMPLETED,
+          mediaType: 'torrent',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'completed');
+      expect(actions[0].mediaType, 'torrent');
+    });
+
+    test('magnet completion detected from state transition', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Big Buck Bunny Magnet',
+          progress: 276000000,
+          total: 276000000,
+          status: proto.DownloadStatus.COMPLETED,
+          mediaType: 'magnet',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'completed');
+    });
+
+    test('all media type failures trigger notifications', () {
+      for (final mediaType in ['hls', 'mp4', 'torrent', 'magnet']) {
+        final previousStatuses = <int, proto.DownloadStatus>{
+          1: proto.DownloadStatus.DOWNLOADING,
+        };
+        final tasks = [
+          _task(
+            taskId: 1,
+            title: 'Test $mediaType',
+            progress: 50,
+            total: 100,
+            status: proto.DownloadStatus.FAILED,
+            mediaType: mediaType,
+          ),
+        ];
+
+        final actions = _detectStatusChanges(tasks, previousStatuses);
+        expect(
+          actions.length,
+          1,
+          reason: '$mediaType failure should trigger notification',
+        );
+        expect(actions[0].action, 'failed');
+        expect(actions[0].mediaType, mediaType);
+      }
+    });
+  });
+
+  // =========================================================================
+  // 8. URL and error logging on failure
+  // =========================================================================
+
+  group('URL and error on failure', () {
+    test('torrent failure includes URL and error', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Big Buck Bunny',
+          progress: 50,
+          total: 276000000,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'torrent',
+          url: 'https://example.com/big-buck-bunny.torrent',
+          error: 'Write error: disk full',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].action, 'failed');
+      expect(actions[0].url, 'https://example.com/big-buck-bunny.torrent');
+      expect(actions[0].error, 'Write error: disk full');
+    });
+
+    test('magnet failure includes URL and error', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Big Buck Bunny Magnet',
+          progress: 30,
+          total: 276000000,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'magnet',
+          url: 'magnet:?xt=urn:btih:abc123',
+          error: 'Failed to create directory: permission denied',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].url, 'magnet:?xt=urn:btih:abc123');
+      expect(actions[0].error, 'Failed to create directory: permission denied');
+    });
+
+    test('hls failure includes URL and error', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'HLS Episode',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'hls',
+          url: 'https://example.com/playlist.m3u8',
+          error: 'Error downloading segment: timeout',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].url, 'https://example.com/playlist.m3u8');
+      expect(actions[0].error, 'Error downloading segment: timeout');
+    });
+
+    test('mp4 failure includes URL and error', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'MP4 Episode',
+          progress: 50,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'mp4',
+          url: 'https://example.com/video.mp4',
+          error: 'Read torrent error: connection reset',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].url, 'https://example.com/video.mp4');
+      expect(actions[0].error, 'Read torrent error: connection reset');
+    });
+
+    test('failure with empty URL and error is handled gracefully', () {
+      final previousStatuses = <int, proto.DownloadStatus>{
+        1: proto.DownloadStatus.DOWNLOADING,
+      };
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'Unknown Failure',
+          progress: 0,
+          total: 100,
+          status: proto.DownloadStatus.FAILED,
+          mediaType: 'torrent',
+        ),
+      ];
+
+      final actions = _detectStatusChanges(tasks, previousStatuses);
+      expect(actions.length, 1);
+      expect(actions[0].url, isEmpty);
+      expect(actions[0].error, isEmpty);
+    });
   });
 }

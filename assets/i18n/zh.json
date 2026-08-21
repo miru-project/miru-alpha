@@ -228,7 +228,12 @@
     "cookie_clear": "清除 Cookie",
     "cookie_clear_description": "清除扩展 Cookie",
     "search_with_pinned_extensions": "使用固定扩展搜索",
-    "setting_wip": "扩展设置 (开发中)"
+    "setting_wip": "扩展设置 (开发中)",
+    "history": "历史",
+    "search_across_extensions": "跨扩展搜索...",
+    "recent_searches": "最近搜索",
+    "frequent_extensions": "常用扩展",
+    "content_from_extensions": "内容来自您启用的第三方扩展。"
   },
   "tracking": {
     "name": "追踪",
@@ -483,6 +488,20 @@
     "max_concurrent": "最大同时下载数",
     "show_missing": "显示缺失文件（{count}）",
     "hide_missing": "隐藏缺失文件",
-    "drag_to_reorder_tip": "拖动以重新排序，越靠上优先级越高。"
+    "drag_to_reorder_tip": "拖动以重新排序，越靠上优先级越高。",
+    "all_downloads": "所有下载",
+    "series": "剧集",
+    "movies": "电影",
+    "delete_all_finished": "删除所有已完成的",
+    "device_storage": "设备存储",
+    "temp": "临时",
+    "storage_used": "已使用 {used} / {total}",
+    "storage_hint": "您还有足够的空间下载约 {count} 集高清内容。",
+    "in_progress": "进行中",
+    "path_not_set": "未设置下载路径"
+  },
+  "detail": {
+    "previous": "上一页",
+    "next": "下一页"
   }
 }

@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/provider/download_provider.dart';
@@ -11,66 +10,68 @@ import 'package:miru_alpha/ui/core/error_state.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
-class DownloadView extends HookConsumerWidget {
-  const DownloadView({super.key});
+class DesktopDownloadView extends HookConsumerWidget {
+  const DesktopDownloadView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final downloadAsync = ref.watch(downloadProvider);
 
     return MiruScaffold.mobile(
-      snapSheet: [SnapSheetNested.back(title: 'download.name'.i18n)],
-      childPad: false,
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: .symmetric(vertical: 10, horizontal: 20),
-              child: Row(
-                mainAxisAlignment: .spaceBetween,
-                children: [
-                  Text(
-                    'download.name'.i18n,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 28,
-                    ),
-                  ),
-                  FButton(
-                    prefix: Icon(FLucideIcons.history),
-                    variant: .secondary,
-                    onPress: () => context.push('/home/download/history'),
-                    child: Text('download.downloads_history'.i18n),
-                  ),
-                ],
+      // snapSheet: [SnapSheetNested.back(title: 'download.name'.i18n)],
+      sliverHeaders: [
+        SimpleSliverHeaderDelegate(
+          maxExtent: 56,
+          child: SnapSheetNested(
+            title: 'download.downloads_history'.i18n,
+            prefix: GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(right: 12.0, top: 4),
+                child: Icon(
+                  FLucideIcons.chevronLeft,
+                  size: 28,
+                  color: context.theme.colors.primary,
+                ),
               ),
             ),
           ),
-          downloadAsync.when(
-            loading: () =>
-                const SliverFillRemaining(child: Center(child: LoadingState())),
-            error: (error, _) => SliverFillRemaining(
+        ),
+      ],
+      slivers: [
+        ...downloadAsync.when(
+          loading: () => [
+            const SliverFillRemaining(child: Center(child: LoadingState())),
+          ],
+          error: (error, _) => [
+            SliverFillRemaining(
               child: Center(
                 child: ErrorState(
                   message: 'download.error_loading_downloads'.i18n,
                 ),
               ),
             ),
-            data: (state) {
-              final active = state.active;
+          ],
+          data: (state) {
+            final active = state.active;
 
-              if (active.isEmpty) {
-                return SliverFillRemaining(
+            if (active.isEmpty) {
+              return [
+                SliverFillRemaining(
                   child: Center(
                     child: EmptyState(
                       icon: FLucideIcons.download,
                       message: 'download.no_active_downloads'.i18n,
                     ),
                   ),
-                );
-              }
+                ),
+              ];
+            }
 
-              return SliverPadding(
+            return [
+              SliverPadding(
                 padding: const EdgeInsets.all(16),
                 sliver: SliverReorderableList(
                   itemCount: active.length,
@@ -93,11 +94,11 @@ class DownloadView extends HookConsumerWidget {
                     index: index,
                   ),
                 ),
-              );
-            },
-          ),
-        ],
-      ),
+              ),
+            ];
+          },
+        ),
+      ],
     );
   }
 }

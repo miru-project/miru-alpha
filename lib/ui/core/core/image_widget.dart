@@ -1,6 +1,6 @@
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 
 class ImageWidget extends StatelessWidget {

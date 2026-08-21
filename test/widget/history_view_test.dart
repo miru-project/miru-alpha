@@ -30,7 +30,9 @@ void main() {
 
     final container = ProviderContainer(
       overrides: [
-        historyViewModelProvider.overrideWith(() => _FakeHistoryViewModel(historyItems)),
+        historyViewModelProvider.overrideWith(
+          () => _FakeHistoryViewModel(historyItems),
+        ),
       ],
     );
 
@@ -44,4 +46,3 @@ void main() {
     expect(result.first.package, 'test.package');
   });
 }
-

@@ -16,11 +16,17 @@ class DownloadService {
   Future<void> startDownload(
     String package,
     String detailUrl,
-    String episode,
-  ) async {
+    String episode, {
+    DownloadCategory? category,
+  }) async {
     try {
       await MiruGrpcClient.downloadClient.download(
-        DownloadRequest(package: package, detailUrl: detailUrl, key: episode),
+        DownloadRequest(
+          package: package,
+          detailUrl: detailUrl,
+          key: episode,
+          category: category,
+        ),
       );
     } catch (e) {
       rethrow;
@@ -67,6 +73,19 @@ class DownloadService {
       );
     } catch (e) {
       rethrow;
+    }
+  }
+
+  /// Per-category storage usage for [downloadPath], including in-progress
+  /// (temp) downloads. Returns null if the call fails.
+  Future<StorageStats?> getStorageStats(String downloadPath) async {
+    try {
+      final response = await MiruGrpcClient.downloadClient.getStorageStats(
+        GetStorageStatsRequest(downloadPath: downloadPath),
+      );
+      return response.stats;
+    } catch (e) {
+      return null;
     }
   }
 }

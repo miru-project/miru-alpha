@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
@@ -89,8 +89,8 @@ class _MiruNovelReaderState extends ConsumerState<MiruNovelReader> {
               ),
             ),
             FDivider(axis: .vertical),
-            SizedBox(
-              width: 400,
+            Flexible(
+              flex: 2,
               child: NovelSideSheet(
                 epProvider: widget.epProvider,
                 novelProvider: novelProvider,

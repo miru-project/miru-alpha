@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -199,12 +199,12 @@ class MobileSearchPage extends HookConsumerWidget {
                   },
                 ),
               ] else
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: Center(
                     child: Padding(
                       padding: EdgeInsets.only(top: 40),
                       child: Text(
-                        'extension.no_extensions_installed',
+                        'extension.no_extensions_installed'.i18n,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,

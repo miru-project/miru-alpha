@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -116,7 +116,7 @@ class AnilistProgressPage extends HookConsumerWidget {
         context: context,
         side: .btt,
         style: .delta(
-          barrierFilter: (animation) => .compose(
+          barrierFilter: (context, animation) => .compose(
             outer: ImageFilter.blur(
               sigmaX: animation * 5,
               sigmaY: animation * 5,

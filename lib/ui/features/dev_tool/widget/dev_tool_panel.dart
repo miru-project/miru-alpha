@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/dev_tool_provider.dart';
@@ -19,33 +19,35 @@ class DevToolPanel extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      padding: .symmetric(horizontal: 10),
-      width: 400,
-      decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(color: context.theme.colors.border, width: 1),
-        ),
-        color: context.theme.colors.background,
-      ),
-      child: Column(
-        children: [
-          _buildHeader(context, notifier),
-          const _DevToolFilter(),
-          const FDivider(),
-          FTabs(
-            children: [
-              FTabEntry(
-                label: const Text('Console'),
-                child: const ConsoleView(),
-              ),
-              FTabEntry(
-                label: const Text('Network'),
-                child: const NetworkView(),
-              ),
-            ],
+    return Flexible(
+      flex: 3,
+      child: Container(
+        padding: .symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(color: context.theme.colors.border, width: 1),
           ),
-        ],
+          color: context.theme.colors.background,
+        ),
+        child: Column(
+          children: [
+            _buildHeader(context, notifier),
+            const _DevToolFilter(),
+            const FDivider(),
+            FTabs(
+              children: [
+                FTabEntry(
+                  label: const Text('Console'),
+                  child: const ConsoleView(),
+                ),
+                FTabEntry(
+                  label: const Text('Network'),
+                  child: const NetworkView(),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

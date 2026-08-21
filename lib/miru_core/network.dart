@@ -10,7 +10,6 @@ import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
     as pb_extension;
 
-
 /// Endpoint helpers for application settings
 class AppSettingEndpoint {
   /// Fetch all application settings from /appSetting
@@ -59,8 +58,7 @@ class CoreNetwork {
     }
   }
 
-  static Future<void> ensureInitialized() async {
-  }
+  static Future<void> ensureInitialized() async {}
 }
 
 class MiruCoreEndpoint {
@@ -200,10 +198,13 @@ class MiruCoreEndpoint {
 
   static Future<Map<String, pb_extension.ExtensionFilter>> createFilter(
     String pkg, {
-    String? filter,
+    proto.FilterSelection? filter,
   }) async {
     final response = await MiruGrpcClient.extensionClient.createFilter(
-      proto.CreateFilterRequest(pkg: pkg, filter: filter ?? ""),
+      proto.CreateFilterRequest(
+        pkg: pkg,
+        filter: filter ?? proto.FilterSelection(),
+      ),
     );
     return response.filters;
   }
@@ -224,19 +225,15 @@ class MiruCoreEndpoint {
     String pkg,
     String kw,
     int page, {
-    dynamic filter,
+    proto.FilterSelection? filter,
   }) async {
-    String filterStr = "";
-    if (filter != null) {
-      if (filter is String) {
-        filterStr = filter;
-      } else {
-        filterStr = jsonEncode(filter);
-      }
-    }
-
     final response = await MiruGrpcClient.extensionClient.search(
-      proto.SearchRequest(pkg: pkg, kw: kw, page: page, filter: filterStr),
+      proto.SearchRequest(
+        pkg: pkg,
+        kw: kw,
+        page: page,
+        filter: filter ?? proto.FilterSelection(),
+      ),
     );
 
     return response.items;

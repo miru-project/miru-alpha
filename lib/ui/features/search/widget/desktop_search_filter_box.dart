@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -34,6 +34,32 @@ class DesktopSearchSingleFilterBox extends HookConsumerWidget {
       child: SearchFilterCard(
         child: Row(
           children: [
+            const SizedBox(width: 8),
+            // Extension indicator: makes it obvious which extension the
+            // results below belong to when arriving from global search.
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: context.theme.colors.secondary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 6,
+                children: [
+                  Icon(
+                    FLucideIcons.puzzle,
+                    size: 16,
+                    color: context.theme.colors.mutedForeground,
+                  ),
+                  Text(
+                    meta.name,
+                    style: context.theme.typography.body.sm,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(width: 8),
             // Filter Button
             if (filters.isNotEmpty) ...[
@@ -168,7 +194,7 @@ class DesktopSearchSingleFilterBox extends HookConsumerWidget {
             meta.packageName,
             1,
             query: searchQuery.value,
-            filterJson: state.appliedFilterJson,
+            filter: state.appliedFilter,
           ),
         );
         ref

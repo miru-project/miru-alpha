@@ -2,6 +2,7 @@ import 'package:miru_alpha/data/services/download_service.dart';
 import 'package:miru_alpha/domain/models/download.dart';
 import 'package:miru_alpha/miru_core/proto/generate/proto/common.pbenum.dart'
     as pb;
+import 'package:miru_alpha/miru_core/proto/proto.dart' hide DownloadStatus;
 
 class DownloadRepository {
   final DownloadService _downloadService;
@@ -39,9 +40,15 @@ class DownloadRepository {
   Future<void> startDownload(
     String package,
     String detailUrl,
-    String episode,
-  ) async {
-    await _downloadService.startDownload(package, detailUrl, episode);
+    String episode, {
+    DownloadCategory? category,
+  }) async {
+    await _downloadService.startDownload(
+      package,
+      detailUrl,
+      episode,
+      category: category,
+    );
   }
 
   Future<void> pauseDownload(String downloadId) async {
@@ -61,6 +68,10 @@ class DownloadRepository {
     bool deleteFile = true,
   }) async {
     await _downloadService.deleteDownload(downloadId, deleteFile: deleteFile);
+  }
+
+  Future<StorageStats?> getStorageStats(String downloadPath) async {
+    return _downloadService.getStorageStats(downloadPath);
   }
 
   DownloadStatus _mapDownloadStatus(pb.DownloadStatus? status) {
