@@ -7,6 +7,7 @@ import 'package:miru_alpha/ui/features/setting/setting_network.dart';
 import 'package:miru_alpha/ui/features/setting/setting_general.dart';
 import 'package:miru_alpha/utils/router/router_util.dart';
 import 'setting_extension.dart';
+import 'setting_log.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/provider/dev_tool_provider.dart';
@@ -59,7 +60,10 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
         // return SettingReader();
         return Center();
       case SideBarName.advanced:
-        return Center();
+        return SettingScaffold(
+          title: 'settings.logging.name'.i18n,
+          child: SettingLog(),
+        );
       case SideBarName.about:
         return Center();
       case SideBarName.tracking:
@@ -192,6 +196,21 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
                 label: Text("settings.about.name".i18n),
                 // description: const Text('Personalize your experience'),
                 children: [
+                  FTile(
+                    prefix: Icon(FLucideIcons.scrollText),
+                    title: Text('settings.logging.name'.i18n),
+                    subtitle: Text('settings.logging.information'.i18n),
+                    suffix: Icon(FLucideIcons.chevronRight),
+                    onPress: () {
+                      _pushtoPage(
+                        context,
+                        SettingScaffold(
+                          title: 'settings.logging.name'.i18n,
+                          child: SettingLog(isMobileLayout: true),
+                        ),
+                      );
+                    },
+                  ),
                   FTile(
                     prefix: Icon(FLucideIcons.code),
                     title: Text('common.licenses'.i18n),

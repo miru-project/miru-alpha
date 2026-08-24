@@ -61,6 +61,9 @@ class SearchGridView extends HookConsumerWidget {
 
                 ref
                     .read(searchPageSingleProviderProvider.notifier)
+                    .addResult(res);
+                ref
+                    .read(searchPageSingleProviderProvider.notifier)
                     .setPage(page + 1);
               }
               isLoading.value = false;
@@ -74,6 +77,9 @@ class SearchGridView extends HookConsumerWidget {
             );
             if (res.isNotEmpty) {
               resState.value = [...resState.value, ...res];
+              ref
+                  .read(searchPageSingleProviderProvider.notifier)
+                  .addResult(res);
               ref
                   .read(searchPageSingleProviderProvider.notifier)
                   .setPage(page + 1);
@@ -96,6 +102,22 @@ class SearchGridView extends HookConsumerWidget {
       scrollController.addListener(listener);
       return () => scrollController.removeListener(listener);
     }, [page]);
+
+    // Keep the accumulated grid in sync with the page-1 results from the
+    // provider. Without this, changing the query or applying filters leaves
+    // the old accumulated list on screen (stale/merged results). Also mirror
+    // the fresh page-1 list into the provider so the search dialog footer can
+    // report an accurate result count. The provider mutation is deferred to a
+    // microtask: flutter_hooks runs synchronous effects during build, where
+    // mutating a provider would throw markNeedsBuild-during-build.
+    useEffect(() {
+      resState.value = res;
+      Future.microtask(
+        () =>
+            ref.read(searchPageSingleProviderProvider.notifier).setResult(res),
+      );
+      return null;
+    }, [res]);
 
     final axisCnt = DeviceUtil.isMobileLayout(context)
         ? 2

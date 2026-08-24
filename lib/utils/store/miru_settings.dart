@@ -69,6 +69,7 @@ class MiruSettings {
     SettingKey.proxyActivate: 'false',
     SettingKey.proxyList: {}.toString(),
     SettingKey.saveLog: 'true',
+    SettingKey.captureCrash: 'true',
     SettingKey.subtitleFontSize: "46.0",
     SettingKey.subtitleFontColor: Colors.white.toARGB32().toString(),
     SettingKey.subtitleFontWeight: 'bold',
@@ -217,6 +218,7 @@ class SettingKey {
   static const windowsWebviewUA = "WindowsWebviewUA";
   static const proxy = "Proxy";
   static const saveLog = "SaveLog";
+  static const captureCrash = "CaptureCrash";
   static const subtitleFontSize = "SubtitleFontSize";
   static const subtitleFontWeight = "SubtitleFontWeight";
   static const subtitleFontColor = "SubtitleFontColor";

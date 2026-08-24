@@ -18,7 +18,6 @@ export 'core/miru_expandable_tabs.dart';
 export 'core/miru_tabs.dart';
 export 'core/outline_text.dart';
 export 'core/outter_card.dart';
-export 'core/search_filter_card.dart';
 export 'core/seperator.dart';
 export 'core/shadow_box.dart';
 export 'core/tabbar.dart';

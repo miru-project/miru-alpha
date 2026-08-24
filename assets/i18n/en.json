@@ -227,7 +227,13 @@
     "search_across_extensions": "Search across extensions...",
     "recent_searches": "Recent Searches",
     "frequent_extensions": "Frequently Used Extensions",
-    "content_from_extensions": "Content is gathered from your active third-party extensions."
+    "content_from_extensions": "Content is gathered from your active third-party extensions.",
+    "no_filter": "This extension has no filters.",
+    "source": "Source: {name}",
+    "clear": "Clear",
+    "apply": "Apply Filters",
+    "all": "All",
+    "results_count": "{count} results"
   },
   "tracking": {
     "name": "Tracking",
@@ -390,7 +396,52 @@
     "download_directory": "Download Directory",
     "select_download_directory": "Please select a target directory for your downloads. On Android, this will use the Storage Access Framework.",
     "select_directory": "Select Directory",
-    "select_download_directory_tip": "Select Download Directory"
+    "select_download_directory_tip": "Select Download Directory",
+    "logging": {
+      "name": "Logging & Crash",
+      "information": "Export logs and capture crashes",
+      "capture": {
+        "name": "Crash Capture",
+        "information": ""
+      },
+      "capture_crash": {
+        "name": "Capture crashes",
+        "information": "Record uncaught errors to a dedicated crash log"
+      },
+      "save_log": {
+        "name": "Save logs to file",
+        "information": "Persist runtime logs to disk"
+      },
+      "export": {
+        "name": "Export",
+        "information": ""
+      },
+      "export_alpha": {
+        "name": "Export miru_alpha log",
+        "information": "Flutter / Dart runtime log"
+      },
+      "export_core": {
+        "name": "Export miru_core log",
+        "information": "Go backend log"
+      },
+      "export_core_crash": {
+        "name": "Export miru_core crash log",
+        "information": "Go backend panics and fatal errors"
+      },
+      "export_crash": {
+        "name": "Export crash log",
+        "information": "Captured uncaught errors"
+      },
+      "export_all": {
+        "name": "Export all logs",
+        "information": "Bundle every log into one file"
+      },
+      "export_title": "Export log file",
+      "share_text": "Miru crash / runtime log",
+      "exported": "Log exported",
+      "export_failed": "Failed to export log",
+      "file_missing": "Log file not found"
+    }
   },
   "reader": {
     "manga": {

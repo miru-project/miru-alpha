@@ -175,6 +175,12 @@ class Core {
     } catch (e, s) {
       logger.severe('Error: $e');
       logger.severe(s.toString());
+      sendPort.send({
+        'level': 'SHOUT',
+        'message': 'Miru Core isolate crashed: $e',
+        'stack': s.toString(),
+        'crash': true,
+      });
       exit(1);
     }
   }
@@ -197,15 +203,46 @@ class Core {
           (l) => l.name == message['level'],
           orElse: () => Level.INFO,
         );
+        if (message['crash'] == true) {
+          MiruLog.recordCrash(
+            message['message'].toString(),
+            StackTrace.fromString(message['stack']?.toString() ?? ''),
+            source: 'miru-core',
+          );
+        }
         // Log to the main isolate's logger
         logger.log(level, message['message']);
       }
     });
 
-    await Isolate.spawn(
+    // Capture uncaught errors thrown inside the core isolate after it has
+    // started (outside the setup try/catch). addErrorListener redirects them
+    // here so they are forwarded "outside the isolate" into the main crash
+    // log instead of silently terminating the isolate.
+    final errorPort = ReceivePort();
+    errorPort.listen((message) {
+      Object? error = 'unknown isolate error';
+      StackTrace stack = StackTrace.empty;
+      if (message is List) {
+        if (message.isNotEmpty) error = message[0];
+        if (message.length > 1 && message[1] is String) {
+          stack = StackTrace.fromString(message[1] as String);
+        }
+      } else if (message != null) {
+        error = message;
+      }
+      MiruLog.recordCrash(
+        error.toString(),
+        stack,
+        source: 'miru-core-isolate',
+      );
+    });
+
+    final isolate = await Isolate.spawn(
       startIsolateNativeMiruCore,
       MiruCoreIsolateData(location, token, sendPort),
     );
+    isolate.addErrorListener(errorPort.sendPort);
     return;
   }
 }

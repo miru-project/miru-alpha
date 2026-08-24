@@ -5,18 +5,18 @@ packages:
     dependency: transitive
     description:
       name: _fe_analyzer_shared
-      sha256: a49d6cf99e8d8e7a8e93668d09ced0bbdb954d0b4fccc2f5f9241c6b87fad95c
+      sha256: "1b0e6a07425a3e460666e88bf1c949ccc7bb0116ad562ce94a1eca60fe820725"
       url: "https://pub.dev"
     source: hosted
-    version: "99.0.0"
+    version: "103.0.0"
   analyzer:
     dependency: transitive
     description:
       name: analyzer
-      sha256: "663efa951fb8a45e06f491223a604c93820598f20e6a99c25617a1576065e8b7"
+      sha256: "61c04d0c1bfed555c681ea079519933f071a5a026578ff73c4ff0df2d3462e5e"
       url: "https://pub.dev"
     source: hosted
-    version: "12.1.0"
+    version: "13.3.0"
   analyzer_buffer:
     dependency: transitive
     description:
@@ -253,10 +253,10 @@ packages:
     dependency: transitive
     description:
       name: dart_style
-      sha256: a4c1ccfee44c7e75ed80484071a5c142a385345e658fd8bd7c4b5c97e7198f98
+      sha256: "3f88fc9c96c568d631356507355a2d1e983ee000c9ac008bdcb39b5bf53ce777"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.8"
+    version: "3.1.12"
   dbus:
     dependency: transitive
     description:
@@ -559,10 +559,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_riverpod
-      sha256: "9255e1e3ad6e38906a1b4f8287678f95f378744c5b46b1985588543f3f19046e"
+      sha256: "56e81e662e6e54e59b231da57e90ac0d06ac67d8e3f2273c129a37ae6282b40c"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.2"
+    version: "3.4.2"
   flutter_rust_bridge:
     dependency: transitive
     description:
@@ -633,10 +633,10 @@ packages:
     dependency: "direct dev"
     description:
       name: freezed
-      sha256: "8599ba37236328ff6f97269ecce875d251a367eb2929c9bbf9b811b2ce56c74e"
+      sha256: "27585a6c2b9ac28ffb7b45d87fd1502332af1eb90e1c9f5eb1acb24c71d26e17"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.6-dev.1"
+    version: "4.0.0"
   freezed_annotation:
     dependency: "direct main"
     description:
@@ -737,10 +737,10 @@ packages:
     dependency: "direct main"
     description:
       name: hooks_riverpod
-      sha256: dcaf59f0f41489ff08ce61438ada564d67f40cfa37cc7c8589da78fb600c2edc
+      sha256: fce693abc6289c8bb42348eae520b979f7edbaae0c1b77b946ef058d0693f6f6
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.2"
+    version: "3.4.2"
   html:
     dependency: transitive
     description:
@@ -893,6 +893,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.0"
+  listen:
+    dependency: transitive
+    description:
+      name: listen
+      sha256: "47501a08016a43fcad79252439d723f50f14f88fa7bfd8a177e0a417e5c9e1f2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   logging:
     dependency: "direct main"
     description:
@@ -909,6 +917,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
+  marionette_flutter:
+    dependency: "direct main"
+    description:
+      name: marionette_flutter
+      sha256: "9bf6aa531157edeb3d94f7c4972367240a1d704bbe9f4ac558ef1a125c4d1a6d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
+  marionette_logging:
+    dependency: "direct main"
+    description:
+      name: marionette_logging
+      sha256: b4ae6097ee8260f1ca956d14f9173712fe422c61a5516e6022507d51931c9225
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
+  marionette_mcp:
+    dependency: "direct dev"
+    description:
+      name: marionette_mcp
+      sha256: "24a2b3277c659367e3d6c306d35d35600fc78c5d28512f06bc843cb2e65e21b3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.0"
   markdown:
     dependency: transitive
     description:
@@ -949,6 +981,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  mcp_dart:
+    dependency: transitive
+    description:
+      name: mcp_dart
+      sha256: "777201efc190421e1c86502143379842ed42e16dc8b0ca1c4e8046dc7f7ee5f0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.1"
+  mcp_server:
+    dependency: "direct dev"
+    description:
+      name: mcp_server
+      sha256: "58ab3ac35c97afcabc79c2667750007409b9e8e7e86e5027841679d0be3743ba"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
   meta:
     dependency: transitive
     description:
@@ -969,10 +1017,10 @@ packages:
     dependency: transitive
     description:
       name: mockito
-      sha256: eff30d002f0c8bf073b6f929df4483b543133fcafce056870163587b03f1d422
+      sha256: "6c1970612452260366064d4df80fdb3eece1ec5e52610ae34a0e51f2f3d8e64f"
       url: "https://pub.dev"
     source: hosted
-    version: "5.6.4"
+    version: "5.8.1"
   native_toolchain_c:
     dependency: "direct main"
     description:
@@ -1209,34 +1257,34 @@ packages:
     dependency: transitive
     description:
       name: riverpod
-      sha256: "17100416c51db7810c71a7bb2c34d1f881faa0074fd452afb0c4db6f8f126c76"
+      sha256: "84351b3472a447f7b89f961f95c73287009d58c59d8cc1267425d995f78e50f1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.2"
+    version: "3.4.2"
   riverpod_analyzer_utils:
     dependency: transitive
     description:
       name: riverpod_analyzer_utils
-      sha256: "3e275138862ccc22ed61444a1f9a840f753094c367f28f4123f50289cd204d68"
+      sha256: "46a8dd0461080fde8f886f65f87580758dae8495e352f9ea6a09953abc3df7bd"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0-dev.10"
+    version: "1.0.0-dev.11"
   riverpod_annotation:
     dependency: "direct main"
     description:
       name: riverpod_annotation
-      sha256: "674dbb26e2db3d9253166faf4758c796af14146b8fbcf5e7102bc8a04cd359b8"
+      sha256: dd043c75eb3cea2654f5dca51234413ac04bd092ccc73e747fd73cae37ac5360
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.3"
+    version: "4.0.6"
   riverpod_generator:
     dependency: "direct dev"
     description:
       name: riverpod_generator
-      sha256: "54d790c3fee1ae281c448801bfdbfaa9fd961a9d3998494e0fcd9ee32184d7eb"
+      sha256: "2e66b5691cf5d50d6a409904b0477e869e0ecbdd5ada1535d263a95d44439e75"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.4"
+    version: "4.0.8"
   rxdart:
     dependency: transitive
     description:
@@ -1357,6 +1405,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.8"
+  share_plus:
+    dependency: "direct main"
+    description:
+      name: share_plus
+      sha256: "34f00f9becd2743c1fb05363d624f9f70d37f7ccdcdda47450bc0b8c9d327b8c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "13.3.0"
+  share_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: share_plus_platform_interface
+      sha256: "365ef7379fc22507256adda3385152942ffce08935452bc972c2e52a0bebae41"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.2.0"
   shelf:
     dependency: transitive
     description:
@@ -1393,10 +1457,10 @@ packages:
     dependency: "direct main"
     description:
       name: shimmer
-      sha256: "5f88c883a22e9f9f299e5ba0e4f7e6054857224976a5d9f839d4ebdc94a14ac9"
+      sha256: "61ef3b8de6bdb9f16db1bb78d502cb991a12b5223fd2c0b9114d41e782227b55"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "4.0.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -1843,5 +1907,5 @@ packages:
     source: hosted
     version: "2.2.4"
 sdks:
-  dart: ">=3.12.2 <4.0.0"
+  dart: ">=3.13.0 <4.0.0"
   flutter: ">=3.44.0"

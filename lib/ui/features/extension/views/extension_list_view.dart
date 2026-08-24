@@ -10,6 +10,7 @@ import 'package:miru_alpha/ui/features/extension/view_models/extension_view_mode
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/features/extension/widget/extension_tile.dart';
 import 'package:miru_alpha/ui/features/extension/widget/clearable_select.dart';
+import 'package:miru_alpha/ui/features/extension/widget/extension_import_button.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/core/empty_state.dart';
 import 'package:miru_alpha/ui/core/loading_state.dart';
@@ -423,9 +424,20 @@ class ExtensionGridView extends HookConsumerWidget {
           SizedBox(
             height: 110,
             width: constraints.maxWidth - 30,
-            child: SearchFilterCard(
-              trailing: const SearchFilterImportButton(),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              decoration: BoxDecoration(
+                color: context.theme.colors.background.withAlpha(200),
+                borderRadius: context.theme.style.borderRadius.md,
+                border: Border.all(
+                  color: context.theme.colors.border.withAlpha(80),
+                ),
+              ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   Row(
@@ -476,8 +488,12 @@ class ExtensionGridView extends HookConsumerWidget {
                   ),
                 ],
               ),
-            ),
+              ),
+              const ExtensionImportButton(),
+            ],
           ),
+        ),
+      ),
         ],
       ),
     );

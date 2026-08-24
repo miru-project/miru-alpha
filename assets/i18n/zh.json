@@ -233,7 +233,13 @@
     "search_across_extensions": "跨扩展搜索...",
     "recent_searches": "最近搜索",
     "frequent_extensions": "常用扩展",
-    "content_from_extensions": "内容来自您启用的第三方扩展。"
+    "content_from_extensions": "内容来自您启用的第三方扩展。",
+    "no_filter": "该扩展没有筛选条件。",
+    "source": "来源：{name}",
+    "clear": "清除",
+    "apply": "应用筛选",
+    "all": "全部",
+    "results_count": "{count} 个结果"
   },
   "tracking": {
     "name": "追踪",
@@ -396,7 +402,52 @@
     "download_directory": "下载目录",
     "select_download_directory": "请选择下载保存的目录。在 Android 上，这将使用存储访问框架。",
     "select_directory": "选择目录",
-    "select_download_directory_tip": "选择下载目录"
+    "select_download_directory_tip": "选择下载目录",
+    "logging": {
+      "name": "Logging & Crash",
+      "information": "Export logs and capture crashes",
+      "capture": {
+        "name": "Crash Capture",
+        "information": ""
+      },
+      "capture_crash": {
+        "name": "Capture crashes",
+        "information": "Record uncaught errors to a dedicated crash log"
+      },
+      "save_log": {
+        "name": "Save logs to file",
+        "information": "Persist runtime logs to disk"
+      },
+      "export": {
+        "name": "Export",
+        "information": ""
+      },
+      "export_alpha": {
+        "name": "Export miru_alpha log",
+        "information": "Flutter / Dart runtime log"
+      },
+      "export_core": {
+        "name": "Export miru_core log",
+        "information": "Go backend log"
+      },
+      "export_core_crash": {
+        "name": "Export miru_core crash log",
+        "information": "Go backend panics and fatal errors"
+      },
+      "export_crash": {
+        "name": "Export crash log",
+        "information": "Captured uncaught errors"
+      },
+      "export_all": {
+        "name": "Export all logs",
+        "information": "Bundle every log into one file"
+      },
+      "export_title": "Export log file",
+      "share_text": "Miru crash / runtime log",
+      "exported": "Log exported",
+      "export_failed": "Failed to export log",
+      "file_missing": "Log file not found"
+    }
   },
   "reader": {
     "manga": {

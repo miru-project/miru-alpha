@@ -5,7 +5,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/domain/models/extension.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
-import 'package:miru_alpha/ui/core/core/search_filter_card.dart';
+import 'package:miru_alpha/ui/features/extension/widget/extension_import_button.dart';
 import 'package:miru_alpha/ui/features/extension/widget/extension_tile.dart';
 import 'package:miru_alpha/ui/core/grid_view/index.dart';
 import 'package:miru_alpha/ui/features/extension/widget/clearable_select.dart';
@@ -57,9 +57,20 @@ class ExtensionView extends HookConsumerWidget {
           SizedBox(
             height: 110,
             width: constraints.maxWidth - 30,
-            child: SearchFilterCard(
-              trailing: const SearchFilterImportButton(),
-              child: Column(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              decoration: BoxDecoration(
+                color: context.theme.colors.background.withAlpha(200),
+                borderRadius: context.theme.style.borderRadius.md,
+                border: Border.all(
+                  color: context.theme.colors.border.withAlpha(80),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
                 children: [
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -177,8 +188,12 @@ class ExtensionView extends HookConsumerWidget {
                   ),
                 ],
               ),
-            ),
+              ),
+              const ExtensionImportButton(),
+            ],
           ),
+        ),
+      ),
         ],
       ),
     );

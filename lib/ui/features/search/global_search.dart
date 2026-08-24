@@ -148,7 +148,10 @@ class GlobalSearch extends HookConsumerWidget {
                       onPress: () {
                         context.push(
                           '/search/single',
-                          extra: SearchPageParam(meta: meta, query: searchQuery),
+                          extra: SearchPageParam(
+                            meta: meta,
+                            query: searchQuery,
+                          ),
                         );
                       },
                       suffix: Icon(FLucideIcons.chevronRight),

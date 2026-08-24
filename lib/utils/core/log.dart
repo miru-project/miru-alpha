@@ -10,6 +10,18 @@ final logger = Logger('Miru_alpha');
 
 class MiruLog {
   static final logFilePath = path.join(MiruDirectory.getDirectory, 'miru.log');
+  static final coreLogFilePath = path.join(
+    MiruDirectory.getDirectory,
+    'miru_core.log',
+  );
+  static final coreCrashLogFilePath = path.join(
+    MiruDirectory.getDirectory,
+    'miru_core_crash.log',
+  );
+  static final crashLogFilePath = path.join(
+    MiruDirectory.getDirectory,
+    'miru_crash.log',
+  );
   static final defaultLogFilePath = path.join(
     MiruDirectory.appSupportDirectory,
     'miru.log',
@@ -62,6 +74,47 @@ class MiruLog {
       });
     });
     hasInit = true;
+  }
+
+  // crash identification + persistence
+  static void recordCrash(
+    Object error,
+    StackTrace stack, {
+    String source = 'flutter',
+  }) {
+    try {
+      if (!(MiruSettings.getSetting<bool>(SettingKey.captureCrash) ?? true)) {
+        return;
+      }
+      final entry =
+          '[CRASH][$source] ${DateTime.now().toIso8601String()}\n'
+          'error: $error\n'
+          'stack:\n$stack\n'
+          '----------------------------------------\n';
+      File(
+        crashLogFilePath,
+      ).writeAsStringSync(entry, mode: FileMode.append, flush: true);
+      if (File(crashLogFilePath).lengthSync() > 1024 * 1024 * 5) {
+        File(crashLogFilePath).deleteSync();
+      }
+    } catch (e, s) {
+      debugPrint('Failed to record crash: $e');
+      debugPrint(s.toString());
+    }
+  }
+
+  /// all known log files that exist on disk
+  static List<({String name, String path})> availableLogFiles() {
+    final candidates = {
+      'miru_alpha.log': logFilePath,
+      'miru_core.log': coreLogFilePath,
+      'miru_core_crash.log': coreCrashLogFilePath,
+      'miru_crash.log': crashLogFilePath,
+    };
+    return [
+      for (final e in candidates.entries)
+        if (File(e.value).existsSync()) (name: e.key, path: e.value),
+    ];
   }
 
   // 写入日志到文件

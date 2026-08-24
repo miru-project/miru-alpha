@@ -5,6 +5,8 @@ import 'package:code_forge/code_forge.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
+import 'package:marionette_flutter/marionette_flutter.dart';
+import 'package:marionette_logging/marionette_logging.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,21 +34,36 @@ import 'package:window_manager/window_manager.dart';
 void main() async {
   runZonedGuarded<void>(
     () async {
-      WidgetsFlutterBinding.ensureInitialized();
+      if (kDebugMode) {
+        MarionetteBinding.ensureInitialized(
+          MarionetteConfiguration(logCollector: LoggingLogCollector()),
+        );
+      } else {
+        WidgetsFlutterBinding.ensureInitialized();
+      }
       await MiruDirectory.ensureInitialized();
       MiruLog.ensureInitialized();
 
-      bool errPrint(Object error, StackTrace stack) {
+      bool errPrint(
+        Object error,
+        StackTrace stack, [
+        String source = 'platform-dispatcher',
+      ]) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showSimpleToast(error.toString());
         });
-        logger.severe('Uncaught error: $error');
+        MiruLog.recordCrash(error, stack, source: source);
+        logger.severe('Uncaught error [$source]: $error');
         logger.severe(stack.toString());
         return false;
       }
 
       Widget errFunc(FlutterErrorDetails details) {
-        errPrint(details.exception, details.stack ?? StackTrace.empty);
+        errPrint(
+          details.exception,
+          details.stack ?? StackTrace.empty,
+          'flutter-error',
+        );
         return ErrorDisplay(
           err: details.exception,
           stack: details.stack ?? StackTrace.current,
@@ -115,7 +132,8 @@ void main() async {
         MiruLog.defaultError(error, stack);
       }
       showSimpleToast(error.toString());
-      logger.severe('Uncaught error: $error');
+      MiruLog.recordCrash(error, stack, source: 'run-zoned');
+      logger.severe('Uncaught error [run-zoned]: $error');
       logger.severe(stack.toString());
     },
   );
