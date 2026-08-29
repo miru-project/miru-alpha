@@ -9,3 +9,5 @@ export 'desktop_tracking_box.dart';
 export 'anilist_tracking_dialog.dart';
 export 'anilist_search_dialog.dart';
 export 'desktop_detail_episode_card.dart';
+export 'detail_nav_buttons.dart';
+export 'detail_section.dart';

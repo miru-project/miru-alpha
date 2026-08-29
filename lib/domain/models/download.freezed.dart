@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'download.dart';
@@ -9,6 +9,7 @@ part of 'download.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -66,7 +67,7 @@ class _$DomainDownloadCopyWithImpl<$Res>
 /// Create a copy of DomainDownload
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? package = null,Object? detailUrl = null,Object? title = null,Object? episode = null,Object? cover = freezed,Object? progress = null,Object? status = null,Object? speed = null,Object? size = null,Object? downloadedBytes = freezed,Object? error = freezed,Object? createdAt = freezed,Object? updatedAt = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainDownload(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,package: null == package ? _self.package : package // ignore: cast_nullable_to_non_nullable
 as String,detailUrl: null == detailUrl ? _self.detailUrl : detailUrl // ignore: cast_nullable_to_non_nullable
@@ -368,7 +369,7 @@ class _$DomainDownloadProgressCopyWithImpl<$Res>
 /// Create a copy of DomainDownloadProgress
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? downloadId = null,Object? progress = null,Object? speed = null,Object? downloadedBytes = null,Object? totalBytes = null,Object? status = freezed,Object? error = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainDownloadProgress(
 downloadId: null == downloadId ? _self.downloadId : downloadId // ignore: cast_nullable_to_non_nullable
 as String,progress: null == progress ? _self.progress : progress // ignore: cast_nullable_to_non_nullable
 as double,speed: null == speed ? _self.speed : speed // ignore: cast_nullable_to_non_nullable

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'video_player.dart';
@@ -9,6 +9,7 @@ part of 'video_player.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -66,7 +67,7 @@ class _$DomainVideoPlayerStateCopyWithImpl<$Res>
 /// Create a copy of DomainVideoPlayerState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? showSettings = null,Object? showControls = null,Object? isPlaying = null,Object? position = null,Object? duration = null,Object? speed = null,Object? currentSubtitle = null,Object? qualityMap = null,Object? ratio = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainVideoPlayerState(
 showSettings: null == showSettings ? _self.showSettings : showSettings // ignore: cast_nullable_to_non_nullable
 as bool,showControls: null == showControls ? _self.showControls : showControls // ignore: cast_nullable_to_non_nullable
 as bool,isPlaying: null == isPlaying ? _self.isPlaying : isPlaying // ignore: cast_nullable_to_non_nullable
@@ -217,7 +218,7 @@ return $default(_that.showSettings,_that.showControls,_that.isPlaying,_that.posi
 @JsonSerializable()
 
 class _DomainVideoPlayerState implements DomainVideoPlayerState {
-  const _DomainVideoPlayerState({this.showSettings = false, this.showControls = false, this.isPlaying = false, this.position = Duration.zero, this.duration = Duration.zero, this.speed = 1.0, this.currentSubtitle = '', final  Map<String, String> qualityMap = const {}, this.ratio = 0.0}): _qualityMap = qualityMap;
+  const _DomainVideoPlayerState({this.showSettings = false, this.showControls = false, this.isPlaying = false, this.position = Duration.zero, this.duration = Duration.zero, this.speed = 1.0, this.currentSubtitle = '',  Map<String, String> qualityMap = const {}, this.ratio = 0.0}): _qualityMap = qualityMap;
   factory _DomainVideoPlayerState.fromJson(Map<String, dynamic> json) => _$DomainVideoPlayerStateFromJson(json);
 
 @override@JsonKey() final  bool showSettings;
@@ -359,7 +360,7 @@ class _$DomainVideoQualityCopyWithImpl<$Res>
 /// Create a copy of DomainVideoQuality
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? label = null,Object? url = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainVideoQuality(
 label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,
@@ -625,7 +626,7 @@ class _$DomainSubtitleCopyWithImpl<$Res>
 /// Create a copy of DomainSubtitle
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = freezed,Object? url = null,Object? lang = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainSubtitle(
 name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,lang: freezed == lang ? _self.lang : lang // ignore: cast_nullable_to_non_nullable

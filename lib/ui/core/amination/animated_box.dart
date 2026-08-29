@@ -13,6 +13,7 @@ class AnimatedBox extends HookWidget {
   final VoidCallback? onTap;
   final double horizontalPadding;
   final double verticalPadding;
+
   @override
   Widget build(BuildContext context) {
     final isHovered = useState(false);
@@ -24,30 +25,47 @@ class AnimatedBox extends HookWidget {
       child: FTappable(
         behavior: .translucent,
         onPress: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOut,
-          decoration: BoxDecoration(
-            boxShadow: isHovered.value
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(10),
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          child: AnimatedScale(
-            scale: isHovered.value ? 1.02 : 1.0,
+        child: RepaintBoundary(
+          child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
             curve: Curves.easeOut,
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: horizontalPadding,
-                vertical: verticalPadding,
-              ),
-              child: child,
+            decoration: BoxDecoration(
+              boxShadow: isHovered.value
+                  ? [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(10),
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
+            // LayoutBuilder captures parent constraints, then we scale within fixed bounds
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SizedBox(
+                  width: constraints.maxWidth.isFinite
+                      ? constraints.maxWidth
+                      : null,
+                  height: constraints.maxHeight.isFinite
+                      ? constraints.maxHeight
+                      : null,
+                  child: ExcludeSemantics(
+                    child: AnimatedScale(
+                      scale: isHovered.value ? 1.02 : 1.0,
+                      duration: const Duration(milliseconds: 150),
+                      curve: Curves.easeOut,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                          vertical: verticalPadding,
+                        ),
+                        child: child,
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),

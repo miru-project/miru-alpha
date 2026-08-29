@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'extension.dart';
@@ -9,6 +9,7 @@ part of 'extension.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -66,7 +67,7 @@ class _$DomainExtensionCopyWithImpl<$Res>
 /// Create a copy of DomainExtension
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? package = null,Object? author = null,Object? version = null,Object? lang = null,Object? license = null,Object? type = null,Object? webSite = null,Object? name = null,Object? nsfw = null,Object? icon = freezed,Object? url = freezed,Object? description = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainExtension(
 package: null == package ? _self.package : package // ignore: cast_nullable_to_non_nullable
 as String,author: null == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
 as String,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
@@ -362,7 +363,7 @@ class _$DomainExtensionMetaCopyWithImpl<$Res>
 /// Create a copy of DomainExtensionMeta
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? version = null,Object? author = null,Object? license = null,Object? lang = null,Object? icon = freezed,Object? packageName = null,Object? webSite = null,Object? description = freezed,Object? tags = null,Object? api = null,Object? type = null,Object? error = freezed,Object? nsfw = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainExtensionMeta(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,version: null == version ? _self.version : version // ignore: cast_nullable_to_non_nullable
 as String,author: null == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
@@ -518,7 +519,7 @@ return $default(_that.name,_that.version,_that.author,_that.license,_that.lang,_
 @JsonSerializable()
 
 class _DomainExtensionMeta implements DomainExtensionMeta {
-  const _DomainExtensionMeta({this.name = '', this.version = '', this.author = '', this.license = '', this.lang = '', this.icon, this.packageName = '', this.webSite = '', this.description, final  List<dynamic> tags = const [], this.api = '', required this.type, this.error, this.nsfw = false}): _tags = tags;
+  const _DomainExtensionMeta({this.name = '', this.version = '', this.author = '', this.license = '', this.lang = '', this.icon, this.packageName = '', this.webSite = '', this.description,  List<dynamic> tags = const [], this.api = '', required this.type, this.error, this.nsfw = false}): _tags = tags;
   factory _DomainExtensionMeta.fromJson(Map<String, dynamic> json) => _$DomainExtensionMetaFromJson(json);
 
 @override@JsonKey() final  String name;
@@ -670,7 +671,7 @@ class _$DomainExtensionRepoCopyWithImpl<$Res>
 /// Create a copy of DomainExtensionRepo
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? url = null,Object? extensions = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainExtensionRepo(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,extensions: null == extensions ? _self.extensions : extensions // ignore: cast_nullable_to_non_nullable
@@ -815,7 +816,7 @@ return $default(_that.name,_that.url,_that.extensions);case _:
 @JsonSerializable()
 
 class _DomainExtensionRepo implements DomainExtensionRepo {
-  const _DomainExtensionRepo({required this.name, required this.url, final  List<DomainExtensionMeta> extensions = const []}): _extensions = extensions;
+  const _DomainExtensionRepo({required this.name, required this.url,  List<DomainExtensionMeta> extensions = const []}): _extensions = extensions;
   factory _DomainExtensionRepo.fromJson(Map<String, dynamic> json) => _$DomainExtensionRepoFromJson(json);
 
 @override final  String name;

@@ -20,6 +20,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dev_tool/widget/dev_tool_panel.dart';
+import 'package:miru_alpha/ui/features/detail/widget/detail_nav_buttons.dart';
 
 class MainPage extends StatefulHookConsumerWidget {
   final StatefulNavigationShell? child;
@@ -446,8 +447,8 @@ class DragWindows extends StatelessWidget {
   Widget build(BuildContext context) {
     return DragToMoveArea(
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          const DetailNavButtons(),
           Expanded(
             child: Center(
               child: LayoutBuilder(

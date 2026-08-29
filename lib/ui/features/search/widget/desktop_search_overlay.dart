@@ -19,6 +19,7 @@ import 'package:miru_alpha/ui/features/search/widget/global_search_bar.dart';
 // ExtensionFilterBody is defined alongside SearchFilterDialog.
 import 'package:miru_alpha/ui/features/search/widget/search_filter_dialog.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
 
 /// Desktop top-bar search trigger. Sits in the window header row and opens the
 /// [SearchOverlayPopup] on press.
@@ -101,8 +102,34 @@ class SearchOverlayPopup extends HookConsumerWidget {
   const SearchOverlayPopup({super.key});
 
   void _submit(BuildContext context, WidgetRef ref, String value) {
-    final keyword = value.trim();
+    var keyword = value.trim();
     if (keyword.isEmpty) return;
+
+    // History entries saved by tapping an extension chip carry a
+    // `pkg:<packageName>` prefix. Strip it before searching: the raw prefix
+    // must never become the keyword, and the extension itself is passed to
+    // the backend explicitly with every request from the results page (the
+    // Go core panics on a search request without a package).
+    final pkgMatch = RegExp(r'^pkg:(\S+)\s*(.*)$').firstMatch(keyword);
+    if (pkgMatch != null) {
+      final pkg = pkgMatch.group(1)!;
+      keyword = pkgMatch.group(2)!.trim();
+      if (keyword.isEmpty) {
+        // Extension-only entry (no keyword): open that extension's own page,
+        // which searches with the extension always specified.
+        final ext = ref
+            .read(searchPageProvider)
+            .metaData
+            .where((e) => e.packageName == pkg)
+            .firstOrNull;
+        if (ext != null) {
+          ref.read(searchPageProvider.notifier).setOpen(false);
+          context.push('/search/single', extra: SearchPageParam(meta: ext));
+        }
+        return;
+      }
+    }
+
     ref.read(searchPageProvider.notifier)
       ..addHistory(keyword)
       ..setOpen(false);
@@ -238,68 +265,54 @@ class SearchOverlayPopup extends HookConsumerWidget {
                           height: 1,
                           color: context.theme.colors.border,
                         ),
-                        // Content sections - scrollable when needed.
-                        //
-                        // NOTE: The section list (recent searches, frequent
-                        // extensions, active-filter summary, extension filter
-                        // body) uses Forui `FButton`s and a `GridView`. On the
-                        // current Flutter SDK these render objects trigger a
-                        // framework semantics assertion
-                        // (`!childSemantics.renderObject._needsLayout`) during
-                        // the semantics pass. Wrapping them in
-                        // `ExcludeSemantics` keeps them out of the semantics
-                        // tree (the underlying crash is a Flutter SDK bug, not
-                        // our layout) while leaving them fully interactive.
+
                         Flexible(
-                          child: ExcludeSemantics(
-                            child: SingleChildScrollView(
-                              padding: const EdgeInsets.all(16),
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minWidth: constraints.maxWidth - 32,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  spacing: 24,
-                                  children: [
-                                    if (singleMeta == null) ...[
-                                      if (state.history.isNotEmpty)
-                                        _RecentSearchesSection(
-                                          history: state.history,
-                                          onSubmit: (value) =>
-                                              _submit(context, ref, value),
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.all(16),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minWidth: constraints.maxWidth - 32,
+                                maxWidth: constraints.maxWidth - 32,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                spacing: 24,
+                                children: [
+                                  if (singleMeta == null) ...[
+                                    if (state.history.isNotEmpty)
+                                      _RecentSearchesSection(
+                                        history: state.history,
+                                        onSubmit: (value) =>
+                                            _submit(context, ref, value),
+                                      ),
+                                    if (state.recentExtensions.isNotEmpty)
+                                      _FrequentExtensionsSection(
+                                        extensions: state.recentExtensions,
+                                        onTap: (pkg) => _onExtensionChipTap(
+                                          context,
+                                          ref,
+                                          pkg,
                                         ),
-                                      if (state.recentExtensions.isNotEmpty)
-                                        _FrequentExtensionsSection(
-                                          extensions: state.recentExtensions,
-                                          onTap: (pkg) => _onExtensionChipTap(
-                                            context,
-                                            ref,
-                                            pkg,
-                                          ),
-                                        ),
-                                      _InfoFooter(),
-                                    ] else ...[
-                                      // Active-filter summary chips (removable),
-                                      // mirroring the reference's applied-filter
-                                      // row. No _InfoFooter here: the sticky
-                                      // _SingleFilterFooter below already ends
-                                      // with one, so two would stack.
-                                      const _ActiveFilterSummary(),
-                                      const ExtensionFilterBody(),
-                                    ],
+                                      ),
+                                    _InfoFooter(),
+                                  ] else ...[
+                                    // Active-filter summary chips (removable),
+                                    // mirroring the reference's applied-filter
+                                    // row. No _InfoFooter here: the sticky
+                                    // _SingleFilterFooter below already ends
+                                    // with one, so two would stack.
+                                    const _ActiveFilterSummary(),
+                                    const ExtensionFilterBody(),
                                   ],
-                                ),
+                                ],
                               ),
                             ),
                           ),
                         ),
                         // Single-extension footer: source label + Clear/Apply.
                         if (singleMeta != null)
-                          ExcludeSemantics(
-                            child: _SingleFilterFooter(meta: singleMeta),
-                          ),
+                          _SingleFilterFooter(meta: singleMeta),
                       ],
                     ),
                   ); // Added semicolon for return statement in block function
@@ -561,41 +574,56 @@ class _RecentSearchTile extends ConsumerWidget {
       }
     }
 
-    return FButton(
-      variant: FButtonVariant.ghost,
-      onPress: () {
-        onSubmit(query);
-      },
-      child: Row(
-        children: [
-          Icon(
-            FLucideIcons.history,
-            size: 18,
-            color: context.theme.colors.mutedForeground,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              query,
-              style: context.theme.typography.body.sm,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          if (typeLabel != null) ...[
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: context.theme.colors.muted,
-                borderRadius: BorderRadius.circular(4),
+    // FTappable instead of FButton: FButton wraps its child in an internal
+    // shrink-wrap Row that hands the child unbounded width, which breaks the
+    // Expanded text below. FTappable passes the incoming (bounded) width
+    // straight through, so the tile can fill the panel and ellipsize.
+    return SizedBox(
+      width: double.infinity,
+      child: FTappable(
+        behavior: HitTestBehavior.opaque,
+        onPress: () {
+          onSubmit(query);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: Row(
+            children: [
+              Icon(
+                FLucideIcons.history,
+                size: 18,
+                color: context.theme.colors.mutedForeground,
               ),
-              child: Text(
-                typeLabel,
-                style: context.theme.typography.body.xs.copyWith(fontSize: 11),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  query,
+                  style: context.theme.typography.body.sm,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-          ],
-        ],
+              if (typeLabel != null) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: context.theme.colors.muted,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    typeLabel,
+                    style: context.theme.typography.body.xs.copyWith(
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

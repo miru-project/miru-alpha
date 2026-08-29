@@ -12,9 +12,11 @@ import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
-import 'package:miru_alpha/ui/core/loading_state.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:smooth_sheets/smooth_sheets.dart';
+import 'package:miru_alpha/ui/features/detail/widget/detail_loading_skeleton.dart';
 import './widget/index.dart';
+import './detail_refresh.dart';
 
 class DetailLoadingPage extends StatefulHookConsumerWidget {
   const DetailLoadingPage({
@@ -31,6 +33,17 @@ class DetailLoadingPage extends StatefulHookConsumerWidget {
   /// desktop "previous / next" page navigation.
   final List<ExtensionListItem>? items;
   final int index;
+
+  /// Convenience redirect from the router's [DetailParam] extra.
+  factory DetailLoadingPage.fromParam(DetailParam param, {Key? key}) {
+    return DetailLoadingPage(
+      key: key,
+      meta: param.meta,
+      detailUrl: param.url,
+      items: param.items,
+      index: param.index,
+    );
+  }
 
   @override
   createState() => _DetailLoadPageState();
@@ -218,12 +231,31 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
         detailUrl: widget.detailUrl,
         child: ErrorDisplay.grpc(err: err, stack: stack),
       ),
-      loading: () => _DesktopDetailScaffold(
-        meta: widget.meta,
-        items: widget.items,
-        index: widget.index,
-        detailUrl: widget.detailUrl,
-        child: const LoadingState(),
+      loading: () => DeviceUtil.device(
+        context: context,
+        mobile: MiruScaffold.mobile(
+          desktopBody: DesktopDetailSkeletonContent(
+            meta: widget.meta,
+            items: widget.items,
+            index: widget.index,
+          ),
+          mobileBody: MobileDetailSkeletonPage(
+            meta: widget.meta,
+            items: widget.items,
+            index: widget.index,
+          ),
+        ),
+        desktop: _DesktopDetailScaffold(
+          meta: widget.meta,
+          items: widget.items,
+          index: widget.index,
+          detailUrl: widget.detailUrl,
+          child: DesktopDetailSkeletonContent(
+            meta: widget.meta,
+            items: widget.items,
+            index: widget.index,
+          ),
+        ),
       ),
     );
   }
@@ -389,9 +421,7 @@ class _DesktopDetailHeader extends ConsumerWidget {
             variant: .ghost,
             onPress: isRefreshing
                 ? null
-                : () => ref.invalidate(
-                    fetchDetailProvider(meta.packageName, detailUrl),
-                  ),
+                : () => forceRefreshDetail(ref, detailUrl, meta),
             child: isRefreshing
                 ? const SizedBox(
                     width: 16,
@@ -445,7 +475,12 @@ class _DetailBreadCrumb extends HookWidget {
                 return;
               }
             },
-            child: Text(seg.i18n),
+            child: Text(
+              seg.i18n,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+            ),
           ),
       ],
     );

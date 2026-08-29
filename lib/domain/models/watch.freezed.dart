@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'watch.dart';
@@ -9,6 +9,7 @@ part of 'watch.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -66,7 +67,7 @@ class _$DomainWatchResultCopyWithImpl<$Res>
 /// Create a copy of DomainWatchResult
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? data = null,Object? v2watch = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainWatchResult(
 data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
 as DomainWatchData,v2watch: freezed == v2watch ? _self.v2watch : v2watch // ignore: cast_nullable_to_non_nullable
 as DomainV2Watch?,
@@ -374,7 +375,7 @@ class _$DomainWatchDataCopyWithImpl<$Res>
 /// Create a copy of DomainWatchData
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? bangumi = freezed,Object? manga = freezed,Object? novel = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainWatchData(
 bangumi: freezed == bangumi ? _self.bangumi : bangumi // ignore: cast_nullable_to_non_nullable
 as DomainBangumiWatch?,manga: freezed == manga ? _self.manga : manga // ignore: cast_nullable_to_non_nullable
 as DomainMangaWatch?,novel: freezed == novel ? _self.novel : novel // ignore: cast_nullable_to_non_nullable
@@ -715,7 +716,7 @@ class _$DomainBangumiWatchCopyWithImpl<$Res>
 /// Create a copy of DomainBangumiWatch
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? type = freezed,Object? url = freezed,Object? subtitles = freezed,Object? headers = freezed,Object? torrent = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainBangumiWatch(
 type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String?,url: freezed == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String?,subtitles: freezed == subtitles ? _self.subtitles : subtitles // ignore: cast_nullable_to_non_nullable
@@ -874,7 +875,7 @@ return $default(_that.type,_that.url,_that.subtitles,_that.headers,_that.torrent
 @JsonSerializable()
 
 class _DomainBangumiWatch implements DomainBangumiWatch {
-  const _DomainBangumiWatch({this.type, this.url, final  List<DomainBangumiWatchSubtitle>? subtitles, final  Map<String, String>? headers, this.torrent}): _subtitles = subtitles,_headers = headers;
+  const _DomainBangumiWatch({this.type, this.url,  List<DomainBangumiWatchSubtitle>? subtitles,  Map<String, String>? headers, this.torrent}): _subtitles = subtitles,_headers = headers;
   factory _DomainBangumiWatch.fromJson(Map<String, dynamic> json) => _$DomainBangumiWatchFromJson(json);
 
 @override final  String? type;
@@ -1030,7 +1031,7 @@ class _$DomainBangumiWatchSubtitleCopyWithImpl<$Res>
 /// Create a copy of DomainBangumiWatchSubtitle
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? language = freezed,Object? title = freezed,Object? url = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainBangumiWatchSubtitle(
 language: freezed == language ? _self.language : language // ignore: cast_nullable_to_non_nullable
 as String?,title: freezed == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String?,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
@@ -1299,7 +1300,7 @@ class _$DomainBangumiTorrentCopyWithImpl<$Res>
 /// Create a copy of DomainBangumiTorrent
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? infoHash = null,Object? detail = null,Object? files = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainBangumiTorrent(
 infoHash: null == infoHash ? _self.infoHash : infoHash // ignore: cast_nullable_to_non_nullable
 as String,detail: null == detail ? _self.detail : detail // ignore: cast_nullable_to_non_nullable
 as DomainBangumiTorrentDetail,files: freezed == files ? _self.files : files // ignore: cast_nullable_to_non_nullable
@@ -1453,7 +1454,7 @@ return $default(_that.infoHash,_that.detail,_that.files);case _:
 @JsonSerializable()
 
 class _DomainBangumiTorrent implements DomainBangumiTorrent {
-  const _DomainBangumiTorrent({required this.infoHash, required this.detail, final  List<String>? files}): _files = files;
+  const _DomainBangumiTorrent({required this.infoHash, required this.detail,  List<String>? files}): _files = files;
   factory _DomainBangumiTorrent.fromJson(Map<String, dynamic> json) => _$DomainBangumiTorrentFromJson(json);
 
 @override final  String infoHash;
@@ -1594,7 +1595,7 @@ class _$DomainBangumiTorrentDetailCopyWithImpl<$Res>
 /// Create a copy of DomainBangumiTorrentDetail
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? pieceLength = freezed,Object? pieces = freezed,Object? name = freezed,Object? nameUtf8 = freezed,Object? length = freezed,Object? source = freezed,Object? metaVersion = freezed,Object? fileTree = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainBangumiTorrentDetail(
 pieceLength: freezed == pieceLength ? _self.pieceLength : pieceLength // ignore: cast_nullable_to_non_nullable
 as int?,pieces: freezed == pieces ? _self.pieces : pieces // ignore: cast_nullable_to_non_nullable
 as String?,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -1902,7 +1903,7 @@ class _$DomainBangumiTorrentFileTreeCopyWithImpl<$Res>
 /// Create a copy of DomainBangumiTorrentFileTree
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? file = freezed,Object? dir = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainBangumiTorrentFileTree(
 file: freezed == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
 as DomainBangumiTorrentFileTreeFile?,dir: freezed == dir ? _self.dir : dir // ignore: cast_nullable_to_non_nullable
 as Map<String, DomainBangumiTorrentFileTree>?,
@@ -2058,7 +2059,7 @@ return $default(_that.file,_that.dir);case _:
 @JsonSerializable()
 
 class _DomainBangumiTorrentFileTree implements DomainBangumiTorrentFileTree {
-  const _DomainBangumiTorrentFileTree({this.file, final  Map<String, DomainBangumiTorrentFileTree>? dir}): _dir = dir;
+  const _DomainBangumiTorrentFileTree({this.file,  Map<String, DomainBangumiTorrentFileTree>? dir}): _dir = dir;
   factory _DomainBangumiTorrentFileTree.fromJson(Map<String, dynamic> json) => _$DomainBangumiTorrentFileTreeFromJson(json);
 
 @override final  DomainBangumiTorrentFileTreeFile? file;
@@ -2200,7 +2201,7 @@ class _$DomainBangumiTorrentFileTreeFileCopyWithImpl<$Res>
 /// Create a copy of DomainBangumiTorrentFileTreeFile
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? length = null,Object? piecesRoot = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainBangumiTorrentFileTreeFile(
 length: null == length ? _self.length : length // ignore: cast_nullable_to_non_nullable
 as int,piecesRoot: null == piecesRoot ? _self.piecesRoot : piecesRoot // ignore: cast_nullable_to_non_nullable
 as String,
@@ -2466,7 +2467,7 @@ class _$DomainMangaWatchCopyWithImpl<$Res>
 /// Create a copy of DomainMangaWatch
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? pages = null,Object? headers = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainMangaWatch(
 pages: null == pages ? _self.pages : pages // ignore: cast_nullable_to_non_nullable
 as List<DomainMangaPage>,headers: freezed == headers ? _self.headers : headers // ignore: cast_nullable_to_non_nullable
 as Map<String, String>?,
@@ -2610,7 +2611,7 @@ return $default(_that.pages,_that.headers);case _:
 @JsonSerializable()
 
 class _DomainMangaWatch implements DomainMangaWatch {
-  const _DomainMangaWatch({required final  List<DomainMangaPage> pages, final  Map<String, String>? headers}): _pages = pages,_headers = headers;
+  const _DomainMangaWatch({required  List<DomainMangaPage> pages,  Map<String, String>? headers}): _pages = pages,_headers = headers;
   factory _DomainMangaWatch.fromJson(Map<String, dynamic> json) => _$DomainMangaWatchFromJson(json);
 
  final  List<DomainMangaPage> _pages;
@@ -2746,7 +2747,7 @@ class _$DomainMangaPageCopyWithImpl<$Res>
 /// Create a copy of DomainMangaPage
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = freezed,Object? url = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainMangaPage(
 name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,
@@ -3012,7 +3013,7 @@ class _$DomainNovelWatchCopyWithImpl<$Res>
 /// Create a copy of DomainNovelWatch
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? chapters = null,Object? headers = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainNovelWatch(
 chapters: null == chapters ? _self.chapters : chapters // ignore: cast_nullable_to_non_nullable
 as List<DomainNovelChapter>,headers: freezed == headers ? _self.headers : headers // ignore: cast_nullable_to_non_nullable
 as Map<String, String>?,
@@ -3156,7 +3157,7 @@ return $default(_that.chapters,_that.headers);case _:
 @JsonSerializable()
 
 class _DomainNovelWatch implements DomainNovelWatch {
-  const _DomainNovelWatch({required final  List<DomainNovelChapter> chapters, final  Map<String, String>? headers}): _chapters = chapters,_headers = headers;
+  const _DomainNovelWatch({required  List<DomainNovelChapter> chapters,  Map<String, String>? headers}): _chapters = chapters,_headers = headers;
   factory _DomainNovelWatch.fromJson(Map<String, dynamic> json) => _$DomainNovelWatchFromJson(json);
 
  final  List<DomainNovelChapter> _chapters;
@@ -3292,7 +3293,7 @@ class _$DomainNovelChapterCopyWithImpl<$Res>
 /// Create a copy of DomainNovelChapter
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = freezed,Object? url = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainNovelChapter(
 name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,
@@ -3558,7 +3559,7 @@ class _$DomainV2WatchCopyWithImpl<$Res>
 /// Create a copy of DomainV2Watch
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? groups = null,Object? defaultGroup = freezed,Object? defaultIndex = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainV2Watch(
 groups: null == groups ? _self.groups : groups // ignore: cast_nullable_to_non_nullable
 as List<DomainV2EpisodeGroup>,defaultGroup: freezed == defaultGroup ? _self.defaultGroup : defaultGroup // ignore: cast_nullable_to_non_nullable
 as String?,defaultIndex: freezed == defaultIndex ? _self.defaultIndex : defaultIndex // ignore: cast_nullable_to_non_nullable
@@ -3703,7 +3704,7 @@ return $default(_that.groups,_that.defaultGroup,_that.defaultIndex);case _:
 @JsonSerializable()
 
 class _DomainV2Watch implements DomainV2Watch {
-  const _DomainV2Watch({required final  List<DomainV2EpisodeGroup> groups, this.defaultGroup, this.defaultIndex}): _groups = groups;
+  const _DomainV2Watch({required  List<DomainV2EpisodeGroup> groups, this.defaultGroup, this.defaultIndex}): _groups = groups;
   factory _DomainV2Watch.fromJson(Map<String, dynamic> json) => _$DomainV2WatchFromJson(json);
 
  final  List<DomainV2EpisodeGroup> _groups;
@@ -3833,7 +3834,7 @@ class _$DomainV2EpisodeGroupCopyWithImpl<$Res>
 /// Create a copy of DomainV2EpisodeGroup
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? episodes = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainV2EpisodeGroup(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,episodes: null == episodes ? _self.episodes : episodes // ignore: cast_nullable_to_non_nullable
 as List<DomainV2Episode>,
@@ -3977,7 +3978,7 @@ return $default(_that.title,_that.episodes);case _:
 @JsonSerializable()
 
 class _DomainV2EpisodeGroup implements DomainV2EpisodeGroup {
-  const _DomainV2EpisodeGroup({required this.title, required final  List<DomainV2Episode> episodes}): _episodes = episodes;
+  const _DomainV2EpisodeGroup({required this.title, required  List<DomainV2Episode> episodes}): _episodes = episodes;
   factory _DomainV2EpisodeGroup.fromJson(Map<String, dynamic> json) => _$DomainV2EpisodeGroupFromJson(json);
 
 @override final  String title;
@@ -4105,7 +4106,7 @@ class _$DomainV2EpisodeCopyWithImpl<$Res>
 /// Create a copy of DomainV2Episode
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = freezed,Object? url = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainV2Episode(
 name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,

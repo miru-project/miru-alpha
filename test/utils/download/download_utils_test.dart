@@ -1,188 +1,241 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/utils/download/download_utils.dart';
+import 'package:path/path.dart' as p;
 
 void main() {
-  group('DownloadUtils.processFinishedDownload - non-HLS converting', () {
-    test('handleFile generates correct target path', () async {
-      final tempDir = Directory.systemTemp.createTempSync('test_dl_');
-      final targetDir = Directory.systemTemp.createTempSync('test_target_');
-
-      try {
-        final result = await DownloadUtils.handleFile(
-          taskId: '123',
-          currentPath: '${tempDir.path}/video.ts',
-          targetDir: targetDir.path,
-          isHls: false,
-          title: 'My Video',
-        );
-
-        expect(result, contains('My Video'));
-        expect(result, contains(targetDir.path));
-        expect(result, endsWith('.ts'));
-      } finally {
-        tempDir.deleteSync(recursive: true);
-        targetDir.deleteSync(recursive: true);
-      }
+  group('DownloadUtils.categoryFolder', () {
+    test('maps content categories to user-facing folder names', () {
+      expect(
+        DownloadUtils.categoryFolder(proto.DownloadCategory.video),
+        'Bangumi',
+      );
+      expect(
+        DownloadUtils.categoryFolder(proto.DownloadCategory.manga),
+        'Manga',
+      );
+      expect(
+        DownloadUtils.categoryFolder(proto.DownloadCategory.novel),
+        'Fikushon',
+      );
+      expect(
+        DownloadUtils.categoryFolder(proto.DownloadCategory.unspecified),
+        'Other',
+      );
     });
+  });
 
-    test(
-      'handleFile uses mp4 extension when current has no extension',
-      () async {
-        final targetDir = Directory.systemTemp.createTempSync('test_target_');
-
-        try {
-          final result = await DownloadUtils.handleFile(
-            taskId: '456',
-            currentPath: '/some/file',
-            targetDir: targetDir.path,
-            isHls: false,
-            title: 'No Extension',
-          );
-
-          expect(result, endsWith('.mp4'));
-        } finally {
-          targetDir.deleteSync(recursive: true);
-        }
-      },
-    );
-
-    test('handleFile uses mp4 extension for HLS', () async {
-      final targetDir = Directory.systemTemp.createTempSync('test_target_');
-
-      try {
-        final result = await DownloadUtils.handleFile(
-          taskId: '789',
-          currentPath: '/some/dir',
-          targetDir: targetDir.path,
-          isHls: true,
-          title: 'HLS Show',
-        );
-
-        expect(result, endsWith('.mp4'));
-        expect(result, contains('HLS Show'));
-      } finally {
-        targetDir.deleteSync(recursive: true);
-      }
-    });
-
-    test('filter removes illegal filename characters', () {
+  group('DownloadUtils.filter', () {
+    test('removes illegal filename characters', () {
       expect(DownloadUtils.filter('test<>:"/\\|?*file'), 'testfile');
       expect(
         DownloadUtils.filter('normal_file-2024.mp4'),
         'normal_file-2024.mp4',
       );
     });
+  });
 
-    test('handleFile throws when target directory is empty', () async {
+  group('DownloadUtils.buildTargetPath', () {
+    test('builds nested path category/package/title/episode', () {
+      final path = DownloadUtils.buildTargetPath(
+        root: '/downloads',
+        category: proto.DownloadCategory.video,
+        package: 'nyaa',
+        title: 'My Show',
+        epKey: 'Ep 1',
+        extension: '.mp4',
+      );
+      expect(
+        path,
+        equals(p.join('/downloads', 'Bangumi', 'nyaa', 'My Show', 'Ep 1.mp4')),
+      );
+    });
+
+    test('omits epGroup when null or empty', () {
+      final withGroup = DownloadUtils.buildTargetPath(
+        root: '/d',
+        category: proto.DownloadCategory.manga,
+        package: 'pkg',
+        title: 'Title',
+        epGroup: 'Season 1',
+        epKey: 'Ch 1',
+        extension: '.png',
+      );
+      final withoutGroup = DownloadUtils.buildTargetPath(
+        root: '/d',
+        category: proto.DownloadCategory.manga,
+        package: 'pkg',
+        title: 'Title',
+        epGroup: '',
+        epKey: 'Ch 1',
+        extension: '.png',
+      );
+      expect(
+        withGroup,
+        equals(p.join('/d', 'Manga', 'pkg', 'Title', 'Season 1', 'Ch 1.png')),
+      );
+      expect(
+        withoutGroup,
+        equals(p.join('/d', 'Manga', 'pkg', 'Title', 'Ch 1.png')),
+      );
+    });
+
+    test('sanitizes each segment via filter', () {
+      final path = DownloadUtils.buildTargetPath(
+        root: '/d',
+        category: proto.DownloadCategory.novel,
+        package: 'pkg/a',
+        title: 'Ti:tle',
+        epKey: 'ep*1',
+        extension: '.txt',
+      );
+      // 'pkg/a' -> 'pkga', 'Ti:tle' -> 'Title', 'ep*1' -> 'ep1'
+      expect(
+        path,
+        equals(p.join('/d', 'Fikushon', 'pkga', 'Title', 'ep1.txt')),
+      );
+    });
+
+    test('falls back to episode name when epKey is empty after filter', () {
+      final path = DownloadUtils.buildTargetPath(
+        root: '/d',
+        category: proto.DownloadCategory.unspecified,
+        package: 'pkg',
+        title: 'Title',
+        epKey: '***',
+        extension: '.mp4',
+      );
+      expect(
+        path,
+        equals(p.join('/d', 'Other', 'pkg', 'Title', 'episode.mp4')),
+      );
+    });
+  });
+
+  group('DownloadUtils.handleFile', () {
+    test('returns nested target and creates parent dirs (non-HLS)', () async {
+      final root = Directory.systemTemp.createTempSync('test_handle_');
+      final current = File(p.join(root.path, 'video.ts'))..createSync();
+      try {
+        final result = await DownloadUtils.handleFile(
+          taskId: '1',
+          currentPath: current.path,
+          targetDir: root.path,
+          isHls: false,
+          title: 'My Video',
+          category: proto.DownloadCategory.video,
+          package: 'pkg',
+          epKey: 'ep1',
+        );
+        expect(
+          result,
+          equals(p.join(root.path, 'Bangumi', 'pkg', 'My Video', 'ep1.ts')),
+        );
+        expect(await Directory(p.dirname(result)).exists(), isTrue);
+      } finally {
+        root.deleteSync(recursive: true);
+      }
+    });
+
+    test('uses mp4 extension for HLS', () async {
+      final root = Directory.systemTemp.createTempSync('test_handle_');
+      try {
+        final result = await DownloadUtils.handleFile(
+          taskId: '2',
+          currentPath: '${root.path}/dir',
+          targetDir: root.path,
+          isHls: true,
+          title: 'HLS Show',
+          category: proto.DownloadCategory.video,
+          package: 'pkg',
+          epKey: 'ep1',
+        );
+        expect(result, endsWith('.mp4'));
+        expect(result, contains('HLS Show'));
+      } finally {
+        root.deleteSync(recursive: true);
+      }
+    });
+
+    test('uses mp4 extension when current has no extension', () async {
+      final root = Directory.systemTemp.createTempSync('test_handle_');
+      try {
+        final result = await DownloadUtils.handleFile(
+          taskId: '3',
+          currentPath: '/some/file',
+          targetDir: root.path,
+          isHls: false,
+          title: 'No Extension',
+          category: proto.DownloadCategory.video,
+          package: 'pkg',
+          epKey: 'ep1',
+        );
+        expect(result, endsWith('.mp4'));
+      } finally {
+        root.deleteSync(recursive: true);
+      }
+    });
+
+    test('throws when target directory is empty', () {
       expect(
         () => DownloadUtils.handleFile(
-          taskId: '1',
+          taskId: '4',
           currentPath: '/file',
           targetDir: '',
           isHls: false,
           title: 'Title',
+          category: proto.DownloadCategory.video,
+          package: 'pkg',
+          epKey: 'ep1',
         ),
         throwsException,
       );
     });
+  });
 
-    test('handleFile creates target directory if it does not exist', () async {
-      final base = Directory.systemTemp.createTempSync('test_create_');
-      final targetDir = Directory('${base.path}/new_subdir');
-
-      try {
-        final result = await DownloadUtils.handleFile(
-          taskId: '200',
-          currentPath: '/file.mp4',
-          targetDir: targetDir.path,
-          isHls: false,
-          title: 'New Dir Video',
-        );
-
-        expect(File(result).parent.path, targetDir.path);
-        expect(await targetDir.exists(), isTrue);
-      } finally {
-        base.deleteSync(recursive: true);
-      }
+  group('DownloadUtils.safeDeletePath (temp cleanup)', () {
+    test('removes a file and its now-empty parent dir', () {
+      final dir = Directory.systemTemp.createTempSync('test_clean_');
+      final file = File(p.join(dir.path, 'seg.ts'))..createSync();
+      DownloadUtils.safeDeletePath(file.path);
+      expect(file.existsSync(), isFalse);
+      expect(dir.existsSync(), isFalse);
     });
 
-    test(
-      'non-HLS processFinishedDownload copies file from temp to target',
-      () async {
-        final tempDir = Directory.systemTemp.createTempSync('test_src_');
-        final targetDir = Directory.systemTemp.createTempSync('test_dst_');
+    test('removes an HLS segment directory recursively', () {
+      final dir = Directory.systemTemp.createTempSync('test_clean_');
+      File(p.join(dir.path, 'a.ts')).createSync();
+      File(p.join(dir.path, 'b.ts')).createSync();
+      DownloadUtils.safeDeletePath(dir.path);
+      expect(dir.existsSync(), isFalse);
+    });
 
-        final sourceFile = File('${tempDir.path}/temp_video.mp4');
-        await sourceFile.writeAsBytes([1, 2, 3, 4, 5]);
-
-        try {
-          // Since processFinishedDownload calls gRPC, we validate the
-          // core file-copy logic that it performs for non-HLS:
-          final targetPath = '${targetDir.path}/final_video.mp4';
-          await sourceFile.copy(targetPath);
-          await sourceFile.delete();
-
-          // Verify copy succeeded
-          expect(await File(targetPath).exists(), isTrue);
-          final content = await File(targetPath).readAsBytes();
-          expect(content, [1, 2, 3, 4, 5]);
-
-          // Verify source deleted
-          expect(await sourceFile.exists(), isFalse);
-        } finally {
-          tempDir.deleteSync(recursive: true);
-          targetDir.deleteSync(recursive: true);
-        }
-      },
-    );
-
-    test('non-HLS converting: empty parent dir is cleaned up', () async {
-      final tempDir = Directory.systemTemp.createTempSync('test_cleanup_');
-      final sourceFile = File('${tempDir.path}/video.mp4');
-      await sourceFile.writeAsBytes([10, 20]);
-
-      try {
-        await sourceFile.copy('${tempDir.path}/../video.mp4');
-        await sourceFile.delete();
-
-        // Parent dir should be empty now
-        final dir = sourceFile.parent;
-        expect(await dir.exists(), isTrue);
-        final files = await dir.list().isEmpty;
-        expect(files, isTrue);
-
-        // Clean up empty dir (matching processFinishedDownload logic)
-        if (await dir.exists() && await dir.list().isEmpty) {
-          await dir.delete();
-        }
-        expect(await dir.exists(), isFalse);
-      } finally {
-        tempDir.parent.deleteSync(recursive: true);
-      }
+    test('ignores a missing path without throwing', () {
+      expect(
+        () => DownloadUtils.safeDeletePath('/nonexistent/path/xyz'),
+        returnsNormally,
+      );
     });
   });
 
-  group('DownloadUtils.updateStatus', () {
-    test('statusToI18N returns correct i18n keys', () {
-      // We can't call MiruGrpcClient in a unit test, but we can validate
-      // the status mapping logic that drives the converting UI flow.
+  group('DownloadUtils.statusToI18N', () {
+    test('returns non-empty i18n keys for all statuses', () {
       final statusMap = {
-        'QUEUED': 'download.status.queued',
-        'DOWNLOADING': 'download.status.downloading',
-        'PAUSED': 'download.status.paused',
-        'COMPLETED': 'download.status.completed',
-        'FAILED': 'download.status.failed',
-        'CANCELLED': 'download.status.cancelled',
-        'CONVERTING': 'download.status.converting',
+        proto.DownloadStatus.QUEUED: 'download.status.queued',
+        proto.DownloadStatus.DOWNLOADING: 'download.status.downloading',
+        proto.DownloadStatus.PAUSED: 'download.status.paused',
+        proto.DownloadStatus.COMPLETED: 'download.status.completed',
+        proto.DownloadStatus.FAILED: 'download.status.failed',
+        proto.DownloadStatus.CANCELLED: 'download.status.cancelled',
+        proto.DownloadStatus.CONVERTING: 'download.status.converting',
       };
-
       for (final entry in statusMap.entries) {
         expect(
+          DownloadUtils.statusToI18N(entry.key),
           entry.value,
-          isNotEmpty,
-          reason: 'Status ${entry.key} should have an i18n key',
+          reason: 'Status ${entry.key} should map to ${entry.value}',
         );
       }
     });

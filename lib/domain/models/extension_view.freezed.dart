@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'extension_view.dart';
@@ -9,6 +9,7 @@ part of 'extension_view.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -66,7 +67,7 @@ class _$DomainExtensionViewStateCopyWithImpl<$Res>
 /// Create a copy of DomainExtensionViewState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? repos = null,Object? extensions = null,Object? installedPackages = null,Object? metadata = null,Object? selectedRepoName = null,Object? query = null,Object? typeFilter = null,Object? installFilter = null,Object? isLoading = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainExtensionViewState(
 repos: null == repos ? _self.repos : repos // ignore: cast_nullable_to_non_nullable
 as List<DomainExtensionRepo>,extensions: null == extensions ? _self.extensions : extensions // ignore: cast_nullable_to_non_nullable
 as List<DomainExtensionRepo>,installedPackages: null == installedPackages ? _self.installedPackages : installedPackages // ignore: cast_nullable_to_non_nullable
@@ -217,7 +218,7 @@ return $default(_that.repos,_that.extensions,_that.installedPackages,_that.metad
 @JsonSerializable()
 
 class _DomainExtensionViewState implements DomainExtensionViewState {
-  const _DomainExtensionViewState({final  List<DomainExtensionRepo> repos = const [], final  List<DomainExtensionRepo> extensions = const [], final  List<String> installedPackages = const [], final  List<DomainExtensionMeta> metadata = const [], this.selectedRepoName = '', this.query = '', this.typeFilter = ExtensionType.all, this.installFilter = ExtensionInstallStatus.all, this.isLoading = false}): _repos = repos,_extensions = extensions,_installedPackages = installedPackages,_metadata = metadata;
+  const _DomainExtensionViewState({ List<DomainExtensionRepo> repos = const [],  List<DomainExtensionRepo> extensions = const [],  List<String> installedPackages = const [],  List<DomainExtensionMeta> metadata = const [], this.selectedRepoName = '', this.query = '', this.typeFilter = ExtensionType.all, this.installFilter = ExtensionInstallStatus.all, this.isLoading = false}): _repos = repos,_extensions = extensions,_installedPackages = installedPackages,_metadata = metadata;
   factory _DomainExtensionViewState.fromJson(Map<String, dynamic> json) => _$DomainExtensionViewStateFromJson(json);
 
  final  List<DomainExtensionRepo> _repos;

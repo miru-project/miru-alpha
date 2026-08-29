@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'detail.dart';
@@ -9,6 +9,7 @@ part of 'detail.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -66,7 +67,7 @@ class _$DomainDetailCopyWithImpl<$Res>
 /// Create a copy of DomainDetail
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? cover = freezed,Object? desc = freezed,Object? episodes = freezed,Object? headers = freezed,Object? downloaded = null,Object? detailUrl = null,Object? package = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainDetail(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,cover: freezed == cover ? _self.cover : cover // ignore: cast_nullable_to_non_nullable
@@ -217,7 +218,7 @@ return $default(_that.id,_that.title,_that.cover,_that.desc,_that.episodes,_that
 @JsonSerializable()
 
 class _DomainDetail implements DomainDetail {
-  const _DomainDetail({this.id, required this.title, this.cover, this.desc, final  List<DomainEpisodeGroup>? episodes, final  Map<String, String>? headers, final  List<String> downloaded = const [], required this.detailUrl, required this.package}): _episodes = episodes,_headers = headers,_downloaded = downloaded;
+  const _DomainDetail({this.id, required this.title, this.cover, this.desc,  List<DomainEpisodeGroup>? episodes,  Map<String, String>? headers,  List<String> downloaded = const [], required this.detailUrl, required this.package}): _episodes = episodes,_headers = headers,_downloaded = downloaded;
   factory _DomainDetail.fromJson(Map<String, dynamic> json) => _$DomainDetailFromJson(json);
 
 @override final  int? id;
@@ -375,7 +376,7 @@ class _$DomainEpisodeGroupCopyWithImpl<$Res>
 /// Create a copy of DomainEpisodeGroup
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = freezed,Object? episodes = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainEpisodeGroup(
 name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,episodes: null == episodes ? _self.episodes : episodes // ignore: cast_nullable_to_non_nullable
 as List<DomainEpisode>,
@@ -519,7 +520,7 @@ return $default(_that.name,_that.episodes);case _:
 @JsonSerializable()
 
 class _DomainEpisodeGroup implements DomainEpisodeGroup {
-  const _DomainEpisodeGroup({this.name, required final  List<DomainEpisode> episodes}): _episodes = episodes;
+  const _DomainEpisodeGroup({this.name, required  List<DomainEpisode> episodes}): _episodes = episodes;
   factory _DomainEpisodeGroup.fromJson(Map<String, dynamic> json) => _$DomainEpisodeGroupFromJson(json);
 
 @override final  String? name;
@@ -647,7 +648,7 @@ class _$DomainEpisodeCopyWithImpl<$Res>
 /// Create a copy of DomainEpisode
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = freezed,Object? url = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainEpisode(
 name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String?,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
 as String,

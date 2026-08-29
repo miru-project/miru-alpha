@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'tracking.dart';
@@ -9,6 +9,7 @@ part of 'tracking.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -66,7 +67,7 @@ class _$DomainTrackingAccountCopyWithImpl<$Res>
 /// Create a copy of DomainTrackingAccount
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? avatar = freezed,Object? provider = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainTrackingAccount(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,avatar: freezed == avatar ? _self.avatar : avatar // ignore: cast_nullable_to_non_nullable
@@ -338,7 +339,7 @@ class _$DomainTrackingProgressCopyWithImpl<$Res>
 /// Create a copy of DomainTrackingProgress
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? mediaId = null,Object? status = null,Object? progress = null,Object? score = freezed,Object? mediaType = freezed,Object? title = freezed,Object? cover = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainTrackingProgress(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,mediaId: null == mediaId ? _self.mediaId : mediaId // ignore: cast_nullable_to_non_nullable
 as int,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -622,7 +623,7 @@ class _$DomainTMDBTrackCopyWithImpl<$Res>
 /// Create a copy of DomainTMDBTrack
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? mediaId = null,Object? mediaType = null,Object? title = null,Object? cover = freezed,Object? overview = freezed,Object? status = freezed,Object? runtime = freezed,Object? genres = freezed,Object? updatedAt = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainTMDBTrack(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,mediaId: null == mediaId ? _self.mediaId : mediaId // ignore: cast_nullable_to_non_nullable
 as int,mediaType: null == mediaType ? _self.mediaType : mediaType // ignore: cast_nullable_to_non_nullable
@@ -774,7 +775,7 @@ return $default(_that.id,_that.mediaId,_that.mediaType,_that.title,_that.cover,_
 @JsonSerializable()
 
 class _DomainTMDBTrack implements DomainTMDBTrack {
-  const _DomainTMDBTrack({required this.id, required this.mediaId, required this.mediaType, required this.title, this.cover, this.overview, this.status, this.runtime, final  List<String>? genres, required this.updatedAt}): _genres = genres;
+  const _DomainTMDBTrack({required this.id, required this.mediaId, required this.mediaType, required this.title, this.cover, this.overview, this.status, this.runtime,  List<String>? genres, required this.updatedAt}): _genres = genres;
   factory _DomainTMDBTrack.fromJson(Map<String, dynamic> json) => _$DomainTMDBTrackFromJson(json);
 
 @override final  int id;
@@ -920,7 +921,7 @@ class _$DomainTMDBCastCopyWithImpl<$Res>
 /// Create a copy of DomainTMDBCast
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? character = null,Object? profilePath = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainTMDBCast(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,character: null == character ? _self.character : character // ignore: cast_nullable_to_non_nullable
 as String,profilePath: freezed == profilePath ? _self.profilePath : profilePath // ignore: cast_nullable_to_non_nullable

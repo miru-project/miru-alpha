@@ -8,6 +8,7 @@ import 'package:miru_alpha/utils/download/download_utils.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
+import 'package:miru_alpha/utils/core/miru_directory.dart';
 import 'package:miru_alpha/data/repositories/download_repository.dart';
 import 'package:miru_alpha/data/services/download_service.dart';
 import 'package:path/path.dart' as p;
@@ -28,6 +29,11 @@ class DownloadState {
   /// in-progress (temp) downloads. Null until the first stats fetch completes.
   final proto.StorageStats? storageStats;
 
+  /// Actual on-disk size (bytes) of the configured temp download directory,
+  /// computed by scanning the filesystem. This is the authoritative temp
+  /// measurement for mobile (more accurate than progress-based estimates).
+  final int tempStorageBytes;
+
   DownloadState({
     this.history = const [],
     this.active = const [],
@@ -35,6 +41,7 @@ class DownloadState {
     this.hasMore = true,
     this.preparingKeys = const {},
     this.storageStats,
+    this.tempStorageBytes = 0,
   });
 
   DownloadState copyWith({
@@ -44,6 +51,7 @@ class DownloadState {
     bool? hasMore,
     Set<String>? preparingKeys,
     proto.StorageStats? storageStats,
+    int? tempStorageBytes,
   }) {
     return DownloadState(
       history: history ?? this.history,
@@ -52,6 +60,7 @@ class DownloadState {
       hasMore: hasMore ?? this.hasMore,
       preparingKeys: preparingKeys ?? this.preparingKeys,
       storageStats: storageStats ?? this.storageStats,
+      tempStorageBytes: tempStorageBytes ?? this.tempStorageBytes,
     );
   }
 }
@@ -102,6 +111,30 @@ class DownloadNotifier extends _$DownloadNotifier {
     return const AsyncLoading();
   }
 
+  /// Scans the configured temp-download directory on disk and returns the
+  /// total byte size of all files (recursively) — the authoritative mobile
+  /// measure for in-progress download space.
+  Future<int> _scanTempDownloadDirBytes() async {
+    try {
+      final dirPath = await MiruDirectory.getTempDownloadDirectory();
+      final dir = Directory(dirPath);
+      if (!await dir.exists()) return 0;
+      var total = 0;
+      await for (final entity in dir.list(
+        recursive: true,
+        followLinks: false,
+      )) {
+        if (entity is File) {
+          total += await entity.length();
+        }
+      }
+      return total;
+    } catch (e) {
+      logger.severe('Failed to scan temp download directory: $e');
+      return 0;
+    }
+  }
+
   /// Fetches per-category storage stats (incl. temp) for [downloadPath].
   /// Returns null when the path is empty or the backend call fails.
   Future<proto.StorageStats?> _fetchStorageStats(String downloadPath) async {
@@ -122,7 +155,11 @@ class DownloadNotifier extends _$DownloadNotifier {
       SettingKey.downloadPath,
     );
     final stats = await _fetchStorageStats(downloadPath);
-    final updated = currentState.copyWith(storageStats: stats);
+    final tempBytes = await _scanTempDownloadDirBytes();
+    final updated = currentState.copyWith(
+      storageStats: stats,
+      tempStorageBytes: tempBytes,
+    );
     if (state.value != null) state = AsyncData(updated);
   }
 
@@ -202,6 +239,7 @@ class DownloadNotifier extends _$DownloadNotifier {
       SettingKey.downloadPath,
     );
     final stats = await _fetchStorageStats(downloadPath);
+    final tempBytes = await _scanTempDownloadDirBytes();
 
     state = AsyncData(
       DownloadState(
@@ -210,6 +248,7 @@ class DownloadNotifier extends _$DownloadNotifier {
         page: 1,
         hasMore: historyRes.downloads.length >= pageSize,
         storageStats: stats,
+        tempStorageBytes: tempBytes,
       ),
     );
 
@@ -224,7 +263,7 @@ class DownloadNotifier extends _$DownloadNotifier {
     // stream misses ticks or the backend delays progress updates.
     _pollTimer?.cancel();
     _pollTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-      _refreshActiveStatus();
+      refreshActiveStatus();
     });
   }
 
@@ -286,6 +325,8 @@ class DownloadNotifier extends _$DownloadNotifier {
         showSimpleToast(
           'Failed to download ${task.title}\nURL: $urlInfo\nReason: $errorInfo',
         );
+        // Clean up temporary files for failed download
+        _cleanupTempFiles(task);
       }
 
       // Detect transition to COMPLETED status
@@ -297,6 +338,21 @@ class DownloadNotifier extends _$DownloadNotifier {
           '(taskId: ${task.taskId}, mediaType: ${task.mediaType})',
         );
         showSimpleToast('Finished downloading ${task.title}');
+        // Note: For completed downloads, the temp files should have been cleaned
+        // up by the processing logic (e.g., HLS conversion). We do not clean up
+        // here to avoid race conditions, but we rely on the processing logic.
+      }
+
+      // Detect transition to CANCELLED status
+      if (task.status == proto.DownloadStatus.CANCELLED &&
+          previousStatus != null &&
+          previousStatus != proto.DownloadStatus.CANCELLED) {
+        logger.info(
+          'Download cancelled: ${task.title} '
+          '(taskId: ${task.taskId}, mediaType: ${task.mediaType})',
+        );
+        // Clean up temporary files for cancelled download
+        _cleanupTempFiles(task);
       }
     }
 
@@ -306,6 +362,21 @@ class DownloadNotifier extends _$DownloadNotifier {
         .where((id) => !activeIds.contains(id))
         .toList()
         .forEach(_previousStatuses.remove);
+  }
+
+  /// Cleans up temporary files associated with a download.
+  /// This includes the currentDownloading file/directory and any segment files.
+  void _cleanupTempFiles(proto.DownloadProgress download) {
+    // currentDownloading may be a single file (direct mp4) or the HLS segment
+    // directory; safeDeletePath handles both without throwing on a directory.
+    if (download.currentDownloading.isNotEmpty) {
+      DownloadUtils.safeDeletePath(download.currentDownloading);
+    }
+    // Best-effort removal of individual segment files (they may live outside
+    // currentDownloading, or already be removed by the recursive dir delete).
+    for (final segment in download.names) {
+      DownloadUtils.safeDeletePath(segment);
+    }
   }
 
   /// Merge [incoming] tasks with the current active state, keeping the higher
@@ -453,6 +524,9 @@ class DownloadNotifier extends _$DownloadNotifier {
         targetDir: downloadPath,
         isHls: isHls,
         title: download.title,
+        category: download.category,
+        package: download.package,
+        epKey: download.key,
       );
 
       showSimpleToast("Finished downloading ${download.title}");
@@ -621,12 +695,19 @@ class DownloadNotifier extends _$DownloadNotifier {
           }
           _optimisticallyUpdateStatus(taskId, proto.DownloadStatus.DOWNLOADING);
           // Refresh from backend after short delay to confirm real state.
-          Future.delayed(const Duration(seconds: 1), _refreshActiveStatus);
-          Future.delayed(const Duration(seconds: 3), _refreshActiveStatus);
+          Future.delayed(const Duration(seconds: 1), refreshActiveStatus);
+          Future.delayed(const Duration(seconds: 3), refreshActiveStatus);
         case proto.DownloadAction.CANCEL:
+          // Capture the task before the backend drops it, so we can clean up
+          // its temporary files even if the status-transition stream never
+          // delivers a terminal event for it.
+          final task = state.value?.active.where((t) => t.taskId == taskId);
           await MiruGrpcClient.downloadClient.cancelDownload(
             proto.CancelDownloadRequest()..taskId = taskId,
           );
+          if (task != null && task.isNotEmpty) {
+            _cleanupTempFiles(task.first);
+          }
           // Remove cancelled task from active list.
           state.whenData((currentState) {
             state = AsyncData(
@@ -665,7 +746,7 @@ class DownloadNotifier extends _$DownloadNotifier {
   /// Re-fetch active download status from the backend. Used after resume to
   /// pick up the real state the backend settled on (handles cases where the
   /// event stream is delayed or the backend re-queued the task).
-  Future<void> _refreshActiveStatus() async {
+  Future<void> refreshActiveStatus() async {
     try {
       final statusRes = await MiruGrpcClient.downloadClient.getDownloadStatus(
         proto.GetDownloadStatusRequest(),

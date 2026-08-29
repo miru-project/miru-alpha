@@ -25,6 +25,11 @@
     "warning": "Warning",
     "back": "Back",
     "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "refresh_failed_using_cache": "Refresh failed. Using cached data.",
+    "force_refresh_success": "Force refresh successful. Data updated.",
+    "force_refresh_failed_using_cache": "Force refresh failed. Using cached data.",
+    "retry_all": "Retry All",
     "load_more": "Load More",
     "page": "page",
     "date": "Date",
@@ -550,6 +555,10 @@
   },
   "detail": {
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "error": {
+      "network": "Network error. Check your connection.",
+      "server": "Server error. Please try again later."
+    }
   }
 }

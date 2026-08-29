@@ -10,6 +10,75 @@ class DownloadUtils {
     return path.replaceAll(RegExp(r'[<>:"/\\|?*\x00-\x1F]'), '').trim();
   }
 
+  /// Maps a content category to its top-level folder name under the download
+  /// root, matching the user-facing labels (Bangumi / Manga / Fikushon).
+  static const Map<proto.DownloadCategory, String> _categoryFolderName = {
+    proto.DownloadCategory.video: 'Bangumi',
+    proto.DownloadCategory.manga: 'Manga',
+    proto.DownloadCategory.novel: 'Fikushon',
+    proto.DownloadCategory.unspecified: 'Other',
+  };
+
+  /// Returns the sanitized top-level folder name for [category].
+  static String categoryFolder(proto.DownloadCategory category) =>
+      _categoryFolderName[category] ?? 'Other';
+
+  /// Builds the on-disk path for a completed download following the layout:
+  /// `$root/<Category>/<package>/<title>/<epGroup>/<epName><ext>`.
+  ///
+  /// [epGroup] is optional; when empty it is omitted so the episode file sits
+  /// directly under the title folder. Every produced segment is sanitized via
+  /// [filter] so it is a safe, filesystem-friendly name.
+  static String buildTargetPath({
+    required String root,
+    required proto.DownloadCategory category,
+    required String package,
+    required String title,
+    String? epGroup,
+    required String epKey,
+    required String extension,
+  }) {
+    final parts = <String>[
+      root,
+      categoryFolder(category),
+      filter(package),
+      filter(title),
+    ];
+    if (epGroup != null && epGroup.trim().isNotEmpty) {
+      parts.add(filter(epGroup));
+    }
+    final epName = filter(epKey).isNotEmpty ? filter(epKey) : 'episode';
+    parts.add('$epName$extension');
+    return p.joinAll(parts);
+  }
+
+  /// Deletes [path], which may be a regular file or a directory (recursively).
+  /// Safe to call on a missing path. Used for best-effort cleanup of temporary
+  /// download artifacts so a directory (e.g. the HLS segment folder) is not
+  /// silently skipped the way [File.deleteSync] would on a directory.
+  static void safeDeletePath(String path) {
+    if (path.isEmpty) return;
+    try {
+      final type = FileSystemEntity.typeSync(path);
+      if (type == FileSystemEntityType.directory) {
+        final dir = Directory(path);
+        if (dir.existsSync()) dir.deleteSync(recursive: true);
+      } else if (type == FileSystemEntityType.file) {
+        final file = File(path);
+        if (file.existsSync()) {
+          final parent = file.parent;
+          file.deleteSync();
+          // Remove the parent only if it is now empty.
+          if (parent.existsSync() && parent.listSync().isEmpty) {
+            parent.deleteSync();
+          }
+        }
+      }
+    } catch (e) {
+      logger.warning('Failed to clean up temp path $path: $e');
+    }
+  }
+
   static Future<void> processHLS({
     required String taskId,
     required List<String> segments,
@@ -52,23 +121,34 @@ class DownloadUtils {
     required String targetDir,
     required bool isHls,
     required String title,
+    required proto.DownloadCategory category,
+    required String package,
+    required String epKey,
+    String? epGroup,
   }) async {
     if (targetDir.isEmpty) {
       throw Exception("Target directory is not set");
     }
 
-    final targetDirPath = Directory(targetDir);
-    if (!await targetDirPath.exists()) {
-      await targetDirPath.create(recursive: true);
-    }
-
-    String finalFileName = filter(title);
-    if (finalFileName.isEmpty) finalFileName = "download_$taskId";
-
     String extension = isHls ? ".mp4" : p.extension(currentPath);
     if (extension.isEmpty && !isHls) extension = ".mp4";
 
-    final targetPath = p.join(targetDir, "$finalFileName$extension");
+    final targetPath = buildTargetPath(
+      root: targetDir,
+      category: category,
+      package: package,
+      title: title,
+      epGroup: epGroup,
+      epKey: epKey,
+      extension: extension,
+    );
+
+    // Ensure the (possibly nested) parent directory exists.
+    final parent = Directory(p.dirname(targetPath));
+    if (!await parent.exists()) {
+      await parent.create(recursive: true);
+    }
+
     return targetPath;
   }
 
@@ -114,6 +194,10 @@ class DownloadUtils {
     required String targetDir,
     required bool isHls,
     required String title,
+    required proto.DownloadCategory category,
+    required String package,
+    required String epKey,
+    String? epGroup,
   }) async {
     try {
       final targetPath = await handleFile(
@@ -122,6 +206,10 @@ class DownloadUtils {
         targetDir: targetDir,
         isHls: isHls,
         title: title,
+        category: category,
+        package: package,
+        epKey: epKey,
+        epGroup: epGroup,
       );
 
       if (isHls) {

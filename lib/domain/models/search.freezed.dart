@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'search.dart';
@@ -9,6 +9,7 @@ part of 'search.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -66,7 +67,7 @@ class _$DomainSearchFilterCopyWithImpl<$Res>
 /// Create a copy of DomainSearchFilter
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? lang = freezed,Object? type = freezed,Object? installedOnly = null,Object? notInstalledOnly = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainSearchFilter(
 lang: freezed == lang ? _self.lang : lang // ignore: cast_nullable_to_non_nullable
 as String?,type: freezed == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String?,installedOnly: null == installedOnly ? _self.installedOnly : installedOnly // ignore: cast_nullable_to_non_nullable
@@ -338,7 +339,7 @@ class _$DomainSearchStateCopyWithImpl<$Res>
 /// Create a copy of DomainSearchState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? extensions = null,Object? query = null,Object? selectedLang = freezed,Object? selectedType = freezed,Object? isLoading = null,Object? error = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainSearchState(
 extensions: null == extensions ? _self.extensions : extensions // ignore: cast_nullable_to_non_nullable
 as List<dynamic>,query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
 as String,selectedLang: freezed == selectedLang ? _self.selectedLang : selectedLang // ignore: cast_nullable_to_non_nullable
@@ -486,7 +487,7 @@ return $default(_that.extensions,_that.query,_that.selectedLang,_that.selectedTy
 @JsonSerializable()
 
 class _DomainSearchState implements DomainSearchState {
-  const _DomainSearchState({required final  List<dynamic> extensions, required this.query, this.selectedLang, this.selectedType, this.isLoading = false, this.error}): _extensions = extensions;
+  const _DomainSearchState({required  List<dynamic> extensions, required this.query, this.selectedLang, this.selectedType, this.isLoading = false, this.error}): _extensions = extensions;
   factory _DomainSearchState.fromJson(Map<String, dynamic> json) => _$DomainSearchStateFromJson(json);
 
  final  List<dynamic> _extensions;

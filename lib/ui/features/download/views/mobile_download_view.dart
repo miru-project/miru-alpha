@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/provider/application_controller_provider.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
@@ -44,44 +42,45 @@ class MobileDownloadView extends HookConsumerWidget {
           child: const _MobileDownloadHeader(),
         ),
       ],
-      // MiruTabs contains an Expanded + TabBarView, so it requires a bounded
-      // height. Passing it as a plain sliver (e.g. SliverToBoxAdapter) would
-      // give it unbounded height and throw a RenderFlex error. Using `body`
-      // (the scaffold wraps it in SliverFillRemaining) keeps the header +
-      // storage card fixed while the tab content scrolls in its own area.
-      body: downloadAsync.when(
-        loading: () => const Center(child: FCircularProgress()),
-        error: (error, _) => EmptyState(
-          icon: FLucideIcons.download,
-          message: 'download.error_loading_downloads'.i18n,
+      body: EasyRefresh(
+        header: const ForuiHeader(),
+        onRefresh: () async {
+          await ref.read(downloadProvider.notifier).refreshStorageStats();
+          await ref.read(downloadProvider.notifier).refreshActiveStatus();
+        },
+        child: downloadAsync.when(
+          loading: () => const Center(child: FCircularProgress()),
+          error: (error, _) => EmptyState(
+            icon: FLucideIcons.download,
+            message: 'download.error_loading_downloads'.i18n,
+          ),
+          data: (state) => _buildContentBody(state, downloadPath),
         ),
-        data: (state) => _buildContentBody(state, downloadPath),
       ),
     );
   }
 
   Widget _buildContentBody(DownloadState state, String downloadPath) {
     final active = state.active;
-    final history = state.history;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Storage indicator card
+        // Storage indicator card with live progress
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
           child: _StorageIndicatorCard(
             downloadPath: downloadPath,
             storageStats: state.storageStats,
-            history: history,
+            active: active,
+            tempStorageBytes: state.tempStorageBytes,
           ),
         ),
-        // Filter tabs using MiruTabs. The tab contents render the filtered
-        // active + completed download lists (and their empty states).
+        // Filter tabs - only active downloads
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: _DownloadFilterTabs(active: active, history: history),
+            child: _DownloadFilterTabs(active: active),
           ),
         ),
       ],
@@ -148,11 +147,54 @@ class _MobileDownloadHeader extends ConsumerWidget {
 // Storage indicator
 // -----------------------------------------------------------------------------
 
+/// Per-category storage breakdown shown on the mobile storage card.
+class _StorageBreakdown {
+  const _StorageBreakdown({
+    required this.video,
+    required this.manga,
+    required this.novel,
+    required this.temp,
+  });
+  final int video;
+  final int manga;
+  final int novel;
+  final int temp;
+  int get total => video + manga + novel + temp;
+}
+
+/// Computes the storage breakdown for the mobile card.
+///
+/// The backend [proto.StorageStats] is the source of truth for completed
+/// files per category. For the in-progress (temp) slice we combine the
+/// backend's reported `temp_bytes` with the live bytes reported by active
+/// tasks: `max(backendTemp, liveTemp)`. This keeps the Temp slice accurate
+/// when the backend under-reports (or zeroes out) temp bytes while downloads
+/// are actively progressing, instead of showing 0B for occupied space.
+_StorageBreakdown _computeStorageBreakdown(
+  proto.StorageStats? stats,
+  int tempStorageBytes,
+) {
+  final video = stats?.videoBytes.toInt() ?? 0;
+  final manga = stats?.mangaBytes.toInt() ?? 0;
+  final novel = stats?.novelBytes.toInt() ?? 0;
+  // Authoritative mobile temp: the actual on-disk size of the temp download
+  // directory (scanned by the provider). This avoids treating progress values
+  // (segment counts for HLS, percentages for MP4) as byte sizes.
+  final int temp = tempStorageBytes;
+  return _StorageBreakdown(
+    video: video,
+    manga: manga,
+    novel: novel,
+    temp: temp,
+  );
+}
+
 class _StorageIndicatorCard extends StatelessWidget {
   const _StorageIndicatorCard({
     required this.downloadPath,
     required this.storageStats,
-    required this.history,
+    required this.active,
+    required this.tempStorageBytes,
   });
 
   final String downloadPath;
@@ -161,31 +203,17 @@ class _StorageIndicatorCard extends StatelessWidget {
   /// or null when it has not loaded yet.
   final proto.StorageStats? storageStats;
 
-  /// Completed downloads, used as a fallback when [storageStats] is null.
-  final List<proto.Download> history;
+  /// Active downloads, used to calculate live progress for in-progress items.
+  final List<proto.DownloadProgress> active;
+
+  /// Actual on-disk size of the temp download directory (scanned from disk).
+  final int tempStorageBytes;
 
   @override
   Widget build(BuildContext context) {
-    final stats = storageStats;
-    late final int video;
-    late final int manga;
-    late final int novel;
-    late final int temp;
-    if (stats != null) {
-      video = stats.videoBytes.toInt();
-      manga = stats.mangaBytes.toInt();
-      novel = stats.novelBytes.toInt();
-      temp = stats.tempBytes.toInt();
-    } else {
-      // Fallback: measure each finished download's save_path live, grouped by
-      // its content category (the DB stores category, not media mechanism).
-      final counts = _computeCategorySizes(history);
-      video = counts[0];
-      manga = counts[1];
-      novel = counts[2];
-      temp = 0;
-    }
-    final total = video + manga + novel + temp;
+    final breakdown = _computeStorageBreakdown(storageStats, tempStorageBytes);
+
+    final total = breakdown.total;
     final hasAny = total > 0;
 
     return MiruCard(
@@ -241,19 +269,19 @@ class _StorageIndicatorCard extends StatelessWidget {
                   children: [
                     if (hasAny) ...[
                       _storageSegment(
-                        flex: video,
+                        flex: breakdown.video,
                         color: const Color(0xFF3B82F6),
                       ),
                       _storageSegment(
-                        flex: manga,
+                        flex: breakdown.manga,
                         color: const Color(0xFFEC4899),
                       ),
                       _storageSegment(
-                        flex: novel,
+                        flex: breakdown.novel,
                         color: const Color(0xFFF59E0B),
                       ),
                       _storageSegment(
-                        flex: temp,
+                        flex: breakdown.temp,
                         color: const Color(0xFF64748B),
                       ),
                     ],
@@ -262,7 +290,7 @@ class _StorageIndicatorCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            // Compact legend: each media type (and temp) with its occupied size.
+            // Compact legend: per-category occupied size (video / manga / novel / temp).
             Wrap(
               spacing: 16,
               runSpacing: 4,
@@ -270,22 +298,22 @@ class _StorageIndicatorCard extends StatelessWidget {
                 _StorageLegendItem(
                   color: const Color(0xFF3B82F6),
                   label: 'media.video'.i18n,
-                  size: _formatBytes(video),
+                  size: _formatBytes(breakdown.video),
                 ),
                 _StorageLegendItem(
                   color: const Color(0xFFEC4899),
                   label: 'media.manga'.i18n,
-                  size: _formatBytes(manga),
+                  size: _formatBytes(breakdown.manga),
                 ),
                 _StorageLegendItem(
                   color: const Color(0xFFF59E0B),
                   label: 'media.novel'.i18n,
-                  size: _formatBytes(novel),
+                  size: _formatBytes(breakdown.novel),
                 ),
                 _StorageLegendItem(
                   color: const Color(0xFF64748B),
                   label: 'download.temp'.i18n,
-                  size: _formatBytes(temp),
+                  size: _formatBytes(breakdown.temp),
                 ),
               ],
             ),
@@ -353,73 +381,14 @@ class _StorageLegendItem extends StatelessWidget {
   }
 }
 
-/// Fallback summary of on-disk size for finished downloads, grouped by the
-/// content [category] stored on each row (video / manga / novel). Returns
-/// `[video, manga, novel]`. Sizes are measured live from each download's
-/// `savePath`; a missing file contributes 0 instead of throwing.
-List<int> _computeCategorySizes(List<proto.Download> history) {
-  var video = 0;
-  var manga = 0;
-  var novel = 0;
-
-  for (final download in history) {
-    final size = _fileSizeOnDisk(download.savePath);
-    switch (download.category) {
-      case proto.DownloadCategory.video:
-        video += size;
-      case proto.DownloadCategory.manga:
-        manga += size;
-      case proto.DownloadCategory.novel:
-        novel += size;
-      case proto.DownloadCategory.unspecified:
-        break;
-    }
-  }
-  return [video, manga, novel];
-}
-
-/// Size of a finished download's file or directory on disk, in bytes.
-///
-/// Returns 0 if the path is empty or no longer exists (e.g. the user deleted
-/// it outside the app). All filesystem access is guarded so this never throws.
-int _fileSizeOnDisk(String path) {
-  if (path.isEmpty) return 0;
-  try {
-    final entity = FileSystemEntity.typeSync(path);
-    if (entity == FileSystemEntityType.file) {
-      return File(path).lengthSync();
-    } else if (entity == FileSystemEntityType.directory) {
-      return _directorySizeSync(Directory(path));
-    }
-  } catch (_) {
-    return 0;
-  }
-  return 0;
-}
-
-int _directorySizeSync(Directory dir) {
-  var total = 0;
-  try {
-    for (final entity in dir.listSync(recursive: true)) {
-      if (entity is File) {
-        total += entity.lengthSync();
-      }
-    }
-  } catch (_) {
-    // Ignore entries we cannot read; the partial total is still useful.
-  }
-  return total;
-}
-
 // -----------------------------------------------------------------------------
 // Filter tabs — MiruExpandableTabs bar + one filtered content area
 // -----------------------------------------------------------------------------
 
 class _DownloadFilterTabs extends ConsumerStatefulWidget {
-  const _DownloadFilterTabs({required this.active, required this.history});
+  const _DownloadFilterTabs({required this.active});
 
   final List<proto.DownloadProgress> active;
-  final List<proto.Download> history;
 
   @override
   ConsumerState<_DownloadFilterTabs> createState() =>
@@ -467,7 +436,6 @@ class _DownloadFilterTabsState extends ConsumerState<_DownloadFilterTabs> {
         Expanded(
           child: _DownloadTabContent(
             active: widget.active,
-            history: widget.history,
             categoryFilter: _filters[_filterIndex],
           ),
         ),
@@ -479,12 +447,10 @@ class _DownloadFilterTabsState extends ConsumerState<_DownloadFilterTabs> {
 class _DownloadTabContent extends ConsumerWidget {
   const _DownloadTabContent({
     required this.active,
-    required this.history,
     required this.categoryFilter,
   });
 
   final List<proto.DownloadProgress> active;
-  final List<proto.Download> history;
   final proto.DownloadCategory? categoryFilter;
 
   @override
@@ -492,10 +458,7 @@ class _DownloadTabContent extends ConsumerWidget {
     final filteredActive = categoryFilter == null
         ? active
         : active.where((t) => t.category == categoryFilter).toList();
-    final filteredHistory = categoryFilter == null
-        ? history
-        : history.where((t) => t.category == categoryFilter).toList();
-    final hasItems = filteredActive.isNotEmpty || filteredHistory.isNotEmpty;
+    final hasItems = filteredActive.isNotEmpty;
 
     if (!hasItems) {
       return Center(
@@ -508,10 +471,7 @@ class _DownloadTabContent extends ConsumerWidget {
 
     return ListView(
       padding: const EdgeInsets.only(top: 16, bottom: 100),
-      children: [
-        if (filteredActive.isNotEmpty) ..._buildActiveItems(filteredActive),
-        if (filteredHistory.isNotEmpty) ..._buildHistoryItems(filteredHistory),
-      ],
+      children: _buildActiveItems(filteredActive),
     );
   }
 
@@ -521,15 +481,6 @@ class _DownloadTabContent extends ConsumerWidget {
       _MobileActiveDownloadItem(task: items[i]),
     ],
     const SizedBox(height: 16),
-  ];
-
-  List<Widget> _buildHistoryItems(List<proto.Download> items) => [
-    for (var i = 0; i < items.length; i++) ...[
-      if (i > 0) const SizedBox(height: 8),
-      _MobileCompletedDownloadItem(download: items[i]),
-    ],
-    const SizedBox(height: 16),
-    _DeleteAllFinishedButton(history: items),
   ];
 }
 
@@ -628,201 +579,6 @@ class _MobileActiveDownloadItem extends ConsumerWidget {
               child: const Icon(FLucideIcons.x),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Completed download item
-// -----------------------------------------------------------------------------
-
-class _MobileCompletedDownloadItem extends ConsumerWidget {
-  const _MobileCompletedDownloadItem({required this.download});
-
-  final proto.Download download;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return MiruCard(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            // Drag handle (visual only for completed items)
-            Icon(
-              FLucideIcons.gripVertical,
-              size: 20,
-              color: context.theme.colors.mutedForeground,
-            ),
-            const SizedBox(width: 8),
-            // Title + path
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    download.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.theme.typography.body.sm.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  if (download.savePath.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      download.savePath,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.theme.typography.body.sm.copyWith(
-                        color: context.theme.colors.mutedForeground,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            // Status badge (capped so it can shrink instead of overflowing the
-            // row on narrow screens or with long translations)
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 140),
-              child: _StatusBadge(status: download.status),
-            ),
-            const SizedBox(width: 4),
-            // Delete
-            FButton.icon(
-              variant: FButtonVariant.ghost,
-              size: .sm,
-              onPress: () async {
-                await MiruGrpcClient.downloadClient.deleteDownload(
-                  proto.DeleteDownloadRequest()..id = download.id,
-                );
-                ref.invalidate(downloadProvider);
-              },
-              child: Icon(
-                FLucideIcons.trash2,
-                color: context.theme.colors.destructive,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Status badge
-// -----------------------------------------------------------------------------
-
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
-
-  final proto.DownloadStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final (label, color) = switch (status) {
-      proto.DownloadStatus.DOWNLOADING => (
-        'download.status.downloading'.i18n,
-        context.theme.colors.primary,
-      ),
-      proto.DownloadStatus.PAUSED => (
-        'download.status.paused'.i18n,
-        context.theme.colors.mutedForeground,
-      ),
-      proto.DownloadStatus.CONVERTING => (
-        'download.status.converting'.i18n,
-        const Color(0xFFD97706),
-      ),
-      proto.DownloadStatus.COMPLETED => (
-        'download.status.completed'.i18n,
-        const Color(0xFF16A34A),
-      ),
-      proto.DownloadStatus.FAILED => (
-        'download.status.failed'.i18n,
-        context.theme.colors.destructive,
-      ),
-      proto.DownloadStatus.CANCELLED => (
-        'download.status.cancelled'.i18n,
-        context.theme.colors.mutedForeground,
-      ),
-      proto.DownloadStatus.QUEUED => (
-        'download.status.queued'.i18n,
-        context.theme.colors.mutedForeground,
-      ),
-      _ => (
-        'download.status.unknown'.i18n,
-        context.theme.colors.mutedForeground,
-      ),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withAlpha(26),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: context.theme.typography.body.xs.copyWith(color: color),
-      ),
-    );
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Delete All Finished button
-// -----------------------------------------------------------------------------
-
-class _DeleteAllFinishedButton extends ConsumerWidget {
-  const _DeleteAllFinishedButton({required this.history});
-
-  final List<proto.Download> history;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Center(
-      child: FButton(
-        variant: FButtonVariant.outline,
-        onPress: () async {
-          for (final download in history) {
-            await MiruGrpcClient.downloadClient.deleteDownload(
-              proto.DeleteDownloadRequest()..id = download.id,
-            );
-          }
-          ref.invalidate(downloadProvider);
-        },
-        // The default content builder lays its child out at intrinsic width,
-        // which overflows the button on narrow screens or with long labels.
-        // A custom builder keeps the label a flex child so it can ellipsize
-        // instead of overflowing the button's content row.
-        builder: (context, _, _, _, _, child) {
-          return Flexible(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  FLucideIcons.trash2,
-                  size: 18,
-                  color: context.theme.colors.mutedForeground,
-                ),
-                const SizedBox(width: 8),
-                Flexible(child: child!),
-              ],
-            ),
-          );
-        },
-        child: Text(
-          'download.delete_all_finished'.i18n,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
       ),
     );

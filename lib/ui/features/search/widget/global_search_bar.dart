@@ -91,77 +91,73 @@ class GlobalSearchBar extends HookWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                // Kept wrapped in ExcludeSemantics per request; revisit for
-                // screen-reader access to the search field.
-                child: ExcludeSemantics(
-                  child: FTextField(
-                    autofocus: autofocus,
-                    focusNode: focusNode,
-                    control: FTextFieldControl.managed(controller: controller),
-                    hint: 'extension.search_across_extensions'.i18n,
-                    onSubmit: onQuerySubmitted,
-                    suffixBuilder: (context, style, states) {
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: 8,
-                        children: [
-                          if (hasText)
-                            FButton.icon(
-                              variant: FButtonVariant.ghost,
-                              onPress: () => controller.clear(),
-                              child: Icon(FLucideIcons.x, size: 16),
+                child: FTextField(
+                  autofocus: autofocus,
+                  focusNode: focusNode,
+                  control: FTextFieldControl.managed(controller: controller),
+                  hint: 'extension.search_across_extensions'.i18n,
+                  onSubmit: onQuerySubmitted,
+                  suffixBuilder: (context, style, states) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 8,
+                      children: [
+                        if (hasText)
+                          FButton.icon(
+                            variant: FButtonVariant.ghost,
+                            onPress: () => controller.clear(),
+                            child: Icon(FLucideIcons.x, size: 16),
+                          ),
+                        if (!isSingle)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
                             ),
-                          if (!isSingle)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: context.theme.colors.border,
                               ),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: context.theme.colors.border,
-                                ),
-                                borderRadius: BorderRadius.circular(9999),
-                                color: context.theme.colors.secondary,
-                              ),
-                              child: Text(
-                                'Cmd+K',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'monospace',
-                                  color: context.theme.colors.mutedForeground,
-                                ),
+                              borderRadius: BorderRadius.circular(9999),
+                              color: context.theme.colors.secondary,
+                            ),
+                            child: Text(
+                              'Cmd+K',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'monospace',
+                                color: context.theme.colors.mutedForeground,
                               ),
                             ),
-                          if (isSingle)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
+                          ),
+                        if (isSingle)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: context.theme.colors.border,
                               ),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: context.theme.colors.border,
-                                ),
-                                borderRadius: BorderRadius.circular(9999),
-                                color: context.theme.colors.secondary,
-                              ),
-                              child: Text(
-                                'Esc',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'monospace',
-                                  color: context.theme.colors.mutedForeground,
-                                ),
+                              borderRadius: BorderRadius.circular(9999),
+                              color: context.theme.colors.secondary,
+                            ),
+                            child: Text(
+                              'Esc',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'monospace',
+                                color: context.theme.colors.mutedForeground,
                               ),
                             ),
-                          const SizedBox(width: 8),
-                        ],
-                      );
-                    },
-                  ),
+                          ),
+                        const SizedBox(width: 8),
+                      ],
+                    );
+                  },
                 ),
               ),
             ],

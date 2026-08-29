@@ -7,6 +7,7 @@ import 'package:miru_alpha/ui/features/search/global_search.dart';
 import 'package:miru_alpha/provider/search/search_page_provider.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/utils/store/storage_index.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/core/inner_card.dart';
 import 'package:miru_alpha/ui/features/search/widget/desktop_search_list_tile.dart';
 
@@ -22,9 +23,16 @@ class DesktopSearchPage extends HookConsumerWidget {
 
     // Seed the global-search query from a deep-link keyword (e.g. the
     // top-bar popup or /search?q=). Source of truth stays in the provider.
+    // The mutation is deferred to a microtask: flutter_hooks runs effects
+    // right after the rebuild (still inside the build phase), and modifying
+    // a provider there throws "Tried to modify a provider while the widget
+    // tree was building".
     useEffect(() {
-      if (search != null && search!.isNotEmpty) {
-        ref.read(searchPageProvider.notifier).setQuery(search!);
+      final query = search;
+      if (query != null && query.isNotEmpty) {
+        Future.microtask(
+          () => ref.read(searchPageProvider.notifier).setQuery(query),
+        );
       }
       return null;
     }, [search]);
@@ -34,7 +42,14 @@ class DesktopSearchPage extends HookConsumerWidget {
     return Stack(
       children: [
         if (searchQuery.isNotEmpty)
-          GlobalSearch(searchQuery: searchQuery, isMobile: false)
+          Column(
+            children: [
+              _GlobalSearchHeader(query: searchQuery),
+              Expanded(
+                child: GlobalSearch(searchQuery: searchQuery, isMobile: false),
+              ),
+            ],
+          )
         else
           CustomScrollView(
             slivers: [
@@ -180,6 +195,52 @@ class DesktopSearchPage extends HookConsumerWidget {
             ],
           ),
       ],
+    );
+  }
+}
+
+/// Header above the global-search results: shows the active keyword with a
+/// Cancel button. Cancel clears the query, which unmounts [GlobalSearch] and
+/// disposes every per-extension autoDispose search provider (in-flight
+/// requests are dropped), aborting the global search.
+class _GlobalSearchHeader extends ConsumerWidget {
+  const _GlobalSearchHeader({required this.query});
+  final String query;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Match GlobalSearch's horizontal padding so the header aligns with the
+    // result rows.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(70, 16, 70, 4),
+      child: Row(
+        children: [
+          Icon(
+            FLucideIcons.search,
+            size: 18,
+            color: context.theme.colors.mutedForeground,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              query,
+              style: context.theme.typography.body.lg.copyWith(
+                fontWeight: .bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 12),
+          FButton(
+            variant: .outline,
+            onPress: () {
+              ref.read(searchPageProvider.notifier).setQuery('');
+            },
+            prefix: Icon(FLucideIcons.x),
+            child: Text('common.cancel'.i18n),
+          ),
+        ],
+      ),
     );
   }
 }

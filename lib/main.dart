@@ -272,7 +272,7 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
             GlobalCupertinoLocalizations.delegate,
           ],
           routerConfig: RouterUtil.appRouter,
-          // debugShowCheckedModeBanner: false,
+          debugShowCheckedModeBanner: false,
         ),
       ),
     );

@@ -8,12 +8,36 @@ part of 'search_page_single_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// Per-extension search provider backing the `/search/single` page.
+///
+/// Unlike the cross-extension [SearchPageProvider], it is scoped to one
+/// installed extension ([SingleSearchPageState.pkg]) and carries that
+/// extension's own filter catalogue. Pages increment [SingleSearchPageState.page]
+/// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
+/// is sent to the extension when fetching results.
+// @Riverpod(keepAlive: true)
 
 @ProviderFor(SearchPageSingleProvider)
 final searchPageSingleProviderProvider = SearchPageSingleProviderProvider._();
 
+/// Per-extension search provider backing the `/search/single` page.
+///
+/// Unlike the cross-extension [SearchPageProvider], it is scoped to one
+/// installed extension ([SingleSearchPageState.pkg]) and carries that
+/// extension's own filter catalogue. Pages increment [SingleSearchPageState.page]
+/// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
+/// is sent to the extension when fetching results.
+// @Riverpod(keepAlive: true)
 final class SearchPageSingleProviderProvider
     extends $NotifierProvider<SearchPageSingleProvider, SingleSearchPageState> {
+  /// Per-extension search provider backing the `/search/single` page.
+  ///
+  /// Unlike the cross-extension [SearchPageProvider], it is scoped to one
+  /// installed extension ([SingleSearchPageState.pkg]) and carries that
+  /// extension's own filter catalogue. Pages increment [SingleSearchPageState.page]
+  /// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
+  /// is sent to the extension when fetching results.
+  // @Riverpod(keepAlive: true)
   SearchPageSingleProviderProvider._()
     : super(
         from: null,
@@ -42,7 +66,16 @@ final class SearchPageSingleProviderProvider
 }
 
 String _$searchPageSingleProviderHash() =>
-    r'52eadba5c87e26758e91b0b19b38d12b8a26b5ee';
+    r'30753c6044f866bcccc64109a37e053bbb46000e';
+
+/// Per-extension search provider backing the `/search/single` page.
+///
+/// Unlike the cross-extension [SearchPageProvider], it is scoped to one
+/// installed extension ([SingleSearchPageState.pkg]) and carries that
+/// extension's own filter catalogue. Pages increment [SingleSearchPageState.page]
+/// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
+/// is sent to the extension when fetching results.
+// @Riverpod(keepAlive: true)
 
 abstract class _$SearchPageSingleProvider
     extends $Notifier<SingleSearchPageState> {

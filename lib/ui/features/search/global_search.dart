@@ -134,7 +134,10 @@ class GlobalSearch extends HookConsumerWidget {
               );
               final meta = metaData
                   .where((ext) => ext.packageName == pkg)
-                  .first;
+                  .firstOrNull;
+              // Metadata can lag behind the scope packages (e.g. an extension
+              // was removed while results were open); skip instead of crashing.
+              if (meta == null) return const SizedBox.shrink();
 
               return SizedBox(
                 height: isMobile ? 265.0 : 400.0,

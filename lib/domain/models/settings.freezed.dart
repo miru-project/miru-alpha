@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // coverage:ignore-file
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, type=warning, deprecated_member_use, deprecated_member_use_from_same_package
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
 part of 'settings.dart';
@@ -9,6 +9,7 @@ part of 'settings.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 T _$identity<T>(T value) => value;
 
@@ -66,7 +67,7 @@ class _$DomainAppSettingsCopyWithImpl<$Res>
 /// Create a copy of DomainAppSettings
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? theme = null,Object? baseColor = null,Object? accentColor = null,Object? language = null,Object? isMobileTitleOnTop = null,Object? tmdbApiKey = null,Object? proxy = null,Object? proxyPort = null,Object? enableProxy = null,Object? hardwareAcceleration = null,Object? subtitleFontSize = null,Object? subtitleColor = null,Object? playbackSpeed = null,Object? autoPlayNext = null,Object? mangaReadMode = null,Object? novelReadMode = null,Object? novelFontSize = null,Object? novelTheme = null,Object? enableTTS = null,Object? devMode = null,Object? enableDevLog = null,Object? enableDevNetwork = null,Object? anilistToken = null,Object? autoSyncTracking = null,Object? downloadConcurrent = null,Object? downloadPath = null,Object? autoDownload = null,Object? showContinueWatching = null,Object? showHistory = null,Object? showFavorites = null,}) {
-  return _then(_self.copyWith(
+  return _then(DomainAppSettings(
 theme: null == theme ? _self.theme : theme // ignore: cast_nullable_to_non_nullable
 as String,baseColor: null == baseColor ? _self.baseColor : baseColor // ignore: cast_nullable_to_non_nullable
 as String,accentColor: null == accentColor ? _self.accentColor : accentColor // ignore: cast_nullable_to_non_nullable
@@ -416,7 +417,7 @@ class _$DomainSettingItemCopyWithImpl<$Res>
 /// Create a copy of DomainSettingItem
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') @override $Res call({Object? key = null,Object? value = null,Object? type = null,Object? description = freezed,}) {
-  return _then(_self.copyWith(
+  return _then(DomainSettingItem(
 key: null == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
 as String,value: null == value ? _self.value : value // ignore: cast_nullable_to_non_nullable
 as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable

@@ -50,7 +50,9 @@ class _SearchViewMobile extends HookConsumerWidget {
       if (q == null || q.isEmpty) {
         return null;
       }
-      notifier.search(q);
+      // Deferred to a microtask so the provider mutation happens after the
+      // build phase (see Riverpod's "modify while building" restriction).
+      Future.microtask(() => notifier.search(q));
       return null;
     }, [query]);
 
@@ -73,7 +75,9 @@ class _SearchViewDesktop extends HookConsumerWidget {
       if (q == null || q.isEmpty) {
         return null;
       }
-      notifier.search(q);
+      // Deferred to a microtask so the provider mutation happens after the
+      // build phase (see Riverpod's "modify while building" restriction).
+      Future.microtask(() => notifier.search(q));
       return null;
     }, [query]);
 

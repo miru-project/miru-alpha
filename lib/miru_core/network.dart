@@ -62,7 +62,35 @@ class CoreNetwork {
 }
 
 class MiruCoreEndpoint {
-  static Detail _detailFromProto(proto.Detail p) {
+  static Detail detailFromProto(proto.Detail p) {
+    List<ExtensionEpisodeGroup>? episodes;
+    if (p.hasEpisodes()) {
+      try {
+        final decoded = jsonDecode(p.episodes);
+        if (decoded is List) {
+          episodes = decoded
+              .map((e) => ExtensionEpisodeGroup()..mergeFromProto3Json(e))
+              .toList();
+        }
+      } catch (e) {
+        logger.warning('Failed to parse episodes JSON: ${p.episodes}');
+        episodes = null;
+      }
+    }
+
+    Map<String, String>? headers;
+    if (p.hasHeaders()) {
+      try {
+        final decoded = jsonDecode(p.headers);
+        if (decoded is Map) {
+          headers = decoded.map((k, v) => MapEntry(k.toString(), v.toString()));
+        }
+      } catch (e) {
+        logger.warning('Failed to parse headers JSON: ${p.headers}');
+        headers = null;
+      }
+    }
+
     return Detail(
       id: p.id,
       title: p.hasTitle() ? p.title : "",
@@ -71,16 +99,8 @@ class MiruCoreEndpoint {
       downloaded: p.downloaded,
       detailUrl: p.detailUrl,
       package: p.package,
-      episodes: p.hasEpisodes()
-          ? (jsonDecode(p.episodes) as List)
-                .map((e) => ExtensionEpisodeGroup()..mergeFromProto3Json(e))
-                .toList()
-          : null,
-      headers: p.hasHeaders()
-          ? (jsonDecode(p.headers) as Map<String, dynamic>).map(
-              (k, v) => MapEntry(k, v.toString()),
-            )
-          : null,
+      episodes: episodes,
+      headers: headers,
     );
   }
 
@@ -105,7 +125,7 @@ class MiruCoreEndpoint {
       proto.GetDetailRequest(package: pkg, detailUrl: url),
     );
     if (!response.hasDetail() || response.detail.package.isEmpty) return null;
-    return _detailFromProto(response.detail);
+    return detailFromProto(response.detail);
   }
 
   static Future<Detail> upsertDbDetail(Detail detail) async {
@@ -123,7 +143,7 @@ class MiruCoreEndpoint {
         headers: detail.headers != null ? jsonEncode(detail.headers) : null,
       ),
     );
-    return _detailFromProto(response.detail);
+    return detailFromProto(response.detail);
   }
 
   static Future<dynamic> watch(
