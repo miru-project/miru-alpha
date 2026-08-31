@@ -188,11 +188,6 @@ class Core {
   static Future<void> loadMiruCore() async {
     logger.info('Loading Miru Core...');
     final location = configLoc;
-    if (Platform.isAndroid) {
-      final platform = MethodChannel('miru.alpha/miru_core');
-      await platform.invokeMethod('InitAAR', location);
-      return;
-    }
     final token = RootIsolateToken.instance!;
     final receivePort = ReceivePort();
     final sendPort = receivePort.sendPort;
@@ -231,11 +226,7 @@ class Core {
       } else if (message != null) {
         error = message;
       }
-      MiruLog.recordCrash(
-        error.toString(),
-        stack,
-        source: 'miru-core-isolate',
-      );
+      MiruLog.recordCrash(error.toString(), stack, source: 'miru-core-isolate');
     });
 
     final isolate = await Isolate.spawn(

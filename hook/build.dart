@@ -74,6 +74,10 @@ Future<FFmpegBuildResult> _buildAndroid(
   BuildInput input,
   BuildOutputBuilder output,
 ) async {
+  // Build the Go miru_core native library (c-shared) for this ABI and register
+  // it as a bundled code asset, replacing the old gomobile AAR dependency.
+  await _buildMiruCore(input, output);
+
   final includes = <Uri>[];
   final libraries = <String>[];
   final libraryDirectories = <Uri>[];
@@ -151,6 +155,141 @@ Future<FFmpegBuildResult> _buildAndroid(
     libraries: libraries,
     libraryDirectories: libraryDirectories,
   );
+}
+
+/// Builds libmiru_core.so for the current Android ABI using Go's c-shared build
+/// mode with the NDK C toolchain (CGO enabled).
+///
+/// The produced shared library is registered as a bundled native code asset
+/// so Flutter packages it into `lib/<abi>/libmiru_core.so`. This replaces the
+/// previous gomobile `bind` AAR dependency.
+Future<void> _buildMiruCore(
+  BuildInput input,
+  BuildOutputBuilder output,
+) async {
+  final sdkRoot =
+      Platform.environment['ANDROID_HOME'] ?? '/home/noonecare/Android/Sdk';
+  final ndkPath = _resolveNdkPath(sdkRoot);
+  final toolchain = '$ndkPath/toolchains/llvm/prebuilt/linux-x86_64/bin';
+
+  final arch = input.config.code.targetArchitecture;
+  final (ccName, cxxName, goArch, abi) = _abiToolchain(arch);
+
+  // Output into a per-ABI subdirectory named libmiru_core.so. The native-assets
+  // bundler copies the file using its basename, so the bundled library must be
+  // named exactly `libmiru_core.so` (what Dart opens via DynamicLibrary.open).
+  // The per-ABI directory keeps the three intermediate files from overwriting
+  // each other across the per-ABI build-hook invocations.
+  final outDir = input.packageRoot.resolve('build/android/lib/$abi/');
+  await Directory.fromUri(outDir).create(recursive: true);
+  final outSo = outDir.resolve('libmiru_core.so');
+
+  // Skip the rebuild when the .so is already newer than the Go entry point.
+  final goMain = input.packageRoot.resolve('src/miru_core/miru-core/main.go');
+  final soFile = File.fromUri(outSo);
+  if (!soFile.existsSync() ||
+      File.fromUri(goMain).lastModifiedSync().isAfter(soFile.lastModifiedSync())) {
+    logger.info('Building libmiru_core.so for $abi (Go c-shared)...');
+    final result = await Process.run(
+      'go',
+      [
+        'build',
+        '-tags', 'nosqlite',
+        '-buildmode=c-shared',
+        '-ldflags=-s -w -checklinkname=0',
+        '-trimpath',
+        '-o', outSo.toFilePath(),
+        input.packageRoot
+            .resolve('src/miru_core/miru-core/main.go')
+            .toFilePath(),
+      ],
+      environment: {
+        'ANDROID_HOME': sdkRoot,
+        'ANDROID_SDK_ROOT': sdkRoot,
+        'ANDROID_NDK_HOME': ndkPath,
+        'PATH': '${Platform.environment['PATH'] ?? ''}:$toolchain',
+        'CC': '$toolchain/$ccName',
+        'CXX': '$toolchain/$cxxName',
+        'CGO_ENABLED': '1',
+        'GOOS': 'android',
+        'GOARCH': goArch,
+      },
+      // The Go module lives in src/miru_core/miru-core; cwd must be inside it
+      // so `go` can resolve go.mod and the internal `binary` package.
+      workingDirectory:
+          input.packageRoot.resolve('src/miru_core/miru-core').toFilePath(),
+    );
+    if (result.exitCode != 0) {
+      throw Exception(
+        'Failed to build libmiru_core.so for $abi '
+        '(exit ${result.exitCode}):\n${result.stdout}\n${result.stderr}',
+      );
+    }
+  }
+
+  output.assets.code.add(
+    CodeAsset(
+      package: input.packageName,
+      name: 'libmiru_core.so',
+      file: outSo,
+      linkMode: DynamicLoadingBundled(),
+    ),
+  );
+}
+
+/// Resolves the Android NDK directory, preferring an installed 28.x NDK so the
+/// Go c-shared build matches the app's [android.app.build.gradle.kts] NDK.
+String _resolveNdkPath(String sdkRoot) {
+  final ndkDir = Directory('$sdkRoot/ndk');
+  if (ndkDir.existsSync()) {
+    final versions = ndkDir
+        .listSync()
+        .whereType<Directory>()
+        .map((d) => d.path.split('/').last)
+        .where((n) => n.startsWith('28.'))
+        .toList()
+      ..sort();
+    if (versions.isNotEmpty) return '$sdkRoot/ndk/${versions.last}';
+  }
+  return Platform.environment['ANDROID_NDK_HOME'] ??
+      '$sdkRoot/ndk/28.2.13676358';
+}
+
+/// Maps a [Architecture] to the NDK clang toolchain names, the Go [GOARCH],
+/// and the Android ABI folder name.
+(String, String, String, String) _abiToolchain(Architecture arch) {
+  switch (arch) {
+    case Architecture.arm64:
+      return (
+        'aarch64-linux-android21-clang',
+        'aarch64-linux-android21-clang++',
+        'arm64',
+        'arm64-v8a',
+      );
+    case Architecture.arm:
+      return (
+        'armv7a-linux-androideabi21-clang',
+        'armv7a-linux-androideabi21-clang++',
+        'arm',
+        'armeabi-v7a',
+      );
+    case Architecture.x64:
+      return (
+        'x86_64-linux-android21-clang',
+        'x86_64-linux-android21-clang++',
+        'amd64',
+        'x86_64',
+      );
+    case Architecture.ia32:
+      return (
+        'i686-linux-android21-clang',
+        'i686-linux-android21-clang++',
+        '386',
+        'x86',
+      );
+    default:
+      throw Exception('Unsupported architecture: $arch');
+  }
 }
 
 /// Linux build step – mirrors Android but uses Linux FFmpeg archive.

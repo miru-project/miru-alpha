@@ -109,6 +109,3 @@ android {
 flutter {
     source = "../.."
 }
-dependencies{
-    implementation(files("../../src/miru_core/android/libmiru-core.aar"))
-}
