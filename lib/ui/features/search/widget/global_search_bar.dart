@@ -145,7 +145,7 @@ class GlobalSearchBar extends HookWidget {
                               color: context.theme.colors.secondary,
                             ),
                             child: Text(
-                              'Esc',
+                              'Enter ↵',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,

@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
@@ -11,14 +12,13 @@ import 'package:miru_alpha/utils/setting_dir_index.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/features/search/widget/search_grid_loading.dart';
 import 'package:miru_alpha/ui/features/search/widget/search_grid_view.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 
 /// Single-extension search results.
 ///
-/// Searching is performed by the app-wide global search bar (the window-edge
-/// [SearchTrigger] -> [SearchOverlayPopup]); this page intentionally has NO
-/// search input of its own so a page never carries two search functions. Only
-/// a filter button (not a search function) is offered for extension-specific
-/// filtering.
+/// Desktop via window global bar. Mobile owns inline fancy search field that
+/// hides on scroll-down (shrink to 0) and reappears on scroll-up, driven by
+/// [MiruScaffold] + inner grid scroll direction.
 class SearchPageSingleView extends HookConsumerWidget {
   const SearchPageSingleView({super.key, this.query, required this.meta});
   final String? query;
@@ -30,6 +30,33 @@ class SearchPageSingleView extends HookConsumerWidget {
       SettingKey.showPageNumber,
     );
     final scrollController = useScrollController();
+    final singleState = ref.watch(searchPageSingleProviderProvider);
+    final filterSummary = singleState.filterSummary;
+    final searchController = useTextEditingController(text: singleState.query);
+    final searchVisible = useState(true);
+
+    // Keep controller in sync when provider query changes externally.
+    useEffect(() {
+      if (searchController.text != singleState.query) {
+        searchController.value = TextEditingValue(
+          text: singleState.query,
+          selection: TextSelection.collapsed(offset: singleState.query.length),
+        );
+      }
+      return null;
+    }, [singleState.query]);
+
+    // Clearable X -> propagate empty to provider.
+    final controllerText = useValueListenable(searchController).text;
+    useEffect(() {
+      if (controllerText.isEmpty && singleState.query.isNotEmpty) {
+        Future.microtask(
+          () =>
+              ref.read(searchPageSingleProviderProvider.notifier).setQuery(''),
+        );
+      }
+      return null;
+    }, [controllerText]);
 
     useEffect(() {
       Future.microtask(() {
@@ -39,8 +66,6 @@ class SearchPageSingleView extends HookConsumerWidget {
         ref
             .read(searchPageSingleProviderProvider.notifier)
             .fetchInitialFilters();
-        // Carry the global query into this extension's search so the user keeps
-        // the context of what they were looking for.
         final incoming = query;
         if (incoming != null && incoming.isNotEmpty) {
           ref
@@ -48,20 +73,21 @@ class SearchPageSingleView extends HookConsumerWidget {
               .setQuery(incoming);
         }
       });
-      // Entering the extension's latest page marks it as recently visited.
       MiruSettings.addRecentExtension(meta.packageName);
       return null;
     }, [meta.packageName]);
 
-    // Publish this extension to the app-wide global search bar so it can show
-    // the extension name and switch into single-extension (filter) mode while
-    // this page is the active route. The mutation is deferred to a microtask
-    // to avoid modifying a provider during the build phase.
     useEffect(() {
       final notifier = ref.read(currentSingleExtensionProvider.notifier);
       Future.microtask(() => notifier.setExtension(meta));
       return () => Future.microtask(() => notifier.setExtension(null));
     }, [meta.packageName]);
+
+    void submit(String value) {
+      final trimmed = value.trim();
+      ref.read(searchPageSingleProviderProvider.notifier).setQuery(trimmed);
+      FocusScope.of(context).unfocus();
+    }
 
     return MiruScaffold.mobile(
       sliverHeaders: [
@@ -119,8 +145,6 @@ class SearchPageSingleView extends HookConsumerWidget {
                     ],
                   ),
                 ),
-                // Filter button only (not a search field) — extension-specific
-                // filtering without adding a second search function to the page.
                 FButton.icon(
                   variant: FButtonVariant.secondary,
                   onPress: () => _openFilterDialog(context, ref),
@@ -156,40 +180,131 @@ class SearchPageSingleView extends HookConsumerWidget {
           ),
         ),
       ],
-      body: LayoutBuilder(
-        builder: (context, cons) {
-          final state = ref.watch(searchPageSingleProviderProvider);
-          final snapshot = ref.watch(
-            fetchExtensionSearchLatestProvider.call(
-              meta.packageName,
-              1,
-              query: state.query,
-              filter: state.appliedFilter,
+      // Desktop keeps the window-edge global bar only: grid, no inline
+      // search field, no hide-on-scroll. Mobile gets the collapsible bar.
+      desktopBody: _buildGrid(scrollController),
+      body: Column(
+        children: [
+          ClipRect(
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOutCubic,
+              child: searchVisible.value
+                  ? Container(
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: context.theme.colors.background,
+                        border: Border(
+                          bottom: BorderSide(
+                            color: context.theme.colors.border.withAlpha(40),
+                          ),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        child: FTextField(
+                          control: FTextFieldControl.managed(
+                            controller: searchController,
+                          ),
+                          hint: 'common.search_by_keywords'.i18n,
+                          clearable: (value) => value.text.isNotEmpty,
+                          onSubmit: submit,
+                          prefixBuilder: (context, style, states) => Padding(
+                            padding: const EdgeInsets.only(left: 12, right: 8),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  FLucideIcons.search,
+                                  size: 18,
+                                  color: context.theme.colors.mutedForeground,
+                                ),
+                                if (filterSummary.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 6),
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        maxWidth: 120,
+                                      ),
+                                      child: FBadge(
+                                        child: Text(
+                                          filterSummary,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontSize: 11),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ),
-          );
-
-          return snapshot.when(
-            data: (data) => SearchGridView(
-              meta: meta,
-              scrollController: scrollController,
-              cons: cons,
-              res: data,
+          ),
+          Expanded(
+            // Hide-on-scroll: drag up (reverse) collapses the search bar,
+            // drag down (forward) brings it back. Declarative notification
+            // instead of a controller listener so no scroll offset math or
+            // effect lifecycle can silently break the toggle.
+            child: NotificationListener<UserScrollNotification>(
+              onNotification: (notification) {
+                if (notification.direction == ScrollDirection.reverse) {
+                  if (searchVisible.value) searchVisible.value = false;
+                } else if (notification.direction == ScrollDirection.forward) {
+                  if (!searchVisible.value) searchVisible.value = true;
+                }
+                return false;
+              },
+              child: _buildGrid(scrollController),
             ),
-            error: (err, stack) => ErrorDisplay.grpc(err: err, stack: stack),
-            loading: () =>
-                SearchGridLoadingWidget(scrollController: scrollController),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
 
-  /// Opens the per-extension filter dialog and applies the selection.
-  ///
-  /// The current selection is snapshotted first so that dismissing the dialog
-  /// (or cancelling it) restores the previous choices instead of committing the
-  /// in-progress edits. On confirmation the new selection stays; a refetch is
-  /// triggered by the caller via [ref.invalidate].
+  /// Results grid shared by mobile body and desktop body. Desktop gets it
+  /// bare (global bar owns search there); mobile wraps it with the
+  /// collapsible search field above.
+  Widget _buildGrid(ScrollController scrollController) {
+    return LayoutBuilder(
+      builder: (context, cons) {
+        return Consumer(
+          builder: (context, ref, _) {
+            final state = ref.watch(searchPageSingleProviderProvider);
+            final snapshot = ref.watch(
+              fetchExtensionSearchLatestProvider.call(
+                meta.packageName,
+                1,
+                query: state.query,
+                filter: state.appliedFilter,
+              ),
+            );
+
+            return snapshot.when(
+              data: (data) => SearchGridView(
+                meta: meta,
+                scrollController: scrollController,
+                cons: cons,
+                res: data,
+              ),
+              error: (err, stack) => ErrorDisplay.grpc(err: err, stack: stack),
+              loading: () =>
+                  SearchGridLoadingWidget(scrollController: scrollController),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _openFilterDialog(BuildContext context, WidgetRef ref) async {
     final notifier = ref.read(searchPageSingleProviderProvider.notifier);
     final initialSelected = Map<String, List<String>>.from(

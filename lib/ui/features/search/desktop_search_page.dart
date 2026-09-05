@@ -4,6 +4,7 @@ import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/ui/features/search/global_search.dart';
+import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/provider/search/search_page_provider.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/utils/store/storage_index.dart';
@@ -199,8 +200,10 @@ class DesktopSearchPage extends HookConsumerWidget {
   }
 }
 
-/// Header above the global-search results: shows the active keyword with a
-/// Cancel button. Cancel clears the query, which unmounts [GlobalSearch] and
+/// Header above the global-search results: shows the active keyword, a
+/// "Search results of …" summary line with the aggregated first-page result
+/// count (shown once every extension in scope has responded), and a Cancel
+/// button. Cancel clears the query, which unmounts [GlobalSearch] and
 /// disposes every per-extension autoDispose search provider (in-flight
 /// requests are dropped), aborting the global search.
 class _GlobalSearchHeader extends ConsumerWidget {
@@ -209,6 +212,32 @@ class _GlobalSearchHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scopePackages = ref.watch(
+      searchPageProvider.select((e) => e.searchScopePackages),
+    );
+    // Watching the exact same family instances [GlobalSearch] watches (same
+    // package, page and query arguments) shares provider state, so counting
+    // here never triggers extra network requests. The count stays hidden
+    // while any response is still in flight so partial numbers are not
+    // presented as final.
+    var totalCount = 0;
+    var isLoading = false;
+    for (final pkg in scopePackages) {
+      final snapshot = ref.watch(
+        fetchExtensionSearchLatestProvider.call(pkg, 1, query: query),
+      );
+      isLoading = isLoading || snapshot.isLoading;
+      totalCount += snapshot.value?.length ?? 0;
+    }
+    var summary = 'extension.search_results_of'.i18n.replaceAll(
+      '{query}',
+      query,
+    );
+    if (!isLoading) {
+      summary +=
+          ' · ${'extension.results_count'.i18n.replaceAll('{count}', totalCount.toString())}';
+    }
+
     // Match GlobalSearch's horizontal padding so the header aligns with the
     // result rows.
     return Padding(
@@ -222,12 +251,25 @@ class _GlobalSearchHeader extends ConsumerWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              query,
-              style: context.theme.typography.body.lg.copyWith(
-                fontWeight: .bold,
-              ),
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: .start,
+              mainAxisSize: .min,
+              children: [
+                Text(
+                  query,
+                  style: context.theme.typography.body.lg.copyWith(
+                    fontWeight: .bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  summary,
+                  style: context.theme.typography.body.xs.copyWith(
+                    color: context.theme.colors.mutedForeground,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 12),

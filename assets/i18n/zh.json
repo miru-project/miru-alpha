@@ -248,7 +248,8 @@
     "clear": "清除",
     "apply": "应用筛选",
     "all": "全部",
-    "results_count": "{count} 个结果"
+    "results_count": "{count} 个结果",
+    "search_results_of": "“{query}” 的搜索结果"
   },
   "tracking": {
     "name": "追踪",

@@ -242,7 +242,8 @@
     "clear": "Clear",
     "apply": "Apply Filters",
     "all": "All",
-    "results_count": "{count} results"
+    "results_count": "{count} results",
+    "search_results_of": "Search results of {query}"
   },
   "tracking": {
     "name": "Tracking",

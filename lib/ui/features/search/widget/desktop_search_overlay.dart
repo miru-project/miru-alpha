@@ -24,16 +24,36 @@ import 'package:miru_alpha/utils/router/page_entry.dart';
 /// Desktop top-bar search trigger. Sits in the window header row and opens the
 /// [SearchOverlayPopup] on press.
 ///
-/// When the active route is `/search/single`, it shows the extension name
-/// instead of the generic "search globally" hint, mirroring the single
-/// extension context of the page beneath it.
+/// Shows the active global-search query when one exists, the extension name
+/// when the active route is `/search/single` (mirroring the single extension
+/// context of the page beneath it), or the generic "search globally" hint
+/// otherwise. When a keyword is active, a trailing clear button resets it.
 class SearchTrigger extends HookConsumerWidget {
   const SearchTrigger({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final singleMeta = ref.watch(currentSingleExtensionProvider);
+    // Active search text: the single-extension page's query wins when one is
+    // set, otherwise the global search keyword.
+    final singleQuery = singleMeta == null
+        ? null
+        : ref.watch(searchPageSingleProviderProvider.select((e) => e.query));
+    final query =
+        singleQuery ?? ref.watch(searchPageProvider.select((e) => e.query));
+    final hasText = query?.isNotEmpty ?? false;
     final hint = singleMeta?.name ?? 'common.search_globally'.i18n;
+    final displayText = (query == null || query.isEmpty) ? hint : query;
+    // Reset whichever query is currently active, mirroring how displayText
+    // picks the single-extension query over the global one.
+    void clearQuery() {
+      if (singleQuery?.isNotEmpty ?? false) {
+        ref.read(searchPageSingleProviderProvider.notifier).setQuery('');
+      } else {
+        ref.read(searchPageProvider.notifier).setQuery('');
+      }
+    }
+
     return FTappable(
       behavior: HitTestBehavior.translucent,
       onPress: () {
@@ -54,20 +74,40 @@ class SearchTrigger extends HookConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    FLucideIcons.search,
+                    hasText
+                        ? FLucideIcons.textCursorInput
+                        : FLucideIcons.search,
                     size: 18,
-                    color: context.theme.colors.mutedForeground,
+                    color: hasText
+                        ? context.theme.colors.primary
+                        : context.theme.colors.mutedForeground,
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      hint,
+                      displayText,
                       style: context.theme.typography.body.sm.copyWith(
-                        color: context.theme.colors.mutedForeground,
+                        color: hasText
+                            ? context.theme.colors.foreground
+                            : context.theme.colors.mutedForeground,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  if (hasText) ...[
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: clearQuery,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          FLucideIcons.x,
+                          size: 16,
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

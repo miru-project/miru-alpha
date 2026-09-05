@@ -248,19 +248,3 @@ class _MobileShell extends StatelessWidget {
     );
   }
 }
-
-class _RoundedInfoChip extends StatelessWidget {
-  final String label;
-  const _RoundedInfoChip(this.label);
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Text(label, style: const TextStyle(fontSize: 12)),
-    );
-  }
-}
