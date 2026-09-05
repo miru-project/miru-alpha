@@ -227,6 +227,7 @@ class MobileDetailTile extends ConsumerWidget {
                           url: variant.url,
                           downloadPath: p.join(tempDir, title),
                           mediaType: downloadMediaTypeFromString(videoType),
+                          category: meta.type.category,
                           package: meta.packageName,
                           detailUrl: detailUrl,
                           title: title,

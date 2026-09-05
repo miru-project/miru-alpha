@@ -72,8 +72,9 @@ class MobileLoadedPage extends HookConsumerWidget {
                             imageUrl: d.cover ?? '',
                             fit: BoxFit.cover,
                             errChild: MiruCard(
-                              child:
-                                  Center(child: Icon(FLucideIcons.cloudAlert)),
+                              child: Center(
+                                child: Icon(FLucideIcons.cloudAlert),
+                              ),
                             ),
                           ),
                         ),
@@ -92,7 +93,8 @@ class MobileLoadedPage extends HookConsumerWidget {
                                   children: [
                                     Icon(switch (meta.type) {
                                       ExtensionType.manga => FLucideIcons.book,
-                                      ExtensionType.bangumi => FLucideIcons.film,
+                                      ExtensionType.bangumi =>
+                                        FLucideIcons.film,
                                       ExtensionType.fikushon =>
                                         FLucideIcons.bookText,
                                       ExtensionType.all => FLucideIcons.rows3,
@@ -142,11 +144,11 @@ class MobileLoadedPage extends HookConsumerWidget {
                                               context: context,
                                               builder: (context) =>
                                                   FavoriteDialog(
-                                                meta: meta,
-                                                detailUrl: detailUrl,
-                                                detail: d,
-                                                detailPr: detailPr,
-                                              ),
+                                                    meta: meta,
+                                                    detailUrl: detailUrl,
+                                                    detail: d,
+                                                    detailPr: detailPr,
+                                                  ),
                                             );
                                           },
                                           child: FBadge(child: Text(e.name)),
@@ -243,6 +245,22 @@ class _MobileShell extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _RoundedInfoChip extends StatelessWidget {
+  final String label;
+  const _RoundedInfoChip(this.label);
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Text(label, style: const TextStyle(fontSize: 12)),
     );
   }
 }

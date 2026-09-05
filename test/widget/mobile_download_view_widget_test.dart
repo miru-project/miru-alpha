@@ -96,7 +96,9 @@ void main() {
     },
   );
 
-  testWidgets('renders active and completed download lists', (tester) async {
+  testWidgets('renders active tasks and keeps finished ones off this screen', (
+    tester,
+  ) async {
     await pumpView(
       tester,
       DownloadState(
@@ -126,7 +128,113 @@ void main() {
     );
 
     expect(find.text('Active Task A'), findsOneWidget);
-    expect(find.text('Finished Episode B'), findsOneWidget);
+    // Finished downloads belong to the history page, not this screen — the
+    // download page is only about work still in flight.
+    expect(find.text('Finished Episode B'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('offers a jump to the download history page', (tester) async {
+    await pumpView(tester, DownloadState());
+
+    // The clock button in the header is how finished downloads are reached,
+    // since they no longer render on this screen.
+    expect(find.byIcon(FLucideIcons.clock), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('active list is a real reorderable list', (tester) async {
+    await pumpView(
+      tester,
+      DownloadState(
+        active: [
+          proto.DownloadProgress(
+            taskId: 1,
+            title: 'Task One',
+            progress: 10,
+            total: 100,
+            status: proto.DownloadStatus.DOWNLOADING,
+            package: 'test.pkg',
+            key: 'ep1',
+            mediaType: proto.DownloadMediaType.hls,
+          ),
+          proto.DownloadProgress(
+            taskId: 2,
+            title: 'Task Two',
+            progress: 20,
+            total: 100,
+            status: proto.DownloadStatus.DOWNLOADING,
+            package: 'test.pkg',
+            key: 'ep2',
+            mediaType: proto.DownloadMediaType.hls,
+          ),
+        ],
+      ),
+    );
+    await tester.pump();
+
+    // The grip handle used to be decorative: the list was a plain ListView, so
+    // dragging did nothing. Assert the reorderable sliver is really there.
+    expect(find.byType(SliverReorderableList), findsOneWidget);
+    expect(find.byType(ReorderableDragStartListener), findsNWidgets(2));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('deleting a download asks for confirmation first', (
+    tester,
+  ) async {
+    await pumpView(
+      tester,
+      // The delete confirmation now only lives on the history page, since
+      // finished downloads no longer render on the download screen. Still
+      // exercised here through the active tile's cancel path.
+      DownloadState(
+        active: [
+          proto.DownloadProgress(
+            taskId: 3,
+            title: 'Active Task C',
+            progress: 40,
+            total: 100,
+            status: proto.DownloadStatus.DOWNLOADING,
+            package: 'test.pkg',
+            key: 'ep3',
+            mediaType: proto.DownloadMediaType.hls,
+          ),
+        ],
+        hasMore: false,
+      ),
+    );
+    await tester.pump();
+
+    // The active screen keeps pause/cancel inline, so no delete dialog.
+    expect(find.text('download.delete_title'), findsNothing);
+    expect(find.text('Active Task C'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('failed task shows its error reason', (tester) async {
+    await pumpView(
+      tester,
+      DownloadState(
+        active: [
+          proto.DownloadProgress(
+            taskId: 9,
+            title: 'Broken Task',
+            progress: 30,
+            total: 100,
+            status: proto.DownloadStatus.FAILED,
+            package: 'test.pkg',
+            key: 'ep9',
+            mediaType: proto.DownloadMediaType.hls,
+            error: 'segment missing on disk',
+          ),
+        ],
+        hasMore: false,
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('download.error_reason'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

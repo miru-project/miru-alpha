@@ -41,6 +41,15 @@ ExtensionType stringToExtensionType(String type) {
   }
 }
 
+/// The canonical wire string for a type, accepted by [stringToExtensionType].
+///
+/// Use this — never an i18n display key such as `media.video` — when building
+/// the `?type=` query parameter for the history / favorite list routes, since
+/// [stringToExtensionType] deliberately rejects display labels.
+extension ExtensionTypeRouteParam on ExtensionType {
+  String get routeParam => name;
+}
+
 // The content category used for storage grouping. Maps the extension type
 // to one of video / manga / novel; [ExtensionType.all] maps to unspecified.
 extension ExtensionTypeCategory on ExtensionType {

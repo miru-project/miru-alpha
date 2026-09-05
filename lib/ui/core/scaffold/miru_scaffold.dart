@@ -93,9 +93,18 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
 
   double _nonSnapScrollOffset = 0;
 
+  /// Whether this state created [scrollController] itself.
+  ///
+  /// A controller handed in through [MiruScaffold.scrollController] belongs to
+  /// the caller, which typically listens to it and disposes it after this
+  /// widget is gone. Disposing it here made any external controller unusable.
+  bool _ownsScrollController = false;
+
   @override
   void dispose() {
-    scrollController.dispose();
+    if (_ownsScrollController) {
+      scrollController.dispose();
+    }
     if (widget.sheetController == null) {
       _sheetController.dispose();
     }
@@ -105,6 +114,7 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
 
   @override
   void initState() {
+    _ownsScrollController = widget.scrollController == null;
     scrollController = widget.scrollController ?? ScrollController();
     _sheetController = widget.sheetController ?? SheetController();
     super.initState();

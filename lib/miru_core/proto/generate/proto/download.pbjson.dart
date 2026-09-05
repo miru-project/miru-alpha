@@ -641,18 +641,20 @@ const UpdateDownloadStatusRequest$json = {
       '10': 'savePath',
       '17': true
     },
+    {'1': 'error', '3': 4, '4': 1, '5': 9, '9': 1, '10': 'error', '17': true},
   ],
   '8': [
     {'1': '_save_path'},
+    {'1': '_error'},
   ],
 };
 
 /// Descriptor for `UpdateDownloadStatusRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List updateDownloadStatusRequestDescriptor =
-    $convert.base64Decode(
-        'ChtVcGRhdGVEb3dubG9hZFN0YXR1c1JlcXVlc3QSFwoHdGFza19pZBgBIAEoBVIGdGFza0lkEi'
-        'wKBnN0YXR1cxgCIAEoDjIULm1pcnUuRG93bmxvYWRTdGF0dXNSBnN0YXR1cxIgCglzYXZlX3Bh'
-        'dGgYAyABKAlIAFIIc2F2ZVBhdGiIAQFCDAoKX3NhdmVfcGF0aA==');
+final $typed_data.Uint8List updateDownloadStatusRequestDescriptor = $convert.base64Decode(
+    'ChtVcGRhdGVEb3dubG9hZFN0YXR1c1JlcXVlc3QSFwoHdGFza19pZBgBIAEoBVIGdGFza0lkEi'
+    'wKBnN0YXR1cxgCIAEoDjIULm1pcnUuRG93bmxvYWRTdGF0dXNSBnN0YXR1cxIgCglzYXZlX3Bh'
+    'dGgYAyABKAlIAFIIc2F2ZVBhdGiIAQESGQoFZXJyb3IYBCABKAlIAVIFZXJyb3KIAQFCDAoKX3'
+    'NhdmVfcGF0aEIICgZfZXJyb3I=');
 
 @$core.Deprecated('Use updateDownloadStatusResponseDescriptor instead')
 const UpdateDownloadStatusResponse$json = {

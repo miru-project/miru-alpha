@@ -76,3 +76,5 @@ src/miru_core/windows/miru_core.h
 src/miru_core/windows/miru_core.dll
 
 AGENTS.md
+# Widget Preview related
+.widget_preview/

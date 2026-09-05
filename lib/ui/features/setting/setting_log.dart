@@ -23,9 +23,7 @@ class SettingLog extends HookConsumerWidget {
               isMobileLayout: isMobileLayout,
               title: 'settings.logging.capture_crash.name',
               subtitle: 'settings.logging.capture_crash.information',
-              value: MiruSettings.getSettingSync<bool>(
-                SettingKey.captureCrash,
-              ),
+              value: MiruSettings.getSettingSync<bool>(SettingKey.captureCrash),
               onChanged: (value) {
                 MiruSettings.setSettingSync(
                   SettingKey.captureCrash,

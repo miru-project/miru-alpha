@@ -27,10 +27,22 @@ class _FavoriteViewState extends ConsumerState<FavoriteView> {
   @override
   void initState() {
     super.initState();
-    if (widget.type != null) {
+    _applyTypeFilter();
+  }
+
+  @override
+  void didUpdateWidget(covariant FavoriteView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-pushes of `/home/favorite?type=...` reuse this element because the
+    // page key is unchanged, so `initState` will not run again.
+    if (oldWidget.type != widget.type) _applyTypeFilter();
+  }
+
+  void _applyTypeFilter() {
+    final type = widget.type;
+    if (type != null) {
       Future.microtask(
-        () =>
-            ref.read(favoritePageProvider.notifier).setTypeFilter(widget.type),
+        () => ref.read(favoritePageProvider.notifier).setTypeFilter(type),
       );
     }
   }
@@ -385,7 +397,7 @@ class _FavoriteMobileView extends StatelessWidget {
         : (MediaQuery.of(context).size.width * .875 ~/ 160).clamp(2, 12);
 
     return MiruScaffold.mobile(
-      childPad: true,
+      childPad: false,
       slivers: [
         SliverPersistentHeader(
           pinned: true,

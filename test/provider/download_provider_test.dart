@@ -1748,4 +1748,118 @@ void main() {
       expect(actions[0].error, isEmpty);
     });
   });
+
+  group('globalOrderAfterReorder', () {
+    test('unfiltered list reorders exactly as dragged', () {
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'A',
+          progress: 0,
+          total: 10,
+          status: proto.DownloadStatus.DOWNLOADING,
+        ),
+        _task(
+          taskId: 2,
+          title: 'B',
+          progress: 0,
+          total: 10,
+          status: proto.DownloadStatus.DOWNLOADING,
+        ),
+        _task(
+          taskId: 3,
+          title: 'C',
+          progress: 0,
+          total: 10,
+          status: proto.DownloadStatus.DOWNLOADING,
+        ),
+      ];
+
+      final result = DownloadNotifier.globalOrderAfterReorder(
+        full: tasks,
+        filtered: tasks,
+        oldIndex: 0,
+        newIndex: 2,
+      );
+
+      expect(result, [2, 3, 1]);
+    });
+
+    test('reorder inside a filtered tab keeps hidden tasks in place', () {
+      // ids 1/3/5 are video, 2/4 are manga. The video tab shows [1, 3, 5] and
+      // the user drags 5 to the top; the manga rows must not move.
+      proto.DownloadProgress task(int id) => _task(
+        taskId: id,
+        title: 'T$id',
+        progress: 0,
+        total: 10,
+        status: proto.DownloadStatus.DOWNLOADING,
+      );
+      final full = [task(1), task(2), task(3), task(4), task(5)];
+      final filtered = [task(1), task(3), task(5)];
+
+      final result = DownloadNotifier.globalOrderAfterReorder(
+        full: full,
+        filtered: filtered,
+        oldIndex: 2,
+        newIndex: 0,
+      );
+
+      expect(result, [5, 2, 1, 4, 3]);
+      // Hidden tasks hold their absolute slots.
+      expect(result[1], 2);
+      expect(result[3], 4);
+    });
+
+    test('empty filtered list produces no order update', () {
+      final full = [
+        _task(
+          taskId: 1,
+          title: 'A',
+          progress: 0,
+          total: 10,
+          status: proto.DownloadStatus.DOWNLOADING,
+        ),
+      ];
+
+      expect(
+        DownloadNotifier.globalOrderAfterReorder(
+          full: full,
+          filtered: const [],
+          oldIndex: 0,
+          newIndex: 0,
+        ),
+        isEmpty,
+      );
+    });
+
+    test('out-of-range indices are clamped instead of throwing', () {
+      final tasks = [
+        _task(
+          taskId: 1,
+          title: 'A',
+          progress: 0,
+          total: 10,
+          status: proto.DownloadStatus.DOWNLOADING,
+        ),
+        _task(
+          taskId: 2,
+          title: 'B',
+          progress: 0,
+          total: 10,
+          status: proto.DownloadStatus.DOWNLOADING,
+        ),
+      ];
+
+      expect(
+        DownloadNotifier.globalOrderAfterReorder(
+          full: tasks,
+          filtered: tasks,
+          oldIndex: 0,
+          newIndex: 99,
+        ),
+        [2, 1],
+      );
+    });
+  });
 }

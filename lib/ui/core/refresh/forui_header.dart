@@ -142,11 +142,26 @@ class _ForuiIndicatorState extends State<_ForuiIndicator> {
       );
     }
 
-    return const SizedBox(
-      key: ValueKey('progress'),
-      width: 28,
-      height: 28,
-      child: FCircularProgress(),
+    // Only an actual refresh may animate. An indeterminate spinner in the
+    // idle/pull states repaints the entire screen forever, which is a battery
+    // cost on phones and makes the widget impossible to settle in tests.
+    if (_mode == IndicatorMode.ready || _mode == IndicatorMode.processing) {
+      return const SizedBox(
+        key: ValueKey('progress'),
+        width: 28,
+        height: 28,
+        child: FCircularProgress(),
+      );
+    }
+
+    return Transform.rotate(
+      key: const ValueKey('arrow'),
+      angle: _mode == IndicatorMode.armed ? math.pi : 0,
+      child: Icon(
+        FLucideIcons.arrowDown,
+        size: 28,
+        color: theme.colors.mutedForeground,
+      ),
     );
   }
 }
@@ -265,11 +280,25 @@ class _ForuiFooterIndicatorState extends State<_ForuiFooterIndicator> {
       );
     }
 
-    return const SizedBox(
-      key: ValueKey('progress'),
-      width: 24,
-      height: 24,
-      child: FCircularProgress(),
+    // See the header: the spinner is reserved for the loading states so an
+    // idle list is not repainting forever.
+    if (_mode == IndicatorMode.ready || _mode == IndicatorMode.processing) {
+      return const SizedBox(
+        key: ValueKey('progress'),
+        width: 24,
+        height: 24,
+        child: FCircularProgress(),
+      );
+    }
+
+    return Transform.rotate(
+      key: const ValueKey('arrow'),
+      angle: _mode == IndicatorMode.armed ? math.pi : 0,
+      child: Icon(
+        FLucideIcons.arrowUp,
+        size: 24,
+        color: theme.colors.mutedForeground,
+      ),
     );
   }
 }

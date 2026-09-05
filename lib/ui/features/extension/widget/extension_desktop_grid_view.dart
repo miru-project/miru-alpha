@@ -71,129 +71,138 @@ class ExtensionView extends HookConsumerWidget {
                 children: [
                   Expanded(
                     child: Column(
-                children: [
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            ClearableSelect(
-                              hintText: 'common.all'.i18n.toUpperCase(),
-                              title: "common.type".i18n,
-                              items: [
-                                'media.video'.i18n,
-                                'media.manga'.i18n,
-                                'media.novel'.i18n,
-                              ],
-                              onChange: (val) {
-                                if (val == 'media.video'.i18n) {
-                                  val = 'bangumi';
-                                } else if (val == 'media.manga'.i18n) {
-                                  val = 'manga';
-                                } else if (val == 'media.novel'.i18n) {
-                                  val = 'fikushon';
-                                } else {
-                                  val = 'ALL';
-                                }
-                                extNotifier.filterByMediaType(val);
-                              },
-                            ),
-                            ClearableSelect(
-                              // initialValue: 'ALL',
-                              hintText: 'common.all'.i18n.toUpperCase(),
-                              title: "extension.installed".i18n,
-                              items: [
-                                'common.all'.i18n.toUpperCase(),
-                                'extension.installed'.i18n,
-                                'extension.not_installed'.i18n,
-                              ],
-                              onReset: () {
-                                extNotifier.filterByInstalled('ALL');
-                              },
-                              onChange: (val) {
-                                if (val == 'extension.installed'.i18n) {
-                                  val = 'Installed';
-                                } else if (val ==
-                                    'extension.not_installed'.i18n) {
-                                  val = 'Not Installed';
-                                } else {
-                                  val = 'ALL';
-                                }
-                                extNotifier.filterByInstalled(val);
-                              },
-                            ),
-                            Row(
-                              children: [
-                                ClearableSelect(
-                                  hintText: 'common.all'.i18n.toUpperCase(),
-                                  title: "extension.repo.repository".i18n,
-                                  items: extNotifier.getRepoNames(),
-                                  onChange: (val) {
-                                    extNotifier.filterRepoByName(val ?? '');
-                                  },
-                                ),
-                                const SizedBox(width: 8),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 20),
-                                  child: FTooltip(
-                                    tipBuilder: (context, controller) {
-                                      return Text('extension.repo.reload'.i18n);
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  ClearableSelect(
+                                    hintText: 'common.all'.i18n.toUpperCase(),
+                                    title: "common.type".i18n,
+                                    items: [
+                                      'media.video'.i18n,
+                                      'media.manga'.i18n,
+                                      'media.novel'.i18n,
+                                    ],
+                                    onChange: (val) {
+                                      if (val == 'media.video'.i18n) {
+                                        val = 'bangumi';
+                                      } else if (val == 'media.manga'.i18n) {
+                                        val = 'manga';
+                                      } else if (val == 'media.novel'.i18n) {
+                                        val = 'fikushon';
+                                      } else {
+                                        val = 'ALL';
+                                      }
+                                      extNotifier.filterByMediaType(val);
                                     },
-                                    child: FButton.icon(
-                                      onPress: () async {
-                                        await extNotifier.reloadRepos();
+                                  ),
+                                  ClearableSelect(
+                                    // initialValue: 'ALL',
+                                    hintText: 'common.all'.i18n.toUpperCase(),
+                                    title: "extension.installed".i18n,
+                                    items: [
+                                      'common.all'.i18n.toUpperCase(),
+                                      'extension.installed'.i18n,
+                                      'extension.not_installed'.i18n,
+                                    ],
+                                    onReset: () {
+                                      extNotifier.filterByInstalled('ALL');
+                                    },
+                                    onChange: (val) {
+                                      if (val == 'extension.installed'.i18n) {
+                                        val = 'Installed';
+                                      } else if (val ==
+                                          'extension.not_installed'.i18n) {
+                                        val = 'Not Installed';
+                                      } else {
+                                        val = 'ALL';
+                                      }
+                                      extNotifier.filterByInstalled(val);
+                                    },
+                                  ),
+                                  Row(
+                                    children: [
+                                      ClearableSelect(
+                                        hintText: 'common.all'.i18n
+                                            .toUpperCase(),
+                                        title: "extension.repo.repository".i18n,
+                                        items: extNotifier.getRepoNames(),
+                                        onChange: (val) {
+                                          extNotifier.filterRepoByName(
+                                            val ?? '',
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 20),
+                                        child: FTooltip(
+                                          tipBuilder: (context, controller) {
+                                            return Text(
+                                              'extension.repo.reload'.i18n,
+                                            );
+                                          },
+                                          child: FButton.icon(
+                                            onPress: () async {
+                                              await extNotifier.reloadRepos();
+                                            },
+                                            child: const Icon(Icons.refresh),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 10),
+                                  SizedBox(
+                                    width: 280,
+                                    height: 68,
+                                    child: FTextField(
+                                      label: Text(
+                                        'extension.search_extensions'.i18n,
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+
+                                      clearable: (value) =>
+                                          value.text.isNotEmpty,
+                                      prefixBuilder: (context, style, states) {
+                                        return Padding(
+                                          padding: EdgeInsets.only(
+                                            left: 10,
+                                            right: 5,
+                                          ),
+                                          child: Icon(
+                                            FLucideIcons.search,
+                                            size: 16,
+                                          ),
+                                        );
                                       },
-                                      child: const Icon(Icons.refresh),
+                                      hint: "extension.search_hint".i18n,
+                                      control: .managed(
+                                        controller: textController,
+                                        onChange: (value) {
+                                          extNotifier.filterByName(value.text);
+                                        },
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(width: 10),
-                            SizedBox(
-                              width: 280,
-                              height: 68,
-                              child: FTextField(
-                                label: Text(
-                                  'extension.search_extensions'.i18n,
-                                  style: TextStyle(fontSize: 14),
-                                ),
-
-                                clearable: (value) => value.text.isNotEmpty,
-                                prefixBuilder: (context, style, states) {
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                      left: 10,
-                                      right: 5,
-                                    ),
-                                    child: Icon(FLucideIcons.search, size: 16),
-                                  );
-                                },
-                                hint: "extension.search_hint".i18n,
-                                control: .managed(
-                                  controller: textController,
-                                  onChange: (value) {
-                                    extNotifier.filterByName(value.text);
-                                  },
-                                ),
+                                ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
+                  const ExtensionImportButton(),
                 ],
               ),
-              ),
-              const ExtensionImportButton(),
-            ],
+            ),
           ),
-        ),
-      ),
         ],
       ),
     );

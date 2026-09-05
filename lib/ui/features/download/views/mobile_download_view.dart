@@ -16,11 +16,13 @@ import 'package:miru_alpha/utils/store/miru_settings.dart';
 /// Mobile download view based on the Material 3 design reference.
 ///
 /// Features:
-/// - Pinned top navigation header (back, title, history, more)
+/// - Pinned top navigation header (back, title, history)
 /// - Storage indicator card
 /// - Filter tabs using MiruTabs (All / Video / Manga / Novel)
-/// - Combined active + completed downloads list
-/// - "Delete All Finished" batch action
+/// - Active / paused / failed downloads, reorderable by priority
+///
+/// Finished downloads do not appear here: they move to the history page
+/// (`/home/download/history`), so this screen only shows work in flight.
 class MobileDownloadView extends HookConsumerWidget {
   const MobileDownloadView({super.key});
 
@@ -76,11 +78,11 @@ class MobileDownloadView extends HookConsumerWidget {
             tempStorageBytes: state.tempStorageBytes,
           ),
         ),
-        // Filter tabs - only active downloads
+        // Filter tabs - active downloads only; finished ones live in history
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: _DownloadFilterTabs(active: active),
+            child: _DownloadFilterTabs(state: state),
           ),
         ),
       ],
@@ -197,6 +199,36 @@ class _StorageIndicatorCard extends StatelessWidget {
     required this.tempStorageBytes,
   });
 
+  /// The four buckets of the storage chart, in display order.
+  ///
+  /// One list shared by the bar and the legend so a category can never render
+  /// as two different colours in the two places it appears.
+  static const _storageColors = <Color>[
+    Color(0xFF3B82F6), // video
+    Color(0xFFEC4899), // manga
+    Color(0xFFF59E0B), // novel
+    Color(0xFF64748B), // temp (in-progress)
+  ];
+
+  /// i18n keys matching [_storageColors] order.
+  static const _storageLabelKeys = <String>[
+    'media.video',
+    'media.manga',
+    'media.novel',
+    'download.temp',
+  ];
+
+  /// The flex weight for a bucket holding [bytes] of a [total]-byte bar.
+  ///
+  /// Empty buckets get no width (there is nothing to colour), and non-empty
+  /// ones keep at least [floor] so a small category stays identifiable next to
+  /// a dominant one instead of collapsing to an invisible sliver.
+  static int _segmentFlex(int bytes, int total, {double floorFraction = 0.03}) {
+    if (bytes <= 0 || total <= 0) return 0;
+    final floor = (total * floorFraction).ceil();
+    return bytes < floor ? floor : bytes;
+  }
+
   final String downloadPath;
 
   /// Per-category storage usage from the backend (video/manga/novel + temp),
@@ -214,7 +246,14 @@ class _StorageIndicatorCard extends StatelessWidget {
     final breakdown = _computeStorageBreakdown(storageStats, tempStorageBytes);
 
     final total = breakdown.total;
-    final hasAny = total > 0;
+    // Per-bucket byte counts in [_storageColors] order — the single source the
+    // bar and the legend both read from.
+    final values = [
+      breakdown.video,
+      breakdown.manga,
+      breakdown.novel,
+      breakdown.temp,
+    ];
 
     return MiruCard(
       child: Padding(
@@ -228,13 +267,20 @@ class _StorageIndicatorCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  'download.device_storage'.i18n,
-                  style: context.theme.typography.body.sm.copyWith(
-                    color: context.theme.colors.mutedForeground,
-                    fontWeight: .w600,
+                // Expanded so a long translated label ellipses instead of
+                // overflowing the card on narrow phones.
+                Expanded(
+                  child: Text(
+                    'download.device_storage'.i18n,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.theme.typography.body.sm.copyWith(
+                      color: context.theme.colors.mutedForeground,
+                      fontWeight: .w600,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   _formatBytes(total),
                   style: context.theme.typography.body.sm.copyWith(
@@ -259,7 +305,8 @@ class _StorageIndicatorCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             // Stacked line graph: proportionally sized Video / Manga / Novel /
-            // Temp segments over a muted track.
+            // Temp segments over a muted track. All four are always present;
+            // an empty one simply takes no width.
             ClipRRect(
               borderRadius: BorderRadius.circular(9999),
               child: Container(
@@ -267,24 +314,11 @@ class _StorageIndicatorCard extends StatelessWidget {
                 color: context.theme.colors.muted,
                 child: Row(
                   children: [
-                    if (hasAny) ...[
+                    for (var i = 0; i < _storageColors.length; i++)
                       _storageSegment(
-                        flex: breakdown.video,
-                        color: const Color(0xFF3B82F6),
+                        flex: _segmentFlex(values[i], total),
+                        color: _storageColors[i],
                       ),
-                      _storageSegment(
-                        flex: breakdown.manga,
-                        color: const Color(0xFFEC4899),
-                      ),
-                      _storageSegment(
-                        flex: breakdown.novel,
-                        color: const Color(0xFFF59E0B),
-                      ),
-                      _storageSegment(
-                        flex: breakdown.temp,
-                        color: const Color(0xFF64748B),
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -295,26 +329,12 @@ class _StorageIndicatorCard extends StatelessWidget {
               spacing: 16,
               runSpacing: 4,
               children: [
-                _StorageLegendItem(
-                  color: const Color(0xFF3B82F6),
-                  label: 'media.video'.i18n,
-                  size: _formatBytes(breakdown.video),
-                ),
-                _StorageLegendItem(
-                  color: const Color(0xFFEC4899),
-                  label: 'media.manga'.i18n,
-                  size: _formatBytes(breakdown.manga),
-                ),
-                _StorageLegendItem(
-                  color: const Color(0xFFF59E0B),
-                  label: 'media.novel'.i18n,
-                  size: _formatBytes(breakdown.novel),
-                ),
-                _StorageLegendItem(
-                  color: const Color(0xFF64748B),
-                  label: 'download.temp'.i18n,
-                  size: _formatBytes(breakdown.temp),
-                ),
+                for (var i = 0; i < _storageColors.length; i++)
+                  _StorageLegendItem(
+                    color: _storageColors[i],
+                    label: _storageLabelKeys[i].i18n,
+                    size: _formatBytes(values[i]),
+                  ),
               ],
             ),
           ],
@@ -386,9 +406,9 @@ class _StorageLegendItem extends StatelessWidget {
 // -----------------------------------------------------------------------------
 
 class _DownloadFilterTabs extends ConsumerStatefulWidget {
-  const _DownloadFilterTabs({required this.active});
+  const _DownloadFilterTabs({required this.state});
 
-  final List<proto.DownloadProgress> active;
+  final DownloadState state;
 
   @override
   ConsumerState<_DownloadFilterTabs> createState() =>
@@ -435,7 +455,7 @@ class _DownloadFilterTabsState extends ConsumerState<_DownloadFilterTabs> {
         const SizedBox(height: 16),
         Expanded(
           child: _DownloadTabContent(
-            active: widget.active,
+            state: widget.state,
             categoryFilter: _filters[_filterIndex],
           ),
         ),
@@ -446,21 +466,22 @@ class _DownloadFilterTabsState extends ConsumerState<_DownloadFilterTabs> {
 
 class _DownloadTabContent extends ConsumerWidget {
   const _DownloadTabContent({
-    required this.active,
+    required this.state,
     required this.categoryFilter,
   });
 
-  final List<proto.DownloadProgress> active;
+  final DownloadState state;
   final proto.DownloadCategory? categoryFilter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final filteredActive = categoryFilter == null
-        ? active
-        : active.where((t) => t.category == categoryFilter).toList();
-    final hasItems = filteredActive.isNotEmpty;
+    final active = categoryFilter == null
+        ? state.active
+        : state.active.where((t) => t.category == categoryFilter).toList();
 
-    if (!hasItems) {
+    // Only work still in flight lives here; finished downloads move to the
+    // history page, which keeps this screen about "what is happening now".
+    if (active.isEmpty) {
       return Center(
         child: EmptyState(
           icon: FLucideIcons.download,
@@ -469,19 +490,96 @@ class _DownloadTabContent extends ConsumerWidget {
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.only(top: 16, bottom: 100),
-      children: _buildActiveItems(filteredActive),
+    return CustomScrollView(
+      slivers: [
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+        SliverToBoxAdapter(
+          child: _SectionHeader(
+            title: 'download.in_progress'.i18n,
+            trailing: Text(
+              'download.active_count'.i18n.fill({
+                'count': active.length.toString(),
+              }),
+              style: context.theme.typography.body.xs.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
+            ),
+          ),
+        ),
+        // Real reorderable list: the grip handle on each tile now actually
+        // moves the task, matching the desktop view.
+        SliverReorderableList(
+          itemCount: active.length,
+          onReorderStart: (_) {
+            ref.read(downloadProvider.notifier).setDragging(true);
+          },
+          onReorderEnd: (_) {
+            ref.read(downloadProvider.notifier).setDragging(false);
+          },
+          onReorderItem: (oldIndex, newIndex) {
+            // Splice the visible (category-filtered) order back onto the
+            // full task list so hidden tasks keep their positions.
+            ref
+                .read(downloadProvider.notifier)
+                .reorderActive(
+                  DownloadNotifier.globalOrderAfterReorder(
+                    full: state.active,
+                    filtered: active,
+                    oldIndex: oldIndex,
+                    newIndex: newIndex,
+                  ),
+                );
+          },
+          itemBuilder: (context, index) => ReorderableDragStartListener(
+            key: ValueKey(active[index].taskId),
+            index: index,
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: index == active.length - 1 ? 16 : 8,
+              ),
+              child: _MobileActiveDownloadItem(task: active[index]),
+            ),
+          ),
+        ),
+        // Clears the floating bottom navigation bar.
+        const SliverToBoxAdapter(child: SizedBox(height: 84)),
+      ],
     );
   }
+}
 
-  List<Widget> _buildActiveItems(List<proto.DownloadProgress> items) => [
-    for (var i = 0; i < items.length; i++) ...[
-      if (i > 0) const SizedBox(height: 8),
-      _MobileActiveDownloadItem(task: items[i]),
-    ],
-    const SizedBox(height: 16),
-  ];
+// -----------------------------------------------------------------------------
+// Section header
+// -----------------------------------------------------------------------------
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, this.trailing});
+
+  final String title;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.theme.typography.body.sm.copyWith(
+                fontWeight: FontWeight.w700,
+                color: context.theme.colors.foreground,
+              ),
+            ),
+          ),
+          ?trailing,
+        ],
+      ),
+    );
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -540,6 +638,23 @@ class _MobileActiveDownloadItem extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  // The backend carries the failure reason on the live task;
+                  // without it a failed row only says "Failed" and the user
+                  // has no way to tell a dead source from a full disk.
+                  if (isFailed && task.error.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        'download.error_reason'.i18n.fill({
+                          'reason': task.error,
+                        }),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.theme.typography.body.xs.copyWith(
+                          color: context.theme.colors.destructive,
+                        ),
+                      ),
+                    ),
                   const SizedBox(height: 6),
                   FDeterminateProgress(value: _ratio),
                 ],

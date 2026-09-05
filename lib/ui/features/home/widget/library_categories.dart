@@ -19,20 +19,17 @@ class LibraryCategoryList extends ConsumerWidget {
       (
         icon: FLucideIcons.film,
         label: 'media.video'.i18n,
-        count: countOf(ExtensionType.bangumi),
-        route: '/home/favorite?type=media.video',
+        type: ExtensionType.bangumi,
       ),
       (
         icon: FLucideIcons.bookOpen,
         label: 'media.manga'.i18n,
-        count: countOf(ExtensionType.manga),
-        route: '/home/favorite?type=media.manga',
+        type: ExtensionType.manga,
       ),
       (
         icon: FLucideIcons.book,
         label: 'media.novel'.i18n,
-        count: countOf(ExtensionType.fikushon),
-        route: '/home/favorite?type=media.novel',
+        type: ExtensionType.fikushon,
       ),
     ];
 
@@ -66,7 +63,7 @@ class LibraryCategoryList extends ConsumerWidget {
                 ),
                 title: Text(c.label),
                 details: Text(
-                  c.count.toString(),
+                  countOf(c.type).toString(),
                   style: TextStyle(
                     fontSize: 12,
                     fontFamily: 'monospace',
@@ -74,7 +71,7 @@ class LibraryCategoryList extends ConsumerWidget {
                   ),
                 ),
                 onPress: () {
-                  context.push(c.route);
+                  context.push('/home/favorite?type=${c.type.routeParam}');
                 },
               ),
           ],

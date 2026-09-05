@@ -6,6 +6,7 @@ import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/utils/download/download_utils.dart';
 import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:miru_alpha/utils/core/miru_directory.dart';
@@ -34,6 +35,11 @@ class DownloadState {
   /// measurement for mobile (more accurate than progress-based estimates).
   final int tempStorageBytes;
 
+  /// True while a later page of history is being fetched. Used by the
+  /// paginated lists so they can show a spinner and avoid firing duplicate
+  /// requests from repeated scroll notifications.
+  final bool isLoadingMoreHistory;
+
   DownloadState({
     this.history = const [],
     this.active = const [],
@@ -42,6 +48,7 @@ class DownloadState {
     this.preparingKeys = const {},
     this.storageStats,
     this.tempStorageBytes = 0,
+    this.isLoadingMoreHistory = false,
   });
 
   DownloadState copyWith({
@@ -52,6 +59,7 @@ class DownloadState {
     Set<String>? preparingKeys,
     proto.StorageStats? storageStats,
     int? tempStorageBytes,
+    bool? isLoadingMoreHistory,
   }) {
     return DownloadState(
       history: history ?? this.history,
@@ -61,8 +69,17 @@ class DownloadState {
       preparingKeys: preparingKeys ?? this.preparingKeys,
       storageStats: storageStats ?? this.storageStats,
       tempStorageBytes: tempStorageBytes ?? this.tempStorageBytes,
+      isLoadingMoreHistory: isLoadingMoreHistory ?? this.isLoadingMoreHistory,
     );
   }
+
+  /// Finished downloads only.
+  ///
+  /// The backend history page mixes every stored row (queued, paused, failed,
+  /// cancelled), so lists that show "completed" must filter rather than render
+  /// [history] verbatim.
+  List<proto.Download> get completed =>
+      history.where((d) => d.status == proto.DownloadStatus.COMPLETED).toList();
 }
 
 extension DownloadStatusX on proto.DownloadStatus {
@@ -125,7 +142,14 @@ class DownloadNotifier extends _$DownloadNotifier {
         followLinks: false,
       )) {
         if (entity is File) {
-          total += await entity.length();
+          // A completed HLS conversion deletes its segments while this scan
+          // may be mid-iteration; a file can vanish between listing it and
+          // stat-ing it. Skip those instead of aborting the whole scan.
+          try {
+            total += await entity.length();
+          } on FileSystemException {
+            continue;
+          }
         }
       }
       return total;
@@ -323,7 +347,10 @@ class DownloadNotifier extends _$DownloadNotifier {
           '  Reason: $errorInfo',
         );
         showSimpleToast(
-          'Failed to download ${task.title}\nURL: $urlInfo\nReason: $errorInfo',
+          'download.failed_toast'.i18n.fill({
+            'title': task.title,
+            'reason': errorInfo,
+          }),
         );
         // Clean up temporary files for failed download
         _cleanupTempFiles(task);
@@ -337,7 +364,9 @@ class DownloadNotifier extends _$DownloadNotifier {
           'Download completed: ${task.title} '
           '(taskId: ${task.taskId}, mediaType: ${task.mediaType})',
         );
-        showSimpleToast('Finished downloading ${task.title}');
+        showSimpleToast(
+          'download.finished_toast'.i18n.fill({'title': task.title}),
+        );
         // Note: For completed downloads, the temp files should have been cleaned
         // up by the processing logic (e.g., HLS conversion). We do not clean up
         // here to avoid race conditions, but we rely on the processing logic.
@@ -365,17 +394,25 @@ class DownloadNotifier extends _$DownloadNotifier {
   }
 
   /// Cleans up temporary files associated with a download.
-  /// This includes the currentDownloading file/directory and any segment files.
+  /// For HLS tasks this removes the whole segment folder in one recursive
+  /// delete (the backend keeps every segment of a task in a single dir);
+  /// for single-file downloads it removes the file and its emptied parent.
   void _cleanupTempFiles(proto.DownloadProgress download) {
-    // currentDownloading may be a single file (direct mp4) or the HLS segment
-    // directory; safeDeletePath handles both without throwing on a directory.
+    if (download.mediaType == proto.DownloadMediaType.hls) {
+      final dirPath = download.names.isNotEmpty
+          ? p.dirname(download.names.first)
+          : (download.currentDownloading.isNotEmpty
+                ? p.dirname(download.currentDownloading)
+                : '');
+      if (dirPath.isNotEmpty) {
+        DownloadUtils.safeDeletePath(dirPath);
+      }
+      return;
+    }
+    // currentDownloading is the single downloaded file for direct/mp4 and
+    // torrent tasks; safeDeletePath also prunes the emptied parent dir.
     if (download.currentDownloading.isNotEmpty) {
       DownloadUtils.safeDeletePath(download.currentDownloading);
-    }
-    // Best-effort removal of individual segment files (they may live outside
-    // currentDownloading, or already be removed by the recursive dir delete).
-    for (final segment in download.names) {
-      DownloadUtils.safeDeletePath(segment);
     }
   }
 
@@ -428,6 +465,7 @@ class DownloadNotifier extends _$DownloadNotifier {
           history: res.downloads,
           page: 1,
           hasMore: res.downloads.length >= pageSize,
+          isLoadingMoreHistory: false,
         ),
       );
     } catch (e) {
@@ -435,11 +473,21 @@ class DownloadNotifier extends _$DownloadNotifier {
     }
   }
 
+  /// Fetches the next page of download history and appends it.
+  ///
+  /// Re-entrant calls are ignored while a page is in flight: scroll-end
+  /// notifications fire repeatedly, and without the guard every tick would
+  /// request the same page and duplicate rows.
   Future<void> loadMoreHistory() async {
-    try {
-      final currentState = state.value;
-      if (currentState == null || !currentState.hasMore) return;
+    final currentState = state.value;
+    if (currentState == null ||
+        !currentState.hasMore ||
+        currentState.isLoadingMoreHistory) {
+      return;
+    }
 
+    state = AsyncData(currentState.copyWith(isLoadingMoreHistory: true));
+    try {
       const pageSize = 20;
       final nextPage = currentState.page + 1;
       final res = await MiruGrpcClient.downloadClient.getAllDownloads(
@@ -448,16 +496,63 @@ class DownloadNotifier extends _$DownloadNotifier {
           ..pageSize = pageSize,
       );
 
+      // Re-read: a stream tick or a delete may have replaced the state while
+      // this request was in flight, so `currentState` can be stale.
+      final latest = state.value;
+      if (latest == null) return;
       state = AsyncData(
-        currentState.copyWith(
-          history: [...currentState.history, ...res.downloads],
+        latest.copyWith(
+          history: [...latest.history, ...res.downloads],
           page: nextPage,
           hasMore: res.downloads.length >= pageSize,
+          isLoadingMoreHistory: false,
         ),
       );
     } catch (e) {
       logger.severe("Failed to load more history: $e");
+      final latest = state.value;
+      if (latest != null) {
+        state = AsyncData(latest.copyWith(isLoadingMoreHistory: false));
+      }
     }
+  }
+
+  /// Removes [download] from the history.
+  ///
+  /// The backend `DeleteDownload` RPC only drops its database row (plus any
+  /// torrent session) — it never touches files on disk. When [deleteFile] is
+  /// set, the artifact is removed here first, and the record is kept if that
+  /// fails so a file can not be orphaned without an entry pointing at it.
+  ///
+  /// Returns `true` when the record was removed.
+  Future<bool> removeHistoryEntry(
+    proto.Download download, {
+    required bool deleteFile,
+  }) async {
+    if (deleteFile) {
+      final removed = await DownloadUtils.deleteSavedFile(download.savePath);
+      if (!removed) {
+        showSimpleToast(
+          'download.delete_file_failed'.i18n.fill({'title': download.title}),
+        );
+        return false;
+      }
+    }
+
+    try {
+      await MiruGrpcClient.downloadClient.deleteDownload(
+        proto.DeleteDownloadRequest()..id = download.id,
+      );
+    } catch (e) {
+      logger.severe('Failed to delete download record ${download.id}: $e');
+      showSimpleToast(
+        'download.delete_record_failed'.i18n.fill({'title': download.title}),
+      );
+      return false;
+    }
+
+    await _refreshHistory();
+    return true;
   }
 
   Future<List<proto.Download>> getDownloadsByPackageAndDetailUrl(
@@ -480,7 +575,13 @@ class DownloadNotifier extends _$DownloadNotifier {
 
   Future<void> _processDownload(proto.DownloadProgress download) async {
     final key = download.key;
-    if (_processedTasks.contains(key)) return;
+    // Reserve synchronously: the stream keeps emitting CONVERTING ticks
+    // until the frontend's terminal update lands, and every await below
+    // (segment discovery, validation) is a window where a second tick
+    // could otherwise pass the contains-check and start a duplicate merge
+    // that races the first one's folder cleanup. The catch block releases
+    // the reservation so a failed attempt can still be retried.
+    if (!_processedTasks.add(key)) return;
 
     try {
       final downloadPath = MiruSettings.getSettingSync<String>(
@@ -490,6 +591,9 @@ class DownloadNotifier extends _$DownloadNotifier {
         logger.warning(
           "Download path not set, skipping processing for ${download.title}",
         );
+        // Release the reservation so the task is retried once the user
+        // configures a download path.
+        _processedTasks.remove(key);
         return;
       }
 
@@ -513,9 +617,18 @@ class DownloadNotifier extends _$DownloadNotifier {
         }
       }
 
-      // Mark as processing *after* all pre-flight checks pass so a
-      // transient error allows the next stream tick to retry.
-      _processedTasks.add(key);
+      // Guard against converting an incomplete segment list: a short but
+      // self-consistent list would "succeed" and mark a truncated video
+      // COMPLETED. Fail loudly instead so the user can resume/retry.
+      if (isHls) {
+        final problem = await DownloadUtils.validateHlsSegments(
+          segments,
+          download.total,
+        );
+        if (problem != null) {
+          throw Exception(problem);
+        }
+      }
 
       await DownloadUtils.processFinishedDownload(
         taskId: download.taskId.toString(),
@@ -529,17 +642,34 @@ class DownloadNotifier extends _$DownloadNotifier {
         epKey: download.key,
       );
 
-      showSimpleToast("Finished downloading ${download.title}");
+      showSimpleToast(
+        'download.finished_toast'.i18n.fill({'title': download.title}),
+      );
 
       await _refreshHistory();
     } catch (e) {
       logger.severe("Failed to process download: $e");
-      // Report the failure to the backend so the task moves to FAILED
-      // instead of being stuck in CONVERTING forever.
-      await DownloadUtils.updateStatus(
-        taskId: download.taskId.toString(),
-        status: proto.DownloadStatus.FAILED,
+      // Surface a user-visible error toast so a failed FFmpeg conversion is
+      // not silent (previously the process crashed before this point).
+      showSimpleToast(
+        'download.convert_failed'.i18n.fill({'title': download.title}),
       );
+      // Report the failure (with reason) to the backend so the task moves
+      // to FAILED instead of being stuck in CONVERTING forever. Propagate
+      // reporting errors to the log — if this gRPC call fails the backend
+      // stays CONVERTING and the next stream tick will retry the whole
+      // flow, which is the intended recovery path.
+      try {
+        await DownloadUtils.updateStatusOrThrow(
+          taskId: download.taskId.toString(),
+          status: proto.DownloadStatus.FAILED,
+          error: '$e',
+        );
+      } catch (reportError) {
+        logger.severe(
+          "Failed to report FAILED for task ${download.taskId}: $reportError",
+        );
+      }
       // Optimistically update local state too.
       _optimisticallyUpdateStatus(download.taskId, proto.DownloadStatus.FAILED);
       // Remove from _processedTasks so the user can retry by hitting Resume.
@@ -628,6 +758,44 @@ class DownloadNotifier extends _$DownloadNotifier {
     } catch (e) {
       logger.severe('Failed to reorder downloads: $e');
     }
+  }
+
+  /// Reorders [filtered] and maps the result back onto the full [full] task
+  /// order, so dragging inside a category tab never reshuffles the tasks that
+  /// tab is not showing.
+  ///
+  /// The backend takes one global priority list, which is why the splice has
+  /// to happen here rather than sending the visible subset on its own.
+  ///
+  /// [oldIndex] and [newIndex] follow `SliverReorderableList.onReorderItem`
+  /// semantics: [newIndex] is already adjusted for the removed item.
+  static List<int> globalOrderAfterReorder({
+    required List<proto.DownloadProgress> full,
+    required List<proto.DownloadProgress> filtered,
+    required int oldIndex,
+    required int newIndex,
+  }) {
+    if (filtered.isEmpty) return const [];
+
+    final moved = List<proto.DownloadProgress>.from(filtered);
+    final from = oldIndex.clamp(0, moved.length - 1);
+    final dragged = moved.removeAt(from);
+    moved.insert(newIndex.clamp(0, moved.length), dragged);
+
+    final visibleIds = filtered.map((t) => t.taskId).toSet();
+    final movedIds = moved.map((t) => t.taskId).toList();
+    final originalIds = full.map((t) => t.taskId).toList();
+
+    // Splice from a snapshot of the original ids: overwriting in place would
+    // otherwise let an already-moved id be re-matched as still "visible".
+    final result = List<int>.from(originalIds);
+    var slot = 0;
+    for (var i = 0; i < originalIds.length; i++) {
+      if (visibleIds.contains(originalIds[i])) {
+        result[i] = movedIds[slot++];
+      }
+    }
+    return result;
   }
 
   /// Sets the priority of a single active task and re-runs the scheduler.

@@ -240,4 +240,58 @@ void main() {
       }
     });
   });
+
+  group('DownloadUtils.validateHlsSegments', () {
+    test('rejects an empty segment list', () async {
+      final problem = await DownloadUtils.validateHlsSegments([], 5);
+      expect(problem, contains('no segment files'));
+    });
+
+    test('rejects fewer segments than the backend total', () async {
+      final dir = Directory.systemTemp.createTempSync('hls_val');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final segments = <String>[];
+      for (var i = 0; i < 3; i++) {
+        final f = File('${dir.path}/$i.ts')..writeAsStringSync('data');
+        segments.add(f.path);
+      }
+      final problem = await DownloadUtils.validateHlsSegments(segments, 5);
+      expect(problem, contains('3/5'));
+    });
+
+    test('rejects a listed segment that is missing on disk', () async {
+      final dir = Directory.systemTemp.createTempSync('hls_val');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final a = File('${dir.path}/0.ts')..writeAsStringSync('data');
+      final missing = '${dir.path}/1.ts';
+      final problem = await DownloadUtils.validateHlsSegments([
+        a.path,
+        missing,
+      ], 2);
+      expect(problem, contains('missing on disk'));
+    });
+
+    test('rejects zero-byte segments (silent HTTP error pages)', () async {
+      final dir = Directory.systemTemp.createTempSync('hls_val');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final a = File('${dir.path}/0.ts')..writeAsStringSync('data');
+      final empty = File('${dir.path}/1.ts')..createSync();
+      final problem = await DownloadUtils.validateHlsSegments([
+        a.path,
+        empty.path,
+      ], 2);
+      expect(problem, contains('empty'));
+    });
+
+    test('accepts a complete non-empty segment list', () async {
+      final dir = Directory.systemTemp.createTempSync('hls_val');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final segments = <String>[];
+      for (var i = 0; i < 4; i++) {
+        final f = File('${dir.path}/$i.ts')..writeAsStringSync('data');
+        segments.add(f.path);
+      }
+      expect(await DownloadUtils.validateHlsSegments(segments, 4), isNull);
+    });
+  });
 }

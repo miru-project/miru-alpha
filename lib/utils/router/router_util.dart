@@ -1,3 +1,4 @@
+import 'package:logging/logging.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/ui/features/download/widget/mobile_finish_download.dart';
@@ -5,6 +6,7 @@ import 'package:miru_alpha/ui/features/extension_settings/extension_settings.dar
 import 'package:miru_alpha/ui/features/license/license_page.dart';
 import 'package:miru_alpha/ui/features/source_code/source_code_page.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/features/index.dart';
 import 'package:miru_alpha/ui/features/main_page.dart';
@@ -40,6 +42,15 @@ class ParamCache {
   }
 }
 
+/// Router-scoped logger.
+///
+/// A child of the app logger so records keep a subsystem tag and still reach
+/// `MiruLog`'s `Logger.root.onRecord` listener, which is what appends to
+/// `miru.log` and feeds Settings → Logging → Export. `dart:developer`'s `log`
+/// bypasses `package:logging` entirely, so anything sent that way is absent
+/// from the exported log support actually receives.
+final _routerLog = Logger('${logger.name}.router');
+
 class RouterUtil {
   static Page noTransitionPage({
     required Widget child,
@@ -67,10 +78,24 @@ class RouterUtil {
 
   /// Reads the optional `?type=` query parameter used by the history / favorite
   /// list routes and converts it into an [ExtensionType] filter.
+  ///
+  /// The value must be a canonical [ExtensionType] wire string — build it with
+  /// [ExtensionTypeRouteParam.routeParam]. An unparseable value is reported
+  /// rather than silently clearing the filter, which is what let a mistyped
+  /// route look correct while showing unfiltered results.
   static ExtensionType? _listPageType(GoRouterState state) {
     final raw = state.uri.queryParameters['type'];
     if (raw == null || raw.isEmpty) return null;
-    final type = stringToExtensionType(raw);
+    final type = ExtensionType.values.firstWhere(
+      (e) => e.routeParam == raw,
+      orElse: () => ExtensionType.all,
+    );
+    if (type == ExtensionType.all && raw != ExtensionType.all.routeParam) {
+      _routerLog.warning(
+        'Ignoring unknown ?type="$raw"; expected one of '
+        '${ExtensionType.values.map((e) => e.routeParam).join(', ')}',
+      );
+    }
     return type == ExtensionType.all ? null : type;
   }
 

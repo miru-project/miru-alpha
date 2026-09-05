@@ -102,7 +102,11 @@
     "yesterday": "Yesterday",
     "older": "Older",
     "resume": "Resume",
-    "episode": "Episode"
+    "episode": "Episode",
+    "watch": "Watch",
+    "go_to_detail": "Go to detail",
+    "detail_missing": "Could not load this title from your library",
+    "episode_unavailable": "That episode is no longer available from this extension"
   },
   "download_tools": {
     "pause": "Pause",
@@ -534,6 +538,7 @@
     "error_loading_downloads": "Error loading downloads",
     "download_started": "Download started",
     "failed_to_start_download": "Failed to start download",
+    "convert_failed": "Failed to convert {title} to MP4",
     "downloaded": "Downloaded",
     "max_concurrent": "Max concurrent downloads",
     "show_missing": "Show missing files ({count})",
@@ -548,7 +553,21 @@
     "storage_used": "{used} of {total} used",
     "storage_hint": "You have enough space for approximately {count} more episodes in High Definition.",
     "in_progress": "In Progress",
-    "path_not_set": "Download path not set"
+    "path_not_set": "Download path not set",
+    "active_count": "{count} active",
+    "no_completed_downloads": "No completed downloads",
+    "end_of_list": "No more downloads",
+    "error_reason": "Reason: {reason}",
+    "file_missing": "File not found on disk",
+    "delete_title": "Delete download",
+    "delete_message": "What should happen to “{title}”?",
+    "delete_file_option": "Delete file and remove from list",
+    "remove_record_option": "Remove from list only",
+    "delete_file_failed": "Could not delete the file for {title}",
+    "open_folder_failed": "Could not open the download folder",
+    "delete_record_failed": "Could not remove {title} from the list",
+    "finished_toast": "Finished downloading {title}",
+    "failed_toast": "Failed to download {title}: {reason}"
   },
   "languages": {
     "name": "Languages"

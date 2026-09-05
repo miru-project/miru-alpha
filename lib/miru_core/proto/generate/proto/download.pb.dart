@@ -2253,11 +2253,13 @@ class UpdateDownloadStatusRequest extends $pb.GeneratedMessage {
     $core.int? taskId,
     $1.DownloadStatus? status,
     $core.String? savePath,
+    $core.String? error,
   }) {
     final result = create();
     if (taskId != null) result.taskId = taskId;
     if (status != null) result.status = status;
     if (savePath != null) result.savePath = savePath;
+    if (error != null) result.error = error;
     return result;
   }
 
@@ -2278,6 +2280,7 @@ class UpdateDownloadStatusRequest extends $pb.GeneratedMessage {
     ..aE<$1.DownloadStatus>(2, _omitFieldNames ? '' : 'status',
         enumValues: $1.DownloadStatus.values)
     ..aOS(3, _omitFieldNames ? '' : 'savePath')
+    ..aOS(4, _omitFieldNames ? '' : 'error')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -2328,6 +2331,17 @@ class UpdateDownloadStatusRequest extends $pb.GeneratedMessage {
   $core.bool hasSavePath() => $_has(2);
   @$pb.TagNumber(3)
   void clearSavePath() => $_clearField(3);
+
+  /// Optional failure reason reported by the frontend (e.g. FFmpeg
+  /// conversion failed). Only meaningful with status FAILED.
+  @$pb.TagNumber(4)
+  $core.String get error => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set error($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasError() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearError() => $_clearField(4);
 }
 
 class UpdateDownloadStatusResponse extends $pb.GeneratedMessage {

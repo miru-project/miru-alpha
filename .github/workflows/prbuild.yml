@@ -6,8 +6,8 @@ on:
   push:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 env:
-  FLUTTER_VERSION: '3.47.0'
-  GO_VERSION: '1.26.6'
+  FLUTTER_VERSION: "3.47.2"
+  GO_VERSION: "1.27.0"
 jobs:
   build-and-release-android:
     runs-on: ubuntu-latest
@@ -17,41 +17,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          submodules: 'true'
+          submodules: "true"
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
-          go-version: '${{ env.GO_VERSION }}'
+          go-version: "${{ env.GO_VERSION }}"
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version:  ${{ env.FLUTTER_VERSION }}
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
       - uses: dtolnay/rust-toolchain@stable
       - name: Add Android targets
         run: rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
-        
+
       - name: Decode keystore
         run: |
           echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
         env:
           ENCODED_KEYSTORE: ${{ secrets.KEYSTORE }}
-      
-      - name: Create AAR directory
-        run: mkdir src/miru_core/android  
-      - name: Install gomobile
-        run: |
-          go install golang.org/x/mobile/cmd/gomobile@latest
-          go get golang.org/x/mobile/bind
-          gomobile version || true
-          gomobile init
-        working-directory: ./src/miru_core/miru-core
-
-      - name: Build Android AAR (gomobile bind)
-        working-directory: src/miru_core/miru-core/binary
-        run: |
-          gomobile bind -tags nosqlite -ldflags="-s -w -checklinkname=0" -o ../../android/libmiru-core.aar -target=android -androidapi 28
 
       - run: flutter pub get
       # 打包apk
@@ -62,7 +47,6 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD}}
 
-          
       - name: Set artifact timestamp
         run: echo "TIMESTAMP=$(date -u +'%Y%m%dT%H%M%SZ')" >> $GITHUB_ENV
       # 发布安装包
@@ -90,10 +74,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{env.GO_VERSION}}
-
 
       - uses: subosito/flutter-action@v2
         with:
@@ -132,7 +115,6 @@ jobs:
     container:
       image: archlinux:base-devel
     steps:
-
       - name: Install Dependencies
         run: pacman -Sy --noconfirm gtk3 wpewebkit git clang cmake ninja jq alsa-utils alsa-plugins
 
@@ -144,13 +126,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: ${{env.GO_VERSION}}
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version:  ${{ env.FLUTTER_VERSION }}
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
 
       - name: Setup Rust
@@ -161,7 +143,7 @@ jobs:
 
       - name: Cache Cargo Dependencies
         uses: Swatinem/rust-cache@v2
-        
+
       - name: Build artifacts
         run: flutter build linux --release -v --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
       - name: Rename Release Directory Name to Miru-alpha # 为了解压缩后更好看一点

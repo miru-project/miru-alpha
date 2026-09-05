@@ -58,7 +58,6 @@ class MobileSearchPage extends HookConsumerWidget {
                   ),
                 ),
               if (metaData.isNotEmpty) ...[
-                SliverToBoxAdapter(child: FDivider(style: .delta(width: 3))),
                 SliverList.separated(
                   separatorBuilder: (context, index) {
                     return FDivider(

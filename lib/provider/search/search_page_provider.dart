@@ -60,8 +60,7 @@ class SearchPageState {
   // Recently visited extensions (newest first), backed by the fixed-size
   // RecentExtensions setting (updated when an extension's latest page is
   // opened), rather than parsed from search history.
-  List<String> get recentExtensions =>
-      MiruSettings.getRecentExtensions();
+  List<String> get recentExtensions => MiruSettings.getRecentExtensions();
 
   SearchPageState copyWith({
     List<ExtensionMeta>? metaData,

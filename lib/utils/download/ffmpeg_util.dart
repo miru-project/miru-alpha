@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:ffi/ffi.dart';
 import '../core/log.dart';
@@ -56,6 +58,37 @@ class FFMpegUtils {
         calloc.free(ptr);
       }
       calloc.free(array);
+    }
+  }
+
+  /// Chain of in-flight merges. The native ffmpeg_merge library keeps
+  /// conversion state in globals, and every isolate in the process shares
+  /// one dlopen'd copy of the library, so merges must run one at a time.
+  static Future<void> _mergeChain = Future<void>.value();
+
+  /// Runs [combineToMp4] on a short-lived worker isolate so a long merge
+  /// never blocks the UI thread (a frozen "Converting" tile previously let
+  /// stray cancel taps race the post-conversion cleanup).
+  ///
+  /// Calls are serialized through an internal queue: only one merge executes
+  /// at a time because of the shared native globals. Any error thrown by the
+  /// merge is rethrown to the awaiting caller.
+  static Future<void> combineToMp4Async(
+    List<String> inputFile,
+    String outputName,
+  ) async {
+    final gate = Completer<void>();
+    final previous = _mergeChain;
+    _mergeChain = gate.future;
+    await previous;
+    try {
+      await Isolate.run(() {
+        // Statics are per-isolate: the library must be opened here too.
+        ensureInitialized();
+        combineToMp4(inputFile, outputName);
+      });
+    } finally {
+      gate.complete();
     }
   }
 }

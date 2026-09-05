@@ -184,14 +184,14 @@ class _Loaded extends HookConsumerWidget {
               FAccordion(
                 style: FAccordionStyleDelta.delta(
                   dividerStyle: FDividerStyleDelta.delta(
-                      color: const Color(0x00000000)),
+                    color: const Color(0x00000000),
+                  ),
                 ),
                 children: [
                   FAccordionItem(
                     initiallyExpanded: true,
                     title: Text("media.episode.description".i18n),
-                    child: DetailSection<String?>
-(
+                    child: DetailSection<String?>(
                       detailPr: detailPr,
                       selector: (s) => s.detailInfo?.desc,
                       skeletonBuilder: (_) => const Column(

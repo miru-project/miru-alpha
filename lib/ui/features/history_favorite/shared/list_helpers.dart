@@ -55,13 +55,31 @@ Future<void> showDeleteConfirmDialog({
   if (confirmed == true) onConfirm();
 }
 
-/// Opens a bottom sheet with a single "remove" action.
-void showRemoveSheet({
+/// One entry in a [showActionsSheet] bottom sheet.
+class SheetAction {
+  const SheetAction({
+    required this.label,
+    required this.icon,
+    required this.onPress,
+    this.destructive = false,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onPress;
+
+  /// Tints the icon with the destructive colour for actions that remove data.
+  final bool destructive;
+}
+
+/// Opens a bottom sheet listing [actions] that apply to [title].
+///
+/// Each row closes the sheet before running its handler, so the handler can
+/// navigate or raise a dialog without the sheet still sitting underneath it.
+void showActionsSheet({
   required BuildContext context,
   required String title,
-  required String actionLabel,
-  required IconData actionIcon,
-  required VoidCallback onRemove,
+  required List<SheetAction> actions,
 }) {
   showFSheet(
     context: context,
@@ -80,17 +98,40 @@ void showRemoveSheet({
             child: Text(title),
           ),
           children: [
-            FTile(
-              prefix: Icon(actionIcon),
-              title: Text(actionLabel),
-              onPress: () {
-                Navigator.pop(context);
-                onRemove();
-              },
-            ),
+            for (final action in actions)
+              FTile(
+                prefix: Icon(
+                  action.icon,
+                  color: action.destructive
+                      ? context.theme.colors.destructive
+                      : null,
+                ),
+                title: Text(action.label),
+                onPress: () {
+                  Navigator.pop(context);
+                  action.onPress();
+                },
+              ),
           ],
         ),
       ),
     ),
+  );
+}
+
+/// Opens a bottom sheet with a single "remove" action.
+void showRemoveSheet({
+  required BuildContext context,
+  required String title,
+  required String actionLabel,
+  required IconData actionIcon,
+  required VoidCallback onRemove,
+}) {
+  showActionsSheet(
+    context: context,
+    title: title,
+    actions: [
+      SheetAction(label: actionLabel, icon: actionIcon, onPress: onRemove),
+    ],
   );
 }

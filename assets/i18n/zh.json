@@ -126,7 +126,11 @@
       "yesterday": "昨天",
       "older": "更早",
       "resume": "继续",
-      "episode": "剧集"
+      "episode": "剧集",
+      "watch": "观看",
+      "go_to_detail": "查看详情",
+      "detail_missing": "无法从本地库加载该作品",
+      "episode_unavailable": "该扩展已不再提供这一集"
     },
     "download_tools": {
       "pause": "暂停",
@@ -540,6 +544,7 @@
     "error_loading_downloads": "加载下载失败",
     "download_started": "已开始下载",
     "failed_to_start_download": "开始下载失败",
+    "convert_failed": "转换 {title} 为 MP4 失败",
     "downloaded": "已下载",
     "max_concurrent": "最大同时下载数",
     "show_missing": "显示缺失文件（{count}）",
@@ -554,7 +559,21 @@
     "storage_used": "已使用 {used} / {total}",
     "storage_hint": "您还有足够的空间下载约 {count} 集高清内容。",
     "in_progress": "进行中",
-    "path_not_set": "未设置下载路径"
+    "path_not_set": "未设置下载路径",
+    "active_count": "{count} 个进行中",
+    "no_completed_downloads": "无已完成下载",
+    "end_of_list": "没有更多下载了",
+    "error_reason": "原因：{reason}",
+    "file_missing": "磁盘上找不到文件",
+    "delete_title": "删除下载",
+    "delete_message": "要如何处理“{title}”？",
+    "delete_file_option": "删除文件并从列表移除",
+    "remove_record_option": "仅从列表移除",
+    "delete_file_failed": "无法删除 {title} 的文件",
+    "open_folder_failed": "无法打开下载文件夹",
+    "delete_record_failed": "无法从列表移除 {title}",
+    "finished_toast": "已下载完成 {title}",
+    "failed_toast": "下载 {title} 失败：{reason}"
   },
   "detail": {
     "previous": "上一页",

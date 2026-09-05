@@ -8,30 +8,80 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/provider/download_provider.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
-import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/ui/core/core/toast.dart';
 import 'package:miru_alpha/utils/download/download_utils.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:collection/collection.dart';
+import 'package:miru_alpha/ui/core/dialog/dialog.dart';
+
+/// Whether this platform can reveal a downloaded file in a system file manager.
+///
+/// Android and iOS expose no launchable file manager through `dart:io`, so the
+/// UI hides the action instead of showing a button that silently did nothing.
+bool get canRevealDownloadedFile =>
+    Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+
+/// The accent colour for [status], resolved against [theme].
+///
+/// Shared by the status badge and the library bento card's download summary so
+/// a given status never renders as two different colours in two places. Lives
+/// here (a UI file) rather than in `DownloadUtils`, which is a pure data-layer
+/// helper with no Flutter imports.
+Color downloadStatusColor(proto.DownloadStatus status, FThemeData theme) {
+  return switch (status) {
+    proto.DownloadStatus.DOWNLOADING => theme.colors.primary,
+    proto.DownloadStatus.CONVERTING => const Color(0xFFD97706),
+    proto.DownloadStatus.COMPLETED => const Color(0xFF16A34A),
+    proto.DownloadStatus.FAILED => theme.colors.destructive,
+    _ => theme.colors.mutedForeground,
+  };
+}
 
 /// Cross-platform helper that opens [path] in the OS file browser.
 ///
-/// On desktop this reveals the file (or its containing folder) in the native
-/// file manager. Failures are intentionally swallowed so a missing handler
-/// never crashes the UI.
-Future<void> openDownloadFile(String path) async {
-  if (path.isEmpty) return;
+/// Returns `false` when the platform has no handler or the launch failed, so
+/// callers can tell the user rather than appearing to succeed.
+Future<bool> openDownloadFile(String path) async {
+  if (path.isEmpty) return false;
+
+  final executable = Platform.isWindows
+      ? 'explorer.exe'
+      : Platform.isMacOS
+      ? 'open'
+      : Platform.isLinux
+      ? 'xdg-open'
+      : null;
+  if (executable == null) return false;
+
   try {
-    if (Platform.isWindows) {
-      await Process.run('explorer.exe', [path]);
-    } else if (Platform.isMacOS) {
-      await Process.run('open', [path]);
-    } else if (Platform.isLinux) {
-      await Process.run('xdg-open', [path]);
-    }
+    final result = await Process.run(executable, [path]);
+    // explorer.exe reports a non-zero exit code even when it opens the folder
+    // successfully, so only trust it on the other platforms.
+    if (Platform.isWindows) return true;
+    return result.exitCode == 0;
+  } on ProcessException catch (e) {
+    logger.warning('No file manager handler for $path: ${e.message}');
+    return false;
   } catch (e) {
-    // Ignoring: opening the file manager is best-effort.
+    logger.warning('Failed to reveal $path in the file manager: $e');
+    return false;
   }
+}
+
+/// Reveals [download] in the file manager, explaining why it could not.
+Future<void> revealDownload(
+  BuildContext context,
+  proto.Download download,
+) async {
+  final opened = await openDownloadFile(download.savePath);
+  if (opened) return;
+  showSimpleToast(
+    download.savePath.isEmpty
+        ? 'download.file_missing'.i18n
+        : 'download.open_folder_failed'.i18n,
+  );
 }
 
 /// Opens the detail page for a downloaded item when its source extension is
@@ -53,6 +103,109 @@ void openDownloadDetail(
   );
 }
 
+/// Outcome of the delete prompt shown for a finished download.
+enum DownloadDeleteChoice { cancel, deleteFile, removeRecord }
+
+/// Asks the user what to do with [download], then carries out the choice.
+///
+/// The backend `DeleteDownload` RPC only removes its own database row, so
+/// "delete file" has to happen here on the filesystem. Because the two options
+/// have very different consequences (one destroys media, the other only hides
+/// the entry), the user is always asked instead of a silent default being
+/// picked.
+Future<void> confirmDeleteDownload(
+  BuildContext context,
+  WidgetRef ref,
+  proto.Download download,
+) async {
+  final fileExists = DownloadUtils.existsOnDisk(download.savePath);
+
+  final choice = await showMiruDialog<DownloadDeleteChoice>(
+    context: context,
+    title: Text('download.delete_title'.i18n),
+    body: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('download.delete_message'.i18n.fill({'title': download.title})),
+        if (download.savePath.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              download.savePath,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.theme.typography.body.xs.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
+            ),
+          ),
+        if (!fileExists)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Row(
+              children: [
+                Icon(
+                  FLucideIcons.circleAlert,
+                  size: 14,
+                  color: context.theme.colors.mutedForeground,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'download.file_missing'.i18n,
+                    style: context.theme.typography.body.xs.copyWith(
+                      color: context.theme.colors.mutedForeground,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 12),
+        FTileGroup(
+          children: [
+            if (fileExists)
+              FTile(
+                prefix: Icon(
+                  FLucideIcons.trash2,
+                  color: context.theme.colors.destructive,
+                ),
+                title: Text('download.delete_file_option'.i18n),
+                onPress: () =>
+                    Navigator.pop(context, DownloadDeleteChoice.deleteFile),
+              ),
+            FTile(
+              prefix: const Icon(FLucideIcons.bookmarkMinus),
+              title: Text('download.remove_record_option'.i18n),
+              onPress: () =>
+                  Navigator.pop(context, DownloadDeleteChoice.removeRecord),
+            ),
+            // An explicit escape hatch: relying on a barrier tap is easy to
+            // miss, and one of these two options destroys media files.
+            FTile(
+              prefix: const Icon(FLucideIcons.x),
+              title: Text('common.cancel'.i18n),
+              onPress: () =>
+                  Navigator.pop(context, DownloadDeleteChoice.cancel),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+
+  if (choice == null || choice == DownloadDeleteChoice.cancel) return;
+  if (!context.mounted) return;
+
+  await ref
+      .read(downloadProvider.notifier)
+      .removeHistoryEntry(
+        download,
+        deleteFile: choice == DownloadDeleteChoice.deleteFile,
+      );
+}
+
 class DownloadProcessTile extends ConsumerWidget {
   const DownloadProcessTile({super.key, required this.progress});
 
@@ -67,6 +220,7 @@ class DownloadProcessTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final status = progress.status;
     final isPaused = status == proto.DownloadStatus.PAUSED;
+    final isFailed = status == proto.DownloadStatus.FAILED;
 
     return MiruCard(
       child: Column(
@@ -108,6 +262,22 @@ class DownloadProcessTile extends ConsumerWidget {
                         color: context.theme.colors.mutedForeground,
                       ),
                     ),
+                    // Surface why a task failed — the backend carries the
+                    // reason on the live progress object.
+                    if (isFailed && progress.error.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          'download.error_reason'.i18n.fill({
+                            'reason': progress.error,
+                          }),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.theme.typography.body.xs.copyWith(
+                            color: context.theme.colors.destructive,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -213,11 +383,12 @@ class DownloadHistoryTile extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              FButton.icon(
-                variant: .ghost,
-                onPress: () => openDownloadFile(download.savePath),
-                child: const Icon(FLucideIcons.folderOpen),
-              ),
+              if (canRevealDownloadedFile)
+                FButton.icon(
+                  variant: .ghost,
+                  onPress: () => revealDownload(context, download),
+                  child: const Icon(FLucideIcons.folderOpen),
+                ),
               FButton.icon(
                 variant: .ghost,
                 onPress: () => openDownloadDetail(context, ref, download),
@@ -225,13 +396,8 @@ class DownloadHistoryTile extends ConsumerWidget {
               ),
               FButton.icon(
                 variant: .ghost,
-                onPress: () async {
-                  await MiruGrpcClient.downloadClient.deleteDownload(
-                    proto.DeleteDownloadRequest()..id = download.id,
-                  );
-                  ref.invalidate(downloadProvider);
-                },
-                child: const Icon(Icons.delete),
+                onPress: () => confirmDeleteDownload(context, ref, download),
+                child: const Icon(FLucideIcons.trash2),
               ),
             ],
           ),
@@ -248,50 +414,26 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, color) = switch (status) {
-      proto.DownloadStatus.DOWNLOADING => (
-        'download.status.downloading'.i18n,
-        context.theme.colors.primary,
-      ),
-      proto.DownloadStatus.PAUSED => (
-        'download.status.paused'.i18n,
-        context.theme.colors.mutedForeground,
-      ),
-      proto.DownloadStatus.CONVERTING => (
-        'download.status.converting'.i18n,
-        const Color(0xFFD97706),
-      ),
-      proto.DownloadStatus.COMPLETED => (
-        'download.status.completed'.i18n,
-        const Color(0xFF16A34A),
-      ),
-      proto.DownloadStatus.FAILED => (
-        'download.status.failed'.i18n,
-        context.theme.colors.destructive,
-      ),
-      proto.DownloadStatus.CANCELLED => (
-        'download.status.cancelled'.i18n,
-        context.theme.colors.mutedForeground,
-      ),
-      proto.DownloadStatus.QUEUED => (
-        'download.status.queued'.i18n,
-        context.theme.colors.mutedForeground,
-      ),
-      _ => (
-        'download.status.unknown'.i18n,
-        context.theme.colors.mutedForeground,
-      ),
-    };
+    final label = DownloadUtils.statusToI18N(status).i18n;
+    final color = downloadStatusColor(status, context.theme);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withAlpha(26),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        style: context.theme.typography.body.xs.copyWith(color: color),
+    // The badge is inflexible inside its Row, so an unbounded label (a long
+    // translation, or an untranslated fallback key) would overflow the card on
+    // narrow phones. Cap it and let the text ellipsize instead.
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 120),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        decoration: BoxDecoration(
+          color: color.withAlpha(26),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.theme.typography.body.xs.copyWith(color: color),
+        ),
       ),
     );
   }

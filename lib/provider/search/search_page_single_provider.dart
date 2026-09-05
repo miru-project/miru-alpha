@@ -259,8 +259,7 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
   /// declared bounds. Range selections bypass the select/multi count limits.
   void setRangeFilter(String key, int from, int to) {
     final filter = state.filter[key];
-    if (filter == null ||
-        filter.whichKind() != pb.ExtensionFilter_Kind.range) {
+    if (filter == null || filter.whichKind() != pb.ExtensionFilter_Kind.range) {
       return;
     }
     final r = filter.range;

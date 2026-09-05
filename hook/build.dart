@@ -75,7 +75,7 @@ Future<FFmpegBuildResult> _buildAndroid(
   BuildOutputBuilder output,
 ) async {
   // Build the Go miru_core native library (c-shared) for this ABI and register
-  // it as a bundled code asset, replacing the old gomobile AAR dependency.
+  // it as a bundled code asset.
   await _buildMiruCore(input, output);
 
   final includes = <Uri>[];
@@ -157,16 +157,35 @@ Future<FFmpegBuildResult> _buildAndroid(
   );
 }
 
+/// The most recently modified `.go` file under [dir], or null when the tree is
+/// missing or holds no Go sources.
+///
+/// Used to decide whether the cached `libmiru_core.so` is stale. The Go module
+/// is small (a few hundred files, no vendor directory), so the scan is cheap
+/// next to the multi-second c-shared build it guards.
+File? _newestGoSource(Uri dir) {
+  final root = Directory.fromUri(dir);
+  if (!root.existsSync()) return null;
+
+  File? newest;
+  DateTime newestAt = DateTime.fromMillisecondsSinceEpoch(0);
+  for (final entity in root.listSync(recursive: true, followLinks: false)) {
+    if (entity is! File || !entity.path.endsWith('.go')) continue;
+    final modified = entity.lastModifiedSync();
+    if (modified.isAfter(newestAt)) {
+      newestAt = modified;
+      newest = entity;
+    }
+  }
+  return newest;
+}
+
 /// Builds libmiru_core.so for the current Android ABI using Go's c-shared build
 /// mode with the NDK C toolchain (CGO enabled).
 ///
 /// The produced shared library is registered as a bundled native code asset
-/// so Flutter packages it into `lib/<abi>/libmiru_core.so`. This replaces the
-/// previous gomobile `bind` AAR dependency.
-Future<void> _buildMiruCore(
-  BuildInput input,
-  BuildOutputBuilder output,
-) async {
+/// so Flutter packages it into `lib/<abi>/libmiru_core.so`.
+Future<void> _buildMiruCore(BuildInput input, BuildOutputBuilder output) async {
   final sdkRoot =
       Platform.environment['ANDROID_HOME'] ?? '/home/noonecare/Android/Sdk';
   final ndkPath = _resolveNdkPath(sdkRoot);
@@ -184,21 +203,28 @@ Future<void> _buildMiruCore(
   await Directory.fromUri(outDir).create(recursive: true);
   final outSo = outDir.resolve('libmiru_core.so');
 
-  // Skip the rebuild when the .so is already newer than the Go entry point.
-  final goMain = input.packageRoot.resolve('src/miru_core/miru-core/main.go');
+  // Rebuild when any Go source is newer than the .so. Comparing only main.go
+  // silently skipped every edit under pkg/, so backend fixes never reached the
+  // APK and the change looked like it had no effect at all.
   final soFile = File.fromUri(outSo);
+  final newestSource = _newestGoSource(
+    input.packageRoot.resolve('src/miru_core/miru-core/'),
+  );
   if (!soFile.existsSync() ||
-      File.fromUri(goMain).lastModifiedSync().isAfter(soFile.lastModifiedSync())) {
+      (newestSource != null &&
+          newestSource.lastModifiedSync().isAfter(soFile.lastModifiedSync()))) {
     logger.info('Building libmiru_core.so for $abi (Go c-shared)...');
     final result = await Process.run(
       'go',
       [
         'build',
-        '-tags', 'nosqlite',
+        '-tags',
+        'nosqlite',
         '-buildmode=c-shared',
         '-ldflags=-s -w -checklinkname=0',
         '-trimpath',
-        '-o', outSo.toFilePath(),
+        '-o',
+        outSo.toFilePath(),
         input.packageRoot
             .resolve('src/miru_core/miru-core/main.go')
             .toFilePath(),
@@ -216,8 +242,9 @@ Future<void> _buildMiruCore(
       },
       // The Go module lives in src/miru_core/miru-core; cwd must be inside it
       // so `go` can resolve go.mod and the internal `binary` package.
-      workingDirectory:
-          input.packageRoot.resolve('src/miru_core/miru-core').toFilePath(),
+      workingDirectory: input.packageRoot
+          .resolve('src/miru_core/miru-core')
+          .toFilePath(),
     );
     if (result.exitCode != 0) {
       throw Exception(
@@ -239,20 +266,38 @@ Future<void> _buildMiruCore(
 
 /// Resolves the Android NDK directory, preferring an installed 28.x NDK so the
 /// Go c-shared build matches the app's [android.app.build.gradle.kts] NDK.
+/// Falls back to ANDROID_NDK_HOME, then the highest installed NDK; CI runners
+/// (ubuntu-latest) preinstall 27.x/28.x/29.x under $ANDROID_HOME, so no NDK
+/// download step is needed there.
 String _resolveNdkPath(String sdkRoot) {
   final ndkDir = Directory('$sdkRoot/ndk');
   if (ndkDir.existsSync()) {
-    final versions = ndkDir
-        .listSync()
-        .whereType<Directory>()
-        .map((d) => d.path.split('/').last)
-        .where((n) => n.startsWith('28.'))
-        .toList()
-      ..sort();
+    final versions =
+        ndkDir
+            .listSync()
+            .whereType<Directory>()
+            .map((d) => d.path.split('/').last)
+            .toList()
+          ..sort();
+    final v28 = versions.where((n) => n.startsWith('28.')).toList();
+    if (v28.isNotEmpty) return '$sdkRoot/ndk/${v28.last}';
+  }
+  final fromEnv = Platform.environment['ANDROID_NDK_HOME'];
+  if (fromEnv != null && Directory(fromEnv).existsSync()) return fromEnv;
+  if (ndkDir.existsSync()) {
+    final versions =
+        ndkDir
+            .listSync()
+            .whereType<Directory>()
+            .map((d) => d.path.split('/').last)
+            .toList()
+          ..sort();
     if (versions.isNotEmpty) return '$sdkRoot/ndk/${versions.last}';
   }
-  return Platform.environment['ANDROID_NDK_HOME'] ??
-      '$sdkRoot/ndk/28.2.13676358';
+  throw Exception(
+    'Android NDK not found. Install it via Android Studio or '
+    '`sdkmanager "ndk;28.2.13676358"`, or set ANDROID_NDK_HOME.',
+  );
 }
 
 /// Maps a [Architecture] to the NDK clang toolchain names, the Go [GOARCH],

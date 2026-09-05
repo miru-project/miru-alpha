@@ -11,6 +11,7 @@ import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/features/history_favorite/shared/list_helpers.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/watch/history_session.dart';
 
 class HistoryView extends ConsumerStatefulWidget {
   const HistoryView({super.key, this.type});
@@ -26,9 +27,22 @@ class _HistoryViewState extends ConsumerState<HistoryView> {
   @override
   void initState() {
     super.initState();
-    if (widget.type != null) {
+    _applyTypeFilter();
+  }
+
+  @override
+  void didUpdateWidget(covariant HistoryView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-pushes of `/home/history?type=...` reuse this element because the
+    // page key is unchanged, so `initState` will not run again.
+    if (oldWidget.type != widget.type) _applyTypeFilter();
+  }
+
+  void _applyTypeFilter() {
+    final type = widget.type;
+    if (type != null) {
       Future.microtask(
-        () => ref.read(historyPageProvider.notifier).setTypeFilter(widget.type),
+        () => ref.read(historyPageProvider.notifier).setTypeFilter(type),
       );
     }
   }
@@ -36,7 +50,40 @@ class _HistoryViewState extends ConsumerState<HistoryView> {
   void _openDetail(BuildContext context, History history) {
     final meta = findMeta(ref, history.package);
     if (meta == null) return;
-    openDetail(context, meta, history.url);
+    // detailUrl is the series page; history.url is the episode's watch URL and
+    // belongs to the watch session, not to the detail route.
+    openDetail(context, meta, history.detailUrl);
+  }
+
+  /// Long-press menu. Tapping the row already resumes, so the sheet holds the
+  /// actions that are not the default one.
+  void _showActions(BuildContext context, History history) {
+    showActionsSheet(
+      context: context,
+      title: history.title,
+      actions: [
+        SheetAction(
+          label: 'history_tools.watch'.i18n,
+          icon: FLucideIcons.play,
+          onPress: () => openHistoryWatchSession(
+            context: context,
+            ref: ref,
+            history: history,
+          ),
+        ),
+        SheetAction(
+          label: 'history_tools.go_to_detail'.i18n,
+          icon: FLucideIcons.info,
+          onPress: () => _openDetail(context, history),
+        ),
+        SheetAction(
+          label: 'common.delete'.i18n,
+          icon: FLucideIcons.trash2,
+          destructive: true,
+          onPress: () => _confirmDelete(context, history),
+        ),
+      ],
+    );
   }
 
   Future<void> _confirmDelete(BuildContext context, History history) async {
@@ -79,16 +126,14 @@ class _HistoryViewState extends ConsumerState<HistoryView> {
         title: history.title,
         subtitle: subtitle,
         imageUrl: history.cover,
-        onTap: () => _openDetail(context, history),
-        onLongPress: () {
-          showRemoveSheet(
-            context: context,
-            title: history.title,
-            actionLabel: 'common.delete'.i18n,
-            actionIcon: FLucideIcons.trash2,
-            onRemove: () => _confirmDelete(context, history),
-          );
-        },
+        // Tap resumes the session directly; the detail page is one long-press
+        // away for people who want the episode list instead.
+        onTap: () => openHistoryWatchSession(
+          context: context,
+          ref: ref,
+          history: history,
+        ),
+        onLongPress: () => _showActions(context, history),
         stackLabel: progress > 0 ? Text('${(progress * 100).toInt()}%') : null,
       ),
     );
@@ -185,7 +230,7 @@ class _HistoryMobileView extends StatelessWidget {
         : (MediaQuery.of(context).size.width * .875 ~/ 160).clamp(2, 12);
 
     return MiruScaffold.mobile(
-      childPad: true,
+      childPad: false,
       slivers: [
         SliverPersistentHeader(
           pinned: true,

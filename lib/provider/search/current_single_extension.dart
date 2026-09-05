@@ -15,5 +15,5 @@ class CurrentSingleExtensionNotifier extends Notifier<ExtensionMeta?> {
 
 final currentSingleExtensionProvider =
     NotifierProvider<CurrentSingleExtensionNotifier, ExtensionMeta?>(
-  CurrentSingleExtensionNotifier.new,
-);
+      CurrentSingleExtensionNotifier.new,
+    );
