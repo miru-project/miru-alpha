@@ -157,79 +157,57 @@ Future<FFmpegBuildResult> _buildAndroid(
   );
 }
 
-/// The most recently modified `.go` file under [dir], or null when the tree is
-/// missing or holds no Go sources.
+/// Every file that affects the Go build: all `.go` sources plus the module
+/// manifest.
 ///
-/// Used to decide whether the cached `libmiru_core.so` is stale. The Go module
-/// is small (a few hundred files, no vendor directory), so the scan is cheap
-/// next to the multi-second c-shared build it guards.
-File? _newestGoSource(Uri dir) {
+/// These must be declared as hook output dependencies, otherwise the build
+/// system caches the hook result indefinitely and never re-runs it, so backend
+/// edits silently never reach the shipped library (the bug the old Linux CMake
+/// target had with its dependency-less custom command). The scan is cheap (a
+/// few hundred files, no vendor directory) next to the c-shared build it guards.
+List<Uri> _goBuildInputs(Uri dir) {
   final root = Directory.fromUri(dir);
-  if (!root.existsSync()) return null;
+  if (!root.existsSync()) return const [];
 
-  File? newest;
-  DateTime newestAt = DateTime.fromMillisecondsSinceEpoch(0);
+  final inputs = <Uri>[];
   for (final entity in root.listSync(recursive: true, followLinks: false)) {
-    if (entity is! File || !entity.path.endsWith('.go')) continue;
-    final modified = entity.lastModifiedSync();
-    if (modified.isAfter(newestAt)) {
-      newestAt = modified;
-      newest = entity;
+    if (entity is! File) continue;
+    final path = entity.path;
+    if (path.endsWith('.go') ||
+        path.endsWith('go.mod') ||
+        path.endsWith('go.sum')) {
+      inputs.add(entity.uri);
     }
   }
-  return newest;
+  return inputs;
 }
 
-/// Builds libmiru_core.so for the current Android ABI using Go's c-shared build
-/// mode with the NDK C toolchain (CGO enabled).
+/// Builds libmiru_core.so for the current target using Go's c-shared mode and
+/// registers it as a bundled native code asset.
 ///
-/// The produced shared library is registered as a bundled native code asset
-/// so Flutter packages it into `lib/<abi>/libmiru_core.so`.
+/// Android cross-compiles with the NDK clang toolchain; Linux uses the host C
+/// compiler. Both share the same staleness check so an edit anywhere under the
+/// Go module rebuilds the library — the gap that let the old Linux CMake target
+/// ship a stale `.so` forever.
 Future<void> _buildMiruCore(BuildInput input, BuildOutputBuilder output) async {
-  final sdkRoot =
-      Platform.environment['ANDROID_HOME'] ?? '/home/noonecare/Android/Sdk';
-  final ndkPath = _resolveNdkPath(sdkRoot);
-  final toolchain = '$ndkPath/toolchains/llvm/prebuilt/linux-x86_64/bin';
-
+  final os = input.config.code.targetOS;
   final arch = input.config.code.targetArchitecture;
-  final (ccName, cxxName, goArch, abi) = _abiToolchain(arch);
 
-  // Output into a per-ABI subdirectory named libmiru_core.so. The native-assets
-  // bundler copies the file using its basename, so the bundled library must be
-  // named exactly `libmiru_core.so` (what Dart opens via DynamicLibrary.open).
-  // The per-ABI directory keeps the three intermediate files from overwriting
-  // each other across the per-ABI build-hook invocations.
-  final outDir = input.packageRoot.resolve('build/android/lib/$abi/');
-  await Directory.fromUri(outDir).create(recursive: true);
-  final outSo = outDir.resolve('libmiru_core.so');
+  final String outDirPath;
+  final String ldflags;
+  final Map<String, String> env;
 
-  // Rebuild when any Go source is newer than the .so. Comparing only main.go
-  // silently skipped every edit under pkg/, so backend fixes never reached the
-  // APK and the change looked like it had no effect at all.
-  final soFile = File.fromUri(outSo);
-  final newestSource = _newestGoSource(
-    input.packageRoot.resolve('src/miru_core/miru-core/'),
-  );
-  if (!soFile.existsSync() ||
-      (newestSource != null &&
-          newestSource.lastModifiedSync().isAfter(soFile.lastModifiedSync()))) {
-    logger.info('Building libmiru_core.so for $abi (Go c-shared)...');
-    final result = await Process.run(
-      'go',
-      [
-        'build',
-        '-tags',
-        'nosqlite',
-        '-buildmode=c-shared',
-        '-ldflags=-s -w -checklinkname=0',
-        '-trimpath',
-        '-o',
-        outSo.toFilePath(),
-        input.packageRoot
-            .resolve('src/miru_core/miru-core/main.go')
-            .toFilePath(),
-      ],
-      environment: {
+  switch (os) {
+    case OS.android:
+      final sdkRoot =
+          Platform.environment['ANDROID_HOME'] ??
+          '/home/noonecare/Android/Sdk';
+      final ndkPath = _resolveNdkPath(sdkRoot);
+      final toolchain = '$ndkPath/toolchains/llvm/prebuilt/linux-x86_64/bin';
+      final (ccName, cxxName, goArch, abi) = _abiToolchain(arch);
+      outDirPath = 'build/android/lib/$abi/';
+      ldflags = '-s -w -checklinkname=0';
+      env = {
         'ANDROID_HOME': sdkRoot,
         'ANDROID_SDK_ROOT': sdkRoot,
         'ANDROID_NDK_HOME': ndkPath,
@@ -239,7 +217,71 @@ Future<void> _buildMiruCore(BuildInput input, BuildOutputBuilder output) async {
         'CGO_ENABLED': '1',
         'GOOS': 'android',
         'GOARCH': goArch,
-      },
+      };
+    case OS.linux:
+      final goArch = switch (arch) {
+        Architecture.x64 => 'amd64',
+        Architecture.arm64 => 'arm64',
+        Architecture.ia32 => '386',
+        Architecture.arm => 'arm',
+        _ => throw Exception('Unsupported Linux architecture: $arch'),
+      };
+      outDirPath = 'build/linux/lib/$goArch/';
+      ldflags = '-s -w';
+      // Host C toolchain (cc/gcc) and the inherited Go environment; only the
+      // cross-compile target needs to be pinned.
+      env = {'CGO_ENABLED': '1', 'GOOS': 'linux', 'GOARCH': goArch};
+    default:
+      throw Exception('libmiru_core.so is not built for target OS: $os');
+  }
+
+  // Output into a per-target subdirectory named libmiru_core.so. The
+  // native-assets bundler copies the file using its basename, so the bundled
+  // library must be named exactly `libmiru_core.so` (what Dart opens via
+  // DynamicLibrary.open). The subdirectory keeps the per-ABI/per-arch
+  // intermediate files from overwriting each other across build-hook
+  // invocations.
+  final outDir = input.packageRoot.resolve(outDirPath);
+  await Directory.fromUri(outDir).create(recursive: true);
+  final outSo = outDir.resolve('libmiru_core.so');
+
+  // Rebuild when any Go input is newer than the .so. Comparing only main.go
+  // silently skipped every edit under pkg/, so backend fixes never reached the
+  // shipped binary and the change looked like it had no effect at all.
+  final soFile = File.fromUri(outSo);
+  final buildInputs = _goBuildInputs(
+    input.packageRoot.resolve('src/miru_core/miru-core/'),
+  );
+  // Declare what this hook consumed so the build system re-runs it when any of
+  // those files change.
+  output.dependencies.addAll(buildInputs);
+
+  DateTime? newestChange;
+  for (final uri in buildInputs) {
+    final modified = File.fromUri(uri).lastModifiedSync();
+    if (newestChange == null || modified.isAfter(newestChange)) {
+      newestChange = modified;
+    }
+  }
+  if (!soFile.existsSync() ||
+      (newestChange != null && newestChange.isAfter(soFile.lastModifiedSync()))) {
+    logger.info('Building libmiru_core.so for ${os.name}/$arch (Go c-shared)...');
+    final result = await Process.run(
+      'go',
+      [
+        'build',
+        '-tags',
+        'nosqlite',
+        '-buildmode=c-shared',
+        '-ldflags=$ldflags',
+        '-trimpath',
+        '-o',
+        outSo.toFilePath(),
+        input.packageRoot
+            .resolve('src/miru_core/miru-core/main.go')
+            .toFilePath(),
+      ],
+      environment: env,
       // The Go module lives in src/miru_core/miru-core; cwd must be inside it
       // so `go` can resolve go.mod and the internal `binary` package.
       workingDirectory: input.packageRoot
@@ -248,7 +290,7 @@ Future<void> _buildMiruCore(BuildInput input, BuildOutputBuilder output) async {
     );
     if (result.exitCode != 0) {
       throw Exception(
-        'Failed to build libmiru_core.so for $abi '
+        'Failed to build libmiru_core.so for ${os.name}/$arch '
         '(exit ${result.exitCode}):\n${result.stdout}\n${result.stderr}',
       );
     }
@@ -342,6 +384,12 @@ Future<FFmpegBuildResult> _buildLinux(
   BuildInput input,
   BuildOutputBuilder output,
 ) async {
+  // Build the Go miru_core native library (c-shared) for this Linux arch and
+  // register it as a bundled code asset. Replaces the old
+  // src/miru_core/linux/CMakeLists.txt target, which never rebuilt the .so on
+  // Go source changes because it declared no dependencies.
+  await _buildMiruCore(input, output);
+
   final includes = <Uri>[];
   final libraries = <String>[];
   final libraryDirectories = <Uri>[];
