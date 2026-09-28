@@ -27,10 +27,10 @@ class ExtensionService {
     }
   }
 
-  Future<void> installExtension(String packageName) async {
+  Future<void> installExtension(String packageName, String repoUrl) async {
     try {
       await MiruGrpcClient.extensionClient.downloadExtension(
-        DownloadExtensionRequest(pkg: packageName, repoUrl: ''),
+        DownloadExtensionRequest(pkg: packageName, repoUrl: repoUrl),
       );
     } catch (e) {
       rethrow;
@@ -47,10 +47,10 @@ class ExtensionService {
     }
   }
 
-  Future<void> updateExtension(String packageName) async {
+  Future<void> updateExtension(String packageName, String repoUrl) async {
     try {
       await MiruGrpcClient.extensionClient.downloadExtension(
-        DownloadExtensionRequest(pkg: packageName, repoUrl: ''),
+        DownloadExtensionRequest(pkg: packageName, repoUrl: repoUrl),
       );
     } catch (e) {
       rethrow;
@@ -63,41 +63,55 @@ class ExtensionService {
         FetchRepoListRequest(),
       );
       // The response.data is a JSON string, need to decode it first
-      final Map<String, dynamic> data =
-          jsonDecode(response.data) as Map<String, dynamic>;
-      return data.entries.map((e) {
-        final repoData = e.value as List<dynamic>;
-        final extensions = repoData.map((ext) {
-          return ext_model.GithubExtension(
-            name: ext['name'] as String? ?? '',
-            description: ext['description'] as String?,
-            license: ext['license'] as String? ?? '',
-            version: ext['version'] as String? ?? '',
-            author: ext['author'] as String? ?? '',
-            icon: ext['icon'] as String?,
-            type: ext['type'] as String? ?? '',
-            lang: ext['lang'] as String? ?? '',
-            webSite: ext['webSite'] as String? ?? '',
-            nsfw: ext['nsfw'] as bool? ?? false,
-            package: ext['package'] as String? ?? '',
-            tags:
-                (ext['tags'] as List<dynamic>?)
-                    ?.map((t) => t as String)
-                    .toList() ??
-                [],
-          );
-        }).toList();
-
-        return ext_model.ExtensionRepo(
-          extensions: extensions,
-          name: e.key,
-          url: e.key,
-        );
-      }).toList();
+      return parseRepoIndex(response.data);
     } catch (e) {
       logger.severe(e.toString());
       return [];
     }
+  }
+
+  /// Parse the repo index payload the backend fetched: repo url -> extension
+  /// entries. Every field, including `nsfw`, comes from this single response,
+  /// so no extra per-extension request is needed.
+  static List<ext_model.ExtensionRepo> parseRepoIndex(String data) {
+    final Map<String, dynamic> decoded =
+        jsonDecode(data) as Map<String, dynamic>;
+    return decoded.entries.map((e) {
+      final extensions = (e.value as List<dynamic>).map((ext) {
+        final item = ext as Map<String, dynamic>;
+        return ext_model.GithubExtension(
+          name: item['name'] as String? ?? '',
+          description: item['description'] as String?,
+          license: item['license'] as String? ?? '',
+          version: item['version'] as String? ?? '',
+          author: item['author'] as String? ?? '',
+          icon: item['icon'] as String?,
+          type: item['type'] as String? ?? '',
+          lang: item['lang'] as String? ?? '',
+          webSite: item['webSite'] as String? ?? '',
+          nsfw: parseNsfw(item['nsfw']),
+          package: item['package'] as String? ?? '',
+          tags:
+              (item['tags'] as List<dynamic>?)
+                  ?.map((t) => t as String)
+                  .toList() ??
+              [],
+        );
+      }).toList();
+
+      return ext_model.ExtensionRepo(
+        extensions: extensions,
+        name: e.key,
+        url: e.key,
+      );
+    }).toList();
+  }
+
+  /// nsfw as published by a repo index entry. Repos send either a JSON bool or
+  /// the string `true`/`1`; an absent flag reads as false.
+  static bool parseNsfw(Object? value) {
+    final raw = value?.toString().toLowerCase();
+    return raw == 'true' || raw == '1';
   }
 
   Future<void> addRepo(String name, String url) async {
@@ -144,8 +158,9 @@ class ExtensionService {
                         .toList() ??
                     [],
                 api: e['api'] as String? ?? '',
-                type: _mapExtensionType(e['type'] as String?),
+                type: e['type'] as String? ?? '',
                 error: e['error'] as String?,
+                nsfw: parseNsfw(e['nsfw']),
               ),
             )
             .toList();
@@ -153,23 +168,6 @@ class ExtensionService {
       return [];
     } catch (e) {
       return [];
-    }
-  }
-
-  // Normalize an extension type to the canonical backend values:
-  // all, manga, fikushon, bangumi. Legacy aliases are no longer accepted; any
-  // other value falls back to 'all'.
-  String _mapExtensionType(String? type) {
-    if (type == null) return 'all';
-    switch (type.toLowerCase()) {
-      case 'manga':
-        return 'manga';
-      case 'bangumi':
-        return 'bangumi';
-      case 'fikushon':
-        return 'fikushon';
-      default:
-        return 'all';
     }
   }
 }

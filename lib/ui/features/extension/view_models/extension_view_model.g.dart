@@ -20,7 +20,7 @@ final class ExtensionViewModelProvider
         argument: null,
         retry: null,
         name: r'extensionViewModelProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -42,7 +42,7 @@ final class ExtensionViewModelProvider
 }
 
 String _$extensionViewModelHash() =>
-    r'064542c13eccc838f11a193f47ba25b2199efaad';
+    r'3668a0d9c56b1cf7d57cac7b54d32e78ccfb18f4';
 
 abstract class _$ExtensionViewModel
     extends $Notifier<DomainExtensionViewState> {

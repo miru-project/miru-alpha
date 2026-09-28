@@ -18,6 +18,11 @@ class SearchPageState {
   final bool open;
   final List<String> history;
   final bool pinnedScope;
+
+  /// Bumped by [SearchPageNotifier.refilter] so setting changes force a
+  /// rebuild without any data change.
+  final int refilterTick;
+
   SearchPageState({
     required this.metaData,
     required this.pinnedExtensions,
@@ -28,10 +33,15 @@ class SearchPageState {
     this.open = false,
     this.history = const [],
     this.pinnedScope = false,
+    this.refilterTick = 0,
   });
 
   List<ExtensionMeta> get filteredMetaData {
     var result = metaData;
+    // NSFW extensions stay hidden unless the user enabled them in settings.
+    if (!MiruSettings.getSettingSync<bool>(SettingKey.enableNSFW)) {
+      result = result.where((e) => !e.nsfw).toList();
+    }
     if (selectedLang != null) {
       result = result.where((e) {
         final base = e.lang.split(RegExp(r'[-_]')).first;
@@ -74,6 +84,7 @@ class SearchPageState {
     bool? pinnedScope,
     bool clearLang = false,
     bool clearType = false,
+    int? refilterTick,
   }) {
     return SearchPageState(
       existedPinnedExtensions:
@@ -86,6 +97,7 @@ class SearchPageState {
       open: open ?? this.open,
       history: history ?? this.history,
       pinnedScope: pinnedScope ?? this.pinnedScope,
+      refilterTick: refilterTick ?? this.refilterTick,
     );
   }
 }
@@ -145,6 +157,13 @@ class SearchPageNotifier extends _$SearchPageNotifier {
 
   void setMetaData(List<ExtensionMeta> metaData) {
     state = state.copyWith(metaData: metaData);
+  }
+
+  /// Bump to force widgets that read [SearchPageState.filteredMetaData] to
+  /// rebuild after a display-affecting setting (Enable NSFW Content) changes.
+  /// Refilters in place — metadata is never refetched.
+  void refilter() {
+    state = state.copyWith(refilterTick: DateTime.now().microsecondsSinceEpoch);
   }
 
   void setPinnedExtensions(Set<String> pinnedExtensions) {

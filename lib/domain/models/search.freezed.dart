@@ -29,16 +29,21 @@ $DomainSearchFilterCopyWith<DomainSearchFilter> get copyWith => _$DomainSearchFi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainSearchFilter&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.type, type) || other.type == type)&&(identical(other.installedOnly, installedOnly) || other.installedOnly == installedOnly)&&(identical(other.notInstalledOnly, notInstalledOnly) || other.notInstalledOnly == notInstalledOnly));
+  final _this = this as DomainSearchFilter;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainSearchFilter&&(identical(other.lang, _this.lang) || other.lang == _this.lang)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.installedOnly, _this.installedOnly) || other.installedOnly == _this.installedOnly)&&(identical(other.notInstalledOnly, _this.notInstalledOnly) || other.notInstalledOnly == _this.notInstalledOnly));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,lang,type,installedOnly,notInstalledOnly);
+int get hashCode {
+  final _this = this as DomainSearchFilter;
+  return Object.hash(runtimeType,_this.lang,_this.type,_this.installedOnly,_this.notInstalledOnly);
+}
 
 @override
 String toString() {
-  return 'DomainSearchFilter(lang: $lang, type: $type, installedOnly: $installedOnly, notInstalledOnly: $notInstalledOnly)';
+  final _this = this as DomainSearchFilter;
+  return 'DomainSearchFilter(lang: ${_this.lang}, type: ${_this.type}, installedOnly: ${_this.installedOnly}, notInstalledOnly: ${_this.notInstalledOnly})';
 }
 
 
@@ -234,16 +239,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainSearchFilter&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.type, type) || other.type == type)&&(identical(other.installedOnly, installedOnly) || other.installedOnly == installedOnly)&&(identical(other.notInstalledOnly, notInstalledOnly) || other.notInstalledOnly == notInstalledOnly));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainSearchFilter&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.type, type) || other.type == type)&&(identical(other.installedOnly, installedOnly) || other.installedOnly == installedOnly)&&(identical(other.notInstalledOnly, notInstalledOnly) || other.notInstalledOnly == notInstalledOnly));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,lang,type,installedOnly,notInstalledOnly);
+int get hashCode {
+    return Object.hash(runtimeType,lang,type,installedOnly,notInstalledOnly);
+}
 
 @override
 String toString() {
-  return 'DomainSearchFilter(lang: $lang, type: $type, installedOnly: $installedOnly, notInstalledOnly: $notInstalledOnly)';
+    return 'DomainSearchFilter(lang: $lang, type: $type, installedOnly: $installedOnly, notInstalledOnly: $notInstalledOnly)';
 }
 
 
@@ -301,16 +308,21 @@ $DomainSearchStateCopyWith<DomainSearchState> get copyWith => _$DomainSearchStat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainSearchState&&const DeepCollectionEquality().equals(other.extensions, extensions)&&(identical(other.query, query) || other.query == query)&&(identical(other.selectedLang, selectedLang) || other.selectedLang == selectedLang)&&(identical(other.selectedType, selectedType) || other.selectedType == selectedType)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.error, error) || other.error == error));
+  final _this = this as DomainSearchState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainSearchState&&const DeepCollectionEquality().equals(other.extensions, _this.extensions)&&(identical(other.query, _this.query) || other.query == _this.query)&&(identical(other.selectedLang, _this.selectedLang) || other.selectedLang == _this.selectedLang)&&(identical(other.selectedType, _this.selectedType) || other.selectedType == _this.selectedType)&&(identical(other.isLoading, _this.isLoading) || other.isLoading == _this.isLoading)&&(identical(other.error, _this.error) || other.error == _this.error));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(extensions),query,selectedLang,selectedType,isLoading,error);
+int get hashCode {
+  final _this = this as DomainSearchState;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.extensions),_this.query,_this.selectedLang,_this.selectedType,_this.isLoading,_this.error);
+}
 
 @override
 String toString() {
-  return 'DomainSearchState(extensions: $extensions, query: $query, selectedLang: $selectedLang, selectedType: $selectedType, isLoading: $isLoading, error: $error)';
+  final _this = this as DomainSearchState;
+  return 'DomainSearchState(extensions: ${_this.extensions}, query: ${_this.query}, selectedLang: ${_this.selectedLang}, selectedType: ${_this.selectedType}, isLoading: ${_this.isLoading}, error: ${_this.error})';
 }
 
 
@@ -516,16 +528,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainSearchState&&const DeepCollectionEquality().equals(other._extensions, _extensions)&&(identical(other.query, query) || other.query == query)&&(identical(other.selectedLang, selectedLang) || other.selectedLang == selectedLang)&&(identical(other.selectedType, selectedType) || other.selectedType == selectedType)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.error, error) || other.error == error));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainSearchState&&const DeepCollectionEquality().equals(other.extensions, _extensions)&&(identical(other.query, query) || other.query == query)&&(identical(other.selectedLang, selectedLang) || other.selectedLang == selectedLang)&&(identical(other.selectedType, selectedType) || other.selectedType == selectedType)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.error, error) || other.error == error));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_extensions),query,selectedLang,selectedType,isLoading,error);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_extensions),query,selectedLang,selectedType,isLoading,error);
+}
 
 @override
 String toString() {
-  return 'DomainSearchState(extensions: $extensions, query: $query, selectedLang: $selectedLang, selectedType: $selectedType, isLoading: $isLoading, error: $error)';
+    return 'DomainSearchState(extensions: $extensions, query: $query, selectedLang: $selectedLang, selectedType: $selectedType, isLoading: $isLoading, error: $error)';
 }
 
 

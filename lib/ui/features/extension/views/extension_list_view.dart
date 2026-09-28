@@ -81,8 +81,8 @@ class ExtensionListView extends HookConsumerWidget {
                             Navigator.of(context).pop();
                             try {
                               final result = await FilePicker.pickFiles(
-                                type: .custom,
-                                allowedExtensions: ['js', 'go'],
+                                // type: .custom,
+                                // allowedExtensions: ['js', 'go'],
                               );
                               if (result.isEmpty) return;
                               final reg = RegExp(r'^\w.+\.\w+\.(js|go)$');

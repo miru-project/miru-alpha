@@ -23,8 +23,9 @@ class ExtensionRepository {
             description: item.description,
             tags: item.tags,
             api: item.api,
-            type: _mapExtensionType(item.type),
+            type: ExtensionTypeX.fromRaw(item.type),
             error: item.error,
+            nsfw: item.nsfw,
           ),
         )
         .toList();
@@ -46,16 +47,16 @@ class ExtensionRepository {
     );
   }
 
-  Future<void> installExtension(String packageName) async {
-    await _extensionService.installExtension(packageName);
+  Future<void> installExtension(String packageName, String repoUrl) async {
+    await _extensionService.installExtension(packageName, repoUrl);
   }
 
   Future<void> uninstallExtension(String packageName) async {
     await _extensionService.uninstallExtension(packageName);
   }
 
-  Future<void> updateExtension(String packageName) async {
-    await _extensionService.updateExtension(packageName);
+  Future<void> updateExtension(String packageName, String repoUrl) async {
+    await _extensionService.updateExtension(packageName, repoUrl);
   }
 
   Future<List<DomainExtensionRepo>> getRepos() async {
@@ -79,8 +80,9 @@ class ExtensionRepository {
                     description: ext.description,
                     tags: ext.tags.toList(),
                     api: '',
-                    type: _mapExtensionType(ext.type),
+                    type: ExtensionTypeX.fromRaw(ext.type),
                     error: null,
+                    nsfw: ext.nsfw,
                   ),
                 )
                 .toList(),
@@ -113,24 +115,11 @@ class ExtensionRepository {
             description: ext.description,
             tags: ext.tags,
             api: ext.api,
-            type: _mapExtensionType(ext.type),
+            type: ExtensionTypeX.fromRaw(ext.type),
             error: ext.error,
+            nsfw: ext.nsfw,
           ),
         )
         .toList();
-  }
-
-  ExtensionType _mapExtensionType(String? type) {
-    if (type == null) return ExtensionType.all;
-    switch (type.toLowerCase()) {
-      case 'manga':
-        return ExtensionType.manga;
-      case 'bangumi':
-        return ExtensionType.bangumi;
-      case 'fikushon':
-        return ExtensionType.fikushon;
-      default:
-        return ExtensionType.all;
-    }
   }
 }

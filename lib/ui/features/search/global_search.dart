@@ -6,6 +6,7 @@ import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/provider/search/search_page_provider.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/core/error.dart';
 import 'package:miru_alpha/ui/core/grid_view/miru_grid_tile.dart';
@@ -158,9 +159,25 @@ class GlobalSearch extends HookConsumerWidget {
                         );
                       },
                       suffix: Icon(FLucideIcons.chevronRight),
-                      child: Text(
-                        meta.name,
-                        style: TextStyle(fontWeight: .bold, fontSize: 20),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              meta.name,
+                              style: TextStyle(fontWeight: .bold, fontSize: 20),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (meta.nsfw) ...[
+                            const SizedBox(width: 8),
+                            FBadge(
+                              variant: .destructive,
+                              child: Text('extension.nsfw'.i18n),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                     SizedBox(height: 10),

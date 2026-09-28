@@ -39,15 +39,34 @@ class LibraryCategoryList extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'common.type'.i18n,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+            // Both labels shrink: the title is a localised string and the
+            // manage button carries an upper-cased one, so neither may force
+            // the row wider than the viewport.
+            Flexible(
+              child: Text(
+                'common.collection'.i18n,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                ),
+              ),
             ),
+            const SizedBox(width: 12),
             FButton(
               size: .xs,
               variant: .secondary,
               onPress: () {},
-              child: Text('common.manage'.i18n.toUpperCase()),
+              mainAxisSize: .min,
+              builder:
+                  (context, style, textStyle, iconStyle, progress, child) =>
+                      Flexible(child: child ?? const SizedBox.shrink()),
+              child: Text(
+                'common.manage'.i18n.toUpperCase(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

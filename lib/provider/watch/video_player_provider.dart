@@ -5,7 +5,6 @@ import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/provider/network_provider.dart';
-import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/utils/watch/subtitle.dart';
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
     as pb_extension;
@@ -259,9 +258,6 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
       currentSubtitle: getCurrentSubtitle(),
       ratio: vidController.value.aspectRatio,
     );
-
-    EpisodeNotifier.progress = state.position.inSeconds;
-    EpisodeNotifier.totalProgress = state.duration.inSeconds;
   }
 
   void changeSubtitle(int index) {

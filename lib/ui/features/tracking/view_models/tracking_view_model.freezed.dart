@@ -26,16 +26,21 @@ $TrackingViewStateCopyWith<TrackingViewState> get copyWith => _$TrackingViewStat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TrackingViewState&&(identical(other.anilistAccount, anilistAccount) || other.anilistAccount == anilistAccount)&&const DeepCollectionEquality().equals(other.progress, progress)&&const DeepCollectionEquality().equals(other.tmdbTracks, tmdbTracks)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading));
+  final _this = this as TrackingViewState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TrackingViewState&&(identical(other.anilistAccount, _this.anilistAccount) || other.anilistAccount == _this.anilistAccount)&&const DeepCollectionEquality().equals(other.progress, _this.progress)&&const DeepCollectionEquality().equals(other.tmdbTracks, _this.tmdbTracks)&&(identical(other.isLoading, _this.isLoading) || other.isLoading == _this.isLoading));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,anilistAccount,const DeepCollectionEquality().hash(progress),const DeepCollectionEquality().hash(tmdbTracks),isLoading);
+int get hashCode {
+  final _this = this as TrackingViewState;
+  return Object.hash(runtimeType,_this.anilistAccount,const DeepCollectionEquality().hash(_this.progress),const DeepCollectionEquality().hash(_this.tmdbTracks),_this.isLoading);
+}
 
 @override
 String toString() {
-  return 'TrackingViewState(anilistAccount: $anilistAccount, progress: $progress, tmdbTracks: $tmdbTracks, isLoading: $isLoading)';
+  final _this = this as TrackingViewState;
+  return 'TrackingViewState(anilistAccount: ${_this.anilistAccount}, progress: ${_this.progress}, tmdbTracks: ${_this.tmdbTracks}, isLoading: ${_this.isLoading})';
 }
 
 
@@ -252,16 +257,18 @@ _$TrackingViewStateCopyWith<_TrackingViewState> get copyWith => __$TrackingViewS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _TrackingViewState&&(identical(other.anilistAccount, anilistAccount) || other.anilistAccount == anilistAccount)&&const DeepCollectionEquality().equals(other._progress, _progress)&&const DeepCollectionEquality().equals(other._tmdbTracks, _tmdbTracks)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _TrackingViewState&&(identical(other.anilistAccount, anilistAccount) || other.anilistAccount == anilistAccount)&&const DeepCollectionEquality().equals(other.progress, _progress)&&const DeepCollectionEquality().equals(other.tmdbTracks, _tmdbTracks)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,anilistAccount,const DeepCollectionEquality().hash(_progress),const DeepCollectionEquality().hash(_tmdbTracks),isLoading);
+int get hashCode {
+    return Object.hash(runtimeType,anilistAccount,const DeepCollectionEquality().hash(_progress),const DeepCollectionEquality().hash(_tmdbTracks),isLoading);
+}
 
 @override
 String toString() {
-  return 'TrackingViewState(anilistAccount: $anilistAccount, progress: $progress, tmdbTracks: $tmdbTracks, isLoading: $isLoading)';
+    return 'TrackingViewState(anilistAccount: $anilistAccount, progress: $progress, tmdbTracks: $tmdbTracks, isLoading: $isLoading)';
 }
 
 

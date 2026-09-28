@@ -3,7 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/domain/models/extension.dart';
-import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/ui/features/extension/view_models/extension_view_model.dart';
 import 'package:miru_alpha/ui/features/extension/widget/extension_list_tile.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/version_util.dart';
@@ -18,7 +18,7 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
   void oninstall(
     DomainExtensionMeta data,
     String repoUrl,
-    ExtensionPageNotifier notifier,
+    ExtensionViewModel notifier,
   ) async {
     await notifier.installPackage(data.packageName, repoUrl);
     iconsMessageToast(
@@ -31,7 +31,7 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
   void onuninstall(
     DomainExtensionMeta data,
     String repoUrl,
-    ExtensionPageNotifier notifier,
+    ExtensionViewModel notifier,
   ) async {
     await notifier.uninstallPackage(data.packageName);
     iconsMessageToast(
@@ -44,10 +44,12 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pkg = ref.watch(
-      extensionPageProvider.select((e) => e.installedPackages),
+      extensionViewModelProvider.select((e) => e.installedPackages),
     );
-    final meta = ref.watch(extensionPageProvider.select((e) => e.metaData));
-    final notifier = ref.read(extensionPageProvider.notifier);
+    final meta = ref.watch(
+      extensionViewModelProvider.select((e) => e.metadata),
+    );
+    final notifier = ref.read(extensionViewModelProvider.notifier);
     final isInstalled = pkg.contains(data.packageName);
     bool needUpdate = isInstalled;
     if (isInstalled) {

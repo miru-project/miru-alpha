@@ -92,7 +92,8 @@
     "days_ago": "{days} days ago",
     "weeks_ago": "{weeks} weeks ago",
     "months_ago": "{months} months ago",
-    "years_ago": "{years} years ago"
+    "years_ago": "{years} years ago",
+    "collection": "Collection"
   },
   "history_tools": {
     "clear_all": "Clear All",
@@ -290,7 +291,7 @@
         "hint": "Enter your TMDB Api key"
       },
       "allow_nsfw": {
-        "name": "Allow NSFW",
+        "name": "Enable NSFW Content",
         "information": "Show NSFW extensions and content"
       },
       "appearance": {
@@ -455,6 +456,71 @@
   },
   "reader": {
     "manga": {
+      "back": "Back",
+      "bookmark": "Bookmark",
+      "chapters": "Chapters",
+      "chapters_title": "Chapters",
+      "settings": "Reader Settings",
+      "previous": "Prev",
+      "next": "Next",
+      "page": "Page",
+      "no_chapters": "No chapters",
+      "filter_chapters": "Filter by name...",
+      "brightness": "Page Brightness",
+      "brightness_options": {
+        "auto": "Auto",
+        "manual": "Manual"
+      },
+      "page_gap": "Page Gap",
+      "canvas_background": "Canvas Background",
+      "fit_mode": "Image Fitting",
+      "tap_to_toggle_controls": "Tap center to toggle controls",
+      "invert_colors": {
+        "name": "Invert Colors",
+        "hint": "Night reading inversion filter"
+      },
+      "keep_screen_on": {
+        "name": "Keep Screen On",
+        "hint": "Prevent display sleep timeout"
+      },
+      "tap_to_turn_page": {
+        "name": "Tap zones to turn page",
+        "hint": "Touch left/right edges for navigation"
+      },
+      "apply_defaults": "Apply Defaults",
+      "order": {
+        "ascending": "Ascending",
+        "descending": "Descending"
+      },
+      "chapters_available": "{count} chapters available",
+      "resume": "Resume",
+      "add_bookmark": "Add Bookmark",
+      "add_bookmark_added": "Bookmarked",
+      "jump": "Jump",
+      "jump_hint": "Jump to chapter number",
+      "volume": "Volume",
+      "read_mode": {
+        "name": "Read Mode",
+        "information": "Change the reading direction",
+        "standard": "Left to Right",
+        "rightToLeft": "Right to Left",
+        "webToon": "Continuous",
+        "short": {
+          "standard": "L to R",
+          "rightToLeft": "R to L",
+          "webToon": "Webtoon"
+        }
+      },
+      "fit_options": {
+        "fitWidth": "Fit Width",
+        "fitHeight": "Fit Height",
+        "original": "Original"
+      },
+      "canvas_options": {
+        "black": "Black",
+        "darkGray": "Dark Gray",
+        "light": "White"
+      },
       "alignment_settings": {
         "name": "Alignment Settings",
         "information": ""
@@ -467,13 +533,8 @@
         "name": "General Settings",
         "information": ""
       },
-      "read_mode": {
-        "name": "Read Mode",
-        "information": "Change the reading direction",
-        "standard": "Standard",
-        "rightToLeft": "Right to Left",
-        "webToon": "WebToon"
-      }
+      "reading": "Reading",
+      "new": "New"
     },
     "novel": {
       "alignment_settings": {
@@ -490,7 +551,7 @@
       },
       "font_size": {
         "name": "Font Size",
-        "information": ""
+        "information": "Typography"
       },
       "line_height": {
         "name": "Line Height",
@@ -507,7 +568,46 @@
         "rightToLeft": "Right to Left",
         "webToon": "WebToon",
         "rightToLeftFlip": "Right to Left (Flip)",
-        "standardFlip": "Standard (Flip)"
+        "standardFlip": "Standard (Flip)",
+        "short": {
+          "standard": "Paged",
+          "webToon": "Continuous",
+          "doubleColumn": "Double Col"
+        }
+      },
+      "chapter": "Chapter",
+      "chapters": "Chapters",
+      "short_chapter": "Ch.",
+      "previous": "Previous",
+      "next": "Next",
+      "line": "Line",
+      "page": "Page",
+      "settings": "Reader Settings",
+      "apply_defaults": "Apply defaults",
+      "typography": "Typography",
+      "theme": {
+        "name": "Theme",
+        "midnight": "Midnight",
+        "charcoal": "Charcoal",
+        "sepia": "Sepia",
+        "paper": "Paper"
+      },
+      "experience": "Reading Experience",
+      "keep_screen_on": {
+        "name": "Keep Screen On",
+        "hint": "Prevent display sleep while reading"
+      },
+      "tap_to_turn_page": {
+        "name": "Tap zones to turn page",
+        "hint": "Touch the edges to navigate"
+      },
+      "volume_keys": {
+        "name": "Volume keys turn pages",
+        "hint": "Use the hardware volume rocker"
+      },
+      "margin": {
+        "name": "Margins",
+        "hint": "Space around the text column"
       }
     }
   },

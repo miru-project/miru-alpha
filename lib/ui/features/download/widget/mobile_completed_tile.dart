@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:miru_alpha/utils/core/date_format.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
@@ -48,7 +49,7 @@ class MobileCompletedDownloadTile extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    _formatDate(download.date),
+                    formatShortDate(download.date),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: context.theme.typography.body.sm.copyWith(
@@ -80,16 +81,5 @@ class MobileCompletedDownloadTile extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  /// Renders the backend's ISO timestamp as a short local date, falling back
-  /// to the raw string when it cannot be parsed.
-  static String _formatDate(String raw) {
-    final parsed = DateTime.tryParse(raw);
-    if (parsed == null) return raw;
-    final local = parsed.toLocal();
-    String two(int n) => n.toString().padLeft(2, '0');
-    return '${local.year}-${two(local.month)}-${two(local.day)} '
-        '${two(local.hour)}:${two(local.minute)}';
   }
 }

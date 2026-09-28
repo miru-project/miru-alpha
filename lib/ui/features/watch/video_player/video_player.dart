@@ -203,7 +203,13 @@ class _DesktopVideoPlayerState extends ConsumerState<_VideoPlayer> {
 
   void close() {
     if (!DeviceUtil.isMobile) WindowManager.instance.setAlwaysOnTop(false);
-    ref.read(widget.epProvider.notifier).saveHistory();
+    final playback = ref.read(widget.vidPr);
+    ref
+        .read(widget.epProvider.notifier)
+        .saveHistory(
+          progress: playback.position.inSeconds,
+          totalProgress: playback.duration.inSeconds,
+        );
     context.pop();
   }
 

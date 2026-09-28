@@ -29,16 +29,21 @@ $DomainHomeStateCopyWith<DomainHomeState> get copyWith => _$DomainHomeStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainHomeState&&(identical(other.selectedTab, selectedTab) || other.selectedTab == selectedTab)&&const DeepCollectionEquality().equals(other.libraryExtensions, libraryExtensions)&&const DeepCollectionEquality().equals(other.historyItems, historyItems)&&const DeepCollectionEquality().equals(other.favoriteGroups, favoriteGroups)&&const DeepCollectionEquality().equals(other.favorites, favorites)&&const DeepCollectionEquality().equals(other.activeDownloads, activeDownloads)&&const DeepCollectionEquality().equals(other.finishedDownloads, finishedDownloads)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.error, error) || other.error == error));
+  final _this = this as DomainHomeState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainHomeState&&(identical(other.selectedTab, _this.selectedTab) || other.selectedTab == _this.selectedTab)&&const DeepCollectionEquality().equals(other.libraryExtensions, _this.libraryExtensions)&&const DeepCollectionEquality().equals(other.historyItems, _this.historyItems)&&const DeepCollectionEquality().equals(other.favoriteGroups, _this.favoriteGroups)&&const DeepCollectionEquality().equals(other.favorites, _this.favorites)&&const DeepCollectionEquality().equals(other.activeDownloads, _this.activeDownloads)&&const DeepCollectionEquality().equals(other.finishedDownloads, _this.finishedDownloads)&&(identical(other.isLoading, _this.isLoading) || other.isLoading == _this.isLoading)&&(identical(other.error, _this.error) || other.error == _this.error));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,selectedTab,const DeepCollectionEquality().hash(libraryExtensions),const DeepCollectionEquality().hash(historyItems),const DeepCollectionEquality().hash(favoriteGroups),const DeepCollectionEquality().hash(favorites),const DeepCollectionEquality().hash(activeDownloads),const DeepCollectionEquality().hash(finishedDownloads),isLoading,error);
+int get hashCode {
+  final _this = this as DomainHomeState;
+  return Object.hash(runtimeType,_this.selectedTab,const DeepCollectionEquality().hash(_this.libraryExtensions),const DeepCollectionEquality().hash(_this.historyItems),const DeepCollectionEquality().hash(_this.favoriteGroups),const DeepCollectionEquality().hash(_this.favorites),const DeepCollectionEquality().hash(_this.activeDownloads),const DeepCollectionEquality().hash(_this.finishedDownloads),_this.isLoading,_this.error);
+}
 
 @override
 String toString() {
-  return 'DomainHomeState(selectedTab: $selectedTab, libraryExtensions: $libraryExtensions, historyItems: $historyItems, favoriteGroups: $favoriteGroups, favorites: $favorites, activeDownloads: $activeDownloads, finishedDownloads: $finishedDownloads, isLoading: $isLoading, error: $error)';
+  final _this = this as DomainHomeState;
+  return 'DomainHomeState(selectedTab: ${_this.selectedTab}, libraryExtensions: ${_this.libraryExtensions}, historyItems: ${_this.historyItems}, favoriteGroups: ${_this.favoriteGroups}, favorites: ${_this.favorites}, activeDownloads: ${_this.activeDownloads}, finishedDownloads: ${_this.finishedDownloads}, isLoading: ${_this.isLoading}, error: ${_this.error})';
 }
 
 
@@ -280,16 +285,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainHomeState&&(identical(other.selectedTab, selectedTab) || other.selectedTab == selectedTab)&&const DeepCollectionEquality().equals(other._libraryExtensions, _libraryExtensions)&&const DeepCollectionEquality().equals(other._historyItems, _historyItems)&&const DeepCollectionEquality().equals(other._favoriteGroups, _favoriteGroups)&&const DeepCollectionEquality().equals(other._favorites, _favorites)&&const DeepCollectionEquality().equals(other._activeDownloads, _activeDownloads)&&const DeepCollectionEquality().equals(other._finishedDownloads, _finishedDownloads)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.error, error) || other.error == error));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainHomeState&&(identical(other.selectedTab, selectedTab) || other.selectedTab == selectedTab)&&const DeepCollectionEquality().equals(other.libraryExtensions, _libraryExtensions)&&const DeepCollectionEquality().equals(other.historyItems, _historyItems)&&const DeepCollectionEquality().equals(other.favoriteGroups, _favoriteGroups)&&const DeepCollectionEquality().equals(other.favorites, _favorites)&&const DeepCollectionEquality().equals(other.activeDownloads, _activeDownloads)&&const DeepCollectionEquality().equals(other.finishedDownloads, _finishedDownloads)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.error, error) || other.error == error));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,selectedTab,const DeepCollectionEquality().hash(_libraryExtensions),const DeepCollectionEquality().hash(_historyItems),const DeepCollectionEquality().hash(_favoriteGroups),const DeepCollectionEquality().hash(_favorites),const DeepCollectionEquality().hash(_activeDownloads),const DeepCollectionEquality().hash(_finishedDownloads),isLoading,error);
+int get hashCode {
+    return Object.hash(runtimeType,selectedTab,const DeepCollectionEquality().hash(_libraryExtensions),const DeepCollectionEquality().hash(_historyItems),const DeepCollectionEquality().hash(_favoriteGroups),const DeepCollectionEquality().hash(_favorites),const DeepCollectionEquality().hash(_activeDownloads),const DeepCollectionEquality().hash(_finishedDownloads),isLoading,error);
+}
 
 @override
 String toString() {
-  return 'DomainHomeState(selectedTab: $selectedTab, libraryExtensions: $libraryExtensions, historyItems: $historyItems, favoriteGroups: $favoriteGroups, favorites: $favorites, activeDownloads: $activeDownloads, finishedDownloads: $finishedDownloads, isLoading: $isLoading, error: $error)';
+    return 'DomainHomeState(selectedTab: $selectedTab, libraryExtensions: $libraryExtensions, historyItems: $historyItems, favoriteGroups: $favoriteGroups, favorites: $favorites, activeDownloads: $activeDownloads, finishedDownloads: $finishedDownloads, isLoading: $isLoading, error: $error)';
 }
 
 
@@ -352,16 +359,21 @@ $DomainLibrarySectionCopyWith<DomainLibrarySection> get copyWith => _$DomainLibr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainLibrarySection&&const DeepCollectionEquality().equals(other.extensions, extensions)&&const DeepCollectionEquality().equals(other.pinnedPackages, pinnedPackages)&&(identical(other.query, query) || other.query == query));
+  final _this = this as DomainLibrarySection;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainLibrarySection&&const DeepCollectionEquality().equals(other.extensions, _this.extensions)&&const DeepCollectionEquality().equals(other.pinnedPackages, _this.pinnedPackages)&&(identical(other.query, _this.query) || other.query == _this.query));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(extensions),const DeepCollectionEquality().hash(pinnedPackages),query);
+int get hashCode {
+  final _this = this as DomainLibrarySection;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.extensions),const DeepCollectionEquality().hash(_this.pinnedPackages),_this.query);
+}
 
 @override
 String toString() {
-  return 'DomainLibrarySection(extensions: $extensions, pinnedPackages: $pinnedPackages, query: $query)';
+  final _this = this as DomainLibrarySection;
+  return 'DomainLibrarySection(extensions: ${_this.extensions}, pinnedPackages: ${_this.pinnedPackages}, query: ${_this.query})';
 }
 
 
@@ -567,16 +579,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainLibrarySection&&const DeepCollectionEquality().equals(other._extensions, _extensions)&&const DeepCollectionEquality().equals(other._pinnedPackages, _pinnedPackages)&&(identical(other.query, query) || other.query == query));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainLibrarySection&&const DeepCollectionEquality().equals(other.extensions, _extensions)&&const DeepCollectionEquality().equals(other.pinnedPackages, _pinnedPackages)&&(identical(other.query, query) || other.query == query));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_extensions),const DeepCollectionEquality().hash(_pinnedPackages),query);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_extensions),const DeepCollectionEquality().hash(_pinnedPackages),query);
+}
 
 @override
 String toString() {
-  return 'DomainLibrarySection(extensions: $extensions, pinnedPackages: $pinnedPackages, query: $query)';
+    return 'DomainLibrarySection(extensions: $extensions, pinnedPackages: $pinnedPackages, query: $query)';
 }
 
 

@@ -69,7 +69,7 @@ class SingleSearchPageState {
 
   /// Human-readable summary of every active filter selection, joining the
   /// selected option labels (in [filterOrder]) for the filtered-state chip row.
-  String get filterSummary {
+  List<String> get filterSummary {
     final List<String> selectedLabels = [];
     for (final key in filterOrder) {
       final extFilter = filter[key];
@@ -85,7 +85,7 @@ class SingleSearchPageState {
         }
       }
     }
-    return selectedLabels.join(', ');
+    return selectedLabels;
   }
 
   /// Flattened wire format of the current selection: single-select keys map to

@@ -36,6 +36,7 @@ class ExtensionMeta extends $pb.GeneratedMessage {
     $core.String? api,
     $core.String? error,
     $core.String? type,
+    $core.bool? nsfw,
   }) {
     final result = create();
     if (name != null) result.name = name;
@@ -51,6 +52,7 @@ class ExtensionMeta extends $pb.GeneratedMessage {
     if (api != null) result.api = api;
     if (error != null) result.error = error;
     if (type != null) result.type = type;
+    if (nsfw != null) result.nsfw = nsfw;
     return result;
   }
 
@@ -80,6 +82,7 @@ class ExtensionMeta extends $pb.GeneratedMessage {
     ..aOS(11, _omitFieldNames ? '' : 'api')
     ..aOS(12, _omitFieldNames ? '' : 'error')
     ..aOS(13, _omitFieldNames ? '' : 'type')
+    ..aOB(14, _omitFieldNames ? '' : 'nsfw')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -211,6 +214,15 @@ class ExtensionMeta extends $pb.GeneratedMessage {
   $core.bool hasType() => $_has(12);
   @$pb.TagNumber(13)
   void clearType() => $_clearField(13);
+
+  @$pb.TagNumber(14)
+  $core.bool get nsfw => $_getBF(13);
+  @$pb.TagNumber(14)
+  set nsfw($core.bool value) => $_setBool(13, value);
+  @$pb.TagNumber(14)
+  $core.bool hasNsfw() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearNsfw() => $_clearField(14);
 }
 
 class DownloadProgress extends $pb.GeneratedMessage {

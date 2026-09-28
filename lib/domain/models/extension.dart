@@ -1,4 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:miru_alpha/miru_core/proto/generate/proto/common.pb.dart'
+    as common_model;
 
 part 'extension.freezed.dart';
 part 'extension.g.dart';
@@ -25,6 +27,18 @@ abstract class DomainExtension with _$DomainExtension {
 }
 
 enum ExtensionType { manga, bangumi, fikushon, all }
+
+extension ExtensionTypeX on ExtensionType {
+  /// Map a backend/JSON media-type string onto the canonical value. Legacy
+  /// aliases are not accepted; anything unknown falls back to [all] so a bad
+  /// value never fails to parse.
+  static ExtensionType fromRaw(String? value) => switch (value?.toLowerCase()) {
+    'manga' => ExtensionType.manga,
+    'bangumi' => ExtensionType.bangumi,
+    'fikushon' => ExtensionType.fikushon,
+    _ => ExtensionType.all,
+  };
+}
 
 /// Filter value for the extension install-status selector.
 enum ExtensionInstallStatus { all, installed, notInstalled }
@@ -59,6 +73,27 @@ abstract class DomainExtensionMeta with _$DomainExtensionMeta {
 
   factory DomainExtensionMeta.fromJson(Map<String, dynamic> json) =>
       _$DomainExtensionMetaFromJson(json);
+
+  /// Installed-extension snapshot pushed by miru-core, both on the initial
+  /// hello and on every extension-folder change.
+  factory DomainExtensionMeta.fromProto(common_model.ExtensionMeta meta) {
+    return DomainExtensionMeta(
+      name: meta.name,
+      version: meta.version,
+      author: meta.author,
+      license: meta.license,
+      lang: meta.lang,
+      icon: meta.icon,
+      packageName: meta.package,
+      webSite: meta.webSite,
+      description: meta.description,
+      tags: meta.tags.toList(),
+      api: meta.api,
+      type: ExtensionTypeX.fromRaw(meta.type),
+      error: meta.error,
+      nsfw: meta.nsfw,
+    );
+  }
 }
 
 @freezed

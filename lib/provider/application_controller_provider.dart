@@ -51,6 +51,16 @@ class ApplicationState {
   }
 }
 
+/// Whether the mobile title bar may be forced to sit above the app bar.
+///
+/// **Temporarily disabled.** The layout that honoured this flag is gone, so
+/// [ApplicationState.isMobileTitleOnTop] is read nowhere outside this provider
+/// and the setting toggle — the preference currently changes nothing on screen.
+/// That is deliberate rather than an oversight, so the flag is gated here: the
+/// setting and its shipped default (`true`) are left untouched, and this
+/// constant is the single place to flip to bring the behaviour back.
+const bool kMobileTitleOnTopEnabled = true;
+
 @Riverpod(keepAlive: true)
 class ApplicationController extends _$ApplicationController {
   @override
@@ -80,7 +90,11 @@ class ApplicationController extends _$ApplicationController {
       primaryColor: primaryColor,
       themeData: themeData,
       themeMode: _themeModeFromText(themeText),
-      isMobileTitleOnTop: isMobileTitleOnTop,
+      // Gated so the disablement is a single deliberate switch: while
+      // `kMobileTitleOnTopEnabled` is false the stored preference is still
+      // carried through untouched — the toggle keeps showing what the user
+      // chose, and the default stays `true` — but nothing acts on it.
+      isMobileTitleOnTop: kMobileTitleOnTopEnabled && isMobileTitleOnTop,
       language: language,
       tintStrength: tintStrength,
     );

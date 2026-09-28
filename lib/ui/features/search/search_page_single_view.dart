@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/ui/features/search/widget/mobile_filter_summary_chip.dart';
 import 'package:miru_alpha/ui/features/search/widget/search_filter_dialog.dart';
 import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
@@ -31,7 +32,6 @@ class SearchPageSingleView extends HookConsumerWidget {
     );
     final scrollController = useScrollController();
     final singleState = ref.watch(searchPageSingleProviderProvider);
-    final filterSummary = singleState.filterSummary;
     final searchController = useTextEditingController(text: singleState.query);
     final searchVisible = useState(true);
 
@@ -103,7 +103,7 @@ class SearchPageSingleView extends HookConsumerWidget {
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(
-                      right: 12.0,
+                      right: 14.0,
                       top: 4,
                       left: 10,
                     ),
@@ -118,13 +118,27 @@ class SearchPageSingleView extends HookConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        meta.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: showPageNumber ? 20 : 22,
-                        ),
-                        overflow: TextOverflow.ellipsis,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              meta.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: showPageNumber ? 20 : 22,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (meta.nsfw) ...[
+                            const SizedBox(width: 8),
+                            FBadge(
+                              variant: .destructive,
+                              child: Text('extension.nsfw'.i18n),
+                            ),
+                          ],
+                        ],
                       ),
                       if (MiruSettings.getSettingSync(
                         SettingKey.showPageNumber,
@@ -145,36 +159,39 @@ class SearchPageSingleView extends HookConsumerWidget {
                     ],
                   ),
                 ),
-                FButton.icon(
-                  variant: FButtonVariant.secondary,
-                  onPress: () => _openFilterDialog(context, ref),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      const Icon(FLucideIcons.listFilter),
-                      if (ref.watch(
-                        searchPageSingleProviderProvider.select(
-                          (v) => v.selected.values.any((e) => e.isNotEmpty),
-                        ),
-                      ))
-                        Positioned(
-                          right: -2,
-                          top: -2,
-                          child: Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: BoxDecoration(
-                              color: context.theme.colors.primary,
-                              shape: BoxShape.circle,
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 8,
-                              minHeight: 8,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
+                MobileFilterSummaryChip(
+                  onTap: () => _openFilterDialog(context, ref),
                 ),
+                // FButton.icon(
+                //   variant: FButtonVariant.secondary,
+                //   onPress: () => ,
+                //   child: Stack(
+                //     alignment: Alignment.center,
+                //     children: [
+                //       const Icon(FLucideIcons.listFilter),
+                //       if (ref.watch(
+                //         searchPageSingleProviderProvider.select(
+                //           (v) => v.selected.values.any((e) => e.isNotEmpty),
+                //         ),
+                //       ))
+                //         Positioned(
+                //           right: -2,
+                //           top: -2,
+                //           child: Container(
+                //             padding: const EdgeInsets.all(2),
+                //             decoration: BoxDecoration(
+                //               color: context.theme.colors.primary,
+                //               shape: BoxShape.circle,
+                //             ),
+                //             constraints: const BoxConstraints(
+                //               minWidth: 8,
+                //               minHeight: 8,
+                //             ),
+                //           ),
+                //         ),
+                //     ],
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -222,23 +239,6 @@ class SearchPageSingleView extends HookConsumerWidget {
                                   size: 18,
                                   color: context.theme.colors.mutedForeground,
                                 ),
-                                if (filterSummary.isNotEmpty)
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 6),
-                                    child: ConstrainedBox(
-                                      constraints: const BoxConstraints(
-                                        maxWidth: 120,
-                                      ),
-                                      child: FBadge(
-                                        child: Text(
-                                          filterSummary,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 11),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
                               ],
                             ),
                           ),

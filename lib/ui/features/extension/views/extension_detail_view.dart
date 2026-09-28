@@ -23,7 +23,13 @@ class ExtensionDetailView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(extensionViewModelProvider.notifier);
-    final isInstalled = useState(notifier.isInstalled(extension.package));
+    // Watched, not snapshotted: a hot reload or an install made elsewhere must
+    // flip the button without reopening this page.
+    final isInstalled = ref.watch(
+      extensionViewModelProvider.select(
+        (s) => s.installedPackages.contains(extension.package),
+      ),
+    );
 
     return MiruScaffold.mobile(
       sliverHeaders: [
@@ -31,7 +37,7 @@ class ExtensionDetailView extends HookConsumerWidget {
           scrollPosition: useValueNotifier(0.0),
           maxExtent: 180,
           minExtent: 120,
-          builder: (context, shrinkOffset, shrinkProgress) {
+          builder: (context, shrinkExtent, shrinkProgress) {
             return SnapSheetHeader(
               title: extension.name,
               description: extension.description ?? '',
@@ -39,15 +45,14 @@ class ExtensionDetailView extends HookConsumerWidget {
                 FButton(
                   variant: FButtonVariant.primary,
                   onPress: () async {
-                    if (isInstalled.value) {
+                    if (isInstalled) {
                       await notifier.uninstallPackage(extension.package);
                     } else {
                       await notifier.installPackage(extension.package, repoUrl);
                     }
-                    isInstalled.value = !isInstalled.value;
                   },
                   child: Text(
-                    isInstalled.value
+                    isInstalled
                         ? 'common.uninstall'.i18n
                         : 'common.install'.i18n,
                   ),

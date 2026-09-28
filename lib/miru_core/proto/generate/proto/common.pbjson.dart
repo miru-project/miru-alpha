@@ -99,6 +99,7 @@ const ExtensionMeta$json = {
     {'1': 'api', '3': 11, '4': 1, '5': 9, '10': 'api'},
     {'1': 'error', '3': 12, '4': 1, '5': 9, '10': 'error'},
     {'1': 'type', '3': 13, '4': 1, '5': 9, '10': 'type'},
+    {'1': 'nsfw', '3': 14, '4': 1, '5': 8, '10': 'nsfw'},
   ],
 };
 
@@ -109,7 +110,8 @@ final $typed_data.Uint8List extensionMetaDescriptor = $convert.base64Decode(
     'EhIKBGxhbmcYBSABKAlSBGxhbmcSEgoEaWNvbhgGIAEoCVIEaWNvbhIYCgdwYWNrYWdlGAcgAS'
     'gJUgdwYWNrYWdlEhgKB3dlYlNpdGUYCCABKAlSB3dlYlNpdGUSIAoLZGVzY3JpcHRpb24YCSAB'
     'KAlSC2Rlc2NyaXB0aW9uEhIKBHRhZ3MYCiADKAlSBHRhZ3MSEAoDYXBpGAsgASgJUgNhcGkSFA'
-    'oFZXJyb3IYDCABKAlSBWVycm9yEhIKBHR5cGUYDSABKAlSBHR5cGU=');
+    'oFZXJyb3IYDCABKAlSBWVycm9yEhIKBHR5cGUYDSABKAlSBHR5cGUSEgoEbnNmdxgOIAEoCFIE'
+    'bnNmdw==');
 
 @$core.Deprecated('Use downloadProgressDescriptor instead')
 const DownloadProgress$json = {

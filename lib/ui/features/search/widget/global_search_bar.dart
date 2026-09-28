@@ -306,11 +306,19 @@ class _ExtensionRow extends StatelessWidget {
                   size: 16,
                   color: context.theme.colors.mutedForeground,
                 ),
-              Text(
-                extensionContext.name,
-                style: context.theme.typography.body.sm,
-                overflow: TextOverflow.ellipsis,
+              Flexible(
+                child: Text(
+                  extensionContext.name,
+                  style: context.theme.typography.body.sm,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              if (extensionContext.nsfw)
+                FBadge(
+                  variant: .destructive,
+                  child: Text('extension.nsfw'.i18n),
+                ),
             ],
           ),
         ),

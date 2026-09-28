@@ -266,40 +266,47 @@ class ExtensionGridTile extends StatelessWidget {
               ],
             ),
             SizedBox(height: 10),
-            SizedBox(
-              height: 55,
-              child: Wrap(spacing: 5, runSpacing: 5, children: badges),
-            ),
+            // Intrinsic height: a fixed 55px box clipped two-row badge wraps.
+            Wrap(spacing: 5, runSpacing: 5, children: badges),
+            SizedBox(height: 10),
+            // Single row: FButton stretches to fill, so a Wrap would push the
+            // icon buttons onto a second row and overflow the fixed cell.
             if (isInstalled)
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
+              Row(
                 children: [
-                  FButton(
-                    onPress: onUninstall,
-                    prefix: Icon(FLucideIcons.trash2),
-                    child: Text('extension.uninstall'.i18n),
+                  Expanded(
+                    child: FButton(
+                      onPress: onUninstall,
+                      prefix: Icon(FLucideIcons.trash2),
+                      child: Text('extension.uninstall'.i18n),
+                    ),
                   ),
                   if (needUpdate)
-                    FButton.icon(
-                      onPress: onInstall,
-                      child: Icon(FLucideIcons.circleFadingArrowUp),
+                    Padding(
+                      padding: EdgeInsetsGeometry.only(left: 10),
+                      child: FButton.icon(
+                        onPress: onInstall,
+                        child: Icon(FLucideIcons.circleFadingArrowUp),
+                      ),
                     ),
-                  FTooltip(
-                    tipBuilder: (context, controller) =>
-                        Text('common.settings'.i18n),
-                    child: FButton.icon(
-                      variant: .secondary,
-                      onPress: () {
-                        context.push(
-                          "/extensionSettings",
-                          extra: ExtensionSettingParam(
-                            pkg: package,
-                            name: name,
-                          ),
-                        );
-                      },
-                      child: Icon(FLucideIcons.cog),
+                  Padding(
+                    padding: EdgeInsetsGeometry.only(left: 10),
+                    child: FTooltip(
+                      tipBuilder: (context, controller) =>
+                          Text('common.settings'.i18n),
+                      child: FButton.icon(
+                        variant: .secondary,
+                        onPress: () {
+                          context.push(
+                            "/extensionSettings",
+                            extra: ExtensionSettingParam(
+                              pkg: package,
+                              name: name,
+                            ),
+                          );
+                        },
+                        child: Icon(FLucideIcons.cog),
+                      ),
                     ),
                   ),
                 ],

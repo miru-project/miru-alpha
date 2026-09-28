@@ -40,6 +40,7 @@ class ExtensionMeta {
   @JsonKey(fromJson: _extensionTypeFromJson)
   final ExtensionType type;
   final String? error;
+  final bool nsfw;
 
   ExtensionMeta({
     required this.name,
@@ -55,6 +56,7 @@ class ExtensionMeta {
     required this.api,
     required this.type,
     this.error,
+    this.nsfw = false,
   });
 
   factory ExtensionMeta.fromJson(Map<String, dynamic> json) =>
@@ -77,6 +79,7 @@ class ExtensionMeta {
       api: p.api,
       type: _extensionTypeFromJson(p.type),
       error: p.error,
+      nsfw: p.nsfw,
     );
   }
 }

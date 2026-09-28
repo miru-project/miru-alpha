@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
 import 'package:miru_alpha/provider/home/history_page_provider.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
@@ -40,8 +43,6 @@ class EpisodeNotifierState {
 
 @riverpod
 class EpisodeNotifier extends _$EpisodeNotifier {
-  static int progress = 0;
-  static int totalProgress = 1;
   late String imageUrl;
   late String package;
   late ExtensionType type;
@@ -76,16 +77,43 @@ class EpisodeNotifier extends _$EpisodeNotifier {
     return initialState;
   }
 
-  void saveHistory() {
+  /// Saves an explicit snapshot; no shared progress between watch sessions.
+  void saveHistory({int progress = 0, int totalProgress = 1}) {
+    unawaited(
+      prepareHistorySave(progress: progress, totalProgress: totalProgress)(),
+    );
+  }
+
+  /// Captures dependencies while mounted for safe reader teardown.
+  Future<void> Function() prepareHistorySave({
+    required int progress,
+    required int totalProgress,
+  }) {
     final s = _capturedState;
-    final ep = s.epGroup[s.selectedGroupIndex].urls[s.selectedEpisodeIndex];
+    if (totalProgress <= 0 ||
+        s.selectedGroupIndex < 0 ||
+        s.selectedGroupIndex >= s.epGroup.length) {
+      return () async {};
+    }
+    final episodes = s.epGroup[s.selectedGroupIndex].urls;
+    if (s.selectedEpisodeIndex < 0 ||
+        s.selectedEpisodeIndex >= episodes.length) {
+      return () async {};
+    }
+    final ep = episodes[s.selectedEpisodeIndex];
+    final historyWriter = ref.read(historyPageProvider.notifier);
+    final detail = detailPr;
+    final detailWriter = detail == null ? null : ref.read(detail.notifier);
+    final trackers = detail == null
+        ? <proto.Tracker>[]
+        : ref.read(detail).detailInfo?.trackers.toList() ?? <proto.Tracker>[];
     final history = History(
       title: s.name,
       package: package,
       type: type.name,
       episodeGroupId: s.selectedGroupIndex,
       episodeId: s.selectedEpisodeIndex,
-      progress: progress,
+      progress: progress.clamp(0, totalProgress),
       cover: imageUrl,
       totalProgress: totalProgress,
       episodeTitle: ep.name,
@@ -93,19 +121,25 @@ class EpisodeNotifier extends _$EpisodeNotifier {
       detailUrl: detailUrl,
       date: DateTime.now(),
     );
-    Future.microtask(() async {
-      ref.read(historyPageProvider.notifier).addHistory(history);
-      if (detailPr == null) return;
-      // Put the history to detail for update the history list
-      ref.read(detailPr!.notifier).putHistory(history);
+    var saved = false;
+    return () async {
+      if (saved) return;
+      saved = true;
+      // Defer provider mutations beyond widget teardown.
+      await Future<void>.value();
+      try {
+        history.date = DateTime.now();
+        await historyWriter.addHistory(history);
+        detailWriter?.putHistory(history);
+      } catch (error, stack) {
+        logger.severe('Failed to save watch history', error, stack);
+        return;
+      }
 
-      // Auto-tracking logic: 90% completion
-      if (totalProgress > 0 && (progress / totalProgress) >= 0.9) {
-        final dState = ref.read(detailPr!);
-        if (dState.detailInfo != null &&
-            dState.detailInfo!.trackers.isNotEmpty) {
+      if ((history.progress / history.totalProgress) >= 0.9) {
+        if (trackers.isNotEmpty) {
           final newProgress = s.selectedEpisodeIndex + 1;
-          for (final t in dState.detailInfo!.trackers) {
+          for (final t in trackers) {
             if (newProgress > t.progress) {
               if (t.provider.toLowerCase() == 'anilist') {
                 try {
@@ -120,20 +154,20 @@ class EpisodeNotifier extends _$EpisodeNotifier {
                     t.progress = newProgress;
                     await MiruGrpcClient.dbClient.upsertTracker(
                       proto.UpsertTrackerRequest()
-                        ..package = package
-                        ..detailUrl = detailUrl
+                        ..package = history.package
+                        ..detailUrl = history.detailUrl
                         ..tracker = t,
                     );
                   }
-                } catch (e) {
-                  // Ignore tracking errors
+                } catch (error, stack) {
+                  logger.warning('Failed to update tracking', error, stack);
                 }
               }
             }
           }
         }
       }
-    });
+    };
   }
 
   void selectEpisode(int groupIndex, int episodeIndex) {

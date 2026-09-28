@@ -30,7 +30,31 @@ class MobileSearchPage extends HookConsumerWidget {
       sliverHeaders: [
         SimpleSliverHeaderDelegate(
           maxExtent: 56,
-          child: SnapSheetHeader(title: 'common.search'.i18n),
+          child: SnapSheetHeader(
+            title: 'common.search'.i18n,
+            suffix: [SizedBox(height: 59)],
+          ),
+        ),
+        SimpleSliverHeaderDelegate(
+          child: Column(
+            children: [
+              FTextField(
+                maxLines: 1,
+                control: FTextFieldControl.managed(
+                  // onChange: (value) {
+                  //   searchQuery.value = value.text;
+                  //   notifier.filterByQuery(value.text);
+                  // },
+                ),
+                hint: "extension.search_hint".i18n,
+                prefixBuilder: (context, style, states) => Padding(
+                  padding: const EdgeInsets.only(left: 12, right: 10),
+                  child: Icon(FLucideIcons.search),
+                ),
+              ),
+            ],
+          ),
+          maxExtent: 45,
         ),
       ],
       slivers: searchQuery.value.isEmpty
@@ -47,7 +71,25 @@ class MobileSearchPage extends HookConsumerWidget {
                             extra: SearchPageParam(meta: ext),
                           );
                         },
-                        title: Text(ext.name),
+                        title: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                ext.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (ext.nsfw) ...[
+                              const SizedBox(width: 6),
+                              FBadge(
+                                variant: .destructive,
+                                child: Text('extension.nsfw'.i18n),
+                              ),
+                            ],
+                          ],
+                        ),
                         prefix: SizedBox(
                           height: 40,
                           width: 40,
@@ -57,6 +99,7 @@ class MobileSearchPage extends HookConsumerWidget {
                     }).toList(),
                   ),
                 ),
+              SliverToBoxAdapter(child: FDivider()),
               if (metaData.isNotEmpty) ...[
                 SliverList.separated(
                   separatorBuilder: (context, index) {
@@ -119,6 +162,13 @@ class MobileSearchPage extends HookConsumerWidget {
                                             .mutedForeground,
                                       ),
                                     ),
+                                    if (ext.nsfw) ...[
+                                      const SizedBox(width: 6),
+                                      FBadge(
+                                        variant: .destructive,
+                                        child: Text('extension.nsfw'.i18n),
+                                      ),
+                                    ],
                                     if (ext.description?.isNotEmpty ??
                                         false) ...[
                                       Padding(

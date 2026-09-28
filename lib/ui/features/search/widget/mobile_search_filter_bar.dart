@@ -1,87 +1,21 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:forui/forui.dart';
+import 'package:flutter/widgets.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
-import 'package:miru_alpha/ui/features/search/extension_filter_view.dart';
+import 'package:miru_alpha/ui/features/search/widget/mobile_filter_slivers.dart';
 
+/// Mobile inline filter list.
+///
+/// Thin wrapper over [MobileFilterSliverBody] with immediate commit: every
+/// chip/range edit applies to the results at once. Owns its scroll (sticky
+/// [SliverPersistentHeader] sections, max 3 pinned), so it needs a bounded
+/// height ancestor.
 class MobileSearchFilterBar extends ConsumerWidget {
   const MobileSearchFilterBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(searchPageSingleProviderProvider);
-    final notifier = ref.read(searchPageSingleProviderProvider.notifier);
-
     if (state.filter.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      children: [
-        for (final key in state.filterOrder) ...[
-          () {
-            final raw = state.filter[key];
-            final filter = raw == null ? null : ExtensionFilterView.from(raw);
-            final selected = (state.selected[key] ?? []).cast<String>();
-            final min = filter?.isSingleSelect == true ? 1 : (filter?.min ?? 1);
-            final max = filter?.isSingleSelect == true ? 1 : (filter?.max ?? 1);
-            final hasError = min > max;
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
-                    filter?.title ?? '',
-                    style: context.theme.typography.body.sm.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                if (hasError)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      'Selection error: min ($min) > max ($max)',
-                      style: TextStyle(
-                        color: context.theme.colors.error,
-                        fontSize: 12,
-                      ),
-                    ),
-                  )
-                else
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      for (final option in [
-                        ...?filter?.options,
-                      ]..sort((a, b) => a.key.compareTo(b.key)))
-                        () {
-                          final isSelected = selected.contains(option.key);
-                          return FTappable(
-                            onPress: () {
-                              final next = isSelected
-                                  ? selected
-                                        .where((e) => e != option.key)
-                                        .toList()
-                                  : <String>[...selected, option.key];
-                              notifier.setFilterValue(key, next);
-                              notifier.commitFilters();
-                            },
-                            child: FBadge(
-                              variant: isSelected ? .primary : .outline,
-                              child: Text(option.label),
-                            ),
-                          );
-                        }(),
-                    ],
-                  ),
-                const SizedBox(height: 10),
-              ],
-            );
-          }(),
-        ],
-      ],
-    );
+    return const MobileFilterSliverBody(autoCommit: true);
   }
 }

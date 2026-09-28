@@ -7,7 +7,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:marionette_flutter/marionette_flutter.dart';
 import 'package:marionette_logging/marionette_logging.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
@@ -251,30 +250,19 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final c = ref.watch(applicationControllerProvider);
-    return FTheme(
-      data: c.themeData,
-      child: FToaster(
-        child: MaterialApp.router(
-          showPerformanceOverlay: kProfileMode,
-          supportedLocales: FLocalizations.supportedLocales,
-          key: ValueKey(c.language),
-          // `c.themeData` is already resolved to the effective brightness
-          // (light / dark / system-derived), so use it for both Material theme
-          // slots to guarantee Material widgets match the Forui palette exactly
-          // regardless of the selected [themeMode].
-          // theme: c.themeData.toApproximateMaterialTheme(),
-          // darkTheme: c.themeData.toApproximateMaterialTheme(),
-          themeMode: c.themeMode,
-          title: 'Miru Alpha',
-          localizationsDelegates: [
-            I18nUtils.flutterI18nDelegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          routerConfig: RouterUtil.appRouter,
-          debugShowCheckedModeBanner: false,
-        ),
-      ),
+    return MaterialApp.router(
+      showPerformanceOverlay: kProfileMode,
+      supportedLocales: FLocalizations.supportedLocales,
+      key: ValueKey(c.language),
+      builder: (context, child) => FTheme(data: c.themeData, child: child!),
+      themeMode: c.themeMode,
+      title: 'Miru Alpha',
+      localizationsDelegates: [
+        I18nUtils.flutterI18nDelegate,
+        ...GlobalMaterialLocalizations.delegates,
+      ],
+      routerConfig: RouterUtil.appRouter,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

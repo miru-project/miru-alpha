@@ -26,16 +26,21 @@ $FavoriteViewStateCopyWith<FavoriteViewState> get copyWith => _$FavoriteViewStat
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FavoriteViewState&&const DeepCollectionEquality().equals(other.groups, groups)&&const DeepCollectionEquality().equals(other.favorites, favorites)&&(identical(other.selectedGroupId, selectedGroupId) || other.selectedGroupId == selectedGroupId));
+  final _this = this as FavoriteViewState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FavoriteViewState&&const DeepCollectionEquality().equals(other.groups, _this.groups)&&const DeepCollectionEquality().equals(other.favorites, _this.favorites)&&(identical(other.selectedGroupId, _this.selectedGroupId) || other.selectedGroupId == _this.selectedGroupId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(groups),const DeepCollectionEquality().hash(favorites),selectedGroupId);
+int get hashCode {
+  final _this = this as FavoriteViewState;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.groups),const DeepCollectionEquality().hash(_this.favorites),_this.selectedGroupId);
+}
 
 @override
 String toString() {
-  return 'FavoriteViewState(groups: $groups, favorites: $favorites, selectedGroupId: $selectedGroupId)';
+  final _this = this as FavoriteViewState;
+  return 'FavoriteViewState(groups: ${_this.groups}, favorites: ${_this.favorites}, selectedGroupId: ${_this.selectedGroupId})';
 }
 
 
@@ -238,16 +243,18 @@ _$FavoriteViewStateCopyWith<_FavoriteViewState> get copyWith => __$FavoriteViewS
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FavoriteViewState&&const DeepCollectionEquality().equals(other._groups, _groups)&&const DeepCollectionEquality().equals(other._favorites, _favorites)&&(identical(other.selectedGroupId, selectedGroupId) || other.selectedGroupId == selectedGroupId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _FavoriteViewState&&const DeepCollectionEquality().equals(other.groups, _groups)&&const DeepCollectionEquality().equals(other.favorites, _favorites)&&(identical(other.selectedGroupId, selectedGroupId) || other.selectedGroupId == selectedGroupId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_groups),const DeepCollectionEquality().hash(_favorites),selectedGroupId);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_groups),const DeepCollectionEquality().hash(_favorites),selectedGroupId);
+}
 
 @override
 String toString() {
-  return 'FavoriteViewState(groups: $groups, favorites: $favorites, selectedGroupId: $selectedGroupId)';
+    return 'FavoriteViewState(groups: $groups, favorites: $favorites, selectedGroupId: $selectedGroupId)';
 }
 
 

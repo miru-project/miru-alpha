@@ -29,16 +29,21 @@ $DomainDownloadCopyWith<DomainDownload> get copyWith => _$DomainDownloadCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainDownload&&(identical(other.id, id) || other.id == id)&&(identical(other.package, package) || other.package == package)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.title, title) || other.title == title)&&(identical(other.episode, episode) || other.episode == episode)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.status, status) || other.status == status)&&(identical(other.speed, speed) || other.speed == speed)&&(identical(other.size, size) || other.size == size)&&(identical(other.downloadedBytes, downloadedBytes) || other.downloadedBytes == downloadedBytes)&&(identical(other.error, error) || other.error == error)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  final _this = this as DomainDownload;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainDownload&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.package, _this.package) || other.package == _this.package)&&(identical(other.detailUrl, _this.detailUrl) || other.detailUrl == _this.detailUrl)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.episode, _this.episode) || other.episode == _this.episode)&&(identical(other.cover, _this.cover) || other.cover == _this.cover)&&(identical(other.progress, _this.progress) || other.progress == _this.progress)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.speed, _this.speed) || other.speed == _this.speed)&&(identical(other.size, _this.size) || other.size == _this.size)&&(identical(other.downloadedBytes, _this.downloadedBytes) || other.downloadedBytes == _this.downloadedBytes)&&(identical(other.error, _this.error) || other.error == _this.error)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.updatedAt, _this.updatedAt) || other.updatedAt == _this.updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,package,detailUrl,title,episode,cover,progress,status,speed,size,downloadedBytes,error,createdAt,updatedAt);
+int get hashCode {
+  final _this = this as DomainDownload;
+  return Object.hash(runtimeType,_this.id,_this.package,_this.detailUrl,_this.title,_this.episode,_this.cover,_this.progress,_this.status,_this.speed,_this.size,_this.downloadedBytes,_this.error,_this.createdAt,_this.updatedAt);
+}
 
 @override
 String toString() {
-  return 'DomainDownload(id: $id, package: $package, detailUrl: $detailUrl, title: $title, episode: $episode, cover: $cover, progress: $progress, status: $status, speed: $speed, size: $size, downloadedBytes: $downloadedBytes, error: $error, createdAt: $createdAt, updatedAt: $updatedAt)';
+  final _this = this as DomainDownload;
+  return 'DomainDownload(id: ${_this.id}, package: ${_this.package}, detailUrl: ${_this.detailUrl}, title: ${_this.title}, episode: ${_this.episode}, cover: ${_this.cover}, progress: ${_this.progress}, status: ${_this.status}, speed: ${_this.speed}, size: ${_this.size}, downloadedBytes: ${_this.downloadedBytes}, error: ${_this.error}, createdAt: ${_this.createdAt}, updatedAt: ${_this.updatedAt})';
 }
 
 
@@ -254,16 +259,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainDownload&&(identical(other.id, id) || other.id == id)&&(identical(other.package, package) || other.package == package)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.title, title) || other.title == title)&&(identical(other.episode, episode) || other.episode == episode)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.status, status) || other.status == status)&&(identical(other.speed, speed) || other.speed == speed)&&(identical(other.size, size) || other.size == size)&&(identical(other.downloadedBytes, downloadedBytes) || other.downloadedBytes == downloadedBytes)&&(identical(other.error, error) || other.error == error)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainDownload&&(identical(other.id, id) || other.id == id)&&(identical(other.package, package) || other.package == package)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.title, title) || other.title == title)&&(identical(other.episode, episode) || other.episode == episode)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.status, status) || other.status == status)&&(identical(other.speed, speed) || other.speed == speed)&&(identical(other.size, size) || other.size == size)&&(identical(other.downloadedBytes, downloadedBytes) || other.downloadedBytes == downloadedBytes)&&(identical(other.error, error) || other.error == error)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,package,detailUrl,title,episode,cover,progress,status,speed,size,downloadedBytes,error,createdAt,updatedAt);
+int get hashCode {
+    return Object.hash(runtimeType,id,package,detailUrl,title,episode,cover,progress,status,speed,size,downloadedBytes,error,createdAt,updatedAt);
+}
 
 @override
 String toString() {
-  return 'DomainDownload(id: $id, package: $package, detailUrl: $detailUrl, title: $title, episode: $episode, cover: $cover, progress: $progress, status: $status, speed: $speed, size: $size, downloadedBytes: $downloadedBytes, error: $error, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'DomainDownload(id: $id, package: $package, detailUrl: $detailUrl, title: $title, episode: $episode, cover: $cover, progress: $progress, status: $status, speed: $speed, size: $size, downloadedBytes: $downloadedBytes, error: $error, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -331,16 +338,21 @@ $DomainDownloadProgressCopyWith<DomainDownloadProgress> get copyWith => _$Domain
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainDownloadProgress&&(identical(other.downloadId, downloadId) || other.downloadId == downloadId)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.speed, speed) || other.speed == speed)&&(identical(other.downloadedBytes, downloadedBytes) || other.downloadedBytes == downloadedBytes)&&(identical(other.totalBytes, totalBytes) || other.totalBytes == totalBytes)&&(identical(other.status, status) || other.status == status)&&(identical(other.error, error) || other.error == error));
+  final _this = this as DomainDownloadProgress;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainDownloadProgress&&(identical(other.downloadId, _this.downloadId) || other.downloadId == _this.downloadId)&&(identical(other.progress, _this.progress) || other.progress == _this.progress)&&(identical(other.speed, _this.speed) || other.speed == _this.speed)&&(identical(other.downloadedBytes, _this.downloadedBytes) || other.downloadedBytes == _this.downloadedBytes)&&(identical(other.totalBytes, _this.totalBytes) || other.totalBytes == _this.totalBytes)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.error, _this.error) || other.error == _this.error));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,downloadId,progress,speed,downloadedBytes,totalBytes,status,error);
+int get hashCode {
+  final _this = this as DomainDownloadProgress;
+  return Object.hash(runtimeType,_this.downloadId,_this.progress,_this.speed,_this.downloadedBytes,_this.totalBytes,_this.status,_this.error);
+}
 
 @override
 String toString() {
-  return 'DomainDownloadProgress(downloadId: $downloadId, progress: $progress, speed: $speed, downloadedBytes: $downloadedBytes, totalBytes: $totalBytes, status: $status, error: $error)';
+  final _this = this as DomainDownloadProgress;
+  return 'DomainDownloadProgress(downloadId: ${_this.downloadId}, progress: ${_this.progress}, speed: ${_this.speed}, downloadedBytes: ${_this.downloadedBytes}, totalBytes: ${_this.totalBytes}, status: ${_this.status}, error: ${_this.error})';
 }
 
 
@@ -542,16 +554,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainDownloadProgress&&(identical(other.downloadId, downloadId) || other.downloadId == downloadId)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.speed, speed) || other.speed == speed)&&(identical(other.downloadedBytes, downloadedBytes) || other.downloadedBytes == downloadedBytes)&&(identical(other.totalBytes, totalBytes) || other.totalBytes == totalBytes)&&(identical(other.status, status) || other.status == status)&&(identical(other.error, error) || other.error == error));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainDownloadProgress&&(identical(other.downloadId, downloadId) || other.downloadId == downloadId)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.speed, speed) || other.speed == speed)&&(identical(other.downloadedBytes, downloadedBytes) || other.downloadedBytes == downloadedBytes)&&(identical(other.totalBytes, totalBytes) || other.totalBytes == totalBytes)&&(identical(other.status, status) || other.status == status)&&(identical(other.error, error) || other.error == error));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,downloadId,progress,speed,downloadedBytes,totalBytes,status,error);
+int get hashCode {
+    return Object.hash(runtimeType,downloadId,progress,speed,downloadedBytes,totalBytes,status,error);
+}
 
 @override
 String toString() {
-  return 'DomainDownloadProgress(downloadId: $downloadId, progress: $progress, speed: $speed, downloadedBytes: $downloadedBytes, totalBytes: $totalBytes, status: $status, error: $error)';
+    return 'DomainDownloadProgress(downloadId: $downloadId, progress: $progress, speed: $speed, downloadedBytes: $downloadedBytes, totalBytes: $totalBytes, status: $status, error: $error)';
 }
 
 

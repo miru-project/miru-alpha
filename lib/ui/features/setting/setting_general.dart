@@ -2,6 +2,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/provider/search/search_page_provider.dart';
+import 'package:miru_alpha/ui/features/extension/view_models/extension_view_model.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
 import 'package:miru_alpha/ui/core/index.dart';
@@ -58,6 +61,13 @@ class SettingGeneral extends HookConsumerWidget {
                   SettingKey.enableNSFW,
                   value.toString(),
                 );
+                // Refilter already-fetched content in place — never refetch.
+                // Invalidating here would wipe the fetched repos while the
+                // StatefulShellRoute keeps the extension page mounted, leaving
+                // it permanently empty on desktop and mobile.
+                ref.read(extensionPageProvider.notifier).filter();
+                ref.read(extensionViewModelProvider.notifier).refilter();
+                ref.read(searchPageProvider.notifier).refilter();
               },
             ),
           ],
@@ -119,16 +129,16 @@ class SettingGeneral extends HookConsumerWidget {
                   )
                   .toList(),
             ),
-            SettingsSliderTile(
-              isMobileLayout: isMobileLayout,
-              title: 'settings.labels.base_color_tint_strength.name',
-              subtitle: 'settings.labels.base_color_tint_strength.information',
-              value: ref.watch(applicationControllerProvider).tintStrength,
-              min: 0,
-              max: 1,
-              stepPercentage: 0.01,
-              onChanged: (value) => c.changeTintStrength(value),
-            ),
+            // SettingsSliderTile(
+            //   isMobileLayout: isMobileLayout,
+            //   title: 'settings.labels.base_color_tint_strength.name',
+            //   subtitle: 'settings.labels.base_color_tint_strength.information',
+            //   value: ref.watch(applicationControllerProvider).tintStrength,
+            //   min: 0,
+            //   max: 1,
+            //   stepPercentage: 0.01,
+            //   onChanged: (value) => c.changeTintStrength(value),
+            // ),
           ],
         ),
         SettingGroup(

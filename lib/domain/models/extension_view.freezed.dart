@@ -29,16 +29,21 @@ $DomainExtensionViewStateCopyWith<DomainExtensionViewState> get copyWith => _$Do
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainExtensionViewState&&const DeepCollectionEquality().equals(other.repos, repos)&&const DeepCollectionEquality().equals(other.extensions, extensions)&&const DeepCollectionEquality().equals(other.installedPackages, installedPackages)&&const DeepCollectionEquality().equals(other.metadata, metadata)&&(identical(other.selectedRepoName, selectedRepoName) || other.selectedRepoName == selectedRepoName)&&(identical(other.query, query) || other.query == query)&&(identical(other.typeFilter, typeFilter) || other.typeFilter == typeFilter)&&(identical(other.installFilter, installFilter) || other.installFilter == installFilter)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading));
+  final _this = this as DomainExtensionViewState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainExtensionViewState&&const DeepCollectionEquality().equals(other.repos, _this.repos)&&const DeepCollectionEquality().equals(other.extensions, _this.extensions)&&const DeepCollectionEquality().equals(other.installedPackages, _this.installedPackages)&&const DeepCollectionEquality().equals(other.metadata, _this.metadata)&&(identical(other.selectedRepoName, _this.selectedRepoName) || other.selectedRepoName == _this.selectedRepoName)&&(identical(other.query, _this.query) || other.query == _this.query)&&(identical(other.typeFilter, _this.typeFilter) || other.typeFilter == _this.typeFilter)&&(identical(other.installFilter, _this.installFilter) || other.installFilter == _this.installFilter)&&(identical(other.isLoading, _this.isLoading) || other.isLoading == _this.isLoading));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(repos),const DeepCollectionEquality().hash(extensions),const DeepCollectionEquality().hash(installedPackages),const DeepCollectionEquality().hash(metadata),selectedRepoName,query,typeFilter,installFilter,isLoading);
+int get hashCode {
+  final _this = this as DomainExtensionViewState;
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.repos),const DeepCollectionEquality().hash(_this.extensions),const DeepCollectionEquality().hash(_this.installedPackages),const DeepCollectionEquality().hash(_this.metadata),_this.selectedRepoName,_this.query,_this.typeFilter,_this.installFilter,_this.isLoading);
+}
 
 @override
 String toString() {
-  return 'DomainExtensionViewState(repos: $repos, extensions: $extensions, installedPackages: $installedPackages, metadata: $metadata, selectedRepoName: $selectedRepoName, query: $query, typeFilter: $typeFilter, installFilter: $installFilter, isLoading: $isLoading)';
+  final _this = this as DomainExtensionViewState;
+  return 'DomainExtensionViewState(repos: ${_this.repos}, extensions: ${_this.extensions}, installedPackages: ${_this.installedPackages}, metadata: ${_this.metadata}, selectedRepoName: ${_this.selectedRepoName}, query: ${_this.query}, typeFilter: ${_this.typeFilter}, installFilter: ${_this.installFilter}, isLoading: ${_this.isLoading})';
 }
 
 
@@ -268,16 +273,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainExtensionViewState&&const DeepCollectionEquality().equals(other._repos, _repos)&&const DeepCollectionEquality().equals(other._extensions, _extensions)&&const DeepCollectionEquality().equals(other._installedPackages, _installedPackages)&&const DeepCollectionEquality().equals(other._metadata, _metadata)&&(identical(other.selectedRepoName, selectedRepoName) || other.selectedRepoName == selectedRepoName)&&(identical(other.query, query) || other.query == query)&&(identical(other.typeFilter, typeFilter) || other.typeFilter == typeFilter)&&(identical(other.installFilter, installFilter) || other.installFilter == installFilter)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainExtensionViewState&&const DeepCollectionEquality().equals(other.repos, _repos)&&const DeepCollectionEquality().equals(other.extensions, _extensions)&&const DeepCollectionEquality().equals(other.installedPackages, _installedPackages)&&const DeepCollectionEquality().equals(other.metadata, _metadata)&&(identical(other.selectedRepoName, selectedRepoName) || other.selectedRepoName == selectedRepoName)&&(identical(other.query, query) || other.query == query)&&(identical(other.typeFilter, typeFilter) || other.typeFilter == typeFilter)&&(identical(other.installFilter, installFilter) || other.installFilter == installFilter)&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_repos),const DeepCollectionEquality().hash(_extensions),const DeepCollectionEquality().hash(_installedPackages),const DeepCollectionEquality().hash(_metadata),selectedRepoName,query,typeFilter,installFilter,isLoading);
+int get hashCode {
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_repos),const DeepCollectionEquality().hash(_extensions),const DeepCollectionEquality().hash(_installedPackages),const DeepCollectionEquality().hash(_metadata),selectedRepoName,query,typeFilter,installFilter,isLoading);
+}
 
 @override
 String toString() {
-  return 'DomainExtensionViewState(repos: $repos, extensions: $extensions, installedPackages: $installedPackages, metadata: $metadata, selectedRepoName: $selectedRepoName, query: $query, typeFilter: $typeFilter, installFilter: $installFilter, isLoading: $isLoading)';
+    return 'DomainExtensionViewState(repos: $repos, extensions: $extensions, installedPackages: $installedPackages, metadata: $metadata, selectedRepoName: $selectedRepoName, query: $query, typeFilter: $typeFilter, installFilter: $installFilter, isLoading: $isLoading)';
 }
 
 

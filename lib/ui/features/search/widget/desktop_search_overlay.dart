@@ -741,6 +741,11 @@ class _FrequentExtensionsSection extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  if (ext?.nsfw ?? false)
+                    FBadge(
+                      variant: .destructive,
+                      child: Text('extension.nsfw'.i18n),
+                    ),
                 ],
               ),
             );

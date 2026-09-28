@@ -29,16 +29,21 @@ $DomainExtensionCopyWith<DomainExtension> get copyWith => _$DomainExtensionCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainExtension&&(identical(other.package, package) || other.package == package)&&(identical(other.author, author) || other.author == author)&&(identical(other.version, version) || other.version == version)&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.license, license) || other.license == license)&&(identical(other.type, type) || other.type == type)&&(identical(other.webSite, webSite) || other.webSite == webSite)&&(identical(other.name, name) || other.name == name)&&(identical(other.nsfw, nsfw) || other.nsfw == nsfw)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.url, url) || other.url == url)&&(identical(other.description, description) || other.description == description));
+  final _this = this as DomainExtension;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainExtension&&(identical(other.package, _this.package) || other.package == _this.package)&&(identical(other.author, _this.author) || other.author == _this.author)&&(identical(other.version, _this.version) || other.version == _this.version)&&(identical(other.lang, _this.lang) || other.lang == _this.lang)&&(identical(other.license, _this.license) || other.license == _this.license)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.webSite, _this.webSite) || other.webSite == _this.webSite)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.nsfw, _this.nsfw) || other.nsfw == _this.nsfw)&&(identical(other.icon, _this.icon) || other.icon == _this.icon)&&(identical(other.url, _this.url) || other.url == _this.url)&&(identical(other.description, _this.description) || other.description == _this.description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,package,author,version,lang,license,type,webSite,name,nsfw,icon,url,description);
+int get hashCode {
+  final _this = this as DomainExtension;
+  return Object.hash(runtimeType,_this.package,_this.author,_this.version,_this.lang,_this.license,_this.type,_this.webSite,_this.name,_this.nsfw,_this.icon,_this.url,_this.description);
+}
 
 @override
 String toString() {
-  return 'DomainExtension(package: $package, author: $author, version: $version, lang: $lang, license: $license, type: $type, webSite: $webSite, name: $name, nsfw: $nsfw, icon: $icon, url: $url, description: $description)';
+  final _this = this as DomainExtension;
+  return 'DomainExtension(package: ${_this.package}, author: ${_this.author}, version: ${_this.version}, lang: ${_this.lang}, license: ${_this.license}, type: ${_this.type}, webSite: ${_this.webSite}, name: ${_this.name}, nsfw: ${_this.nsfw}, icon: ${_this.icon}, url: ${_this.url}, description: ${_this.description})';
 }
 
 
@@ -250,16 +255,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainExtension&&(identical(other.package, package) || other.package == package)&&(identical(other.author, author) || other.author == author)&&(identical(other.version, version) || other.version == version)&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.license, license) || other.license == license)&&(identical(other.type, type) || other.type == type)&&(identical(other.webSite, webSite) || other.webSite == webSite)&&(identical(other.name, name) || other.name == name)&&(identical(other.nsfw, nsfw) || other.nsfw == nsfw)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.url, url) || other.url == url)&&(identical(other.description, description) || other.description == description));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainExtension&&(identical(other.package, package) || other.package == package)&&(identical(other.author, author) || other.author == author)&&(identical(other.version, version) || other.version == version)&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.license, license) || other.license == license)&&(identical(other.type, type) || other.type == type)&&(identical(other.webSite, webSite) || other.webSite == webSite)&&(identical(other.name, name) || other.name == name)&&(identical(other.nsfw, nsfw) || other.nsfw == nsfw)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.url, url) || other.url == url)&&(identical(other.description, description) || other.description == description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,package,author,version,lang,license,type,webSite,name,nsfw,icon,url,description);
+int get hashCode {
+    return Object.hash(runtimeType,package,author,version,lang,license,type,webSite,name,nsfw,icon,url,description);
+}
 
 @override
 String toString() {
-  return 'DomainExtension(package: $package, author: $author, version: $version, lang: $lang, license: $license, type: $type, webSite: $webSite, name: $name, nsfw: $nsfw, icon: $icon, url: $url, description: $description)';
+    return 'DomainExtension(package: $package, author: $author, version: $version, lang: $lang, license: $license, type: $type, webSite: $webSite, name: $name, nsfw: $nsfw, icon: $icon, url: $url, description: $description)';
 }
 
 
@@ -325,16 +332,21 @@ $DomainExtensionMetaCopyWith<DomainExtensionMeta> get copyWith => _$DomainExtens
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainExtensionMeta&&(identical(other.name, name) || other.name == name)&&(identical(other.version, version) || other.version == version)&&(identical(other.author, author) || other.author == author)&&(identical(other.license, license) || other.license == license)&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.webSite, webSite) || other.webSite == webSite)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.tags, tags)&&(identical(other.api, api) || other.api == api)&&(identical(other.type, type) || other.type == type)&&(identical(other.error, error) || other.error == error)&&(identical(other.nsfw, nsfw) || other.nsfw == nsfw));
+  final _this = this as DomainExtensionMeta;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainExtensionMeta&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.version, _this.version) || other.version == _this.version)&&(identical(other.author, _this.author) || other.author == _this.author)&&(identical(other.license, _this.license) || other.license == _this.license)&&(identical(other.lang, _this.lang) || other.lang == _this.lang)&&(identical(other.icon, _this.icon) || other.icon == _this.icon)&&(identical(other.packageName, _this.packageName) || other.packageName == _this.packageName)&&(identical(other.webSite, _this.webSite) || other.webSite == _this.webSite)&&(identical(other.description, _this.description) || other.description == _this.description)&&const DeepCollectionEquality().equals(other.tags, _this.tags)&&(identical(other.api, _this.api) || other.api == _this.api)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.error, _this.error) || other.error == _this.error)&&(identical(other.nsfw, _this.nsfw) || other.nsfw == _this.nsfw));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,version,author,license,lang,icon,packageName,webSite,description,const DeepCollectionEquality().hash(tags),api,type,error,nsfw);
+int get hashCode {
+  final _this = this as DomainExtensionMeta;
+  return Object.hash(runtimeType,_this.name,_this.version,_this.author,_this.license,_this.lang,_this.icon,_this.packageName,_this.webSite,_this.description,const DeepCollectionEquality().hash(_this.tags),_this.api,_this.type,_this.error,_this.nsfw);
+}
 
 @override
 String toString() {
-  return 'DomainExtensionMeta(name: $name, version: $version, author: $author, license: $license, lang: $lang, icon: $icon, packageName: $packageName, webSite: $webSite, description: $description, tags: $tags, api: $api, type: $type, error: $error, nsfw: $nsfw)';
+  final _this = this as DomainExtensionMeta;
+  return 'DomainExtensionMeta(name: ${_this.name}, version: ${_this.version}, author: ${_this.author}, license: ${_this.license}, lang: ${_this.lang}, icon: ${_this.icon}, packageName: ${_this.packageName}, webSite: ${_this.webSite}, description: ${_this.description}, tags: ${_this.tags}, api: ${_this.api}, type: ${_this.type}, error: ${_this.error}, nsfw: ${_this.nsfw})';
 }
 
 
@@ -556,16 +568,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainExtensionMeta&&(identical(other.name, name) || other.name == name)&&(identical(other.version, version) || other.version == version)&&(identical(other.author, author) || other.author == author)&&(identical(other.license, license) || other.license == license)&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.webSite, webSite) || other.webSite == webSite)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other._tags, _tags)&&(identical(other.api, api) || other.api == api)&&(identical(other.type, type) || other.type == type)&&(identical(other.error, error) || other.error == error)&&(identical(other.nsfw, nsfw) || other.nsfw == nsfw));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainExtensionMeta&&(identical(other.name, name) || other.name == name)&&(identical(other.version, version) || other.version == version)&&(identical(other.author, author) || other.author == author)&&(identical(other.license, license) || other.license == license)&&(identical(other.lang, lang) || other.lang == lang)&&(identical(other.icon, icon) || other.icon == icon)&&(identical(other.packageName, packageName) || other.packageName == packageName)&&(identical(other.webSite, webSite) || other.webSite == webSite)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.tags, _tags)&&(identical(other.api, api) || other.api == api)&&(identical(other.type, type) || other.type == type)&&(identical(other.error, error) || other.error == error)&&(identical(other.nsfw, nsfw) || other.nsfw == nsfw));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,version,author,license,lang,icon,packageName,webSite,description,const DeepCollectionEquality().hash(_tags),api,type,error,nsfw);
+int get hashCode {
+    return Object.hash(runtimeType,name,version,author,license,lang,icon,packageName,webSite,description,const DeepCollectionEquality().hash(_tags),api,type,error,nsfw);
+}
 
 @override
 String toString() {
-  return 'DomainExtensionMeta(name: $name, version: $version, author: $author, license: $license, lang: $lang, icon: $icon, packageName: $packageName, webSite: $webSite, description: $description, tags: $tags, api: $api, type: $type, error: $error, nsfw: $nsfw)';
+    return 'DomainExtensionMeta(name: $name, version: $version, author: $author, license: $license, lang: $lang, icon: $icon, packageName: $packageName, webSite: $webSite, description: $description, tags: $tags, api: $api, type: $type, error: $error, nsfw: $nsfw)';
 }
 
 
@@ -633,16 +647,21 @@ $DomainExtensionRepoCopyWith<DomainExtensionRepo> get copyWith => _$DomainExtens
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainExtensionRepo&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&const DeepCollectionEquality().equals(other.extensions, extensions));
+  final _this = this as DomainExtensionRepo;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainExtensionRepo&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.url, _this.url) || other.url == _this.url)&&const DeepCollectionEquality().equals(other.extensions, _this.extensions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,url,const DeepCollectionEquality().hash(extensions));
+int get hashCode {
+  final _this = this as DomainExtensionRepo;
+  return Object.hash(runtimeType,_this.name,_this.url,const DeepCollectionEquality().hash(_this.extensions));
+}
 
 @override
 String toString() {
-  return 'DomainExtensionRepo(name: $name, url: $url, extensions: $extensions)';
+  final _this = this as DomainExtensionRepo;
+  return 'DomainExtensionRepo(name: ${_this.name}, url: ${_this.url}, extensions: ${_this.extensions})';
 }
 
 
@@ -842,16 +861,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainExtensionRepo&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&const DeepCollectionEquality().equals(other._extensions, _extensions));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainExtensionRepo&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&const DeepCollectionEquality().equals(other.extensions, _extensions));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,url,const DeepCollectionEquality().hash(_extensions));
+int get hashCode {
+    return Object.hash(runtimeType,name,url,const DeepCollectionEquality().hash(_extensions));
+}
 
 @override
 String toString() {
-  return 'DomainExtensionRepo(name: $name, url: $url, extensions: $extensions)';
+    return 'DomainExtensionRepo(name: $name, url: $url, extensions: $extensions)';
 }
 
 

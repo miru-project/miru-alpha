@@ -58,6 +58,34 @@ void main() {
       expect(result.first.extensions.first.name, 'Manga Ext');
     });
 
+    test('hides nsfw extensions when not allowed', () {
+      final nsfwRepos = [
+        DomainExtensionRepo(
+          name: 'Repo A',
+          url: 'https://example.com/a',
+          extensions: [
+            sampleRepos.first.extensions.first,
+            sampleRepos.first.extensions.last.copyWith(nsfw: true),
+          ],
+        ),
+      ];
+      final useCase = FilterExtensionsUseCase();
+
+      final blocked = useCase(
+        repos: nsfwRepos,
+        installedPackages: const [],
+        allowNsfw: false,
+      );
+      expect(blocked.first.extensions.map((e) => e.name), ['Manga Ext']);
+
+      final allowed = useCase(
+        repos: nsfwRepos,
+        installedPackages: const [],
+        allowNsfw: true,
+      );
+      expect(allowed.first.extensions.length, 2);
+    });
+
     test('filters by type', () {
       final useCase = FilterExtensionsUseCase();
       final result = useCase(

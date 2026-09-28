@@ -119,15 +119,85 @@ enum MangaReadMode {
   webToon,
 }
 
+/// How a page image is scaled inside the reader canvas.
+enum MangaFitMode {
+  // Match viewport width, crop or letterbox vertically.
+  fitWidth,
+  // Match viewport height, scroll horizontally.
+  fitHeight,
+  // Render at natural pixel size (may overflow, pannable).
+  original,
+}
+
+/// Canvas colour painted behind the page image.
+enum MangaCanvasBackground { black, darkGray, light }
+
+/// Who owns the display brightness while the reader is open.
+///
+/// [auto] leaves the screen alone and follows the system setting; [manual]
+/// makes the reader's own brightness value authoritative for as long as it is
+/// open, which is what a reader actually wants in a dark room.
+enum MangaBrightnessMode { auto, manual }
+
+/// How novel prose is laid out inside the reader canvas.
+///
+/// The three selectable modes are the ones the reader settings sheet offers; see
+/// `kNovelReadModeOrder` for the display order (which deliberately skips the
+/// legacy values below).
 enum NovelReadMode {
-  // 标准 从左到右
+  /// Fixed-height pages, turned with a tap zone. The book default.
   standard,
-  // 从右到左
-  rightToLeft,
+
+  /// One continuous vertical scroll, like a web article.
   webToon,
+
+  /// Two text columns side by side, like a printed book.
+  ///
+  /// Note the type size this needs. A phone column is roughly half the page
+  /// width, so at the default 18px a single paragraph is usually taller than
+  /// one column; the reader then gives that paragraph a full-width page of its
+  /// own, which is the only honest option short of cutting a paragraph in half.
+  /// The mode reads as a single column until the font size is dropped towards
+  /// the bottom of its range, where two columns fit. That is typography, not a
+  /// layout fault: a book sets two columns in a much smaller face.
+  doubleColumn,
+
+  // Legacy page-turn values. Older builds persisted these; they are kept so a
+  // stored setting still parses, and [resolved] folds them onto [standard].
+  // They are never offered in the UI.
+  rightToLeft,
   rightToLeftFlip,
   standardFlip,
 }
+
+extension NovelReadModeResolved on NovelReadMode {
+  /// The mode the reader actually renders.
+  ///
+  /// Folds the legacy page-turn values onto [NovelReadMode.standard] so the
+  /// canvas only has three cases to handle.
+  NovelReadMode get resolved => switch (this) {
+    NovelReadMode.webToon => NovelReadMode.webToon,
+    NovelReadMode.doubleColumn => NovelReadMode.doubleColumn,
+    _ => NovelReadMode.standard,
+  };
+}
+
+/// Display order of the reading modes, which is the order the settings sheet and
+/// the segmented strip render. Excludes the legacy [NovelReadMode] values.
+const List<NovelReadMode> kNovelReadModeOrder = [
+  NovelReadMode.standard,
+  NovelReadMode.webToon,
+  NovelReadMode.doubleColumn,
+];
+
+/// Reading typeface offered by the novel settings sheet.
+///
+/// The app bundles no font files, so each value is a *stack* the platform
+/// resolves rather than a guaranteed face: see `novelFontFamilyFallback`.
+enum NovelFontFamily { serif, sans, mono }
+
+/// Paper colour painted behind novel prose.
+enum NovelTheme { midnight, charcoal, sepia, paper }
 
 @JsonSerializable()
 class Extension {

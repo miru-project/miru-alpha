@@ -29,16 +29,21 @@ $DomainTrackingAccountCopyWith<DomainTrackingAccount> get copyWith => _$DomainTr
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainTrackingAccount&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.avatar, avatar) || other.avatar == avatar)&&(identical(other.provider, provider) || other.provider == provider));
+  final _this = this as DomainTrackingAccount;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainTrackingAccount&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.avatar, _this.avatar) || other.avatar == _this.avatar)&&(identical(other.provider, _this.provider) || other.provider == _this.provider));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,avatar,provider);
+int get hashCode {
+  final _this = this as DomainTrackingAccount;
+  return Object.hash(runtimeType,_this.id,_this.name,_this.avatar,_this.provider);
+}
 
 @override
 String toString() {
-  return 'DomainTrackingAccount(id: $id, name: $name, avatar: $avatar, provider: $provider)';
+  final _this = this as DomainTrackingAccount;
+  return 'DomainTrackingAccount(id: ${_this.id}, name: ${_this.name}, avatar: ${_this.avatar}, provider: ${_this.provider})';
 }
 
 
@@ -234,16 +239,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainTrackingAccount&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.avatar, avatar) || other.avatar == avatar)&&(identical(other.provider, provider) || other.provider == provider));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainTrackingAccount&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.avatar, avatar) || other.avatar == avatar)&&(identical(other.provider, provider) || other.provider == provider));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,avatar,provider);
+int get hashCode {
+    return Object.hash(runtimeType,id,name,avatar,provider);
+}
 
 @override
 String toString() {
-  return 'DomainTrackingAccount(id: $id, name: $name, avatar: $avatar, provider: $provider)';
+    return 'DomainTrackingAccount(id: $id, name: $name, avatar: $avatar, provider: $provider)';
 }
 
 
@@ -301,16 +308,21 @@ $DomainTrackingProgressCopyWith<DomainTrackingProgress> get copyWith => _$Domain
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainTrackingProgress&&(identical(other.id, id) || other.id == id)&&(identical(other.mediaId, mediaId) || other.mediaId == mediaId)&&(identical(other.status, status) || other.status == status)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.score, score) || other.score == score)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover));
+  final _this = this as DomainTrackingProgress;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainTrackingProgress&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.mediaId, _this.mediaId) || other.mediaId == _this.mediaId)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.progress, _this.progress) || other.progress == _this.progress)&&(identical(other.score, _this.score) || other.score == _this.score)&&(identical(other.mediaType, _this.mediaType) || other.mediaType == _this.mediaType)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.cover, _this.cover) || other.cover == _this.cover));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,mediaId,status,progress,score,mediaType,title,cover);
+int get hashCode {
+  final _this = this as DomainTrackingProgress;
+  return Object.hash(runtimeType,_this.id,_this.mediaId,_this.status,_this.progress,_this.score,_this.mediaType,_this.title,_this.cover);
+}
 
 @override
 String toString() {
-  return 'DomainTrackingProgress(id: $id, mediaId: $mediaId, status: $status, progress: $progress, score: $score, mediaType: $mediaType, title: $title, cover: $cover)';
+  final _this = this as DomainTrackingProgress;
+  return 'DomainTrackingProgress(id: ${_this.id}, mediaId: ${_this.mediaId}, status: ${_this.status}, progress: ${_this.progress}, score: ${_this.score}, mediaType: ${_this.mediaType}, title: ${_this.title}, cover: ${_this.cover})';
 }
 
 
@@ -514,16 +526,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainTrackingProgress&&(identical(other.id, id) || other.id == id)&&(identical(other.mediaId, mediaId) || other.mediaId == mediaId)&&(identical(other.status, status) || other.status == status)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.score, score) || other.score == score)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainTrackingProgress&&(identical(other.id, id) || other.id == id)&&(identical(other.mediaId, mediaId) || other.mediaId == mediaId)&&(identical(other.status, status) || other.status == status)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.score, score) || other.score == score)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,mediaId,status,progress,score,mediaType,title,cover);
+int get hashCode {
+    return Object.hash(runtimeType,id,mediaId,status,progress,score,mediaType,title,cover);
+}
 
 @override
 String toString() {
-  return 'DomainTrackingProgress(id: $id, mediaId: $mediaId, status: $status, progress: $progress, score: $score, mediaType: $mediaType, title: $title, cover: $cover)';
+    return 'DomainTrackingProgress(id: $id, mediaId: $mediaId, status: $status, progress: $progress, score: $score, mediaType: $mediaType, title: $title, cover: $cover)';
 }
 
 
@@ -585,16 +599,21 @@ $DomainTMDBTrackCopyWith<DomainTMDBTrack> get copyWith => _$DomainTMDBTrackCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainTMDBTrack&&(identical(other.id, id) || other.id == id)&&(identical(other.mediaId, mediaId) || other.mediaId == mediaId)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.status, status) || other.status == status)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&const DeepCollectionEquality().equals(other.genres, genres)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  final _this = this as DomainTMDBTrack;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainTMDBTrack&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.mediaId, _this.mediaId) || other.mediaId == _this.mediaId)&&(identical(other.mediaType, _this.mediaType) || other.mediaType == _this.mediaType)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.cover, _this.cover) || other.cover == _this.cover)&&(identical(other.overview, _this.overview) || other.overview == _this.overview)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.runtime, _this.runtime) || other.runtime == _this.runtime)&&const DeepCollectionEquality().equals(other.genres, _this.genres)&&(identical(other.updatedAt, _this.updatedAt) || other.updatedAt == _this.updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,mediaId,mediaType,title,cover,overview,status,runtime,const DeepCollectionEquality().hash(genres),updatedAt);
+int get hashCode {
+  final _this = this as DomainTMDBTrack;
+  return Object.hash(runtimeType,_this.id,_this.mediaId,_this.mediaType,_this.title,_this.cover,_this.overview,_this.status,_this.runtime,const DeepCollectionEquality().hash(_this.genres),_this.updatedAt);
+}
 
 @override
 String toString() {
-  return 'DomainTMDBTrack(id: $id, mediaId: $mediaId, mediaType: $mediaType, title: $title, cover: $cover, overview: $overview, status: $status, runtime: $runtime, genres: $genres, updatedAt: $updatedAt)';
+  final _this = this as DomainTMDBTrack;
+  return 'DomainTMDBTrack(id: ${_this.id}, mediaId: ${_this.mediaId}, mediaType: ${_this.mediaType}, title: ${_this.title}, cover: ${_this.cover}, overview: ${_this.overview}, status: ${_this.status}, runtime: ${_this.runtime}, genres: ${_this.genres}, updatedAt: ${_this.updatedAt})';
 }
 
 
@@ -810,16 +829,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainTMDBTrack&&(identical(other.id, id) || other.id == id)&&(identical(other.mediaId, mediaId) || other.mediaId == mediaId)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.status, status) || other.status == status)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&const DeepCollectionEquality().equals(other._genres, _genres)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainTMDBTrack&&(identical(other.id, id) || other.id == id)&&(identical(other.mediaId, mediaId) || other.mediaId == mediaId)&&(identical(other.mediaType, mediaType) || other.mediaType == mediaType)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.overview, overview) || other.overview == overview)&&(identical(other.status, status) || other.status == status)&&(identical(other.runtime, runtime) || other.runtime == runtime)&&const DeepCollectionEquality().equals(other.genres, _genres)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,mediaId,mediaType,title,cover,overview,status,runtime,const DeepCollectionEquality().hash(_genres),updatedAt);
+int get hashCode {
+    return Object.hash(runtimeType,id,mediaId,mediaType,title,cover,overview,status,runtime,const DeepCollectionEquality().hash(_genres),updatedAt);
+}
 
 @override
 String toString() {
-  return 'DomainTMDBTrack(id: $id, mediaId: $mediaId, mediaType: $mediaType, title: $title, cover: $cover, overview: $overview, status: $status, runtime: $runtime, genres: $genres, updatedAt: $updatedAt)';
+    return 'DomainTMDBTrack(id: $id, mediaId: $mediaId, mediaType: $mediaType, title: $title, cover: $cover, overview: $overview, status: $status, runtime: $runtime, genres: $genres, updatedAt: $updatedAt)';
 }
 
 
@@ -883,16 +904,21 @@ $DomainTMDBCastCopyWith<DomainTMDBCast> get copyWith => _$DomainTMDBCastCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainTMDBCast&&(identical(other.name, name) || other.name == name)&&(identical(other.character, character) || other.character == character)&&(identical(other.profilePath, profilePath) || other.profilePath == profilePath));
+  final _this = this as DomainTMDBCast;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainTMDBCast&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.character, _this.character) || other.character == _this.character)&&(identical(other.profilePath, _this.profilePath) || other.profilePath == _this.profilePath));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,character,profilePath);
+int get hashCode {
+  final _this = this as DomainTMDBCast;
+  return Object.hash(runtimeType,_this.name,_this.character,_this.profilePath);
+}
 
 @override
 String toString() {
-  return 'DomainTMDBCast(name: $name, character: $character, profilePath: $profilePath)';
+  final _this = this as DomainTMDBCast;
+  return 'DomainTMDBCast(name: ${_this.name}, character: ${_this.character}, profilePath: ${_this.profilePath})';
 }
 
 
@@ -1086,16 +1112,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainTMDBCast&&(identical(other.name, name) || other.name == name)&&(identical(other.character, character) || other.character == character)&&(identical(other.profilePath, profilePath) || other.profilePath == profilePath));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainTMDBCast&&(identical(other.name, name) || other.name == name)&&(identical(other.character, character) || other.character == character)&&(identical(other.profilePath, profilePath) || other.profilePath == profilePath));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,character,profilePath);
+int get hashCode {
+    return Object.hash(runtimeType,name,character,profilePath);
+}
 
 @override
 String toString() {
-  return 'DomainTMDBCast(name: $name, character: $character, profilePath: $profilePath)';
+    return 'DomainTMDBCast(name: $name, character: $character, profilePath: $profilePath)';
 }
 
 

@@ -29,16 +29,21 @@ $DomainDetailCopyWith<DomainDetail> get copyWith => _$DomainDetailCopyWithImpl<D
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainDetail&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.desc, desc) || other.desc == desc)&&const DeepCollectionEquality().equals(other.episodes, episodes)&&const DeepCollectionEquality().equals(other.headers, headers)&&const DeepCollectionEquality().equals(other.downloaded, downloaded)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.package, package) || other.package == package));
+  final _this = this as DomainDetail;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainDetail&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.cover, _this.cover) || other.cover == _this.cover)&&(identical(other.desc, _this.desc) || other.desc == _this.desc)&&const DeepCollectionEquality().equals(other.episodes, _this.episodes)&&const DeepCollectionEquality().equals(other.headers, _this.headers)&&const DeepCollectionEquality().equals(other.downloaded, _this.downloaded)&&(identical(other.detailUrl, _this.detailUrl) || other.detailUrl == _this.detailUrl)&&(identical(other.package, _this.package) || other.package == _this.package));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,cover,desc,const DeepCollectionEquality().hash(episodes),const DeepCollectionEquality().hash(headers),const DeepCollectionEquality().hash(downloaded),detailUrl,package);
+int get hashCode {
+  final _this = this as DomainDetail;
+  return Object.hash(runtimeType,_this.id,_this.title,_this.cover,_this.desc,const DeepCollectionEquality().hash(_this.episodes),const DeepCollectionEquality().hash(_this.headers),const DeepCollectionEquality().hash(_this.downloaded),_this.detailUrl,_this.package);
+}
 
 @override
 String toString() {
-  return 'DomainDetail(id: $id, title: $title, cover: $cover, desc: $desc, episodes: $episodes, headers: $headers, downloaded: $downloaded, detailUrl: $detailUrl, package: $package)';
+  final _this = this as DomainDetail;
+  return 'DomainDetail(id: ${_this.id}, title: ${_this.title}, cover: ${_this.cover}, desc: ${_this.desc}, episodes: ${_this.episodes}, headers: ${_this.headers}, downloaded: ${_this.downloaded}, detailUrl: ${_this.detailUrl}, package: ${_this.package})';
 }
 
 
@@ -266,16 +271,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainDetail&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.desc, desc) || other.desc == desc)&&const DeepCollectionEquality().equals(other._episodes, _episodes)&&const DeepCollectionEquality().equals(other._headers, _headers)&&const DeepCollectionEquality().equals(other._downloaded, _downloaded)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.package, package) || other.package == package));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainDetail&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.desc, desc) || other.desc == desc)&&const DeepCollectionEquality().equals(other.episodes, _episodes)&&const DeepCollectionEquality().equals(other.headers, _headers)&&const DeepCollectionEquality().equals(other.downloaded, _downloaded)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.package, package) || other.package == package));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,title,cover,desc,const DeepCollectionEquality().hash(_episodes),const DeepCollectionEquality().hash(_headers),const DeepCollectionEquality().hash(_downloaded),detailUrl,package);
+int get hashCode {
+    return Object.hash(runtimeType,id,title,cover,desc,const DeepCollectionEquality().hash(_episodes),const DeepCollectionEquality().hash(_headers),const DeepCollectionEquality().hash(_downloaded),detailUrl,package);
+}
 
 @override
 String toString() {
-  return 'DomainDetail(id: $id, title: $title, cover: $cover, desc: $desc, episodes: $episodes, headers: $headers, downloaded: $downloaded, detailUrl: $detailUrl, package: $package)';
+    return 'DomainDetail(id: $id, title: $title, cover: $cover, desc: $desc, episodes: $episodes, headers: $headers, downloaded: $downloaded, detailUrl: $detailUrl, package: $package)';
 }
 
 
@@ -338,16 +345,21 @@ $DomainEpisodeGroupCopyWith<DomainEpisodeGroup> get copyWith => _$DomainEpisodeG
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainEpisodeGroup&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other.episodes, episodes));
+  final _this = this as DomainEpisodeGroup;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainEpisodeGroup&&(identical(other.name, _this.name) || other.name == _this.name)&&const DeepCollectionEquality().equals(other.episodes, _this.episodes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,const DeepCollectionEquality().hash(episodes));
+int get hashCode {
+  final _this = this as DomainEpisodeGroup;
+  return Object.hash(runtimeType,_this.name,const DeepCollectionEquality().hash(_this.episodes));
+}
 
 @override
 String toString() {
-  return 'DomainEpisodeGroup(name: $name, episodes: $episodes)';
+  final _this = this as DomainEpisodeGroup;
+  return 'DomainEpisodeGroup(name: ${_this.name}, episodes: ${_this.episodes})';
 }
 
 
@@ -545,16 +557,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainEpisodeGroup&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other._episodes, _episodes));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainEpisodeGroup&&(identical(other.name, name) || other.name == name)&&const DeepCollectionEquality().equals(other.episodes, _episodes));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,const DeepCollectionEquality().hash(_episodes));
+int get hashCode {
+    return Object.hash(runtimeType,name,const DeepCollectionEquality().hash(_episodes));
+}
 
 @override
 String toString() {
-  return 'DomainEpisodeGroup(name: $name, episodes: $episodes)';
+    return 'DomainEpisodeGroup(name: $name, episodes: $episodes)';
 }
 
 
@@ -610,16 +624,21 @@ $DomainEpisodeCopyWith<DomainEpisode> get copyWith => _$DomainEpisodeCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainEpisode&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url));
+  final _this = this as DomainEpisode;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainEpisode&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.url, _this.url) || other.url == _this.url));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,url);
+int get hashCode {
+  final _this = this as DomainEpisode;
+  return Object.hash(runtimeType,_this.name,_this.url);
+}
 
 @override
 String toString() {
-  return 'DomainEpisode(name: $name, url: $url)';
+  final _this = this as DomainEpisode;
+  return 'DomainEpisode(name: ${_this.name}, url: ${_this.url})';
 }
 
 
@@ -811,16 +830,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainEpisode&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainEpisode&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,url);
+int get hashCode {
+    return Object.hash(runtimeType,name,url);
+}
 
 @override
 String toString() {
-  return 'DomainEpisode(name: $name, url: $url)';
+    return 'DomainEpisode(name: $name, url: $url)';
 }
 
 

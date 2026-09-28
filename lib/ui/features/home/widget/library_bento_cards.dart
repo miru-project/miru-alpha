@@ -7,6 +7,7 @@ import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/provider/download_provider.dart';
 import 'package:miru_alpha/provider/home/home_view_model.dart';
 import 'package:miru_alpha/ui/features/download/widget/download_tiles.dart';
+import 'package:miru_alpha/utils/core/date_format.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
 class LibraryBentoCards extends ConsumerWidget {
@@ -21,7 +22,7 @@ class LibraryBentoCards extends ConsumerWidget {
         ? homeState.history.first
         : null;
     final historySubtitle = recentHistory != null
-        ? _formatTimeAgo(recentHistory.date)
+        ? formatTimeAgo(recentHistory.date)
         : 'common.no_history'.i18n;
 
     // The download card grows a row per active status while the history card
@@ -50,34 +51,6 @@ class LibraryBentoCards extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  String _formatTimeAgo(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inMinutes < 1) {
-      return 'common.just_now'.i18n;
-    } else if (difference.inHours < 1) {
-      return 'common.minutes_ago'.fill({
-        'minutes': difference.inMinutes.toString(),
-      });
-    } else if (difference.inDays < 1) {
-      return 'common.hours_ago'.fill({'hours': difference.inHours.toString()});
-    } else if (difference.inDays == 1) {
-      return 'common.yesterday'.i18n;
-    } else if (difference.inDays < 7) {
-      return 'common.days_ago'.fill({'days': difference.inDays.toString()});
-    } else if (difference.inDays < 30) {
-      final weeks = (difference.inDays / 7).floor();
-      return 'common.weeks_ago'.fill({'weeks': weeks.toString()});
-    } else if (difference.inDays < 365) {
-      final months = (difference.inDays / 30).floor();
-      return 'common.months_ago'.fill({'months': months.toString()});
-    } else {
-      final years = (difference.inDays / 365).floor();
-      return 'common.years_ago'.fill({'years': years.toString()});
-    }
   }
 }
 

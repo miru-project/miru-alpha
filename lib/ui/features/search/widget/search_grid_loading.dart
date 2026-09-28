@@ -11,7 +11,7 @@ class SearchGridLoadingWidget extends StatelessWidget {
       builder: (context, cons) => MiruGridView(
         scrollController: scrollController,
         mobileGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: cons.maxWidth ~/ 110,
+          crossAxisCount: cons.maxWidth ~/ 190,
           childAspectRatio: 0.6,
         ),
         desktopGridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

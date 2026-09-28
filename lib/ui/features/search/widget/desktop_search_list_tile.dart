@@ -127,19 +127,41 @@ class DesktopSearchListTile extends HookConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
               child: Row(
                 children: [
-                  Row(
-                    children: [
-                      MiruCard(
-                        child: SizedBox.square(
-                          dimension: 40,
-                          child: ext.icon == null
-                              ? Icon(FLucideIcons.toyBrick)
-                              : ImageWidget(imageUrl: ext.icon!),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        MiruCard(
+                          child: SizedBox.square(
+                            dimension: 40,
+                            child: ext.icon == null
+                                ? Icon(FLucideIcons.toyBrick)
+                                : ImageWidget(imageUrl: ext.icon!),
+                          ),
                         ),
-                      ),
-                      SizedBox(width: 20),
-                      Text(ext.name),
-                    ],
+                        SizedBox(width: 20),
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  ext.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (ext.nsfw) ...[
+                                const SizedBox(width: 8),
+                                FBadge(
+                                  variant: .destructive,
+                                  child: Text('extension.nsfw'.i18n),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   if (trailing != null) ...[Spacer(), trailing!],
                 ],

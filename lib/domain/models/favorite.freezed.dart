@@ -29,16 +29,21 @@ $DomainFavoriteCopyWith<DomainFavorite> get copyWith => _$DomainFavoriteCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainFavorite&&(identical(other.id, id) || other.id == id)&&(identical(other.package, package) || other.package == package)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.type, type) || other.type == type)&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.description, description) || other.description == description));
+  final _this = this as DomainFavorite;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainFavorite&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.package, _this.package) || other.package == _this.package)&&(identical(other.detailUrl, _this.detailUrl) || other.detailUrl == _this.detailUrl)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.cover, _this.cover) || other.cover == _this.cover)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.groupId, _this.groupId) || other.groupId == _this.groupId)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.description, _this.description) || other.description == _this.description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,package,detailUrl,title,cover,type,groupId,createdAt,description);
+int get hashCode {
+  final _this = this as DomainFavorite;
+  return Object.hash(runtimeType,_this.id,_this.package,_this.detailUrl,_this.title,_this.cover,_this.type,_this.groupId,_this.createdAt,_this.description);
+}
 
 @override
 String toString() {
-  return 'DomainFavorite(id: $id, package: $package, detailUrl: $detailUrl, title: $title, cover: $cover, type: $type, groupId: $groupId, createdAt: $createdAt, description: $description)';
+  final _this = this as DomainFavorite;
+  return 'DomainFavorite(id: ${_this.id}, package: ${_this.package}, detailUrl: ${_this.detailUrl}, title: ${_this.title}, cover: ${_this.cover}, type: ${_this.type}, groupId: ${_this.groupId}, createdAt: ${_this.createdAt}, description: ${_this.description})';
 }
 
 
@@ -244,16 +249,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainFavorite&&(identical(other.id, id) || other.id == id)&&(identical(other.package, package) || other.package == package)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.type, type) || other.type == type)&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.description, description) || other.description == description));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainFavorite&&(identical(other.id, id) || other.id == id)&&(identical(other.package, package) || other.package == package)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.type, type) || other.type == type)&&(identical(other.groupId, groupId) || other.groupId == groupId)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.description, description) || other.description == description));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,package,detailUrl,title,cover,type,groupId,createdAt,description);
+int get hashCode {
+    return Object.hash(runtimeType,id,package,detailUrl,title,cover,type,groupId,createdAt,description);
+}
 
 @override
 String toString() {
-  return 'DomainFavorite(id: $id, package: $package, detailUrl: $detailUrl, title: $title, cover: $cover, type: $type, groupId: $groupId, createdAt: $createdAt, description: $description)';
+    return 'DomainFavorite(id: $id, package: $package, detailUrl: $detailUrl, title: $title, cover: $cover, type: $type, groupId: $groupId, createdAt: $createdAt, description: $description)';
 }
 
 
@@ -316,16 +323,21 @@ $DomainFavoriteGroupCopyWith<DomainFavoriteGroup> get copyWith => _$DomainFavori
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainFavoriteGroup&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.order, order) || other.order == order)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.icon, icon) || other.icon == icon));
+  final _this = this as DomainFavoriteGroup;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainFavoriteGroup&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.order, _this.order) || other.order == _this.order)&&(identical(other.createdAt, _this.createdAt) || other.createdAt == _this.createdAt)&&(identical(other.icon, _this.icon) || other.icon == _this.icon));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,type,order,createdAt,icon);
+int get hashCode {
+  final _this = this as DomainFavoriteGroup;
+  return Object.hash(runtimeType,_this.id,_this.name,_this.type,_this.order,_this.createdAt,_this.icon);
+}
 
 @override
 String toString() {
-  return 'DomainFavoriteGroup(id: $id, name: $name, type: $type, order: $order, createdAt: $createdAt, icon: $icon)';
+  final _this = this as DomainFavoriteGroup;
+  return 'DomainFavoriteGroup(id: ${_this.id}, name: ${_this.name}, type: ${_this.type}, order: ${_this.order}, createdAt: ${_this.createdAt}, icon: ${_this.icon})';
 }
 
 
@@ -525,16 +537,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainFavoriteGroup&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.order, order) || other.order == order)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.icon, icon) || other.icon == icon));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainFavoriteGroup&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.type, type) || other.type == type)&&(identical(other.order, order) || other.order == order)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.icon, icon) || other.icon == icon));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,type,order,createdAt,icon);
+int get hashCode {
+    return Object.hash(runtimeType,id,name,type,order,createdAt,icon);
+}
 
 @override
 String toString() {
-  return 'DomainFavoriteGroup(id: $id, name: $name, type: $type, order: $order, createdAt: $createdAt, icon: $icon)';
+    return 'DomainFavoriteGroup(id: $id, name: $name, type: $type, order: $order, createdAt: $createdAt, icon: $icon)';
 }
 
 

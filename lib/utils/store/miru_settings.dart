@@ -88,9 +88,32 @@ class MiruSettings {
     SettingKey.recentExtensions: '[]',
     SettingKey.showPageNumber: "false",
     SettingKey.novelReadingMode: "webToon",
+    SettingKey.novelLineHeight: "1.6",
+    SettingKey.novelFontFamily: 'serif',
+    SettingKey.novelTheme: 'midnight',
+    SettingKey.novelMargin: "20.0",
+    SettingKey.novelKeepScreenOn: "true",
+    SettingKey.novelTapToTurnPage: "true",
+    SettingKey.novelVolumeKeysTurnPage: "false",
+    SettingKey.novelBookmarks: "",
     SettingKey.downloadPath: "",
     SettingKey.downloadConcurrent: "3",
     SettingKey.hideMissingDownloads: "true",
+    SettingKey.mangaFitMode: "fitWidth",
+    SettingKey.mangaCanvasBackground: "black",
+    // Brightness defaults to auto: the reader should not take the screen's
+    // brightness over on first open, and manual at 100% is a no-op that only
+    // wins the argument with the system setting. Set it explicitly from the
+    // reader's brightness control when the reader wants a specific value.
+    SettingKey.mangaBrightnessMode: "auto",
+    SettingKey.mangaBrightness: "100",
+    // No gap between pages: a reader page is the content edge to edge, and the
+    // default 12pt drew a black gutter down both sides of every page.
+    SettingKey.mangaPageGap: "0",
+    SettingKey.mangaInvertColors: "false",
+    SettingKey.mangaKeepScreenOn: "true",
+    SettingKey.mangaTapToTurnPage: "true",
+    SettingKey.mangaBookmarks: "",
   };
   static Future<void> _initSettings() async {
     for (final entry in _defaultSettings.entries) {
@@ -107,10 +130,15 @@ class MiruSettings {
 
   /// Test-only: seeds the in-memory settings cache with the default values
   /// without contacting the gRPC backend.
+  /// Re-seeds the cache with the shipped defaults for a fresh test case.
+  ///
+  /// This **replaces** the cache rather than filling in what is missing: reader
+  /// settings are persisted, so a value one test writes would otherwise be
+  /// inherited by the next one and make it pass or fail depending on order.
   static void seedDefaultsForTest() {
-    for (final entry in _defaultSettings.entries) {
-      _settingsCache[entry.key] ??= entry.value;
-    }
+    _settingsCache
+      ..clear()
+      ..addAll(_defaultSettings.map((key, value) => MapEntry(key, '$value')));
   }
 
   static T? getSetting<T>(String key) {
@@ -185,7 +213,41 @@ class MiruSettings {
         return (NovelReadMode.values
                     .where((e) => e.name == value)
                     .firstOrNull ??
-                NovelReadMode.webToon)
+                // Standard, not webtoon: every other mode parser in this switch
+                // falls back to its first value, and a value that cannot be
+                // understood should not silently change the reading mode.
+                NovelReadMode.standard)
+            as T;
+      case const (NovelFontFamily):
+        return (NovelFontFamily.values
+                    .where((e) => e.name == value)
+                    .firstOrNull ??
+                NovelFontFamily.serif)
+            as T;
+      case const (NovelTheme):
+        return (NovelTheme.values
+                    .where((e) => e.name == value)
+                    .firstOrNull ??
+                NovelTheme.midnight)
+            as T;
+      case const (MangaFitMode):
+        return (MangaFitMode.values.where((e) => e.name == value).firstOrNull ??
+                MangaFitMode.fitWidth)
+            as T;
+      case const (MangaCanvasBackground):
+        return (MangaCanvasBackground.values
+                    .where((e) => e.name == value)
+                    .firstOrNull ??
+                MangaCanvasBackground.black)
+            as T;
+      case const (MangaBrightnessMode):
+        return (MangaBrightnessMode.values
+                    .where((e) => e.name == value)
+                    .firstOrNull ??
+                // `auto`, matching the shipped default and the first value of the
+                // enum, so a value that cannot be understood does not silently
+                // take the screen's brightness over.
+                MangaBrightnessMode.auto)
             as T;
       default:
         throw Exception('Unknown $T');
@@ -209,6 +271,19 @@ class SettingKey {
   static const arrowLeft = 'Arrowleft';
   static const arrowRight = 'Arrowright';
   static const mangaReadingMode = 'ReadingMode';
+  // Reader display settings, all persisted as strings by MiruSettings.
+  // Fit mode is a [MangaFitMode] name, canvas a [MangaCanvasBackground] name,
+  // brightness mode a [MangaBrightnessMode] name, brightness/page gap are
+  // integers, the rest are booleans.
+  static const mangaFitMode = 'MangaFitMode';
+  static const mangaCanvasBackground = 'MangaCanvasBackground';
+  static const mangaBrightnessMode = 'MangaBrightnessMode';
+  static const mangaBrightness = 'MangaBrightness';
+  static const mangaPageGap = 'MangaPageGap';
+  static const mangaInvertColors = 'MangaInvertColors';
+  static const mangaKeepScreenOn = 'MangaKeepScreenOn';
+  static const mangaTapToTurnPage = 'MangaTapToTurnPage';
+  static const mangaBookmarks = 'MangaBookmarks';
   static const aniListToken = 'AniListToken';
   static const aniListUserId = 'AniListUserId';
   static const autoTracking = 'AutoTracking';
@@ -237,6 +312,17 @@ class SettingKey {
   static const showDeleteExtensionDialog = "ShowDeleteExtensionDialog";
   static const showPageNumber = 'ShowPageNumber';
   static const novelReadingMode = 'NovelReadingMode';
+  // Novel reader display settings. Reading mode is a [NovelReadMode] name, font
+  // family a [NovelFontFamily] name and paper a [NovelTheme] name; font size,
+  // line height and margin are doubles, the rest are booleans.
+  static const novelLineHeight = 'NovelLineHeight';
+  static const novelFontFamily = 'NovelFontFamily';
+  static const novelTheme = 'NovelTheme';
+  static const novelMargin = 'NovelMargin';
+  static const novelKeepScreenOn = 'NovelKeepScreenOn';
+  static const novelTapToTurnPage = 'NovelTapToTurnPage';
+  static const novelVolumeKeysTurnPage = 'NovelVolumeKeysTurnPage';
+  static const novelBookmarks = 'NovelBookmarks';
   static const downloadPath = 'DownloadPath';
   static const downloadConcurrent = 'downloadConcurrent';
   // When true (default), download entries whose file no longer exists on disk

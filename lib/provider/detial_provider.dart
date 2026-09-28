@@ -162,7 +162,15 @@ class Detial extends _$Detial {
   }
 
   void putHistory(History h) {
-    state = state.copyWith(historyList: [...state.historyList, h]);
+    if (!ref.mounted) return;
+    state = state.copyWith(
+      historyList: [
+        h,
+        ...state.historyList.where(
+          (entry) => entry.package != h.package || entry.url != h.url,
+        ),
+      ],
+    );
   }
 
   void putFavorite(Favorite? f) {

@@ -138,9 +138,6 @@ class SearchGridView extends HookConsumerWidget {
           childAspectRatio: 0.7,
         ),
         itemBuilder: (context, index) {
-          if (isLoading.value && index >= result.length) {
-            return const MiruGridTileLoadingBox();
-          }
           if (result.length > index) {
             return MiruDesktopGridTile(
               onTap: () {
@@ -176,9 +173,6 @@ class SearchGridView extends HookConsumerWidget {
         ),
 
         itemBuilder: (context, index) {
-          if (isLoading.value && index >= result.length) {
-            return const MiruGridTileLoadingBox();
-          }
           if (result.length > index) {
             return MiruMobileTile(
               onTap: () {

@@ -29,16 +29,21 @@ $DomainHistoryItemCopyWith<DomainHistoryItem> get copyWith => _$DomainHistoryIte
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainHistoryItem&&(identical(other.id, id) || other.id == id)&&(identical(other.package, package) || other.package == package)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.episodeIndex, episodeIndex) || other.episodeIndex == episodeIndex)&&(identical(other.episodeTitle, episodeTitle) || other.episodeTitle == episodeTitle)&&(identical(other.watchedDuration, watchedDuration) || other.watchedDuration == watchedDuration)&&(identical(other.totalDuration, totalDuration) || other.totalDuration == totalDuration)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.watchedAt, watchedAt) || other.watchedAt == watchedAt)&&(identical(other.lastPosition, lastPosition) || other.lastPosition == lastPosition));
+  final _this = this as DomainHistoryItem;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainHistoryItem&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.package, _this.package) || other.package == _this.package)&&(identical(other.detailUrl, _this.detailUrl) || other.detailUrl == _this.detailUrl)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.cover, _this.cover) || other.cover == _this.cover)&&(identical(other.episodeIndex, _this.episodeIndex) || other.episodeIndex == _this.episodeIndex)&&(identical(other.episodeTitle, _this.episodeTitle) || other.episodeTitle == _this.episodeTitle)&&(identical(other.watchedDuration, _this.watchedDuration) || other.watchedDuration == _this.watchedDuration)&&(identical(other.totalDuration, _this.totalDuration) || other.totalDuration == _this.totalDuration)&&(identical(other.progress, _this.progress) || other.progress == _this.progress)&&(identical(other.watchedAt, _this.watchedAt) || other.watchedAt == _this.watchedAt)&&(identical(other.lastPosition, _this.lastPosition) || other.lastPosition == _this.lastPosition));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,package,detailUrl,title,cover,episodeIndex,episodeTitle,watchedDuration,totalDuration,progress,watchedAt,lastPosition);
+int get hashCode {
+  final _this = this as DomainHistoryItem;
+  return Object.hash(runtimeType,_this.id,_this.package,_this.detailUrl,_this.title,_this.cover,_this.episodeIndex,_this.episodeTitle,_this.watchedDuration,_this.totalDuration,_this.progress,_this.watchedAt,_this.lastPosition);
+}
 
 @override
 String toString() {
-  return 'DomainHistoryItem(id: $id, package: $package, detailUrl: $detailUrl, title: $title, cover: $cover, episodeIndex: $episodeIndex, episodeTitle: $episodeTitle, watchedDuration: $watchedDuration, totalDuration: $totalDuration, progress: $progress, watchedAt: $watchedAt, lastPosition: $lastPosition)';
+  final _this = this as DomainHistoryItem;
+  return 'DomainHistoryItem(id: ${_this.id}, package: ${_this.package}, detailUrl: ${_this.detailUrl}, title: ${_this.title}, cover: ${_this.cover}, episodeIndex: ${_this.episodeIndex}, episodeTitle: ${_this.episodeTitle}, watchedDuration: ${_this.watchedDuration}, totalDuration: ${_this.totalDuration}, progress: ${_this.progress}, watchedAt: ${_this.watchedAt}, lastPosition: ${_this.lastPosition})';
 }
 
 
@@ -250,16 +255,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainHistoryItem&&(identical(other.id, id) || other.id == id)&&(identical(other.package, package) || other.package == package)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.episodeIndex, episodeIndex) || other.episodeIndex == episodeIndex)&&(identical(other.episodeTitle, episodeTitle) || other.episodeTitle == episodeTitle)&&(identical(other.watchedDuration, watchedDuration) || other.watchedDuration == watchedDuration)&&(identical(other.totalDuration, totalDuration) || other.totalDuration == totalDuration)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.watchedAt, watchedAt) || other.watchedAt == watchedAt)&&(identical(other.lastPosition, lastPosition) || other.lastPosition == lastPosition));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainHistoryItem&&(identical(other.id, id) || other.id == id)&&(identical(other.package, package) || other.package == package)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.episodeIndex, episodeIndex) || other.episodeIndex == episodeIndex)&&(identical(other.episodeTitle, episodeTitle) || other.episodeTitle == episodeTitle)&&(identical(other.watchedDuration, watchedDuration) || other.watchedDuration == watchedDuration)&&(identical(other.totalDuration, totalDuration) || other.totalDuration == totalDuration)&&(identical(other.progress, progress) || other.progress == progress)&&(identical(other.watchedAt, watchedAt) || other.watchedAt == watchedAt)&&(identical(other.lastPosition, lastPosition) || other.lastPosition == lastPosition));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,package,detailUrl,title,cover,episodeIndex,episodeTitle,watchedDuration,totalDuration,progress,watchedAt,lastPosition);
+int get hashCode {
+    return Object.hash(runtimeType,id,package,detailUrl,title,cover,episodeIndex,episodeTitle,watchedDuration,totalDuration,progress,watchedAt,lastPosition);
+}
 
 @override
 String toString() {
-  return 'DomainHistoryItem(id: $id, package: $package, detailUrl: $detailUrl, title: $title, cover: $cover, episodeIndex: $episodeIndex, episodeTitle: $episodeTitle, watchedDuration: $watchedDuration, totalDuration: $totalDuration, progress: $progress, watchedAt: $watchedAt, lastPosition: $lastPosition)';
+    return 'DomainHistoryItem(id: $id, package: $package, detailUrl: $detailUrl, title: $title, cover: $cover, episodeIndex: $episodeIndex, episodeTitle: $episodeTitle, watchedDuration: $watchedDuration, totalDuration: $totalDuration, progress: $progress, watchedAt: $watchedAt, lastPosition: $lastPosition)';
 }
 
 

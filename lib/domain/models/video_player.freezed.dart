@@ -29,16 +29,21 @@ $DomainVideoPlayerStateCopyWith<DomainVideoPlayerState> get copyWith => _$Domain
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainVideoPlayerState&&(identical(other.showSettings, showSettings) || other.showSettings == showSettings)&&(identical(other.showControls, showControls) || other.showControls == showControls)&&(identical(other.isPlaying, isPlaying) || other.isPlaying == isPlaying)&&(identical(other.position, position) || other.position == position)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.speed, speed) || other.speed == speed)&&(identical(other.currentSubtitle, currentSubtitle) || other.currentSubtitle == currentSubtitle)&&const DeepCollectionEquality().equals(other.qualityMap, qualityMap)&&(identical(other.ratio, ratio) || other.ratio == ratio));
+  final _this = this as DomainVideoPlayerState;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainVideoPlayerState&&(identical(other.showSettings, _this.showSettings) || other.showSettings == _this.showSettings)&&(identical(other.showControls, _this.showControls) || other.showControls == _this.showControls)&&(identical(other.isPlaying, _this.isPlaying) || other.isPlaying == _this.isPlaying)&&(identical(other.position, _this.position) || other.position == _this.position)&&(identical(other.duration, _this.duration) || other.duration == _this.duration)&&(identical(other.speed, _this.speed) || other.speed == _this.speed)&&(identical(other.currentSubtitle, _this.currentSubtitle) || other.currentSubtitle == _this.currentSubtitle)&&const DeepCollectionEquality().equals(other.qualityMap, _this.qualityMap)&&(identical(other.ratio, _this.ratio) || other.ratio == _this.ratio));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,showSettings,showControls,isPlaying,position,duration,speed,currentSubtitle,const DeepCollectionEquality().hash(qualityMap),ratio);
+int get hashCode {
+  final _this = this as DomainVideoPlayerState;
+  return Object.hash(runtimeType,_this.showSettings,_this.showControls,_this.isPlaying,_this.position,_this.duration,_this.speed,_this.currentSubtitle,const DeepCollectionEquality().hash(_this.qualityMap),_this.ratio);
+}
 
 @override
 String toString() {
-  return 'DomainVideoPlayerState(showSettings: $showSettings, showControls: $showControls, isPlaying: $isPlaying, position: $position, duration: $duration, speed: $speed, currentSubtitle: $currentSubtitle, qualityMap: $qualityMap, ratio: $ratio)';
+  final _this = this as DomainVideoPlayerState;
+  return 'DomainVideoPlayerState(showSettings: ${_this.showSettings}, showControls: ${_this.showControls}, isPlaying: ${_this.isPlaying}, position: ${_this.position}, duration: ${_this.duration}, speed: ${_this.speed}, currentSubtitle: ${_this.currentSubtitle}, qualityMap: ${_this.qualityMap}, ratio: ${_this.ratio})';
 }
 
 
@@ -250,16 +255,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainVideoPlayerState&&(identical(other.showSettings, showSettings) || other.showSettings == showSettings)&&(identical(other.showControls, showControls) || other.showControls == showControls)&&(identical(other.isPlaying, isPlaying) || other.isPlaying == isPlaying)&&(identical(other.position, position) || other.position == position)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.speed, speed) || other.speed == speed)&&(identical(other.currentSubtitle, currentSubtitle) || other.currentSubtitle == currentSubtitle)&&const DeepCollectionEquality().equals(other._qualityMap, _qualityMap)&&(identical(other.ratio, ratio) || other.ratio == ratio));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainVideoPlayerState&&(identical(other.showSettings, showSettings) || other.showSettings == showSettings)&&(identical(other.showControls, showControls) || other.showControls == showControls)&&(identical(other.isPlaying, isPlaying) || other.isPlaying == isPlaying)&&(identical(other.position, position) || other.position == position)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.speed, speed) || other.speed == speed)&&(identical(other.currentSubtitle, currentSubtitle) || other.currentSubtitle == currentSubtitle)&&const DeepCollectionEquality().equals(other.qualityMap, _qualityMap)&&(identical(other.ratio, ratio) || other.ratio == ratio));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,showSettings,showControls,isPlaying,position,duration,speed,currentSubtitle,const DeepCollectionEquality().hash(_qualityMap),ratio);
+int get hashCode {
+    return Object.hash(runtimeType,showSettings,showControls,isPlaying,position,duration,speed,currentSubtitle,const DeepCollectionEquality().hash(_qualityMap),ratio);
+}
 
 @override
 String toString() {
-  return 'DomainVideoPlayerState(showSettings: $showSettings, showControls: $showControls, isPlaying: $isPlaying, position: $position, duration: $duration, speed: $speed, currentSubtitle: $currentSubtitle, qualityMap: $qualityMap, ratio: $ratio)';
+    return 'DomainVideoPlayerState(showSettings: $showSettings, showControls: $showControls, isPlaying: $isPlaying, position: $position, duration: $duration, speed: $speed, currentSubtitle: $currentSubtitle, qualityMap: $qualityMap, ratio: $ratio)';
 }
 
 
@@ -322,16 +329,21 @@ $DomainVideoQualityCopyWith<DomainVideoQuality> get copyWith => _$DomainVideoQua
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainVideoQuality&&(identical(other.label, label) || other.label == label)&&(identical(other.url, url) || other.url == url));
+  final _this = this as DomainVideoQuality;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainVideoQuality&&(identical(other.label, _this.label) || other.label == _this.label)&&(identical(other.url, _this.url) || other.url == _this.url));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,label,url);
+int get hashCode {
+  final _this = this as DomainVideoQuality;
+  return Object.hash(runtimeType,_this.label,_this.url);
+}
 
 @override
 String toString() {
-  return 'DomainVideoQuality(label: $label, url: $url)';
+  final _this = this as DomainVideoQuality;
+  return 'DomainVideoQuality(label: ${_this.label}, url: ${_this.url})';
 }
 
 
@@ -523,16 +535,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainVideoQuality&&(identical(other.label, label) || other.label == label)&&(identical(other.url, url) || other.url == url));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainVideoQuality&&(identical(other.label, label) || other.label == label)&&(identical(other.url, url) || other.url == url));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,label,url);
+int get hashCode {
+    return Object.hash(runtimeType,label,url);
+}
 
 @override
 String toString() {
-  return 'DomainVideoQuality(label: $label, url: $url)';
+    return 'DomainVideoQuality(label: $label, url: $url)';
 }
 
 
@@ -588,16 +602,21 @@ $DomainSubtitleCopyWith<DomainSubtitle> get copyWith => _$DomainSubtitleCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainSubtitle&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&(identical(other.lang, lang) || other.lang == lang));
+  final _this = this as DomainSubtitle;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainSubtitle&&(identical(other.name, _this.name) || other.name == _this.name)&&(identical(other.url, _this.url) || other.url == _this.url)&&(identical(other.lang, _this.lang) || other.lang == _this.lang));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,url,lang);
+int get hashCode {
+  final _this = this as DomainSubtitle;
+  return Object.hash(runtimeType,_this.name,_this.url,_this.lang);
+}
 
 @override
 String toString() {
-  return 'DomainSubtitle(name: $name, url: $url, lang: $lang)';
+  final _this = this as DomainSubtitle;
+  return 'DomainSubtitle(name: ${_this.name}, url: ${_this.url}, lang: ${_this.lang})';
 }
 
 
@@ -791,16 +810,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainSubtitle&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&(identical(other.lang, lang) || other.lang == lang));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainSubtitle&&(identical(other.name, name) || other.name == name)&&(identical(other.url, url) || other.url == url)&&(identical(other.lang, lang) || other.lang == lang));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,name,url,lang);
+int get hashCode {
+    return Object.hash(runtimeType,name,url,lang);
+}
 
 @override
 String toString() {
-  return 'DomainSubtitle(name: $name, url: $url, lang: $lang)';
+    return 'DomainSubtitle(name: $name, url: $url, lang: $lang)';
 }
 
 

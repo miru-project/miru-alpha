@@ -8,6 +8,7 @@ class FilterExtensionsUseCase {
     ExtensionType typeFilter = ExtensionType.all,
     ExtensionInstallStatus installFilter = ExtensionInstallStatus.all,
     required List<String> installedPackages,
+    bool allowNsfw = true,
   }) {
     List<DomainExtensionRepo> repoResult = repos;
 
@@ -22,6 +23,10 @@ class FilterExtensionsUseCase {
 
     for (final repo in repoResult) {
       var exts = repo.extensions;
+
+      if (!allowNsfw) {
+        exts = exts.where((e) => !e.nsfw).toList();
+      }
 
       if (targetType != null) {
         exts = exts.where((e) => e.type == targetType).toList();
@@ -48,7 +53,8 @@ class FilterExtensionsUseCase {
       if (exts.isNotEmpty ||
           (typeFilter == ExtensionType.all &&
               installFilter == ExtensionInstallStatus.all &&
-              (query == null || query.isEmpty))) {
+              (query == null || query.isEmpty) &&
+              allowNsfw)) {
         filteredRepos.add(
           DomainExtensionRepo(name: repo.name, url: repo.url, extensions: exts),
         );
