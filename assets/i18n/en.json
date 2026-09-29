@@ -3,22 +3,16 @@
     "home": "Home",
     "search": "Search",
     "settings": "Settings",
-    "favorite": {
-      "name": "Favorite",
-      "title": "Favorite",
-      "manage_tags": "Manage Tags",
-      "manage_tags_desc": "Organize your group by creating and managing favorite groups.",
-      "add_new_group": "Add a new favorite group",
-      "enter_group_name": "Enter group name...",
-      "current_groups": "CURRENT GROUPS"
-    },
     "history": "History",
-    "download": "Download",
+    "history_empty": "No history yet",
+    "no_history": "No history",
+    "history_delete_confirm": "Remove this history entry?",
     "library": "Library",
     "your_library": "Your Library",
     "library_description": "Pick up where you left off or manage your downloads.",
     "wip": "WIP",
     "all": "All",
+    "manage": "Manage",
     "type": "Type",
     "status": "Status",
     "confirm": "Confirm",
@@ -31,6 +25,11 @@
     "warning": "Warning",
     "back": "Back",
     "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "refresh_failed_using_cache": "Refresh failed. Using cached data.",
+    "force_refresh_success": "Force refresh successful. Data updated.",
+    "force_refresh_failed_using_cache": "Force refresh failed. Using cached data.",
+    "retry_all": "Retry All",
     "load_more": "Load More",
     "page": "page",
     "date": "Date",
@@ -73,16 +72,13 @@
     "select_tags_groups": "Select tags/groups",
     "custom_context_menu": "Custom Context Menu",
     "search_globally": "Search Globally",
+    "filters": "Filters",
     "search_by_keywords": "Search by Keywords",
     "search_for_favorites": "Search for Favorites",
     "search_for_histories": "Search for Histories",
     "active_tasks": "Active Tasks",
-    "downloads_history": "Download History",
-    "no_download_history": "No download history",
-    "no_active_downloads": "No active downloads",
     "no_results": "No Results Found",
     "no_licenses_found": "No licenses found",
-    "error_loading_downloads": "Error loading downloads",
     "remove_history": "Remove History",
     "remove_favorite": "Remove Favorite",
     "package_not_found": "Package not found",
@@ -96,7 +92,59 @@
     "days_ago": "{days} days ago",
     "weeks_ago": "{weeks} weeks ago",
     "months_ago": "{months} months ago",
-    "years_ago": "{years} years ago"
+    "years_ago": "{years} years ago",
+    "collection": "Collection"
+  },
+  "history_tools": {
+    "clear_all": "Clear All",
+    "clear_all_confirm": "Clear all watch history?",
+    "remove_item_confirm": "Remove this history item?",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "older": "Older",
+    "resume": "Resume",
+    "episode": "Episode",
+    "watch": "Watch",
+    "go_to_detail": "Go to detail",
+    "detail_missing": "Could not load this title from your library",
+    "episode_unavailable": "That episode is no longer available from this extension"
+  },
+  "download_tools": {
+    "pause": "Pause",
+    "resume": "Resume",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "open_file": "Open File",
+    "delete_file": "Delete File",
+    "delete_confirm": "Delete this download?",
+    "speed": "Speed",
+    "size": "Size",
+    "downloading": "Downloading",
+    "completed_section": "Completed",
+    "active_section": "Active",
+    "failed_section": "Failed"
+  },
+  "favorite": {
+    "name": "Favorite",
+    "title": "Favorite",
+    "manage_tags": "Manage Tags",
+    "manage_tags_desc": "Organize your group by creating and managing favorite groups.",
+    "add_new_group": "Add a new favorite group",
+    "enter_group_name": "Enter group name...",
+    "current_groups": "CURRENT GROUPS",
+    "groups": "Groups",
+    "new_group": "New Group",
+    "create_group": "Create Group",
+    "delete_group": "Delete Group",
+    "delete_group_confirm": "Delete this group and all its favorites?",
+    "remove_favorite_confirm": "Remove this item from favorites?",
+    "all_favorites": "All",
+    "select_groups": "Select Groups",
+    "select_groups_desc": "Choose which favorite groups to filter by",
+    "filter_mode": "Filter Mode",
+    "and": "AND",
+    "or": "OR",
+    "all-tags": "All tags"
   },
   "media": {
     "episode": {
@@ -126,9 +174,6 @@
       "settings_placeholder_title": "Settings",
       "settings_placeholder_body": "No settings available"
     },
-    "download_started": "Download started",
-    "failed_to_start_download": "Failed to start download",
-    "downloaded": "Downloaded",
     "failed_to_fetch_video_url": "Failed to fetch video URL",
     "select_resolution": "Select Resolution",
     "no_description": "Currently no description ... ",
@@ -187,7 +232,19 @@
     "cookie_clear": "Clear Cookie",
     "cookie_clear_description": "Clear extension cookies",
     "search_with_pinned_extensions": "Search with pinned extensions",
-    "setting_wip": "Extension settings (WIP)"
+    "setting_wip": "Extension settings (WIP)",
+    "history": "History",
+    "search_across_extensions": "Search across extensions...",
+    "recent_searches": "Recent Searches",
+    "frequent_extensions": "Frequently Used Extensions",
+    "content_from_extensions": "Content is gathered from your active third-party extensions.",
+    "no_filter": "This extension has no filters.",
+    "source": "Source: {name}",
+    "clear": "Clear",
+    "apply": "Apply Filters",
+    "all": "All",
+    "results_count": "{count} results",
+    "search_results_of": "Search results of {query}"
   },
   "tracking": {
     "name": "Tracking",
@@ -234,7 +291,7 @@
         "hint": "Enter your TMDB Api key"
       },
       "allow_nsfw": {
-        "name": "Allow NSFW",
+        "name": "Enable NSFW Content",
         "information": "Show NSFW extensions and content"
       },
       "appearance": {
@@ -251,6 +308,18 @@
       "accent_color": {
         "name": "Accent Color",
         "information": "Change the application accent color"
+      },
+      "base_color": {
+        "name": "Base Color",
+        "information": "Change the neutral base palette (background, surface, text)"
+      },
+      "primary_color": {
+        "name": "Primary Color",
+        "information": "Change the primary accent color"
+      },
+      "base_color_tint_strength": {
+        "name": "Base Color Tint",
+        "information": "How strongly the base hue tints the background (0% = pure white)"
       },
       "others": {
         "name": "Others",
@@ -274,16 +343,32 @@
       },
       "en": "English",
       "zh": "Chinese",
-      "zinc": "Zinc",
+      "none": "None (use base)",
       "neutral": "Neutral",
-      "slate": "Slate",
+      "stone": "Stone",
+      "zinc": "Zinc",
+      "mauve": "Mauve",
+      "olive": "Olive",
+      "mist": "Mist",
+      "taupe": "Taupe",
+      "amber": "Amber",
+      "blue": "Blue",
+      "cyan": "Cyan",
+      "emerald": "Emerald",
+      "fuchsia": "Fuchsia",
+      "green": "Green",
+      "indigo": "Indigo",
+      "lime": "Lime",
+      "orange": "Orange",
+      "pink": "Pink",
+      "purple": "Purple",
       "red": "Red",
       "rose": "Rose",
-      "orange": "Orange",
-      "green": "Green",
-      "blue": "Blue",
-      "yellow": "Yellow",
-      "violet": "Violet"
+      "sky": "Sky",
+      "slate": "Slate",
+      "teal": "Teal",
+      "violet": "Violet",
+      "yellow": "Yellow"
     },
     "general": {
       "name": "General Settings",
@@ -322,10 +407,120 @@
     "download_directory": "Download Directory",
     "select_download_directory": "Please select a target directory for your downloads. On Android, this will use the Storage Access Framework.",
     "select_directory": "Select Directory",
-    "select_download_directory_tip": "Select Download Directory"
+    "select_download_directory_tip": "Select Download Directory",
+    "logging": {
+      "name": "Logging & Crash",
+      "information": "Export logs and capture crashes",
+      "capture": {
+        "name": "Crash Capture",
+        "information": ""
+      },
+      "capture_crash": {
+        "name": "Capture crashes",
+        "information": "Record uncaught errors to a dedicated crash log"
+      },
+      "save_log": {
+        "name": "Save logs to file",
+        "information": "Persist runtime logs to disk"
+      },
+      "export": {
+        "name": "Export",
+        "information": ""
+      },
+      "export_alpha": {
+        "name": "Export miru_alpha log",
+        "information": "Flutter / Dart runtime log"
+      },
+      "export_core": {
+        "name": "Export miru_core log",
+        "information": "Go backend log"
+      },
+      "export_core_crash": {
+        "name": "Export miru_core crash log",
+        "information": "Go backend panics and fatal errors"
+      },
+      "export_crash": {
+        "name": "Export crash log",
+        "information": "Captured uncaught errors"
+      },
+      "export_all": {
+        "name": "Export all logs",
+        "information": "Bundle every log into one file"
+      },
+      "export_title": "Export log file",
+      "share_text": "Miru crash / runtime log",
+      "exported": "Log exported",
+      "export_failed": "Failed to export log",
+      "file_missing": "Log file not found"
+    }
   },
   "reader": {
     "manga": {
+      "back": "Back",
+      "bookmark": "Bookmark",
+      "chapters": "Chapters",
+      "chapters_title": "Chapters",
+      "settings": "Reader Settings",
+      "previous": "Prev",
+      "next": "Next",
+      "page": "Page",
+      "no_chapters": "No chapters",
+      "filter_chapters": "Filter by name...",
+      "brightness": "Page Brightness",
+      "brightness_options": {
+        "auto": "Auto",
+        "manual": "Manual"
+      },
+      "page_gap": "Page Gap",
+      "canvas_background": "Canvas Background",
+      "fit_mode": "Image Fitting",
+      "tap_to_toggle_controls": "Tap center to toggle controls",
+      "invert_colors": {
+        "name": "Invert Colors",
+        "hint": "Night reading inversion filter"
+      },
+      "keep_screen_on": {
+        "name": "Keep Screen On",
+        "hint": "Prevent display sleep timeout"
+      },
+      "tap_to_turn_page": {
+        "name": "Tap zones to turn page",
+        "hint": "Touch left/right edges for navigation"
+      },
+      "apply_defaults": "Apply Defaults",
+      "order": {
+        "ascending": "Ascending",
+        "descending": "Descending"
+      },
+      "chapters_available": "{count} chapters available",
+      "resume": "Resume",
+      "add_bookmark": "Add Bookmark",
+      "add_bookmark_added": "Bookmarked",
+      "jump": "Jump",
+      "jump_hint": "Jump to chapter number",
+      "volume": "Volume",
+      "read_mode": {
+        "name": "Read Mode",
+        "information": "Change the reading direction",
+        "standard": "Left to Right",
+        "rightToLeft": "Right to Left",
+        "webToon": "Continuous",
+        "short": {
+          "standard": "L to R",
+          "rightToLeft": "R to L",
+          "webToon": "Webtoon"
+        }
+      },
+      "fit_options": {
+        "fitWidth": "Fit Width",
+        "fitHeight": "Fit Height",
+        "original": "Original"
+      },
+      "canvas_options": {
+        "black": "Black",
+        "darkGray": "Dark Gray",
+        "light": "White"
+      },
       "alignment_settings": {
         "name": "Alignment Settings",
         "information": ""
@@ -338,13 +533,8 @@
         "name": "General Settings",
         "information": ""
       },
-      "read_mode": {
-        "name": "Read Mode",
-        "information": "Change the reading direction",
-        "standard": "Standard",
-        "rightToLeft": "Right to Left",
-        "webToon": "WebToon"
-      }
+      "reading": "Reading",
+      "new": "New"
     },
     "novel": {
       "alignment_settings": {
@@ -361,7 +551,7 @@
       },
       "font_size": {
         "name": "Font Size",
-        "information": ""
+        "information": "Typography"
       },
       "line_height": {
         "name": "Line Height",
@@ -378,7 +568,46 @@
         "rightToLeft": "Right to Left",
         "webToon": "WebToon",
         "rightToLeftFlip": "Right to Left (Flip)",
-        "standardFlip": "Standard (Flip)"
+        "standardFlip": "Standard (Flip)",
+        "short": {
+          "standard": "Paged",
+          "webToon": "Continuous",
+          "doubleColumn": "Double Col"
+        }
+      },
+      "chapter": "Chapter",
+      "chapters": "Chapters",
+      "short_chapter": "Ch.",
+      "previous": "Previous",
+      "next": "Next",
+      "line": "Line",
+      "page": "Page",
+      "settings": "Reader Settings",
+      "apply_defaults": "Apply defaults",
+      "typography": "Typography",
+      "theme": {
+        "name": "Theme",
+        "midnight": "Midnight",
+        "charcoal": "Charcoal",
+        "sepia": "Sepia",
+        "paper": "Paper"
+      },
+      "experience": "Reading Experience",
+      "keep_screen_on": {
+        "name": "Keep Screen On",
+        "hint": "Prevent display sleep while reading"
+      },
+      "tap_to_turn_page": {
+        "name": "Tap zones to turn page",
+        "hint": "Touch the edges to navigate"
+      },
+      "volume_keys": {
+        "name": "Volume keys turn pages",
+        "hint": "Use the hardware volume rocker"
+      },
+      "margin": {
+        "name": "Margins",
+        "hint": "Space around the text column"
       }
     }
   },
@@ -391,5 +620,65 @@
     "weeks_ago": "{weeks} weeks ago",
     "months_ago": "{months} months ago",
     "years_ago": "{years} years ago"
+  },
+  "download": {
+    "name": "Download",
+    "status": {
+      "queued": "Queued",
+      "downloading": "Downloading",
+      "paused": "Paused",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "converting": "Converting",
+      "unknown": "Unknown"
+    },
+    "downloads_history": "Download History",
+    "no_download_history": "No download history",
+    "no_active_downloads": "No active downloads",
+    "error_loading_downloads": "Error loading downloads",
+    "download_started": "Download started",
+    "failed_to_start_download": "Failed to start download",
+    "convert_failed": "Failed to convert {title} to MP4",
+    "downloaded": "Downloaded",
+    "max_concurrent": "Max concurrent downloads",
+    "show_missing": "Show missing files ({count})",
+    "hide_missing": "Hide missing files",
+    "drag_to_reorder_tip": "Drag to reorder. Top = higher priority.",
+    "all_downloads": "All Downloads",
+    "series": "Series",
+    "movies": "Movies",
+    "delete_all_finished": "Delete All Finished",
+    "device_storage": "Device Storage",
+    "temp": "Temp",
+    "storage_used": "{used} of {total} used",
+    "storage_hint": "You have enough space for approximately {count} more episodes in High Definition.",
+    "in_progress": "In Progress",
+    "path_not_set": "Download path not set",
+    "active_count": "{count} active",
+    "no_completed_downloads": "No completed downloads",
+    "end_of_list": "No more downloads",
+    "error_reason": "Reason: {reason}",
+    "file_missing": "File not found on disk",
+    "delete_title": "Delete download",
+    "delete_message": "What should happen to “{title}”?",
+    "delete_file_option": "Delete file and remove from list",
+    "remove_record_option": "Remove from list only",
+    "delete_file_failed": "Could not delete the file for {title}",
+    "open_folder_failed": "Could not open the download folder",
+    "delete_record_failed": "Could not remove {title} from the list",
+    "finished_toast": "Finished downloading {title}",
+    "failed_toast": "Failed to download {title}: {reason}"
+  },
+  "languages": {
+    "name": "Languages"
+  },
+  "detail": {
+    "previous": "Previous",
+    "next": "Next",
+    "error": {
+      "network": "Network error. Check your connection.",
+      "server": "Server error. Please try again later."
+    }
   }
 }

@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_hls_parser/flutter_hls_parser.dart';
-import 'package:miru_alpha/miru_core/network.dart';
+import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 
 Future<Map<String, String>> getQuality(
@@ -11,7 +11,7 @@ Future<Map<String, String>> getQuality(
   Map<String, dynamic> headers,
 ) async {
   final defaultRes = <String, String>{"": url};
-  final response = await dio.get(
+  final response = await MiruRequest.get(
     url,
     options: Options(headers: headers, responseType: ResponseType.stream),
   );

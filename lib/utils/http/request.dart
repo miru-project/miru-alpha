@@ -45,4 +45,15 @@ class MiruRequest {
   static Uri proxyUrl(String url) {
     return proxyBaseUrl.resolve(Uri.encodeComponent(url));
   }
+
+  static Future<void> download(String url, String savePath) async {
+    await _dio.download(proxyUrl(url).toString(), savePath);
+  }
+
+  /// Downloads [url] directly without going through the proxy.
+  /// Use this for user-supplied URLs (e.g. extension imports) that
+  /// should be fetched as-is.
+  static Future<void> rawDownload(String url, String savePath) async {
+    await _dio.download(url, savePath);
+  }
 }

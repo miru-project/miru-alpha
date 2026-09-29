@@ -42,7 +42,7 @@ final class HistoryPageNotifierProvider
 }
 
 String _$historyPageNotifierHash() =>
-    r'503e6eb86a086ebb3a687421617f755e62bd897d';
+    r'8de18e2333d9cd3cf9d731b5fb23600b5b329ab1';
 
 abstract class _$HistoryPageNotifier extends $Notifier<HistoryPageState> {
   HistoryPageState build();

@@ -4,6 +4,7 @@ import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/network/github_network.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/utils/core/version_util.dart';
+import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'extension_page_notifier_provider.g.dart';
 
@@ -106,8 +107,15 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
 
     List<ExtensionRepo> finalResult = [];
 
+    // NSFW extensions stay hidden unless the user enabled them in settings.
+    final allowNsfw = MiruSettings.getSettingSync<bool>(SettingKey.enableNSFW);
+
     for (var repo in repoResult) {
       var exts = repo.extensions;
+
+      if (!allowNsfw) {
+        exts = exts.where((e) => !e.isNsfw).toList();
+      }
 
       if (cacheType.isNotEmpty && cacheType != 'ALL') {
         exts = exts.where((e) => e.type == cacheType.toLowerCase()).toList();

@@ -16,6 +16,3 @@ runner-build-watch:
 	@echo "Building runner..."
 	dart run build_runner watch --delete-conflicting-outputs
 	@echo "Runner built!"
-# build android shared library
-build-android:
-	cd src/miru_core/miru-core/binary && gomobile bind -tags nosqlite -ldflags="-s -w -checklinkname=0" -o ../../android/libmiru-core.aar -target=android -androidapi 28 

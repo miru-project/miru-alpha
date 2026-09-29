@@ -42,7 +42,7 @@ final class FavoritePageNotifierProvider
 }
 
 String _$favoritePageNotifierHash() =>
-    r'b6b2cd1b22bdbb9228f51fcefa68450bc47d2ccc';
+    r'02284a492df08c724a04a6e4bde2a8aebdc9e133';
 
 abstract class _$FavoritePageNotifier extends $Notifier<FavoritePageState> {
   FavoritePageState build();

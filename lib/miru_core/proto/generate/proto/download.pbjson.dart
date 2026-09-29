@@ -156,12 +156,27 @@ const DownloadRequest$json = {
       '6': '.miru.DownloadRequest.HeadersEntry',
       '10': 'headers'
     },
-    {'1': 'media_type', '3': 4, '4': 1, '5': 9, '10': 'mediaType'},
+    {
+      '1': 'media_type',
+      '3': 4,
+      '4': 1,
+      '5': 14,
+      '6': '.miru.DownloadMediaType',
+      '10': 'mediaType'
+    },
     {'1': 'package', '3': 5, '4': 1, '5': 9, '10': 'package'},
     {'1': 'key', '3': 6, '4': 1, '5': 9, '10': 'key'},
     {'1': 'title', '3': 7, '4': 1, '5': 9, '10': 'title'},
     {'1': 'detail_url', '3': 8, '4': 1, '5': 9, '10': 'detailUrl'},
     {'1': 'watch_url', '3': 9, '4': 1, '5': 9, '10': 'watchUrl'},
+    {
+      '1': 'category',
+      '3': 10,
+      '4': 1,
+      '5': 14,
+      '6': '.miru.DownloadCategory',
+      '10': 'category'
+    },
   ],
   '3': [DownloadRequest_HeadersEntry$json],
 };
@@ -180,11 +195,12 @@ const DownloadRequest_HeadersEntry$json = {
 final $typed_data.Uint8List downloadRequestDescriptor = $convert.base64Decode(
     'Cg9Eb3dubG9hZFJlcXVlc3QSEAoDdXJsGAEgASgJUgN1cmwSIwoNZG93bmxvYWRfcGF0aBgCIA'
     'EoCVIMZG93bmxvYWRQYXRoEjwKB2hlYWRlcnMYAyADKAsyIi5taXJ1LkRvd25sb2FkUmVxdWVz'
-    'dC5IZWFkZXJzRW50cnlSB2hlYWRlcnMSHQoKbWVkaWFfdHlwZRgEIAEoCVIJbWVkaWFUeXBlEh'
-    'gKB3BhY2thZ2UYBSABKAlSB3BhY2thZ2USEAoDa2V5GAYgASgJUgNrZXkSFAoFdGl0bGUYByAB'
-    'KAlSBXRpdGxlEh0KCmRldGFpbF91cmwYCCABKAlSCWRldGFpbFVybBIbCgl3YXRjaF91cmwYCS'
-    'ABKAlSCHdhdGNoVXJsGjoKDEhlYWRlcnNFbnRyeRIQCgNrZXkYASABKAlSA2tleRIUCgV2YWx1'
-    'ZRgCIAEoCVIFdmFsdWU6AjgB');
+    'dC5IZWFkZXJzRW50cnlSB2hlYWRlcnMSNgoKbWVkaWFfdHlwZRgEIAEoDjIXLm1pcnUuRG93bm'
+    'xvYWRNZWRpYVR5cGVSCW1lZGlhVHlwZRIYCgdwYWNrYWdlGAUgASgJUgdwYWNrYWdlEhAKA2tl'
+    'eRgGIAEoCVIDa2V5EhQKBXRpdGxlGAcgASgJUgV0aXRsZRIdCgpkZXRhaWxfdXJsGAggASgJUg'
+    'lkZXRhaWxVcmwSGwoJd2F0Y2hfdXJsGAkgASgJUgh3YXRjaFVybBIyCghjYXRlZ29yeRgKIAEo'
+    'DjIWLm1pcnUuRG93bmxvYWRDYXRlZ29yeVIIY2F0ZWdvcnkaOgoMSGVhZGVyc0VudHJ5EhAKA2'
+    'tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGAIgASgJUgV2YWx1ZToCOAE=');
 
 @$core.Deprecated('Use downloadResponseDescriptor instead')
 const DownloadResponse$json = {
@@ -465,12 +481,157 @@ final $typed_data.Uint8List addMagnetResponseDescriptor = $convert.base64Decode(
     'ChFBZGRNYWduZXRSZXNwb25zZRIbCglpbmZvX2hhc2gYASABKAlSCGluZm9IYXNoEh8KC2RldG'
     'FpbF9qc29uGAIgASgJUgpkZXRhaWxKc29uEhQKBWZpbGVzGAMgAygJUgVmaWxlcw==');
 
+@$core.Deprecated('Use storageStatsDescriptor instead')
+const StorageStats$json = {
+  '1': 'StorageStats',
+  '2': [
+    {'1': 'video_bytes', '3': 1, '4': 1, '5': 3, '10': 'videoBytes'},
+    {'1': 'manga_bytes', '3': 2, '4': 1, '5': 3, '10': 'mangaBytes'},
+    {'1': 'novel_bytes', '3': 3, '4': 1, '5': 3, '10': 'novelBytes'},
+    {'1': 'temp_bytes', '3': 4, '4': 1, '5': 3, '10': 'tempBytes'},
+    {'1': 'total_bytes', '3': 5, '4': 1, '5': 3, '10': 'totalBytes'},
+  ],
+};
+
+/// Descriptor for `StorageStats`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List storageStatsDescriptor = $convert.base64Decode(
+    'CgxTdG9yYWdlU3RhdHMSHwoLdmlkZW9fYnl0ZXMYASABKANSCnZpZGVvQnl0ZXMSHwoLbWFuZ2'
+    'FfYnl0ZXMYAiABKANSCm1hbmdhQnl0ZXMSHwoLbm92ZWxfYnl0ZXMYAyABKANSCm5vdmVsQnl0'
+    'ZXMSHQoKdGVtcF9ieXRlcxgEIAEoA1IJdGVtcEJ5dGVzEh8KC3RvdGFsX2J5dGVzGAUgASgDUg'
+    'p0b3RhbEJ5dGVz');
+
+@$core.Deprecated('Use getStorageStatsRequestDescriptor instead')
+const GetStorageStatsRequest$json = {
+  '1': 'GetStorageStatsRequest',
+  '2': [
+    {'1': 'download_path', '3': 1, '4': 1, '5': 9, '10': 'downloadPath'},
+  ],
+};
+
+/// Descriptor for `GetStorageStatsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getStorageStatsRequestDescriptor =
+    $convert.base64Decode(
+        'ChZHZXRTdG9yYWdlU3RhdHNSZXF1ZXN0EiMKDWRvd25sb2FkX3BhdGgYASABKAlSDGRvd25sb2'
+        'FkUGF0aA==');
+
+@$core.Deprecated('Use getStorageStatsResponseDescriptor instead')
+const GetStorageStatsResponse$json = {
+  '1': 'GetStorageStatsResponse',
+  '2': [
+    {
+      '1': 'stats',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.StorageStats',
+      '10': 'stats'
+    },
+  ],
+};
+
+/// Descriptor for `GetStorageStatsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getStorageStatsResponseDescriptor =
+    $convert.base64Decode(
+        'ChdHZXRTdG9yYWdlU3RhdHNSZXNwb25zZRIoCgVzdGF0cxgBIAEoCzISLm1pcnUuU3RvcmFnZV'
+        'N0YXRzUgVzdGF0cw==');
+
+@$core.Deprecated('Use setDownloadPriorityRequestDescriptor instead')
+const SetDownloadPriorityRequest$json = {
+  '1': 'SetDownloadPriorityRequest',
+  '2': [
+    {'1': 'task_id', '3': 1, '4': 1, '5': 5, '10': 'taskId'},
+    {'1': 'priority', '3': 2, '4': 1, '5': 5, '10': 'priority'},
+  ],
+};
+
+/// Descriptor for `SetDownloadPriorityRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDownloadPriorityRequestDescriptor =
+    $convert.base64Decode(
+        'ChpTZXREb3dubG9hZFByaW9yaXR5UmVxdWVzdBIXCgd0YXNrX2lkGAEgASgFUgZ0YXNrSWQSGg'
+        'oIcHJpb3JpdHkYAiABKAVSCHByaW9yaXR5');
+
+@$core.Deprecated('Use setDownloadPriorityResponseDescriptor instead')
+const SetDownloadPriorityResponse$json = {
+  '1': 'SetDownloadPriorityResponse',
+  '2': [
+    {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `SetDownloadPriorityResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDownloadPriorityResponseDescriptor =
+    $convert.base64Decode(
+        'ChtTZXREb3dubG9hZFByaW9yaXR5UmVzcG9uc2USGAoHbWVzc2FnZRgBIAEoCVIHbWVzc2FnZQ'
+        '==');
+
+@$core.Deprecated('Use setDownloadConcurrentRequestDescriptor instead')
+const SetDownloadConcurrentRequest$json = {
+  '1': 'SetDownloadConcurrentRequest',
+  '2': [
+    {'1': 'max_concurrent', '3': 1, '4': 1, '5': 5, '10': 'maxConcurrent'},
+  ],
+};
+
+/// Descriptor for `SetDownloadConcurrentRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDownloadConcurrentRequestDescriptor =
+    $convert.base64Decode(
+        'ChxTZXREb3dubG9hZENvbmN1cnJlbnRSZXF1ZXN0EiUKDm1heF9jb25jdXJyZW50GAEgASgFUg'
+        '1tYXhDb25jdXJyZW50');
+
+@$core.Deprecated('Use setDownloadConcurrentResponseDescriptor instead')
+const SetDownloadConcurrentResponse$json = {
+  '1': 'SetDownloadConcurrentResponse',
+  '2': [
+    {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `SetDownloadConcurrentResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List setDownloadConcurrentResponseDescriptor =
+    $convert.base64Decode(
+        'Ch1TZXREb3dubG9hZENvbmN1cnJlbnRSZXNwb25zZRIYCgdtZXNzYWdlGAEgASgJUgdtZXNzYW'
+        'dl');
+
+@$core.Deprecated('Use reorderDownloadsRequestDescriptor instead')
+const ReorderDownloadsRequest$json = {
+  '1': 'ReorderDownloadsRequest',
+  '2': [
+    {'1': 'ordered_task_ids', '3': 1, '4': 3, '5': 5, '10': 'orderedTaskIds'},
+  ],
+};
+
+/// Descriptor for `ReorderDownloadsRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List reorderDownloadsRequestDescriptor =
+    $convert.base64Decode(
+        'ChdSZW9yZGVyRG93bmxvYWRzUmVxdWVzdBIoChBvcmRlcmVkX3Rhc2tfaWRzGAEgAygFUg5vcm'
+        'RlcmVkVGFza0lkcw==');
+
+@$core.Deprecated('Use reorderDownloadsResponseDescriptor instead')
+const ReorderDownloadsResponse$json = {
+  '1': 'ReorderDownloadsResponse',
+  '2': [
+    {'1': 'message', '3': 1, '4': 1, '5': 9, '10': 'message'},
+  ],
+};
+
+/// Descriptor for `ReorderDownloadsResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List reorderDownloadsResponseDescriptor =
+    $convert.base64Decode(
+        'ChhSZW9yZGVyRG93bmxvYWRzUmVzcG9uc2USGAoHbWVzc2FnZRgBIAEoCVIHbWVzc2FnZQ==');
+
 @$core.Deprecated('Use updateDownloadStatusRequestDescriptor instead')
 const UpdateDownloadStatusRequest$json = {
   '1': 'UpdateDownloadStatusRequest',
   '2': [
     {'1': 'task_id', '3': 1, '4': 1, '5': 5, '10': 'taskId'},
-    {'1': 'status', '3': 2, '4': 1, '5': 9, '10': 'status'},
+    {
+      '1': 'status',
+      '3': 2,
+      '4': 1,
+      '5': 14,
+      '6': '.miru.DownloadStatus',
+      '10': 'status'
+    },
     {
       '1': 'save_path',
       '3': 3,
@@ -480,18 +641,20 @@ const UpdateDownloadStatusRequest$json = {
       '10': 'savePath',
       '17': true
     },
+    {'1': 'error', '3': 4, '4': 1, '5': 9, '9': 1, '10': 'error', '17': true},
   ],
   '8': [
     {'1': '_save_path'},
+    {'1': '_error'},
   ],
 };
 
 /// Descriptor for `UpdateDownloadStatusRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List updateDownloadStatusRequestDescriptor =
-    $convert.base64Decode(
-        'ChtVcGRhdGVEb3dubG9hZFN0YXR1c1JlcXVlc3QSFwoHdGFza19pZBgBIAEoBVIGdGFza0lkEh'
-        'YKBnN0YXR1cxgCIAEoCVIGc3RhdHVzEiAKCXNhdmVfcGF0aBgDIAEoCUgAUghzYXZlUGF0aIgB'
-        'AUIMCgpfc2F2ZV9wYXRo');
+final $typed_data.Uint8List updateDownloadStatusRequestDescriptor = $convert.base64Decode(
+    'ChtVcGRhdGVEb3dubG9hZFN0YXR1c1JlcXVlc3QSFwoHdGFza19pZBgBIAEoBVIGdGFza0lkEi'
+    'wKBnN0YXR1cxgCIAEoDjIULm1pcnUuRG93bmxvYWRTdGF0dXNSBnN0YXR1cxIgCglzYXZlX3Bh'
+    'dGgYAyABKAlIAFIIc2F2ZVBhdGiIAQESGQoFZXJyb3IYBCABKAlIAVIFZXJyb3KIAQFCDAoKX3'
+    'NhdmVfcGF0aEIICgZfZXJyb3I=');
 
 @$core.Deprecated('Use updateDownloadStatusResponseDescriptor instead')
 const UpdateDownloadStatusResponse$json = {

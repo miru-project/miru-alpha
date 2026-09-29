@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:code_forge/code_forge.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:marionette_flutter/marionette_flutter.dart';
+import 'package:marionette_logging/marionette_logging.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
@@ -15,6 +17,7 @@ import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/utils/theme/miru_themes.dart';
 import 'package:miru_alpha/miru_core/event_service.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/utils/core/log.dart';
@@ -22,29 +25,44 @@ import 'package:miru_alpha/utils/core/miru_directory.dart';
 import 'package:miru_alpha/utils/download/ffmpeg_util.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/router/router_util.dart';
-import 'package:miru_alpha/widgets/core/toast.dart';
-import 'package:miru_alpha/widgets/error.dart';
+import 'package:miru_alpha/ui/core/core/toast.dart';
+import 'package:miru_alpha/ui/core/error.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
 
 void main() async {
   runZonedGuarded<void>(
     () async {
-      WidgetsFlutterBinding.ensureInitialized();
+      if (kDebugMode) {
+        MarionetteBinding.ensureInitialized(
+          MarionetteConfiguration(logCollector: LoggingLogCollector()),
+        );
+      } else {
+        WidgetsFlutterBinding.ensureInitialized();
+      }
       await MiruDirectory.ensureInitialized();
       MiruLog.ensureInitialized();
 
-      bool errPrint(Object error, StackTrace stack) {
+      bool errPrint(
+        Object error,
+        StackTrace stack, [
+        String source = 'platform-dispatcher',
+      ]) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showSimpleToast(error.toString());
         });
-        logger.severe('Uncaught error: $error');
+        MiruLog.recordCrash(error, stack, source: source);
+        logger.severe('Uncaught error [$source]: $error');
         logger.severe(stack.toString());
         return false;
       }
 
       Widget errFunc(FlutterErrorDetails details) {
-        errPrint(details.exception, details.stack ?? StackTrace.empty);
+        errPrint(
+          details.exception,
+          details.stack ?? StackTrace.empty,
+          'flutter-error',
+        );
         return ErrorDisplay(
           err: details.exception,
           stack: details.stack ?? StackTrace.current,
@@ -100,7 +118,7 @@ void main() async {
         DeviceOrientation.landscapeRight,
       ]);
       SystemChrome.setEnabledSystemUIMode(.immersive);
-
+      await RustLib.init();
       runApp(
         ProviderScope(
           retry: (retryCount, error) => null,
@@ -113,7 +131,8 @@ void main() async {
         MiruLog.defaultError(error, stack);
       }
       showSimpleToast(error.toString());
-      logger.severe('Uncaught error: $error');
+      MiruLog.recordCrash(error, stack, source: 'run-zoned');
+      logger.severe('Uncaught error [run-zoned]: $error');
       logger.severe(stack.toString());
     },
   );
@@ -146,8 +165,8 @@ class _EntryLoadingState extends State<EntryLoadingState> {
 
     return FTheme(
       data: MediaQuery.of(context).platformBrightness == .dark
-          ? FThemes.zinc.dark.desktop
-          : FThemes.zinc.light.desktop,
+          ? MiruThemes.neutral.dark.desktop
+          : MiruThemes.neutral.light.desktop,
       child: FScaffold(
         child: Center(
           child: Column(
@@ -180,10 +199,11 @@ class App extends ConsumerStatefulWidget {
   createState() => _App();
 }
 
-class _App extends ConsumerState<App> {
+class _App extends ConsumerState<App> with WidgetsBindingObserver {
   @override
   void initState() {
     VolumeController.instance.showSystemUI = false;
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
     registerWith(
       options: {
@@ -212,27 +232,37 @@ class _App extends ConsumerState<App> {
   }
 
   @override
+  void didChangePlatformBrightness() {
+    // Re-derive the Forui theme so that, in 'system' mode, an OS light/dark
+    // switch updates every colour-dependent widget style, not just Material's.
+    ref
+        .read(applicationControllerProvider.notifier)
+        .onPlatformBrightnessChanged();
+    super.didChangePlatformBrightness();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final c = ref.watch(applicationControllerProvider);
-    return FTheme(
-      data: c.themeData,
-      child: FToaster(
-        child: MaterialApp.router(
-          supportedLocales: FLocalizations.supportedLocales,
-          key: ValueKey(c.language),
-          theme: c.themeData.toApproximateMaterialTheme(),
-          themeMode: c.themeMode,
-          title: 'Miru Alpha',
-          localizationsDelegates: [
-            I18nUtils.flutterI18nDelegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          routerConfig: RouterUtil.appRouter,
-          // debugShowCheckedModeBanner: false,
-        ),
-      ),
+    return MaterialApp.router(
+      showPerformanceOverlay: kProfileMode,
+      supportedLocales: FLocalizations.supportedLocales,
+      key: ValueKey(c.language),
+      builder: (context, child) => FTheme(data: c.themeData, child: child!),
+      themeMode: c.themeMode,
+      title: 'Miru Alpha',
+      localizationsDelegates: [
+        I18nUtils.flutterI18nDelegate,
+        ...GlobalMaterialLocalizations.delegates,
+      ],
+      routerConfig: RouterUtil.appRouter,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

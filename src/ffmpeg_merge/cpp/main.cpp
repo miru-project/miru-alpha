@@ -4,6 +4,7 @@ extern "C" {
 #include "libavcodec/avcodec.h"
 #include "libavformat/avformat.h"
 #include "libavutil/avutil.h"
+#include "libavutil/error.h"
 }
 // Cross-platform export definition
 #ifdef _WIN32
@@ -21,50 +22,61 @@ static AVStream *output_video_stream = nullptr;
 static AVStream *input_audio_stream = nullptr;
 static AVStream *output_audio_stream = nullptr;
 
-void check_error(int ret, const char *msg) {
+// Logs the FFmpeg error for `ret` and returns it unchanged so callers can
+// propagate the failure instead of aborting the whole process. Previously this
+// called `exit(EXIT_FAILURE)`, which killed the host Flutter/Dart process when
+// invoked through FFI.
+int check_error(int ret, const char *msg) {
   if (ret < 0) {
     char error[AV_ERROR_MAX_STRING_SIZE];
     av_strerror(ret, error, AV_ERROR_MAX_STRING_SIZE);
     std::cerr << msg << ": " << error << std::endl;
-    exit(EXIT_FAILURE);
   }
+  return ret;
 }
 
-void setup_output_video_stream() {
+int setup_output_video_stream() {
   // Copy codec parameters for video
   output_video_stream = avformat_new_stream(output_ctx, nullptr);
   if (!output_video_stream) {
     std::cerr << "Failed to create output video stream" << std::endl;
-    exit(EXIT_FAILURE);
+    return -1;
   }
 
   int ret = avcodec_parameters_copy(output_video_stream->codecpar,
                                     input_video_stream->codecpar);
-  check_error(ret, "Failed to copy video codec parameters");
+  if (check_error(ret, "Failed to copy video codec parameters") < 0) {
+    return ret;
+  }
 
   // Set stream parameters for video
   output_video_stream->time_base = input_video_stream->time_base;
   output_video_stream->codecpar->codec_tag = 0;
+  return 0;
 }
-void setup_output_audio_stream() {
+
+int setup_output_audio_stream() {
   // Check if input audio stream exists before setting up output audio stream
   if (!input_audio_stream) {
-    return; // No input audio stream, so don't set up output audio stream
+    return 0; // No input audio stream, so don't set up output audio stream
   }
   // Copy codec parameters for audio
   output_audio_stream = avformat_new_stream(output_ctx, nullptr);
   if (!output_audio_stream) {
     std::cerr << "Failed to create output audio stream" << std::endl;
-    exit(EXIT_FAILURE);
+    return -1;
   }
 
   int ret = avcodec_parameters_copy(output_audio_stream->codecpar,
                                     input_audio_stream->codecpar);
-  check_error(ret, "Failed to copy audio codec parameters");
+  if (check_error(ret, "Failed to copy audio codec parameters") < 0) {
+    return ret;
+  }
 
   // Set stream parameters for audio
   output_audio_stream->time_base = input_audio_stream->time_base;
   output_audio_stream->codecpar->codec_tag = 0;
+  return 0;
 }
 
 int64_t get_video_start_time(AVFormatContext *ctx, int video_stream_idx) {
@@ -80,9 +92,11 @@ int64_t get_audio_start_time(AVFormatContext *ctx, int audio_stream_idx) {
   return 0;
 }
 
-// Replace the existing process_packets function with this updated version
-void process_packets(int64_t &last_pts_video, int64_t &last_dts_video,
-                     int64_t &last_pts_audio, int64_t &last_dts_audio) {
+// Replace the existing process_packets function with this updated version.
+// Returns 0 on success, or a negative FFmpeg error code on failure so the
+// caller can abort gracefully instead of crashing the process.
+int process_packets(int64_t &last_pts_video, int64_t &last_dts_video,
+                    int64_t &last_pts_audio, int64_t &last_dts_audio) {
   AVPacket packet;
   int64_t video_start_time = 0;
   if (input_video_stream)
@@ -106,7 +120,18 @@ void process_packets(int64_t &last_pts_video, int64_t &last_dts_video,
     output_audio_time_base = output_audio_stream->time_base;
   }
 
-  while (av_read_frame(input_ctx, &packet) >= 0) {
+  for (;;) {
+    const int read_ret = av_read_frame(input_ctx, &packet);
+    if (read_ret < 0) {
+      // End of file is expected; any other error aborts the merge.
+      if (read_ret == AVERROR_EOF) {
+        break;
+      }
+      check_error(read_ret, "Error reading frame");
+      av_packet_unref(&packet);
+      return read_ret;
+    }
+
     if (input_video_stream &&
         packet.stream_index == input_video_stream->index) {
       // Adjust timestamps for video relative to start_time
@@ -130,7 +155,10 @@ void process_packets(int64_t &last_pts_video, int64_t &last_dts_video,
 
       packet.stream_index = output_video_stream->index;
       int ret = av_interleaved_write_frame(output_ctx, &packet);
-      check_error(ret, "Error writing video packet");
+      av_packet_unref(&packet);
+      if (check_error(ret, "Error writing video packet") < 0) {
+        return ret;
+      }
     } else if (input_audio_stream &&
                packet.stream_index == input_audio_stream->index) {
       // Adjust timestamps for audio relative to start_time
@@ -153,9 +181,13 @@ void process_packets(int64_t &last_pts_video, int64_t &last_dts_video,
       }
       packet.stream_index = output_audio_stream->index;
       int ret = av_interleaved_write_frame(output_ctx, &packet);
-      check_error(ret, "Error writing audio packet");
+      av_packet_unref(&packet);
+      if (check_error(ret, "Error writing audio packet") < 0) {
+        return ret;
+      }
+    } else {
+      av_packet_unref(&packet);
     }
-    av_packet_unref(&packet);
   }
 
   // Update last_pts and last_dts for the next file, for video
@@ -192,6 +224,7 @@ void process_packets(int64_t &last_pts_video, int64_t &last_dts_video,
       last_dts_audio += duration;
     }
   }
+  return 0;
 }
 
 int main(int argc, char *argv[]) {
@@ -208,18 +241,26 @@ int main(int argc, char *argv[]) {
 
   const char *output_file = argv[1];
   int ret;
+  int64_t last_pts_video = 0, last_dts_video = 0;
+  int64_t last_pts_audio = 0, last_dts_audio = 0;
 
   // Create output context
   ret = avformat_alloc_output_context2(&output_ctx, nullptr, nullptr,
                                        output_file);
-  check_error(ret, "Could not create output context");
+  if (check_error(ret, "Could not create output context") < 0) {
+    goto fail;
+  }
 
   // Process first input to setup format
   ret = avformat_open_input(&input_ctx, argv[2], nullptr, nullptr);
-  check_error(ret, "Could not open first input");
+  if (check_error(ret, "Could not open first input") < 0) {
+    goto fail;
+  }
 
   ret = avformat_find_stream_info(input_ctx, nullptr);
-  check_error(ret, "Could not find stream info");
+  if (check_error(ret, "Could not find stream info") < 0) {
+    goto fail;
+  }
 
   // Find video stream
   for (unsigned int i = 0; i < input_ctx->nb_streams; i++) {
@@ -239,33 +280,45 @@ int main(int argc, char *argv[]) {
   if (!input_video_stream && !input_audio_stream) {
     std::cerr << "No video or audio stream found in the first input file"
               << std::endl;
-    return EXIT_FAILURE;
+    ret = EXIT_FAILURE;
+    goto fail;
   }
 
-  if (input_video_stream)
-    setup_output_video_stream();
-  if (input_audio_stream)
-    setup_output_audio_stream();
+  if (input_video_stream) {
+    if (setup_output_video_stream() < 0) {
+      goto fail;
+    }
+  }
+  if (input_audio_stream) {
+    if (setup_output_audio_stream() < 0) {
+      goto fail;
+    }
+  }
 
   // Open output file
   ret = avio_open(&output_ctx->pb, output_file, AVIO_FLAG_WRITE);
-  check_error(ret, "Could not open output file");
+  if (check_error(ret, "Could not open output file") < 0) {
+    goto fail;
+  }
 
   ret = avformat_write_header(output_ctx, nullptr);
-  check_error(ret, "Error writing header");
+  if (check_error(ret, "Error writing header") < 0) {
+    goto fail;
+  }
 
   // Process all input files
-  int64_t last_pts_video = 0, last_dts_video = 0;
-  int64_t last_pts_audio = 0, last_dts_audio = 0;
-
   for (int i = 2; i < argc; i++) {
     if (i > 2) {
       avformat_close_input(&input_ctx);
       ret = avformat_open_input(&input_ctx, argv[i], nullptr, nullptr);
-      check_error(ret, "Could not open input file");
+      if (check_error(ret, "Could not open input file") < 0) {
+        goto fail;
+      }
 
       ret = avformat_find_stream_info(input_ctx, nullptr);
-      check_error(ret, "Could not find stream info");
+      if (check_error(ret, "Could not find stream info") < 0) {
+        goto fail;
+      }
 
       // Find video stream in new input
       input_video_stream = nullptr;
@@ -290,8 +343,10 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "Processing file: " << argv[i] << std::endl;
-    process_packets(last_pts_video, last_dts_video, last_pts_audio,
-                    last_dts_audio);
+    if (process_packets(last_pts_video, last_dts_video, last_pts_audio,
+                        last_dts_audio) < 0) {
+      goto fail;
+    }
   }
 
   // Write trailer and cleanup
@@ -302,6 +357,22 @@ int main(int argc, char *argv[]) {
   avformat_free_context(output_ctx);
 
   return 0;
+
+fail:
+  // Release any resources that were successfully acquired so a failed merge
+  // does not leak handles or leave a half-written file locked.
+  if (output_ctx != nullptr) {
+    if (output_ctx->pb != nullptr) {
+      avio_closep(&output_ctx->pb);
+    }
+    avformat_free_context(output_ctx);
+    output_ctx = nullptr;
+  }
+  if (input_ctx != nullptr) {
+    avformat_close_input(&input_ctx);
+    input_ctx = nullptr;
+  }
+  return ret < 0 ? ret : EXIT_FAILURE;
 }
 int start(int input_file_num, char *files[]) {
   // add an empty string to the beginning of the array to match the main
@@ -316,9 +387,11 @@ int start(int input_file_num, char *files[]) {
     new_argv[i + 1] = files[i];
   }
 
-  main(input_file_num + 1, new_argv);
+  // Propagate main()'s exit code so the FFI caller can detect the failure
+  // (previously this always returned EXIT_SUCCESS, hiding the error).
+  int rc = main(input_file_num + 1, new_argv);
 
   delete[] new_argv[0];
   delete[] new_argv;
-  return EXIT_SUCCESS;
+  return rc;
 }

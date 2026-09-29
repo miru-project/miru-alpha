@@ -15,7 +15,11 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'common.pbenum.dart';
+
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
+
+export 'common.pbenum.dart';
 
 class ExtensionMeta extends $pb.GeneratedMessage {
   factory ExtensionMeta({
@@ -32,6 +36,7 @@ class ExtensionMeta extends $pb.GeneratedMessage {
     $core.String? api,
     $core.String? error,
     $core.String? type,
+    $core.bool? nsfw,
   }) {
     final result = create();
     if (name != null) result.name = name;
@@ -47,6 +52,7 @@ class ExtensionMeta extends $pb.GeneratedMessage {
     if (api != null) result.api = api;
     if (error != null) result.error = error;
     if (type != null) result.type = type;
+    if (nsfw != null) result.nsfw = nsfw;
     return result;
   }
 
@@ -76,6 +82,7 @@ class ExtensionMeta extends $pb.GeneratedMessage {
     ..aOS(11, _omitFieldNames ? '' : 'api')
     ..aOS(12, _omitFieldNames ? '' : 'error')
     ..aOS(13, _omitFieldNames ? '' : 'type')
+    ..aOB(14, _omitFieldNames ? '' : 'nsfw')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -207,6 +214,15 @@ class ExtensionMeta extends $pb.GeneratedMessage {
   $core.bool hasType() => $_has(12);
   @$pb.TagNumber(13)
   void clearType() => $_clearField(13);
+
+  @$pb.TagNumber(14)
+  $core.bool get nsfw => $_getBF(13);
+  @$pb.TagNumber(14)
+  set nsfw($core.bool value) => $_setBool(13, value);
+  @$pb.TagNumber(14)
+  $core.bool hasNsfw() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearNsfw() => $_clearField(14);
 }
 
 class DownloadProgress extends $pb.GeneratedMessage {
@@ -214,13 +230,17 @@ class DownloadProgress extends $pb.GeneratedMessage {
     $core.int? progress,
     $core.Iterable<$core.String>? names,
     $core.int? total,
-    $core.String? status,
-    $core.String? mediaType,
+    DownloadStatus? status,
+    DownloadMediaType? mediaType,
     $core.String? currentDownloading,
     $core.int? taskId,
     $core.String? title,
     $core.String? package,
     $core.String? key,
+    $core.int? priority,
+    $core.String? url,
+    $core.String? error,
+    DownloadCategory? category,
   }) {
     final result = create();
     if (progress != null) result.progress = progress;
@@ -234,6 +254,10 @@ class DownloadProgress extends $pb.GeneratedMessage {
     if (title != null) result.title = title;
     if (package != null) result.package = package;
     if (key != null) result.key = key;
+    if (priority != null) result.priority = priority;
+    if (url != null) result.url = url;
+    if (error != null) result.error = error;
+    if (category != null) result.category = category;
     return result;
   }
 
@@ -253,13 +277,20 @@ class DownloadProgress extends $pb.GeneratedMessage {
     ..aI(1, _omitFieldNames ? '' : 'progress')
     ..pPS(2, _omitFieldNames ? '' : 'names')
     ..aI(3, _omitFieldNames ? '' : 'total')
-    ..aOS(4, _omitFieldNames ? '' : 'status')
-    ..aOS(5, _omitFieldNames ? '' : 'mediaType')
+    ..aE<DownloadStatus>(4, _omitFieldNames ? '' : 'status',
+        enumValues: DownloadStatus.values)
+    ..aE<DownloadMediaType>(5, _omitFieldNames ? '' : 'mediaType',
+        enumValues: DownloadMediaType.values)
     ..aOS(6, _omitFieldNames ? '' : 'currentDownloading')
     ..aI(7, _omitFieldNames ? '' : 'taskId')
     ..aOS(8, _omitFieldNames ? '' : 'title')
     ..aOS(9, _omitFieldNames ? '' : 'package')
     ..aOS(10, _omitFieldNames ? '' : 'key')
+    ..aI(11, _omitFieldNames ? '' : 'priority')
+    ..aOS(12, _omitFieldNames ? '' : 'url')
+    ..aOS(13, _omitFieldNames ? '' : 'error')
+    ..aE<DownloadCategory>(14, _omitFieldNames ? '' : 'category',
+        enumValues: DownloadCategory.values)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -303,18 +334,18 @@ class DownloadProgress extends $pb.GeneratedMessage {
   void clearTotal() => $_clearField(3);
 
   @$pb.TagNumber(4)
-  $core.String get status => $_getSZ(3);
+  DownloadStatus get status => $_getN(3);
   @$pb.TagNumber(4)
-  set status($core.String value) => $_setString(3, value);
+  set status(DownloadStatus value) => $_setField(4, value);
   @$pb.TagNumber(4)
   $core.bool hasStatus() => $_has(3);
   @$pb.TagNumber(4)
   void clearStatus() => $_clearField(4);
 
   @$pb.TagNumber(5)
-  $core.String get mediaType => $_getSZ(4);
+  DownloadMediaType get mediaType => $_getN(4);
   @$pb.TagNumber(5)
-  set mediaType($core.String value) => $_setString(4, value);
+  set mediaType(DownloadMediaType value) => $_setField(5, value);
   @$pb.TagNumber(5)
   $core.bool hasMediaType() => $_has(4);
   @$pb.TagNumber(5)
@@ -364,6 +395,46 @@ class DownloadProgress extends $pb.GeneratedMessage {
   $core.bool hasKey() => $_has(9);
   @$pb.TagNumber(10)
   void clearKey() => $_clearField(10);
+
+  /// Priority used by the concurrency-limited scheduler. Higher runs first.
+  @$pb.TagNumber(11)
+  $core.int get priority => $_getIZ(10);
+  @$pb.TagNumber(11)
+  set priority($core.int value) => $_setSignedInt32(10, value);
+  @$pb.TagNumber(11)
+  $core.bool hasPriority() => $_has(10);
+  @$pb.TagNumber(11)
+  void clearPriority() => $_clearField(11);
+
+  /// Source URL (torrent file URL, magnet link, video URL, etc.)
+  @$pb.TagNumber(12)
+  $core.String get url => $_getSZ(11);
+  @$pb.TagNumber(12)
+  set url($core.String value) => $_setString(11, value);
+  @$pb.TagNumber(12)
+  $core.bool hasUrl() => $_has(11);
+  @$pb.TagNumber(12)
+  void clearUrl() => $_clearField(12);
+
+  /// Error message when status is FAILED
+  @$pb.TagNumber(13)
+  $core.String get error => $_getSZ(12);
+  @$pb.TagNumber(13)
+  set error($core.String value) => $_setString(12, value);
+  @$pb.TagNumber(13)
+  $core.bool hasError() => $_has(12);
+  @$pb.TagNumber(13)
+  void clearError() => $_clearField(13);
+
+  /// Content category (video / manga / novel) used for storage grouping.
+  @$pb.TagNumber(14)
+  DownloadCategory get category => $_getN(13);
+  @$pb.TagNumber(14)
+  set category(DownloadCategory value) => $_setField(14, value);
+  @$pb.TagNumber(14)
+  $core.bool hasCategory() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearCategory() => $_clearField(14);
 }
 
 class TorrentStats extends $pb.GeneratedMessage {
@@ -520,12 +591,14 @@ class Download extends $pb.GeneratedMessage {
     $core.Iterable<$core.int>? progress,
     $core.String? key,
     $core.String? title,
-    $core.String? mediaType,
-    $core.String? status,
+    DownloadMediaType? mediaType,
+    DownloadStatus? status,
     $core.String? savePath,
     $core.String? date,
     $core.String? downloadUrl,
     $core.String? detailUrl,
+    $core.int? priority,
+    DownloadCategory? category,
   }) {
     final result = create();
     if (id != null) result.id = id;
@@ -541,6 +614,8 @@ class Download extends $pb.GeneratedMessage {
     if (date != null) result.date = date;
     if (downloadUrl != null) result.downloadUrl = downloadUrl;
     if (detailUrl != null) result.detailUrl = detailUrl;
+    if (priority != null) result.priority = priority;
+    if (category != null) result.category = category;
     return result;
   }
 
@@ -568,12 +643,17 @@ class Download extends $pb.GeneratedMessage {
     ..p<$core.int>(5, _omitFieldNames ? '' : 'progress', $pb.PbFieldType.K3)
     ..aOS(6, _omitFieldNames ? '' : 'key')
     ..aOS(7, _omitFieldNames ? '' : 'title')
-    ..aOS(8, _omitFieldNames ? '' : 'mediaType')
-    ..aOS(9, _omitFieldNames ? '' : 'status')
+    ..aE<DownloadMediaType>(8, _omitFieldNames ? '' : 'mediaType',
+        enumValues: DownloadMediaType.values)
+    ..aE<DownloadStatus>(9, _omitFieldNames ? '' : 'status',
+        enumValues: DownloadStatus.values)
     ..aOS(10, _omitFieldNames ? '' : 'savePath')
     ..aOS(11, _omitFieldNames ? '' : 'date')
     ..aOS(12, _omitFieldNames ? '' : 'downloadUrl')
     ..aOS(13, _omitFieldNames ? '' : 'detailUrl')
+    ..aI(14, _omitFieldNames ? '' : 'priority')
+    ..aE<DownloadCategory>(15, _omitFieldNames ? '' : 'category',
+        enumValues: DownloadCategory.values)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -640,18 +720,18 @@ class Download extends $pb.GeneratedMessage {
   void clearTitle() => $_clearField(7);
 
   @$pb.TagNumber(8)
-  $core.String get mediaType => $_getSZ(7);
+  DownloadMediaType get mediaType => $_getN(7);
   @$pb.TagNumber(8)
-  set mediaType($core.String value) => $_setString(7, value);
+  set mediaType(DownloadMediaType value) => $_setField(8, value);
   @$pb.TagNumber(8)
   $core.bool hasMediaType() => $_has(7);
   @$pb.TagNumber(8)
   void clearMediaType() => $_clearField(8);
 
   @$pb.TagNumber(9)
-  $core.String get status => $_getSZ(8);
+  DownloadStatus get status => $_getN(8);
   @$pb.TagNumber(9)
-  set status($core.String value) => $_setString(8, value);
+  set status(DownloadStatus value) => $_setField(9, value);
   @$pb.TagNumber(9)
   $core.bool hasStatus() => $_has(8);
   @$pb.TagNumber(9)
@@ -692,6 +772,26 @@ class Download extends $pb.GeneratedMessage {
   $core.bool hasDetailUrl() => $_has(12);
   @$pb.TagNumber(13)
   void clearDetailUrl() => $_clearField(13);
+
+  /// Priority used by the concurrency-limited scheduler. Higher runs first.
+  @$pb.TagNumber(14)
+  $core.int get priority => $_getIZ(13);
+  @$pb.TagNumber(14)
+  set priority($core.int value) => $_setSignedInt32(13, value);
+  @$pb.TagNumber(14)
+  $core.bool hasPriority() => $_has(13);
+  @$pb.TagNumber(14)
+  void clearPriority() => $_clearField(14);
+
+  /// Content category (video / manga / novel) used for storage grouping.
+  @$pb.TagNumber(15)
+  DownloadCategory get category => $_getN(14);
+  @$pb.TagNumber(15)
+  set category(DownloadCategory value) => $_setField(15, value);
+  @$pb.TagNumber(15)
+  $core.bool hasCategory() => $_has(14);
+  @$pb.TagNumber(15)
+  void clearCategory() => $_clearField(15);
 }
 
 /// Torrent

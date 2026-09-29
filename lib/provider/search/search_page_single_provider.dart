@@ -1,12 +1,20 @@
-import 'dart:convert';
-
 import 'package:miru_alpha/miru_core/network.dart';
+import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
+    as pb;
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/ui/features/search/extension_filter_view.dart';
 
 part 'search_page_single_provider.g.dart';
 
+/// Immutable snapshot describing the `/search/single` page's working state.
+///
+/// Holds the current keyword, the pagination cursor, the extension-declared
+/// filter catalogue ([filter]/[filterOrder]), the in-progress selection
+/// ([selected]) and the last [appliedFilter] actually used to fetch results.
+/// The grid accumulates paged results in [result].
 class SingleSearchPageState {
   final String query;
   final int page;
@@ -17,7 +25,7 @@ class SingleSearchPageState {
   final bool isUpdateFilter;
   final Map<String, List<String>>
   selected; // Keyed by filter key, values are option keys
-  final String appliedFilterJson;
+  final proto.FilterSelection? appliedFilter;
   final String pkg;
 
   SingleSearchPageState({
@@ -29,7 +37,7 @@ class SingleSearchPageState {
     this.filterOrder = const [],
     this.isUpdateFilter = false,
     this.selected = const {},
-    this.appliedFilterJson = '',
+    this.appliedFilter,
     this.pkg = '',
   });
 
@@ -42,7 +50,7 @@ class SingleSearchPageState {
     List<String>? filterOrder,
     bool? isUpdateFilter,
     Map<String, List<String>>? selected,
-    String? appliedFilterJson,
+    proto.FilterSelection? appliedFilter,
     String? pkg,
   }) {
     return SingleSearchPageState(
@@ -54,12 +62,14 @@ class SingleSearchPageState {
       filterOrder: filterOrder ?? this.filterOrder,
       isUpdateFilter: isUpdateFilter ?? this.isUpdateFilter,
       selected: selected ?? this.selected,
-      appliedFilterJson: appliedFilterJson ?? this.appliedFilterJson,
+      appliedFilter: appliedFilter ?? this.appliedFilter,
       pkg: pkg ?? this.pkg,
     );
   }
 
-  String get filterSummary {
+  /// Human-readable summary of every active filter selection, joining the
+  /// selected option labels (in [filterOrder]) for the filtered-state chip row.
+  List<String> get filterSummary {
     final List<String> selectedLabels = [];
     for (final key in filterOrder) {
       final extFilter = filter[key];
@@ -67,17 +77,21 @@ class SingleSearchPageState {
       final selectedOptionKeys = selected[key];
       if (selectedOptionKeys == null || selectedOptionKeys.isEmpty) continue;
 
-      final options = extFilter.options;
+      final view = ExtensionFilterView.from(extFilter);
+      final labelByKey = {for (final o in view.options) o.key: o.label};
       for (final optionKey in selectedOptionKeys) {
-        if (options.containsKey(optionKey)) {
-          selectedLabels.add(options[optionKey]!);
+        if (labelByKey.containsKey(optionKey)) {
+          selectedLabels.add(labelByKey[optionKey]!);
         }
       }
     }
-    return selectedLabels.join(', ');
+    return selectedLabels;
   }
 
-  Map<String, dynamic> get filterSelection {
+  /// Flattened wire format of the current selection: single-select keys map to
+  /// one value, multi/range keys to a list. Rows with no selection send an
+  /// empty string so the extension keeps their filter untouched.
+  Map<String, dynamic> get filterSelectionMap {
     final Map<String, dynamic> selection = {};
     for (final key in filterOrder) {
       final extFilter = filter[key];
@@ -89,7 +103,8 @@ class SingleSearchPageState {
         continue;
       }
 
-      if (extFilter.max == 1) {
+      final view = ExtensionFilterView.from(extFilter);
+      if (view.isSingleSelect || view.max == 1) {
         selection[key] = optionKeys.first;
       } else {
         selection[key] = optionKeys;
@@ -98,9 +113,27 @@ class SingleSearchPageState {
     return selection;
   }
 
-  String get filterSelectionJson => jsonEncode(filterSelection);
+  /// Protobuf [proto.FilterSelection] derived from the currently [selected]
+  /// option keys, ready to send to the extension endpoint.
+  proto.FilterSelection get filterSelection {
+    final s = proto.FilterSelection();
+    for (final key in filterOrder) {
+      final optionKeys = selected[key];
+      if (optionKeys == null || optionKeys.isEmpty) continue;
+      s.selections[key] = (proto.FilterSelectionValue()
+        ..values.addAll(optionKeys));
+    }
+    return s;
+  }
 }
 
+/// Per-extension search provider backing the `/search/single` page.
+///
+/// Unlike the cross-extension [SearchPageProvider], it is scoped to one
+/// installed extension ([SingleSearchPageState.pkg]) and carries that
+/// extension's own filter catalogue. Pages increment [SingleSearchPageState.page]
+/// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
+/// is sent to the extension when fetching results.
 // @Riverpod(keepAlive: true)
 @riverpod
 class SearchPageSingleProvider extends _$SearchPageSingleProvider {
@@ -109,17 +142,23 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
     return SingleSearchPageState();
   }
 
+  /// Starts a fresh search for [q] on this extension, resetting pagination to
+  /// page 1 and locking in the current selection as the applied filter so the
+  /// grid refetches immediately.
   void setQuery(String q) async {
     state = state.copyWith(
       query: q,
       page: 1,
       isLoading: true,
-      appliedFilterJson: state.filterSelectionJson,
+      appliedFilter: state.filterSelection,
     );
   }
 
+  /// Freezes the in-progress [SingleSearchPageState.selected] into
+  /// [appliedFilter]. Until this is called, edited filter controls do not yet
+  /// affect the displayed results.
   void commitFilters() {
-    state = state.copyWith(appliedFilterJson: state.filterSelectionJson);
+    state = state.copyWith(appliedFilter: state.filterSelection);
   }
 
   void setPage(int p) => state = state.copyWith(page: p);
@@ -136,17 +175,15 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
 
   void clearResult() => state = state.copyWith(result: []);
 
+  /// Replaces the extension's filter catalogue and seeds each filter's default
+  /// selection only when the row is still empty (preserves any user edits).
   void setFileNotifier(Map<String, ExtensionFilter> m) {
     final Map<String, List<String>> newSelected = Map.from(state.selected);
     for (final key in m.keys) {
-      final extFilter = m[key]!;
       // Initialize if selection is empty and a default is available
       if (newSelected[key] == null || newSelected[key]!.isEmpty) {
-        if (extFilter.hasDefault_4() && extFilter.default_4.isNotEmpty) {
-          newSelected[key] = [extFilter.default_4];
-        } else {
-          newSelected[key] = [];
-        }
+        final def = _defaultSelection(m[key]!);
+        newSelected[key] = def;
       }
     }
     state = state.copyWith(
@@ -154,6 +191,26 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
       filterOrder: m.keys.toList(),
       selected: newSelected,
     );
+  }
+
+  /// Returns the default selection for a raw filter, covering all three filter
+  /// kinds: the pre-selected option for selects, the default list for
+  /// multi-selects, and the [defaultMin, defaultMax] pair for ranges.
+  List<String> _defaultSelection(ExtensionFilter filter) {
+    switch (filter.whichKind()) {
+      case pb.ExtensionFilter_Kind.select:
+        final d = filter.select.default_2;
+        return d.isEmpty ? [] : [d];
+      case pb.ExtensionFilter_Kind.multiSelect:
+        return List.from(filter.multiSelect.default_4);
+      case pb.ExtensionFilter_Kind.range:
+        return [
+          filter.range.defaultMin.toString(),
+          filter.range.defaultMax.toString(),
+        ];
+      case pb.ExtensionFilter_Kind.notSet:
+        return const [];
+    }
   }
 
   void addFileNotifier(Map<String, ExtensionFilter> m) =>
@@ -165,8 +222,9 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
     final filter = state.filter[key];
     if (filter == null) return;
 
-    final effectiveMin = filter.min == 0 ? 1 : filter.min;
-    final effectiveMax = filter.max == 0 ? 1 : filter.max;
+    final view = ExtensionFilterView.from(filter);
+    final effectiveMin = view.isSingleSelect ? 1 : view.min;
+    final effectiveMax = view.isSingleSelect ? 1 : view.max;
 
     List<String> newVal = val;
     // Enforce max count
@@ -197,28 +255,57 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
     await _updateFilters();
   }
 
+  /// Sets a numeric [RangeFilter] value, clamping [from]/[to] to the filter's
+  /// declared bounds. Range selections bypass the select/multi count limits.
+  void setRangeFilter(String key, int from, int to) {
+    final filter = state.filter[key];
+    if (filter == null || filter.whichKind() != pb.ExtensionFilter_Kind.range) {
+      return;
+    }
+    final r = filter.range;
+    final fromClamped = from.clamp(r.min, r.max);
+    final toClamped = to.clamp(r.min, r.max);
+    final newSelected = Map<String, List<String>>.from(state.selected);
+    newSelected[key] = [fromClamped.toString(), toClamped.toString()];
+    state = state.copyWith(selected: newSelected);
+  }
+
+  /// Resets a single filter key back to its extension-declared default.
+  void resetFilterToDefault(String key) {
+    final filter = state.filter[key];
+    if (filter == null) return;
+    final newSelected = Map<String, List<String>>.from(state.selected);
+    newSelected[key] = _defaultSelection(filter);
+    state = state.copyWith(selected: newSelected);
+  }
+
+  /// Clears a single filter key entirely (used for an explicit "All"/none
+  /// choice on single-select filters, bypassing the min-selection limit).
+  void clearFilterValue(String key) {
+    final newSelected = Map<String, List<String>>.from(state.selected);
+    newSelected[key] = [];
+    state = state.copyWith(selected: newSelected);
+  }
+
   Future<void> _updateFilters() async {
     // Update filters dynamically
     if (state.pkg.isNotEmpty) {
-      final selection = <String, dynamic>{};
+      final selectionProto = proto.FilterSelection();
       for (final key in state.filterOrder) {
-        final options = state.filter[key]?.options;
-        if (options == null) continue;
-        final selectedOptionKeys = state.selected[key] ?? [];
-
-        if (state.filter[key]!.max == 1) {
-          selection[key] = selectedOptionKeys.isEmpty
-              ? ""
-              : selectedOptionKeys.first;
-        } else {
-          selection[key] = selectedOptionKeys;
+        final extFilter = state.filter[key];
+        if (extFilter == null) continue;
+        final selectedOptionKeys = state.selected[key];
+        if (selectedOptionKeys == null || selectedOptionKeys.isEmpty) {
+          continue;
         }
+        selectionProto.selections[key] = (proto.FilterSelectionValue()
+          ..values.addAll(selectedOptionKeys));
       }
 
       try {
         final newFilters = await MiruCoreEndpoint.createFilter(
           state.pkg,
-          filter: jsonEncode(selection),
+          filter: selectionProto,
         );
 
         final currentKeys = state.filterOrder;
@@ -256,15 +343,10 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
     }
   }
 
-  void clearFiltersToDefault() async {
+  Future<void> clearFiltersToDefault() async {
     final Map<String, List<String>> defaultSelected = {};
     for (final key in state.filterOrder) {
-      final extFilter = state.filter[key]!;
-      if (extFilter.hasDefault_4() && extFilter.default_4.isNotEmpty) {
-        defaultSelected[key] = [extFilter.default_4];
-      } else {
-        defaultSelected[key] = [];
-      }
+      defaultSelected[key] = _defaultSelection(state.filter[key]!);
     }
 
     // Check if changed

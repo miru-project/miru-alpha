@@ -4,7 +4,7 @@ import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/model/tmdb_model.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/tracking/tmdb.dart';
-import 'package:miru_alpha/widgets/core/toast.dart';
+import 'package:miru_alpha/ui/core/core/toast.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'tmdb_provider.g.dart';

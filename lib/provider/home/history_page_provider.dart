@@ -28,23 +28,43 @@ class HistoryPageNotifier extends _$HistoryPageNotifier {
   @override
   HistoryPageState build() {
     Future.microtask(() async {
-      final history = await DatabaseService.getHistoriesByType();
-      state = state.copyWith(history: history, filteredHistory: history);
+      try {
+        final history = await DatabaseService.getHistoriesByType();
+        if (!ref.mounted) return;
+        final savedKeys = {
+          for (final entry in state.history) (entry.package, entry.url),
+        };
+        state = state.copyWith(
+          history: [
+            ...state.history,
+            ...history.where(
+              (entry) => !savedKeys.contains((entry.package, entry.url)),
+            ),
+          ],
+        );
+        filter(_type, keyword, duration);
+      } catch (error, stack) {
+        logger.severe('Failed to load history', error, stack);
+      }
     });
     return HistoryPageState(history: [], filteredHistory: []);
   }
 
   // ADD
-  void addHistory(History history) {
-    DatabaseService.putHistory(history);
-    Future.microtask(() {
-      try {
-        state = state.copyWith(history: [history, ...state.history]);
-        logger.info('register history ${history.title}');
-      } catch (e) {
-        logger.severe('register history ${history.title} failed: $e');
-      }
-    });
+  Future<void> addHistory(History history) async {
+    await DatabaseService.putHistory(history);
+    if (!ref.mounted) return;
+    state = state.copyWith(
+      history: [
+        history,
+        ...state.history.where(
+          (entry) =>
+              entry.package != history.package || entry.url != history.url,
+        ),
+      ],
+    );
+    filter(_type, keyword, duration);
+    logger.info('register history ${history.title}');
   }
 
   // DELETE
@@ -83,7 +103,17 @@ class HistoryPageNotifier extends _$HistoryPageNotifier {
     );
   }
 
+  /// Convenience used by the router-driven list views. `null` or
+  /// [ExtensionType.all] clears the type filter; otherwise a single type is
+  /// applied.
+  void setTypeFilter(ExtensionType? type) {
+    filterWithType(type == null || type == ExtensionType.all ? {} : {type});
+  }
+
   void filter(Set<ExtensionType> type, String keyword, Duration duration) {
+    _type = Set.of(type);
+    this.keyword = keyword;
+    this.duration = duration;
     final now = DateTime.now();
     List<History> typeResult = state.history;
     if (type.isNotEmpty) {

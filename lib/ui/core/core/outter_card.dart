@@ -1,0 +1,57 @@
+import 'package:material_ui/material_ui.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:forui/forui.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
+
+class OutterCard extends StatelessWidget {
+  const OutterCard({
+    super.key,
+    required this.title,
+    required this.child,
+    this.trailing,
+  });
+  final Widget child;
+  final String title;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsetsGeometry.symmetric(horizontal: 10, vertical: 10),
+          child: trailing == null
+              ? Text(
+                  title.i18n,
+                  style: context.theme.typography.body.xl2.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title.i18n,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22,
+                      ),
+                    ),
+                    trailing!,
+                  ],
+                ),
+        ),
+        SizedBox(
+          width: double.infinity,
+          child: MiruCard(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              child: LayoutBuilder(builder: (context, constraints) => child),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

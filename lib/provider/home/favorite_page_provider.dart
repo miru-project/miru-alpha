@@ -4,16 +4,26 @@ import 'package:miru_alpha/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'favorite_page_provider.g.dart';
 
+enum FavoriteFilterMode { and, or }
+
 class FavoritePageState {
   final List<Favorite> favorites;
   final List<Favorite> filteredFavorites;
   final List<FavoriteGroup> favoriteGroups;
   final List<FavoriteGroup> selectedFavoriteGroups;
+  final Set<ExtensionType> selectedTypes;
+  final FavoriteFilterMode filterMode;
+  final String query;
+  final String filterSummary;
   FavoritePageState({
     required this.favorites,
     required this.favoriteGroups,
     required this.filteredFavorites,
     required this.selectedFavoriteGroups,
+    this.selectedTypes = const {},
+    this.filterMode = FavoriteFilterMode.or,
+    this.query = '',
+    this.filterSummary = '',
   });
 
   FavoritePageState copyWith({
@@ -21,6 +31,10 @@ class FavoritePageState {
     List<FavoriteGroup>? favoriteGroups,
     List<Favorite>? filteredFavorites,
     List<FavoriteGroup>? selectedFavoriteGroups,
+    Set<ExtensionType>? selectedTypes,
+    FavoriteFilterMode? filterMode,
+    String? query,
+    String? filterSummary,
   }) {
     return FavoritePageState(
       filteredFavorites: filteredFavorites ?? this.filteredFavorites,
@@ -28,6 +42,10 @@ class FavoritePageState {
       favoriteGroups: favoriteGroups ?? this.favoriteGroups,
       selectedFavoriteGroups:
           selectedFavoriteGroups ?? this.selectedFavoriteGroups,
+      selectedTypes: selectedTypes ?? this.selectedTypes,
+      filterMode: filterMode ?? this.filterMode,
+      query: query ?? this.query,
+      filterSummary: filterSummary ?? this.filterSummary,
     );
   }
 }
@@ -38,6 +56,7 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
   Duration cacheDuration = const Duration(days: 36500);
   Set<ExtensionType> cacheType = {};
   List<FavoriteGroup> cacheFavGroup = [];
+  FavoriteFilterMode cacheFilterMode = FavoriteFilterMode.or;
   @override
   FavoritePageState build() {
     Future.microtask(init);
@@ -46,6 +65,8 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
       favoriteGroups: [],
       filteredFavorites: [],
       selectedFavoriteGroups: [],
+      selectedTypes: {},
+      filterMode: FavoriteFilterMode.or,
     );
   }
 
@@ -124,12 +145,37 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
           .where((e) => now.difference(e.date) <= duration)
           .toList();
     }
-    state = state.copyWith(filteredFavorites: durationResult);
+    final summary = <String>[];
+    if (type.isNotEmpty) {
+      summary.add('type: ${type.map((e) => e.name).join(',')}');
+    }
+    if (keyword.isNotEmpty) {
+      summary.add('keyword: $keyword');
+    }
+    state = state.copyWith(
+      filteredFavorites: durationResult,
+      query: keyword,
+      filterSummary: summary.join(' | '),
+    );
   }
 
   void filterWithType(Set<ExtensionType> type) {
     cacheType = type;
+    state = state.copyWith(selectedTypes: type);
     filter(type, cacheKeyword, cacheDuration);
+  }
+
+  /// Convenience used by the router-driven list views. `null` or
+  /// [ExtensionType.all] clears the type filter; otherwise a single type is
+  /// applied.
+  void setTypeFilter(ExtensionType? type) {
+    filterWithType(type == null || type == ExtensionType.all ? {} : {type});
+  }
+
+  /// Toggle the AND/OR filtering mode for selected favorite groups.
+  void setFilterMode(FavoriteFilterMode mode) {
+    cacheFilterMode = mode;
+    filterFavoriteGroups(state.selectedFavoriteGroups);
   }
 
   void filterWithKeyword(String keyword) {
@@ -157,11 +203,24 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
         .where((e) => favGroups.contains(e))
         .toList();
 
-    final favs = favGroup.expand((e) => e.favorites).toList();
+    final favs = cacheFilterMode == FavoriteFilterMode.and
+        ? _intersectFavorites(favGroup)
+        : favGroup.expand((e) => e.favorites).toList();
     state = state.copyWith(
       filteredFavorites: favs,
       selectedFavoriteGroups: favGroups,
     );
+  }
+
+  List<Favorite> _intersectFavorites(List<FavoriteGroup> groups) {
+    if (groups.isEmpty) return [];
+    final first = groups.first.favorites.toSet();
+    var result = first;
+    for (var i = 1; i < groups.length; i++) {
+      result = result.intersection(groups[i].favorites.toSet());
+    }
+    // Preserve order from the first group
+    return groups.first.favorites.where((f) => result.contains(f)).toList();
   }
 
   // CREATE FAVORITE GROUP

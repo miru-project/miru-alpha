@@ -74,6 +74,10 @@ Future<FFmpegBuildResult> _buildAndroid(
   BuildInput input,
   BuildOutputBuilder output,
 ) async {
+  // Build the Go miru_core native library (c-shared) for this ABI and register
+  // it as a bundled code asset.
+  await _buildMiruCore(input, output);
+
   final includes = <Uri>[];
   final libraries = <String>[];
   final libraryDirectories = <Uri>[];
@@ -153,11 +157,250 @@ Future<FFmpegBuildResult> _buildAndroid(
   );
 }
 
+/// Every file that affects the Go build: all `.go` sources plus the module
+/// manifest.
+///
+/// These must be declared as hook output dependencies, otherwise the build
+/// system caches the hook result indefinitely and never re-runs it, so backend
+/// edits silently never reach the shipped library (the bug the old Linux CMake
+/// target had with its dependency-less custom command). The scan is cheap (a
+/// few hundred files, no vendor directory) next to the c-shared build it guards.
+List<Uri> _goBuildInputs(Uri dir) {
+  final root = Directory.fromUri(dir);
+  if (!root.existsSync()) return const [];
+
+  final inputs = <Uri>[];
+  for (final entity in root.listSync(recursive: true, followLinks: false)) {
+    if (entity is! File) continue;
+    final path = entity.path;
+    if (path.endsWith('.go') ||
+        path.endsWith('go.mod') ||
+        path.endsWith('go.sum')) {
+      inputs.add(entity.uri);
+    }
+  }
+  return inputs;
+}
+
+/// Builds libmiru_core.so for the current target using Go's c-shared mode and
+/// registers it as a bundled native code asset.
+///
+/// Android cross-compiles with the NDK clang toolchain; Linux uses the host C
+/// compiler. Both share the same staleness check so an edit anywhere under the
+/// Go module rebuilds the library — the gap that let the old Linux CMake target
+/// ship a stale `.so` forever.
+Future<void> _buildMiruCore(BuildInput input, BuildOutputBuilder output) async {
+  final os = input.config.code.targetOS;
+  final arch = input.config.code.targetArchitecture;
+  // Trailing slash matters: Uri.resolve treats the last segment of a
+  // slash-less path as a file name and replaces it, which would resolve
+  // 'go.mod' to src/miru_core/go.mod instead of inside the module.
+  final goModuleDir = input.packageRoot.resolve('src/miru_core/miru-core/');
+
+  // Without go.mod, `go` walks up to the repository root and reports a
+  // confusing "cannot find main module" error that points at the Flutter
+  // project instead of the missing submodule. That is exactly what CI hits
+  // when `actions/checkout` runs without `submodules: true`.
+  if (!File.fromUri(goModuleDir.resolve('go.mod')).existsSync()) {
+    throw Exception(
+      'Go module not found at $goModuleDir (go.mod is missing). The '
+      'miru-core submodule is not checked out. Run '
+      '`git submodule update --init --recursive`, and make sure CI uses '
+      '`actions/checkout` with `submodules: true`.',
+    );
+  }
+
+  final String outDirPath;
+  final String ldflags;
+  final Map<String, String> env;
+
+  switch (os) {
+    case OS.android:
+      final sdkRoot =
+          Platform.environment['ANDROID_HOME'] ??
+          '/home/noonecare/Android/Sdk';
+      final ndkPath = _resolveNdkPath(sdkRoot);
+      final toolchain = '$ndkPath/toolchains/llvm/prebuilt/linux-x86_64/bin';
+      final (ccName, cxxName, goArch, abi) = _abiToolchain(arch);
+      outDirPath = 'build/android/lib/$abi/';
+      ldflags = '-s -w -checklinkname=0';
+      env = {
+        'ANDROID_HOME': sdkRoot,
+        'ANDROID_SDK_ROOT': sdkRoot,
+        'ANDROID_NDK_HOME': ndkPath,
+        'PATH': '${Platform.environment['PATH'] ?? ''}:$toolchain',
+        'CC': '$toolchain/$ccName',
+        'CXX': '$toolchain/$cxxName',
+        'CGO_ENABLED': '1',
+        'GOOS': 'android',
+        'GOARCH': goArch,
+      };
+    case OS.linux:
+      final goArch = switch (arch) {
+        Architecture.x64 => 'amd64',
+        Architecture.arm64 => 'arm64',
+        Architecture.ia32 => '386',
+        Architecture.arm => 'arm',
+        _ => throw Exception('Unsupported Linux architecture: $arch'),
+      };
+      outDirPath = 'build/linux/lib/$goArch/';
+      ldflags = '-s -w';
+      // Host C toolchain (cc/gcc) and the inherited Go environment; only the
+      // cross-compile target needs to be pinned.
+      env = {'CGO_ENABLED': '1', 'GOOS': 'linux', 'GOARCH': goArch};
+    default:
+      throw Exception('libmiru_core.so is not built for target OS: $os');
+  }
+
+  // Output into a per-target subdirectory named libmiru_core.so. The
+  // native-assets bundler copies the file using its basename, so the bundled
+  // library must be named exactly `libmiru_core.so` (what Dart opens via
+  // DynamicLibrary.open). The subdirectory keeps the per-ABI/per-arch
+  // intermediate files from overwriting each other across build-hook
+  // invocations.
+  final outDir = input.packageRoot.resolve(outDirPath);
+  await Directory.fromUri(outDir).create(recursive: true);
+  final outSo = outDir.resolve('libmiru_core.so');
+
+  // Rebuild when any Go input is newer than the .so. Comparing only main.go
+  // silently skipped every edit under pkg/, so backend fixes never reached the
+  // shipped binary and the change looked like it had no effect at all.
+  final soFile = File.fromUri(outSo);
+  final buildInputs = _goBuildInputs(goModuleDir);
+  // Declare what this hook consumed so the build system re-runs it when any of
+  // those files change.
+  output.dependencies.addAll(buildInputs);
+
+  DateTime? newestChange;
+  for (final uri in buildInputs) {
+    final modified = File.fromUri(uri).lastModifiedSync();
+    if (newestChange == null || modified.isAfter(newestChange)) {
+      newestChange = modified;
+    }
+  }
+  if (!soFile.existsSync() ||
+      (newestChange != null && newestChange.isAfter(soFile.lastModifiedSync()))) {
+    logger.info('Building libmiru_core.so for ${os.name}/$arch (Go c-shared)...');
+    final result = await Process.run(
+      'go',
+      [
+        'build',
+        '-tags',
+        'nosqlite',
+        '-buildmode=c-shared',
+        '-ldflags=$ldflags',
+        '-trimpath',
+        '-o',
+        outSo.toFilePath(),
+        p.join(goModuleDir.toFilePath(), 'main.go'),
+      ],
+      environment: env,
+      // The Go module lives in src/miru_core/miru-core; cwd must be inside it
+      // so `go` can resolve go.mod and the internal `binary` package.
+      workingDirectory: goModuleDir.toFilePath(),
+    );
+    if (result.exitCode != 0) {
+      throw Exception(
+        'Failed to build libmiru_core.so for ${os.name}/$arch '
+        '(exit ${result.exitCode}):\n${result.stdout}\n${result.stderr}',
+      );
+    }
+  }
+
+  output.assets.code.add(
+    CodeAsset(
+      package: input.packageName,
+      name: 'libmiru_core.so',
+      file: outSo,
+      linkMode: DynamicLoadingBundled(),
+    ),
+  );
+}
+
+/// Resolves the Android NDK directory, preferring an installed 28.x NDK so the
+/// Go c-shared build matches the app's [android.app.build.gradle.kts] NDK.
+/// Falls back to ANDROID_NDK_HOME, then the highest installed NDK; CI runners
+/// (ubuntu-latest) preinstall 27.x/28.x/29.x under $ANDROID_HOME, so no NDK
+/// download step is needed there.
+String _resolveNdkPath(String sdkRoot) {
+  final ndkDir = Directory('$sdkRoot/ndk');
+  if (ndkDir.existsSync()) {
+    final versions =
+        ndkDir
+            .listSync()
+            .whereType<Directory>()
+            .map((d) => d.path.split('/').last)
+            .toList()
+          ..sort();
+    final v28 = versions.where((n) => n.startsWith('28.')).toList();
+    if (v28.isNotEmpty) return '$sdkRoot/ndk/${v28.last}';
+  }
+  final fromEnv = Platform.environment['ANDROID_NDK_HOME'];
+  if (fromEnv != null && Directory(fromEnv).existsSync()) return fromEnv;
+  if (ndkDir.existsSync()) {
+    final versions =
+        ndkDir
+            .listSync()
+            .whereType<Directory>()
+            .map((d) => d.path.split('/').last)
+            .toList()
+          ..sort();
+    if (versions.isNotEmpty) return '$sdkRoot/ndk/${versions.last}';
+  }
+  throw Exception(
+    'Android NDK not found. Install it via Android Studio or '
+    '`sdkmanager "ndk;28.2.13676358"`, or set ANDROID_NDK_HOME.',
+  );
+}
+
+/// Maps a [Architecture] to the NDK clang toolchain names, the Go [GOARCH],
+/// and the Android ABI folder name.
+(String, String, String, String) _abiToolchain(Architecture arch) {
+  switch (arch) {
+    case Architecture.arm64:
+      return (
+        'aarch64-linux-android21-clang',
+        'aarch64-linux-android21-clang++',
+        'arm64',
+        'arm64-v8a',
+      );
+    case Architecture.arm:
+      return (
+        'armv7a-linux-androideabi21-clang',
+        'armv7a-linux-androideabi21-clang++',
+        'arm',
+        'armeabi-v7a',
+      );
+    case Architecture.x64:
+      return (
+        'x86_64-linux-android21-clang',
+        'x86_64-linux-android21-clang++',
+        'amd64',
+        'x86_64',
+      );
+    case Architecture.ia32:
+      return (
+        'i686-linux-android21-clang',
+        'i686-linux-android21-clang++',
+        '386',
+        'x86',
+      );
+    default:
+      throw Exception('Unsupported architecture: $arch');
+  }
+}
+
 /// Linux build step – mirrors Android but uses Linux FFmpeg archive.
 Future<FFmpegBuildResult> _buildLinux(
   BuildInput input,
   BuildOutputBuilder output,
 ) async {
+  // Build the Go miru_core native library (c-shared) for this Linux arch and
+  // register it as a bundled code asset. Replaces the old
+  // src/miru_core/linux/CMakeLists.txt target, which never rebuilt the .so on
+  // Go source changes because it declared no dependencies.
+  await _buildMiruCore(input, output);
+
   final includes = <Uri>[];
   final libraries = <String>[];
   final libraryDirectories = <Uri>[];
@@ -228,8 +471,27 @@ Future<FFmpegBuildResult> _buildLinux(
       'linux/flutter/ephemeral/.plugin_symlinks/fvp/linux/mdk-sdk/lib/amd64/',
     ),
   );
-  // Use -l:libffmpeg.so.8 to link against the exact versioned file.
-  libraries.add(':libffmpeg.so.8');
+
+  // Detect the available FFmpeg shared library in the fvp mdk-sdk directory.
+  // CI environments may ship a different version than libffmpeg.so.8, so we
+  // scan for libffmpeg.so.* and fall back to the generic -lffmpeg if needed.
+  final ffmpegLibDir = input.packageRoot.resolve(
+    'linux/flutter/ephemeral/.plugin_symlinks/fvp/linux/mdk-sdk/lib/amd64/',
+  );
+  final dir = Directory.fromUri(ffmpegLibDir);
+  String? detectedLib;
+  if (dir.existsSync()) {
+    final matches = dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => p.basename(f.path).startsWith('libffmpeg.so.'))
+        .toList();
+    if (matches.isNotEmpty) {
+      matches.sort((a, b) => p.basename(b.path).compareTo(p.basename(a.path)));
+      detectedLib = ':${p.basename(matches.first.path)}';
+    }
+  }
+  libraries.add(detectedLib ?? 'ffmpeg');
 
   return FFmpegBuildResult(
     includes: includes,
@@ -240,8 +502,8 @@ Future<FFmpegBuildResult> _buildLinux(
 
 /// Windows build step – downloads the FFmpeg mingw archive from sourceforge
 /// and fully extracts it (headers, DLLs, and import libs). Uses the downloaded
-/// ffmpeg-8.dll for both linking and bundling, so there is no dependency on
-/// fvp's FFmpeg. Only ffmpeg-8.dll is bundled (not the individual av* DLLs)
+/// ffmpeg-9.dll for both linking and bundling, so there is no dependency on
+/// fvp's FFmpeg. Only ffmpeg-9.dll is bundled (not the individual av* DLLs)
 /// since it re-exports all the symbols needed by ffmpeg_merge.
 Future<FFmpegBuildResult> _buildWindows(
   BuildInput input,
@@ -293,11 +555,11 @@ Future<FFmpegBuildResult> _buildWindows(
   final includeDir = ffmpegDir.resolve('include/');
   final libDir = ffmpegDir.resolve('lib/x86_64/');
   final binDir = ffmpegDir.resolve('bin/x86_64/');
-  final ffmpegDll = binDir.resolve('ffmpeg-8.dll');
+  final ffmpegDll = binDir.resolve('ffmpeg-9.dll');
 
   if (!File.fromUri(ffmpegDll).existsSync()) {
     throw Exception(
-      'Downloaded FFmpeg build is incomplete: ffmpeg-8.dll not found at $ffmpegDll.',
+      'Downloaded FFmpeg build is incomplete: ffmpeg-9.dll not found at $ffmpegDll.',
     );
   }
   if (!Directory.fromUri(libDir).existsSync()) {
@@ -312,18 +574,18 @@ Future<FFmpegBuildResult> _buildWindows(
   // native_toolchain_c appends .lib automatically on Windows.
   libraries.add('ffmpeg');
 
-  // Register only ffmpeg-8.dll as a bundled code asset.
-  // ffmpeg-8.dll re-exports all the avcodec/avformat/avutil symbols, so the
+  // Register only ffmpeg-9.dll as a bundled code asset.
+  // ffmpeg-9.dll re-exports all the avcodec/avformat/avutil symbols, so the
   // individual av* DLLs are not needed at link time or runtime.
   output.assets.code.add(
     CodeAsset(
       package: input.packageName,
-      name: 'ffmpeg-8.dll',
+      name: 'ffmpeg-9.dll',
       file: ffmpegDll,
       linkMode: DynamicLoadingBundled(),
     ),
   );
-  logger.info('Registered ffmpeg-8.dll as bundled code asset.');
+  logger.info('Registered ffmpeg-9.dll as bundled code asset.');
 
   return FFmpegBuildResult(
     includes: includes,

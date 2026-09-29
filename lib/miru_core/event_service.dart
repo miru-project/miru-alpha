@@ -9,6 +9,7 @@ class MiruEventService {
   MiruEventService._internal();
 
   StreamSubscription<proto.WatchEventsResponse>? _subscription;
+  List<proto.ExtensionMeta> _latestExtensionMeta = const [];
   final _downloadController =
       StreamController<Map<int, proto.DownloadProgress>>.broadcast();
   final _extensionController =
@@ -17,6 +18,10 @@ class MiruEventService {
   final _devLogController = StreamController<proto.DevLogEvent>.broadcast();
   final _devNetworkController =
       StreamController<proto.DevNetworkEvent>.broadcast();
+
+  /// Last installed-extension snapshot received, so a screen that subscribes
+  /// after [start] can render the current state without refetching.
+  List<proto.ExtensionMeta> get latestExtensionMeta => _latestExtensionMeta;
 
   Stream<Map<int, proto.DownloadProgress>> get downloadStream =>
       _downloadController.stream;
@@ -39,7 +44,7 @@ class MiruEventService {
         _downloadController.add(hello.downloadStatus);
       }
       if (hello.extensionMeta.isNotEmpty) {
-        _extensionController.add(hello.extensionMeta);
+        _publishExtensions(hello.extensionMeta);
       }
       if (hello.history.isNotEmpty) {
         _historyController.add(hello.history);
@@ -55,7 +60,7 @@ class MiruEventService {
             if (event.hasDownloadEvent()) {
               _downloadController.add(event.downloadEvent.downloadStatus);
             } else if (event.hasExtensionEvent()) {
-              _extensionController.add(event.extensionEvent.extensionMeta);
+              _publishExtensions(event.extensionEvent.extensionMeta);
             } else if (event.hasHistoryEvent()) {
               _historyController.add(event.historyEvent.history);
             } else if (event.hasDevLogEvent()) {
@@ -80,6 +85,14 @@ class MiruEventService {
   void stop() {
     _subscription?.cancel();
     _subscription = null;
+  }
+
+  /// Cache the snapshot and fan it out. The backend republishes the whole
+  /// installed list whenever the extension folder changes, so every consumer
+  /// replaces its list on receipt.
+  void _publishExtensions(List<proto.ExtensionMeta> meta) {
+    _latestExtensionMeta = meta;
+    _extensionController.add(meta);
   }
 }
 

@@ -1,26 +1,31 @@
-import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
-import 'package:miru_alpha/pages/detail/detail_loading_page.dart';
-import 'package:miru_alpha/pages/download/download_page.dart';
-import 'package:miru_alpha/pages/extension_settings/extension_settings.dart';
-import 'package:miru_alpha/pages/home/library_page.dart';
-import 'package:miru_alpha/pages/license/license_page.dart';
-import 'package:miru_alpha/pages/source_code/source_code_page.dart';
-import 'package:miru_alpha/pages/watch/load_entry.dart';
+import 'package:miru_alpha/ui/features/download/widget/mobile_finish_download.dart';
+import 'package:miru_alpha/ui/features/extension_settings/extension_settings.dart';
+import 'package:miru_alpha/ui/features/license/license_page.dart';
+import 'package:miru_alpha/ui/features/source_code/source_code_page.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
-import 'package:miru_alpha/widgets/index.dart';
-import 'package:miru_alpha/pages/favorite/favorite_page_layout.dart';
-import 'package:miru_alpha/pages/history/history_page.dart';
-import 'package:miru_alpha/pages/index.dart';
-import 'package:miru_alpha/pages/main_page.dart';
-import 'package:miru_alpha/pages/tracking/anilist_search_page.dart';
-import 'package:miru_alpha/pages/tracking/anilist_progress_page.dart';
-import 'package:miru_alpha/pages/webview/mobile_webview.dart';
-import 'package:miru_alpha/pages/search/search_page_single_view.dart';
+import 'package:miru_alpha/ui/features/index.dart';
+import 'package:miru_alpha/ui/features/main_page.dart';
+import 'package:miru_alpha/ui/features/webview/mobile_webview.dart';
+import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/model/setting_items.dart';
-import 'package:miru_alpha/pages/tracking/tracking_page.dart';
-import 'package:miru_alpha/pages/dev_tool/dev_tool_page.dart';
+import 'package:miru_alpha/ui/features/dev_tool/dev_tool_page.dart';
+import 'package:miru_alpha/ui/features/detail/detail_loading_page.dart';
+import 'package:miru_alpha/ui/features/tracking/anilist_search_page.dart';
+import 'package:miru_alpha/ui/features/tracking/anilist_progress_page.dart';
+import 'package:miru_alpha/ui/features/search/search_page_single_view.dart';
+import 'package:miru_alpha/ui/features/home/home.dart';
+import 'package:miru_alpha/ui/features/favorite/views/favorite_view.dart';
+import 'package:miru_alpha/ui/features/history/views/history_view.dart';
+import 'package:miru_alpha/ui/features/search/search.dart';
+import 'package:miru_alpha/ui/features/download/download.dart';
+import 'package:miru_alpha/ui/features/watch/watch.dart';
+import 'package:miru_alpha/ui/features/extension/extension.dart';
+import 'package:miru_alpha/ui/features/tracking/tracking.dart';
 
 class ParamCache {
   static DetailParam? detailParam;
@@ -36,6 +41,15 @@ class ParamCache {
     return detailParam!;
   }
 }
+
+/// Router-scoped logger.
+///
+/// A child of the app logger so records keep a subsystem tag and still reach
+/// `MiruLog`'s `Logger.root.onRecord` listener, which is what appends to
+/// `miru.log` and feeds Settings → Logging → Export. `dart:developer`'s `log`
+/// bypasses `package:logging` entirely, so anything sent that way is absent
+/// from the exported log support actually receives.
+final _routerLog = Logger('${logger.name}.router');
 
 class RouterUtil {
   static Page noTransitionPage({
@@ -62,6 +76,29 @@ class RouterUtil {
     );
   }
 
+  /// Reads the optional `?type=` query parameter used by the history / favorite
+  /// list routes and converts it into an [ExtensionType] filter.
+  ///
+  /// The value must be a canonical [ExtensionType] wire string — build it with
+  /// [ExtensionTypeRouteParam.routeParam]. An unparseable value is reported
+  /// rather than silently clearing the filter, which is what let a mistyped
+  /// route look correct while showing unfiltered results.
+  static ExtensionType? _listPageType(GoRouterState state) {
+    final raw = state.uri.queryParameters['type'];
+    if (raw == null || raw.isEmpty) return null;
+    final type = ExtensionType.values.firstWhere(
+      (e) => e.routeParam == raw,
+      orElse: () => ExtensionType.all,
+    );
+    if (type == ExtensionType.all && raw != ExtensionType.all.routeParam) {
+      _routerLog.warning(
+        'Ignoring unknown ?type="$raw"; expected one of '
+        '${ExtensionType.values.map((e) => e.routeParam).join(', ')}',
+      );
+    }
+    return type == ExtensionType.all ? null : type;
+  }
+
   static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final rootKey = GlobalKey<NavigatorState>();
   static final GoRoute _buildDetail = GoRoute(
@@ -69,7 +106,7 @@ class RouterUtil {
 
     builder: (context, state) {
       final extra = ParamCache.getDetailParam(state.extra as DetailParam);
-      return DetailLoadingPage(meta: extra.meta, detailUrl: extra.url);
+      return DetailLoadingPage.fromParam(extra);
     },
   );
   static final appRouter = GoRouter(
@@ -85,7 +122,7 @@ class RouterUtil {
         path: '/watch',
         builder: (context, state) {
           final extra = state.extra! as WatchParams;
-          return WatchLoadEntry(param: extra);
+          return WatchView(param: extra);
         },
       ),
       GoRoute(
@@ -129,30 +166,45 @@ class RouterUtil {
                     path: 'history',
                     pageBuilder: (context, state) => noTransitionPage(
                       state: state,
-                      child: const HistoryPage(),
+                      child: HistoryView(type: _listPageType(state)),
                     ),
                   ),
                   GoRoute(
                     path: 'favorite',
                     pageBuilder: (context, state) => noTransitionPage(
                       state: state,
-                      child: const FavoritePage(),
+                      child: FavoriteView(type: _listPageType(state)),
                     ),
                   ),
                   GoRoute(
                     path: 'download',
-                    pageBuilder: (context, state) =>
-                        noTransitionPage(state: state, child: DownloadPage()),
+                    pageBuilder: (context, state) => noTransitionPage(
+                      state: state,
+                      child: DeviceUtil.deviceWidget(
+                        context: context,
+                        desktop: const DesktopDownloadView(),
+                        mobile: const MobileDownloadView(),
+                      ),
+                    ),
+                    routes: [
+                      // for mobile layout  only
+                      GoRoute(
+                        path: 'history',
+                        pageBuilder: (context, state) => noTransitionPage(
+                          state: state,
+                          child: DeviceUtil.deviceWidget(
+                            context: context,
+                            desktop: const DesktopFinishedDownloadSection(),
+                            mobile: MobileFinishedDownloadSection(),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
                 path: '/home',
-                pageBuilder: (context, state) => noTransitionPage(
-                  state: state,
-                  child: PlatformWidget(
-                    mobileWidget: MiruMobileShellScaffold(),
-                    desktopWidget: DesktopLibraryPage(),
-                  ),
-                ),
+                pageBuilder: (context, state) =>
+                    noTransitionPage(state: state, child: const HomeView()),
               ),
             ],
           ),
@@ -162,7 +214,7 @@ class RouterUtil {
                 path: '/search',
                 pageBuilder: (context, state) => noTransitionPage(
                   state: state,
-                  child: SearchPage(search: state.extra as String?),
+                  child: SearchView(query: state.extra as String?),
                 ),
                 routes: [
                   GoRoute(
@@ -200,13 +252,13 @@ class RouterUtil {
                 path: '/extension',
                 pageBuilder: (context, state) => noTransitionPage(
                   state: state,
-                  child: const ExtensionPage(),
+                  child: const ExtensionListView(),
                 ),
               ),
               GoRoute(
                 path: '/tracking',
                 pageBuilder: (context, state) =>
-                    noTransitionPage(state: state, child: const TrackingPage()),
+                    noTransitionPage(state: state, child: const TrackingView()),
               ),
             ],
           ),

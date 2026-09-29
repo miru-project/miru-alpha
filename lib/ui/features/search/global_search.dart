@@ -1,0 +1,198 @@
+import 'package:material_ui/material_ui.dart';
+import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/model/model.dart';
+import 'package:miru_alpha/provider/extension_provider.dart';
+import 'package:miru_alpha/provider/search/search_page_provider.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/ui/core/error.dart';
+import 'package:miru_alpha/ui/core/grid_view/miru_grid_tile.dart';
+
+class GlobalSearch extends HookConsumerWidget {
+  const GlobalSearch({
+    super.key,
+    required this.searchQuery,
+    required this.isMobile,
+  });
+  final String searchQuery;
+  final bool isMobile;
+
+  Widget _buildDesktopTile(
+    AsyncValue<List<ExtensionListItem>> snapshot,
+    ExtensionMeta meta,
+  ) {
+    return snapshot.when(
+      data: (data) {
+        return SizedBox(
+          height: 330,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              final ext = data.elementAt(index);
+              return MiruDesktopGridTile(
+                onTap: () {
+                  context.push(
+                    '/search/single/detail',
+                    extra: DetailParam(
+                      meta: meta,
+                      url: ext.url,
+                      items: data,
+                      index: index,
+                    ),
+                  );
+                },
+                width: 200,
+                title: ext.title,
+                subtitle: ext.update,
+                imageUrl: ext.cover,
+              );
+            },
+            itemCount: data.length,
+          ),
+        );
+      },
+      error: (error, stack) {
+        return ErrorDisplay.grpc(err: error, stack: stack);
+      },
+      loading: () {
+        return const Center(child: FCircularProgress());
+      },
+    );
+  }
+
+  Widget _buildMobileTile(
+    AsyncValue<List<ExtensionListItem>> snapshot,
+    ExtensionMeta meta,
+  ) {
+    return snapshot.when(
+      data: (data) {
+        return SizedBox(
+          height: 200,
+
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              final ext = data.elementAt(index);
+              return Padding(
+                padding: .symmetric(horizontal: 10),
+                child: MiruMobileTile(
+                  onTap: () {
+                    context.push(
+                      '/search/single/detail',
+                      extra: DetailParam(
+                        meta: meta,
+                        url: ext.url,
+                        items: data,
+                        index: index,
+                      ),
+                    );
+                  },
+                  width: 130,
+                  title: ext.title,
+                  subtitle: ext.update,
+                  imageUrl: ext.cover,
+                ),
+              );
+            },
+            itemCount: data.length,
+          ),
+        );
+      },
+      error: (error, stack) {
+        return ErrorDisplay.grpc(err: error, stack: stack);
+      },
+      loading: () {
+        return const Center(child: FCircularProgress());
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final metaData = ref.watch(searchPageProvider.select((e) => e.metaData));
+    final scopePackages = ref.watch(
+      searchPageProvider.select((e) => e.searchScopePackages),
+    );
+    final listPadding = isMobile ? 0.0 : 70.0;
+    final scopeList = scopePackages.toList();
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SizedBox(
+          height: constraints.maxHeight,
+          child: ListView.builder(
+            padding: .symmetric(vertical: listPadding),
+            itemBuilder: (context, index) {
+              final pkg = scopeList.elementAt(index);
+              final snapshot = ref.watch(
+                fetchExtensionSearchLatestProvider.call(
+                  pkg,
+                  1,
+                  query: searchQuery,
+                ),
+              );
+              final meta = metaData
+                  .where((ext) => ext.packageName == pkg)
+                  .firstOrNull;
+              // Metadata can lag behind the scope packages (e.g. an extension
+              // was removed while results were open); skip instead of crashing.
+              if (meta == null) return const SizedBox.shrink();
+
+              return SizedBox(
+                height: isMobile ? 265.0 : 400.0,
+                child: Column(
+                  crossAxisAlignment: .start,
+                  children: [
+                    SizedBox(height: 10),
+                    FButton(
+                      mainAxisSize: .min,
+                      variant: .ghost,
+                      onPress: () {
+                        context.push(
+                          '/search/single',
+                          extra: SearchPageParam(
+                            meta: meta,
+                            query: searchQuery,
+                          ),
+                        );
+                      },
+                      suffix: Icon(FLucideIcons.chevronRight),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              meta.name,
+                              style: TextStyle(fontWeight: .bold, fontSize: 20),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (meta.nsfw) ...[
+                            const SizedBox(width: 8),
+                            FBadge(
+                              variant: .destructive,
+                              child: Text('extension.nsfw'.i18n),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    if (isMobile)
+                      _buildMobileTile(snapshot, meta)
+                    else
+                      _buildDesktopTile(snapshot, meta),
+                  ],
+                ),
+              );
+            },
+            itemCount: scopeList.length,
+          ),
+        );
+      },
+    );
+  }
+}

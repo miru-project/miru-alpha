@@ -1,4 +1,6 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
+
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
@@ -67,21 +69,51 @@ class MiruSettings {
     SettingKey.proxyActivate: 'false',
     SettingKey.proxyList: {}.toString(),
     SettingKey.saveLog: 'true',
+    SettingKey.captureCrash: 'true',
     SettingKey.subtitleFontSize: "46.0",
     SettingKey.subtitleFontColor: Colors.white.toARGB32().toString(),
     SettingKey.subtitleFontWeight: 'bold',
     SettingKey.subtitleBackgroundColor: Colors.black.toARGB32().toString(),
     SettingKey.subtitleBackgroundOpacity: "0.5",
     SettingKey.subtitleTextAlign: TextAlign.center.index.toString(),
-    SettingKey.accentColor: "zinc",
-    SettingKey.mobiletitleIsonTop: "false",
+    SettingKey.accentColor: "none",
+    SettingKey.baseColor: "zinc",
+    SettingKey.baseColorTintStrength: "0.5",
+    SettingKey.mobiletitleIsonTop: "true",
     SettingKey.btServerLink: "https://github.com/miru-project/bt-server",
     SettingKey.maxConnection: "3",
     SettingKey.showDeleteExtensionDialog: "true",
     SettingKey.pinnedExtension: {}.toString(),
+    SettingKey.searchHistory: '[]',
+    SettingKey.recentExtensions: '[]',
     SettingKey.showPageNumber: "false",
     SettingKey.novelReadingMode: "webToon",
+    SettingKey.novelLineHeight: "1.6",
+    SettingKey.novelFontFamily: 'serif',
+    SettingKey.novelTheme: 'midnight',
+    SettingKey.novelMargin: "20.0",
+    SettingKey.novelKeepScreenOn: "true",
+    SettingKey.novelTapToTurnPage: "true",
+    SettingKey.novelVolumeKeysTurnPage: "false",
+    SettingKey.novelBookmarks: "",
     SettingKey.downloadPath: "",
+    SettingKey.downloadConcurrent: "3",
+    SettingKey.hideMissingDownloads: "true",
+    SettingKey.mangaFitMode: "fitWidth",
+    SettingKey.mangaCanvasBackground: "black",
+    // Brightness defaults to auto: the reader should not take the screen's
+    // brightness over on first open, and manual at 100% is a no-op that only
+    // wins the argument with the system setting. Set it explicitly from the
+    // reader's brightness control when the reader wants a specific value.
+    SettingKey.mangaBrightnessMode: "auto",
+    SettingKey.mangaBrightness: "100",
+    // No gap between pages: a reader page is the content edge to edge, and the
+    // default 12pt drew a black gutter down both sides of every page.
+    SettingKey.mangaPageGap: "0",
+    SettingKey.mangaInvertColors: "false",
+    SettingKey.mangaKeepScreenOn: "true",
+    SettingKey.mangaTapToTurnPage: "true",
+    SettingKey.mangaBookmarks: "",
   };
   static Future<void> _initSettings() async {
     for (final entry in _defaultSettings.entries) {
@@ -94,6 +126,19 @@ class MiruSettings {
   static void setSettingSync(String key, String value) {
     _settingsCache[key] = value;
     setSetting(key, value);
+  }
+
+  /// Test-only: seeds the in-memory settings cache with the default values
+  /// without contacting the gRPC backend.
+  /// Re-seeds the cache with the shipped defaults for a fresh test case.
+  ///
+  /// This **replaces** the cache rather than filling in what is missing: reader
+  /// settings are persisted, so a value one test writes would otherwise be
+  /// inherited by the next one and make it pass or fail depending on order.
+  static void seedDefaultsForTest() {
+    _settingsCache
+      ..clear()
+      ..addAll(_defaultSettings.map((key, value) => MapEntry(key, '$value')));
   }
 
   static T? getSetting<T>(String key) {
@@ -110,6 +155,30 @@ class MiruSettings {
       throw Exception('Setting $key not found');
     }
     return convertStringToObj<T>(value);
+  }
+
+  /// Returns the recent extension package names (newest first), persisted as a
+  /// JSON array under [SettingKey.recentExtensions].
+  static List<String> getRecentExtensions() {
+    final raw = _settingsCache[SettingKey.recentExtensions];
+    if (raw == null || raw.isEmpty) return const [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is List) {
+        return decoded.map((e) => e.toString()).toList();
+      }
+    } catch (_) {}
+    return const [];
+  }
+
+  /// Pushes [pkg] to the front of the recent extensions list, dedupes, and
+  /// persists the result capped at [SettingKey.recentExtensionsMax].
+  static void addRecentExtension(String pkg) {
+    final next = [
+      pkg,
+      ...getRecentExtensions().where((e) => e != pkg),
+    ].take(SettingKey.recentExtensionsMax).toList();
+    setSettingSync(SettingKey.recentExtensions, jsonEncode(next));
   }
 
   static T convertStringToObj<T>(String value) {
@@ -144,7 +213,41 @@ class MiruSettings {
         return (NovelReadMode.values
                     .where((e) => e.name == value)
                     .firstOrNull ??
-                NovelReadMode.webToon)
+                // Standard, not webtoon: every other mode parser in this switch
+                // falls back to its first value, and a value that cannot be
+                // understood should not silently change the reading mode.
+                NovelReadMode.standard)
+            as T;
+      case const (NovelFontFamily):
+        return (NovelFontFamily.values
+                    .where((e) => e.name == value)
+                    .firstOrNull ??
+                NovelFontFamily.serif)
+            as T;
+      case const (NovelTheme):
+        return (NovelTheme.values
+                    .where((e) => e.name == value)
+                    .firstOrNull ??
+                NovelTheme.midnight)
+            as T;
+      case const (MangaFitMode):
+        return (MangaFitMode.values.where((e) => e.name == value).firstOrNull ??
+                MangaFitMode.fitWidth)
+            as T;
+      case const (MangaCanvasBackground):
+        return (MangaCanvasBackground.values
+                    .where((e) => e.name == value)
+                    .firstOrNull ??
+                MangaCanvasBackground.black)
+            as T;
+      case const (MangaBrightnessMode):
+        return (MangaBrightnessMode.values
+                    .where((e) => e.name == value)
+                    .firstOrNull ??
+                // `auto`, matching the shipped default and the first value of the
+                // enum, so a value that cannot be understood does not silently
+                // take the screen's brightness over.
+                MangaBrightnessMode.auto)
             as T;
       default:
         throw Exception('Unknown $T');
@@ -168,6 +271,19 @@ class SettingKey {
   static const arrowLeft = 'Arrowleft';
   static const arrowRight = 'Arrowright';
   static const mangaReadingMode = 'ReadingMode';
+  // Reader display settings, all persisted as strings by MiruSettings.
+  // Fit mode is a [MangaFitMode] name, canvas a [MangaCanvasBackground] name,
+  // brightness mode a [MangaBrightnessMode] name, brightness/page gap are
+  // integers, the rest are booleans.
+  static const mangaFitMode = 'MangaFitMode';
+  static const mangaCanvasBackground = 'MangaCanvasBackground';
+  static const mangaBrightnessMode = 'MangaBrightnessMode';
+  static const mangaBrightness = 'MangaBrightness';
+  static const mangaPageGap = 'MangaPageGap';
+  static const mangaInvertColors = 'MangaInvertColors';
+  static const mangaKeepScreenOn = 'MangaKeepScreenOn';
+  static const mangaTapToTurnPage = 'MangaTapToTurnPage';
+  static const mangaBookmarks = 'MangaBookmarks';
   static const aniListToken = 'AniListToken';
   static const aniListUserId = 'AniListUserId';
   static const autoTracking = 'AutoTracking';
@@ -177,6 +293,7 @@ class SettingKey {
   static const windowsWebviewUA = "WindowsWebviewUA";
   static const proxy = "Proxy";
   static const saveLog = "SaveLog";
+  static const captureCrash = "CaptureCrash";
   static const subtitleFontSize = "SubtitleFontSize";
   static const subtitleFontWeight = "SubtitleFontWeight";
   static const subtitleFontColor = "SubtitleFontColor";
@@ -186,6 +303,8 @@ class SettingKey {
   static const subtitleLastLanguageSelected = "SubtitleLastLanguageSelected";
   static const subtitleLastTitleSelected = "SubtitleLastTitleSelected";
   static const accentColor = "AccentColor";
+  static const baseColor = "BaseColor";
+  static const baseColorTintStrength = "BaseColorTintStrength";
   static const mobiletitleIsonTop = "MobileTitleIsOnTop";
   static const btServerLink = "BtServerLink";
   static const maxConnection = "MaxConnection";
@@ -193,7 +312,28 @@ class SettingKey {
   static const showDeleteExtensionDialog = "ShowDeleteExtensionDialog";
   static const showPageNumber = 'ShowPageNumber';
   static const novelReadingMode = 'NovelReadingMode';
+  // Novel reader display settings. Reading mode is a [NovelReadMode] name, font
+  // family a [NovelFontFamily] name and paper a [NovelTheme] name; font size,
+  // line height and margin are doubles, the rest are booleans.
+  static const novelLineHeight = 'NovelLineHeight';
+  static const novelFontFamily = 'NovelFontFamily';
+  static const novelTheme = 'NovelTheme';
+  static const novelMargin = 'NovelMargin';
+  static const novelKeepScreenOn = 'NovelKeepScreenOn';
+  static const novelTapToTurnPage = 'NovelTapToTurnPage';
+  static const novelVolumeKeysTurnPage = 'NovelVolumeKeysTurnPage';
+  static const novelBookmarks = 'NovelBookmarks';
   static const downloadPath = 'DownloadPath';
+  static const downloadConcurrent = 'downloadConcurrent';
+  // When true (default), download entries whose file no longer exists on disk
+  // are hidden in the desktop download list unless the user expands "show
+  // missing" files.
+  static const hideMissingDownloads = 'hideMissingDownloads';
   static const proxyActivate = 'ProxyActivate';
   static const proxyList = 'ProxyList';
+  static const searchHistory = 'SearchHistory';
+  // Most recently visited extensions (entering their latest page), stored as a
+  // JSON array of package names, newest first, capped at [recentExtensionsMax].
+  static const recentExtensions = 'RecentExtensions';
+  static const recentExtensionsMax = 6;
 }

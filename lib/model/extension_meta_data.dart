@@ -4,11 +4,13 @@ import 'package:miru_alpha/model/model.dart';
 part 'extension_meta_data.g.dart';
 
 ExtensionType _extensionTypeFromJson(String value) {
+  // The supported types are exactly: all, manga, fikushon, bangumi. Any other
+  // value (including the legacy "unknown") falls back to all so the frontend
+  // never fails to parse an extension's metadata.
   return switch (value.toLowerCase()) {
     'manga' => ExtensionType.manga,
     'fikushon' => ExtensionType.fikushon,
     'bangumi' => ExtensionType.bangumi,
-    'unknown' => ExtensionType.all,
     _ => ExtensionType.all,
   };
 }
@@ -38,6 +40,7 @@ class ExtensionMeta {
   @JsonKey(fromJson: _extensionTypeFromJson)
   final ExtensionType type;
   final String? error;
+  final bool nsfw;
 
   ExtensionMeta({
     required this.name,
@@ -53,6 +56,7 @@ class ExtensionMeta {
     required this.api,
     required this.type,
     this.error,
+    this.nsfw = false,
   });
 
   factory ExtensionMeta.fromJson(Map<String, dynamic> json) =>
@@ -75,6 +79,7 @@ class ExtensionMeta {
       api: p.api,
       type: _extensionTypeFromJson(p.type),
       error: p.error,
+      nsfw: p.nsfw,
     );
   }
 }

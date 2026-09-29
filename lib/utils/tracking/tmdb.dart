@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:miru_alpha/model/tmdb_model.dart';
 import 'package:miru_alpha/utils/http/request.dart';
-import 'package:miru_alpha/widgets/core/toast.dart';
+import 'package:miru_alpha/ui/core/core/toast.dart';
 
 class TMDBProvider {
   static const apiKey = String.fromEnvironment('TMDB_API_KEY');

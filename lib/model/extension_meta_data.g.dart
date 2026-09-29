@@ -21,6 +21,7 @@ ExtensionMeta _$ExtensionMetaFromJson(Map<String, dynamic> json) =>
       api: json['api'] as String? ?? '',
       type: _extensionTypeFromJson(json['type'] as String),
       error: json['error'] as String?,
+      nsfw: json['nsfw'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ExtensionMetaToJson(ExtensionMeta instance) =>
@@ -38,6 +39,7 @@ Map<String, dynamic> _$ExtensionMetaToJson(ExtensionMeta instance) =>
       'api': instance.api,
       'type': _$ExtensionTypeEnumMap[instance.type]!,
       'error': instance.error,
+      'nsfw': instance.nsfw,
     };
 
 const _$ExtensionTypeEnumMap = {

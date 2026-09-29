@@ -1,0 +1,195 @@
+import 'package:material_ui/material_ui.dart';
+import 'package:forui/forui.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/provider/search/search_page_provider.dart';
+import 'package:miru_alpha/ui/features/extension/view_models/extension_view_model.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/theme/theme.dart';
+import 'package:miru_alpha/ui/core/index.dart';
+import 'package:miru_alpha/utils/setting_dir_index.dart';
+
+class SettingGeneral extends HookConsumerWidget {
+  const SettingGeneral({super.key, this.isMobileLayout = false});
+  final bool isMobileLayout;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = ref.read(applicationControllerProvider.notifier);
+    return ListView(
+      padding: .all(0),
+      children: [
+        SettingGroup(
+          isMobileLayout: isMobileLayout,
+          title: 'settings.labels.content.name',
+          children: [
+            SettingsInputTile(
+              isMobileLayout: isMobileLayout,
+              title: "settings.labels.tmdb_api_key.name",
+              subtitle: 'settings.labels.tmdb_api_key.information',
+              initialValue: MiruSettings.getSettingSync<String>(
+                SettingKey.tmdbKey,
+              ),
+              hintText: 'settings.labels.tmdb_api_key.hint',
+              onChanged: (value) {
+                MiruSettings.setSettingSync(SettingKey.tmdbKey, value);
+              },
+            ),
+
+            SettingsRadiosTile.detailed(
+              isMobileLayout: isMobileLayout,
+              title: "settings.labels.language.name",
+              subtitle: 'settings.labels.language.information',
+              value: MiruSettings.getSettingSync<String>(SettingKey.language),
+              onChanged: (value) {
+                c.changeLanguage(value);
+                I18nUtils.changeLanguage(value);
+              },
+              entry: const [
+                RadioTileEntry(value: 'en', title: 'settings.labels.en'),
+                RadioTileEntry(value: 'zh', title: 'settings.labels.zh'),
+              ],
+            ),
+
+            SettingsToggleTile(
+              isMobileLayout: isMobileLayout,
+              title: 'settings.labels.allow_nsfw.name',
+              subtitle: 'settings.labels.allow_nsfw.information',
+              value: MiruSettings.getSettingSync<bool>(SettingKey.enableNSFW),
+              onChanged: (value) {
+                MiruSettings.setSettingSync(
+                  SettingKey.enableNSFW,
+                  value.toString(),
+                );
+                // Refilter already-fetched content in place — never refetch.
+                // Invalidating here would wipe the fetched repos while the
+                // StatefulShellRoute keeps the extension page mounted, leaving
+                // it permanently empty on desktop and mobile.
+                ref.read(extensionPageProvider.notifier).filter();
+                ref.read(extensionViewModelProvider.notifier).refilter();
+                ref.read(searchPageProvider.notifier).refilter();
+              },
+            ),
+          ],
+        ),
+
+        SettingGroup(
+          isMobileLayout: isMobileLayout,
+          title: 'settings.labels.appearance.name',
+          children: [
+            SettingsRadiosTile.detailed(
+              isMobileLayout: isMobileLayout,
+              title: 'settings.labels.theme.name',
+              subtitle: 'settings.labels.theme.information',
+              value: MiruSettings.getSettingSync<String>(SettingKey.theme),
+              onChanged: (val) => c.changeTheme(val),
+              entry: const [
+                RadioTileEntry(
+                  value: 'system',
+                  title: 'settings.labels.system',
+                  icon: FLucideIcons.sunMoon,
+                ),
+                RadioTileEntry(
+                  value: 'light',
+                  title: 'settings.labels.light',
+                  icon: FLucideIcons.sun,
+                ),
+                RadioTileEntry(
+                  value: 'dark',
+                  title: 'settings.labels.dark',
+                  icon: FLucideIcons.moon,
+                ),
+              ],
+            ),
+            SettingsRadiosTile.detailed(
+              isMobileLayout: isMobileLayout,
+              title: 'settings.labels.base_color.name',
+              subtitle: 'settings.labels.base_color.information',
+              value: MiruSettings.getSettingSync<String>(SettingKey.baseColor),
+              onChanged: (val) => c.changeBaseColor(val),
+              entry: baseColorNames
+                  .map(
+                    (e) =>
+                        RadioTileEntry(value: e, title: 'settings.labels.$e'),
+                  )
+                  .toList(),
+            ),
+            SettingsRadiosTile.detailed(
+              isMobileLayout: isMobileLayout,
+              title: 'settings.labels.primary_color.name',
+              subtitle: 'settings.labels.primary_color.information',
+              value: MiruSettings.getSettingSync<String>(
+                SettingKey.accentColor,
+              ),
+              onChanged: (val) => c.changePrimaryColor(val),
+              entry: primaryColorNames
+                  .map(
+                    (e) =>
+                        RadioTileEntry(value: e, title: 'settings.labels.$e'),
+                  )
+                  .toList(),
+            ),
+            // SettingsSliderTile(
+            //   isMobileLayout: isMobileLayout,
+            //   title: 'settings.labels.base_color_tint_strength.name',
+            //   subtitle: 'settings.labels.base_color_tint_strength.information',
+            //   value: ref.watch(applicationControllerProvider).tintStrength,
+            //   min: 0,
+            //   max: 1,
+            //   stepPercentage: 0.01,
+            //   onChanged: (value) => c.changeTintStrength(value),
+            // ),
+          ],
+        ),
+        SettingGroup(
+          isMobileLayout: isMobileLayout,
+          title: 'settings.labels.others.name',
+          children: [
+            SettingsToggleTile(
+              isMobileLayout: isMobileLayout,
+              title: 'settings.labels.auto_update.name',
+              subtitle: 'settings.labels.auto_update.information',
+              value: MiruSettings.getSettingSync<bool>(
+                SettingKey.autoCheckUpdate,
+              ),
+              onChanged: (value) {
+                MiruSettings.setSettingSync(
+                  SettingKey.autoCheckUpdate,
+                  value.toString(),
+                );
+              },
+            ),
+
+            SettingsToggleTile(
+              isMobileLayout: isMobileLayout,
+              title: 'settings.labels.mobile_header_top.name',
+              subtitle: 'settings.labels.mobile_header_top.information',
+              value: MiruSettings.getSettingSync<bool>(
+                SettingKey.mobiletitleIsonTop,
+              ),
+              onChanged: (value) {
+                ref
+                    .read(applicationControllerProvider.notifier)
+                    .updateMobileTitleOnTop(value);
+              },
+            ),
+            SettingsToggleTile(
+              isMobileLayout: isMobileLayout,
+              title: 'settings.labels.show_page_number.name',
+              subtitle: 'settings.labels.show_page_number.information',
+              value: MiruSettings.getSettingSync<bool>(
+                SettingKey.showPageNumber,
+              ),
+              onChanged: (value) {
+                MiruSettings.setSettingSync(
+                  SettingKey.showPageNumber,
+                  value.toString(),
+                );
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}

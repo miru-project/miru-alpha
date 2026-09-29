@@ -41,7 +41,7 @@ final class DownloadNotifierProvider
   }
 }
 
-String _$downloadNotifierHash() => r'4033c5755047e63a81567b4c662c84f5c92db911';
+String _$downloadNotifierHash() => r'007b8959c123b8021513f1d3256436f016dab418';
 
 abstract class _$DownloadNotifier extends $Notifier<AsyncValue<DownloadState>> {
   AsyncValue<DownloadState> build();

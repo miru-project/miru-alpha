@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/model.dart';
@@ -10,8 +9,6 @@ import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
     as pb_extension;
-
-late final Dio dio;
 
 /// Endpoint helpers for application settings
 class AppSettingEndpoint {
@@ -61,13 +58,39 @@ class CoreNetwork {
     }
   }
 
-  static Future<void> ensureInitialized() async {
-    dio = Dio();
-  }
+  static Future<void> ensureInitialized() async {}
 }
 
 class MiruCoreEndpoint {
-  static Detail _detailFromProto(proto.Detail p) {
+  static Detail detailFromProto(proto.Detail p) {
+    List<ExtensionEpisodeGroup>? episodes;
+    if (p.hasEpisodes()) {
+      try {
+        final decoded = jsonDecode(p.episodes);
+        if (decoded is List) {
+          episodes = decoded
+              .map((e) => ExtensionEpisodeGroup()..mergeFromProto3Json(e))
+              .toList();
+        }
+      } catch (e) {
+        logger.warning('Failed to parse episodes JSON: ${p.episodes}');
+        episodes = null;
+      }
+    }
+
+    Map<String, String>? headers;
+    if (p.hasHeaders()) {
+      try {
+        final decoded = jsonDecode(p.headers);
+        if (decoded is Map) {
+          headers = decoded.map((k, v) => MapEntry(k.toString(), v.toString()));
+        }
+      } catch (e) {
+        logger.warning('Failed to parse headers JSON: ${p.headers}');
+        headers = null;
+      }
+    }
+
     return Detail(
       id: p.id,
       title: p.hasTitle() ? p.title : "",
@@ -76,16 +99,8 @@ class MiruCoreEndpoint {
       downloaded: p.downloaded,
       detailUrl: p.detailUrl,
       package: p.package,
-      episodes: p.hasEpisodes()
-          ? (jsonDecode(p.episodes) as List)
-                .map((e) => ExtensionEpisodeGroup()..mergeFromProto3Json(e))
-                .toList()
-          : null,
-      headers: p.hasHeaders()
-          ? (jsonDecode(p.headers) as Map<String, dynamic>).map(
-              (k, v) => MapEntry(k, v.toString()),
-            )
-          : null,
+      episodes: episodes,
+      headers: headers,
     );
   }
 
@@ -110,7 +125,7 @@ class MiruCoreEndpoint {
       proto.GetDetailRequest(package: pkg, detailUrl: url),
     );
     if (!response.hasDetail() || response.detail.package.isEmpty) return null;
-    return _detailFromProto(response.detail);
+    return detailFromProto(response.detail);
   }
 
   static Future<Detail> upsertDbDetail(Detail detail) async {
@@ -128,16 +143,7 @@ class MiruCoreEndpoint {
         headers: detail.headers != null ? jsonEncode(detail.headers) : null,
       ),
     );
-    return _detailFromProto(response.detail);
-  }
-
-  static ExtensionBangumiWatchTorrent _handleTorrent(
-    Map<String, dynamic> data,
-    String mediaType,
-  ) {
-    if (mediaType != "torrent") return ExtensionBangumiWatchTorrent();
-    return ExtensionBangumiWatchTorrent()
-      ..mergeFromProto3Json(data["torrent"], ignoreUnknownFields: true);
+    return detailFromProto(response.detail);
   }
 
   static Future<dynamic> watch(
@@ -149,35 +155,37 @@ class MiruCoreEndpoint {
       proto.WatchRequest(pkg: pkg, url: url),
     );
 
+    // The golang (Scriggo) V2 backend only ever emits ExtensionWatch (the V2
+    // source/group list) or ExtensionAllWatch (the "all" bundle) from watch().
+    // The per-type bangumi/manga/fikushon oneof variants are produced by the
+    // legacy V1 (JS) runtime only; they are kept here purely so the switch stays
+    // exhaustive and V1 extensions keep working.
     switch (response.whichData()) {
+      // V2 golang: source/group list. The resolved stream is fetched via
+      // mirror(), which returns an ExtensionAllWatch.
+      case proto.WatchResponse_Data.watch:
+        return response.watch;
+      // V2 golang: "all" extension. The bundle carries every shape; pick the
+      // one matching the extension's declared @type.
+      case proto.WatchResponse_Data.all:
+        final all = response.all;
+        switch (meta.type) {
+          case ExtensionType.bangumi:
+            return all.bangumi;
+          case ExtensionType.manga:
+            return all.manga;
+          case ExtensionType.fikushon:
+            return all.fikushon;
+          case ExtensionType.all:
+            return all;
+        }
+      // V1 (JS) only — golang V2 never returns these directly.
       case proto.WatchResponse_Data.bangumi:
         return response.bangumi;
       case proto.WatchResponse_Data.manga:
         return response.manga;
       case proto.WatchResponse_Data.fikushon:
         return response.fikushon;
-      case proto.WatchResponse_Data.raw:
-        final data = jsonDecode(response.raw);
-        final String mediaType = data["type"] ?? "";
-        switch (meta.type) {
-          case ExtensionType.bangumi:
-            final watch = ExtensionBangumiWatch()
-              ..mergeFromProto3Json(data, ignoreUnknownFields: true);
-            watch.torrent = _handleTorrent(data, mediaType);
-            return watch;
-          case ExtensionType.manga:
-            return ExtensionMangaWatch()
-              ..mergeFromProto3Json(data, ignoreUnknownFields: true);
-          case ExtensionType.fikushon:
-            return ExtensionFikushonWatch()
-              ..mergeFromProto3Json(data, ignoreUnknownFields: true);
-
-          default:
-            return response.raw;
-        }
-      // V2
-      case proto.WatchResponse_Data.watch:
-        return response.watch;
       case proto.WatchResponse_Data.notSet:
         throw Exception("Watch response data not set");
     }
@@ -195,13 +203,14 @@ class MiruCoreEndpoint {
         return response.manga;
       case proto.MirrorResponse_Data.fikushon:
         return response.fikushon;
-      case proto.MirrorResponse_Data.raw:
-        try {
-          // If raw is JSON, it might be a backward compatible object
-          return jsonDecode(response.raw);
-        } catch (e) {
-          return response.raw;
-        }
+      case proto.MirrorResponse_Data.all:
+        final all = response.all;
+        // A mirror resolves a single stream, so the extension populates exactly
+        // one of the bundled watch shapes. Return whichever was set.
+        if (all.hasBangumi()) return all.bangumi;
+        if (all.hasManga()) return all.manga;
+        if (all.hasFikushon()) return all.fikushon;
+        return all;
       case proto.MirrorResponse_Data.notSet:
         throw Exception("Mirror response data not set");
     }
@@ -209,10 +218,13 @@ class MiruCoreEndpoint {
 
   static Future<Map<String, pb_extension.ExtensionFilter>> createFilter(
     String pkg, {
-    String? filter,
+    proto.FilterSelection? filter,
   }) async {
     final response = await MiruGrpcClient.extensionClient.createFilter(
-      proto.CreateFilterRequest(pkg: pkg, filter: filter ?? ""),
+      proto.CreateFilterRequest(
+        pkg: pkg,
+        filter: filter ?? proto.FilterSelection(),
+      ),
     );
     return response.filters;
   }
@@ -233,19 +245,15 @@ class MiruCoreEndpoint {
     String pkg,
     String kw,
     int page, {
-    dynamic filter,
+    proto.FilterSelection? filter,
   }) async {
-    String filterStr = "";
-    if (filter != null) {
-      if (filter is String) {
-        filterStr = filter;
-      } else {
-        filterStr = jsonEncode(filter);
-      }
-    }
-
     final response = await MiruGrpcClient.extensionClient.search(
-      proto.SearchRequest(pkg: pkg, kw: kw, page: page, filter: filterStr),
+      proto.SearchRequest(
+        pkg: pkg,
+        kw: kw,
+        page: page,
+        filter: filter ?? proto.FilterSelection(),
+      ),
     );
 
     return response.items;
