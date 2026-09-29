@@ -192,6 +192,23 @@ List<Uri> _goBuildInputs(Uri dir) {
 Future<void> _buildMiruCore(BuildInput input, BuildOutputBuilder output) async {
   final os = input.config.code.targetOS;
   final arch = input.config.code.targetArchitecture;
+  // Trailing slash matters: Uri.resolve treats the last segment of a
+  // slash-less path as a file name and replaces it, which would resolve
+  // 'go.mod' to src/miru_core/go.mod instead of inside the module.
+  final goModuleDir = input.packageRoot.resolve('src/miru_core/miru-core/');
+
+  // Without go.mod, `go` walks up to the repository root and reports a
+  // confusing "cannot find main module" error that points at the Flutter
+  // project instead of the missing submodule. That is exactly what CI hits
+  // when `actions/checkout` runs without `submodules: true`.
+  if (!File.fromUri(goModuleDir.resolve('go.mod')).existsSync()) {
+    throw Exception(
+      'Go module not found at $goModuleDir (go.mod is missing). The '
+      'miru-core submodule is not checked out. Run '
+      '`git submodule update --init --recursive`, and make sure CI uses '
+      '`actions/checkout` with `submodules: true`.',
+    );
+  }
 
   final String outDirPath;
   final String ldflags;
@@ -249,9 +266,7 @@ Future<void> _buildMiruCore(BuildInput input, BuildOutputBuilder output) async {
   // silently skipped every edit under pkg/, so backend fixes never reached the
   // shipped binary and the change looked like it had no effect at all.
   final soFile = File.fromUri(outSo);
-  final buildInputs = _goBuildInputs(
-    input.packageRoot.resolve('src/miru_core/miru-core/'),
-  );
+  final buildInputs = _goBuildInputs(goModuleDir);
   // Declare what this hook consumed so the build system re-runs it when any of
   // those files change.
   output.dependencies.addAll(buildInputs);
@@ -277,16 +292,12 @@ Future<void> _buildMiruCore(BuildInput input, BuildOutputBuilder output) async {
         '-trimpath',
         '-o',
         outSo.toFilePath(),
-        input.packageRoot
-            .resolve('src/miru_core/miru-core/main.go')
-            .toFilePath(),
+        p.join(goModuleDir.toFilePath(), 'main.go'),
       ],
       environment: env,
       // The Go module lives in src/miru_core/miru-core; cwd must be inside it
       // so `go` can resolve go.mod and the internal `binary` package.
-      workingDirectory: input.packageRoot
-          .resolve('src/miru_core/miru-core')
-          .toFilePath(),
+      workingDirectory: goModuleDir.toFilePath(),
     );
     if (result.exitCode != 0) {
       throw Exception(
