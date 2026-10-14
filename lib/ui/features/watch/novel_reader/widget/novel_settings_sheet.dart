@@ -114,10 +114,7 @@ class _NovelSettingsSheet extends ConsumerWidget {
                   // Paper palette.
                   _SectionLabel('reader.novel.theme.name'.i18n),
                   const SizedBox(height: 8),
-                  _PaperPalette(
-                    value: state.theme,
-                    onChanged: reader.setTheme,
-                  ),
+                  _PaperPalette(value: state.theme, onChanged: reader.setTheme),
                   const SizedBox(height: 20),
                   // Reading experience.
                   _SectionLabel('reader.novel.experience'.i18n),
@@ -133,8 +130,7 @@ class _NovelSettingsSheet extends ConsumerWidget {
                       child: Column(
                         children: [
                           _ToggleRow(
-                            title:
-                                'reader.novel.keep_screen_on.name'.i18n,
+                            title: 'reader.novel.keep_screen_on.name'.i18n,
                             description:
                                 'reader.novel.keep_screen_on.hint'.i18n,
                             value: state.keepScreenOn,
@@ -146,8 +142,7 @@ class _NovelSettingsSheet extends ConsumerWidget {
                             color: context.theme.colors.border,
                           ),
                           _ToggleRow(
-                            title:
-                                'reader.novel.tap_to_turn_page.name'.i18n,
+                            title: 'reader.novel.tap_to_turn_page.name'.i18n,
                             description:
                                 'reader.novel.tap_to_turn_page.hint'.i18n,
                             value: state.tapToTurnPage,
@@ -159,10 +154,8 @@ class _NovelSettingsSheet extends ConsumerWidget {
                             color: context.theme.colors.border,
                           ),
                           _ToggleRow(
-                            title:
-                                'reader.novel.volume_keys.name'.i18n,
-                            description:
-                                'reader.novel.volume_keys.hint'.i18n,
+                            title: 'reader.novel.volume_keys.name'.i18n,
+                            description: 'reader.novel.volume_keys.hint'.i18n,
                             value: state.volumeKeysTurnPage,
                             onChange: reader.setVolumeKeysTurnPage,
                           ),
@@ -202,8 +195,7 @@ class _FontFamilyGrid extends StatelessWidget {
     return Row(
       children: [
         for (final family in NovelFontFamily.values) ...[
-          if (family != NovelFontFamily.values.first)
-            const SizedBox(width: 8),
+          if (family != NovelFontFamily.values.first) const SizedBox(width: 8),
           Expanded(
             child: _FontFamilyTile(
               family: family,
@@ -243,9 +235,9 @@ class _FontFamilyTile extends StatelessWidget {
       semanticsLabel: 'reader.novel.font_family.name'.i18n,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: selected ? colors.background : colors.muted.withValues(
-            alpha: 0.4,
-          ),
+          color: selected
+              ? colors.background
+              : colors.muted.withValues(alpha: 0.4),
           borderRadius: .circular(8),
           border: Border.all(
             color: selected ? colors.border : Colors.transparent,
@@ -454,10 +446,11 @@ class _SliderSection extends StatelessWidget {
             stepPercentage: steps <= 0 ? 1 : 1 / steps,
             onChange: (newValue) => onChanged(resolve(newValue.max)),
           ),
-          tooltipBuilder: (_, newValue) =>
-              Text(steps <= 0 ? '$value' : resolve(newValue).toStringAsFixed(
-                step < 1 ? 1 : 0,
-              )),
+          tooltipBuilder: (_, newValue) => Text(
+            steps <= 0
+                ? '$value'
+                : resolve(newValue).toStringAsFixed(step < 1 ? 1 : 0),
+          ),
         ),
       ],
     );

@@ -79,15 +79,11 @@ class NovelBottomBar extends ConsumerWidget {
           // Row 2 — the reading-position scrubber.
           _PositionScrubber(
             // The scrubber counts in whatever the active mode navigates.
-            unit: (state.isPaged
-                    ? 'reader.novel.page'
-                    : 'reader.novel.line')
+            unit: (state.isPaged ? 'reader.novel.page' : 'reader.novel.line')
                 .i18n,
             position: state.historyProgress,
             total: state.totalProgress,
-            onScrub: state.isPaged
-                ? reader.jumpToPage
-                : reader.jumpToLine,
+            onScrub: state.isPaged ? reader.jumpToPage : reader.jumpToLine,
           ),
           const SizedBox(height: 14),
           // The mode strip and the shortcuts are separated from the rows above

@@ -5,6 +5,7 @@ import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/ui/features/search/widget/mobile_filter_summary_chip.dart';
+import 'package:miru_alpha/ui/features/search/widget/search_field.dart';
 import 'package:miru_alpha/ui/features/search/widget/search_filter_dialog.dart';
 import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
@@ -222,26 +223,10 @@ class SearchPageSingleView extends HookConsumerWidget {
                           horizontal: 12,
                           vertical: 6,
                         ),
-                        child: FTextField(
-                          control: FTextFieldControl.managed(
-                            controller: searchController,
-                          ),
+                        child: searchField(
+                          controller: searchController,
                           hint: 'common.search_by_keywords'.i18n,
-                          clearable: (value) => value.text.isNotEmpty,
                           onSubmit: submit,
-                          prefixBuilder: (context, style, states) => Padding(
-                            padding: const EdgeInsets.only(left: 12, right: 8),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  FLucideIcons.search,
-                                  size: 18,
-                                  color: context.theme.colors.mutedForeground,
-                                ),
-                              ],
-                            ),
-                          ),
                         ),
                       ),
                     )

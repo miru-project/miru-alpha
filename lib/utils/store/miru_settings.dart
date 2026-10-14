@@ -225,9 +225,7 @@ class MiruSettings {
                 NovelFontFamily.serif)
             as T;
       case const (NovelTheme):
-        return (NovelTheme.values
-                    .where((e) => e.name == value)
-                    .firstOrNull ??
+        return (NovelTheme.values.where((e) => e.name == value).firstOrNull ??
                 NovelTheme.midnight)
             as T;
       case const (MangaFitMode):

@@ -47,9 +47,9 @@ Set<String> _referencedKeys() {
 }
 
 void main() {
-  Map<String, Object?> load(String locale) => jsonDecode(
-    File('assets/i18n/$locale.json').readAsStringSync(),
-  ) as Map<String, Object?>;
+  Map<String, Object?> load(String locale) =>
+      jsonDecode(File('assets/i18n/$locale.json').readAsStringSync())
+          as Map<String, Object?>;
 
   test('the novel reader references at least one key per locale', () {
     // Guards the extraction itself: if the pattern or the paths stop matching,
@@ -78,7 +78,8 @@ void main() {
 
   test('every paper and reading mode has a label', () {
     for (final locale in _locales) {
-      final novel = _resolve(load(locale), 'reader.novel')! as Map<String, Object?>;
+      final novel =
+          _resolve(load(locale), 'reader.novel')! as Map<String, Object?>;
       for (final theme in NovelTheme.values) {
         final label = _resolve(novel, 'theme.${theme.name}');
         expect(label, isA<String>(), reason: '$locale paper ${theme.name}');
@@ -96,8 +97,8 @@ void main() {
     // comparison would fail on keys the reader never touches.
     for (final locale in _locales) {
       final en = _resolve(load('en'), 'reader.novel')! as Map<String, Object?>;
-      final localeJson = _resolve(load(locale), 'reader.novel')!
-          as Map<String, Object?>;
+      final localeJson =
+          _resolve(load(locale), 'reader.novel')! as Map<String, Object?>;
 
       void walk(Map<String, Object?> expected, Map<String, Object?> actual) {
         for (final entry in expected.entries) {

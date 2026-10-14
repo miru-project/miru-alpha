@@ -21,6 +21,7 @@ import 'package:miru_alpha/ui/features/search/search_page_single_view.dart';
 import 'package:miru_alpha/ui/features/home/home.dart';
 import 'package:miru_alpha/ui/features/favorite/views/favorite_view.dart';
 import 'package:miru_alpha/ui/features/history/views/history_view.dart';
+import 'package:miru_alpha/ui/features/search/mobile_search_input_page.dart';
 import 'package:miru_alpha/ui/features/search/search.dart';
 import 'package:miru_alpha/ui/features/download/download.dart';
 import 'package:miru_alpha/ui/features/watch/watch.dart';
@@ -217,6 +218,21 @@ class RouterUtil {
                   child: SearchView(query: state.extra as String?),
                 ),
                 routes: [
+                  // Pushed by every mobile search bar: the query flow lives here
+                  // rather than in the tab, so `/search` stays a source list.
+                  GoRoute(
+                    path: 'input',
+                    // The page is mobile-only; desktop keeps its own overlay, so
+                    // falling back to the search view avoids a header-less screen.
+                    // `extra` optionally seeds the query (Library bar submit).
+                    builder: (context, state) => DeviceUtil.deviceWidget(
+                      context: context,
+                      desktop: const SearchView(),
+                      mobile: MobileSearchInputPage(
+                        initialQuery: state.extra as String?,
+                      ),
+                    ),
+                  ),
                   GoRoute(
                     path: 'single',
                     pageBuilder: (context, state) {

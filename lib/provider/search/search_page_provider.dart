@@ -8,16 +8,82 @@ import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'search_page_provider.g.dart';
 
+/// Which installed sources a global query fans out to.
+enum SearchScopeMode {
+  /// Only the extensions the user pinned.
+  pinned,
+
+  /// Every installed extension.
+  all,
+
+  /// An explicit hand-picked subset ([SearchPageState.specificPackages]).
+  specific,
+}
+
+/// Ordering of the aggregated global results.
+enum SearchSortMode {
+  /// Match quality first (exact > prefix > contains); pinned sources win ties.
+  relevance,
+
+  /// Newest `ExtensionListItem.update` first.
+  latest,
+
+  /// Pinned sources first, then alphabetically by source name.
+  sourcePriority,
+}
+
+/// How the aggregated result list lays itself out: one flat grid ordered by
+/// relevance, or one shelf per extension.
+enum ResultsViewMode { relevance, byExtension }
+
+/// Filter applied to the `/search` tab's source list (never to results).
+enum SearchSourceStatus { all, pinned, unpinned }
+
+/// Ordering of the `/search` tab's source list.
+enum SearchSourceSort {
+  /// Pinned sources first, then by name.
+  pinned,
+  name,
+  version,
+}
+
+/// The content types a query may be narrowed to.
+///
+/// Mirrors the extension manifest's [ExtensionType] set minus `.all`, which is
+/// a scope (serves every type) rather than a filterable type of its own.
+const List<ExtensionType> kSearchContentTypes = [
+  ExtensionType.bangumi,
+  ExtensionType.manga,
+  ExtensionType.fikushon,
+];
+
 class SearchPageState {
   final List<ExtensionMeta> metaData;
   final Set<String> pinnedExtensions;
   final String query;
   final Set<String> existedPinnedExtensions;
   final String? selectedLang;
-  final ExtensionType? selectedType;
+
+  /// Selected content types; always a subset of [kSearchContentTypes]. An empty
+  /// set is read as "every type".
+  final Set<ExtensionType> contentTypes;
+
+  final SearchScopeMode scopeMode;
+  final Set<String> specificPackages;
+  final SearchSortMode sort;
+
+  /// Layout of the aggregated results: flat grid vs per-extension shelves.
+  final ResultsViewMode resultsViewMode;
+
+  /// Filters of the `/search` tab's *source list*. They live here instead of
+  /// in widget state because the pill row is pinned under the search field
+  /// while the cards scroll in the body — two widgets, one truth.
+  final ExtensionType? sourceType;
+  final SearchSourceStatus sourceStatus;
+  final SearchSourceSort sourceSort;
+
   final bool open;
   final List<String> history;
-  final bool pinnedScope;
 
   /// Bumped by [SearchPageNotifier.refilter] so setting changes force a
   /// rebuild without any data change.
@@ -29,12 +95,43 @@ class SearchPageState {
     required this.query,
     required this.existedPinnedExtensions,
     this.selectedLang,
-    this.selectedType,
+    Set<ExtensionType>? contentTypes,
+    // Pinned by default, like the notifier's initial state: a global search
+    // never fans out to every installed extension unless the user asks.
+    this.scopeMode = SearchScopeMode.pinned,
+    this.specificPackages = const {},
+    this.sort = SearchSortMode.relevance,
+    this.resultsViewMode = ResultsViewMode.relevance,
+    this.sourceType,
+    this.sourceStatus = SearchSourceStatus.all,
+    this.sourceSort = SearchSourceSort.pinned,
     this.open = false,
     this.history = const [],
-    this.pinnedScope = false,
     this.refilterTick = 0,
-  });
+  }) : contentTypes = contentTypes ?? kSearchContentTypes.toSet();
+
+  /// True when the source list is unfiltered, i.e. its "All Sources" pill is
+  /// the one showing.
+  bool get sourceFiltersReset =>
+      sourceType == null &&
+      sourceStatus == SearchSourceStatus.all &&
+      sourceSort == SearchSourceSort.pinned;
+
+  /// True when the scope is the pinned subset. Derived, so the desktop bar's
+  /// switch and the mobile scope pills can never disagree.
+  bool get pinnedScope => scopeMode == SearchScopeMode.pinned;
+
+  /// Single-type projection of [contentTypes] for the desktop bar's
+  /// one-tab-at-a-time control; `null` means "no single type is selected".
+  ExtensionType? get selectedType => switch (contentTypes.length) {
+    1 => contentTypes.first,
+    _ => null,
+  };
+
+  /// True when [contentTypes] is narrowed below "everything".
+  bool get contentTypeFiltered =>
+      contentTypes.isNotEmpty &&
+      contentTypes.length < kSearchContentTypes.length;
 
   List<ExtensionMeta> get filteredMetaData {
     var result = metaData;
@@ -48,23 +145,30 @@ class SearchPageState {
         return base == selectedLang;
       }).toList();
     }
-    if (selectedType != null && selectedType != ExtensionType.all) {
-      result = result.where((e) => e.type == selectedType).toList();
+    if (contentTypeFiltered) {
+      // An `all` extension serves every type, so narrowing the filter must not
+      // silently drop it from the sources being queried.
+      result = result
+          .where(
+            (e) => e.type == ExtensionType.all || contentTypes.contains(e.type),
+          )
+          .toList();
     }
     return result;
   }
 
-  // Package names that global search should iterate, honoring both the pinned
-  // scope toggle and the selected type filter from the search bar.
+  // Package names that global search should iterate, honoring the scope mode
+  // plus the content-type / language / NSFW filters behind
+  // [filteredMetaData].
   Set<String> get searchScopePackages {
-    final base = pinnedScope
-        ? existedPinnedExtensions
-        : metaData.map((e) => e.packageName).toSet();
-    if (selectedType != null && selectedType != ExtensionType.all) {
-      final allowed = filteredMetaData.map((e) => e.packageName).toSet();
-      return base.intersection(allowed);
-    }
-    return base;
+    final base = switch (scopeMode) {
+      SearchScopeMode.pinned => existedPinnedExtensions,
+      SearchScopeMode.all => metaData.map((e) => e.packageName).toSet(),
+      SearchScopeMode.specific => specificPackages,
+    };
+    return base.intersection(
+      filteredMetaData.map((e) => e.packageName).toSet(),
+    );
   }
 
   // Recently visited extensions (newest first), backed by the fixed-size
@@ -78,12 +182,18 @@ class SearchPageState {
     String? query,
     Set<String>? existedPinnedExtensions,
     String? selectedLang,
-    ExtensionType? selectedType,
+    Set<ExtensionType>? contentTypes,
+    SearchScopeMode? scopeMode,
+    Set<String>? specificPackages,
+    SearchSortMode? sort,
+    ResultsViewMode? resultsViewMode,
+    ExtensionType? sourceType,
+    bool clearSourceType = false,
+    SearchSourceStatus? sourceStatus,
+    SearchSourceSort? sourceSort,
     bool? open,
     List<String>? history,
-    bool? pinnedScope,
     bool clearLang = false,
-    bool clearType = false,
     int? refilterTick,
   }) {
     return SearchPageState(
@@ -93,10 +203,16 @@ class SearchPageState {
       pinnedExtensions: pinnedExtensions ?? this.pinnedExtensions,
       query: query ?? this.query,
       selectedLang: clearLang ? null : (selectedLang ?? this.selectedLang),
-      selectedType: clearType ? null : (selectedType ?? this.selectedType),
+      contentTypes: contentTypes ?? this.contentTypes,
+      scopeMode: scopeMode ?? this.scopeMode,
+      specificPackages: specificPackages ?? this.specificPackages,
+      sort: sort ?? this.sort,
+      resultsViewMode: resultsViewMode ?? this.resultsViewMode,
+      sourceType: clearSourceType ? null : (sourceType ?? this.sourceType),
+      sourceStatus: sourceStatus ?? this.sourceStatus,
+      sourceSort: sourceSort ?? this.sourceSort,
       open: open ?? this.open,
       history: history ?? this.history,
-      pinnedScope: pinnedScope ?? this.pinnedScope,
       refilterTick: refilterTick ?? this.refilterTick,
     );
   }
@@ -126,19 +242,29 @@ class SearchPageNotifier extends _$SearchPageNotifier {
       );
     });
 
+    final installed = ref.read(extensionPageProvider).metaData;
+    final existedPinned = installed
+        .where(
+          (ext) => MiruSettings.getSettingSync<Set<String>>(
+            SettingKey.pinnedExtension,
+          ).contains(ext.packageName),
+        )
+        .map((e) => e.packageName)
+        .toSet();
+
     return SearchPageState(
-      metaData: ref.read(extensionPageProvider).metaData,
+      metaData: installed,
       pinnedExtensions: {},
       query: '',
-      existedPinnedExtensions: ref
-          .read(extensionPageProvider.select((e) => e.metaData))
-          .where(
-            (ext) => MiruSettings.getSettingSync<Set<String>>(
-              SettingKey.pinnedExtension,
-            ).contains(ext.packageName),
-          )
-          .map((e) => e.packageName)
-          .toSet(),
+      existedPinnedExtensions: existedPinned,
+      // Every global search opens on the pinned scope. Searching every
+      // installed extension by default is one request per source per page,
+      // straight at the origin servers, for results the user never asked to
+      // fan out to; with nothing pinned the scope is simply empty and the
+      // results body says so (`search.no_pinned`) instead of opening up.
+      // The only thing that moves it off pinned is the user: the "Pinned
+      // Only" switch, the scope pills, or the desktop bar.
+      scopeMode: SearchScopeMode.pinned,
       history: _loadHistory(),
     );
   }
@@ -182,16 +308,101 @@ class SearchPageNotifier extends _$SearchPageNotifier {
     state = state.copyWith(existedPinnedExtensions: existedPinnedExtensions);
   }
 
-  void setPinnedScope(bool pinnedScope) {
-    state = state.copyWith(pinnedScope: pinnedScope);
+  void setScopeMode(SearchScopeMode mode) {
+    if (mode == state.scopeMode) return;
+    state = state.copyWith(scopeMode: mode);
+  }
+
+  /// Desktop bar switch: `true` narrows to the pinned scope, `false` widens to
+  /// every installed extension.
+  void setPinnedScope(bool pinned) {
+    setScopeMode(pinned ? SearchScopeMode.pinned : SearchScopeMode.all);
+  }
+
+  void toggleSpecificPackage(String packageName) {
+    final next = {...state.specificPackages};
+    if (!next.remove(packageName)) next.add(packageName);
+    state = state.copyWith(specificPackages: next);
   }
 
   void setSelectedLang(String? lang) {
     state = state.copyWith(selectedLang: lang, clearLang: lang == null);
   }
 
+  /// Single-type selection used by the desktop bar's tabs. `null` / `.all`
+  /// clears the narrowing, anything else selects exactly that type.
   void setSelectedType(ExtensionType? type) {
-    state = state.copyWith(selectedType: type, clearType: type == null);
+    if (type == null || type == ExtensionType.all) {
+      state = state.copyWith(contentTypes: kSearchContentTypes.toSet());
+    } else {
+      state = state.copyWith(contentTypes: {type});
+    }
+  }
+
+  /// Content-type chips: toggling the last selected chip off re-selects every
+  /// type rather than leaving the search with nothing to query.
+  void toggleContentType(ExtensionType type) {
+    if (!kSearchContentTypes.contains(type)) return;
+    final next = {...state.contentTypes};
+    if (next.contains(type)) {
+      next.remove(type);
+      if (next.isEmpty) next.addAll(kSearchContentTypes);
+    } else {
+      next.add(type);
+    }
+    state = state.copyWith(contentTypes: next);
+  }
+
+  void setSort(SearchSortMode sort) {
+    state = state.copyWith(sort: sort);
+  }
+
+  /// One `/search` tab source-list filter changed. Separate methods instead of
+  /// one: a type filter of `null` means "All", so it must not be confused with
+  /// "the caller left this one alone".
+  void setSourceType(ExtensionType? type) {
+    state = state.copyWith(sourceType: type, clearSourceType: type == null);
+  }
+
+  void setSourceStatus(SearchSourceStatus status) {
+    state = state.copyWith(sourceStatus: status);
+  }
+
+  void setSourceSort(SearchSourceSort sort) {
+    state = state.copyWith(sourceSort: sort);
+  }
+
+  /// Flat relevance grid vs per-extension shelves.
+  void setResultsViewMode(ResultsViewMode mode) {
+    state = state.copyWith(resultsViewMode: mode);
+  }
+
+  /// Back to "All Sources": no type, every status, pinned-first order.
+  void resetSourceFilters() {
+    state = state.copyWith(
+      clearSourceType: true,
+      sourceStatus: SearchSourceStatus.all,
+      sourceSort: SearchSourceSort.pinned,
+    );
+  }
+
+  /// Applies the whole filter sheet draft in one state change, so the UI never
+  /// rebuilds (or refetches) once per field.
+  void setFilters({
+    SearchScopeMode? scopeMode,
+    Set<String>? specificPackages,
+    Set<ExtensionType>? contentTypes,
+    SearchSortMode? sort,
+    String? selectedLang,
+  }) {
+    state = state.copyWith(
+      scopeMode: scopeMode,
+      specificPackages: specificPackages,
+      contentTypes: contentTypes,
+      sort: sort,
+      selectedLang: selectedLang,
+      clearLang: selectedLang != null && selectedLang.isEmpty,
+    );
   }
 
   void addHistory(String query) {

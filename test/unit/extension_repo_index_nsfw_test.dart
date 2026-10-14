@@ -17,10 +17,7 @@ void main() {
 
       expect(repos, hasLength(1));
       expect(repos.first.url, 'https://example.com/index.json');
-      expect(
-        repos.first.extensions.map((e) => e.nsfw).toList(),
-        [true, false],
-      );
+      expect(repos.first.extensions.map((e) => e.nsfw).toList(), [true, false]);
     });
 
     test('accepts the string and 1 forms a repo may publish', () {

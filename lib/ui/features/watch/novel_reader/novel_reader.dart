@@ -89,7 +89,11 @@ class MiruNovelReader extends HookConsumerWidget {
       );
       return null;
     }, [state.brightnessMode, state.brightness, state.keepScreenOn]);
-    useEffect(() => () => unawaited(releaseReaderScreen()), const []);
+    useEffect(
+      () =>
+          () => unawaited(releaseReaderScreen()),
+      const [],
+    );
 
     // Snapshots history for the outgoing chapter and re-arms it for the incoming
     // one. Provider identity changes when the selected episode changes, so the
@@ -128,16 +132,12 @@ class MiruNovelReader extends HookConsumerWidget {
       openPosition: state.historyProgress,
       openTotal: state.totalProgress,
       onToggleBookmark: reader.toggleBookmark,
-      onOpenSettings: () => showNovelSettingsSheet(
-        context,
-        novelProvider: novelProvider,
-      ),
+      onOpenSettings: () =>
+          showNovelSettingsSheet(context, novelProvider: novelProvider),
     );
 
-    void openSettings() => showNovelSettingsSheet(
-      context,
-      novelProvider: novelProvider,
-    );
+    void openSettings() =>
+        showNovelSettingsSheet(context, novelProvider: novelProvider);
 
     return Focus(
       autofocus: true,
@@ -147,10 +147,10 @@ class MiruNovelReader extends HookConsumerWidget {
                 // The volume rocker turns pages forward/back, which is why the
                 // keys are wired at the reader rather than in the app: they only
                 // mean something while a page is on screen.
-                const SingleActivator(LogicalKeyboardKey.audioVolumeUp):
-                    () => reader.turnPage(1),
-                const SingleActivator(LogicalKeyboardKey.audioVolumeDown):
-                    () => reader.turnPage(-1),
+                const SingleActivator(LogicalKeyboardKey.audioVolumeUp): () =>
+                    reader.turnPage(1),
+                const SingleActivator(LogicalKeyboardKey.audioVolumeDown): () =>
+                    reader.turnPage(-1),
               }
             : const {},
         child: Stack(
@@ -180,11 +180,8 @@ class MiruNovelReader extends HookConsumerWidget {
                 chapterTitle: chapterLabel,
                 chapterOrdinal: episodeIndex + 1,
                 novelProvider: novelProvider,
-                onTapZone: (fromStart) => _onTapZone(
-                  reader,
-                  state.tapToTurnPage,
-                  fromStart,
-                ),
+                onTapZone: (fromStart) =>
+                    _onTapZone(reader, state.tapToTurnPage, fromStart),
               ),
             ),
             // The HUD halves and the status pill cross-fade rather than being
@@ -283,11 +280,7 @@ Future<void> Function() _prepareHistory(
 ///
 /// The centre tap is unconditional; only the edges obey `tapToTurnPage`, so
 /// switching edge paging off still leaves a way to bring the overlay back.
-void _onTapZone(
-  NovelReader reader,
-  bool tapToTurnPage,
-  double fromStart,
-) {
+void _onTapZone(NovelReader reader, bool tapToTurnPage, double fromStart) {
   if (!tapToTurnPage) {
     reader.toggleHud();
     return;
