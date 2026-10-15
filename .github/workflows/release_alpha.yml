@@ -13,34 +13,49 @@ env:
   GO_VERSION: "1.27.0"
 
 jobs:
-  # Enforce that pubspec.yaml and the pushed git tag stay in sync before any
-  # build starts: tag "vX.Y.Z-..." must equal pubspec "version" up to the
-  # "+build" suffix. Fails fast so a mismatched release never ships.
-  verify-version:
+  # Tag is the single source of truth:
+  #   tag upload -> set pubspec -> gen msg -> create release
+  # Build jobs then attach their artifacts to that release.
+  prepare:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history + tags, needed to diff for release notes
 
-      - name: Check tag matches pubspec version
+      - name: Set pubspec version from tag
+        id: set
         run: |
-          tag="${GITHUB_REF_NAME#v}"
-          ver="$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1)"
-          core="${ver%%+*}"
-          echo "tag(core)=$tag  pubspec(core)=$core"
-          if [ "$tag" != "$core" ]; then
-            echo "::error::git tag '$GITHUB_REF_NAME' does not match pubspec version '$ver' (expected core '$tag')."
-            exit 1
-          fi
+          bash tool/pubspec_from_tag.sh
+          echo "version=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1)" >> "$GITHUB_OUTPUT"
+
+      - name: Generate release message
+        run: bash tool/release_body.sh > release_body.md
+
+      - name: Show release message
+        run: cat release_body.md
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          bodyFile: release_body.md
+          allowUpdates: true
+          prerelease: true
 
   build-and-release-android:
-    needs: verify-version
+    needs: prepare
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: "true"
+
+      - name: Set pubspec version from tag
+        run: bash tool/pubspec_from_tag.sh
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -65,27 +80,30 @@ jobs:
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD}}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      - name: Release Packages
+      - name: Upload APKs to Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk,build/app/outputs/flutter-apk/app-arm64-v8a-release.apk,build/app/outputs/flutter-apk/app-x86_64-release.apk"
           allowUpdates: true
           prerelease: true
-          generateReleaseNotes: true
 
   build-and-release-windows:
-    needs: verify-version
+    needs: prepare
     runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set pubspec version from tag
+        shell: bash
+        run: bash tool/pubspec_from_tag.sh
+
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: ${{env.GO_VERSION}}
+          go-version: "${{env.GO_VERSION}}"
 
       - uses: subosito/flutter-action@v2
         with:
@@ -102,22 +120,24 @@ jobs:
       - name: Zip Release
         run: Compress-Archive -Path build/windows/x64/runner/Miru-alpha -DestinationPath Miru-Alpha-windows.zip
 
-      - name: Release Packages
+      - name: Upload zip to Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "Miru-Alpha-windows.zip"
           allowUpdates: true
           prerelease: true
-          generateReleaseNotes: true
 
   build-and-release-linux:
-    needs: verify-version
+    needs: prepare
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: "true"
+
+      - name: Set pubspec version from tag
+        run: bash tool/pubspec_from_tag.sh
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -143,10 +163,9 @@ jobs:
       - name: Tar Release
         run: tar -czvf Miru-Alpha-linux.tar.gz -C build/linux/x64/release Miru-alpha
 
-      - name: Release Packages
+      - name: Upload tar.gz to Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: "Miru-Alpha-linux.tar.gz"
           allowUpdates: true
           prerelease: true
-          generateReleaseNotes: true
