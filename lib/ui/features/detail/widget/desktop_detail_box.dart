@@ -231,6 +231,7 @@ class _Loaded extends HookConsumerWidget {
                 runSpacing: 12,
                 children: [
                   FButton(
+                    mainAxisSize: .min,
                     suffix: Icon(FLucideIcons.play),
                     onPress: () {},
                     child: Text("media.video_player.play".i18n),
@@ -245,6 +246,7 @@ class _Loaded extends HookConsumerWidget {
                   ),
 
                   FButton(
+                    mainAxisSize: .min,
                     variant: FButtonVariant.secondary,
                     suffix: HeartButton(
                       size: 15,
@@ -272,6 +274,7 @@ class _Loaded extends HookConsumerWidget {
                   ),
 
                   FButton(
+                    mainAxisSize: .min,
                     variant: FButtonVariant.outline,
                     suffix: Icon(FLucideIcons.globe),
                     onPress: () {

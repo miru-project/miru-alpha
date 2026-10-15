@@ -34,6 +34,7 @@ class DownloadButton extends StatelessWidget {
       );
     }
     return FButton(
+      mainAxisSize: .min,
       variant: varient ?? .secondary,
       prefix: Icon(FLucideIcons.download),
       onPress: () => onTap(context),
