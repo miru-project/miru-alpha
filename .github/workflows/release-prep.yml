@@ -1,0 +1,56 @@
+# Prepares a release: generates CHANGELOG.md from Conventional Commits and
+# bumps pubspec.yaml via tool/release.sh, then commits the result on a branch.
+#
+# Manual-only (workflow_dispatch) on purpose — it does NOT build or tag, so it
+# never starts a release on its own. Run it, review the changelog branch/PR,
+# then push the resulting tag (vX.Y.Z-alpha) to trigger Alpha Release.
+name: Release Prep
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Explicit version (e.g. 2.0.1-alpha). Leave empty to auto-bump from commits."
+        required: false
+        default: ""
+      dry_run:
+        description: "Dry run — print the plan, change nothing."
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # need full history + tags to derive changelog
+
+      - name: Run release prep
+        run: |
+          set -euo pipefail
+          args=()
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          if [ -n "${{ inputs.version }}" ]; then
+            args+=(--version "${{ inputs.version }}")
+          else
+            args+=(--auto)
+          fi
+          echo "tool/release.sh ${args[*]}"
+          # --no-tag: this job only prepares pubspec + changelog. Tagging and
+          # building stay a human step so nothing auto-releases.
+          tool/release.sh "${args[@]}" --no-tag
+
+      - name: Show plan
+        if: inputs.dry_run
+        run: |
+          echo "=== pubspec version ==="
+          grep '^version:' pubspec.yaml || true
+          echo "=== recent commits (changelog source) ==="
+          git log -5 --pretty=format:'%s' || true

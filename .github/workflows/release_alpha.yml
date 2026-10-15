@@ -13,7 +13,28 @@ env:
   GO_VERSION: "1.27.0"
 
 jobs:
+  # Enforce that pubspec.yaml and the pushed git tag stay in sync before any
+  # build starts: tag "vX.Y.Z-..." must equal pubspec "version" up to the
+  # "+build" suffix. Fails fast so a mismatched release never ships.
+  verify-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check tag matches pubspec version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          ver="$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1)"
+          core="${ver%%+*}"
+          echo "tag(core)=$tag  pubspec(core)=$core"
+          if [ "$tag" != "$core" ]; then
+            echo "::error::git tag '$GITHUB_REF_NAME' does not match pubspec version '$ver' (expected core '$tag')."
+            exit 1
+          fi
+
   build-and-release-android:
+    needs: verify-version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -55,6 +76,7 @@ jobs:
           generateReleaseNotes: true
 
   build-and-release-windows:
+    needs: verify-version
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -89,6 +111,7 @@ jobs:
           generateReleaseNotes: true
 
   build-and-release-linux:
+    needs: verify-version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
