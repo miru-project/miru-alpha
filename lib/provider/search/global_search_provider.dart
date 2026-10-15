@@ -49,6 +49,7 @@ class GlobalSearchAggregate {
     this.failedPackages = const [],
     this.pages = 1,
     this.hasMore = false,
+    this.more = const {},
   });
 
   /// Every hit from every finished source, unfiltered and unsorted.
@@ -67,7 +68,8 @@ class GlobalSearchAggregate {
   /// providers instead of guessing from the label.
   final List<String> failedPackages;
 
-  /// Page depth every source has been asked for.
+  /// Deepest page any source has been asked for — drives the skeleton row
+  /// (`pages > 1 && isPending` means a fetch beyond page one is out).
   final int pages;
 
   /// Whether another page is worth requesting: not while anything is still
@@ -75,7 +77,17 @@ class GlobalSearchAggregate {
   /// source has no more).
   final bool hasMore;
 
+  /// Per-source verdict behind [hasMore]: package -> "its last requested page
+  /// yielded something, so the next one is worth asking for". Allocation
+  /// happens source by source, so this is what the predictor picks from.
+  final Map<String, bool> more;
+
   bool get isPending => done < total;
+
+  /// Whether [pkg]'s next page is worth asking for. Fixtures that pin an
+  /// aggregate without the per-source verdict fall back to "it gave anything".
+  bool sourceHasMore(String pkg) =>
+      more[pkg] ?? entries.any((e) => e.meta.packageName == pkg);
 
   /// Hit counts per content type, used by the result type tabs.
   Map<ExtensionType, int> get counts {
@@ -94,27 +106,35 @@ class GlobalSearchAggregate {
       entries.map((e) => e.meta.name).toSet().toList(growable: false);
 }
 
-/// Page depth of the global results list, plus the two ways to re-fetch.
+/// Page depth of the global results list, per source, plus the re-fetch paths.
 ///
 /// A [Notifier] rather than widget state because the header (counts), the
-/// status bar (retry) and the body (load more) all have to move the same
+/// status bar (retry) and the predictor (allocation) all have to move the same
 /// number (rule #22).
-class GlobalSearchPagesNotifier extends Notifier<int> {
+///
+/// Pages are tracked **per source**, not as one depth for everyone: page one
+/// is asked of every source so the predictor gets an observation from each,
+/// and every page after that goes to whichever source the predictor picks.
+/// Sources start at page one, so an empty map means "nobody has been paged".
+class GlobalSearchPagesNotifier extends Notifier<Map<String, int>> {
   @override
-  int build() => 1;
+  Map<String, int> build() => const {};
 
-  /// Ask every source for one more page.
-  void loadMore() => state++;
+  /// Pages asked of [pkg] so far (anything unseen is page one).
+  int depthOf(String pkg) => state[pkg] ?? 1;
 
-  /// Back to a single page — used when the query or scope changes.
+  /// Ask [pkg] — the predictor's winner — for its next page.
+  void loadMore(String pkg) => state = {...state, pkg: depthOf(pkg) + 1};
+
+  /// Back to a single page per source — used when the query or scope changes.
   void reset() {
-    if (state != 1) state = 1;
+    if (state.isNotEmpty) state = const {};
   }
 
-  /// Re-run only the sources that errored.
+  /// Re-run only the sources that errored, over the pages they were asked.
   void retryFailed(Iterable<String> packages, String query) {
     for (final pkg in packages) {
-      for (var page = 1; page <= state; page++) {
+      for (var page = 1; page <= depthOf(pkg); page++) {
         ref.invalidate(
           fetchExtensionSearchLatestProvider.call(pkg, page, query: query),
         );
@@ -124,7 +144,7 @@ class GlobalSearchPagesNotifier extends Notifier<int> {
 
   /// Pull-to-refresh: first page of every source in scope again.
   void refresh(List<String> packages, String query) {
-    state = 1;
+    state = const {};
     for (final pkg in packages) {
       ref.invalidate(
         fetchExtensionSearchLatestProvider.call(pkg, 1, query: query),
@@ -134,7 +154,7 @@ class GlobalSearchPagesNotifier extends Notifier<int> {
 }
 
 final globalSearchPagesProvider =
-    NotifierProvider<GlobalSearchPagesNotifier, int>(
+    NotifierProvider<GlobalSearchPagesNotifier, Map<String, int>>(
       GlobalSearchPagesNotifier.new,
     );
 
@@ -144,18 +164,24 @@ final globalSearchAggregateProvider =
       final query = search.query.trim();
       final packages = search.searchScopePackages.toList(growable: false);
       final pinned = search.existedPinnedExtensions;
-      final pages = ref.watch(globalSearchPagesProvider);
+      final depth = ref.watch(globalSearchPagesProvider);
 
       final entries = <GlobalSearchEntry>[];
       final failedPackages = <String>[];
       final failedNames = <String>[];
+      final more = <String, bool>{};
       var done = 0;
+      var maxDepth = 1;
 
       for (final pkg in packages) {
         final meta = search.metaData
             .where((e) => e.packageName == pkg)
             .firstOrNull;
+        final pages = depth[pkg] ?? 1;
+        if (pages > maxDepth) maxDepth = pages;
+
         var settled = true;
+        var lastPageYielded = false;
 
         for (var page = 1; page <= pages; page++) {
           final snapshot = ref.watch(
@@ -174,6 +200,9 @@ final globalSearchAggregateProvider =
             );
           }
 
+          final pageItems = snapshot.whenOrNull(data: (items) => items);
+          if (page == pages) lastPageYielded = pageItems?.isNotEmpty ?? false;
+
           if (meta == null) continue;
           snapshot.whenOrNull(
             data: (items) => entries.addAll([
@@ -189,12 +218,13 @@ final globalSearchAggregateProvider =
           );
         }
 
+        // Page one always offers more; past that, a source only does while its
+        // last requested page still contributed something (a source whose
+        // first page came back empty — or errored — is done).
+        more[pkg] = lastPageYielded;
         if (settled) done++;
       }
 
-      // The first page always offers more; after that, stop as soon as a
-      // source contributes nothing new instead of growing depth forever.
-      final lastPageYielded = pages == 1 || entries.any((e) => e.page == pages);
       final pending = done < packages.length;
 
       return GlobalSearchAggregate(
@@ -203,8 +233,9 @@ final globalSearchAggregateProvider =
         total: packages.length,
         failed: failedNames,
         failedPackages: failedPackages,
-        pages: pages,
-        hasMore: !pending && entries.isNotEmpty && lastPageYielded,
+        pages: maxDepth,
+        more: more,
+        hasMore: !pending && entries.isNotEmpty && more.values.any((v) => v),
       );
     });
 
@@ -249,6 +280,115 @@ List<GlobalSearchEntry> orderGlobalResults(
 }
 
 int _pinnedRank(GlobalSearchEntry entry) => entry.sourcePinned ? 0 : 1;
+
+/// One hit's contribution to its source's yield: 1 when the title IS the
+/// query, 0 when it is not — the cheap per-hit test the predictor is fed.
+double matchScore(GlobalSearchEntry entry, String query) {
+  final q = query.trim().toLowerCase();
+  if (q.isEmpty) return 0;
+  return entry.item.title.trim().toLowerCase() == q ? 1 : 0;
+}
+
+/// What one page of one source produced: how many hits arrived, and how well
+/// they matched, on the page they arrived on.
+class PageYield {
+  const PageYield({
+    required this.page,
+    required this.length,
+    required this.avg,
+  });
+
+  final int page;
+  final int length;
+  final double avg;
+}
+
+/// [pkg]'s pages in arrival order, each scored against [query].
+List<PageYield> pageYields(
+  List<GlobalSearchEntry> entries,
+  String pkg,
+  String query,
+) {
+  final byPage = <int, List<GlobalSearchEntry>>{};
+  for (final entry in entries) {
+    if (entry.meta.packageName != pkg) continue;
+    byPage.putIfAbsent(entry.page, () => []).add(entry);
+  }
+  final pages = byPage.keys.toList()..sort();
+  return [
+    for (final page in pages)
+      PageYield(
+        page: page,
+        length: byPage[page]!.length,
+        avg:
+            byPage[page]!
+                .map((e) => matchScore(e, query))
+                .fold<double>(0, (a, b) => a + b) /
+            byPage[page]!.length,
+      ),
+  ];
+}
+
+/// Least-squares slope of avg against page length — the "lin_slope" the
+/// prediction rides on. One observation (or a flat length) has no slope.
+double yieldSlope(List<PageYield> yields) {
+  if (yields.length < 2) return 0;
+  var sumX = 0.0;
+  var sumY = 0.0;
+  for (final y in yields) {
+    sumX += y.length;
+    sumY += y.avg;
+  }
+  final meanX = sumX / yields.length;
+  final meanY = sumY / yields.length;
+  var numerator = 0.0;
+  var denominator = 0.0;
+  for (final y in yields) {
+    final dx = y.length - meanX;
+    numerator += dx * (y.avg - meanY);
+    denominator += dx * dx;
+  }
+  return denominator == 0 ? 0 : numerator / denominator;
+}
+
+/// What this source's next page should average: `prev_avg + slope *
+/// prev_content_len`, the predictor the allocation is decided by.
+double predictNextAvg(List<PageYield> yields) {
+  if (yields.isEmpty) return 0;
+  final prev = yields.last;
+  return prev.avg + yieldSlope(yields) * prev.length;
+}
+
+/// The source the next page is bought from: the biggest predicted avg wins,
+/// ties going to the source whose last page was longer (a source that gave
+/// nothing can't win — it isn't a candidate).
+///
+/// Pure over the aggregate, so the whole mechanism is unit-testable without a
+/// widget tree or a network.
+String? pickNextFetchPackage(GlobalSearchAggregate aggregate, String query) {
+  final candidates = aggregate.more.isNotEmpty
+      ? [
+          for (final e in aggregate.more.entries)
+            if (e.value) e.key,
+        ]
+      : {for (final e in aggregate.entries) e.meta.packageName}.toList();
+
+  String? best;
+  var bestPredicted = double.negativeInfinity;
+  var bestLength = -1;
+  for (final pkg in candidates) {
+    final yields = pageYields(aggregate.entries, pkg, query);
+    final predicted = predictNextAvg(yields);
+    final length = yields.isEmpty ? 0 : yields.last.length;
+    if (predicted > bestPredicted ||
+        (predicted == bestPredicted && length > bestLength)) {
+      best = pkg;
+      bestPredicted = predicted;
+      bestLength = length;
+    }
+  }
+  return best;
+}
 
 int _relevance(GlobalSearchEntry entry, String query) {
   if (query.isEmpty) return 2;

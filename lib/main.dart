@@ -259,7 +259,12 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
       showPerformanceOverlay: kProfileMode,
       supportedLocales: FLocalizations.supportedLocales,
       key: ValueKey(c.language),
-      builder: (context, child) => FTheme(data: c.themeData, child: child!),
+      // FToaster hosts every showFToast(...); without it a toast throws, and
+      // one fired from the error handler re-enters that handler every frame.
+      builder: (context, child) => FTheme(
+        data: c.themeData,
+        child: FToaster(child: child!),
+      ),
       themeMode: c.themeMode,
       title: 'Miru Alpha',
       localizationsDelegates: [

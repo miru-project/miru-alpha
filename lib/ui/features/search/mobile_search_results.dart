@@ -1,8 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/search/global_search_provider.dart';
@@ -10,7 +14,12 @@ import 'package:miru_alpha/provider/search/search_page_provider.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/features/search/widget/search_filter_controls.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
+
+/// Subsystem logger for the relevance prefetch, so a live run can be read off
+/// [MiruLog] instead of guessed at.
+final _searchFetchLog = Logger('${logger.name}.searchFetch');
 
 /// Aggregation bar: how many hits, from how many sources, and how far along.
 class MobileSearchStatusBar extends ConsumerWidget {
@@ -170,59 +179,122 @@ class MobileSearchResultsBody extends HookConsumerWidget {
       bySource.putIfAbsent(entry.meta.packageName, () => []).add(entry);
     }
 
-    // Infinite scroll, like the single-extension page: no Load-more button —
-    // the next page is asked for when the reader reaches the grid's end, and
-    // the hits still on the wire sit behind skeleton cards.
+    // Prefetch, like the single-extension page: no Load-more button, and not a
+    // scroll-to-the-bottom trigger either — the next page is bought when fewer
+    // than [kPrefetchUnseenThreshold] hits are still below the reader, and the
+    // hits on the wire sit behind skeleton cards.
     //
     // `hasMore` deliberately reads false while a request is out (a page that
-    // settles empty is what stops the depth), so `loadingMore` is what keeps
+    // settles empty is what stops a source), so `loadingMore` is what keeps
     // the skeletons painted during the wait — the one state `hasMore` alone
     // cannot describe.
     final loadingMore = aggregate.pages > 1 && aggregate.isPending;
-    final canLoadMore =
-        aggregate.hasMore &&
-        !loadingMore &&
-        state.resultsViewMode == ResultsViewMode.relevance;
     final showSkeletons =
         state.resultsViewMode == ResultsViewMode.relevance &&
         (aggregate.hasMore || loadingMore);
 
-    // Page depth the body last asked for; lets the scroll listener and the
-    // post-frame check below agree on one request per settled page.
-    final requestedFor = useRef(-1);
-
-    // The depth actually on the wire, watched directly: a pull-to-refresh (or
-    // a query change) rewinds it to one, which makes every page fair game
-    // again — without forgetting the last ask here, the trigger would treat
-    // the next settled page as a duplicate and stop paging for good.
+    // Pages currently on the wire; the allocation latch compares against it.
     final depth = ref.watch(globalSearchPagesProvider);
-    if (requestedFor.value >= depth) requestedFor.value = -1;
 
-    final scrollController = useScrollController();
+    // One allocation per settled state: set when a page is bought, dropped
+    // once that fetch is visibly under way, once the depth moves under us
+    // (pull-to-refresh / reset rewinding it), or once hits arrive without the
+    // pending state having been observed (a cached page). Without the latch a
+    // scroll tick and the settle check can both ask for the same page.
+    final latchedDepth = useRef<Map<String, int>?>(null);
+    final latchedEntries = useRef(-1);
+    final sawPending = useRef(false);
     useEffect(() {
-      void maybeLoadMore() {
-        if (!canLoadMore || !context.mounted) return;
-        if (!scrollController.hasClients) return;
-        final position = scrollController.position;
-        // Content still overflows and the reader is nowhere near the end:
-        // paging is theirs to trigger.
-        if (position.pixels < position.maxScrollExtent - kLoadMoreTriggerGap) {
-          return;
-        }
-        // One request per settled page depth, so a scroll tick and the
-        // post-frame check below can never both ask for the same page.
-        if (requestedFor.value == aggregate.pages) return;
-        requestedFor.value = aggregate.pages;
-        ref.read(globalSearchPagesProvider.notifier).loadMore();
+      void clearLatch() {
+        latchedDepth.value = null;
+        latchedEntries.value = -1;
       }
 
-      scrollController.addListener(maybeLoadMore);
-      // Runs once this frame's layout is done, when maxScrollExtent is known —
-      // the case where the grid is shorter than the viewport and no scroll
-      // event will ever fire to ask for more.
-      Future.microtask(maybeLoadMore);
-      return () => scrollController.removeListener(maybeLoadMore);
-    }, [canLoadMore, scrollController]);
+      if (aggregate.isPending) {
+        sawPending.value = true;
+        clearLatch();
+        return null;
+      }
+      if (sawPending.value || latchedEntries.value != entries.length) {
+        sawPending.value = false;
+        clearLatch();
+        return null;
+      }
+      if (latchedDepth.value != null && !mapEquals(latchedDepth.value, depth)) {
+        clearLatch();
+      }
+      return null;
+    }, [aggregate, depth, entries.length]);
+
+    // Width of the grid the reader scrolls: the LayoutBuilder at the bottom
+    // writes it during layout, before the post-frame check reads it.
+    final gridWidth = useRef(0.0);
+    final loggedAt = useRef(DateTime(2000));
+
+    final scrollController = useScrollController();
+
+    void prefetch() {
+      if (!context.mounted) return;
+      if (latchedDepth.value != null) return;
+      if (state.resultsViewMode != ResultsViewMode.relevance) return;
+      if (aggregate.isPending || !aggregate.hasMore) return;
+      if (entries.isEmpty) return;
+      if (!scrollController.hasClients || gridWidth.value <= 0) return;
+
+      // Hits still below the fold: rows on screen (from the scroll offset) ×
+      // the grid's two columns, against everything that has arrived.
+      final position = scrollController.position;
+      final cardWidth = (gridWidth.value - kSearchGridGap) / 2;
+      final rowHeight = cardWidth / kSearchCardAspectRatio + kSearchGridGap;
+      final rowsShown =
+          ((position.pixels + position.viewportDimension) / rowHeight).ceil();
+      final seen = math.min(entries.length, rowsShown * 2);
+      final unseen = entries.length - seen;
+      final now = DateTime.now();
+      if (now.difference(loggedAt.value).inMilliseconds > 500) {
+        loggedAt.value = now;
+        _searchFetchLog.fine(
+          'px=${position.pixels.toStringAsFixed(0)} '
+          'vp=${position.viewportDimension.toStringAsFixed(0)} '
+          'rows=$rowsShown seen=$seen unseen=$unseen '
+          'latched=${latchedDepth.value} pending=${aggregate.isPending} '
+          'more=${aggregate.hasMore}',
+        );
+      }
+      if (unseen >= kPrefetchUnseenThreshold) return;
+
+      // Buffer is running dry: the predictor picks who refills it.
+      final pkg = pickNextFetchPackage(aggregate, query);
+      if (pkg == null) return;
+      ref.read(globalSearchPagesProvider.notifier).loadMore(pkg);
+      latchedDepth.value = ref.read(globalSearchPagesProvider);
+      latchedEntries.value = entries.length;
+      _searchFetchLog.info(
+        'fire winner=$pkg depth=${latchedDepth.value} unseen=$unseen '
+        'px=${position.pixels.toStringAsFixed(0)}',
+      );
+    }
+
+    // Always-latest closure for the two listeners below: they are registered
+    // once, but the state they read is rebuilt every frame.
+    final runPrefetch = useRef<void Function()>(() {});
+    runPrefetch.value = prefetch;
+
+    useEffect(() {
+      void onScroll() => runPrefetch.value();
+      scrollController.addListener(onScroll);
+      // Microtasks run after this frame's layout, so the grid width and the
+      // scroll extents are real — the case where the grid is shorter than the
+      // viewport and no scroll event will ever fire.
+      Future.microtask(onScroll);
+      return () => scrollController.removeListener(onScroll);
+    }, [scrollController]);
+
+    // A page landing has to re-check too: the reader may be sitting still.
+    useEffect(() {
+      Future.microtask(() => runPrefetch.value());
+      return null;
+    }, [aggregate, entries.length]);
 
     final List<Widget> content;
     if (state.resultsViewMode == ResultsViewMode.byExtension) {
@@ -240,8 +312,8 @@ class MobileSearchResultsBody extends HookConsumerWidget {
           sliver: SliverGrid.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
+              crossAxisSpacing: kSearchGridGap,
+              mainAxisSpacing: kSearchGridGap,
               childAspectRatio: kSearchCardAspectRatio,
             ),
             itemCount:
@@ -282,23 +354,33 @@ class MobileSearchResultsBody extends HookConsumerWidget {
       ],
     );
 
-    // Pull-to-refresh wraps the vertical list. In By-Extension mode the body
-    // nests horizontal rails, and EasyRefresh's indicator can't tell the two
-    // scroll axes apart (its OverflowBox goes infinite), so that mode refreshes
-    // from the field instead.
-    if (state.resultsViewMode == ResultsViewMode.byExtension) return list;
+    // The layout width is what turns "how many hits are still below the
+    // reader" into rows: written here, during layout, before the post-frame
+    // prefetch check reads it.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        gridWidth.value = constraints.maxWidth;
 
-    return EasyRefresh(
-      header: const ForuiHeader(),
-      onRefresh: () async {
-        ref
-            .read(globalSearchPagesProvider.notifier)
-            .refresh(
-              ref.read(searchPageProvider).searchScopePackages.toList(),
-              query,
-            );
+        // Pull-to-refresh wraps the vertical list. In By-Extension mode the
+        // body nests horizontal rails, and EasyRefresh's indicator can't tell
+        // the two scroll axes apart (its OverflowBox goes infinite), so that
+        // mode refreshes from the field instead.
+        if (state.resultsViewMode == ResultsViewMode.byExtension) return list;
+
+        return EasyRefresh(
+          header: const ForuiHeader(),
+          onRefresh: () async {
+            _searchFetchLog.info('pull-to-refresh');
+            ref
+                .read(globalSearchPagesProvider.notifier)
+                .refresh(
+                  ref.read(searchPageProvider).searchScopePackages.toList(),
+                  query,
+                );
+          },
+          child: list,
+        );
       },
-      child: list,
     );
   }
 
@@ -681,7 +763,12 @@ class _EmptyResults extends StatelessWidget {
   }
 }
 
-/// Gap, in logical pixels, between the grid's end and the point where the
-/// next page is requested: about one card row, so the fetch starts before the
-/// skeleton row is fully on screen instead of after the reader hits bottom.
-const double kLoadMoreTriggerGap = 300;
+/// How few hits may still be below the reader before the next page is bought:
+/// the prefetch trigger, measured in items rather than pixels, so a long list
+/// and a short one keep the same runway ahead of the reader.
+const int kPrefetchUnseenThreshold = 10;
+
+/// The gap the two-column relevance grid leaves between cards. Row maths and
+/// the grid delegate both read it, so "how much is still unseen" can never
+/// drift away from the layout it is computed from.
+const double kSearchGridGap = 10;

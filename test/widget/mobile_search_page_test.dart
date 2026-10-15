@@ -44,6 +44,19 @@ ExtensionMeta _meta(
   type: type,
 );
 
+/// Same as [_entry], but on a later page of its source — the predictor reads
+/// pages in arrival order, so a test has to be able to place a hit on page two.
+GlobalSearchEntry _entryOnPage(ExtensionMeta meta, String title, int page) =>
+    GlobalSearchEntry(
+      meta: meta,
+      item: (ExtensionListItem()
+        ..title = title
+        ..url = 'https://example.com/$title'),
+      sourcePinned: true,
+      origin: 0,
+      page: page,
+    );
+
 GlobalSearchEntry _entry(
   ExtensionMeta meta,
   String title, {
@@ -356,6 +369,10 @@ void main() {
         location: '/search/input',
         search: (pkg, page, query) {
           sourceCalls++;
+          // Only the first page has anything to give: three hits fill less
+          // than a screen, so the buffer trigger buys the winner's page two —
+          // and stops as soon as every source has come back dry.
+          if (page > 1) return Future.value(const <ExtensionListItem>[]);
           return Future.value([
             ExtensionListItem()
               ..title = '$pkg page $page'
@@ -382,8 +399,11 @@ void main() {
       expect(sourceCalls, greaterThan(0));
       expect(find.byType(MobileSearchResultsBody), findsOneWidget);
 
-      // Emptying the field drops back to the suggestion list, still without
-      // asking a source anything.
+      // Let the buffer prefetch run its course (one winner per page, until
+      // every source is dry) before counting what "clearing" costs.
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
       final callsAfterSubmit = sourceCalls;
       await tester.enterText(find.byType(EditableText).first, '');
       await tester.pump();
@@ -789,17 +809,24 @@ void main() {
   });
 
   group('global search pagination', () {
-    test('loadMore grows the page depth and reset returns to one', () {
+    test('loadMore pages one source at a time and reset clears the depth', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
+      final notifier = container.read(globalSearchPagesProvider.notifier);
 
-      expect(container.read(globalSearchPagesProvider), 1);
-      container.read(globalSearchPagesProvider.notifier).loadMore();
-      container.read(globalSearchPagesProvider.notifier).loadMore();
-      expect(container.read(globalSearchPagesProvider), 3);
+      // Everyone sits at page one until something is actually paged.
+      expect(container.read(globalSearchPagesProvider), isEmpty);
+      expect(notifier.depthOf('a.pkg'), 1);
 
-      container.read(globalSearchPagesProvider.notifier).reset();
-      expect(container.read(globalSearchPagesProvider), 1);
+      // Allocation is per source: the winner deepens, the rest stay put.
+      notifier.loadMore('a.pkg');
+      notifier.loadMore('a.pkg');
+      expect(container.read(globalSearchPagesProvider), {'a.pkg': 3});
+      expect(notifier.depthOf('b.pkg'), 1);
+
+      notifier.reset();
+      expect(container.read(globalSearchPagesProvider), isEmpty);
+      expect(notifier.depthOf('a.pkg'), 1);
     });
 
     test(
@@ -837,7 +864,7 @@ void main() {
         expect(first.entries.length, 2);
         expect(first.hasMore, isTrue);
 
-        container.read(globalSearchPagesProvider.notifier).loadMore();
+        container.read(globalSearchPagesProvider.notifier).loadMore('a.pkg');
         await pumpEventQueue();
         final second = container.read(globalSearchAggregateProvider);
         // Page two was empty: nothing was appended, and the list stops offering
@@ -875,11 +902,12 @@ void main() {
       // hasMore is false or the viewport is full).
       expect(find.text('search.load_more'), findsNothing);
       expect(find.byType(MobileTileLoadingBox), findsWidgets);
-      expect(container.read(globalSearchPagesProvider), 2);
+      // The predictor picked the only source that answered — and paged it.
+      expect(container.read(globalSearchPagesProvider), {'a.pkg': 2});
       await tester.pump(const Duration(milliseconds: 300));
 
       // No runaway loop: with nothing new arriving the depth stays put.
-      expect(container.read(globalSearchPagesProvider), 2);
+      expect(container.read(globalSearchPagesProvider), {'a.pkg': 2});
       expect(tester.takeException(), isNull);
     });
 
@@ -905,20 +933,52 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
 
-      // The grid overflows and the reader is at the top: nothing is fetched.
-      expect(container.read(globalSearchPagesProvider), 1);
+      // The grid overflows and the reader is at the top: with more than ten
+      // hits still below the fold, nothing is fetched.
+      expect(container.read(globalSearchPagesProvider), isEmpty);
 
-      // Reaching the end asks for exactly one more page, by itself.
+      // Draining the buffer (every hit now seen) asks for exactly one more
+      // page — from the winner — by itself.
       await tester.drag(_resultsScrollView(), const Offset(0, -4000));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
-      expect(container.read(globalSearchPagesProvider), 2);
+      expect(container.read(globalSearchPagesProvider), {'a.pkg': 2});
 
-      // Further scrolling cannot ask for the same page twice: the pinned
-      // aggregate never reports a new depth for the trigger to react to.
+      // Further scrolling cannot ask for the same page twice: the latch holds
+      // until a fetch is visibly under way, which the pinned aggregate never
+      // reports.
       await tester.drag(_resultsScrollView(), const Offset(0, -200));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(container.read(globalSearchPagesProvider), 2);
+      expect(container.read(globalSearchPagesProvider), {'a.pkg': 2});
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a short buffer refills without the reader scrolling', (
+      tester,
+    ) async {
+      final miruro = _meta('a.pkg', 'Miruro');
+      final aggregate = GlobalSearchAggregate(
+        entries: [for (var i = 0; i < 12; i++) _entry(miruro, 'Frieren $i')],
+        done: 1,
+        total: 1,
+        failed: const [],
+        hasMore: true,
+      );
+      final container = await pumpSearch(
+        tester,
+        aggregate: aggregate,
+        location: '/search/input',
+      );
+      await tester.enterText(find.byType(EditableText).first, 'Frieren');
+      await tester.pump();
+      await tester.testTextInput.receiveAction(TextInputAction.search);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // Twelve hits over six rows leaves fewer than ten unseen right at the
+      // top, so the prefetch fires with no scroll gesture at all — the trigger
+      // is the buffer, not the bottom of the list.
+      expect(container.read(globalSearchPagesProvider), {'a.pkg': 2});
       expect(tester.takeException(), isNull);
     });
 
@@ -949,28 +1009,29 @@ void main() {
       for (var i = 0; i < 20; i++) {
         await tester.pump(const Duration(milliseconds: 50));
       }
-      expect(container.read(globalSearchPagesProvider), 2);
+      expect(container.read(globalSearchPagesProvider), {'a.pkg': 2});
 
-      // Pull-to-refresh hands the depth back to one, and nothing re-asks for
-      // a page while the reader is simply parked there.
+      // Pull-to-refresh hands every source back to page one, and nothing
+      // re-asks for a page while the reader is simply parked there.
       container
           .read(globalSearchPagesProvider.notifier)
           .refresh(const [], 'Frieren');
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
-      expect(container.read(globalSearchPagesProvider), 1);
+      expect(container.read(globalSearchPagesProvider), isEmpty);
 
-      // Away from the end the trigger stays quiet — it is armed, not stuck.
-      await tester.drag(_resultsScrollView(), const Offset(0, 400));
+      // Backing out past the prefetch runway — more than ten hits still below
+      // the fold — keeps it quiet: armed, not stuck.
+      await tester.drag(_resultsScrollView(), const Offset(0, 4000));
       await tester.pump();
-      expect(container.read(globalSearchPagesProvider), 1);
+      expect(container.read(globalSearchPagesProvider), isEmpty);
 
-      // Back into the end: paging works again, the old ask is not mistaken
-      // for a fresh one.
+      // Draining the buffer again: paging works after the rewind, the old
+      // ask is not mistaken for a fresh one.
       await tester.drag(_resultsScrollView(), const Offset(0, -4000));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 50));
-      expect(container.read(globalSearchPagesProvider), 2);
+      expect(container.read(globalSearchPagesProvider), {'a.pkg': 2});
       expect(tester.takeException(), isNull);
     });
 
@@ -1043,6 +1104,101 @@ void main() {
 
       expect(container.read(globalSearchPagesProvider), before);
       expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('score and allocation', () {
+    test('matchScore is 1 for an identical title and 0 for a miss', () {
+      final miruro = _meta('a.pkg', 'Miruro');
+      expect(matchScore(_entry(miruro, 'Frieren'), 'frieren'), 1);
+      expect(matchScore(_entry(miruro, '  Frieren  '), 'Frieren'), 1);
+      expect(
+        matchScore(_entry(miruro, 'Frieren: Beyond Journey'), 'Frieren'),
+        0,
+      );
+      expect(matchScore(_entry(miruro, 'Frieren'), ''), 0);
+    });
+
+    test("a source's pages are scored as length and avg", () {
+      final miruro = _meta('a.pkg', 'Miruro');
+      final yields = pageYields(
+        [
+          _entryOnPage(miruro, 'miss one', 1),
+          _entryOnPage(miruro, 'miss two', 1),
+          _entryOnPage(miruro, 'Frieren', 2),
+        ],
+        'a.pkg',
+        'Frieren',
+      );
+
+      expect(yields.map((y) => y.page), [1, 2]);
+      expect(yields[0].length, 2);
+      expect(yields[0].avg, 0);
+      expect(yields[1].length, 1);
+      expect(yields[1].avg, 1);
+    });
+
+    test('the prediction is prev_avg + slope * prev_content_len', () {
+      // Observations (4, 0) then (2, 1): slope = -0.5, so the next page is
+      // predicted at 1 + -0.5 * 2 = 0.
+      const yields = [
+        PageYield(page: 1, length: 4, avg: 0),
+        PageYield(page: 2, length: 2, avg: 1),
+      ];
+      expect(yieldSlope(yields), closeTo(-0.5, 1e-9));
+      expect(predictNextAvg(yields), closeTo(0, 1e-9));
+
+      // One observation — or a flat content length — has no slope to ride:
+      // the prediction is simply the last average.
+      expect(predictNextAvg(yields.skip(1).toList()), 1);
+      const flat = [
+        PageYield(page: 1, length: 4, avg: 0),
+        PageYield(page: 2, length: 4, avg: 1),
+      ];
+      expect(yieldSlope(flat), 0);
+      expect(predictNextAvg(flat), 1);
+    });
+
+    test('the biggest predicted avg wins the next fetch', () {
+      final alpha = _meta('a.pkg', 'Alpha');
+      final beta = _meta('b.pkg', 'Beta');
+      GlobalSearchAggregate aggregateOf(
+        List<GlobalSearchEntry> entries,
+        Map<String, bool> more,
+      ) => GlobalSearchAggregate(
+        entries: entries,
+        done: 2,
+        total: 2,
+        failed: const [],
+        hasMore: true,
+        more: more,
+      );
+
+      // Alpha's hit is identical (avg 1), Beta's is a miss (avg 0): the
+      // higher prediction takes the fetch.
+      final ranked = aggregateOf(
+        [_entry(alpha, 'Frieren'), _entry(beta, 'Something Else')],
+        {'a.pkg': true, 'b.pkg': true},
+      );
+      expect(pickNextFetchPackage(ranked, 'Frieren'), 'a.pkg');
+
+      // Nobody matched: every prediction is 0, so the source with the longer
+      // last page takes it.
+      final tied = aggregateOf(
+        [
+          for (var i = 0; i < 3; i++) _entryOnPage(alpha, 'miss $i', 1),
+          _entryOnPage(beta, 'miss', 1),
+        ],
+        {'a.pkg': true, 'b.pkg': true},
+      );
+      expect(pickNextFetchPackage(tied, 'Frieren'), 'a.pkg');
+
+      // A source whose last page came back empty is done, not a candidate.
+      final exhausted = aggregateOf(
+        [_entry(beta, 'Frieren')],
+        {'a.pkg': false, 'b.pkg': true},
+      );
+      expect(pickNextFetchPackage(exhausted, 'Frieren'), 'b.pkg');
     });
   });
 

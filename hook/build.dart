@@ -217,8 +217,7 @@ Future<void> _buildMiruCore(BuildInput input, BuildOutputBuilder output) async {
   switch (os) {
     case OS.android:
       final sdkRoot =
-          Platform.environment['ANDROID_HOME'] ??
-          '/home/noonecare/Android/Sdk';
+          Platform.environment['ANDROID_HOME'] ?? '/home/noonecare/Android/Sdk';
       final ndkPath = _resolveNdkPath(sdkRoot);
       final toolchain = '$ndkPath/toolchains/llvm/prebuilt/linux-x86_64/bin';
       final (ccName, cxxName, goArch, abi) = _abiToolchain(arch);
@@ -279,8 +278,11 @@ Future<void> _buildMiruCore(BuildInput input, BuildOutputBuilder output) async {
     }
   }
   if (!soFile.existsSync() ||
-      (newestChange != null && newestChange.isAfter(soFile.lastModifiedSync()))) {
-    logger.info('Building libmiru_core.so for ${os.name}/$arch (Go c-shared)...');
+      (newestChange != null &&
+          newestChange.isAfter(soFile.lastModifiedSync()))) {
+    logger.info(
+      'Building libmiru_core.so for ${os.name}/$arch (Go c-shared)...',
+    );
     final result = await Process.run(
       'go',
       [
