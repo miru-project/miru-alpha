@@ -85,7 +85,10 @@ void main() async {
       if (!(Platform.isAndroid || Platform.isIOS || kIsWeb)) {
         await windowManager.ensureInitialized();
         WindowOptions windowOptions = const WindowOptions(
-          size: Size(430, 900),
+          size: Size(1300, 800),
+          // Keep width at/above forui's `lg` breakpoint (1024) so the
+          // desktop scaffold (sidebar) never collapses into the phone layout.
+          minimumSize: Size(1024, 600),
           center: true,
           skipTaskbar: false,
           backgroundColor: Colors.transparent,

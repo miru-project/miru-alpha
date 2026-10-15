@@ -3,13 +3,13 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  flutter_inappwebview_windows
   fvp
   screen_brightness_windows
   screen_retriever_windows
   share_plus
   url_launcher_windows
   volume_controller
+  webview_all_windows
   window_manager
 )
 

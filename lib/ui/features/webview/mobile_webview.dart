@@ -1,12 +1,12 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:webview_all/webview_all.dart';
 
 class MobileWebViewPage extends StatefulHookConsumerWidget {
   const MobileWebViewPage({
@@ -22,16 +22,15 @@ class MobileWebViewPage extends StatefulHookConsumerWidget {
 }
 
 class _MobileWebViewPageState extends ConsumerState<MobileWebViewPage> {
-  final cookieManager = CookieManager.instance();
+  final cookieManager = WebViewCookieManager();
 
   late Uri loadUri;
   late Uri websiteUri;
 
   Future<void> _setCookie() async {
-    final cookies = await cookieManager.getCookies(url: WebUri.uri(loadUri));
+    final cookies = await cookieManager.getCookies(domain: loadUri);
     final cookieString = cookies
         .map((e) => '${e.name}=${e.value}')
-        .toList()
         .join(';');
     debugPrint('$websiteUri $cookieString');
     MiruCoreEndpoint.setCookie(cookieString, loadUri.toString());
@@ -48,6 +47,19 @@ class _MobileWebViewPageState extends ConsumerState<MobileWebViewPage> {
     websiteUri = Uri.parse(widget.extMeta.webSite);
     final loadUrl = useState(websiteUri.resolve(widget.path));
     loadUri = loadUrl.value;
+    final controller = useMemoized(() {
+      return WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onPageStarted: (url) {
+              final uri = Uri.tryParse(url);
+              if (uri == null) return;
+              loadUrl.value = uri;
+            },
+          ),
+        )..loadRequest(loadUrl.value);
+    }, const []);
     return FTheme(
       data: ref.watch(applicationControllerProvider.select((s) => s.themeData)),
       child: FScaffold(
@@ -67,16 +79,7 @@ class _MobileWebViewPageState extends ConsumerState<MobileWebViewPage> {
             ),
           ],
         ),
-        child: InAppWebView(
-          initialUrlRequest: URLRequest(url: WebUri.uri(loadUrl.value)),
-          initialSettings: InAppWebViewSettings(
-            // userAgent: MiruSettings.getUASetting(),
-          ),
-          onLoadStart: (controller, url) {
-            if (url == null) return;
-            loadUrl.value = url;
-          },
-        ),
+        child: WebViewWidget(controller: controller),
       ),
     );
   }
