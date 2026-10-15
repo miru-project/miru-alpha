@@ -57,12 +57,15 @@ class ReaderScreenApplied {
   final bool? auto;
   final bool? keepScreenOn;
 
-  ReaderScreenApplied copyWith({int? brightness, bool? auto, bool? keepScreenOn}) =>
-      ReaderScreenApplied(
-        brightness: brightness ?? this.brightness,
-        auto: auto ?? this.auto,
-        keepScreenOn: keepScreenOn ?? this.keepScreenOn,
-      );
+  ReaderScreenApplied copyWith({
+    int? brightness,
+    bool? auto,
+    bool? keepScreenOn,
+  }) => ReaderScreenApplied(
+    brightness: brightness ?? this.brightness,
+    auto: auto ?? this.auto,
+    keepScreenOn: keepScreenOn ?? this.keepScreenOn,
+  );
 }
 
 /// Applies a reader's screen preferences, skipping anything already applied.
@@ -81,7 +84,10 @@ void applyReaderScreenPreferences(
     // override this session applied — otherwise switching to auto would keep the
     // forced value until the reader closed.
     if (previous.auto != true) {
-      applied.value = ReaderScreenApplied(auto: true, keepScreenOn: keepScreenOn);
+      applied.value = ReaderScreenApplied(
+        auto: true,
+        keepScreenOn: keepScreenOn,
+      );
       try {
         unawaited(ScreenBrightness().resetApplicationScreenBrightness());
       } catch (error, stack) {

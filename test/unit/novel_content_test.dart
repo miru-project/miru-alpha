@@ -6,10 +6,11 @@ void main() {
     test('drops blank separators instead of rendering empty paragraphs', () {
       final blocks = parseNovelContent(['One', '', '', 'Two', '   ', 'Three']);
 
-      expect(
-        blocks.whereType<NovelParagraph>().map((b) => b.text),
-        ['One', 'Two', 'Three'],
-      );
+      expect(blocks.whereType<NovelParagraph>().map((b) => b.text), [
+        'One',
+        'Two',
+        'Three',
+      ]);
     });
 
     test('gives the opening paragraph a drop cap and no other one', () {
@@ -46,30 +47,30 @@ void main() {
       expect((blocks.single as NovelParagraph).text, text);
     });
 
-    test('groups consecutive blockquote lines into one card and strips markers', () {
-      final blocks = parseNovelContent([
-        'Before.',
-        '> first quoted line',
-        '>second quoted line',
-        'After.',
-      ]);
+    test(
+      'groups consecutive blockquote lines into one card and strips markers',
+      () {
+        final blocks = parseNovelContent([
+          'Before.',
+          '> first quoted line',
+          '>second quoted line',
+          'After.',
+        ]);
 
-      expect(blocks, hasLength(3));
-      final quote = blocks[1] as NovelQuote;
-      expect(quote.paragraphs, ['first quoted line', 'second quoted line']);
-    });
+        expect(blocks, hasLength(3));
+        final quote = blocks[1] as NovelQuote;
+        expect(quote.paragraphs, ['first quoted line', 'second quoted line']);
+      },
+    );
 
     test('a bare blockquote marker closes the card instead of opening one', () {
       final blocks = parseNovelContent(['> quoted', '>', '> quoted again']);
 
       expect(blocks.whereType<NovelQuote>(), hasLength(2));
-      expect(
-        blocks.whereType<NovelQuote>().map((q) => q.paragraphs),
-        [
-          ['quoted'],
-          ['quoted again'],
-        ],
-      );
+      expect(blocks.whereType<NovelQuote>().map((q) => q.paragraphs), [
+        ['quoted'],
+        ['quoted again'],
+      ]);
     });
 
     test('a quotation spanning a blank separator is closed by it', () {

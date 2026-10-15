@@ -87,32 +87,38 @@ void main() {
       expect(layout.pages.single.startLine, 1);
     });
 
-    test('a page too short for the header and the prose splits, losing nothing', () {
-      // The header is drawn across the top of the opening page, so on a short
-      // page it can leave no room for the first paragraph. The chapter has to go
-      // somewhere rather than be drawn over the bottom of the screen.
-      final layout = _build(blocks: _blocks(2), pageHeight: 200);
+    test(
+      'a page too short for the header and the prose splits, losing nothing',
+      () {
+        // The header is drawn across the top of the opening page, so on a short
+        // page it can leave no room for the first paragraph. The chapter has to go
+        // somewhere rather than be drawn over the bottom of the screen.
+        final layout = _build(blocks: _blocks(2), pageHeight: 200);
 
-      expect(layout.pages.length, greaterThan(1));
-      final placed = <int>[
-        for (final page in layout.pages) ...page.blockIndices,
-      ];
-      expect(placed, [0, 1]);
-    });
+        expect(layout.pages.length, greaterThan(1));
+        final placed = <int>[
+          for (final page in layout.pages) ...page.blockIndices,
+        ];
+        expect(placed, [0, 1]);
+      },
+    );
 
-    test('a long chapter is split into several pages with rising start lines', () {
-      final layout = _build(blocks: _blocks(40), pageHeight: 300);
+    test(
+      'a long chapter is split into several pages with rising start lines',
+      () {
+        final layout = _build(blocks: _blocks(40), pageHeight: 300);
 
-      expect(layout.pages.length, greaterThan(1));
-      // Page 1 opens on line 1 and every later page opens strictly later.
-      expect(layout.pages.first.startLine, 1);
-      for (var i = 1; i < layout.pages.length; i++) {
-        expect(
-          layout.pages[i].startLine,
-          greaterThan(layout.pages[i - 1].startLine),
-        );
-      }
-    });
+        expect(layout.pages.length, greaterThan(1));
+        // Page 1 opens on line 1 and every later page opens strictly later.
+        expect(layout.pages.first.startLine, 1);
+        for (var i = 1; i < layout.pages.length; i++) {
+          expect(
+            layout.pages[i].startLine,
+            greaterThan(layout.pages[i - 1].startLine),
+          );
+        }
+      },
+    );
 
     test('every content block lands on exactly one page, in order', () {
       final blocks = _blocks(40);

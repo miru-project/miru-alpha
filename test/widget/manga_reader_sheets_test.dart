@@ -92,9 +92,7 @@ class _SheetLauncher extends ConsumerWidget {
               bookmarks: ref.watch(mangaProvider).bookmarks,
               openPosition: ref.watch(mangaProvider).page,
               openTotal: ref.watch(mangaProvider).totalPage,
-              onToggleBookmark: ref
-                  .read(mangaProvider.notifier)
-                  .toggleBookmark,
+              onToggleBookmark: ref.read(mangaProvider.notifier).toggleBookmark,
               onOpenSettings: () => showReaderSettingsSheet(
                 context,
                 mangaProvider: mangaProvider,
@@ -223,10 +221,7 @@ void main() {
         container.read(mangaProvider).brightnessMode,
         MangaBrightnessMode.auto,
       );
-      expect(
-        find.text('reader.manga.brightness_options.auto'),
-        findsOneWidget,
-      );
+      expect(find.text('reader.manga.brightness_options.auto'), findsOneWidget);
 
       // Toggled to manual, which is the direction that has to be exercised now
       // that auto is where it starts.
@@ -248,10 +243,7 @@ void main() {
         MangaBrightnessMode.manual,
       );
       // Manual is selected, and the remembered percentage is still there...
-      expect(
-        find.text('reader.manga.brightness_options.manual'),
-        findsWidgets,
-      );
+      expect(find.text('reader.manga.brightness_options.manual'), findsWidgets);
       expect(_sliderFraction(tester, 0), closeTo(1, 0.01));
 
       // ...and the slider stays live: it is not a disabled control in auto.

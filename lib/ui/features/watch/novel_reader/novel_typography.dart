@@ -160,12 +160,8 @@ class NovelTypography {
       _style(size: fontSize * 1.85, height: 1.25, color: color, weight: .w500);
 
   /// The "Chapter One" eyebrow above the title.
-  TextStyle eyebrow({required Color color}) => _style(
-    size: fontSize * 0.62,
-    height: 1.2,
-    color: color,
-    weight: .w500,
-  );
+  TextStyle eyebrow({required Color color}) =>
+      _style(size: fontSize * 0.62, height: 1.2, color: color, weight: .w500);
 
   /// The ❦ ornament between the title and the prose.
   TextStyle ornament({required Color color}) =>
@@ -176,20 +172,13 @@ class NovelTypography {
   /// The leading is well under 1 so the cap sits on the first line's baseline
   /// instead of pushing the paragraph down; a body-sized leading would open a
   /// hole under it.
-  TextStyle dropCap({required Color color}) => _style(
-    size: fontSize * 2.75,
-    height: 0.82,
-    color: color,
-    weight: .w600,
-  );
+  TextStyle dropCap({required Color color}) =>
+      _style(size: fontSize * 2.75, height: 0.82, color: color, weight: .w600);
 
   /// Prose inside an inset quotation card: italic, a touch smaller, and
   /// un-justified so the ragged right edge of a quoted block stays visible.
-  TextStyle quote({required Color color}) => _style(
-    size: fontSize * 0.92,
-    color: color,
-    style: FontStyle.italic,
-  );
+  TextStyle quote({required Color color}) =>
+      _style(size: fontSize * 0.92, color: color, style: FontStyle.italic);
 
   /// The attribution line closing an inset quotation card.
   TextStyle attribution({required Color color}) => _style(
@@ -201,11 +190,8 @@ class NovelTypography {
   );
 
   /// A short line set apart from the prose, such as "This is what I read:".
-  TextStyle aside({required Color color}) => _style(
-    size: fontSize * 0.88,
-    color: color,
-    style: FontStyle.italic,
-  );
+  TextStyle aside({required Color color}) =>
+      _style(size: fontSize * 0.88, color: color, style: FontStyle.italic);
 }
 
 /// Vertical rhythm between blocks, in logical px, at the reference's scale.

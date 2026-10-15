@@ -18,7 +18,8 @@ final class NovelParagraph extends NovelContentBlock {
   final bool dropCap;
 
   @override
-  String toString() => 'NovelParagraph(${text.length} chars, dropCap: $dropCap)';
+  String toString() =>
+      'NovelParagraph(${text.length} chars, dropCap: $dropCap)';
 }
 
 /// An inset quotation — a letter, an excerpt — drawn as a raised card.
@@ -104,8 +105,5 @@ List<NovelContentBlock> parseNovelContent(Iterable<String> content) {
   if (blocks.isEmpty) return blocks;
   final first = blocks.first;
   if (first is! NovelParagraph) return blocks;
-  return [
-    NovelParagraph(first.text, dropCap: true),
-    ...blocks.skip(1),
-  ];
+  return [NovelParagraph(first.text, dropCap: true), ...blocks.skip(1)];
 }

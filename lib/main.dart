@@ -5,8 +5,6 @@ import 'package:code_forge/code_forge.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:marionette_flutter/marionette_flutter.dart';
-import 'package:marionette_logging/marionette_logging.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
@@ -29,6 +27,13 @@ import 'package:miru_alpha/ui/core/core/toast.dart';
 import 'package:miru_alpha/ui/core/error.dart';
 import 'package:volume_controller/volume_controller.dart';
 import 'package:window_manager/window_manager.dart';
+
+// ignore: depend_on_referenced_packages
+import 'package:marionette_flutter/marionette_flutter.dart'
+    if (kDebugMode) 'package:marionette_flutter/marionette_flutter.dart';
+// ignore: depend_on_referenced_packages
+import 'package:marionette_logging/marionette_logging.dart'
+    if (kDebugMode) 'package:marionette_logging/marionette_logging.dart';
 
 void main() async {
   runZonedGuarded<void>(
@@ -80,7 +85,7 @@ void main() async {
       if (!(Platform.isAndroid || Platform.isIOS || kIsWeb)) {
         await windowManager.ensureInitialized();
         WindowOptions windowOptions = const WindowOptions(
-          size: Size(1300, 700),
+          size: Size(430, 900),
           center: true,
           skipTaskbar: false,
           backgroundColor: Colors.transparent,
@@ -254,7 +259,12 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
       showPerformanceOverlay: kProfileMode,
       supportedLocales: FLocalizations.supportedLocales,
       key: ValueKey(c.language),
-      builder: (context, child) => FTheme(data: c.themeData, child: child!),
+      // FToaster hosts every showFToast(...); without it a toast throws, and
+      // one fired from the error handler re-enters that handler every frame.
+      builder: (context, child) => FTheme(
+        data: c.themeData,
+        child: FToaster(child: child!),
+      ),
       themeMode: c.themeMode,
       title: 'Miru Alpha',
       localizationsDelegates: [

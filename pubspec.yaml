@@ -53,10 +53,10 @@ dependencies:
   volume_controller: ^3.3.1
   screen_brightness: ^2.0.1
   hooks_riverpod: ^3.0.1
-  fvp: ^0.38.0
+  fvp: ^0.39.0
   video_player: ^2.9.1
   flutter_hooks: ^0.21.2
-  easy_refresh: ^3.4.0
+  easy_refresh: ^4.0.0
   flutter_hls_parser: ^2.0.1
   flutter_i18n: ^0.37.0
   flutter_inappwebview: ^6.2.0-beta.3
@@ -88,29 +88,22 @@ dependencies:
   freezed_annotation: ^3.1.0
   material_ui: any
   share_plus: ^13.3.0
-  marionette_flutter: ^0.6.0
-  marionette_logging: ^0.6.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  # go_router_builder: any
   build_verify: any
   build_runner: ^2.4.15
   json_serializable: ^6.8.0
-  ffigen: ^22.0.0
+  ffigen: ^23.0.0
   freezed: ^4.0.0
   mcp_server: ^2.2.3
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^6.0.0
   riverpod_generator: ^4.0.0+1
   flutter_launcher_icons: ^0.14.4
   forui_cli: ^0.27.0
-  marionette_mcp: ^0.6.0
+  marionette_flutter: ^0.7.0
+  marionette_logging: ^0.7.0
 
 build:
   cache: true
