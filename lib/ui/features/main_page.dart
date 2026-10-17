@@ -12,15 +12,14 @@ import 'package:miru_alpha/provider/application_controller_provider.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/index.dart';
+import 'package:miru_alpha/ui/features/detail/widget/detail_nav_buttons.dart';
 import 'package:miru_alpha/ui/features/search/widget/desktop_search_overlay.dart';
 import 'package:miru_alpha/provider/search/search_page_provider.dart';
-
 import 'package:miru_alpha/model/setting_items.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dev_tool/widget/dev_tool_panel.dart';
-import 'package:miru_alpha/ui/features/detail/widget/detail_nav_buttons.dart';
 
 class MainPage extends StatefulHookConsumerWidget {
   final StatefulNavigationShell? child;
@@ -186,60 +185,84 @@ class _MainPageState extends ConsumerState<MainPage>
     return FTheme(
       data: themeData,
       child: PlatformWidget(
-        mobileWidget: Column(
+        mobileWidget: Stack(
           children: [
-            Expanded(child: widget.child ?? const SizedBox()),
-            // Hide the bottom navigation bar when the keyboard is open to
-            // prevent its solid background from appearing as a black box
-            // above the keyboard.
-            if (MediaQuery.viewInsetsOf(context).bottom == 0)
-              FBottomNavigationBar(
-                index: selected.value,
-                onChange: (value) {
-                  if (widget.child != null) {
-                    widget.child!.goBranch(value);
-                  }
-                  selected.value = value;
-                },
-                children: [
-                  FBottomNavigationBarItem(
-                    label: Text(_navItems[0].text.i18n),
-                    icon: HomeIcon(
-                      color: selected.value == 0
-                          ? themeData.colors.primary
-                          : themeData.colors.mutedForeground,
-                      isTriggered: selected.value == 0,
-                    ),
-                  ),
-                  FBottomNavigationBarItem(
-                    label: Text(_navItems[1].text.i18n),
-                    icon: CompassIcon(
-                      color: selected.value == 1
-                          ? themeData.colors.primary
-                          : themeData.colors.mutedForeground,
-                      isTriggered: selected.value == 1,
-                    ),
-                  ),
-                  FBottomNavigationBarItem(
-                    label: Text(_navItems[2].text.i18n),
-                    icon: BlocksPathLoopIcon(
-                      color: selected.value == 2
-                          ? themeData.colors.primary
-                          : themeData.colors.mutedForeground,
-                      isTriggered: selected.value == 2,
-                    ),
-                  ),
-                  FBottomNavigationBarItem(
-                    label: Text(_navItems[3].text.i18n),
-                    icon: SettingsIcon(
-                      color: selected.value == 3
-                          ? themeData.colors.primary
-                          : themeData.colors.mutedForeground,
-                      isTriggered: selected.value == 3,
+            Column(
+              children: [
+                // The window bar owns the top strip of the WINDOW, above every
+                // route's content, because the OS title bar is hidden
+                // (titleBarStyle: hidden) and nothing else provides one.
+                //
+                // It is here in the layout flow -- not `Positioned` over the page
+                // -- so no page can ever start at y=0 underneath it. Overlaying
+                // it let `/search/single`'s own 50px header render *behind* the
+                // bar (measured: title at y=35..68, i.e. inside the bar's own
+                // 0..35 strip, back button at y=39).
+                if (!DeviceUtil.isMobile) ...[
+                  const DragWindows(),
+                  const FDivider(
+                    style: FDividerStyleDelta.delta(
+                      padding: EdgeInsetsGeometryDelta.value(EdgeInsets.zero),
                     ),
                   ),
                 ],
-              ),
+                Expanded(child: widget.child ?? const SizedBox()),
+                // Hide the bottom navigation bar when the keyboard is open to
+                // prevent its solid background from appearing as a black box
+                // above the keyboard.
+                if (MediaQuery.viewInsetsOf(context).bottom == 0)
+                  FBottomNavigationBar(
+                    index: selected.value,
+                    onChange: (value) {
+                      if (widget.child != null) {
+                        widget.child!.goBranch(value);
+                      }
+                      selected.value = value;
+                    },
+                    children: [
+                      FBottomNavigationBarItem(
+                        label: Text(_navItems[0].text.i18n),
+                        icon: HomeIcon(
+                          color: selected.value == 0
+                              ? themeData.colors.primary
+                              : themeData.colors.mutedForeground,
+                          isTriggered: selected.value == 0,
+                        ),
+                      ),
+                      FBottomNavigationBarItem(
+                        label: Text(_navItems[1].text.i18n),
+                        icon: CompassIcon(
+                          color: selected.value == 1
+                              ? themeData.colors.primary
+                              : themeData.colors.mutedForeground,
+                          isTriggered: selected.value == 1,
+                        ),
+                      ),
+                      FBottomNavigationBarItem(
+                        label: Text(_navItems[2].text.i18n),
+                        icon: BlocksPathLoopIcon(
+                          color: selected.value == 2
+                              ? themeData.colors.primary
+                              : themeData.colors.mutedForeground,
+                          isTriggered: selected.value == 2,
+                        ),
+                      ),
+                      FBottomNavigationBarItem(
+                        label: Text(_navItems[3].text.i18n),
+                        icon: SettingsIcon(
+                          color: selected.value == 3
+                              ? themeData.colors.primary
+                              : themeData.colors.mutedForeground,
+                          isTriggered: selected.value == 3,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+            // Overlay hookup mirrors the desktop branch; a no-op while the
+            // mobile SearchTrigger is hidden (open is only set from there).
+            if (!DeviceUtil.isMobile) const _DesktopSearchOverlay(),
           ],
         ),
         desktopWidget: FScaffold(
@@ -445,20 +468,26 @@ class DragWindows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The top search bar is desktop-layout only: in the mobile layout the
+    // page's own search surfaces own the entry point.
+    final showSearch = !DeviceUtil.isMobileLayout(context);
     return DragToMoveArea(
       child: Row(
         children: [
           const DetailNavButtons(),
-          Expanded(
-            child: Center(
-              child: LayoutBuilder(
-                builder: (context, constraints) => SizedBox(
-                  width: constraints.maxWidth * .5,
-                  child: const SearchTrigger(),
+          if (showSearch)
+            Expanded(
+              child: Center(
+                child: LayoutBuilder(
+                  builder: (context, constraints) => SizedBox(
+                    width: constraints.maxWidth * .5,
+                    child: const SearchTrigger(),
+                  ),
                 ),
               ),
-            ),
-          ),
+            )
+          else
+            const Spacer(),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: 200, maxHeight: 35),
             child: Platform.isWindows || Platform.isLinux || Platform.isMacOS

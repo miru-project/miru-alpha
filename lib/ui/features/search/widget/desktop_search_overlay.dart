@@ -403,6 +403,14 @@ class _ActiveFilterSummary extends ConsumerWidget {
             onRemove: () => notifier.clearFilterValue(key),
           ),
         );
+      } else if (raw.whichKind() == ExtensionFilter_Kind.text) {
+        // No options map to translate through: the typed value IS the label.
+        chips.add(
+          _FilterChip(
+            label: sel.first,
+            onRemove: () => notifier.clearFilterValue(key),
+          ),
+        );
       } else {
         // Multi-select: one removable chip per selected option.
         final view = ExtensionFilterView.from(raw);

@@ -86,9 +86,12 @@ void main() async {
         await windowManager.ensureInitialized();
         WindowOptions windowOptions = const WindowOptions(
           size: Size(1300, 800),
-          // Keep width at/above forui's `lg` breakpoint (1024) so the
-          // desktop scaffold (sidebar) never collapses into the phone layout.
-          minimumSize: Size(1024, 600),
+          // Freely resizable. The layout is breakpoint-driven (forui `sm` 640
+          // / `lg` 1024): below `lg` the sidebar collapses into the bottom-nav
+          // mobile scaffold, below `sm` the touch theme tokens apply. Both
+          // extremes are live-verified, so the window is only floored at a
+          // phone-ish minimum instead of being clamped to desktop width.
+          minimumSize: Size(400, 480),
           center: true,
           skipTaskbar: false,
           backgroundColor: Colors.transparent,

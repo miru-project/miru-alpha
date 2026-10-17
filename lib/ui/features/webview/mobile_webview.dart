@@ -29,9 +29,7 @@ class _MobileWebViewPageState extends ConsumerState<MobileWebViewPage> {
 
   Future<void> _setCookie() async {
     final cookies = await cookieManager.getCookies(domain: loadUri);
-    final cookieString = cookies
-        .map((e) => '${e.name}=${e.value}')
-        .join(';');
+    final cookieString = cookies.map((e) => '${e.name}=${e.value}').join(';');
     debugPrint('$websiteUri $cookieString');
     MiruCoreEndpoint.setCookie(cookieString, loadUri.toString());
   }
@@ -58,7 +56,8 @@ class _MobileWebViewPageState extends ConsumerState<MobileWebViewPage> {
               loadUrl.value = uri;
             },
           ),
-        )..loadRequest(loadUrl.value);
+        )
+        ..loadRequest(loadUrl.value);
     }, const []);
     return FTheme(
       data: ref.watch(applicationControllerProvider.select((s) => s.themeData)),

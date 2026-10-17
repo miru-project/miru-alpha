@@ -185,6 +185,21 @@ final $typed_data.Uint8List rangeFilterDescriptor = $convert.base64Decode(
     'oDbWF4GAMgASgFUgNtYXgSHwoLZGVmYXVsdF9taW4YBCABKAVSCmRlZmF1bHRNaW4SHwoLZGVm'
     'YXVsdF9tYXgYBSABKAVSCmRlZmF1bHRNYXg=');
 
+@$core.Deprecated('Use textFilterDescriptor instead')
+const TextFilter$json = {
+  '1': 'TextFilter',
+  '2': [
+    {'1': 'title', '3': 1, '4': 1, '5': 9, '10': 'title'},
+    {'1': 'default', '3': 2, '4': 1, '5': 9, '10': 'default'},
+    {'1': 'hint', '3': 3, '4': 1, '5': 9, '10': 'hint'},
+  ],
+};
+
+/// Descriptor for `TextFilter`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List textFilterDescriptor = $convert.base64Decode(
+    'CgpUZXh0RmlsdGVyEhQKBXRpdGxlGAEgASgJUgV0aXRsZRIYCgdkZWZhdWx0GAIgASgJUgdkZW'
+    'ZhdWx0EhIKBGhpbnQYAyABKAlSBGhpbnQ=');
+
 @$core.Deprecated('Use extensionFilterDescriptor instead')
 const ExtensionFilter$json = {
   '1': 'ExtensionFilter',
@@ -216,6 +231,15 @@ const ExtensionFilter$json = {
       '9': 0,
       '10': 'range'
     },
+    {
+      '1': 'text',
+      '3': 4,
+      '4': 1,
+      '5': 11,
+      '6': '.miru.TextFilter',
+      '9': 0,
+      '10': 'text'
+    },
   ],
   '8': [
     {'1': 'kind'},
@@ -227,7 +251,7 @@ final $typed_data.Uint8List extensionFilterDescriptor = $convert.base64Decode(
     'Cg9FeHRlbnNpb25GaWx0ZXISLAoGc2VsZWN0GAEgASgLMhIubWlydS5TZWxlY3RGaWx0ZXJIAF'
     'IGc2VsZWN0EjwKDG11bHRpX3NlbGVjdBgCIAEoCzIXLm1pcnUuTXVsdGlTZWxlY3RGaWx0ZXJI'
     'AFILbXVsdGlTZWxlY3QSKQoFcmFuZ2UYAyABKAsyES5taXJ1LlJhbmdlRmlsdGVySABSBXJhbm'
-    'dlQgYKBGtpbmQ=');
+    'dlEiYKBHRleHQYBCABKAsyEC5taXJ1LlRleHRGaWx0ZXJIAFIEdGV4dEIGCgRraW5k');
 
 @$core.Deprecated('Use extensionDetailDescriptor instead')
 const ExtensionDetail$json = {

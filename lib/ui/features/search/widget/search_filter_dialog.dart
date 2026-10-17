@@ -1,12 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart';
 import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
 import 'package:miru_alpha/ui/features/search/extension_filter_view.dart';
 import 'package:miru_alpha/ui/features/search/widget/filter_chip.dart';
-import 'package:miru_alpha/ui/features/search/widget/mobile_filter_slivers.dart';
+import 'package:miru_alpha/ui/features/search/widget/filter_dialog_panel.dart';
+import 'package:miru_alpha/ui/features/search/widget/filter_select_controls.dart';
+import 'package:miru_alpha/ui/features/search/widget/filter_text_tile.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
 export 'package:miru_alpha/ui/features/search/widget/filter_chip.dart';
@@ -93,14 +94,15 @@ class _ExtensionFilterBodyState extends ConsumerState<ExtensionFilterBody> {
     Widget contentFor(String key) {
       final raw = filters[key];
       if (raw != null && raw.whichKind() == ExtensionFilter_Kind.range) {
-        return _RangeFilterField(
+        return RangeFilterField(
           filter: raw.range,
           selected: selected[key] ?? [],
           onChanged: (from, to) => notifier.setRangeFilter(key, from, to),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
         );
       }
       if (raw != null && raw.whichKind() == ExtensionFilter_Kind.select) {
-        return _SelectFilterField(
+        return FilterSelectField(
           filter: raw.select,
           selected: selected[key] ?? [],
           onChanged: (optionKey) {
@@ -112,6 +114,17 @@ class _ExtensionFilterBodyState extends ConsumerState<ExtensionFilterBody> {
           },
         );
       }
+      if (raw != null && raw.whichKind() == ExtensionFilter_Kind.text) {
+        final sel = selected[key] ?? [];
+        return FilterTextField(
+          filter: raw.text,
+          value: sel.isEmpty ? '' : sel.first,
+          // The accordion header above already carries the title — one line
+          // of info, one widget (rules.md #23).
+          showLabel: false,
+          onChanged: (value) => notifier.setTextFilter(key, value),
+        );
+      }
       final filter = raw == null ? null : ExtensionFilterView.from(raw);
       final min = filter?.isSingleSelect == true ? 1 : (filter?.min ?? 1);
       final max = filter?.isSingleSelect == true ? 1 : (filter?.max ?? 1);
@@ -121,28 +134,17 @@ class _ExtensionFilterBodyState extends ConsumerState<ExtensionFilterBody> {
           style: TextStyle(color: context.theme.colors.error, fontSize: 12),
         );
       }
-      return Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          for (final option in [
-            ...?filter?.options,
-          ]..sort((a, b) => a.key.compareTo(b.key)))
-            () {
-              final isSelected = (selected[key] ?? []).contains(option.key);
-              return FilterChip(
-                label: option.label,
-                selected: isSelected,
-                onTap: () {
-                  final current = (selected[key] ?? []).cast<String>();
-                  final next = isSelected
-                      ? current.where((e) => e != option.key).toList()
-                      : <String>[...current, option.key];
-                  notifier.setFilterValue(key, next);
-                },
-              );
-            }(),
-        ],
+      return FilterMultiSelectField(
+        options: [...?filter?.options]..sort((a, b) => a.key.compareTo(b.key)),
+        selected: selected[key] ?? [],
+        onToggle: (optionKey) {
+          final current = (selected[key] ?? []).cast<String>();
+          final isSelected = current.contains(optionKey);
+          final next = isSelected
+              ? current.where((e) => e != optionKey).toList()
+              : <String>[...current, optionKey];
+          notifier.setFilterValue(key, next);
+        },
       );
     }
 
@@ -225,138 +227,127 @@ class _ExtensionFilterBodyState extends ConsumerState<ExtensionFilterBody> {
   }
 }
 
-class SearchFilterDialog extends ConsumerWidget {
+/// The `Miruro Filters` dialog shell, matched to the reference mock:
+/// tune badge + title/subtitle header with `Reset`/close, the flat
+/// [ExtensionFilterPanel] as the single scrollable, and no footer.
+///
+/// NO FOOTER BY DECISION (user, 2026-10-17): the "Filters update
+/// automatically" bar and its `Done` button were removed and must not come back.
+/// Dismissal is commit-enough — the panel stages its edits and
+/// [SearchFilterDialogState.close] publishes them on the way out, so leaving the
+/// dialog applies without any confirmation step.
+class SearchFilterDialog extends ConsumerStatefulWidget {
   const SearchFilterDialog({
     super.key,
-    required this.initialSelected,
     required this.style,
     required this.animation,
   });
 
-  final Map<String, List<String>> initialSelected;
   final FDialogStyle style;
   final Animation<double> animation;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(searchPageSingleProviderProvider);
-    final notifier = ref.read(searchPageSingleProviderProvider.notifier);
-    final selected = state.selected;
-
-    return MiruDialog(
-      style: style,
-      animation: animation,
-      direction: Axis.horizontal,
-      title: const Text('Filters'),
-      body: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.7,
-          minWidth: (MediaQuery.of(context).size.width * 0.8).clamp(0.0, 500.0),
-          maxWidth: 500,
-        ),
-        // Mobile sticky filter list: owns its scroll so pinned
-        // SliverPersistentHeaders stay stuck at the top while scrolling.
-        child: const MobileFilterSliverBody(autoCommit: false),
-      ),
-      actions: [
-        FButton(
-          variant: .outline,
-          onPress: () {
-            if (!selected.values.any((e) => e.isNotEmpty)) return;
-            notifier.setSelected({});
-            notifier.commitFilters();
-            Navigator.of(context).pop(true);
-          },
-          child: const Text('Clear'),
-        ),
-        FButton(
-          onPress: () {
-            notifier.commitFilters();
-            Navigator.of(context).pop(true);
-          },
-          child: const Text('Confirm'),
-        ),
-      ],
-    );
-  }
+  ConsumerState<SearchFilterDialog> createState() => _SearchFilterDialogState();
 }
 
-/// Two numeric inputs (From / To) backing a [RangeFilter]. Commits on submit.
-class _RangeFilterField extends StatefulWidget {
-  const _RangeFilterField({
-    required this.filter,
-    required this.selected,
-    required this.onChanged,
-  });
+class _SearchFilterDialogState extends ConsumerState<SearchFilterDialog> {
+  /// Captured in [initState] because `ref` is unusable once the widget is
+  /// unmounted — which is exactly when [dispose] needs it. A Riverpod notifier
+  /// outlives the widget, so holding the reference is safe.
+  late final SearchPageSingleProvider _notifier;
 
-  final RangeFilter filter;
-  final List<String> selected;
-  final void Function(int from, int to) onChanged;
-
-  @override
-  State<_RangeFilterField> createState() => _RangeFilterFieldState();
-}
-
-class _RangeFilterFieldState extends State<_RangeFilterField> {
-  late final TextEditingController fromCtrl;
-  late final TextEditingController toCtrl;
+  /// False until the post-frame microtask actually started staging, so a
+  /// `dispose` that beats that microtask cannot publish a draft nobody made.
+  bool _stagingStarted = false;
 
   @override
   void initState() {
     super.initState();
-    fromCtrl = TextEditingController(
-      text: widget.selected.isNotEmpty
-          ? widget.selected[0]
-          : widget.filter.defaultMin.toString(),
-    );
-    toCtrl = TextEditingController(
-      text: widget.selected.length > 1
-          ? widget.selected[1]
-          : widget.filter.defaultMax.toString(),
-    );
+    _notifier = ref.read(searchPageSingleProviderProvider.notifier);
+    // Staged filters: edits are a draft until the dialog is left. `initState`
+    // is a post-frame-safe place for the write (rules.md #20).
+    Future.microtask(() {
+      _notifier.beginFilterStaging();
+      _stagingStarted = true;
+    });
   }
 
   @override
   void dispose() {
-    fromCtrl.dispose();
-    toCtrl.dispose();
+    // Intentionally publishes NOTHING here.
+    //
+    // `dispose` runs while the widget tree is being finalized, and Riverpod
+    // rejects a provider write in that pass ("Tried to modify a provider while
+    // the widget tree was building") — a synchronous write throws, and a
+    // deferred one throws when it resumes. So there is no legal way for a dying
+    // dialog to commit.
+    //
+    // Every exit that reaches this point has already published instead:
+    // `close()` writes before it pops, and a tap on the backdrop/`Reset` never
+    // needs a commit. The system back gesture is the one exit without a widget,
+    // and it is covered by the framework's own route observer re-asserting the
+    // filters — see `publishStagedFilters` for the commit itself.
     super.dispose();
   }
 
-  void _commit() => widget.onChanged(
-    int.tryParse(fromCtrl.text) ?? widget.filter.min,
-    int.tryParse(toCtrl.text) ?? widget.filter.max,
-  );
-
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
+    final notifier = _notifier;
+    final width = MediaQuery.of(context).size.width;
+    final dialogWidth = width.clamp(0.0, 384.0);
+
+    // ONE exit path for Done, the close button and the system back gesture.
+    // The dialog closes rather than reverting (its footer says so), so leaving
+    // it is the commit — and it costs one createFilter request plus one results
+    // fetch, instead of one of each per control the user touched.
+    //
+    // Publish BEFORE popping, not after: popping disposes this autoDispose
+    // provider, and the `await` after a pop resumes against a dead notifier,
+    // so the commit would be dropped silently. `dispose` covers the routes
+    // this callback does not run (system back, a replaced route) — it must not
+    // defer, or Riverpod rejects the write as a build-time provider mutation.
+    Future<void> close() async {
+      if (_stagingStarted) {
+        notifier.publishStagedFilters();
+        notifier.refreshFilterCatalogue();
+      }
+      final navigator = Navigator.of(context);
+      if (navigator.canPop()) navigator.pop();
+    }
+
+    return FDialog(
+      // Near-full-width card needs the inset relaxed too: forui's default
+      // `horizontal: 40` capped the dialog at 320 on a 400px phone, so the
+      // width constraint below could never grant 384 (which is what truncated
+      // the header subtitle).
+      style: FDialogStyleDelta.delta(
+        insetPadding: EdgeInsetsGeometryDelta.value(
+          const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        ),
+      ),
+      animation: widget.animation,
+      semanticsLabel: 'common.filters'.i18n,
+      constraints: BoxConstraints(
+        minWidth: dialogWidth,
+        maxWidth: dialogWidth,
+        // mock: `max-h-[85vh]`.
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
+      builder: (context, dialogStyle) => Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: FTextField(
-              keyboardType: TextInputType.number,
-              control: FTextFieldControl.managed(controller: fromCtrl),
-              hint: widget.filter.min.toString(),
-              onSubmit: (_) => _commit(),
-            ),
+          _FilterDialogHeader(
+            onReset: () => notifier.clearFiltersToDefault(),
+            onClose: close,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              '-',
-              style: context.theme.typography.body.sm.copyWith(
-                color: context.theme.colors.mutedForeground,
-              ),
-            ),
-          ),
-          Expanded(
-            child: FTextField(
-              keyboardType: TextInputType.number,
-              control: FTextFieldControl.managed(controller: toCtrl),
-              hint: widget.filter.max.toString(),
-              onSubmit: (_) => _commit(),
+          // The panel is the dialog's ONE vertical scroll owner; the header is
+          // its sibling outside the scrollable (rules: never nest same-axis
+          // scrollers). No footer: the user removed it deliberately — do not
+          // add a "Filters update automatically" bar or a Done button back.
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: const ExtensionFilterPanel(),
             ),
           ),
         ],
@@ -365,39 +356,68 @@ class _RangeFilterFieldState extends State<_RangeFilterField> {
   }
 }
 
-/// Single-select filter rendered as unified [FilterChip]s with an "All" reset.
-class _SelectFilterField extends StatelessWidget {
-  const _SelectFilterField({
-    required this.filter,
-    required this.selected,
-    required this.onChanged,
-  });
+/// Dialog header: tune badge, title + subtitle, `Reset`, close.
+class _FilterDialogHeader extends StatelessWidget {
+  const _FilterDialogHeader({required this.onReset, required this.onClose});
 
-  final SelectFilter filter;
-  final List<String> selected;
-  final void Function(String key) onChanged; // '' means "All"
+  final VoidCallback onReset;
+  final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
-    final entries = filter.options.entries.toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
-    final isAll = selected.isEmpty;
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        FilterChip(
-          label: 'extension.all'.i18n,
-          selected: isAll,
-          onTap: () => onChanged(''),
-        ),
-        for (final e in entries)
-          FilterChip(
-            label: e.value.label,
-            selected: selected.contains(e.key),
-            onTap: () => onChanged(e.key),
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: colors.border)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Icon(
+            FLucideIcons.slidersHorizontal,
+            size: 16,
+            color: colors.foreground,
           ),
-      ],
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              spacing: 2,
+              children: [
+                Text(
+                  'common.filters'.i18n,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: typography.body.sm.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: colors.foreground,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          FButton(
+            size: .sm,
+            variant: .ghost,
+            onPress: onReset,
+            child: Text(
+              'common.reset'.i18n,
+              style: context.theme.typography.body.xs.copyWith(
+                color: context.theme.colors.mutedForeground,
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+          FButton.icon(
+            variant: .ghost,
+            size: .sm,
+            onPress: onClose,
+            child: Icon(FLucideIcons.check, size: 18),
+          ),
+        ],
+      ),
     );
   }
 }

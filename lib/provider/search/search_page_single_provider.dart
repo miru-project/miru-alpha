@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
     as pb;
@@ -69,6 +71,10 @@ class SingleSearchPageState {
 
   /// Human-readable summary of every active filter selection, joining the
   /// selected option labels (in [filterOrder]) for the filtered-state chip row.
+  ///
+  /// A text filter has no option map to translate through, so its raw value is
+  /// the label — without this branch the typed text would never appear in the
+  /// summary chip.
   List<String> get filterSummary {
     final List<String> selectedLabels = [];
     for (final key in filterOrder) {
@@ -78,6 +84,10 @@ class SingleSearchPageState {
       if (selectedOptionKeys == null || selectedOptionKeys.isEmpty) continue;
 
       final view = ExtensionFilterView.from(extFilter);
+      if (view.isText) {
+        selectedLabels.addAll(selectedOptionKeys);
+        continue;
+      }
       final labelByKey = {for (final o in view.options) o.key: o.label};
       for (final optionKey in selectedOptionKeys) {
         if (labelByKey.containsKey(optionKey)) {
@@ -132,13 +142,26 @@ class SingleSearchPageState {
 /// Unlike the cross-extension [SearchPageProvider], it is scoped to one
 /// installed extension ([SingleSearchPageState.pkg]) and carries that
 /// extension's own filter catalogue. Pages increment [SingleSearchPageState.page]
-/// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
+// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
 /// is sent to the extension when fetching results.
-// @Riverpod(keepAlive: true)
-@riverpod
+// keepAlive, deliberately: the filter dialog commits AFTER popping, so its
+// provider must survive the dialog's removal from the tree. As autoDispose,
+// Riverpod cancelled the state when the panel's listener went away and the
+// post-pop commit was dropped on a cancelled container (measured: appliedFilter
+// stayed null after Done). The only cost is one state object per extension
+// search session, released by the next `setPkg`/`clearResult`.
+@Riverpod(keepAlive: true)
 class SearchPageSingleProvider extends _$SearchPageSingleProvider {
+  /// Set by `ref.onDispose`. This provider is autoDispose, and the filter
+  /// dialog fires `createFilter` fire-and-forget on its way out — so an
+  /// in-flight `_updateFilters` can land here AFTER the dialog popped. Writing
+  /// `state` then throws `UnmountedRefException`, which surfaced as a failed
+  /// widget test and would surface as a runtime error in the app.
+  bool _disposed = false;
+
   @override
   SingleSearchPageState build() {
+    ref.onDispose(() => _disposed = true);
     return SingleSearchPageState();
   }
 
@@ -159,6 +182,62 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
   /// affect the displayed results.
   void commitFilters() {
     state = state.copyWith(appliedFilter: state.filterSelection);
+  }
+
+  /// While true, filter mutations update [SingleSearchPageState.selected] only.
+  ///
+  /// The filter DIALOG stages its edits: a tap, a text commit or Reset writes
+  /// `selected` and nothing else — no `createFilter` round trip per keystroke /
+  /// per chip, and no refetch of the results grid. [applyFilters] is the single
+  /// commit, fired by `Done`, by the dialog's close button and by the system back
+  /// gesture (the dialog closes rather than reverts, so leaving it is a commit).
+  ///
+  /// The desktop overlay's single-extension mode and every non-dialog caller
+  /// leave this false and keep committing immediately.
+  bool get isStagingFilters => _stagingFilters;
+  bool _stagingFilters = false;
+
+  /// Whether a package is loaded — i.e. the filter state belongs to a real
+  /// extension. Public so a disposed dialog can ask before committing.
+  bool get hasLoadedPackage => state.pkg.isNotEmpty;
+
+  void beginFilterStaging() => _stagingFilters = true;
+
+  /// Re-derives the extension's filter catalogue for the committed selection.
+  ///
+  /// Public because a dialog's `dispose` cannot await: it must fire this
+  /// fire-and-forget so the synchronous commit is not lost with the notifier.
+  void refreshFilterCatalogue() {
+    if (_stagingFilters) return;
+    unawaited(_updateFilters());
+  }
+
+  /// Publishes one mutation: re-derive the catalogue, then commit it.
+  ///
+  /// This is the pre-staging behaviour and stays the default, so the desktop
+  /// overlay's inline filters (which have no dialog around them) keep applying
+  /// as the user clicks. Only the dialog sets [_stagingFilters].
+  Future<void> _publishMutation() async {
+    await _updateFilters();
+    commitFilters();
+  }
+
+  /// Leaves staging and publishes the staged selection: one `createFilter`
+  /// request and one results fetch, no matter how many controls were touched.
+  Future<void> applyFilters() async {
+    publishStagedFilters();
+    await _updateFilters();
+  }
+
+  /// The synchronous half of [applyFilters]: clear staging and commit.
+  ///
+  /// Split out because a dialog's `dispose` must publish synchronously — this
+  /// provider is autoDispose, so an `await` between leaving staging and
+  /// committing can resume after the notifier is gone and write into a dead
+  /// state object, dropping the commit with no error.
+  void publishStagedFilters() {
+    _stagingFilters = false;
+    commitFilters();
   }
 
   void setPage(int p) => state = state.copyWith(page: p);
@@ -193,9 +272,10 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
     );
   }
 
-  /// Returns the default selection for a raw filter, covering all three filter
+  /// Returns the default selection for a raw filter, covering all four filter
   /// kinds: the pre-selected option for selects, the default list for
-  /// multi-selects, and the [defaultMin, defaultMax] pair for ranges.
+  /// multi-selects, the [defaultMin, defaultMax] pair for ranges, and the
+  /// default string for text filters.
   List<String> _defaultSelection(ExtensionFilter filter) {
     switch (filter.whichKind()) {
       case pb.ExtensionFilter_Kind.select:
@@ -208,6 +288,9 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
           filter.range.defaultMin.toString(),
           filter.range.defaultMax.toString(),
         ];
+      case pb.ExtensionFilter_Kind.text:
+        final d = filter.text.default_2;
+        return d.isEmpty ? [] : [d];
       case pb.ExtensionFilter_Kind.notSet:
         return const [];
     }
@@ -247,12 +330,32 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
     final newSelected = Map<String, List<String>>.from(state.selected);
     newSelected[key] = newVal;
     state = state.copyWith(selected: newSelected);
-    await _updateFilters();
+    // Staged: the dialog owns the fetch. Publishing here would re-derive the
+    // filter catalogue over gRPC on every chip tap.
+    if (_stagingFilters) return;
+    await _publishMutation();
   }
 
   void setSelected(Map<String, List<String>> val) async {
     state = state.copyWith(selected: val);
-    await _updateFilters();
+    if (!_stagingFilters) await _publishMutation();
+  }
+
+  /// Sets a free-form [TextFilter] value.
+  ///
+  /// Separate from [setFilterValue] because a text filter's "empty" is a real
+  /// state (the user cleared the box), whereas the generic path enforces
+  /// `min` and would refuse to store an empty selection. An empty [value]
+  /// clears the filter, exactly like the "All" chip does for a select.
+  void setTextFilter(String key, String value) {
+    final filter = state.filter[key];
+    if (filter == null || filter.whichKind() != pb.ExtensionFilter_Kind.text) {
+      return;
+    }
+    final trimmed = value.trim();
+    final newSelected = Map<String, List<String>>.from(state.selected);
+    newSelected[key] = trimmed.isEmpty ? [] : [trimmed];
+    state = state.copyWith(selected: newSelected);
   }
 
   /// Sets a numeric [RangeFilter] value, clamping [from]/[to] to the filter's
@@ -307,6 +410,10 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
           state.pkg,
           filter: selectionProto,
         );
+
+        // The dialog may have popped while this request was in flight; its
+        // fire-and-forget publish is the caller that outlives the widget.
+        if (_disposed) return;
 
         final currentKeys = state.filterOrder;
         final newKeys = newFilters.keys.toList();
@@ -363,8 +470,10 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
 
     if (changed) {
       state = state.copyWith(selected: defaultSelected);
-      await _updateFilters();
+      // Staged: Reset edits the same draft as the controls; `Done` / close
+      // publishes it in one go.
+      if (!_stagingFilters) await _updateFilters();
     }
-    commitFilters();
+    if (!_stagingFilters) commitFilters();
   }
 }

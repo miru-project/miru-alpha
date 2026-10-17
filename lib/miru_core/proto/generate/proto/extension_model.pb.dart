@@ -459,7 +459,92 @@ class RangeFilter extends $pb.GeneratedMessage {
   void clearDefaultMax() => $_clearField(5);
 }
 
-enum ExtensionFilter_Kind { select, multiSelect, range, notSet }
+/// TextFilter is a free-form text filter: the user types an arbitrary string
+/// and the host sends it back verbatim. There is no options map and no
+/// min/max, so the selection carries exactly one value (the typed string).
+///
+/// Named after its value shape (like SelectFilter = one of many,
+/// RangeFilter = numeric bounds) rather than its control, because the control
+/// differs per platform: a tile that opens a text-input popup on touch, and
+/// the same tile + popover on desktop. Hint is optional placeholder text.
+class TextFilter extends $pb.GeneratedMessage {
+  factory TextFilter({
+    $core.String? title,
+    $core.String? default_2,
+    $core.String? hint,
+  }) {
+    final result = create();
+    if (title != null) result.title = title;
+    if (default_2 != null) result.default_2 = default_2;
+    if (hint != null) result.hint = hint;
+    return result;
+  }
+
+  TextFilter._();
+
+  factory TextFilter.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory TextFilter.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'TextFilter',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'title')
+    ..aOS(2, _omitFieldNames ? '' : 'default')
+    ..aOS(3, _omitFieldNames ? '' : 'hint')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  TextFilter clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  TextFilter copyWith(void Function(TextFilter) updates) =>
+      super.copyWith((message) => updates(message as TextFilter)) as TextFilter;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static TextFilter create() => TextFilter._();
+  @$core.override
+  TextFilter createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static TextFilter getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<TextFilter>(create);
+  static TextFilter? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get title => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set title($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasTitle() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTitle() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get default_2 => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set default_2($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasDefault_2() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDefault_2() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.String get hint => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set hint($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasHint() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearHint() => $_clearField(3);
+}
+
+enum ExtensionFilter_Kind { select, multiSelect, range, text, notSet }
 
 /// ExtensionFilter is the typed filter definition returned by CreateFilter.
 /// Exactly one of its variants is set; consumers switch on the oneof.
@@ -468,11 +553,13 @@ class ExtensionFilter extends $pb.GeneratedMessage {
     SelectFilter? select,
     MultiSelectFilter? multiSelect,
     RangeFilter? range,
+    TextFilter? text,
   }) {
     final result = create();
     if (select != null) result.select = select;
     if (multiSelect != null) result.multiSelect = multiSelect;
     if (range != null) result.range = range;
+    if (text != null) result.text = text;
     return result;
   }
 
@@ -490,19 +577,22 @@ class ExtensionFilter extends $pb.GeneratedMessage {
     1: ExtensionFilter_Kind.select,
     2: ExtensionFilter_Kind.multiSelect,
     3: ExtensionFilter_Kind.range,
+    4: ExtensionFilter_Kind.text,
     0: ExtensionFilter_Kind.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'ExtensionFilter',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'miru'),
       createEmptyInstance: create)
-    ..oo(0, [1, 2, 3])
+    ..oo(0, [1, 2, 3, 4])
     ..aOM<SelectFilter>(1, _omitFieldNames ? '' : 'select',
         subBuilder: SelectFilter.create)
     ..aOM<MultiSelectFilter>(2, _omitFieldNames ? '' : 'multiSelect',
         subBuilder: MultiSelectFilter.create)
     ..aOM<RangeFilter>(3, _omitFieldNames ? '' : 'range',
         subBuilder: RangeFilter.create)
+    ..aOM<TextFilter>(4, _omitFieldNames ? '' : 'text',
+        subBuilder: TextFilter.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -527,11 +617,13 @@ class ExtensionFilter extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   @$pb.TagNumber(2)
   @$pb.TagNumber(3)
+  @$pb.TagNumber(4)
   ExtensionFilter_Kind whichKind() =>
       _ExtensionFilter_KindByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(1)
   @$pb.TagNumber(2)
   @$pb.TagNumber(3)
+  @$pb.TagNumber(4)
   void clearKind() => $_clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
@@ -566,6 +658,17 @@ class ExtensionFilter extends $pb.GeneratedMessage {
   void clearRange() => $_clearField(3);
   @$pb.TagNumber(3)
   RangeFilter ensureRange() => $_ensure(2);
+
+  @$pb.TagNumber(4)
+  TextFilter get text => $_getN(3);
+  @$pb.TagNumber(4)
+  set text(TextFilter value) => $_setField(4, value);
+  @$pb.TagNumber(4)
+  $core.bool hasText() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearText() => $_clearField(4);
+  @$pb.TagNumber(4)
+  TextFilter ensureText() => $_ensure(3);
 }
 
 class ExtensionDetail extends $pb.GeneratedMessage {

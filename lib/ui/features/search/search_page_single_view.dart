@@ -302,11 +302,7 @@ class SearchPageSingleView extends HookConsumerWidget {
       context: context,
       builder: (context, style, animation) => FTheme(
         data: context.theme,
-        child: SearchFilterDialog(
-          initialSelected: initialSelected,
-          style: style,
-          animation: animation,
-        ),
+        child: SearchFilterDialog(style: style, animation: animation),
       ),
     );
     if (confirm != true) notifier.setSelected(initialSelected);

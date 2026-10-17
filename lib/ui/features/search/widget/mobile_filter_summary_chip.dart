@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/provider/search/search_page_single_provider.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 
 /// Filter labels rendered inline before the rest collapse into a `+N` badge.
 const int kMaxFilterSummaryLabels = 2;
@@ -30,7 +31,26 @@ class MobileFilterSummaryChip extends ConsumerWidget {
     final filterSummary = ref.watch(
       searchPageSingleProviderProvider.select((s) => s.filterSummary),
     );
-    if (filterSummary.isEmpty) return const SizedBox.shrink();
+
+    // Always reachable. Hiding the chip when nothing is selected left mobile
+    // with NO way to open the filter dialog at all — the chip is its only
+    // entry point on `/search/single`, so an extension with filters but no
+    // pre-selected defaults was unfilterable. Empty now renders the filter
+    // icon instead of collapsing to nothing.
+    if (filterSummary.isEmpty) {
+      return FTappable(
+        onPress: onTap,
+        semanticsLabel: 'search.edit_filters'.i18n,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          child: Icon(
+            FLucideIcons.listFilter,
+            size: 20,
+            color: context.theme.colors.mutedForeground,
+          ),
+        ),
+      );
+    }
 
     final labels = filterSummary.take(kMaxFilterSummaryLabels).toList();
     final hiddenCount = filterSummary.length - labels.length;
@@ -41,6 +61,7 @@ class MobileFilterSummaryChip extends ConsumerWidget {
       ),
       child: FTappable(
         onPress: onTap,
+        semanticsLabel: 'search.edit_filters'.i18n,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
