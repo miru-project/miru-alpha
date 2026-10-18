@@ -25,11 +25,9 @@
     "warning": "Warning",
     "back": "Back",
     "refresh": "Refresh",
-    "refreshing": "Refreshing...",
     "refresh_failed_using_cache": "Refresh failed. Using cached data.",
     "force_refresh_success": "Force refresh successful. Data updated.",
     "force_refresh_failed_using_cache": "Force refresh failed. Using cached data.",
-    "retry_all": "Retry All",
     "load_more": "Load More",
     "page": "page",
     "date": "Date",
@@ -43,7 +41,6 @@
     "developer": "Developer",
     "continue_text": "Continue",
     "return_text": "Return",
-    "are_you_sure": "Are you absolutely sure?",
     "overview": "Overview",
     "general": "General",
     "player": "Player",
@@ -58,7 +55,6 @@
     "licenses": "Licenses",
     "close": "Close",
     "install": "Install",
-    "language": "Language",
     "play": "Play",
     "none": "None",
     "package": "Package",
@@ -70,17 +66,14 @@
     "new_tag": "New Tag",
     "create_new_tag": "Create New Tag",
     "select_tags_groups": "Select tags/groups",
-    "custom_context_menu": "Custom Context Menu",
     "search_globally": "Search Globally",
     "filters": "Filters",
     "search_by_keywords": "Search by Keywords",
     "type_a_value": "Type a value",
     "search_for_favorites": "Search for Favorites",
-    "search_for_histories": "Search for Histories",
     "active_tasks": "Active Tasks",
     "no_results": "No Results Found",
     "no_licenses_found": "No licenses found",
-    "remove_history": "Remove History",
     "remove_favorite": "Remove Favorite",
     "package_not_found": "Package not found",
     "initializing_miru_core": "Initializing Miru Core",
@@ -98,32 +91,11 @@
   },
   "history_tools": {
     "clear_all": "Clear All",
-    "clear_all_confirm": "Clear all watch history?",
-    "remove_item_confirm": "Remove this history item?",
-    "today": "Today",
-    "yesterday": "Yesterday",
-    "older": "Older",
-    "resume": "Resume",
     "episode": "Episode",
     "watch": "Watch",
     "go_to_detail": "Go to detail",
     "detail_missing": "Could not load this title from your library",
     "episode_unavailable": "That episode is no longer available from this extension"
-  },
-  "download_tools": {
-    "pause": "Pause",
-    "resume": "Resume",
-    "cancel": "Cancel",
-    "retry": "Retry",
-    "open_file": "Open File",
-    "delete_file": "Delete File",
-    "delete_confirm": "Delete this download?",
-    "speed": "Speed",
-    "size": "Size",
-    "downloading": "Downloading",
-    "completed_section": "Completed",
-    "active_section": "Active",
-    "failed_section": "Failed"
   },
   "favorite": {
     "name": "Favorite",
@@ -133,13 +105,7 @@
     "add_new_group": "Add a new favorite group",
     "enter_group_name": "Enter group name...",
     "current_groups": "CURRENT GROUPS",
-    "groups": "Groups",
-    "new_group": "New Group",
-    "create_group": "Create Group",
-    "delete_group": "Delete Group",
-    "delete_group_confirm": "Delete this group and all its favorites?",
     "remove_favorite_confirm": "Remove this item from favorites?",
-    "all_favorites": "All",
     "select_groups": "Select Groups",
     "select_groups_desc": "Choose which favorite groups to filter by",
     "filter_mode": "Filter Mode",
@@ -164,24 +130,15 @@
     "manga": "Manga",
     "novel": "Novel",
     "video_player": {
-      "name": "Video Player",
-      "information": "Adjust playback settings",
       "play": "Play",
-      "speed": "Speed",
-      "adjust_speed": "Adjust playback speed",
-      "aspect_ratio": "Aspect Ratio",
-      "video_info": "Video Info",
-      "danmaku": "Danmaku",
-      "settings_placeholder_title": "Settings",
-      "settings_placeholder_body": "No settings available"
+      "adjust_speed": "Adjust playback speed"
     },
     "failed_to_fetch_video_url": "Failed to fetch video URL",
     "select_resolution": "Select Resolution",
     "no_description": "Currently no description ... ",
     "favorites_updated": "Favorites updated",
     "favorited": "Favorited",
-    "add_to_favorites": "Add to Favorites",
-    "no_episodes_found_error": "Error: No episodes found"
+    "add_to_favorites": "Add to Favorites"
   },
   "extension": {
     "name": "Extension",
@@ -190,11 +147,9 @@
     "pinned": "Pinned",
     "pinned_extensions": "Pinned extensions",
     "extensions_installed_desc": "Extensions that are already installed",
-    "search_extensions": "Search extensions",
     "search_hint": "Search by Name or Tags ...",
     "nsfw": "NSFW",
     "update_available": "Update Available",
-    "edit_code": "Edit Code",
     "uninstall": "Uninstall",
     "uninstall_confirm": "Uninstall {name}?",
     "uninstall_success": "Uninstall Success",
@@ -203,18 +158,12 @@
     "do_not_show_again": "Do not show again this dialog when try to uninstall",
     "import": {
       "title": "Import Extension",
-      "url_label": "Extension URL",
       "tips": "You can import extensions through a link, or click on the extension directory below and select the extension file there.",
-      "extension_dir": "Extension Directory",
       "import_by_url": "Import by URL",
       "import_by_local": "Import Locally",
       "invalid_url": "Invalid url need a .js file"
     },
     "repo": {
-      "error": "An error occurred!",
-      "error_tips": "Please check your network connection or the repository address",
-      "empty": "Repository is empty",
-      "upgrade": "Update",
       "management": "Repo Management",
       "add_repo": "Add Repo?",
       "official_repo": "Official Repo",
@@ -224,7 +173,6 @@
       "remove_confirm": "Remove selected from repo?",
       "remove_confirm_with_name": "Uninstall {name} from repo?",
       "no_repos_found": "No extension repositories found.",
-      "reload": "Reload Repositories",
       "repository": "Repository",
       "load_error": "Error loading repos: {error}"
     },
@@ -234,7 +182,6 @@
     "cookie_clear_description": "Clear extension cookies",
     "search_with_pinned_extensions": "Search with pinned extensions",
     "setting_wip": "Extension settings (WIP)",
-    "history": "History",
     "search_across_extensions": "Search across extensions...",
     "recent_searches": "Recent Searches",
     "frequent_extensions": "Frequently Used Extensions",
@@ -243,17 +190,13 @@
     "source": "Source: {name}",
     "clear": "Clear",
     "apply": "Apply Filters",
-    "all": "All",
     "results_count": "{count} results",
     "search_results_of": "Search results of {query}",
-    "load_failed": "{error}",
     "not_loaded": "Extension not loaded",
-    "failed": "Failed",
-    "load_failed_verbose": "Failed to load extension: {error}"
+    "failed": "Failed"
   },
   "tracking": {
     "name": "Tracking",
-    "logout": "Logout",
     "unlink": "Unlink",
     "delete_entry": "Delete Entry",
     "anilist": {
@@ -277,11 +220,9 @@
       "save_progress": "Save Progress",
       "score": "Score",
       "progress": "Progress",
-      "link": "Link AniList",
       "tracker_unlinked": "Tracker unlinked",
       "tracker_unlink_failed": "Failed to unlink tracker",
-      "delete_warning": "By doing this action it will delete entry on {provider}",
-      "current_status": "Current Status"
+      "delete_warning": "By doing this action it will delete entry on {provider}"
     }
   },
   "settings": {
@@ -392,12 +333,10 @@
       "information": "player, readers ..."
     },
     "about": {
-      "name": "About",
-      "information": ""
+      "name": "About"
     },
     "network": {
-      "name": "Setting Network",
-      "information": "Information"
+      "name": "Setting Network"
     },
     "proxy": {
       "name": "Setting Proxy",
@@ -417,8 +356,7 @@
       "name": "Logging & Crash",
       "information": "Export logs and capture crashes",
       "capture": {
-        "name": "Crash Capture",
-        "information": ""
+        "name": "Crash Capture"
       },
       "capture_crash": {
         "name": "Capture crashes",
@@ -429,8 +367,7 @@
         "information": "Persist runtime logs to disk"
       },
       "export": {
-        "name": "Export",
-        "information": ""
+        "name": "Export"
       },
       "export_alpha": {
         "name": "Export miru_alpha log",
@@ -479,7 +416,6 @@
       "page_gap": "Page Gap",
       "canvas_background": "Canvas Background",
       "fit_mode": "Image Fitting",
-      "tap_to_toggle_controls": "Tap center to toggle controls",
       "invert_colors": {
         "name": "Invert Colors",
         "hint": "Night reading inversion filter"
@@ -503,7 +439,6 @@
       "add_bookmark_added": "Bookmarked",
       "jump": "Jump",
       "jump_hint": "Jump to chapter number",
-      "volume": "Volume",
       "read_mode": {
         "name": "Read Mode",
         "information": "Change the reading direction",
@@ -517,63 +452,28 @@
         }
       },
       "fit_options": {
-        "fitWidth": "Fit Width",
-        "fitHeight": "Fit Height",
-        "original": "Original"
+        "fitWidth": "Fit Width"
       },
       "canvas_options": {
         "black": "Black",
         "darkGray": "Dark Gray",
         "light": "White"
       },
-      "alignment_settings": {
-        "name": "Alignment Settings",
-        "information": ""
-      },
-      "page_settings": {
-        "name": "Page Settings",
-        "information": ""
-      },
-      "general_settings": {
-        "name": "General Settings",
-        "information": ""
-      },
       "reading": "Reading",
       "new": "New"
     },
     "novel": {
-      "alignment_settings": {
-        "name": "Alignment Settings",
-        "information": ""
-      },
-      "page_settings": {
-        "name": "Page Settings",
-        "information": ""
-      },
-      "general_settings": {
-        "name": "General Settings",
-        "information": ""
-      },
       "font_size": {
-        "name": "Font Size",
-        "information": "Typography"
+        "name": "Font Size"
       },
       "line_height": {
-        "name": "Line Height",
-        "information": ""
+        "name": "Line Height"
       },
       "font_family": {
-        "name": "Font Family",
-        "information": ""
+        "name": "Font Family"
       },
       "read_mode": {
         "name": "Read Mode",
-        "information": "Change the reading direction",
-        "standard": "Standard",
-        "rightToLeft": "Right to Left",
-        "webToon": "WebToon",
-        "rightToLeftFlip": "Right to Left (Flip)",
-        "standardFlip": "Standard (Flip)",
         "short": {
           "standard": "Paged",
           "webToon": "Continuous",
@@ -611,8 +511,7 @@
         "hint": "Use the hardware volume rocker"
       },
       "margin": {
-        "name": "Margins",
-        "hint": "Space around the text column"
+        "name": "Margins"
       }
     }
   },
@@ -642,24 +541,12 @@
     "no_download_history": "No download history",
     "no_active_downloads": "No active downloads",
     "error_loading_downloads": "Error loading downloads",
-    "download_started": "Download started",
-    "failed_to_start_download": "Failed to start download",
     "convert_failed": "Failed to convert {title} to MP4",
-    "downloaded": "Downloaded",
     "max_concurrent": "Max concurrent downloads",
-    "show_missing": "Show missing files ({count})",
-    "hide_missing": "Hide missing files",
-    "drag_to_reorder_tip": "Drag to reorder. Top = higher priority.",
     "all_downloads": "All Downloads",
-    "series": "Series",
-    "movies": "Movies",
-    "delete_all_finished": "Delete All Finished",
     "device_storage": "Device Storage",
     "temp": "Temp",
-    "storage_used": "{used} of {total} used",
-    "storage_hint": "You have enough space for approximately {count} more episodes in High Definition.",
     "in_progress": "In Progress",
-    "path_not_set": "Download path not set",
     "active_count": "{count} active",
     "no_completed_downloads": "No completed downloads",
     "end_of_list": "No more downloads",
@@ -675,22 +562,10 @@
     "finished_toast": "Finished downloading {title}",
     "failed_toast": "Failed to download {title}: {reason}"
   },
-  "languages": {
-    "name": "Languages"
-  },
-  "detail": {
-    "previous": "Previous",
-    "next": "Next",
-    "error": {
-      "network": "Network error. Check your connection.",
-      "server": "Server error. Please try again later."
-    }
-  },
   "search": {
     "load_failed": "Failed to load search",
     "scope": "Source & Scope",
     "edit_filters": "Edit Filters",
-    "active_sources": "{count} Active",
     "all_extensions": "All Ext ({count})",
     "scope_specific": "Specific",
     "content_type": "Content Type",
@@ -709,33 +584,20 @@
     "sort_pinned_first": "Pinned",
     "sort_name": "Name",
     "sort_version": "Version",
-    "pinned_sources_desc": "Simultaneous queries across enabled providers",
-    "pinned_count": "{count} Pinned",
     "pinned_only": "Pinned Only",
     "extension_sources": "Extension Sources",
     "extension_sources_desc": "Filter the list, or pin the sources you search most",
     "total_sources": "Total: {count}",
     "all_sources": "All Sources",
     "status_unpinned": "Not pinned",
-    "filter_and_sources": "Filter & Sources",
-    "source_scope": "Source Scope",
-    "extensions_label": "Extensions",
-    "select_other": "Select other installed extension...",
-    "apply_count": "Apply Filters ({count} Results)",
-    "done": "Done",
     "filters_subtitle": "Configurable Extension Inputs",
-    "filters_auto": "Filters update automatically",
-    "exact_match": "Exact Match",
-    "related_title": "Related Title",
     "results_count": "{count} results",
     "across_sources": "across {count} sources",
     "failed_sources": "{names} failed",
     "sources_done": "{done}/{total} done",
     "no_results": "No results for \"{query}\"",
     "no_pinned": "No pinned extensions yet",
-    "searching_sources": "Searching {count} sources...",
     "result_one": "{count} result",
-    "apply_count_one": "Apply Filters ({count} Result)",
     "retry": "Retry",
     "load_more": "Load more",
     "view_relevance": "Relevance",
