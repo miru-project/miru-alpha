@@ -11,6 +11,7 @@ import 'package:miru_alpha/utils/store/storage_index.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/core/inner_card.dart';
 import 'package:miru_alpha/ui/features/search/widget/desktop_search_list_tile.dart';
+import 'package:miru_alpha/ui/features/search/widget/extension_load_status.dart';
 
 class DesktopSearchPage extends HookConsumerWidget {
   const DesktopSearchPage({super.key, this.search});
@@ -72,49 +73,59 @@ class DesktopSearchPage extends HookConsumerWidget {
                         // the metadata (e.g. uninstalled or not yet loaded) to
                         // avoid a "No element" crash.
                         if (ext == null) return const SizedBox.shrink();
+                        final broken = extensionLoadState(ext)?.failed ?? false;
                         return DesktopSearchListTile(
                           ext: ext,
-                          trailing: Row(
-                            children: [
-                              FButton.icon(
-                                variant: .ghost,
-                                onPress: () {
-                                  context.push(
-                                    "/extensionSettings",
-                                    extra: ExtensionSettingParam(
-                                      pkg: ext.packageName,
-                                      name: ext.name,
+                          trailing: broken
+                              ? FButton.icon(
+                                  variant: .ghost,
+                                  onPress: () => showExtensionError(context, ext),
+                                  child: Icon(
+                                    FLucideIcons.circleAlert,
+                                    color: context.theme.colors.destructive,
+                                  ),
+                                )
+                              : Row(
+                                  children: [
+                                    FButton.icon(
+                                      variant: .ghost,
+                                      onPress: () {
+                                        context.push(
+                                          "/extensionSettings",
+                                          extra: ExtensionSettingParam(
+                                            pkg: ext.packageName,
+                                            name: ext.name,
+                                          ),
+                                        );
+                                      },
+                                      child: Icon(FLucideIcons.cog),
                                     ),
-                                  );
-                                },
-                                child: Icon(FLucideIcons.cog),
-                              ),
-                              FButton.icon(
-                                selected: true,
-                                onPress: () {
-                                  final newSet = {...existedPinnedExtensions};
-                                  if (newSet.contains(ext.packageName)) {
-                                    newSet.remove(ext.packageName);
-                                  } else {
-                                    newSet.add(ext.packageName);
-                                  }
-                                  ref
-                                      .read(searchPageProvider.notifier)
-                                      .setExistedPinnedExtensions(newSet);
-                                  MiruSettings.setSettingSync(
-                                    SettingKey.pinnedExtension,
-                                    newSet.toString(),
-                                  );
-                                },
-                                child:
-                                    existedPinnedExtensions.contains(
-                                      ext.packageName,
-                                    )
-                                    ? Icon(FLucideIcons.pinOff)
-                                    : Icon(FLucideIcons.pin),
-                              ),
-                            ],
-                          ),
+                                    FButton.icon(
+                                      selected: true,
+                                      onPress: () {
+                                        final newSet = {...existedPinnedExtensions};
+                                        if (newSet.contains(ext.packageName)) {
+                                          newSet.remove(ext.packageName);
+                                        } else {
+                                          newSet.add(ext.packageName);
+                                        }
+                                        ref
+                                            .read(searchPageProvider.notifier)
+                                            .setExistedPinnedExtensions(newSet);
+                                        MiruSettings.setSettingSync(
+                                          SettingKey.pinnedExtension,
+                                          newSet.toString(),
+                                        );
+                                      },
+                                      child:
+                                          existedPinnedExtensions.contains(
+                                            ext.packageName,
+                                          )
+                                          ? Icon(FLucideIcons.pinOff)
+                                          : Icon(FLucideIcons.pin),
+                                    ),
+                                  ],
+                                ),
                         );
                       },
                       itemCount: existedPinnedExtensions.length,
@@ -130,63 +141,73 @@ class DesktopSearchPage extends HookConsumerWidget {
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
                       final ext = metaData[index];
+                      final broken = extensionLoadState(ext)?.failed ?? false;
                       return DesktopSearchListTile(
                         ext: ext,
-                        trailing: Row(
-                          children: [
-                            FButton.icon(
-                              variant: .ghost,
-                              onPress: () {
-                                context.push(
-                                  "/extensionSettings",
-                                  extra: ExtensionSettingParam(
-                                    pkg: ext.packageName,
-                                    name: ext.name,
+                        trailing: broken
+                            ? FButton.icon(
+                                variant: .ghost,
+                                onPress: () => showExtensionError(context, ext),
+                                child: Icon(
+                                  FLucideIcons.circleAlert,
+                                  color: context.theme.colors.destructive,
+                                ),
+                              )
+                            : Row(
+                                children: [
+                                  FButton.icon(
+                                    variant: .ghost,
+                                    onPress: () {
+                                      context.push(
+                                        "/extensionSettings",
+                                        extra: ExtensionSettingParam(
+                                          pkg: ext.packageName,
+                                          name: ext.name,
+                                        ),
+                                      );
+                                    },
+                                    child: Icon(FLucideIcons.settings),
                                   ),
-                                );
-                              },
-                              child: Icon(FLucideIcons.settings),
-                            ),
-                            FButton.icon(
-                              variant: .ghost,
-                              onPress: () {
-                                context.push(
-                                  '/mobileWebView',
-                                  extra: WebviewParam(
-                                    meta: ext,
-                                    url: ext.webSite,
+                                  FButton.icon(
+                                    variant: .ghost,
+                                    onPress: () {
+                                      context.push(
+                                        '/mobileWebView',
+                                        extra: WebviewParam(
+                                          meta: ext,
+                                          url: ext.webSite,
+                                        ),
+                                      );
+                                    },
+                                    child: Icon(FLucideIcons.globe),
                                   ),
-                                );
-                              },
-                              child: Icon(FLucideIcons.globe),
-                            ),
-                            SizedBox(width: 8),
-                            FButton.icon(
-                              selected: true,
-                              onPress: () {
-                                final newSet = {...existedPinnedExtensions};
-                                if (newSet.contains(ext.packageName)) {
-                                  newSet.remove(ext.packageName);
-                                } else {
-                                  newSet.add(ext.packageName);
-                                }
-                                ref
-                                    .read(searchPageProvider.notifier)
-                                    .setExistedPinnedExtensions(newSet);
-                                MiruSettings.setSettingSync(
-                                  SettingKey.pinnedExtension,
-                                  newSet.toString(),
-                                );
-                              },
-                              child:
-                                  existedPinnedExtensions.contains(
-                                    ext.packageName,
-                                  )
-                                  ? Icon(FLucideIcons.pinOff)
-                                  : Icon(FLucideIcons.pin),
-                            ),
-                          ],
-                        ),
+                                  SizedBox(width: 8),
+                                  FButton.icon(
+                                    selected: true,
+                                    onPress: () {
+                                      final newSet = {...existedPinnedExtensions};
+                                      if (newSet.contains(ext.packageName)) {
+                                        newSet.remove(ext.packageName);
+                                      } else {
+                                        newSet.add(ext.packageName);
+                                      }
+                                      ref
+                                          .read(searchPageProvider.notifier)
+                                          .setExistedPinnedExtensions(newSet);
+                                      MiruSettings.setSettingSync(
+                                        SettingKey.pinnedExtension,
+                                        newSet.toString(),
+                                      );
+                                    },
+                                    child:
+                                        existedPinnedExtensions.contains(
+                                          ext.packageName,
+                                        )
+                                        ? Icon(FLucideIcons.pinOff)
+                                        : Icon(FLucideIcons.pin),
+                                  ),
+                                ],
+                              ),
                       );
                     },
                     itemCount: metaData.length,

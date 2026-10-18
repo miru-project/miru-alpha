@@ -69,6 +69,7 @@ class SettingsInputTile extends StatelessWidget with FTileMixin {
             ],
             body: Form(
               child: Column(
+                crossAxisAlignment: .start,
                 mainAxisSize: .min,
                 children: [
                   if (description != null)

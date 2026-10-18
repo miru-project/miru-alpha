@@ -6,6 +6,7 @@ import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/search/search_page_provider.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/features/search/widget/search_filter_controls.dart';
+import 'package:miru_alpha/ui/features/search/widget/extension_load_status.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/utils/store/storage_index.dart';
@@ -48,15 +49,6 @@ List<Widget> mobileSearchSourceSlivers(BuildContext context, WidgetRef ref) {
       ),
     ),
     const SliverToBoxAdapter(child: SizedBox(height: 4)),
-    SliverToBoxAdapter(
-      child: Text(
-        'search.extension_sources_desc'.i18n,
-        style: context.theme.typography.body.xs.copyWith(
-          color: context.theme.colors.mutedForeground,
-        ),
-      ),
-    ),
-    const SliverToBoxAdapter(child: SizedBox(height: kSearchSectionGap)),
     if (sources.isEmpty)
       SliverToBoxAdapter(
         child: Padding(
@@ -93,6 +85,7 @@ List<Widget> mobileSearchSourceSlivers(BuildContext context, WidgetRef ref) {
                   name: meta.name,
                 ),
               ),
+              onShowError: () => showExtensionError(context, meta),
             ),
           );
         },
@@ -146,6 +139,7 @@ class _SourceCard extends StatelessWidget {
     required this.onPinTap,
     required this.onOpen,
     required this.onSettings,
+    required this.onShowError,
   });
 
   final ExtensionMeta meta;
@@ -153,12 +147,17 @@ class _SourceCard extends StatelessWidget {
   final VoidCallback onPinTap;
   final VoidCallback onOpen;
   final VoidCallback onSettings;
+  final VoidCallback onShowError;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.theme.colors;
+    final loadState = extensionLoadState(meta);
+    final broken = loadState?.failed ?? false;
     return FTappable(
-      onPress: onOpen,
+      // A failed extension has nothing to search, so the tile is inert:
+      // only the error affordance is interactive.
+      onPress: broken ? null : onOpen,
       child: Container(
         padding: const EdgeInsets.all(11),
         decoration: BoxDecoration(
@@ -232,6 +231,37 @@ class _SourceCard extends StatelessWidget {
                       ],
                     ],
                   ),
+                  if (extensionLoadState(meta) case final state?) ...[
+                    const SizedBox(height: 2),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          if (state.failed) ...[
+                            // The red word own the reading order, then the
+                            // backend's own message.
+                            TextSpan(
+                              text: 'extension.failed'.i18n,
+                              style: context.theme.typography.body.xs.copyWith(
+                                color: colors.destructive,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const TextSpan(text: '  '),
+                          ],
+                          TextSpan(
+                            text: state.label,
+                            style: context.theme.typography.body.xs.copyWith(
+                              color: state.failed
+                                  ? colors.destructive
+                                  : colors.mutedForeground,
+                            ),
+                          ),
+                        ],
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                   const SizedBox(height: 2),
                   Text(
                     [
@@ -250,20 +280,32 @@ class _SourceCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
-            FButton.icon(
-              variant: .ghost,
-              onPress: onPinTap,
-              child: Icon(
-                pinned ? FLucideIcons.pinOff : FLucideIcons.pin,
-                size: 17,
-                color: pinned ? colors.foreground : colors.mutedForeground,
+            if (broken)
+              FButton.icon(
+                variant: .ghost,
+                onPress: onShowError,
+                child: Icon(
+                  FLucideIcons.circleAlert,
+                  size: 17,
+                  color: colors.destructive,
+                ),
+              )
+            else ...[
+              FButton.icon(
+                variant: .ghost,
+                onPress: onPinTap,
+                child: Icon(
+                  pinned ? FLucideIcons.pinOff : FLucideIcons.pin,
+                  size: 17,
+                  color: pinned ? colors.foreground : colors.mutedForeground,
+                ),
               ),
-            ),
-            FButton.icon(
-              variant: .ghost,
-              onPress: onSettings,
-              child: Icon(FLucideIcons.settings, size: 17),
-            ),
+              FButton.icon(
+                variant: .ghost,
+                onPress: onSettings,
+                child: Icon(FLucideIcons.settings, size: 17),
+              ),
+            ],
           ],
         ),
       ),

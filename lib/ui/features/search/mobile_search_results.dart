@@ -14,6 +14,7 @@ import 'package:miru_alpha/provider/search/search_page_provider.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/features/search/widget/search_filter_controls.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/ui/features/search/widget/extension_load_status.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 
@@ -632,10 +633,16 @@ class _ExtensionShelf extends HookConsumerWidget {
           // Tapping the header opens the extension's own search page with the
           // same keyword — the shelf is a preview, the source is one tap away.
           FTappable(
-            onPress: () => context.push(
-              '/search/single',
-              extra: SearchPageParam(meta: meta, query: query),
-            ),
+            onPress: () {
+              if (extensionLoadState(meta)?.failed ?? false) {
+                showExtensionError(context, meta);
+                return;
+              }
+              context.push(
+                '/search/single',
+                extra: SearchPageParam(meta: meta, query: query),
+              );
+            },
             child: Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, kSearchLabelGap),
               child: Row(

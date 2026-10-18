@@ -7,6 +7,7 @@ import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/provider/search/search_page_provider.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/ui/features/search/widget/extension_load_status.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/core/error.dart';
 import 'package:miru_alpha/ui/core/grid_view/miru_grid_tile.dart';
@@ -150,6 +151,10 @@ class GlobalSearch extends HookConsumerWidget {
                       mainAxisSize: .min,
                       variant: .ghost,
                       onPress: () {
+                        if (extensionLoadState(meta)?.failed ?? false) {
+                          showExtensionError(context, meta);
+                          return;
+                        }
                         context.push(
                           '/search/single',
                           extra: SearchPageParam(

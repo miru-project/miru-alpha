@@ -13,6 +13,7 @@ import 'package:miru_alpha/utils/store/storage_index.dart';
 import 'package:miru_alpha/ui/core/amination/animated_box.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
 import 'package:miru_alpha/ui/core/core/image_widget.dart';
+import 'package:miru_alpha/ui/features/search/widget/extension_load_status.dart';
 
 class DesktopSearchListTile extends HookConsumerWidget {
   const DesktopSearchListTile({super.key, required this.ext, this.trailing});
@@ -79,10 +80,18 @@ class DesktopSearchListTile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Derive once: a failed extension has nothing to search, so the whole
+    // tile is inert and the affordance is the error dialog (same behaviour
+    // as the mobile card).
+    final loadState = extensionLoadState(ext);
+    final broken = loadState?.failed ?? false;
+
     return AnimatedBox(
-      onTap: () {
-        context.push('/search/single', extra: SearchPageParam(meta: ext));
-      },
+      onTap: broken
+          ? null
+          : () {
+              context.push('/search/single', extra: SearchPageParam(meta: ext));
+            },
       child: FPopoverMenu.tiles(
         menu: [
           FTileGroup(
@@ -110,11 +119,21 @@ class DesktopSearchListTile extends HookConsumerWidget {
                   showDeleteExtensionDialog(context);
                 },
               ),
-              FTile(
-                prefix: const Icon(FLucideIcons.bolt),
-                title: Text("extension.setting_wip".i18n),
-                onPress: () {},
-              ),
+              if (broken)
+                FTile(
+                  prefix: Icon(
+                    FLucideIcons.circleAlert,
+                    color: context.theme.colors.destructive,
+                  ),
+                  title: Text('extension.failed'.i18n),
+                  onPress: () => showExtensionError(context, ext),
+                )
+              else
+                FTile(
+                  prefix: const Icon(FLucideIcons.bolt),
+                  title: Text("extension.setting_wip".i18n),
+                  onPress: () {},
+                ),
             ],
           ),
         ],
@@ -139,22 +158,72 @@ class DesktopSearchListTile extends HookConsumerWidget {
                           ),
                         ),
                         SizedBox(width: 20),
-                        Flexible(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Flexible(
-                                child: Text(
-                                  ext.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      ext.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (ext.nsfw) ...[
+                                    const SizedBox(width: 8),
+                                    FBadge(
+                                      variant: .destructive,
+                                      child: Text('extension.nsfw'.i18n),
+                                    ),
+                                  ],
+                                ],
                               ),
-                              if (ext.nsfw) ...[
-                                const SizedBox(width: 8),
-                                FBadge(
-                                  variant: .destructive,
-                                  child: Text('extension.nsfw'.i18n),
+                              if (extensionLoadState(ext)
+                                  case final state?) ...[
+                                const SizedBox(height: 6),
+                                Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      if (state.failed) ...[
+                                        TextSpan(
+                                          text: 'extension.failed'.i18n,
+                                          style: context
+                                              .theme
+                                              .typography
+                                              .body
+                                              .xs
+                                              .copyWith(
+                                                color: context
+                                                    .theme
+                                                    .colors
+                                                    .destructive,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                        ),
+                                        const TextSpan(text: '  '),
+                                      ],
+                                      TextSpan(
+                                        text: state.label,
+                                        style: context.theme.typography.body.xs
+                                            .copyWith(
+                                              color: state.failed
+                                                  ? context
+                                                        .theme
+                                                        .colors
+                                                        .destructive
+                                                  : context
+                                                        .theme
+                                                        .colors
+                                                        .mutedForeground,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ],

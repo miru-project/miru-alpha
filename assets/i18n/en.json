@@ -245,7 +245,11 @@
     "apply": "Apply Filters",
     "all": "All",
     "results_count": "{count} results",
-    "search_results_of": "Search results of {query}"
+    "search_results_of": "Search results of {query}",
+    "load_failed": "{error}",
+    "not_loaded": "Extension not loaded",
+    "failed": "Failed",
+    "load_failed_verbose": "Failed to load extension: {error}"
   },
   "tracking": {
     "name": "Tracking",
