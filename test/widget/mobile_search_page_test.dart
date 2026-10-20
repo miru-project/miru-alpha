@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -20,8 +22,11 @@ import 'package:miru_alpha/ui/features/search/widget/search_field.dart';
 import 'package:miru_alpha/ui/features/search/widget/search_filter_controls.dart';
 import 'package:miru_alpha/ui/features/search/widget/search_page_header.dart';
 import 'package:miru_alpha/ui/features/search/widget/search_results_header.dart';
+import 'package:miru_alpha/ui/features/search/widget/search_settings_sheet.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:miru_alpha/utils/router/router_util.dart';
 import 'package:miru_alpha/utils/theme/miru_themes.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
 import 'package:material_ui/material_ui.dart';
@@ -158,6 +163,15 @@ Future<ProviderContainer> pumpSearch(
   // Stands in for the real per-source search, so a test can count the requests
   // a screen actually makes: (package, page, query) -> the page's hits.
   Future<List<ExtensionListItem>> Function(String, int, String)? search,
+  // A stand-in for the installed-extension notifier, so a test can observe
+  // (or fake) the strip's sync without touching the repository layer.
+  ExtensionPageNotifier? extensionPage,
+  // Wires the app's real navigator key plus the English asset translations,
+  // exactly like the app. Needed only by tests that trigger
+  // `RouterUtil.rootNavigatorKey`-resolved UI (the tune button's sheet);
+  // every other test keeps the raw i18n keys the assertions are written
+  // against, because `.i18n` returns its key when no context resolves.
+  bool useRootNavigator = false,
 }) async {
   final theme = ThemeUtils.getThemeData(
     dark ? MiruThemes.zinc.dark : MiruThemes.zinc.light,
@@ -187,6 +201,8 @@ Future<ProviderContainer> pumpSearch(
           final (pkg, page, query: q, filter: _) = arg;
           return search(pkg, page, q ?? '');
         }),
+      if (extensionPage != null)
+        extensionPageProvider.overrideWith(() => extensionPage),
     ],
   );
   addTearDown(container.dispose);
@@ -203,6 +219,9 @@ Future<ProviderContainer> pumpSearch(
           data: const MediaQueryData(size: Size(420, 900)),
           child: MaterialApp.router(
             routerConfig: GoRouter(
+              navigatorKey: useRootNavigator
+                  ? RouterUtil.rootNavigatorKey
+                  : null,
               initialLocation: location,
               routes: [
                 GoRoute(
@@ -229,6 +248,10 @@ Future<ProviderContainer> pumpSearch(
                 ),
               ],
             ),
+            localizationsDelegates: useRootNavigator
+                ? [I18nUtils.flutterI18nDelegate]
+                : null,
+            supportedLocales: const [Locale('en')],
           ),
         ),
       ),
@@ -236,6 +259,12 @@ Future<ProviderContainer> pumpSearch(
   );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 50));
+  if (useRootNavigator) {
+    // The asset translations load asynchronously; two frames for the build
+    // plus the load settle, same as the extension-store harness.
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+  }
   return container;
 }
 
@@ -259,7 +288,9 @@ void main() {
 
       expect(find.text('common.search'), findsOneWidget);
       expect(find.text('search.extension_sources'), findsOneWidget);
-      expect(find.text('search.extension_sources_desc'), findsOneWidget);
+      // The mock's heading badge replaces the old "Total: N" text: the count
+      // of sources the tab actually shows.
+      expect(find.text('search.sources_available'), findsOneWidget);
       expect(find.text('search.all_sources'), findsOneWidget);
       for (final name in ['Miruro', 'Rawkuma', 'Nyaa']) {
         expect(find.text(name), findsOneWidget);
@@ -278,6 +309,15 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(MobileSearchInputPage), findsOneWidget);
+      // The pushed page's heading names the aggregate flow it runs, distinct
+      // from the tab's plain "Search".
+      expect(
+        find.descendant(
+          of: find.byType(MobileSearchInputPage),
+          matching: find.text('search.global_search'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('search.suggestions'), findsNothing);
       expect(find.text('common.cancel'), findsOneWidget);
 
@@ -1385,24 +1425,19 @@ void main() {
         metas: [for (var i = 0; i < 12; i++) _meta('p$i.pkg', 'Source $i')],
       );
 
-      // Only the pill row is pinned; label, total and caption are body content.
+      // Only the pill row is pinned; label, badge and cards are body content.
       expect(find.byType(SearchSourceFilterBar), findsOneWidget);
       expect(find.text('search.all_sources'), findsOneWidget);
       expect(find.text('search.extension_sources'), findsOneWidget);
-      expect(find.text('search.total_sources'), findsOneWidget);
-      expect(find.text('search.extension_sources_desc'), findsOneWidget);
+      expect(find.text('search.sources_available'), findsOneWidget);
 
-      // Reading order: pinned pills, then the label, then the caption — the
-      // label row and caption open the scrolling body below the pinned bar.
+      // Reading order: pinned pills, then the label — the label row opens
+      // the scrolling body below the pinned bar.
       final labelY = tester
           .getTopLeft(find.text('search.extension_sources'))
           .dy;
-      final captionY = tester
-          .getTopLeft(find.text('search.extension_sources_desc'))
-          .dy;
       final pillY = tester.getTopLeft(find.text('search.all_sources')).dy;
       expect(pillY, lessThan(labelY));
-      expect(captionY, greaterThan(labelY));
 
       // The delegate clips its own box to the remaining extent while the title
       // keeps its natural height, so the wrapper is what has to shrink.
@@ -1434,6 +1469,106 @@ void main() {
       expect(find.text('search.all_sources'), findsOneWidget);
       // The label travelled with the list: it is now gone above the fold.
       expect(find.text('search.extension_sources'), findsNothing);
+    });
+  });
+
+  group('source visibility and sync (mock)', () {
+    testWidgets('heading badge counts sources, footnote reports sync health', (
+      tester,
+    ) async {
+      await pumpSearch(tester);
+
+      // The heading badge ("{count} Available") and the quiet footnote
+      // ("all synced") are the mock's two status surfaces. Raw keys: the
+      // widget harness loads no i18n.
+      expect(find.text('search.sources_available'), findsOneWidget);
+      expect(find.text('search.all_synced'), findsOneWidget);
+      expect(find.byIcon(FLucideIcons.circleCheck), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('hiding a source removes it from list and search scope', (
+      tester,
+    ) async {
+      final container = await pumpSearch(tester);
+
+      // Pinned-first then name: Miruro is the first card; its eye hides it.
+      await tester.tap(find.byIcon(FLucideIcons.eyeOff).first);
+      await tester.pump();
+
+      expect(find.text('Miruro'), findsNothing);
+      expect(find.text('Rawkuma'), findsOneWidget);
+      // Persisted like the pinned set, and out of the query scope.
+      expect(
+        MiruSettings.getSettingSync<Set<String>>(SettingKey.hiddenExtension),
+        {'a.pkg'},
+      );
+      final state = container.read(searchPageProvider);
+      expect(state.visibleMetaData.length, 2);
+      expect(state.searchScopePackages.contains('a.pkg'), isFalse);
+
+      // The Hidden status view is how it comes back. The strip's pill row
+      // scrolls horizontally under the pinned sync button, so scroll the
+      // Status pill onto the screen before tapping it — a finder matches
+      // content that is still off the right edge, and that tap would land
+      // on nothing.
+      await tester.ensureVisible(find.text('common.status'));
+      await tester.pump();
+      await tester.tap(find.text('common.status'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.ancestor(
+          of: find.text('search.status_hidden'),
+          matching: find.byType(FTile),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Miruro'), findsOneWidget);
+      // In the hidden view the eye points the other way: restore.
+      expect(find.byIcon(FLucideIcons.eye), findsOneWidget);
+
+      await tester.tap(find.byIcon(FLucideIcons.eye));
+      await tester.pump();
+      expect(find.text('Miruro'), findsNothing);
+      expect(
+        MiruSettings.getSettingSync<Set<String>>(SettingKey.hiddenExtension),
+        isEmpty,
+      );
+      // FTappable waits out its 100ms pressed-exit before flipping state;
+      // drain that timer or the fake-async binding fails on it at teardown.
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('pinned cards trade the eye for the unpin', (tester) async {
+      await pumpSearch(tester, pinned: {'a.pkg'});
+
+      // Miruro pinned: unpin + settings, no eye. The two unpinned cards keep
+      // pin + eye + settings.
+      expect(find.byIcon(FLucideIcons.eyeOff), findsNWidgets(2));
+      expect(find.byIcon(FLucideIcons.pinOff), findsOneWidget);
+      expect(find.byIcon(FLucideIcons.pin), findsNWidgets(2));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the query-side filter sheet renders its sections', (
+      tester,
+    ) async {
+      // The sheet resolves its context from RouterUtil.rootNavigatorKey, so
+      // this test — and only this one — wires the real navigator key, which
+      // requires the i18n delegate: `.i18n` then returns the shipped English
+      // strings, so the assertions below use them. The tab carries no header
+      // trigger for the sheet anymore, so the test opens it directly.
+      await pumpSearch(tester, useRootNavigator: true);
+
+      unawaited(showSearchSettingsSheet());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Edit Filters'), findsOneWidget);
+      expect(find.byType(SearchScopeSegmented), findsOneWidget);
+      expect(find.text('Content Type'), findsOneWidget);
+      expect(find.text('Sort By'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 

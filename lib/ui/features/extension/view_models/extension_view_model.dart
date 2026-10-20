@@ -8,6 +8,7 @@ import 'package:miru_alpha/domain/use_cases/filter_extensions.dart';
 import 'package:miru_alpha/miru_core/event_service.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/core/version_util.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -37,8 +38,16 @@ class ExtensionViewModel extends _$ExtensionViewModel {
 
     try {
       final repos = await _repository().getRepos();
+      final names = repos.map((repo) => repo.name).toSet();
+      // A repo removed since the last load would leave the picker pointing at
+      // a name that no longer matches anything, so fall back to "All".
+      final selection = state.selectedRepoName;
 
-      state = state.copyWith(repos: repos, isLoading: false);
+      state = state.copyWith(
+        repos: repos,
+        isLoading: false,
+        selectedRepoName: names.contains(selection) ? selection : '',
+      );
 
       // The installed set comes from the backend snapshot, never from a local
       // guess, so seed it from the latest one instead of assuming "none".
@@ -83,6 +92,58 @@ class ExtensionViewModel extends _$ExtensionViewModel {
 
   bool isInstalled(String package) {
     return state.installedPackages.contains(package);
+  }
+
+  /// Packages whose repo version is newer than the installed one — the set
+  /// behind the `updates` filter and its status tab.
+  List<String> get updateAvailablePackages {
+    final installedVersion = {
+      for (final m in state.metadata) m.packageName: m.version,
+    };
+    return [
+      for (final repo in state.repos)
+        for (final e in repo.extensions)
+          if (state.installedPackages.contains(e.packageName) &&
+              VersionUtil.isVersionGreaterThan(
+                e.version,
+                installedVersion[e.packageName] ?? '0.0.0',
+              ))
+            e.packageName,
+    ];
+  }
+
+  /// Counts behind the status tabs (Available / Installed / Updates).
+  ///
+  /// Computed over the list every non-status filter already produced, so the
+  /// numbers always describe what the sibling tabs would show — picking
+  /// "Manga" narrows the Available count along with the list itself.
+  ({int available, int installed, int updates}) get statusCounts {
+    final scoped = _filterUseCase(
+      repos: state.repos,
+      repoName: state.selectedRepoName,
+      query: state.query,
+      typeFilter: state.typeFilter,
+      // Status is exactly what the tabs themselves pick, so the counts must
+      // ignore the current one.
+      installFilter: ExtensionInstallStatus.all,
+      installedPackages: state.installedPackages,
+      allowNsfw: MiruSettings.getSettingSync<bool>(SettingKey.enableNSFW),
+    );
+    final updatable = updateAvailablePackages.toSet();
+    var available = 0;
+    var installed = 0;
+    var updates = 0;
+    for (final repo in scoped) {
+      for (final e in repo.extensions) {
+        if (!state.installedPackages.contains(e.packageName)) {
+          available++;
+        } else {
+          installed++;
+          if (updatable.contains(e.packageName)) updates++;
+        }
+      }
+    }
+    return (available: available, installed: installed, updates: updates);
   }
 
   Future<void> installPackage(String package, String repoUrl) async {
@@ -136,6 +197,7 @@ class ExtensionViewModel extends _$ExtensionViewModel {
       typeFilter: state.typeFilter,
       installFilter: state.installFilter,
       installedPackages: state.installedPackages,
+      updateAvailablePackages: updateAvailablePackages,
       allowNsfw: MiruSettings.getSettingSync<bool>(SettingKey.enableNSFW),
     );
 

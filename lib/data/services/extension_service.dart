@@ -1,11 +1,13 @@
 import 'dart:convert';
 
 import 'package:miru_alpha/miru_core/grpc_client.dart';
+import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart';
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
     as ext_model;
 import 'package:miru_alpha/miru_core/proto/generate/proto/common.pb.dart'
     as common_model;
+import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 
@@ -62,12 +64,93 @@ class ExtensionService {
       final response = await MiruGrpcClient.repoClient.fetchRepoList(
         FetchRepoListRequest(),
       );
-      // The response.data is a JSON string, need to decode it first
-      return parseRepoIndex(response.data);
+      // The response.data is a JSON string, need to decode it first. The
+      // fetch is keyed by repo URL; the configured records carry the human
+      // names the repo picker must show, so they are joined here.
+      List<RepoConfig> configs;
+      try {
+        configs = await MiruCoreEndpoint.getRepoLists();
+      } catch (e) {
+        logger.warning('failed to load repo configs', e);
+        configs = const [];
+      }
+      return applyRepoNames(parseRepoIndex(response.data), configs: configs);
     } catch (e) {
       logger.severe(e.toString());
       return [];
     }
+  }
+
+  /// Joins the fetched index entries with the configured repo records so each
+  /// repo carries the human name shown in the picker instead of its URL.
+  ///
+  /// A configured repo missing from [fetched] failed to fetch its index; it is
+  /// appended with no extensions so it stays visible and selectable instead of
+  /// silently disappearing from the picker.
+  static List<ext_model.ExtensionRepo> applyRepoNames(
+    List<ext_model.ExtensionRepo> fetched, {
+    required List<RepoConfig> configs,
+  }) {
+    final nameByLink = {for (final config in configs) config.link: config.name};
+    final usedNames = <String>{};
+    String uniqueName(String name) {
+      var candidate = name;
+      var suffix = 2;
+      while (usedNames.contains(candidate)) {
+        candidate = '$name ($suffix)';
+        suffix++;
+      }
+      usedNames.add(candidate);
+      return candidate;
+    }
+
+    String configuredName(RepoConfig config) => uniqueName(
+      config.name.isEmpty ? repoDisplayLabel(config.link) : config.name,
+    );
+
+    final fetchedUrls = <String>{};
+    final repos = <ext_model.ExtensionRepo>[];
+    for (final repo in fetched) {
+      fetchedUrls.add(repo.url);
+      final configured = nameByLink[repo.url];
+      repos.add(
+        ext_model.ExtensionRepo(
+          extensions: repo.extensions,
+          name: uniqueName(
+            (configured == null || configured.isEmpty)
+                ? repoDisplayLabel(repo.url)
+                : configured,
+          ),
+          url: repo.url,
+        ),
+      );
+    }
+    for (final config in configs) {
+      if (fetchedUrls.contains(config.link)) continue;
+      repos.add(
+        ext_model.ExtensionRepo(
+          extensions: <ext_model.GithubExtension>[],
+          name: configuredName(config),
+          url: config.link,
+        ),
+      );
+    }
+    return repos;
+  }
+
+  /// Human label for a repo whose configured name is unavailable, so the
+  /// picker never has to print a URL: a github.com link becomes owner/repo
+  /// and any other host its hostname.
+  static String repoDisplayLabel(String url) {
+    final uri = Uri.tryParse(url.trim());
+    if (uri == null || !uri.hasAuthority) return url;
+    final host = uri.host.replaceFirst(RegExp(r'^www\.'), '');
+    const githubHosts = {'github.com', 'raw.githubusercontent.com'};
+    final segments = uri.pathSegments.where((s) => s.isNotEmpty).toList();
+    if (githubHosts.contains(host) && segments.length >= 2) {
+      return '${segments[0]}/${segments[1]}';
+    }
+    return host.isEmpty ? url : host;
   }
 
   /// Parse the repo index payload the backend fetched: repo url -> extension

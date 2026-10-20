@@ -46,6 +46,7 @@ class MobileDownloadView extends HookConsumerWidget {
       ],
       body: EasyRefresh(
         header: const ForuiHeader(),
+        triggerAxis: Axis.vertical,
         onRefresh: () async {
           await ref.read(downloadProvider.notifier).refreshStorageStats();
           await ref.read(downloadProvider.notifier).refreshActiveStatus();

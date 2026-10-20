@@ -3,6 +3,25 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 
+/// Caps the cross-axis the indicator is laid out with.
+///
+/// EasyRefresh parks the indicator in its Stack behind a `Positioned` that
+/// only pins one edge per axis, so as soon as the attached scrollable reports
+/// a non-vertical axis (a nested horizontal rail inside the page inherits
+/// EasyRefresh's physics and flips it) the width constraint becomes
+/// unbounded. The `Container(alignment: ...)` below is then an `Align` fed
+/// unbounded width, which sizes itself to infinity, throws the "was given an
+/// infinite size during layout" assert, and leaks the layout debug flag that
+/// surfaces as the `!_debugDoingThisLayout` failure in the console. Capping
+/// the width at the window size costs nothing on the normal vertical path,
+/// where the incoming constraint is already tighter.
+Widget _capCrossAxis(BuildContext context, Widget child) {
+  return ConstrainedBox(
+    constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width),
+    child: child,
+  );
+}
+
 /// A custom EasyRefresh header that uses Forui components.
 class ForuiHeader extends Header {
   const ForuiHeader({
@@ -69,51 +88,54 @@ class _ForuiIndicatorState extends State<_ForuiIndicator> {
         ? math.min(_offset / triggerOffset, 1.0)
         : 1.0;
 
-    return Container(
-      alignment: Alignment.center,
-      height: _offset,
-      child: ClipRect(
-        child: OverflowBox(
-          alignment: Alignment.center,
-          minHeight: 0.0,
-          maxHeight: double.infinity,
-          maxWidth: MediaQuery.of(context).size.width,
-          child: Opacity(
-            opacity: opacity,
-            child: FLabel(
-              layout: .vertical,
-              label: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                transitionBuilder: (child, animation) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position: animation.drive(
-                        Tween<Offset>(
-                          begin: const Offset(0.0, 0.2),
-                          end: Offset.zero,
+    return _capCrossAxis(
+      context,
+      Container(
+        alignment: Alignment.center,
+        height: _offset,
+        child: ClipRect(
+          child: OverflowBox(
+            alignment: Alignment.center,
+            minHeight: 0.0,
+            maxHeight: double.infinity,
+            maxWidth: MediaQuery.of(context).size.width,
+            child: Opacity(
+              opacity: opacity,
+              child: FLabel(
+                layout: .vertical,
+                label: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder: (child, animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: animation.drive(
+                          Tween<Offset>(
+                            begin: const Offset(0.0, 0.2),
+                            end: Offset.zero,
+                          ),
                         ),
+                        child: child,
                       ),
-                      child: child,
+                    );
+                  },
+                  child: Text(
+                    _getText(),
+                    key: ValueKey(_mode),
+                    style: theme.typography.body.sm.copyWith(
+                      color: theme.colors.mutedForeground,
+                      fontWeight: FontWeight.w500,
                     ),
-                  );
-                },
-                child: Text(
-                  _getText(),
-                  key: ValueKey(_mode),
-                  style: theme.typography.body.sm.copyWith(
-                    color: theme.colors.mutedForeground,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 12.0),
-                child: Transform.scale(
-                  scale: scale,
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _buildIndicatorChild(theme),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12.0),
+                  child: Transform.scale(
+                    scale: scale,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: _buildIndicatorChild(theme),
+                    ),
                   ),
                 ),
               ),
@@ -227,31 +249,34 @@ class _ForuiFooterIndicatorState extends State<_ForuiFooterIndicator> {
     final double triggerOffset = widget.state.actualTriggerOffset;
     final double opacity = math.min(_offset / triggerOffset, 1.0);
 
-    return (Container(
-      alignment: Alignment.center,
-      height: _offset,
-      child: ClipRect(
-        child: OverflowBox(
-          alignment: Alignment.center,
-          minHeight: 0.0,
-          maxHeight: double.infinity,
-          maxWidth: MediaQuery.of(context).size.width,
-          child: Opacity(
-            opacity: opacity,
-            child: FLabel(
-              layout: .vertical,
-              label: Padding(
-                padding: const EdgeInsets.only(bottom: 12.0),
-                child: _buildIndicatorChild(theme),
-              ),
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: Text(
-                  _getText(),
-                  key: ValueKey(_mode),
-                  style: theme.typography.body.sm.copyWith(
-                    color: theme.colors.mutedForeground,
-                    fontWeight: FontWeight.w500,
+    return _capCrossAxis(
+      context,
+      Container(
+        alignment: Alignment.center,
+        height: _offset,
+        child: ClipRect(
+          child: OverflowBox(
+            alignment: Alignment.center,
+            minHeight: 0.0,
+            maxHeight: double.infinity,
+            maxWidth: MediaQuery.of(context).size.width,
+            child: Opacity(
+              opacity: opacity,
+              child: FLabel(
+                layout: .vertical,
+                label: Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: _buildIndicatorChild(theme),
+                ),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    _getText(),
+                    key: ValueKey(_mode),
+                    style: theme.typography.body.sm.copyWith(
+                      color: theme.colors.mutedForeground,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
@@ -259,7 +284,7 @@ class _ForuiFooterIndicatorState extends State<_ForuiFooterIndicator> {
           ),
         ),
       ),
-    ));
+    );
   }
 
   Widget _buildIndicatorChild(FThemeData theme) {

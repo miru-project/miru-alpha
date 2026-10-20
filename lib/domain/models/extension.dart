@@ -41,13 +41,21 @@ extension ExtensionTypeX on ExtensionType {
 }
 
 /// Filter value for the extension install-status selector.
-enum ExtensionInstallStatus { all, installed, notInstalled }
+///
+/// [updates] is the subset of [installed] whose repo version is newer than
+/// the installed one; it takes [FilterExtensionsUseCase]'s
+/// `updateAvailablePackages` set to resolve.
+enum ExtensionInstallStatus { all, installed, notInstalled, updates }
 
 extension ExtensionInstallStatusX on ExtensionInstallStatus {
   /// Parse a raw string into the matching install-status value.
+  ///
+  /// The raw values are the i18n keys used as stable identifiers, so the
+  /// value survives a round-trip through [filterByInstallStatus].
   static ExtensionInstallStatus fromRaw(String? value) => switch (value) {
     'extension.installed' => ExtensionInstallStatus.installed,
     'extension.not_installed' => ExtensionInstallStatus.notInstalled,
+    'extension.updates' => ExtensionInstallStatus.updates,
     _ => ExtensionInstallStatus.all,
   };
 }

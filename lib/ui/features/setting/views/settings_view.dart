@@ -17,12 +17,22 @@ class SettingsView extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final viewModelAsync = ref.watch(settingsViewModelProvider);
 
+    final scrollController = useScrollController();
+    final scrollPosition = useValueNotifier(0.0);
+
     return MiruScaffold.mobile(
+      scrollController: scrollController,
+      scrollThrottle: ScrollUpdateThrottle.low,
+      onScrollChange: (offset, _) {
+        scrollPosition.value = offset;
+      },
       sliverHeaders: [
         FlexibleHeaderDelegate(
-          scrollPosition: useValueNotifier(0.0),
-          maxExtent: 180,
-          minExtent: 120,
+          scrollPosition: scrollPosition,
+          // Same collapsing big-title header as the Extensions and Search
+          // tabs, so every shell page reads as one design.
+          maxExtent: 56,
+          minExtent: 0,
           builder: (context, shrinkOffset, shrinkProgress) {
             return SnapSheetHeader(title: 'settings.title'.i18n, suffix: []);
           },

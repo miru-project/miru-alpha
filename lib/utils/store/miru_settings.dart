@@ -84,6 +84,7 @@ class MiruSettings {
     SettingKey.maxConnection: "3",
     SettingKey.showDeleteExtensionDialog: "true",
     SettingKey.pinnedExtension: {}.toString(),
+    SettingKey.hiddenExtension: {}.toString(),
     SettingKey.searchHistory: '[]',
     SettingKey.recentExtensions: '[]',
     SettingKey.showPageNumber: "false",
@@ -307,6 +308,11 @@ class SettingKey {
   static const btServerLink = "BtServerLink";
   static const maxConnection = "MaxConnection";
   static const pinnedExtension = "PinnedExtension";
+
+  /// Sources the user toggled invisible on the `/search` tab (the card's eye
+  /// button). Stored like [pinnedExtension]; hidden sources leave both the
+  /// source list and the global-search scope until restored.
+  static const hiddenExtension = "HiddenExtension";
   static const showDeleteExtensionDialog = "ShowDeleteExtensionDialog";
   static const showPageNumber = 'ShowPageNumber';
   static const novelReadingMode = 'NovelReadingMode';

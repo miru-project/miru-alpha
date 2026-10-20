@@ -24,7 +24,12 @@ SliverPersistentHeaderDelegate searchHeaderSliver(
 /// halves are separate slivers (the title one collapses on scroll), so
 /// [SearchPageTitle] and [SearchFieldRow] exist on their own as well.
 class SearchPageHeader extends StatelessWidget {
-  const SearchPageHeader({super.key, required this.field, this.trailing});
+  const SearchPageHeader({
+    super.key,
+    required this.field,
+    this.trailing,
+    this.title,
+  });
 
   /// The field: a [SearchFieldStub] on the tab, the editable field on the
   /// pushed page.
@@ -33,32 +38,56 @@ class SearchPageHeader extends StatelessWidget {
   /// Trailing action (Cancel) — omitted when the field is only a tap target.
   final Widget? trailing;
 
+  /// Heading override; `null` keeps [SearchPageTitle]'s plain "Search". The
+  /// pushed input page names the aggregate flow it runs ("Global Search").
+  final String? title;
+
   @override
   Widget build(BuildContext context) => Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      const SearchPageTitle(),
+      SearchPageTitle(title: title),
       SearchFieldRow(field: field, trailing: trailing),
     ],
   );
 }
 
-/// The big "Search" word, drawn with the same [SnapSheetHeader] the Settings,
-/// Library and Extension pages use — one heading language across the app.
+/// The big heading word ("Search" by default), drawn with the same
+/// [SnapSheetHeader] the Settings, Library and Extension pages use — one
+/// heading language across the app.
 ///
 /// Its extent is [kSearchTitleExtent], which is what lets the tab collapse it
 /// to nothing on scroll.
 const double kSearchTitleExtent = 62;
 
 class SearchPageTitle extends StatelessWidget {
-  const SearchPageTitle({super.key});
+  const SearchPageTitle({
+    super.key,
+    this.suffix = const <Widget>[],
+    this.title,
+  });
+
+  /// Trailing header actions; an empty list keeps the plain title layout and
+  /// padding.
+  final List<Widget> suffix;
+
+  /// Heading text; `null` falls back to the `common.search` label.
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
     // SnapSheetHeader carries its own bottom padding; the extent leaves room
-    // for the field row's 2px top gap, so nothing else is added.
-    return SnapSheetHeader(title: 'common.search'.i18n);
+    // for the field row's 2px top gap, so nothing else is added. With a
+    // suffix the actions are 44dp, so the default bottom padding would crowd
+    // them — the smaller padding matches the Extension page's action bar.
+    return SnapSheetHeader(
+      title: title ?? 'common.search'.i18n,
+      suffix: suffix,
+      padding: suffix.isEmpty
+          ? null
+          : const EdgeInsets.only(left: 0, bottom: 10, right: 4),
+    );
   }
 }
 

@@ -55,6 +55,7 @@
     "licenses": "Licenses",
     "close": "Close",
     "install": "Install",
+    "update": "Update",
     "play": "Play",
     "none": "None",
     "package": "Package",
@@ -193,7 +194,10 @@
     "results_count": "{count} results",
     "search_results_of": "Search results of {query}",
     "not_loaded": "Extension not loaded",
-    "failed": "Failed"
+    "failed": "Failed",
+    "available": "Available",
+    "updates": "Updates",
+    "repos": "Repos"
   },
   "tracking": {
     "name": "Tracking",
@@ -223,7 +227,8 @@
       "tracker_unlinked": "Tracker unlinked",
       "tracker_unlink_failed": "Failed to unlink tracker",
       "delete_warning": "By doing this action it will delete entry on {provider}"
-    }
+    },
+    "title": "Tracking"
   },
   "settings": {
     "labels": {
@@ -394,7 +399,8 @@
       "exported": "Log exported",
       "export_failed": "Failed to export log",
       "file_missing": "Log file not found"
-    }
+    },
+    "title": "Settings"
   },
   "reader": {
     "manga": {
@@ -586,11 +592,14 @@
     "sort_version": "Version",
     "pinned_only": "Pinned Only",
     "extension_sources": "Extension Sources",
-    "extension_sources_desc": "Filter the list, or pin the sources you search most",
-    "total_sources": "Total: {count}",
     "all_sources": "All Sources",
     "status_unpinned": "Not pinned",
+    "status_hidden": "Hidden",
+    "sources_available": "{count} Available",
+    "all_synced": "All {count} extension repositories synced",
+    "sync_sources": "Sync Sources",
     "filters_subtitle": "Configurable Extension Inputs",
+    "global_search": "Global Search",
     "results_count": "{count} results",
     "across_sources": "across {count} sources",
     "failed_sources": "{names} failed",

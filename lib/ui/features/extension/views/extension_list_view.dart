@@ -1,20 +1,33 @@
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logging/logging.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/domain/models/extension.dart';
-import 'package:miru_alpha/miru_core/core.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/provider/search/search_page_provider.dart';
+import 'package:miru_alpha/ui/core/dialog/extension_import_dialog.dart';
+import 'package:miru_alpha/ui/core/empty_state.dart';
+import 'package:miru_alpha/ui/core/index.dart';
+import 'package:miru_alpha/ui/core/loading_state.dart';
 import 'package:miru_alpha/ui/features/extension/view_models/extension_view_model.dart';
-import 'package:miru_alpha/utils/core/i18n.dart';
-import 'package:miru_alpha/ui/features/extension/widget/extension_tile.dart';
 import 'package:miru_alpha/ui/features/extension/widget/clearable_select.dart';
 import 'package:miru_alpha/ui/features/extension/widget/extension_import_button.dart';
-import 'package:miru_alpha/ui/core/index.dart';
-import 'package:miru_alpha/ui/core/empty_state.dart';
-import 'package:miru_alpha/ui/core/loading_state.dart';
-import 'package:path/path.dart' as p;
+import 'package:miru_alpha/ui/features/extension/widget/extension_tile.dart';
+import 'package:miru_alpha/ui/features/search/widget/search_field.dart';
+import 'package:miru_alpha/ui/features/search/widget/search_filter_controls.dart';
+import 'package:miru_alpha/ui/features/search/widget/search_page_header.dart';
+import 'package:miru_alpha/ui/features/setting/setting_extension.dart';
+import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/router/router_util.dart';
+import 'package:miru_alpha/utils/store/miru_settings.dart';
+
+/// Confirms a pull-to-refresh actually reached the repo loader, mirroring the
+/// search page's log so a silent refresh is distinguishable from a broken one.
+final _refreshLog = Logger('${logger.name}.extensionRefresh');
 
 class ExtensionListView extends HookConsumerWidget {
   const ExtensionListView({super.key});
@@ -26,12 +39,20 @@ class ExtensionListView extends HookConsumerWidget {
 
     final scrollController = useScrollController();
     final scrollPosition = useValueNotifier(0.0);
-    final searchQuery = useState('');
-    final filterExpanded = useState(false);
+    final searchController = useTextEditingController();
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
         notifier.loadRepos();
+        // Store-first, like the reference card page: the mobile layout opens
+        // on "Available" while desktop keeps `all` so its status select still
+        // reads as "ALL".
+        if (DeviceUtil.isMobileLayout(context) &&
+            ref.read(extensionViewModelProvider).installFilter ==
+                ExtensionInstallStatus.all) {
+          notifier.filterByInstallStatus('extension.not_installed');
+        }
       });
       return null;
     }, const []);
@@ -47,145 +68,71 @@ class ExtensionListView extends HookConsumerWidget {
       }
     }
 
+    final counts = notifier.statusCounts;
+
     return MiruScaffold.mobile(
       scrollController: scrollController,
       scrollThrottle: ScrollUpdateThrottle.low,
+      onRefresh: () async {
+        _refreshLog.info('pull-to-refresh');
+        await notifier.loadRepos(force: true);
+      },
       onScrollChange: (offset, _) {
         scrollPosition.value = offset;
       },
       sliverHeaders: [
         FlexibleHeaderDelegate(
-          maxExtent: 50,
+          // h-14 title bar of the reference, collapsing like the search tab.
+          maxExtent: 56,
           minExtent: 0,
+          scrollPosition: scrollPosition,
           builder: (context, shrinkOffset, shrinkProgress) {
             return SnapSheetHeader(
               title: 'extension.name'.i18n,
-              suffix: [
-                FButton.icon(
-                  variant: .ghost,
-                  onPress: () {
-                    String? editValue;
-                    showMiruDialog(
-                      context: context,
-                      title: Text('extension.import.title'.i18n),
-                      actions: [
-                        FButton(
-                          variant: .secondary,
-                          onPress: () {
-                            if (editValue == null) return;
-                          },
-                          child: Text('extension.import.import_by_url'.i18n),
-                        ),
-                        FButton(
-                          onPress: () async {
-                            Navigator.of(context).pop();
-                            try {
-                              final result = await FilePicker.pickFiles(
-                                // type: .custom,
-                                // allowedExtensions: ['js', 'go'],
-                              );
-                              if (result.isEmpty) return;
-                              final reg = RegExp(r'^\w.+\.\w+\.(js|go)$');
-                              for (final file in result) {
-                                if (!reg.hasMatch(file.name)) {
-                                  showSimpleToast('Invalid extension name');
-                                  continue;
-                                }
-                                final targetPath = p.join(
-                                  Core.extensionPath,
-                                  file.name,
-                                );
-                                final targetDir = Directory(Core.extensionPath);
-                                if (!targetDir.existsSync()) {
-                                  await targetDir.create(recursive: true);
-                                }
-                                await File(file.path!).copy(targetPath);
-                              }
-
-                              showSimpleToast('Install Success');
-                            } catch (e) {
-                              showSimpleToast('Install Failed: $e');
-                            }
-                          },
-                          child: Text('extension.import.import_by_local'.i18n),
-                        ),
-                      ],
-                      body: Form(
-                        child: Column(
-                          mainAxisSize: .min,
-                          children: [
-                            Text('extension.import.tips'.i18n),
-                            SizedBox(height: 10),
-                            FTextFormField(
-                              autovalidateMode: .onUserInteraction,
-                              validator: (value) =>
-                                  ((value?.startsWith('https') ?? false) ||
-                                          (value?.startsWith('http') ??
-                                              false)) &&
-                                      ((value?.endsWith('.js') ?? false) ||
-                                          (value?.endsWith('.go') ?? false))
-                                  ? null
-                                  : 'extension.import.invalid_url'.i18n,
-                              hint: 'https://example.com/ext.js',
-                              control: .managed(
-                                onChange: (value) {
-                                  editValue = value.text;
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                  child: Icon(FLucideIcons.plus, size: 24),
-                ),
-              ],
+              // A tighter bottom pad than the sibling pages' default 15 so
+              // the 44dp action targets fit the 56px bar; the title only
+              // shifts ~2px against them.
+              padding: const EdgeInsets.only(left: 0, bottom: 10, right: 4),
+              suffix: const [_ExtensionHeaderActions()],
             );
           },
-          scrollPosition: scrollPosition,
         ),
-        DynamicMinExtentHeaderDelegate(
-          maxExtentValue: filterExpanded.value ? 210 : 200,
-          minExtentValue: filterExpanded.value ? 210 : 120,
-          child: FScaffold(
-            childPad: false,
-            resizeToAvoidBottomInset: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(height: 12),
-                Column(
-                  children: [
-                    FTextField(
-                      maxLines: 1,
-                      control: FTextFieldControl.managed(
-                        onChange: (value) {
-                          searchQuery.value = value.text;
-                          notifier.filterByQuery(value.text);
-                        },
-                      ),
-                      hint: "extension.search_hint".i18n,
-                      prefixBuilder: (context, style, states) => Padding(
-                        padding: const EdgeInsets.only(left: 12, right: 10),
-                        child: Icon(FLucideIcons.search),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    _ExtensionFilterBar(
-                      selectedRepo: viewModel.selectedRepoName,
-                      selectedType: viewModel.typeFilter,
-                      selectedInstall: viewModel.installFilter,
-                      onRepoChanged: notifier.filterByRepo,
-                      onTypeChanged: notifier.filterByType,
-                      onInstallChanged: notifier.filterByInstallStatus,
-                      expanded: filterExpanded.value,
-                      onExpandedChanged: (val) => filterExpanded.value = val,
-                    ),
-                  ],
+        // The search field and the filter row stay pinned under the title
+        // bar: one fixed-extent header block (the same opaque
+        // searchHeaderSliver the search tab uses) so the controls remain
+        // reachable at any scroll depth while the list moves beneath them.
+        // Pinned, not collapsing — the user asked for these to stay put.
+        searchHeaderSliver(
+          context,
+          extent: kSearchFieldExtent + _extensionControlsExtent(context),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SearchFieldRow(
+                field: searchField(
+                  controller: searchController,
+                  onChange: notifier.filterByQuery,
+                  onSubmit: (_) {},
                 ),
-              ],
-            ),
+              ),
+              _ExtensionControls(
+                installFilter: viewModel.installFilter,
+                onInstallChanged: notifier.filterByInstallStatus,
+                available: counts.available,
+                installed: counts.installed,
+                updates: counts.updates,
+                typeFilter: viewModel.typeFilter,
+                onTypeChanged: notifier.filterByType,
+                enableNsfw: MiruSettings.getSettingSync<bool>(
+                  SettingKey.enableNSFW,
+                ),
+                onToggleNsfw: () => _toggleNsfw(ref),
+                repos: viewModel.repos,
+                selectedRepo: viewModel.selectedRepoName,
+                onRepoChanged: notifier.filterByRepo,
+              ),
+            ],
           ),
         ),
       ],
@@ -236,141 +183,299 @@ class ExtensionListView extends HookConsumerWidget {
       ),
     );
   }
+
+  /// Mirror of Settings → General: persist the flag, then refilter every
+  /// surface over the already-cached repos — never refetch.
+  static void _toggleNsfw(WidgetRef ref) {
+    final next = !MiruSettings.getSettingSync<bool>(SettingKey.enableNSFW);
+    MiruSettings.setSettingSync(SettingKey.enableNSFW, next.toString());
+    ref.read(extensionPageProvider.notifier).filter();
+    ref.read(extensionViewModelProvider.notifier).refilter();
+    ref.read(searchPageProvider.notifier).refilter();
+  }
 }
 
-class _ExtensionFilterBar extends HookConsumerWidget {
-  const _ExtensionFilterBar({
-    required this.selectedRepo,
-    required this.selectedType,
-    required this.selectedInstall,
-    required this.onRepoChanged,
-    required this.onTypeChanged,
+/// Extent of the pinned controls row (the consolidated status + category
+/// filter row), with slack so the pinned header never renders the overflow
+/// banner. One row now, so this is roughly half the old two-row extent.
+double _extensionControlsExtent(BuildContext context) {
+  final scale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.6);
+  return 50 * scale;
+}
+
+/// Display label for the domain type filter — the search feature's
+/// `searchContentTypeLabel` serves that feature's own `ExtensionType`, not
+/// the domain enum used here.
+String _typeFilterLabel(ExtensionType type) => switch (type) {
+  ExtensionType.bangumi => 'search.type_anime'.i18n,
+  ExtensionType.manga => 'search.type_manga'.i18n,
+  ExtensionType.fikushon => 'search.type_novel'.i18n,
+  ExtensionType.all => 'common.all'.i18n,
+};
+
+/// The reference store page's filter section, pinned under the search
+/// field: status segmented control on top, scrollable pill strip below.
+class _ExtensionControls extends StatelessWidget {
+  const _ExtensionControls({
+    required this.installFilter,
     required this.onInstallChanged,
-    required this.expanded,
-    required this.onExpandedChanged,
+    required this.available,
+    required this.installed,
+    required this.updates,
+    required this.typeFilter,
+    required this.onTypeChanged,
+    required this.enableNsfw,
+    required this.onToggleNsfw,
+    required this.repos,
+    required this.selectedRepo,
+    required this.onRepoChanged,
   });
 
-  final String selectedRepo;
-  final ExtensionType selectedType;
-  final ExtensionInstallStatus selectedInstall;
-  final ValueChanged<String> onRepoChanged;
-  final ValueChanged<ExtensionType> onTypeChanged;
+  final ExtensionInstallStatus installFilter;
   final ValueChanged<String> onInstallChanged;
-  final bool expanded;
-  final ValueChanged<bool> onExpandedChanged;
+  final int available;
+  final int installed;
+  final int updates;
+  final ExtensionType typeFilter;
+  final ValueChanged<ExtensionType> onTypeChanged;
+  final bool enableNsfw;
+  final VoidCallback onToggleNsfw;
+  final List<DomainExtensionRepo> repos;
+  final String selectedRepo;
+  final ValueChanged<String> onRepoChanged;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final controller = useAnimationController(
-      duration: const Duration(milliseconds: 300),
-    );
-
-    final repoItems = ref.watch(extensionViewModelProvider).repos;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: FButton(
-            variant: .outline,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            prefix: Icon(FLucideIcons.listFilter),
-            suffix: AnimatedRotation(
-              turns: expanded ? 0.5 : 0.0,
-              duration: const Duration(milliseconds: 300),
-              child: Icon(FLucideIcons.chevronDown, size: 18),
-            ),
-            onPress: () {
-              if (expanded) {
-                controller.reverse();
-              } else {
-                controller.forward();
-              }
-              onExpandedChanged(!expanded);
-            },
-            child: Expanded(
-              child: Padding(
-                padding: .symmetric(horizontal: 10),
-                child: Text('common.filters'.i18n),
+  Widget build(BuildContext context) {
+    final colors = context.theme.colors;
+    return Padding(
+      padding: const EdgeInsets.only(top: 6, bottom: 10),
+      child: SizedBox(
+        height: 28,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            spacing: 6,
+            children: [
+              _StatusPill(
+                value: installFilter,
+                available: available,
+                installed: installed,
+                updates: updates,
+                onPicked: onInstallChanged,
               ),
-            ),
+              // Hairline divider: install status is a different concern
+              // from the category pills, exactly like the reference bar.
+              Container(width: 1, height: 16, color: colors.border),
+              for (final type in const [
+                ExtensionType.all,
+                ExtensionType.bangumi,
+                ExtensionType.manga,
+                ExtensionType.fikushon,
+              ])
+                SearchPill(
+                  label: _typeFilterLabel(type),
+                  selected: typeFilter == type,
+                  leading: typeFilter == type
+                      ? const Icon(FLucideIcons.check, size: 13)
+                      : null,
+                  onTap: () => onTypeChanged(type),
+                ),
+              SearchPill(
+                label: '18+ ${'extension.nsfw'.i18n}',
+                selected: enableNsfw,
+                onTap: onToggleNsfw,
+              ),
+              SearchPickerPill<String>(
+                label: 'extension.repo.repository'.i18n,
+                currentLabel: selectedRepo.isEmpty
+                    ? 'common.all'.i18n
+                    : selectedRepo,
+                narrowed: selectedRepo.isNotEmpty,
+                sheetTitle: 'extension.repo.repository'.i18n,
+                options: [
+                  SearchOption(value: '', label: 'common.all'.i18n),
+                  for (final repo in repos)
+                    SearchOption(value: repo.name, label: repo.name),
+                ],
+                current: selectedRepo,
+                // The picker hands back the option's value; '' is the
+                // "all repos" sentinel filterByRepo expects.
+                onPicked: onRepoChanged,
+              ),
+            ],
           ),
         ),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          alignment: Alignment.topCenter,
-          child: expanded
-              ? Padding(
-                  padding: .only(top: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: FSelect<ExtensionType>.rich(
-                          label: Text('common.type'.i18n),
-                          hint: 'common.all'.i18n,
-                          control: FSelectManagedControl<ExtensionType>(
-                            onChange: (val) => onTypeChanged(val ?? .all),
-                          ),
-                          children: [
-                            FSelectItem<ExtensionType>(
-                              value: .all,
-                              title: Text('common.all'.i18n),
-                            ),
-                            FSelectItem<ExtensionType>(
-                              value: .bangumi,
-                              title: Text('media.video'.i18n),
-                            ),
-                            FSelectItem<ExtensionType>(
-                              value: .manga,
-                              title: Text('media.manga'.i18n),
-                            ),
-                            FSelectItem<ExtensionType>(
-                              value: .fikushon,
-                              title: Text('media.novel'.i18n),
-                            ),
-                          ],
-                          format: (value) => switch (value) {
-                            .all => 'common.all'.i18n,
-                            .bangumi => 'media.video'.i18n,
-                            .manga => 'media.manga'.i18n,
-                            .fikushon => 'media.novel'.i18n,
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: (FSelect<String>.rich(
-                          label: Text('extension.repo.repository'.i18n),
-                          hint: 'common.all'.i18n,
-                          control: FSelectManagedControl<String>(
-                            onChange: (val) => onRepoChanged(
-                              val == 'common.all' ? '' : val ?? '',
-                            ),
-                          ),
-                          children: [
-                            FSelectItem<String>(
-                              value: 'common.all',
-                              title: Text('common.all'.i18n),
-                            ),
-                            ...repoItems.map(
-                              (e) => FSelectItem<String>(
-                                value: e.name,
-                                title: Text(e.name),
-                              ),
-                            ),
-                          ],
-                          format: (value) =>
-                              value == 'common.all' ? 'common.all'.i18n : value,
-                        )),
-                      ),
-                    ],
-                  ),
-                )
-              : const SizedBox.shrink(),
+      ),
+    );
+  }
+}
+
+/// The status half of the consolidated filter row: the active status with
+/// its count — the reference's "Available 18" chip — opening the shared
+/// option sheet to switch or clear it (All). Replaces the old three-way
+/// segmented row so status and category share one line.
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({
+    required this.value,
+    required this.available,
+    required this.installed,
+    required this.updates,
+    required this.onPicked,
+  });
+
+  final ExtensionInstallStatus value;
+  final int available;
+  final int installed;
+  final int updates;
+  final ValueChanged<String> onPicked;
+
+  int? get _count => switch (value) {
+    ExtensionInstallStatus.notInstalled => available,
+    ExtensionInstallStatus.installed => installed,
+    ExtensionInstallStatus.updates => updates,
+    ExtensionInstallStatus.all => null,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return SearchPill(
+      key: const ValueKey('extension-status-pill'),
+      label: _statusFilterLabel(value),
+      count: _count,
+      icon: FLucideIcons.chevronDown,
+      selected: value != ExtensionInstallStatus.all,
+      onTap: () async {
+        final picked = await showSearchOptionSheet<String>(
+          context: context,
+          title: 'common.status'.i18n,
+          selected: _installStatusKey(value),
+          options: [
+            SearchOption(
+              value: 'extension.all',
+              label: 'common.all'.i18n,
+              icon: FLucideIcons.layers,
+            ),
+            SearchOption(
+              value: 'extension.not_installed',
+              label: '${'extension.available'.i18n} ($available)',
+              icon: FLucideIcons.download,
+            ),
+            SearchOption(
+              value: 'extension.installed',
+              label: '${'extension.installed'.i18n} ($installed)',
+              icon: FLucideIcons.check,
+            ),
+            SearchOption(
+              value: 'extension.updates',
+              label: '${'extension.updates'.i18n} ($updates)',
+              icon: FLucideIcons.circleFadingArrowUp,
+            ),
+          ],
+        );
+        // The sheet resolves to null on dismiss — only a real pick refilters.
+        if (picked != null) onPicked(picked.value);
+      },
+    );
+  }
+}
+
+/// The raw status key [filterByInstallStatus] parses.
+String _installStatusKey(ExtensionInstallStatus status) => switch (status) {
+  ExtensionInstallStatus.notInstalled => 'extension.not_installed',
+  ExtensionInstallStatus.installed => 'extension.installed',
+  ExtensionInstallStatus.updates => 'extension.updates',
+  ExtensionInstallStatus.all => 'extension.all',
+};
+
+/// Display label for the install-status filter.
+String _statusFilterLabel(ExtensionInstallStatus status) => switch (status) {
+  ExtensionInstallStatus.notInstalled => 'extension.available'.i18n,
+  ExtensionInstallStatus.installed => 'extension.installed'.i18n,
+  ExtensionInstallStatus.updates => 'extension.updates'.i18n,
+  ExtensionInstallStatus.all => 'common.all'.i18n,
+};
+
+/// The reference store bar's trailing actions: Repos (jump to repo
+/// management) and add/import. Refresh moved to pull-to-refresh on the list.
+class _ExtensionHeaderActions extends StatelessWidget {
+  const _ExtensionHeaderActions();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SearchPill(
+          key: const ValueKey('extension-header-repos'),
+          label: 'extension.repos'.i18n,
+          selected: false,
+          leading: const Icon(FLucideIcons.folders, size: 14),
+          // 44dp content box: the header pill meets the touch minimum the
+          // strip pills deliberately skip.
+          minHeight: 44,
+          onTap: () => _openRepoSettings(context),
+        ),
+        const SizedBox(width: 6),
+        _HeaderIconButton(
+          key: const ValueKey('extension-header-import'),
+          icon: FLucideIcons.plus,
+          label: 'extension.import.title'.i18n,
+          onTap: () => showExtensionImportDialog(context),
         ),
       ],
+    );
+  }
+}
+
+/// Opens the extension repo settings page.
+///
+/// On mobile the page is pushed onto the current tab's navigator — the
+/// same mechanism the settings hub uses for its section tiles — so the
+/// shell's tab state and back stack stay intact. Pushing the
+/// `/settings/extension` route instead would stack a page from another
+/// shell branch on top of `/extension`, leaving the bottom nav out of
+/// sync. Desktop keeps the routed navigation to highlight the settings
+/// sidebar item.
+void _openRepoSettings(BuildContext context) {
+  if (DeviceUtil.isMobileLayout(context)) {
+    Navigator.of(context).push(
+      RouterUtil.createRoute(
+        SettingScaffold(
+          title: 'settings.extension.name'.i18n,
+          child: const SettingExtension(isMobile: true),
+        ),
+      ),
+    );
+    return;
+  }
+  context.go('/settings/extension');
+}
+
+/// 44x44 header tap target (the mobile touch minimum) around a 20px glyph;
+/// FORUI's [FTappable] supplies the press affordance.
+class _HeaderIconButton extends StatelessWidget {
+  const _HeaderIconButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final child = Icon(
+      icon,
+      size: 20,
+      color: context.theme.colors.mutedForeground,
+    );
+    return FTappable(
+      onPress: onTap,
+      semanticsLabel: label,
+      child: SizedBox(width: 44, height: 44, child: child),
     );
   }
 }

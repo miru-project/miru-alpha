@@ -8,6 +8,10 @@ class FilterExtensionsUseCase {
     ExtensionType typeFilter = ExtensionType.all,
     ExtensionInstallStatus installFilter = ExtensionInstallStatus.all,
     required List<String> installedPackages,
+
+    /// Package names whose repo version is newer than the installed one —
+    /// only consulted by [ExtensionInstallStatus.updates].
+    List<String> updateAvailablePackages = const [],
     bool allowNsfw = true,
   }) {
     List<DomainExtensionRepo> repoResult = repos;
@@ -40,6 +44,10 @@ class FilterExtensionsUseCase {
         case ExtensionInstallStatus.notInstalled:
           exts = exts
               .where((e) => !installedPackages.contains(e.packageName))
+              .toList();
+        case ExtensionInstallStatus.updates:
+          exts = exts
+              .where((e) => updateAvailablePackages.contains(e.packageName))
               .toList();
         case ExtensionInstallStatus.all:
           break;

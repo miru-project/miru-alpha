@@ -84,8 +84,13 @@ void main() async {
       bindErrorWidget();
       if (!(Platform.isAndroid || Platform.isIOS || kIsWeb)) {
         await windowManager.ensureInitialized();
-        WindowOptions windowOptions = const WindowOptions(
-          size: Size(1300, 800),
+        WindowOptions windowOptions = WindowOptions(
+          // Debug launches start phone-sized (412x915) so every run in the
+          // agent loop lands on the mobile scaffold without external
+          // window-manager scripting; the window stays freely resizable, so
+          // the desktop layout is still one drag away (breakpoint-driven:
+          // forui `sm` 640 / `lg` 1024). Release keeps the desktop default.
+          size: kDebugMode ? const Size(412, 915) : const Size(1300, 800),
           // Freely resizable. The layout is breakpoint-driven (forui `sm` 640
           // / `lg` 1024): below `lg` the sidebar collapses into the bottom-nav
           // mobile scaffold, below `sm` the touch theme tokens apply. Both

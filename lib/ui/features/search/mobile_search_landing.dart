@@ -11,13 +11,13 @@ import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/utils/store/storage_index.dart';
 
-/// Body of the `/search` tab: the "Extension Sources · Total N" heading, the
-/// caption and the source cards, as slivers.
+/// Body of the `/search` tab: the "Extension Sources" heading with its
+/// available-count badge, the source cards and the sync footnote, as slivers.
 ///
 /// Slivers rather than a widget wrapping a `ListView` so they share the
 /// scaffold's scroll context with the pinned headers — that is what lets the
-/// big title collapse while the cards move. The heading and caption travel
-/// with the list; only the Type / Status / Sort pill row is pinned in
+/// big title collapse while the cards move. The heading and the footnote
+/// travel with the list; only the Type / Status / Sort pill row is pinned in
 /// [SearchSourceFilterBar] above.
 List<Widget> mobileSearchSourceSlivers(BuildContext context, WidgetRef ref) {
   final state = ref.watch(searchPageProvider);
@@ -26,24 +26,42 @@ List<Widget> mobileSearchSourceSlivers(BuildContext context, WidgetRef ref) {
 
   void togglePin(ExtensionMeta meta) {
     final next = {...state.existedPinnedExtensions};
-    if (!next.remove(meta.packageName)) next.add(meta.packageName);
+    final wasPinned = next.remove(meta.packageName);
+    if (!wasPinned) next.add(meta.packageName);
     MiruSettings.setSettingSync(SettingKey.pinnedExtension, next.toString());
     notifier.setExistedPinnedExtensions(next);
+    // A pinned source is never hidden (the status filter treats the two as
+    // disjoint), so pinning one from the hidden view restores it to the list.
+    if (!wasPinned && state.hiddenExtensions.contains(meta.packageName)) {
+      final hidden = {...state.hiddenExtensions}..remove(meta.packageName);
+      MiruSettings.setSettingSync(
+        SettingKey.hiddenExtension,
+        hidden.toString(),
+      );
+      notifier.setHiddenExtensions(hidden);
+    }
+  }
+
+  void toggleHidden(ExtensionMeta meta) {
+    final next = {...state.hiddenExtensions};
+    if (!next.remove(meta.packageName)) next.add(meta.packageName);
+    MiruSettings.setSettingSync(SettingKey.hiddenExtension, next.toString());
+    notifier.setHiddenExtensions(next);
   }
 
   return [
     const SliverToBoxAdapter(child: SizedBox(height: 20)),
-    // The list's own heading: label with the live total, then the caption. It
+    // The list's own heading: label plus the visible-source count badge. It
     // scrolls with the cards — only the pill bar above is pinned.
     SliverToBoxAdapter(
       child: SearchSectionHeader(
         title: 'search.extension_sources'.i18n,
-        trailing: Text(
-          'search.total_sources'.i18n.fill({
-            'count': '${state.filteredMetaData.length}',
-          }),
-          style: context.theme.typography.body.xs2.copyWith(
-            color: context.theme.colors.mutedForeground,
+        trailing: FBadge(
+          variant: .secondary,
+          child: Text(
+            'search.sources_available'.i18n.fill({
+              'count': '${state.visibleMetaData.length}',
+            }),
           ),
         ),
       ),
@@ -73,7 +91,9 @@ List<Widget> mobileSearchSourceSlivers(BuildContext context, WidgetRef ref) {
             child: _SourceCard(
               meta: meta,
               pinned: state.existedPinnedExtensions.contains(meta.packageName),
+              hidden: state.hiddenExtensions.contains(meta.packageName),
               onPinTap: () => togglePin(meta),
+              onToggleHidden: () => toggleHidden(meta),
               onOpen: () => context.push(
                 '/search/single',
                 extra: SearchPageParam(meta: meta),
@@ -90,6 +110,13 @@ List<Widget> mobileSearchSourceSlivers(BuildContext context, WidgetRef ref) {
           );
         },
       ),
+    // Mock's status footnote: quiet when everything is healthy, a named
+    // failure list otherwise. Counts the whole visible pool — the list above
+    // may be narrowed by the pills, but sync health is page-wide.
+    if (state.visibleMetaData.isNotEmpty)
+      SliverToBoxAdapter(
+        child: _SyncedFootnote(sources: state.visibleMetaData),
+      ),
     const SliverToBoxAdapter(child: SizedBox(height: 32)),
   ];
 }
@@ -103,14 +130,25 @@ List<ExtensionMeta> _filteredSources(SearchPageState state) {
   }
   switch (state.sourceStatus) {
     case SearchSourceStatus.all:
-      break;
+      list = list
+          .where((e) => !state.hiddenExtensions.contains(e.packageName))
+          .toList();
     case SearchSourceStatus.pinned:
+      // Pinned and hidden are disjoint by construction (pinning a hidden
+      // source restores it), so no second filter is needed here.
       list = list
           .where((e) => state.existedPinnedExtensions.contains(e.packageName))
           .toList();
     case SearchSourceStatus.unpinned:
       list = list
           .where((e) => !state.existedPinnedExtensions.contains(e.packageName))
+          .where((e) => !state.hiddenExtensions.contains(e.packageName))
+          .toList();
+    case SearchSourceStatus.hidden:
+      // The management view: every hidden source, so the eye button can bring
+      // it back without hunting for it in the main list.
+      list = list
+          .where((e) => state.hiddenExtensions.contains(e.packageName))
           .toList();
   }
   final sorted = [...list];
@@ -131,12 +169,15 @@ List<ExtensionMeta> _filteredSources(SearchPageState state) {
 int _pinnedRank(SearchPageState state, ExtensionMeta meta) =>
     state.existedPinnedExtensions.contains(meta.packageName) ? 0 : 1;
 
-/// One configured source: identity, version line, pin and settings actions.
+/// One configured source: identity, version line, pin / visibility and
+/// settings actions.
 class _SourceCard extends StatelessWidget {
   const _SourceCard({
     required this.meta,
     required this.pinned,
+    required this.hidden,
     required this.onPinTap,
+    required this.onToggleHidden,
     required this.onOpen,
     required this.onSettings,
     required this.onShowError,
@@ -144,7 +185,12 @@ class _SourceCard extends StatelessWidget {
 
   final ExtensionMeta meta;
   final bool pinned;
+
+  /// Whether the user hid this source (only ever true inside the `hidden`
+  /// status view — hidden sources leave every other list).
+  final bool hidden;
   final VoidCallback onPinTap;
+  final VoidCallback onToggleHidden;
   final VoidCallback onOpen;
   final VoidCallback onSettings;
   final VoidCallback onShowError;
@@ -280,6 +326,11 @@ class _SourceCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
+            // Broken cards keep the error affordance (nothing else works on
+            // them) and gain whatever declutters them: the eye to hide a dead
+            // source, the unpin to drop it from the pinned scope. No pin, no
+            // settings — a source that cannot load has nothing to configure
+            // into working. Pinned sources are protected from the eye.
             if (broken)
               FButton.icon(
                 variant: .ghost,
@@ -290,23 +341,103 @@ class _SourceCard extends StatelessWidget {
                   color: colors.destructive,
                 ),
               )
-            else ...[
+            else if (!pinned)
               FButton.icon(
                 variant: .ghost,
                 onPress: onPinTap,
                 child: Icon(
-                  pinned ? FLucideIcons.pinOff : FLucideIcons.pin,
+                  FLucideIcons.pin,
                   size: 17,
-                  color: pinned ? colors.foreground : colors.mutedForeground,
+                  color: colors.mutedForeground,
                 ),
               ),
+            if (!pinned)
+              FButton.icon(
+                variant: .ghost,
+                onPress: onToggleHidden,
+                child: Icon(
+                  hidden ? FLucideIcons.eye : FLucideIcons.eyeOff,
+                  size: 17,
+                  color: hidden ? colors.foreground : colors.mutedForeground,
+                ),
+              )
+            else
+              FButton.icon(
+                variant: .ghost,
+                onPress: onPinTap,
+                child: Icon(
+                  FLucideIcons.pinOff,
+                  size: 17,
+                  color: colors.foreground,
+                ),
+              ),
+            if (!broken)
               FButton.icon(
                 variant: .ghost,
                 onPress: onSettings,
                 child: Icon(FLucideIcons.settings, size: 17),
               ),
-            ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The mock's page-bottom status line: a quiet "all synced" when every
+/// source is healthy, the failing names (red) when any load failed.
+///
+/// Pure — the load states are read per build from [extensionLoadState]; the
+/// widget rebuilds with the page when metadata or load state changes.
+class _SyncedFootnote extends StatelessWidget {
+  const _SyncedFootnote({required this.sources});
+
+  final List<ExtensionMeta> sources;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.theme.colors;
+    final failed = [
+      for (final e in sources)
+        if (extensionLoadState(e)?.failed ?? false) e.name,
+    ];
+    final style = context.theme.typography.body.xs.copyWith(
+      color: failed.isEmpty ? colors.mutedForeground : colors.destructive,
+    );
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 4),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 320),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                failed.isEmpty
+                    ? FLucideIcons.circleCheck
+                    : FLucideIcons.circleAlert,
+                size: 15,
+                color: style.color,
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  failed.isEmpty
+                      ? 'search.all_synced'.i18n.fill({
+                          'count': '${sources.length}',
+                        })
+                      : 'search.failed_sources'.i18n.fill({
+                          'names': failed.join(', '),
+                        }),
+                  style: style,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

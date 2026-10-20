@@ -14,10 +14,10 @@ import 'package:miru_alpha/ui/features/search/widget/search_page_header.dart';
 /// `/search/input`, which owns suggestions, recents and results. Keeping the
 /// two apart is what stops the tab from becoming a second search screen.
 ///
-/// Its header is three slivers: the big title (which collapses away on scroll,
-/// the way the extension page's title does), the field (pinned) and the label +
-/// pill filter bar (pinned). The caption, the cards and the Edit Filters action
-/// scroll underneath in [MobileSearchLanding].
+/// Its header is three slivers: the big title (which collapses away on
+/// scroll, the way the extension page's title does), the field (pinned) and
+/// the pill filter bar (pinned). The cards and the sync footnote scroll
+/// underneath in [MobileSearchLanding].
 class MobileSearchPage extends HookConsumerWidget {
   const MobileSearchPage({super.key});
 

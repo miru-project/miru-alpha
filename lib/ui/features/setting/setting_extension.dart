@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/provider/setting_page_provider.dart';
+import 'package:miru_alpha/ui/features/extension/view_models/extension_view_model.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/ui/core/core/outter_card.dart';
 import 'package:miru_alpha/ui/core/core/seperator.dart';
@@ -79,6 +80,12 @@ class MobileRepoDialog extends HookConsumerWidget {
                     await MiruCoreEndpoint.setRepo(url.value, name.value);
                     ref.invalidate(extensionRepoProvider);
                     ref.read(extensionRepoProvider.future);
+                    // The Extensions page keeps its own repo list, so refresh
+                    // it here: otherwise the new repo appears only after a
+                    // pull-to-refresh of the store.
+                    ref
+                        .read(extensionViewModelProvider.notifier)
+                        .loadRepos(force: true);
                     if (!context.mounted) {
                       return;
                     }
@@ -152,6 +159,12 @@ class RepoDialog extends HookConsumerWidget {
                   await MiruCoreEndpoint.setRepo(url.value, name.value);
                   ref.invalidate(extensionRepoProvider);
                   ref.read(extensionRepoProvider.future);
+                  // The Extensions page keeps its own repo list, so refresh
+                  // it here: otherwise the new repo appears only after a
+                  // pull-to-refresh of the store.
+                  ref
+                      .read(extensionViewModelProvider.notifier)
+                      .loadRepos(force: true);
                   if (!context.mounted) {
                     return;
                   }
@@ -246,6 +259,12 @@ class SettingExtension extends HookConsumerWidget {
                 }
                 ref.invalidate(extensionRepoProvider);
                 ref.read(extensionRepoProvider);
+                // The Extensions page keeps its own repo list, so drop the
+                // removed repo there too (it also clears a selection that no
+                // longer matches any repo).
+                ref
+                    .read(extensionViewModelProvider.notifier)
+                    .loadRepos(force: true);
                 Navigator.of(context).pop();
               },
               child: Text('common.continue_text'.i18n),

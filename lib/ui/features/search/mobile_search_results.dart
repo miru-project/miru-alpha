@@ -370,6 +370,7 @@ class MobileSearchResultsBody extends HookConsumerWidget {
 
         return EasyRefresh(
           header: const ForuiHeader(),
+          triggerAxis: Axis.vertical,
           onRefresh: () async {
             _searchFetchLog.info('pull-to-refresh');
             ref

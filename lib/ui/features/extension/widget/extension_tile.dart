@@ -5,10 +5,22 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/domain/models/extension.dart';
 import 'package:miru_alpha/ui/features/extension/view_models/extension_view_model.dart';
 import 'package:miru_alpha/ui/features/extension/widget/extension_list_tile.dart';
+import 'package:miru_alpha/ui/features/extension/widget/text_cover.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/core/version_util.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
 import 'package:miru_alpha/ui/core/index.dart';
+
+/// Short media word for a card's type badge — the search feature's
+/// `searchExtensionTypeLabel` serves that feature's own `ExtensionType`,
+/// not the domain enum used here.
+String _typeLabel(ExtensionType type) => switch (type) {
+  ExtensionType.bangumi => 'media.video'.i18n,
+  ExtensionType.manga => 'media.manga'.i18n,
+  ExtensionType.fikushon => 'media.novel'.i18n,
+  ExtensionType.all => 'common.all'.i18n,
+};
 
 class ExtensionTile extends HookConsumerWidget with FTileMixin {
   final DomainExtensionMeta data;
@@ -51,14 +63,17 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
     );
     final notifier = ref.read(extensionViewModelProvider.notifier);
     final isInstalled = pkg.contains(data.packageName);
+    final installedVersion = isInstalled
+        ? meta
+                  .firstWhereOrNull((e) => e.packageName == data.packageName)
+                  ?.version ??
+              ''
+        : '';
     bool needUpdate = isInstalled;
     if (isInstalled) {
       needUpdate = VersionUtil.isVersionGreaterThan(
         data.version,
-        meta
-                .firstWhereOrNull((e) => e.packageName == data.packageName)
-                ?.version ??
-            "0.0.0",
+        installedVersion.isEmpty ? "0.0.0" : installedVersion,
       );
     }
     return DeviceUtil.deviceWidget(
@@ -69,9 +84,15 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
         isInstalled: isInstalled,
         name: data.name,
         version: data.version,
+        installedVersion: installedVersion,
         author: data.author,
-        type: data.type.name,
+        lang: data.lang,
+        // Short media word, not the raw enum name the desktop tile shows.
+        type: _typeLabel(data.type),
+        // Category glyph for the no-icon fallback tile.
+        typeIcon: extensionTypeIcon(data.type),
         icon: data.icon,
+        description: data.description,
         needUpdate: needUpdate,
         onInstall: () => oninstall(data, repoUrl, notifier),
         onUninstall: () => onuninstall(data, repoUrl, notifier),
@@ -84,6 +105,7 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
         version: data.version,
         author: data.author,
         type: data.type.name,
+        typeIcon: extensionTypeIcon(data.type),
         icon: data.icon,
         needUpdate: needUpdate,
         onInstall: () => oninstall(data, repoUrl, notifier),

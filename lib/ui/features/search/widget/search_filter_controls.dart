@@ -54,6 +54,10 @@ class SearchSectionHeader extends StatelessWidget {
 class SearchSourceFilterBar extends ConsumerWidget {
   const SearchSourceFilterBar({super.key});
 
+  /// `IconData` for the sync refresh glyph. Exported so the tests can find the
+  /// button in the strip (icon-only controls have no text to search on).
+  static const IconData syncIcon = FLucideIcons.refreshCw;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(searchPageProvider);
@@ -68,75 +72,104 @@ class SearchSourceFilterBar extends ConsumerWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.only(bottom: kSearchLabelGap),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            spacing: 6,
-            children: [
-              SearchPill(
-                label: 'search.all_sources'.i18n,
-                selected: state.sourceFiltersReset,
-                onTap: notifier.resetSourceFilters,
-              ),
-              SearchPickerPill<ExtensionType?>(
-                label: 'common.type'.i18n,
-                currentLabel: state.sourceType == null
-                    ? 'common.all'.i18n
-                    : searchContentTypeLabel(state.sourceType!),
-                narrowed: state.sourceType != null,
-                sheetTitle: 'common.type'.i18n,
-                current: state.sourceType,
-                options: [
-                  SearchOption(
-                    value: null,
-                    label: 'common.all'.i18n,
-                    icon: FLucideIcons.layers,
-                  ),
-                  for (final type in kSearchContentTypes)
-                    SearchOption(
-                      value: type,
-                      label: searchContentTypeLabel(type),
-                      icon: FLucideIcons.puzzle,
+        child: Row(
+          children: [
+            // Only the pills scroll: the sync action is an action, not a
+            // filter, and a control that scrolls out of reach on a narrow
+            // screen is a control the user cannot find. Pinning it right
+            // keeps it on every width the phone gets.
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  spacing: 6,
+                  children: [
+                    SearchPill(
+                      label: 'search.all_sources'.i18n,
+                      // The mock's active chip carries the visible-source
+                      // count; only the reset (unfiltered) state shows it,
+                      // so a narrowed strip never advertises a number its
+                      // list contradicts.
+                      count: state.sourceFiltersReset
+                          ? state.visibleMetaData.length
+                          : null,
+                      selected: state.sourceFiltersReset,
+                      onTap: notifier.resetSourceFilters,
                     ),
-                ],
-                onPicked: notifier.setSourceType,
-              ),
-              SearchPickerPill<SearchSourceStatus>(
-                label: 'common.status'.i18n,
-                currentLabel: searchSourceStatusLabel(state.sourceStatus),
-                narrowed: state.sourceStatus != SearchSourceStatus.all,
-                sheetTitle: 'common.status'.i18n,
-                current: state.sourceStatus,
-                options: [
-                  for (final value in SearchSourceStatus.values)
-                    SearchOption(
-                      value: value,
-                      label: searchSourceStatusLabel(value),
-                      icon: FLucideIcons.pin,
+                    SearchPickerPill<ExtensionType?>(
+                      label: 'common.type'.i18n,
+                      currentLabel: state.sourceType == null
+                          ? 'common.all'.i18n
+                          : searchContentTypeLabel(state.sourceType!),
+                      narrowed: state.sourceType != null,
+                      sheetTitle: 'common.type'.i18n,
+                      current: state.sourceType,
+                      options: [
+                        SearchOption(
+                          value: null,
+                          label: 'common.all'.i18n,
+                          icon: FLucideIcons.layers,
+                        ),
+                        for (final type in kSearchContentTypes)
+                          SearchOption(
+                            value: type,
+                            label: searchContentTypeLabel(type),
+                            icon: searchContentTypeIcon(type),
+                          ),
+                      ],
+                      onPicked: notifier.setSourceType,
                     ),
-                ],
-                onPicked: notifier.setSourceStatus,
-              ),
-              SearchPickerPill<SearchSourceSort>(
-                label: 'search.sort_label'.i18n,
-                currentLabel: searchSourceSortLabel(state.sourceSort),
-                // The sort always shows its value: it is a mode, not a filter.
-                narrowed: true,
-                icon: FLucideIcons.arrowUpDown,
-                sheetTitle: 'search.sort_by'.i18n,
-                current: state.sourceSort,
-                options: [
-                  for (final value in SearchSourceSort.values)
-                    SearchOption(
-                      value: value,
-                      label: searchSourceSortLabel(value),
-                      icon: FLucideIcons.arrowDownNarrowWide,
+                    SearchPickerPill<SearchSourceStatus>(
+                      label: 'common.status'.i18n,
+                      currentLabel: searchSourceStatusLabel(state.sourceStatus),
+                      narrowed: state.sourceStatus != SearchSourceStatus.all,
+                      sheetTitle: 'common.status'.i18n,
+                      current: state.sourceStatus,
+                      options: [
+                        for (final value in SearchSourceStatus.values)
+                          SearchOption(
+                            value: value,
+                            label: searchSourceStatusLabel(value),
+                            // One glyph per status, so the sheet rows are
+                            // scannable without reading every label.
+                            icon: switch (value) {
+                              SearchSourceStatus.all => FLucideIcons.layers,
+                              SearchSourceStatus.pinned => FLucideIcons.pin,
+                              SearchSourceStatus.unpinned =>
+                                FLucideIcons.pinOff,
+                              SearchSourceStatus.hidden => FLucideIcons.eyeOff,
+                            },
+                          ),
+                      ],
+                      onPicked: notifier.setSourceStatus,
                     ),
-                ],
-                onPicked: notifier.setSourceSort,
+                    SearchPickerPill<SearchSourceSort>(
+                      label: 'search.sort_label'.i18n,
+                      currentLabel: searchSourceSortLabel(state.sourceSort),
+                      // The sort always shows its value: it is a mode, not a
+                      // filter.
+                      narrowed: true,
+                      icon: FLucideIcons.arrowUpDown,
+                      sheetTitle: 'search.sort_by'.i18n,
+                      current: state.sourceSort,
+                      options: [
+                        for (final value in SearchSourceSort.values)
+                          SearchOption(
+                            value: value,
+                            label: searchSourceSortLabel(value),
+                            icon: searchSourceSortIcon(value),
+                          ),
+                      ],
+                      onPicked: notifier.setSourceSort,
+                    ),
+                    const SizedBox(width: 2),
+                  ],
+                ),
               ),
-            ],
-          ),
+            ),
+            // const SizedBox(width: 8),
+            // const _SearchSourceSyncButton(),
+          ],
         ),
       ),
     );
@@ -147,11 +180,12 @@ class SearchSourceFilterBar extends ConsumerWidget {
 /// Scaled with the text setting so a larger font doesn't clip a header that
 /// cannot resize while scrolling.
 double searchSourceFilterBarExtent(BuildContext context) {
-  // ~34px of content plus slack: a pinned header can't resize to fit, so it is
-  // cheaper to be a few px generous than to paint the overflow banner over the
-  // pills.
+  // The row is now as tall as its tallest child, which is the fixed 36px
+  // sync button (pills are 28 and only grow ~30px at the 1.5 text-scale
+  // clamp), plus the gap and the hairline: 36 + 8 + 1 = 45. The remaining
+  // scaling stays for locales whose pill text wraps taller.
   final scale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.5);
-  return 40 * scale;
+  return 45 * scale;
 }
 
 /// The muted "N Selected" counter (suggest page sections).
@@ -257,7 +291,7 @@ class SearchContentTypeChips extends StatelessWidget {
             leading: value.contains(type)
                 ? Icon(FLucideIcons.check, size: 13)
                 : Icon(
-                    FLucideIcons.puzzle,
+                    searchContentTypeIcon(type),
                     size: 13,
                     color: context.theme.colors.mutedForeground,
                   ),
@@ -300,6 +334,7 @@ String searchSourceStatusLabel(SearchSourceStatus status) => switch (status) {
   SearchSourceStatus.all => 'common.all'.i18n,
   SearchSourceStatus.pinned => 'extension.pinned'.i18n,
   SearchSourceStatus.unpinned => 'search.status_unpinned'.i18n,
+  SearchSourceStatus.hidden => 'search.status_hidden'.i18n,
 };
 
 /// Display label for a source-list order.
@@ -307,6 +342,15 @@ String searchSourceSortLabel(SearchSourceSort sort) => switch (sort) {
   SearchSourceSort.pinned => 'search.sort_pinned_first'.i18n,
   SearchSourceSort.name => 'search.sort_name'.i18n,
   SearchSourceSort.version => 'search.sort_version'.i18n,
+};
+
+/// Glyph for a source-list sort mode — a pin for pinned-first, A→Z for the
+/// name order and 0→1 for the version order, so the sheet rows are
+/// distinguishable without reading every label.
+IconData searchSourceSortIcon(SearchSourceSort sort) => switch (sort) {
+  SearchSourceSort.pinned => FLucideIcons.pin,
+  SearchSourceSort.name => FLucideIcons.arrowDownAZ,
+  SearchSourceSort.version => FLucideIcons.arrowDown01,
 };
 
 /// forui's palette has no semantic "success" colour, so the "this source is
@@ -441,6 +485,7 @@ class SearchPill extends StatelessWidget {
     this.count,
     this.leading,
     this.icon,
+    this.minHeight = 28,
   });
 
   final String label;
@@ -450,8 +495,13 @@ class SearchPill extends StatelessWidget {
   final Widget? leading;
   final IconData? icon;
 
+  /// Content-box height. 28 keeps a filter strip dense; header-level pills
+  /// pass 44 so the touch target meets the mobile minimum.
+  final double minHeight;
+
   @override
   Widget build(BuildContext context) {
+    final typography = context.theme.typography;
     return FButton(
       variant: selected ? .primary : .outline,
       onPress: onTap,
@@ -460,52 +510,51 @@ class SearchPill extends StatelessWidget {
       suffix: icon == null ? null : Icon(icon, size: 14),
       // FButton's content row is not flexible, so the label has to opt in or
       // it overflows instead of ellipsising.
-      builder: _flexChild,
+      //
+      // The builder is also where FORUI hands over the resolved textStyle.
+      // Its color is per-variant (dark ink on a selected pill's near-white
+      // primary background), whereas typography.body.xs2 bakes in
+      // colors.foreground — white on a white chip, 1.2:1. The label therefore
+      // borrows the button's color and keeps only xs2's metrics from
+      // typography.
+      builder: (context, style, textStyle, iconStyle, progressStyle, child) {
+        final labelStyle = typography.body.xs2.copyWith(
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          color: textStyle.color ?? context.theme.colors.foreground,
+        );
+        return Flexible(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(label, style: labelStyle),
+              if (count != null) ...[
+                const SizedBox(width: 5),
+                Text(
+                  '$count',
+                  style: labelStyle.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: (textStyle.color ?? context.theme.colors.foreground)
+                        .withAlpha(153),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
       style: .delta(
         contentStyle: FButtonContentStyleDelta.delta(
           // Height comes from the content box, which is what keeps FORUI's
           // 44px touch minimum from inflating every pill in the strip.
-          constraints: const BoxConstraints(minHeight: 28),
+          constraints: BoxConstraints(minHeight: minHeight),
           // Horizontal only: a vertical value would fight minHeight.
           padding: EdgeInsetsGeometryDelta.value(
             const EdgeInsets.symmetric(horizontal: 11),
           ),
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: context.theme.typography.body.xs2.copyWith(
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-            ),
-          ),
-          if (count != null) ...[
-            const SizedBox(width: 5),
-            Text(
-              '$count',
-              style: context.theme.typography.body.xs2.copyWith(
-                fontWeight: FontWeight.w600,
-                color: context.theme.colors.mutedForeground,
-              ),
-            ),
-          ],
-        ],
-      ),
     );
   }
-
-  /// [FButton]'s documented `builder` hook; wrapping the child in [Flexible]
-  /// lets the internal Row shrink instead of overflowing.
-  static Widget _flexChild(
-    BuildContext context,
-    FButtonStyle style,
-    TextStyle textStyle,
-    IconThemeData iconStyle,
-    FCircularProgressStyle progressStyle,
-    Widget? child,
-  ) => Flexible(child: child ?? const SizedBox.shrink());
 }
 
 /// Display label for a filterable content type.
@@ -514,6 +563,16 @@ String searchContentTypeLabel(ExtensionType type) => switch (type) {
   ExtensionType.manga => 'search.type_manga'.i18n,
   ExtensionType.fikushon => 'search.type_novel'.i18n,
   ExtensionType.all => 'common.all'.i18n,
+};
+
+/// Category glyph for a filterable content type — the same per-type visual
+/// the extension tiles use (play / open book / marked book), so a type row
+/// is scannable at a glance instead of carrying a generic puzzle glyph.
+IconData searchContentTypeIcon(ExtensionType type) => switch (type) {
+  ExtensionType.bangumi => FLucideIcons.play,
+  ExtensionType.manga => FLucideIcons.bookOpen,
+  ExtensionType.fikushon => FLucideIcons.bookMarked,
+  ExtensionType.all => FLucideIcons.package,
 };
 
 /// Short label used by the result type tabs.
@@ -547,7 +606,7 @@ String searchScopeLabel(SearchPageState state) => switch (state.scopeMode) {
   SearchScopeMode.pinned =>
     '${'extension.pinned'.i18n} (${state.existedPinnedExtensions.length})',
   SearchScopeMode.all => 'search.all_extensions'.i18n.fill({
-    'count': '${state.filteredMetaData.length}',
+    'count': '${state.visibleMetaData.length}',
   }),
   SearchScopeMode.specific =>
     '${'search.scope_specific'.i18n} (${state.specificPackages.length})',

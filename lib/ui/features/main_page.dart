@@ -212,6 +212,49 @@ class _MainPageState extends ConsumerState<MainPage>
                 // above the keyboard.
                 if (MediaQuery.viewInsetsOf(context).bottom == 0)
                   FBottomNavigationBar(
+                    // The reference nav scales each item to 95% while
+                    // pressed (`active:scale-95`); forui's default bounce
+                    // tween only goes to 97%.
+                    style: FBottomNavigationBarStyleDelta.delta(
+                      itemStyle: FBottomNavigationBarItemStyleDelta.delta(
+                        // The reference keeps the label the same color whether
+                        // or not the tab is selected; only the icon signals the
+                        // active tab. forui's default turns the selected label
+                        // primary + bold, so we replace the text style with one
+                        // that omits the `.selected` variant (it resolves to the
+                        // muted base) and keeps only the hover/pressed feedback.
+                        textStyle:
+                            FVariants<
+                              FTappableVariantConstraint,
+                              FTappableVariant,
+                              TextStyle,
+                              TextStyleDelta
+                            >.from(
+                              themeData.typography.body.xs3.copyWith(
+                                color: themeData.colors.mutedForeground,
+                                height: 1.5,
+                              ),
+                              variants: {
+                                [
+                                  FTappableVariant.hovered,
+                                  FTappableVariant.pressed,
+                                ]: TextStyleDelta.delta(
+                                  color: themeData.colors.hover(
+                                    themeData.colors.mutedForeground,
+                                  ),
+                                ),
+                              },
+                            ),
+                        tappableStyle: FTappableStyleDelta.delta(
+                          motion: FTappableMotionDelta.delta(
+                            bounceTween: const FImmutableTween<double>(
+                              begin: 1.0,
+                              end: 0.95,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                     index: selected.value,
                     onChange: (value) {
                       if (widget.child != null) {

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
@@ -26,7 +27,8 @@ class MiruScaffold extends StatefulHookConsumerWidget {
        snapSheet = const [],
        sheetController = null,
        childPad = true,
-       resizeToAvoidBottomInset = false;
+       resizeToAvoidBottomInset = false,
+       onRefresh = null;
 
   const MiruScaffold.mobile({
     super.key,
@@ -44,6 +46,7 @@ class MiruScaffold extends StatefulHookConsumerWidget {
     this.onScrollChange,
     this.scrollThrottle = ScrollUpdateThrottle.none,
     this.slivers,
+    this.onRefresh,
   }) : assert(mobileBody != null || body != null || slivers != null);
 
   final Widget? desktopBody;
@@ -74,6 +77,10 @@ class MiruScaffold extends StatefulHookConsumerWidget {
 
   /// Throttle level for scroll position updates to improve performance
   final ScrollUpdateThrottle scrollThrottle;
+
+  /// When set, the mobile non-snapSheet scroll view is wrapped in an
+  /// [EasyRefresh] with a Forui header, enabling pull-to-refresh.
+  final Future<void> Function()? onRefresh;
 
   @override
   ConsumerState<MiruScaffold> createState() => _MiruScaffoldState();
@@ -195,14 +202,27 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
       );
     }
 
+    final scrollView = CustomScrollView(
+      controller: scrollController,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      slivers: slivers,
+    );
+
     return FScaffold(
       childPad: widget.childPad,
       resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
-      child: CustomScrollView(
-        controller: scrollController,
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        slivers: slivers,
-      ),
+      child: widget.onRefresh == null
+          ? scrollView
+          : EasyRefresh(
+              header: const ForuiHeader(),
+              // The page body can nest horizontal rails; they inherit this
+              // EasyRefresh's physics and flip its reported axis to
+              // horizontal, which would park the indicator in a left-edge
+              // column. Only the vertical axis may drive refresh.
+              triggerAxis: Axis.vertical,
+              onRefresh: widget.onRefresh,
+              child: scrollView,
+            ),
     );
   }
 

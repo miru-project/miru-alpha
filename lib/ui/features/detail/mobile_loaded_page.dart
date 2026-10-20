@@ -36,6 +36,7 @@ class MobileLoadedPage extends HookConsumerWidget {
     final favGrp = ref.watch(detailPr.select((value) => value.favoriateGroup));
     return EasyRefresh(
       header: const ForuiHeader(),
+      triggerAxis: Axis.vertical,
       onRefresh: () async => ref.read(detailPr.notifier).retry(),
       scrollController: scrollController,
       child: DetailSection<Detail>(

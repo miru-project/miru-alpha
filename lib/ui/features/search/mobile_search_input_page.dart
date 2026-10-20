@@ -96,6 +96,7 @@ class MobileSearchInputPage extends HookConsumerWidget {
                   onBack: backToQuery,
                 )
               : SearchPageHeader(
+                  title: 'search.global_search'.i18n,
                   field: searchField(
                     controller: controller,
                     focusNode: focusNode,

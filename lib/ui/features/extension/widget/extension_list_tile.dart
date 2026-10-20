@@ -1,18 +1,23 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:miru_alpha/utils/http/request.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/core/core/image_widget.dart';
+import 'package:miru_alpha/ui/features/extension/widget/text_cover.dart';
 
-class ExtensionListTile extends StatefulWidget {
+/// Reference card for the mobile store list: 44px rounded icon, name with
+/// type/update/NSFW badges, a metadata line, an optional two-line
+/// description, and the state-appropriate trailing action (Install /
+/// Update / Installed chip + uninstall).
+class ExtensionListTile extends StatelessWidget {
   const ExtensionListTile({
     super.key,
     required this.name,
     required this.isNSFW,
     this.icon,
+    this.typeIcon,
     required this.version,
     required this.author,
     required this.type,
@@ -21,13 +26,24 @@ class ExtensionListTile extends StatefulWidget {
     required this.onUninstall,
     required this.isInstalled,
     required this.needUpdate,
+    this.lang = '',
+    this.installedVersion = '',
     this.tags = const [],
   });
   final bool isNSFW;
   final String name;
   final String? icon;
+
+  /// Category glyph for the [TextCover] fallback tile (see
+  /// [extensionTypeIcon]) — drawn when the source has no icon of its own.
+  final IconData? typeIcon;
   final String version;
+
+  /// The currently-installed version, only used for the `v1.4.0 → v1.5.0`
+  /// line while an update waits.
+  final String installedVersion;
   final String author;
+  final String lang;
   final String type;
   final String? description;
   final List<String> tags;
@@ -36,100 +52,122 @@ class ExtensionListTile extends StatefulWidget {
   final bool isInstalled;
   final bool needUpdate;
 
-  @override
-  State<ExtensionListTile> createState() => _ExtensionListTileState();
-}
+  /// The `v1.4.0 → v1.5.0` line while an update waits, otherwise the plain
+  /// `v1.4.2 · en_US · author` metadata line. Version strings already
+  /// carry their own `v` in the repo data, so they are joined raw.
+  String get _metaLine {
+    if (needUpdate && installedVersion.isNotEmpty) {
+      return '$installedVersion → $version';
+    }
+    return [
+      version,
+      if (lang.isNotEmpty) lang,
+      if (author.isNotEmpty) author,
+    ].join(' · ');
+  }
 
-class _ExtensionListTileState extends State<ExtensionListTile> {
   @override
   Widget build(BuildContext context) {
+    final colors = context.theme.colors;
+    final typography = context.theme.typography;
+    // Icon height = title line + 4px gap + meta line. The text heights come
+    // from the resolved typography (lg fontSize 20 × height 1.75 = 35; xs2
+    // fontSize 12 × height 1.0 = 12), so the icon grows to match the block
+    // and its center aligns with the text block's center.
+    final titleLineHeight =
+        (typography.body.lg.fontSize ?? 20.0) *
+        (typography.body.lg.height ?? 1.75);
+    final metaLineHeight =
+        (typography.body.xs2.fontSize ?? 12.0) *
+        (typography.body.xs2.height ?? 1.0);
+    const gap = 4.0;
+    final textBlockHeight = titleLineHeight + gap + metaLineHeight;
+    final iconSize = textBlockHeight;
     return MiruCard(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon circle
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: context.theme.colors.muted,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: widget.icon != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: Image.network(
-                        MiruRequest.proxyUrl(widget.icon!).toString(),
-                        width: 48,
-                        height: 48,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(
-                          FLucideIcons.toyBrick,
-                          size: 24,
-                          color: context.theme.colors.mutedForeground,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _ExtensionIcon(
+                  iconUrl: icon,
+                  name: name,
+                  size: iconSize,
+                  typeIcon: typeIcon,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: typography.body.lg.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          _SmallBadge(label: type),
+                          if (needUpdate) ...[
+                            const SizedBox(width: 4),
+                            _SmallBadge(
+                              label: 'common.update'.i18n,
+                              variant: .outline,
+                            ),
+                          ],
+                          if (isNSFW) ...[
+                            const SizedBox(width: 4),
+                            _SmallBadge(
+                              label: 'extension.nsfw'.i18n,
+                              variant: .destructive,
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _metaLine,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: typography.body.xs2.copyWith(
+                          color: colors.mutedForeground,
                         ),
                       ),
-                    )
-                  : Icon(
-                      FLucideIcons.toyBrick,
-                      size: 24,
-                      color: context.theme.colors.mutedForeground,
-                    ),
-            ),
-            const SizedBox(width: 16),
-            // Name and badges
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    widget.type,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      _Badge(text: widget.version),
-                      if (widget.isNSFW) ...[
-                        const SizedBox(width: 6),
-                        _Badge(text: 'NSFW', isDestructive: true),
-                      ],
                     ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 12),
+                _ExtensionAction(
+                  isInstalled: isInstalled,
+                  needUpdate: needUpdate,
+                  onInstall: onInstall,
+                  onUninstall: onUninstall,
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            // Action button
-            FButton.icon(
-              variant: .ghost,
-              onPress: widget.isInstalled
-                  ? widget.onUninstall
-                  : widget.onInstall,
-              child: Icon(
-                widget.needUpdate
-                    ? FLucideIcons.circleFadingArrowUp
-                    : widget.isInstalled
-                    ? FLucideIcons.trash2
-                    : FLucideIcons.download,
-                size: 20,
-                color: widget.isInstalled && !widget.needUpdate
-                    ? context.theme.colors.mutedForeground
-                    : null,
+            if (description != null && description!.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                description!,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: typography.body.xs.copyWith(
+                  color: colors.mutedForeground,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -137,38 +175,173 @@ class _ExtensionListTileState extends State<ExtensionListTile> {
   }
 }
 
-class _Badge extends StatelessWidget {
-  const _Badge({required this.text, this.isDestructive = false});
+/// 44px rounded square for the source icon on the muted surface — the
+/// reference card's app-icon slot. Falls back to the [TextCover] glyph tile
+/// when the source has no icon (or it fails to load).
+class _ExtensionIcon extends StatelessWidget {
+  const _ExtensionIcon({
+    this.iconUrl,
+    this.name = '',
+    this.typeIcon,
+    this.size = 44,
+  });
 
-  final String text;
-  final bool isDestructive;
+  final String? iconUrl;
+  final String name;
+  final IconData? typeIcon;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: isDestructive
-            ? context.theme.colors.error.withAlpha(30)
-            : context.theme.colors.muted,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(
-          color: isDestructive
-              ? context.theme.colors.error.withAlpha(60)
-              : context.theme.colors.mutedForeground.withAlpha(40),
+    final radius = context.theme.style.borderRadius.sm;
+    final hasIcon = iconUrl != null && iconUrl!.isNotEmpty;
+    final cover = TextCover(
+      seed: name,
+      icon: typeIcon,
+      size: size,
+      borderRadius: radius,
+    );
+    return ClipRRect(
+      borderRadius: radius,
+      child: Container(
+        width: size,
+        height: size,
+        color: context.theme.colors.muted,
+        alignment: Alignment.center,
+        child: hasIcon
+            ? ImageWidget(
+                imageUrl: iconUrl,
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                borderRadius: 0,
+                errChild: cover,
+              )
+            : cover,
+      ),
+    );
+  }
+}
+
+/// The compact rectangular badge from the reference card: the 12px label
+/// step on a tightened padding instead of forui's touch padding.
+class _SmallBadge extends StatelessWidget {
+  const _SmallBadge({
+    required this.label,
+    this.variant = FBadgeVariant.secondary,
+  });
+
+  final String label;
+  final FBadgeVariant variant;
+
+  @override
+  Widget build(BuildContext context) {
+    return FBadge(
+      variant: variant,
+      style: .delta(
+        padding: EdgeInsetsGeometryDelta.value(
+          const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        ),
+        labelTextStyle: TextStyleDelta.delta(
+          fontSize: context.theme.typography.body.xs2.fontSize,
+          fontWeight: FontWeight.w500,
         ),
       ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: isDestructive
-              ? context.theme.colors.error
-              : context.theme.colors.mutedForeground,
-          letterSpacing: 0.5,
+      child: Text(label),
+    );
+  }
+}
+
+/// The card's trailing action: an Install button while uninstalled, an
+/// Update button while an update waits, and a quiet "Installed" chip plus
+/// an uninstall button once the source is current.
+class _ExtensionAction extends StatelessWidget {
+  const _ExtensionAction({
+    required this.isInstalled,
+    required this.needUpdate,
+    required this.onInstall,
+    required this.onUninstall,
+  });
+
+  final bool isInstalled;
+  final bool needUpdate;
+  final VoidCallback onInstall;
+  final VoidCallback onUninstall;
+
+  /// Same "healthy" green the search pills use for an up-to-date state.
+  static const _upToDate = Color(0xFF34D399);
+
+  FButtonContentStyleDelta get _contentStyle => .delta(
+    // 44dp meets the mobile touch minimum (44x44) without growing the card:
+    // the icon column beside it is already taller (~51px), so the row's
+    // height is unchanged.
+    constraints: const BoxConstraints(minHeight: 44),
+    padding: EdgeInsetsGeometryDelta.value(
+      const EdgeInsets.symmetric(horizontal: 12),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.theme.colors;
+    final labelStyle = context.theme.typography.body.xs2.copyWith(
+      fontWeight: FontWeight.w600,
+    );
+    if (needUpdate) {
+      return FButton(
+        variant: .primary,
+        onPress: onInstall,
+        prefix: Icon(FLucideIcons.circleFadingArrowUp, size: 16),
+        style: .delta(contentStyle: _contentStyle),
+        child: Text('common.update'.i18n, style: labelStyle),
+      );
+    }
+    if (!isInstalled) {
+      return FButton(
+        variant: .secondary,
+        onPress: onInstall,
+        prefix: Icon(FLucideIcons.download, size: 16),
+        style: .delta(contentStyle: _contentStyle),
+        child: Text('common.install'.i18n, style: labelStyle),
+      );
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FBadge(
+          variant: .secondary,
+          style: .delta(
+            padding: EdgeInsetsGeometryDelta.value(
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(FLucideIcons.check, size: 14, color: _upToDate),
+              const SizedBox(width: 4),
+              Text('extension.installed'.i18n),
+            ],
+          ),
         ),
-      ),
+        const SizedBox(width: 4),
+        FButton.icon(
+          variant: .ghost,
+          semanticsLabel: 'extension.uninstall'.i18n,
+          style: .delta(
+            contentStyle: FButtonContentStyleDelta.delta(
+              // 44x44 touch target; the 16px glyph keeps the visual weight.
+              constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+            ),
+          ),
+          onPress: onUninstall,
+          child: Icon(
+            FLucideIcons.trash2,
+            size: 16,
+            color: colors.mutedForeground,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -187,6 +360,7 @@ class ExtensionGridTile extends StatelessWidget {
     required this.isInstalled,
     required this.package,
     this.icon,
+    this.typeIcon,
     this.description,
     required this.needUpdate,
     this.tags = const [],
@@ -194,6 +368,7 @@ class ExtensionGridTile extends StatelessWidget {
   final bool isNSFW;
   final String name;
   final String? icon;
+  final IconData? typeIcon;
   final String version;
   final String author;
   final String type;
@@ -238,7 +413,19 @@ class ExtensionGridTile extends StatelessWidget {
                   child: SizedBox(
                     width: 70,
                     height: 70,
-                    child: ImageWidget(imageUrl: icon, width: 70, height: 70),
+                    child: ImageWidget(
+                      imageUrl: icon,
+                      width: 70,
+                      height: 70,
+                      // Same text-as-image cover as the mobile card, so a
+                      // source without an icon never shows the alert glyph.
+                      errChild: TextCover(
+                        seed: name,
+                        icon: typeIcon,
+                        size: 70,
+                        borderRadius: context.theme.style.borderRadius.sm,
+                      ),
+                    ),
                   ),
                 ),
                 Expanded(

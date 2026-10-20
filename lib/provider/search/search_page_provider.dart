@@ -37,7 +37,21 @@ enum SearchSortMode {
 enum ResultsViewMode { relevance, byExtension }
 
 /// Filter applied to the `/search` tab's source list (never to results).
-enum SearchSourceStatus { all, pinned, unpinned }
+enum SearchSourceStatus {
+  /// Every source the tab shows — everything visible after the NSFW /
+  /// language / type filters, minus the hidden ones.
+  all,
+
+  /// Only the sources the user pinned (pinned sources are never hidden).
+  pinned,
+
+  /// Everything the user has not pinned.
+  unpinned,
+
+  /// Only the sources the user toggled invisible with the card's eye button —
+  /// the management view that makes hiding reversible.
+  hidden,
+}
 
 /// Ordering of the `/search` tab's source list.
 enum SearchSourceSort {
@@ -82,6 +96,11 @@ class SearchPageState {
   final SearchSourceStatus sourceStatus;
   final SearchSourceSort sourceSort;
 
+  /// Sources the user toggled invisible on the tab. Hidden sources leave the
+  /// list (except under the `hidden` status filter) and the search scope;
+  /// persisted as [SettingKey.hiddenExtension] like the pinned set.
+  final Set<String> hiddenExtensions;
+
   final bool open;
   final List<String> history;
 
@@ -105,6 +124,7 @@ class SearchPageState {
     this.sourceType,
     this.sourceStatus = SearchSourceStatus.all,
     this.sourceSort = SearchSourceSort.pinned,
+    this.hiddenExtensions = const {},
     this.open = false,
     this.history = const [],
     this.refilterTick = 0,
@@ -157,6 +177,17 @@ class SearchPageState {
     return result;
   }
 
+  /// What the tab actually shows under the status filter `all`: the
+  /// NSFW/language/type pool minus the sources the user hid with the card's
+  /// eye button. The list counts and the search scope both work off this, so
+  /// "hidden" can never be searched or tallied by accident.
+  List<ExtensionMeta> get visibleMetaData {
+    if (hiddenExtensions.isEmpty) return filteredMetaData;
+    return filteredMetaData
+        .where((e) => !hiddenExtensions.contains(e.packageName))
+        .toList();
+  }
+
   // Package names that global search should iterate, honoring the scope mode
   // plus the content-type / language / NSFW filters behind
   // [filteredMetaData].
@@ -166,9 +197,7 @@ class SearchPageState {
       SearchScopeMode.all => metaData.map((e) => e.packageName).toSet(),
       SearchScopeMode.specific => specificPackages,
     };
-    return base.intersection(
-      filteredMetaData.map((e) => e.packageName).toSet(),
-    );
+    return base.intersection(visibleMetaData.map((e) => e.packageName).toSet());
   }
 
   // Recently visited extensions (newest first), backed by the fixed-size
@@ -191,6 +220,7 @@ class SearchPageState {
     bool clearSourceType = false,
     SearchSourceStatus? sourceStatus,
     SearchSourceSort? sourceSort,
+    Set<String>? hiddenExtensions,
     bool? open,
     List<String>? history,
     bool clearLang = false,
@@ -211,6 +241,7 @@ class SearchPageState {
       sourceType: clearSourceType ? null : (sourceType ?? this.sourceType),
       sourceStatus: sourceStatus ?? this.sourceStatus,
       sourceSort: sourceSort ?? this.sourceSort,
+      hiddenExtensions: hiddenExtensions ?? this.hiddenExtensions,
       open: open ?? this.open,
       history: history ?? this.history,
       refilterTick: refilterTick ?? this.refilterTick,
@@ -236,9 +267,25 @@ class SearchPageNotifier extends _$SearchPageNotifier {
         SettingKey.pinnedExtension,
         existedPinnedExtension.toString(),
       );
+      // Hidden sources get the same cleanup: a source that left the installed
+      // set no longer needs an entry, and stale names would silently shrink
+      // the list count forever.
+      final hidden = next
+          .where(
+            (ext) => MiruSettings.getSettingSync<Set<String>>(
+              SettingKey.hiddenExtension,
+            ).contains(ext.packageName),
+          )
+          .map((e) => e.packageName)
+          .toSet();
+      MiruSettings.setSettingSync(
+        SettingKey.hiddenExtension,
+        hidden.toString(),
+      );
       state = state.copyWith(
         metaData: next,
         existedPinnedExtensions: existedPinnedExtension,
+        hiddenExtensions: hidden,
       );
     });
 
@@ -251,12 +298,21 @@ class SearchPageNotifier extends _$SearchPageNotifier {
         )
         .map((e) => e.packageName)
         .toSet();
+    final hidden = installed
+        .where(
+          (ext) => MiruSettings.getSettingSync<Set<String>>(
+            SettingKey.hiddenExtension,
+          ).contains(ext.packageName),
+        )
+        .map((e) => e.packageName)
+        .toSet();
 
     return SearchPageState(
       metaData: installed,
       pinnedExtensions: {},
       query: '',
       existedPinnedExtensions: existedPinned,
+      hiddenExtensions: hidden,
       // Every global search opens on the pinned scope. Searching every
       // installed extension by default is one request per source per page,
       // straight at the origin servers, for results the user never asked to
@@ -306,6 +362,12 @@ class SearchPageNotifier extends _$SearchPageNotifier {
 
   void setExistedPinnedExtensions(Set<String> existedPinnedExtensions) {
     state = state.copyWith(existedPinnedExtensions: existedPinnedExtensions);
+  }
+
+  /// Persisted by the caller ([SettingKey.hiddenExtension]); the state only
+  /// mirrors it so the list and scope react immediately.
+  void setHiddenExtensions(Set<String> hiddenExtensions) {
+    state = state.copyWith(hiddenExtensions: hiddenExtensions);
   }
 
   void setScopeMode(SearchScopeMode mode) {

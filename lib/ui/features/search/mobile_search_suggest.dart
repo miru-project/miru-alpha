@@ -136,7 +136,7 @@ class MobileSearchSuggest extends HookConsumerWidget {
           child: SearchScopeSegmented(
             value: state.scopeMode,
             pinnedCount: state.existedPinnedExtensions.length,
-            allCount: state.filteredMetaData.length,
+            allCount: state.visibleMetaData.length,
             specificCount: state.specificPackages.length,
             onChanged: notifier.setScopeMode,
           ),
