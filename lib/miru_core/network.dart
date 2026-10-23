@@ -101,6 +101,7 @@ class MiruCoreEndpoint {
       package: p.package,
       episodes: episodes,
       headers: headers,
+      tags: p.tags,
     );
   }
 
@@ -141,6 +142,7 @@ class MiruCoreEndpoint {
             ? jsonEncode(detail.episodes!.map((e) => e.toProto3Json()).toList())
             : null,
         headers: detail.headers != null ? jsonEncode(detail.headers) : null,
+        tags: detail.tags,
       ),
     );
     return detailFromProto(response.detail);

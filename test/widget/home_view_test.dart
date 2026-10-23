@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/ui/features/home/views/home_view.dart';
-import 'package:miru_alpha/provider/home/home_view_model.dart';
 import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/provider/home/history_page_provider.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
@@ -11,14 +10,6 @@ import 'package:miru_alpha/provider/application_controller_provider.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
 import 'package:miru_alpha/utils/theme/miru_themes.dart';
 import 'package:forui/forui.dart';
-
-class _FakeHomeViewModel extends HomeViewModel {
-  _FakeHomeViewModel(this._state);
-  final HomeViewState _state;
-
-  @override
-  HomeViewState build() => _state;
-}
 
 class _FakeFavoritePageNotifier extends FavoritePageNotifier {
   _FakeFavoritePageNotifier(this._state);
@@ -54,12 +45,6 @@ class _FakeApplicationController extends ApplicationController {
 
 void main() {
   testWidgets('HomeView renders correctly', (WidgetTester tester) async {
-    final homeState = HomeViewState(
-      favorites: const [],
-      history: const [],
-      downloads: const [],
-      selectedTab: 0,
-    );
     final favoriteState = FavoritePageState(
       favorites: const [],
       favoriteGroups: const [],
@@ -89,7 +74,6 @@ void main() {
 
     final container = ProviderContainer(
       overrides: [
-        homeViewModelProvider.overrideWith(() => _FakeHomeViewModel(homeState)),
         favoritePageProvider.overrideWith(
           () => _FakeFavoritePageNotifier(favoriteState),
         ),

@@ -13,9 +13,14 @@ part of 'search_page_single_provider.dart';
 /// Unlike the cross-extension [SearchPageProvider], it is scoped to one
 /// installed extension ([SingleSearchPageState.pkg]) and carries that
 /// extension's own filter catalogue. Pages increment [SingleSearchPageState.page]
-/// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
+// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
 /// is sent to the extension when fetching results.
-// @Riverpod(keepAlive: true)
+// keepAlive, deliberately: the filter dialog commits AFTER popping, so its
+// provider must survive the dialog's removal from the tree. As autoDispose,
+// Riverpod cancelled the state when the panel's listener went away and the
+// post-pop commit was dropped on a cancelled container (measured: appliedFilter
+// stayed null after Done). The only cost is one state object per extension
+// search session, released by the next `setPkg`/`clearResult`.
 
 @ProviderFor(SearchPageSingleProvider)
 final searchPageSingleProviderProvider = SearchPageSingleProviderProvider._();
@@ -25,9 +30,14 @@ final searchPageSingleProviderProvider = SearchPageSingleProviderProvider._();
 /// Unlike the cross-extension [SearchPageProvider], it is scoped to one
 /// installed extension ([SingleSearchPageState.pkg]) and carries that
 /// extension's own filter catalogue. Pages increment [SingleSearchPageState.page]
-/// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
+// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
 /// is sent to the extension when fetching results.
-// @Riverpod(keepAlive: true)
+// keepAlive, deliberately: the filter dialog commits AFTER popping, so its
+// provider must survive the dialog's removal from the tree. As autoDispose,
+// Riverpod cancelled the state when the panel's listener went away and the
+// post-pop commit was dropped on a cancelled container (measured: appliedFilter
+// stayed null after Done). The only cost is one state object per extension
+// search session, released by the next `setPkg`/`clearResult`.
 final class SearchPageSingleProviderProvider
     extends $NotifierProvider<SearchPageSingleProvider, SingleSearchPageState> {
   /// Per-extension search provider backing the `/search/single` page.
@@ -35,16 +45,21 @@ final class SearchPageSingleProviderProvider
   /// Unlike the cross-extension [SearchPageProvider], it is scoped to one
   /// installed extension ([SingleSearchPageState.pkg]) and carries that
   /// extension's own filter catalogue. Pages increment [SingleSearchPageState.page]
-  /// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
+  // as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
   /// is sent to the extension when fetching results.
-  // @Riverpod(keepAlive: true)
+  // keepAlive, deliberately: the filter dialog commits AFTER popping, so its
+  // provider must survive the dialog's removal from the tree. As autoDispose,
+  // Riverpod cancelled the state when the panel's listener went away and the
+  // post-pop commit was dropped on a cancelled container (measured: appliedFilter
+  // stayed null after Done). The only cost is one state object per extension
+  // search session, released by the next `setPkg`/`clearResult`.
   SearchPageSingleProviderProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'searchPageSingleProviderProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -66,16 +81,21 @@ final class SearchPageSingleProviderProvider
 }
 
 String _$searchPageSingleProviderHash() =>
-    r'30753c6044f866bcccc64109a37e053bbb46000e';
+    r'c39296ee1f8823d6177143d59e0f72250ed8af47';
 
 /// Per-extension search provider backing the `/search/single` page.
 ///
 /// Unlike the cross-extension [SearchPageProvider], it is scoped to one
 /// installed extension ([SingleSearchPageState.pkg]) and carries that
 /// extension's own filter catalogue. Pages increment [SingleSearchPageState.page]
-/// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
+// as the grid is scrolled; only the committed [SingleSearchPageState.appliedFilter]
 /// is sent to the extension when fetching results.
-// @Riverpod(keepAlive: true)
+// keepAlive, deliberately: the filter dialog commits AFTER popping, so its
+// provider must survive the dialog's removal from the tree. As autoDispose,
+// Riverpod cancelled the state when the panel's listener went away and the
+// post-pop commit was dropped on a cancelled container (measured: appliedFilter
+// stayed null after Done). The only cost is one state object per extension
+// search session, released by the next `setPkg`/`clearResult`.
 
 abstract class _$SearchPageSingleProvider
     extends $Notifier<SingleSearchPageState> {

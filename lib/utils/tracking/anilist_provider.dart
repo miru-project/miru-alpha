@@ -207,6 +207,50 @@ class AniListProvider {
         .toList();
   }
 
+  /// Current trending media from AniList's public catalogue, ranked by its
+  /// trending order.
+  ///
+  /// No login required: the local proxy injects the stored token when the
+  /// account is linked, and falls back to the anonymous request otherwise.
+  /// [type] filters the catalogue when given; null mixes every media kind.
+  static Future<List<AnilistMedia>> trendingMediaPage({
+    AnilistType? type,
+    int page = 1,
+    int perPage = 14,
+  }) async {
+    final typeQuery = type == null ? '' : 'type:${_typeToQuery(type)}, ';
+    final query =
+        """{Page(page:$page, perPage:$perPage){
+  media(${typeQuery}sort:TRENDING_DESC, isAdult:false){
+    id
+    type
+    status
+    episodes
+    chapters
+    meanScore
+    coverImage{
+        large
+    }
+    title{
+        userPreferred
+    }
+  }
+}}
+""";
+    final res = await postRequest(queryString: query);
+    if (res == null) {
+      throw Exception('AniList request failed');
+    }
+    final data = res['data'];
+    if (data == null) {
+      throw Exception('AniList response missing data');
+    }
+    final media = data['Page']['media'] as List;
+    return media
+        .map((e) => AnilistMedia.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   static Future<int> editList({
     required AnilistMediaListStatus status,
     int? mediaId,

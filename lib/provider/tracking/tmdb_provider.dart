@@ -55,4 +55,21 @@ class TMDBNotifier extends _$TMDBNotifier {
   Future<TMDBDetail?> searchAndGetDetail(String query, String mediaType) async {
     return await TMDBProvider.apiSearch(query, mediaType);
   }
+
+  /// Store a detail we already fetched (e.g. from a search) so the next
+  /// [getDetail] for this id is a backend-cache hit instead of an API call.
+  Future<void> cacheDetail(TMDBDetail detail, String mediaType) async {
+    try {
+      await MiruGrpcClient.dbClient.putTrack(
+        proto.PutTrackRequest()
+          ..trackingId = detail.id.toString()
+          ..data = jsonEncode(detail.toJson())
+          ..mediaType = mediaType
+          ..provider = "TMDB",
+      );
+    } catch (e) {
+      // A cache miss must never break the detail page.
+      logger.info('TMDB cache write failed: $e');
+    }
+  }
 }

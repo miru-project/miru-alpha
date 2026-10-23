@@ -60,6 +60,7 @@ const Detail$json = {
       '6': '.miru.Tracker',
       '10': 'trackers'
     },
+    {'1': 'tags', '3': 12, '4': 3, '5': 9, '10': 'tags'},
   ],
   '3': [Detail_TrackIdsEntry$json],
   '8': [
@@ -89,9 +90,9 @@ final $typed_data.Uint8List detailDescriptor = $convert.base64Decode(
     'dubG9hZGVkGAcgAygJUgpkb3dubG9hZGVkEh8KCGVwaXNvZGVzGAggASgJSANSCGVwaXNvZGVz'
     'iAEBEh0KB2hlYWRlcnMYCSABKAlIBFIHaGVhZGVyc4gBARI3Cgl0cmFja19pZHMYCiADKAsyGi'
     '5taXJ1LkRldGFpbC5UcmFja0lkc0VudHJ5Ugh0cmFja0lkcxIpCgh0cmFja2VycxgLIAMoCzIN'
-    'Lm1pcnUuVHJhY2tlclIIdHJhY2tlcnMaOwoNVHJhY2tJZHNFbnRyeRIQCgNrZXkYASABKAlSA2'
-    'tleRIUCgV2YWx1ZRgCIAEoCVIFdmFsdWU6AjgBQggKBl90aXRsZUIICgZfY292ZXJCBwoFX2Rl'
-    'c2NCCwoJX2VwaXNvZGVzQgoKCF9oZWFkZXJz');
+    'Lm1pcnUuVHJhY2tlclIIdHJhY2tlcnMSEgoEdGFncxgMIAMoCVIEdGFncxo7Cg1UcmFja0lkc0'
+    'VudHJ5EhAKA2tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGAIgASgJUgV2YWx1ZToCOAFCCAoGX3Rp'
+    'dGxlQggKBl9jb3ZlckIHCgVfZGVzY0ILCglfZXBpc29kZXNCCgoIX2hlYWRlcnM=');
 
 @$core.Deprecated('Use trackerDescriptor instead')
 const Tracker$json = {

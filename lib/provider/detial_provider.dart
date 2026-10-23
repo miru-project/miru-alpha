@@ -362,12 +362,13 @@ class Detial extends _$Detial {
         // Ignore upsert error
       }
 
-      // 4. Finally get full details (this will also cache the 'TMDB' track)
-      final fullDetail = await ref
+      // 4. apiSearch already fetched the full detail — cache it and show
+      // it directly instead of refetching the same id through getDetail.
+      await ref
           .read(tMDBProvider.notifier)
-          .getDetail(tmdbId, mediaType);
+          .cacheDetail(searchResult, mediaType);
       if (!ref.mounted) return;
-      state = state.copyWith(tmdbDetail: fullDetail);
+      state = state.copyWith(tmdbDetail: searchResult);
     }
   }
 

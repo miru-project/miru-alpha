@@ -85,6 +85,7 @@ const UpsertDetailRequest$json = {
       '6': '.miru.UpsertDetailRequest.TrackIdsEntry',
       '10': 'trackIds'
     },
+    {'1': 'tags', '3': 10, '4': 3, '5': 9, '10': 'tags'},
   ],
   '3': [UpsertDetailRequest_TrackIdsEntry$json],
   '8': [
@@ -113,9 +114,10 @@ final $typed_data.Uint8List upsertDetailRequestDescriptor = $convert.base64Decod
     'dXJsGAQgASgJUglkZXRhaWxVcmwSGAoHcGFja2FnZRgFIAEoCVIHcGFja2FnZRIeCgpkb3dubG'
     '9hZGVkGAYgAygJUgpkb3dubG9hZGVkEh8KCGVwaXNvZGVzGAcgASgJSANSCGVwaXNvZGVziAEB'
     'Eh0KB2hlYWRlcnMYCCABKAlIBFIHaGVhZGVyc4gBARJECgl0cmFja19pZHMYCSADKAsyJy5taX'
-    'J1LlVwc2VydERldGFpbFJlcXVlc3QuVHJhY2tJZHNFbnRyeVIIdHJhY2tJZHMaOwoNVHJhY2tJ'
-    'ZHNFbnRyeRIQCgNrZXkYASABKAlSA2tleRIUCgV2YWx1ZRgCIAEoCVIFdmFsdWU6AjgBQggKBl'
-    '90aXRsZUIICgZfY292ZXJCBwoFX2Rlc2NCCwoJX2VwaXNvZGVzQgoKCF9oZWFkZXJz');
+    'J1LlVwc2VydERldGFpbFJlcXVlc3QuVHJhY2tJZHNFbnRyeVIIdHJhY2tJZHMSEgoEdGFncxgK'
+    'IAMoCVIEdGFncxo7Cg1UcmFja0lkc0VudHJ5EhAKA2tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGA'
+    'IgASgJUgV2YWx1ZToCOAFCCAoGX3RpdGxlQggKBl9jb3ZlckIHCgVfZGVzY0ILCglfZXBpc29k'
+    'ZXNCCgoIX2hlYWRlcnM=');
 
 @$core.Deprecated('Use upsertDetailResponseDescriptor instead')
 const UpsertDetailResponse$json = {

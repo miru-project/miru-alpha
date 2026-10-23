@@ -32,10 +32,8 @@ void main() {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: 20,
-            itemBuilder: (context, index) => SizedBox(
-              width: 120,
-              child: Text('item $index'),
-            ),
+            itemBuilder: (context, index) =>
+                SizedBox(width: 120, child: Text('item $index')),
           ),
         ),
       ),
@@ -61,10 +59,8 @@ void main() {
           onRefresh: () async {},
           child: ListView.builder(
             itemCount: 20,
-            itemBuilder: (context, index) => SizedBox(
-              height: 60,
-              child: Text('item $index'),
-            ),
+            itemBuilder: (context, index) =>
+                SizedBox(height: 60, child: Text('item $index')),
           ),
         ),
       ),

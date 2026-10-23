@@ -58,7 +58,7 @@ final class NovelReaderProvider
   }
 }
 
-String _$novelReaderHash() => r'09ed7c474b8bcc76bd8223a2817bde64de21e5e3';
+String _$novelReaderHash() => r'9e8aea46905370feb5bb5d538054180853469b30';
 
 final class NovelReaderFamily extends $Family
     with

@@ -25,6 +25,9 @@ _DomainDetail _$DomainDetailFromJson(Map<String, dynamic> json) =>
           const [],
       detailUrl: json['detailUrl'] as String,
       package: json['package'] as String,
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$DomainDetailToJson(_DomainDetail instance) =>
@@ -38,6 +41,7 @@ Map<String, dynamic> _$DomainDetailToJson(_DomainDetail instance) =>
       'downloaded': instance.downloaded,
       'detailUrl': instance.detailUrl,
       'package': instance.package,
+      'tags': instance.tags,
     };
 
 _DomainEpisodeGroup _$DomainEpisodeGroupFromJson(Map<String, dynamic> json) =>

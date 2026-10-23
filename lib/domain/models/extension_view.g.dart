@@ -68,4 +68,5 @@ const _$ExtensionInstallStatusEnumMap = {
   ExtensionInstallStatus.all: 'all',
   ExtensionInstallStatus.installed: 'installed',
   ExtensionInstallStatus.notInstalled: 'notInstalled',
+  ExtensionInstallStatus.updates: 'updates',
 };

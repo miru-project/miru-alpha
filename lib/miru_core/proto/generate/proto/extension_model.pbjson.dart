@@ -276,6 +276,7 @@ const ExtensionDetail$json = {
       '6': '.miru.ExtensionDetail.HeadersEntry',
       '10': 'headers'
     },
+    {'1': 'tags', '3': 6, '4': 3, '5': 9, '10': 'tags'},
   ],
   '3': [ExtensionDetail_HeadersEntry$json],
   '8': [
@@ -300,9 +301,9 @@ final $typed_data.Uint8List extensionDetailDescriptor = $convert.base64Decode(
     'Cg9FeHRlbnNpb25EZXRhaWwSGQoFdGl0bGUYASABKAlIAFIFdGl0bGWIAQESGQoFY292ZXIYAi'
     'ABKAlIAVIFY292ZXKIAQESFwoEZGVzYxgDIAEoCUgCUgRkZXNjiAEBEjcKCGVwaXNvZGVzGAQg'
     'AygLMhsubWlydS5FeHRlbnNpb25FcGlzb2RlR3JvdXBSCGVwaXNvZGVzEjwKB2hlYWRlcnMYBS'
-    'ADKAsyIi5taXJ1LkV4dGVuc2lvbkRldGFpbC5IZWFkZXJzRW50cnlSB2hlYWRlcnMaOgoMSGVh'
-    'ZGVyc0VudHJ5EhAKA2tleRgBIAEoCVIDa2V5EhQKBXZhbHVlGAIgASgJUgV2YWx1ZToCOAFCCA'
-    'oGX3RpdGxlQggKBl9jb3ZlckIHCgVfZGVzYw==');
+    'ADKAsyIi5taXJ1LkV4dGVuc2lvbkRldGFpbC5IZWFkZXJzRW50cnlSB2hlYWRlcnMSEgoEdGFn'
+    'cxgGIAMoCVIEdGFncxo6CgxIZWFkZXJzRW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdW'
+    'UYAiABKAlSBXZhbHVlOgI4AUIICgZfdGl0bGVCCAoGX2NvdmVyQgcKBV9kZXNj');
 
 @$core.Deprecated('Use extensionEpisodeGroupDescriptor instead')
 const ExtensionEpisodeGroup$json = {

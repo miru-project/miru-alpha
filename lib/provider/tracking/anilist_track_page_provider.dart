@@ -139,6 +139,13 @@ class AnilistTrackPage extends _$AnilistTrackPage {
     state = state.copyWith(status: s);
   }
 
+  /// Re-reads the entry from AniList (and the local cache) without writing
+  /// anything back — the detail page's "Sync All" action.
+  Future<void> refresh() async {
+    state = state.copyWith(isLoading: true);
+    await _loadData();
+  }
+
   void setProgress(int p) {
     state = state.copyWith(progress: p);
   }

@@ -31,6 +31,7 @@ class Detail extends $pb.GeneratedMessage {
     $core.String? headers,
     $core.Iterable<$core.MapEntry<$core.String, $core.String>>? trackIds,
     $core.Iterable<Tracker>? trackers,
+    $core.Iterable<$core.String>? tags,
   }) {
     final result = create();
     if (id != null) result.id = id;
@@ -44,6 +45,7 @@ class Detail extends $pb.GeneratedMessage {
     if (headers != null) result.headers = headers;
     if (trackIds != null) result.trackIds.addEntries(trackIds);
     if (trackers != null) result.trackers.addAll(trackers);
+    if (tags != null) result.tags.addAll(tags);
     return result;
   }
 
@@ -76,6 +78,7 @@ class Detail extends $pb.GeneratedMessage {
         packageName: const $pb.PackageName('miru'))
     ..pPM<Tracker>(11, _omitFieldNames ? '' : 'trackers',
         subBuilder: Tracker.create)
+    ..pPS(12, _omitFieldNames ? '' : 'tags')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -177,6 +180,9 @@ class Detail extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(11)
   $pb.PbList<Tracker> get trackers => $_getList(10);
+
+  @$pb.TagNumber(12)
+  $pb.PbList<$core.String> get tags => $_getList(11);
 }
 
 /// DB - Tracker

@@ -678,6 +678,7 @@ class ExtensionDetail extends $pb.GeneratedMessage {
     $core.String? desc,
     $core.Iterable<ExtensionEpisodeGroup>? episodes,
     $core.Iterable<$core.MapEntry<$core.String, $core.String>>? headers,
+    $core.Iterable<$core.String>? tags,
   }) {
     final result = create();
     if (title != null) result.title = title;
@@ -685,6 +686,7 @@ class ExtensionDetail extends $pb.GeneratedMessage {
     if (desc != null) result.desc = desc;
     if (episodes != null) result.episodes.addAll(episodes);
     if (headers != null) result.headers.addEntries(headers);
+    if (tags != null) result.tags.addAll(tags);
     return result;
   }
 
@@ -711,6 +713,7 @@ class ExtensionDetail extends $pb.GeneratedMessage {
         keyFieldType: $pb.PbFieldType.OS,
         valueFieldType: $pb.PbFieldType.OS,
         packageName: const $pb.PackageName('miru'))
+    ..pPS(6, _omitFieldNames ? '' : 'tags')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -764,6 +767,9 @@ class ExtensionDetail extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(5)
   $pb.PbMap<$core.String, $core.String> get headers => $_getMap(4);
+
+  @$pb.TagNumber(6)
+  $pb.PbList<$core.String> get tags => $_getList(5);
 }
 
 class ExtensionEpisodeGroup extends $pb.GeneratedMessage {

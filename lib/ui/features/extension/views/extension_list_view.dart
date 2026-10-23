@@ -109,6 +109,7 @@ class ExtensionListView extends HookConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const SizedBox(height: 6),
               SearchFieldRow(
                 field: searchField(
                   controller: searchController,

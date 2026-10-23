@@ -44,6 +44,7 @@ class ExtensionRepository {
       downloaded: const [],
       detailUrl: '',
       package: packageName,
+      tags: detail.tags,
     );
   }
 

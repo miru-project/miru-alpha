@@ -42,7 +42,7 @@ final class ExtensionViewModelProvider
 }
 
 String _$extensionViewModelHash() =>
-    r'3668a0d9c56b1cf7d57cac7b54d32e78ccfb18f4';
+    r'31218827eccc89d5d18519a61e87a0cfb4cd41fe';
 
 abstract class _$ExtensionViewModel
     extends $Notifier<DomainExtensionViewState> {

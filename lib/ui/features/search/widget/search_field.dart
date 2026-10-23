@@ -28,7 +28,11 @@ Widget searchField({
   onSubmit: onSubmit,
   prefixBuilder: (context, style, states) => Padding(
     padding: const EdgeInsets.only(left: 12, right: 8),
-    child: Icon(FLucideIcons.search, size: 17),
+    child: Icon(
+      FLucideIcons.search,
+      size: 17,
+      color: context.theme.colors.mutedForeground,
+    ),
   ),
 );
 

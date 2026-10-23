@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
+import 'package:miru_alpha/ui/core/widget/small_badge.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
@@ -119,17 +120,17 @@ class ExtensionListTile extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          _SmallBadge(label: type),
+                          SmallBadge(label: type),
                           if (needUpdate) ...[
                             const SizedBox(width: 4),
-                            _SmallBadge(
+                            SmallBadge(
                               label: 'common.update'.i18n,
                               variant: .outline,
                             ),
                           ],
                           if (isNSFW) ...[
                             const SizedBox(width: 4),
-                            _SmallBadge(
+                            SmallBadge(
                               label: 'extension.nsfw'.i18n,
                               variant: .destructive,
                             ),
@@ -219,35 +220,6 @@ class _ExtensionIcon extends StatelessWidget {
               )
             : cover,
       ),
-    );
-  }
-}
-
-/// The compact rectangular badge from the reference card: the 12px label
-/// step on a tightened padding instead of forui's touch padding.
-class _SmallBadge extends StatelessWidget {
-  const _SmallBadge({
-    required this.label,
-    this.variant = FBadgeVariant.secondary,
-  });
-
-  final String label;
-  final FBadgeVariant variant;
-
-  @override
-  Widget build(BuildContext context) {
-    return FBadge(
-      variant: variant,
-      style: .delta(
-        padding: EdgeInsetsGeometryDelta.value(
-          const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        ),
-        labelTextStyle: TextStyleDelta.delta(
-          fontSize: context.theme.typography.body.xs2.fontSize,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      child: Text(label),
     );
   }
 }

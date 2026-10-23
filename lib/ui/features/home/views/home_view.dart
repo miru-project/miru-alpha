@@ -1,26 +1,18 @@
-import 'package:material_ui/material_ui.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
-import 'package:miru_alpha/provider/home/home_view_model.dart';
+import 'package:miru_alpha/ui/core/scaffold/custom_silver_header.dart';
 import 'package:miru_alpha/ui/core/scaffold/miru_scaffold.dart';
+import 'package:miru_alpha/ui/core/scaffold/snapsheet_header.dart';
+import 'package:miru_alpha/ui/features/home/widget/continue_watch.dart';
+import 'package:miru_alpha/ui/features/home/widget/dashboard/home_dashboard_view.dart';
+import 'package:miru_alpha/ui/features/home/widget/dashboard/home_top_bar.dart';
+import 'package:miru_alpha/ui/features/home/widget/favorite.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
-import 'package:miru_alpha/ui/core/core/toast.dart';
-import 'package:miru_alpha/ui/features/home/widget/continue_watch.dart';
-import 'package:miru_alpha/ui/features/home/widget/favorite.dart';
-import 'package:miru_alpha/ui/features/home/widget/library_bento_cards.dart';
-import 'package:miru_alpha/ui/features/home/widget/library_categories.dart';
-import 'package:miru_alpha/ui/features/home/widget/library_quick_actions.dart';
-import 'package:miru_alpha/ui/features/home/widget/library_search_bar.dart';
-import 'package:miru_alpha/ui/features/download/download.dart';
-import 'package:miru_alpha/ui/features/favorite/views/favorite_view.dart';
-import 'package:miru_alpha/ui/features/history/views/history_view.dart';
-import 'package:miru_alpha/ui/core/scaffold/custom_silver_header.dart';
-import 'package:miru_alpha/ui/core/scaffold/snapsheet_header.dart';
-import 'package:miru_alpha/utils/hook/sheet_controller.dart';
 
 class HomeView extends ConsumerWidget {
   const HomeView({super.key, this.navigationShell});
@@ -30,84 +22,35 @@ class HomeView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return DeviceUtil.deviceWidget(
-      mobile: HomeViewMobile(navigationShell: navigationShell),
+      mobile: const HomeViewMobile(),
       desktop: const HomeViewDesktop(),
       context: context,
     );
   }
 }
 
-// Mobile implementation with tabbed shell
-class HomeViewMobile extends HookConsumerWidget {
-  const HomeViewMobile({super.key, this.navigationShell});
-
-  final StatefulNavigationShell? navigationShell;
+/// Mobile home: bento dashboard under a pinned brand bar, sharing one scroll
+/// context so the bar stays while the sections scroll beneath it.
+class HomeViewMobile extends ConsumerWidget {
+  const HomeViewMobile({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sheetController = useSheetController();
-    final tabController = useTabController(
-      initialLength: 4,
-      vsync: useSingleTickerProvider(),
-    );
-    final selectedTab = ref.watch(selectedHomeTabProvider);
-
-    useEffect(() {
-      tabController.addListener(() {
-        if (tabController.indexIsChanging) {
-          ref
-              .read(selectedHomeTabProvider.notifier)
-              .setIndex(tabController.index);
-        }
-      });
-      return null;
-    }, [tabController]);
-
     return MiruScaffold.mobile(
-      sheetController: sheetController,
-      snapSheet: const [],
+      // The dashboard sections own their 16px gutter (the mock's
+      // px-margin-mobile); forui's FScaffold child padding (12) stacked on
+      // top of it and pushed every element to x=28 — measured live. Opt out
+      // so the pinned top bar and all sections share the same 16px edge.
+      childPad: false,
       sliverHeaders: [
         StaticSliverHeaderDelegate(
-          maxExtent: 120,
-          child: HookBuilder(
-            builder: (context) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SnapSheetHeader(
-                    title: 'common.library'.i18n,
-                    suffix: [
-                      FButton.icon(
-                        variant: FButtonVariant.ghost,
-                        onPress: () {
-                          iconsMessageToast(
-                            title: 'common.web_dav_sync_wip'.i18n,
-                            icon: FLucideIcons.construction,
-                          );
-                        },
-                        child: const Icon(FLucideIcons.cloudSync),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: LibrarySearchBar(),
-                  ),
-                ],
-              );
-            },
-          ),
+          maxExtent: HomeTopBar.extent,
+          minExtent: HomeTopBar.extent,
+          child: const HomeTopBar(),
         ),
       ],
-      body: IndexedStack(
-        index: selectedTab,
-        children: const [
-          MobileLibraryPage(),
-          HistoryView(),
-          FavoriteView(),
-          MobileDownloadView(),
-        ],
-      ),
+      onRefresh: () => refreshDashboard(ref),
+      slivers: const [SliverToBoxAdapter(child: HomeDashboardView())],
     );
   }
 }
@@ -135,40 +78,6 @@ class HomeViewDesktop extends ConsumerWidget {
           Expanded(child: DesktopLibraryPage()),
         ],
       ),
-    );
-  }
-}
-
-// Mobile library page (reused from legacy)
-class MobileLibraryPage extends HookConsumerWidget {
-  const MobileLibraryPage({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final scrollController = useScrollController();
-    return CustomScrollView(
-      key: const PageStorageKey('LibraryPageScrollMobile'),
-      slivers: [
-        // Continue Watching
-        SliverToBoxAdapter(
-          child: ContinueWatchingSection(
-            scrollController: scrollController,
-            horizontalTitlePadding: 16,
-          ),
-        ),
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        // Bento cards (Favorites + Downloads)
-        const SliverToBoxAdapter(child: LibraryBentoCards()),
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        // Categories
-        const SliverToBoxAdapter(child: LibraryCategoryList()),
-        const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        // Quick Actions
-        const SliverToBoxAdapter(child: LibraryQuickActions()),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 200),
-        ), // Bottom padding for mobile
-      ],
     );
   }
 }

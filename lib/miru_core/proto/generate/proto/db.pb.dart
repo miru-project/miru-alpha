@@ -153,6 +153,7 @@ class UpsertDetailRequest extends $pb.GeneratedMessage {
     $core.String? episodes,
     $core.String? headers,
     $core.Iterable<$core.MapEntry<$core.String, $core.String>>? trackIds,
+    $core.Iterable<$core.String>? tags,
   }) {
     final result = create();
     if (title != null) result.title = title;
@@ -164,6 +165,7 @@ class UpsertDetailRequest extends $pb.GeneratedMessage {
     if (episodes != null) result.episodes = episodes;
     if (headers != null) result.headers = headers;
     if (trackIds != null) result.trackIds.addEntries(trackIds);
+    if (tags != null) result.tags.addAll(tags);
     return result;
   }
 
@@ -193,6 +195,7 @@ class UpsertDetailRequest extends $pb.GeneratedMessage {
         keyFieldType: $pb.PbFieldType.OS,
         valueFieldType: $pb.PbFieldType.OS,
         packageName: const $pb.PackageName('miru'))
+    ..pPS(10, _omitFieldNames ? '' : 'tags')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -282,6 +285,9 @@ class UpsertDetailRequest extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(9)
   $pb.PbMap<$core.String, $core.String> get trackIds => $_getMap(8);
+
+  @$pb.TagNumber(10)
+  $pb.PbList<$core.String> get tags => $_getList(9);
 }
 
 class UpsertDetailResponse extends $pb.GeneratedMessage {

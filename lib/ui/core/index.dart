@@ -13,6 +13,8 @@ export 'animted_icon/heart.dart';
 export 'animted_icon/home.dart';
 export 'animted_icon/settings_cog.dart';
 export 'core/image_widget.dart';
+export 'widget/small_badge.dart';
+export 'widget/miru_segmented_control.dart';
 export 'core/inner_card.dart';
 export 'core/miru_expandable_tabs.dart';
 export 'core/miru_tabs.dart';

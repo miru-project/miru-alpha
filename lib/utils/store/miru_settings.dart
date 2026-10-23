@@ -182,6 +182,31 @@ class MiruSettings {
     setSettingSync(SettingKey.recentExtensions, jsonEncode(next));
   }
 
+  /// Returns the genre tags the user starred from a detail page's category
+  /// chips, persisted as a JSON array under [SettingKey.favoriteTags].
+  static List<String> getFavoriteTags() {
+    final raw = _settingsCache[SettingKey.favoriteTags];
+    if (raw == null || raw.isEmpty) return const [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is List) {
+        return decoded.map((e) => e.toString()).toList();
+      }
+    } catch (_) {}
+    return const [];
+  }
+
+  /// Adds [tag] when absent, removes it when present — the category chip's
+  /// toggle — and persists the new list. Returns the list after the change.
+  static List<String> toggleFavoriteTag(String tag) {
+    final current = getFavoriteTags();
+    final next = current.contains(tag)
+        ? current.where((e) => e != tag).toList()
+        : [...current, tag];
+    setSettingSync(SettingKey.favoriteTags, jsonEncode(next));
+    return next;
+  }
+
   static T convertStringToObj<T>(String value) {
     final type = T;
 
@@ -340,4 +365,7 @@ class SettingKey {
   // JSON array of package names, newest first, capped at [recentExtensionsMax].
   static const recentExtensions = 'RecentExtensions';
   static const recentExtensionsMax = 6;
+  // Genre tags starred from a detail page's category chips, stored as a
+  // JSON array of tag names.
+  static const favoriteTags = 'FavoriteTags';
 }

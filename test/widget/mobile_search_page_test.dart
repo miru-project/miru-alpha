@@ -1419,10 +1419,13 @@ void main() {
       tester,
     ) async {
       // Enough sources that the list overflows a 900px surface, otherwise the
-      // page has nothing to scroll and the title has nothing to collapse from.
+      // page has nothing to scroll and the title has nothing to collapse
+      // from. The count matters: with fewer cards the max scroll leaves the
+      // section label a pixel inside the viewport once the sync footnote
+      // sliver was dropped from the landing page.
       await pumpSearch(
         tester,
-        metas: [for (var i = 0; i < 12; i++) _meta('p$i.pkg', 'Source $i')],
+        metas: [for (var i = 0; i < 14; i++) _meta('p$i.pkg', 'Source $i')],
       );
 
       // Only the pill row is pinned; label, badge and cards are body content.
@@ -1453,7 +1456,7 @@ void main() {
       // Scroll the cards: the big title gives way, the field and pills stay.
       await tester.drag(
         find.byType(CustomScrollView).first,
-        const Offset(0, -400),
+        const Offset(0, -600),
       );
       await tester.pumpAndSettle();
 
@@ -1473,17 +1476,14 @@ void main() {
   });
 
   group('source visibility and sync (mock)', () {
-    testWidgets('heading badge counts sources, footnote reports sync health', (
-      tester,
-    ) async {
+    testWidgets('heading badge counts sources', (tester) async {
       await pumpSearch(tester);
 
-      // The heading badge ("{count} Available") and the quiet footnote
-      // ("all synced") are the mock's two status surfaces. Raw keys: the
-      // widget harness loads no i18n.
+      // The heading badge ("{count} Available") is the mock's only status
+      // surface — the sync footnote was dropped in the badge-consolidation
+      // pass. Raw keys: the widget harness loads no i18n.
       expect(find.text('search.sources_available'), findsOneWidget);
-      expect(find.text('search.all_synced'), findsOneWidget);
-      expect(find.byIcon(FLucideIcons.circleCheck), findsOneWidget);
+      expect(find.text('search.all_synced'), findsNothing);
       expect(tester.takeException(), isNull);
     });
 

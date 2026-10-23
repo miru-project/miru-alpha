@@ -110,13 +110,6 @@ List<Widget> mobileSearchSourceSlivers(BuildContext context, WidgetRef ref) {
           );
         },
       ),
-    // Mock's status footnote: quiet when everything is healthy, a named
-    // failure list otherwise. Counts the whole visible pool — the list above
-    // may be narrowed by the pills, but sync health is page-wide.
-    if (state.visibleMetaData.isNotEmpty)
-      SliverToBoxAdapter(
-        child: _SyncedFootnote(sources: state.visibleMetaData),
-      ),
     const SliverToBoxAdapter(child: SizedBox(height: 32)),
   ];
 }
@@ -258,23 +251,18 @@ class _SourceCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      // Natural width: the badge must never ellipsise, so only
-                      // the name is allowed to shrink.
-                      FBadge(
-                        variant: .secondary,
-                        child: Text(
-                          searchExtensionTypeLabel(meta.type),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (meta.nsfw) ...[
-                        const SizedBox(width: 4),
-                        FBadge(
+                      // One badge max: when the extension is NSFW the red
+                      // badge carries the signal, and the type chip just
+                      // crowds the name out of its own row.
+                      if (!meta.nsfw)
+                        // Natural width: the badge must never ellipsise, so only
+                        // the name is allowed to shrink.
+                        SmallBadge(label: searchExtensionTypeLabel(meta.type))
+                      else
+                        SmallBadge(
+                          label: 'extension.nsfw'.i18n,
                           variant: .destructive,
-                          child: Text('extension.nsfw'.i18n),
                         ),
-                      ],
                     ],
                   ),
                   if (extensionLoadState(meta) case final state?) ...[
@@ -378,66 +366,6 @@ class _SourceCard extends StatelessWidget {
                 child: Icon(FLucideIcons.settings, size: 17),
               ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The mock's page-bottom status line: a quiet "all synced" when every
-/// source is healthy, the failing names (red) when any load failed.
-///
-/// Pure — the load states are read per build from [extensionLoadState]; the
-/// widget rebuilds with the page when metadata or load state changes.
-class _SyncedFootnote extends StatelessWidget {
-  const _SyncedFootnote({required this.sources});
-
-  final List<ExtensionMeta> sources;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.theme.colors;
-    final failed = [
-      for (final e in sources)
-        if (extensionLoadState(e)?.failed ?? false) e.name,
-    ];
-    final style = context.theme.typography.body.xs.copyWith(
-      color: failed.isEmpty ? colors.mutedForeground : colors.destructive,
-    );
-    return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 4),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 320),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                failed.isEmpty
-                    ? FLucideIcons.circleCheck
-                    : FLucideIcons.circleAlert,
-                size: 15,
-                color: style.color,
-              ),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  failed.isEmpty
-                      ? 'search.all_synced'.i18n.fill({
-                          'count': '${sources.length}',
-                        })
-                      : 'search.failed_sources'.i18n.fill({
-                          'names': failed.join(', '),
-                        }),
-                  style: style,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

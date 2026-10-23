@@ -139,12 +139,38 @@ class EpisodeNotifier extends _$EpisodeNotifier {
       if ((history.progress / history.totalProgress) >= 0.9) {
         if (trackers.isNotEmpty) {
           final newProgress = s.selectedEpisodeIndex + 1;
+          Future<void> syncLocalTracker(proto.Tracker tracker) async {
+            await MiruGrpcClient.dbClient.upsertTracker(
+              proto.UpsertTrackerRequest()
+                ..package = history.package
+                ..detailUrl = history.detailUrl
+                ..tracker = tracker,
+            );
+          }
+
           for (final t in trackers) {
             if (newProgress > t.progress) {
               if (t.provider.toLowerCase() == 'anilist') {
                 try {
                   final mediaId = int.tryParse(t.trackerId);
                   if (mediaId != null) {
+                    // The local tracker row can be stale (another device may
+                    // have advanced the list): ask AniList for the live
+                    // episode number and never push a smaller one over it.
+                    final onlineProgress =
+                        (await AniListProvider.getMediaList(
+                          mediaId,
+                        )).mediaListEntry?.progress ??
+                        0;
+                    if (newProgress <= onlineProgress) {
+                      // Online is already at or beyond this episode — heal
+                      // the stale local cache to it instead of updating.
+                      if (t.progress < onlineProgress) {
+                        t.progress = onlineProgress;
+                        await syncLocalTracker(t);
+                      }
+                      continue;
+                    }
                     await AniListProvider.editList(
                       mediaId: mediaId,
                       progress: newProgress,
@@ -152,12 +178,7 @@ class EpisodeNotifier extends _$EpisodeNotifier {
                     );
                     // Update local tracker
                     t.progress = newProgress;
-                    await MiruGrpcClient.dbClient.upsertTracker(
-                      proto.UpsertTrackerRequest()
-                        ..package = history.package
-                        ..detailUrl = history.detailUrl
-                        ..tracker = t,
-                    );
+                    await syncLocalTracker(t);
                   }
                 } catch (error, stack) {
                   logger.warning('Failed to update tracking', error, stack);

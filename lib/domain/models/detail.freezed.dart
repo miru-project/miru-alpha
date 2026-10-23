@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DomainDetail {
 
- int? get id; String get title; String? get cover; String? get desc; List<DomainEpisodeGroup>? get episodes; Map<String, String>? get headers; List<String> get downloaded; String get detailUrl; String get package;
+ int? get id; String get title; String? get cover; String? get desc; List<DomainEpisodeGroup>? get episodes; Map<String, String>? get headers; List<String> get downloaded; String get detailUrl; String get package; List<String> get tags;
 /// Create a copy of DomainDetail
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $DomainDetailCopyWith<DomainDetail> get copyWith => _$DomainDetailCopyWithImpl<D
 @override
 bool operator ==(Object other) {
   final _this = this as DomainDetail;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainDetail&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.cover, _this.cover) || other.cover == _this.cover)&&(identical(other.desc, _this.desc) || other.desc == _this.desc)&&const DeepCollectionEquality().equals(other.episodes, _this.episodes)&&const DeepCollectionEquality().equals(other.headers, _this.headers)&&const DeepCollectionEquality().equals(other.downloaded, _this.downloaded)&&(identical(other.detailUrl, _this.detailUrl) || other.detailUrl == _this.detailUrl)&&(identical(other.package, _this.package) || other.package == _this.package));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DomainDetail&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.cover, _this.cover) || other.cover == _this.cover)&&(identical(other.desc, _this.desc) || other.desc == _this.desc)&&const DeepCollectionEquality().equals(other.episodes, _this.episodes)&&const DeepCollectionEquality().equals(other.headers, _this.headers)&&const DeepCollectionEquality().equals(other.downloaded, _this.downloaded)&&(identical(other.detailUrl, _this.detailUrl) || other.detailUrl == _this.detailUrl)&&(identical(other.package, _this.package) || other.package == _this.package)&&const DeepCollectionEquality().equals(other.tags, _this.tags));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as DomainDetail;
-  return Object.hash(runtimeType,_this.id,_this.title,_this.cover,_this.desc,const DeepCollectionEquality().hash(_this.episodes),const DeepCollectionEquality().hash(_this.headers),const DeepCollectionEquality().hash(_this.downloaded),_this.detailUrl,_this.package);
+  return Object.hash(runtimeType,_this.id,_this.title,_this.cover,_this.desc,const DeepCollectionEquality().hash(_this.episodes),const DeepCollectionEquality().hash(_this.headers),const DeepCollectionEquality().hash(_this.downloaded),_this.detailUrl,_this.package,const DeepCollectionEquality().hash(_this.tags));
 }
 
 @override
 String toString() {
   final _this = this as DomainDetail;
-  return 'DomainDetail(id: ${_this.id}, title: ${_this.title}, cover: ${_this.cover}, desc: ${_this.desc}, episodes: ${_this.episodes}, headers: ${_this.headers}, downloaded: ${_this.downloaded}, detailUrl: ${_this.detailUrl}, package: ${_this.package})';
+  return 'DomainDetail(id: ${_this.id}, title: ${_this.title}, cover: ${_this.cover}, desc: ${_this.desc}, episodes: ${_this.episodes}, headers: ${_this.headers}, downloaded: ${_this.downloaded}, detailUrl: ${_this.detailUrl}, package: ${_this.package}, tags: ${_this.tags})';
 }
 
 
@@ -54,7 +54,7 @@ abstract mixin class $DomainDetailCopyWith<$Res>  {
   factory $DomainDetailCopyWith(DomainDetail value, $Res Function(DomainDetail) _then) = _$DomainDetailCopyWithImpl;
 @useResult
 $Res call({
- int? id, String title, String? cover, String? desc, List<DomainEpisodeGroup>? episodes, Map<String, String>? headers, List<String> downloaded, String detailUrl, String package
+ int? id, String title, String? cover, String? desc, List<DomainEpisodeGroup>? episodes, Map<String, String>? headers, List<String> downloaded, String detailUrl, String package, List<String> tags
 });
 
 
@@ -71,7 +71,7 @@ class _$DomainDetailCopyWithImpl<$Res>
 
 /// Create a copy of DomainDetail
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? cover = freezed,Object? desc = freezed,Object? episodes = freezed,Object? headers = freezed,Object? downloaded = null,Object? detailUrl = null,Object? package = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? cover = freezed,Object? desc = freezed,Object? episodes = freezed,Object? headers = freezed,Object? downloaded = null,Object? detailUrl = null,Object? package = null,Object? tags = null,}) {
   return _then(DomainDetail(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -82,7 +82,8 @@ as List<DomainEpisodeGroup>?,headers: freezed == headers ? _self.headers : heade
 as Map<String, String>?,downloaded: null == downloaded ? _self.downloaded : downloaded // ignore: cast_nullable_to_non_nullable
 as List<String>,detailUrl: null == detailUrl ? _self.detailUrl : detailUrl // ignore: cast_nullable_to_non_nullable
 as String,package: null == package ? _self.package : package // ignore: cast_nullable_to_non_nullable
-as String,
+as String,tags: null == tags ? _self.tags : tags // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 
@@ -167,10 +168,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String title,  String? cover,  String? desc,  List<DomainEpisodeGroup>? episodes,  Map<String, String>? headers,  List<String> downloaded,  String detailUrl,  String package)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int? id,  String title,  String? cover,  String? desc,  List<DomainEpisodeGroup>? episodes,  Map<String, String>? headers,  List<String> downloaded,  String detailUrl,  String package,  List<String> tags)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DomainDetail() when $default != null:
-return $default(_that.id,_that.title,_that.cover,_that.desc,_that.episodes,_that.headers,_that.downloaded,_that.detailUrl,_that.package);case _:
+return $default(_that.id,_that.title,_that.cover,_that.desc,_that.episodes,_that.headers,_that.downloaded,_that.detailUrl,_that.package,_that.tags);case _:
   return orElse();
 
 }
@@ -188,10 +189,10 @@ return $default(_that.id,_that.title,_that.cover,_that.desc,_that.episodes,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String title,  String? cover,  String? desc,  List<DomainEpisodeGroup>? episodes,  Map<String, String>? headers,  List<String> downloaded,  String detailUrl,  String package)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int? id,  String title,  String? cover,  String? desc,  List<DomainEpisodeGroup>? episodes,  Map<String, String>? headers,  List<String> downloaded,  String detailUrl,  String package,  List<String> tags)  $default,) {final _that = this;
 switch (_that) {
 case _DomainDetail():
-return $default(_that.id,_that.title,_that.cover,_that.desc,_that.episodes,_that.headers,_that.downloaded,_that.detailUrl,_that.package);case _:
+return $default(_that.id,_that.title,_that.cover,_that.desc,_that.episodes,_that.headers,_that.downloaded,_that.detailUrl,_that.package,_that.tags);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -208,10 +209,10 @@ return $default(_that.id,_that.title,_that.cover,_that.desc,_that.episodes,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String title,  String? cover,  String? desc,  List<DomainEpisodeGroup>? episodes,  Map<String, String>? headers,  List<String> downloaded,  String detailUrl,  String package)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int? id,  String title,  String? cover,  String? desc,  List<DomainEpisodeGroup>? episodes,  Map<String, String>? headers,  List<String> downloaded,  String detailUrl,  String package,  List<String> tags)?  $default,) {final _that = this;
 switch (_that) {
 case _DomainDetail() when $default != null:
-return $default(_that.id,_that.title,_that.cover,_that.desc,_that.episodes,_that.headers,_that.downloaded,_that.detailUrl,_that.package);case _:
+return $default(_that.id,_that.title,_that.cover,_that.desc,_that.episodes,_that.headers,_that.downloaded,_that.detailUrl,_that.package,_that.tags);case _:
   return null;
 
 }
@@ -223,7 +224,7 @@ return $default(_that.id,_that.title,_that.cover,_that.desc,_that.episodes,_that
 @JsonSerializable()
 
 class _DomainDetail implements DomainDetail {
-  const _DomainDetail({this.id, required this.title, this.cover, this.desc,  List<DomainEpisodeGroup>? episodes,  Map<String, String>? headers,  List<String> downloaded = const [], required this.detailUrl, required this.package}): _episodes = episodes,_headers = headers,_downloaded = downloaded;
+  const _DomainDetail({this.id, required this.title, this.cover, this.desc,  List<DomainEpisodeGroup>? episodes,  Map<String, String>? headers,  List<String> downloaded = const [], required this.detailUrl, required this.package,  List<String> tags = const []}): _episodes = episodes,_headers = headers,_downloaded = downloaded,_tags = tags;
   factory _DomainDetail.fromJson(Map<String, dynamic> json) => _$DomainDetailFromJson(json);
 
 @override final  int? id;
@@ -257,6 +258,13 @@ class _DomainDetail implements DomainDetail {
 
 @override final  String detailUrl;
 @override final  String package;
+ final  List<String> _tags;
+@override@JsonKey() List<String> get tags {
+  if (_tags is EqualUnmodifiableListView) return _tags;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_tags);
+}
+
 
 /// Create a copy of DomainDetail
 /// with the given fields replaced by the non-null parameter values.
@@ -271,18 +279,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainDetail&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.desc, desc) || other.desc == desc)&&const DeepCollectionEquality().equals(other.episodes, _episodes)&&const DeepCollectionEquality().equals(other.headers, _headers)&&const DeepCollectionEquality().equals(other.downloaded, _downloaded)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.package, package) || other.package == package));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DomainDetail&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.cover, cover) || other.cover == cover)&&(identical(other.desc, desc) || other.desc == desc)&&const DeepCollectionEquality().equals(other.episodes, _episodes)&&const DeepCollectionEquality().equals(other.headers, _headers)&&const DeepCollectionEquality().equals(other.downloaded, _downloaded)&&(identical(other.detailUrl, detailUrl) || other.detailUrl == detailUrl)&&(identical(other.package, package) || other.package == package)&&const DeepCollectionEquality().equals(other.tags, _tags));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,title,cover,desc,const DeepCollectionEquality().hash(_episodes),const DeepCollectionEquality().hash(_headers),const DeepCollectionEquality().hash(_downloaded),detailUrl,package);
+    return Object.hash(runtimeType,id,title,cover,desc,const DeepCollectionEquality().hash(_episodes),const DeepCollectionEquality().hash(_headers),const DeepCollectionEquality().hash(_downloaded),detailUrl,package,const DeepCollectionEquality().hash(_tags));
 }
 
 @override
 String toString() {
-    return 'DomainDetail(id: $id, title: $title, cover: $cover, desc: $desc, episodes: $episodes, headers: $headers, downloaded: $downloaded, detailUrl: $detailUrl, package: $package)';
+    return 'DomainDetail(id: $id, title: $title, cover: $cover, desc: $desc, episodes: $episodes, headers: $headers, downloaded: $downloaded, detailUrl: $detailUrl, package: $package, tags: $tags)';
 }
 
 
@@ -293,7 +301,7 @@ abstract mixin class _$DomainDetailCopyWith<$Res> implements $DomainDetailCopyWi
   factory _$DomainDetailCopyWith(_DomainDetail value, $Res Function(_DomainDetail) _then) = __$DomainDetailCopyWithImpl;
 @override @useResult
 $Res call({
- int? id, String title, String? cover, String? desc, List<DomainEpisodeGroup>? episodes, Map<String, String>? headers, List<String> downloaded, String detailUrl, String package
+ int? id, String title, String? cover, String? desc, List<DomainEpisodeGroup>? episodes, Map<String, String>? headers, List<String> downloaded, String detailUrl, String package, List<String> tags
 });
 
 
@@ -310,7 +318,7 @@ class __$DomainDetailCopyWithImpl<$Res>
 
 /// Create a copy of DomainDetail
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? cover = freezed,Object? desc = freezed,Object? episodes = freezed,Object? headers = freezed,Object? downloaded = null,Object? detailUrl = null,Object? package = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? cover = freezed,Object? desc = freezed,Object? episodes = freezed,Object? headers = freezed,Object? downloaded = null,Object? detailUrl = null,Object? package = null,Object? tags = null,}) {
   return _then(_DomainDetail(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -321,7 +329,8 @@ as List<DomainEpisodeGroup>?,headers: freezed == headers ? _self._headers : head
 as Map<String, String>?,downloaded: null == downloaded ? _self._downloaded : downloaded // ignore: cast_nullable_to_non_nullable
 as List<String>,detailUrl: null == detailUrl ? _self.detailUrl : detailUrl // ignore: cast_nullable_to_non_nullable
 as String,package: null == package ? _self.package : package // ignore: cast_nullable_to_non_nullable
-as String,
+as String,tags: null == tags ? _self._tags : tags // ignore: cast_nullable_to_non_nullable
+as List<String>,
   ));
 }
 

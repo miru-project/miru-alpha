@@ -8,7 +8,7 @@ import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/features/favorite/widget/desktop_favorite_search_bar.dart';
-import 'package:miru_alpha/ui/features/favorite/widget/favorite_group_dialog.dart';
+import 'package:miru_alpha/ui/features/favorite/widget/favorite_group_sheet.dart';
 import 'package:miru_alpha/ui/features/history_favorite/shared/list_helpers.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
@@ -66,11 +66,7 @@ class _FavoriteViewState extends ConsumerState<FavoriteView> {
 
   Future<void> _manageGroups(BuildContext context) async {
     if (!context.mounted) return;
-    await showMiruDialog<void>(
-      context: context,
-      builder: (ctx, style, animation) =>
-          FavoriteGroupDialog(context: ctx, style: style, animation: animation),
-    );
+    await showFavoriteGroupSheet(context);
   }
 
   Widget _buildTile(BuildContext context, Favorite favorite) {

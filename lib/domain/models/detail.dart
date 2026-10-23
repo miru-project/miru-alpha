@@ -17,6 +17,7 @@ abstract class DomainDetail with _$DomainDetail {
     @Default([]) List<String> downloaded,
     required String detailUrl,
     required String package,
+    @Default([]) List<String> tags,
   }) = _DomainDetail;
 
   factory DomainDetail.fromJson(Map<String, dynamic> json) =>
@@ -41,6 +42,7 @@ abstract class DomainDetail with _$DomainDetail {
       downloaded: downloaded,
       detailUrl: detailUrl,
       package: package,
+      tags: extensionDetail.tags.toList(),
     );
   }
 }

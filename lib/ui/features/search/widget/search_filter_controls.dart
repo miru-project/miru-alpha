@@ -31,16 +31,16 @@ class SearchSectionHeader extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        // Compound trailers (badge + action) can exceed the remaining width in
-        // long locales; scale them as one unit instead of overflowing.
-        if (trailing != null)
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerRight,
-              child: trailing,
-            ),
-          ),
+        // Non-flex trailing AFTER the Expanded title: the title absorbs all
+        // slack, so the trailing is pinned to the row's right edge. The old
+        // Flexible(child: FittedBox(...)) made the trailing a second flex
+        // child — Expanded and Flexible split the leftover width 1:1 — so a
+        // natural-width badge was laid out at the row's midpoint (and the
+        // FittedBox alignment never applied under loose constraints).
+        if (trailing != null) ...[
+          const SizedBox(width: 8),
+          FittedBox(fit: BoxFit.scaleDown, child: trailing!),
+        ],
       ],
     );
   }

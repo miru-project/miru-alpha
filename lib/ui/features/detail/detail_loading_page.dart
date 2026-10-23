@@ -13,7 +13,6 @@ import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
-import 'package:smooth_sheets/smooth_sheets.dart';
 import 'package:miru_alpha/ui/features/detail/widget/detail_loading_skeleton.dart';
 import './widget/index.dart';
 import './detail_refresh.dart';
@@ -58,6 +57,18 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
   /// scroll.
   final ValueNotifier<double> _scrollNotifier = ValueNotifier(0.0);
 
+  /// Title known before the detail fetch resolves: the tapped result's
+  /// title, falling back to the extension name.
+  String get _partialTitle {
+    final it = widget.items;
+    if (it != null && widget.index >= 0 && widget.index < it.length) {
+      return it[widget.index].title.isNotEmpty
+          ? it[widget.index].title
+          : widget.meta.name;
+    }
+    return widget.meta.name;
+  }
+
   @override
   void dispose() {
     _scrollNotifier.dispose();
@@ -73,20 +84,8 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
     final favorite = ref.watch(detailPr.select((value) => value.favorite));
     return detial.when(
       data: (detial) => MiruScaffold.mobile(
+        childPad: false,
         onScrollChange: (offset, progress) => _scrollNotifier.value = offset,
-        snappingOffsets: const [
-          AbsoluteSheetOffset(150),
-          ProportionalToViewportSheetOffset(0.5),
-          ProportionalToViewportSheetOffset(1.0),
-        ],
-        snapSheet: [
-          MobileDetailTabs(
-            detail: detial,
-            meta: widget.meta,
-            detailUrl: widget.detailUrl,
-            detailPr: detailPr,
-          ),
-        ],
         sliverHeaders: [
           CustomSliverHeaderDelegate(
             maxExtent: 50,
@@ -94,117 +93,147 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
             scrollPosition: _scrollNotifier,
             builder: (context, offset, progress) {
               final titleVisible = offset > 285;
-              return Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                        right: 12.0,
-                        top: 4,
-                        left: 10,
-                      ),
-                      child: Icon(
-                        FLucideIcons.chevronLeft,
-                        size: 28,
-                        color: context.theme.colors.primary,
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                curve: Curves.easeInOut,
+                decoration: BoxDecoration(
+                  color: titleVisible
+                      ? context.theme.colors.background
+                      : Colors.transparent,
+                  border: titleVisible
+                      ? Border(
+                          bottom: BorderSide(
+                            color: context.theme.colors.border.withValues(
+                              alpha: 0.6,
+                            ),
+                            width: 0.5,
+                          ),
+                        )
+                      : null,
+                ),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          right: 12.0,
+                          top: 4,
+                          left: 10,
+                        ),
+                        child: Icon(
+                          FLucideIcons.chevronLeft,
+                          size: 28,
+                          color: context.theme.colors.primary,
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: AnimatedOpacity(
-                      opacity: titleVisible ? 1.0 : 0.0,
-                      duration: const Duration(milliseconds: 150),
-                      curve: Curves.easeInOut,
-                      child: AnimatedSlide(
-                        offset: titleVisible
-                            ? Offset.zero
-                            : const Offset(0, -0.3),
-                        duration: const Duration(milliseconds: 150),
-                        curve: Curves.easeInOut,
-                        child: Column(
-                          crossAxisAlignment: .start,
-                          children: [
-                            Text(
-                              detial.title,
-                              maxLines: 1,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: Color.alphaBlend(
-                                  context.theme.colors.primary.withAlpha(
-                                    128,
-                                  ), // Foreground
-                                  context.theme.colors.foreground, // Background
+                    Expanded(
+                      child: IgnorePointer(
+                        ignoring: !titleVisible,
+                        child: AnimatedOpacity(
+                          opacity: titleVisible ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 150),
+                          curve: Curves.easeInOut,
+                          child: AnimatedSlide(
+                            offset: titleVisible
+                                ? Offset.zero
+                                : const Offset(0, -0.3),
+                            duration: const Duration(milliseconds: 150),
+                            curve: Curves.easeInOut,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  detial.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: context.theme.colors.foreground,
+                                  ),
+                                  softWrap: false,
                                 ),
-                              ),
-                              // Let the title fill the full width of the Expanded
-                              // and wrap onto multiple lines instead of being
-                              // clamped to a single ellipsized line.
-                              softWrap: true,
+                                Text(
+                                  widget.meta.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 11,
+                                    color: context.theme.colors.mutedForeground,
+                                  ),
+                                  softWrap: false,
+                                ),
+                              ],
                             ),
-                            Text(
-                              widget.meta.name,
-                              maxLines: 1,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11,
-                                color: context.theme.colors.mutedForeground,
-                              ),
-                              // Let the title fill the full width of the Expanded
-                              // and wrap onto multiple lines instead of being
-                              // clamped to a single ellipsized line.
-                              softWrap: true,
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  FButton.icon(
-                    variant: .ghost,
-                    onPress: () {
-                      context.push(
-                        '/mobileWebView',
-                        extra: WebviewParam(
-                          meta: widget.meta,
-                          url: widget.detailUrl,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: FButton.icon(
+                          variant: .ghost,
+                          onPress: () {
+                            context.push(
+                              '/mobileWebView',
+                              extra: WebviewParam(
+                                meta: widget.meta,
+                                url: widget.detailUrl,
+                              ),
+                            );
+                          },
+                          child: Icon(
+                            FLucideIcons.globe,
+                            size: 20,
+                            color: context.theme.colors.primary,
+                          ),
                         ),
-                      );
-                    },
-                    child: Icon(
-                      FLucideIcons.globe,
-                      size: 24,
-                      color: context.theme.colors.primary,
+                      ),
                     ),
-                  ),
-                  FButton.icon(
-                    variant: .ghost,
-                    onPress: () {
-                      if (favorite != null) {
-                        ref.read(detailPr.notifier).removeFavorite(favorite);
-                        return;
-                      }
-                      showDialog(
-                        context: context,
-                        builder: (context) => FavoriteDialog(
-                          meta: widget.meta,
-                          detailUrl: widget.detailUrl,
-                          detail: detial,
-                          detailPr: detailPr,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: FButton.icon(
+                          variant: .ghost,
+                          onPress: () {
+                            if (favorite != null) {
+                              ref
+                                  .read(detailPr.notifier)
+                                  .removeFavorite(favorite);
+                              return;
+                            }
+                            showDialog(
+                              context: context,
+                              builder: (context) => FavoriteDialog(
+                                meta: widget.meta,
+                                detailUrl: widget.detailUrl,
+                                detail: detial,
+                                detailPr: detailPr,
+                              ),
+                            );
+                          },
+                          child: HeartButton(
+                            size: 20,
+                            activeColor: context.theme.colors.primary,
+                            inactiveColor: context.theme.colors.primary,
+                            isLiked: favorite != null,
+                          ),
                         ),
-                      );
-                    },
-                    child: HeartButton(
-                      size: 24,
-                      activeColor: context.theme.colors.primary,
-                      inactiveColor: context.theme.colors.primary,
-                      isLiked: favorite != null,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),
@@ -234,6 +263,68 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
       loading: () => DeviceUtil.device(
         context: context,
         mobile: MiruScaffold.mobile(
+          // Static chrome for the load: back so a slow fetch isn't a dead
+          // end, the partial title the tapped card already knows, and the
+          // webview shortcut. Favorite is omitted — its dialog needs the
+          // loaded [Detail].
+          sliverHeaders: [
+            CustomSliverHeaderDelegate(
+              maxExtent: 50,
+              minExtent: 50,
+              builder: (context, offset, progress) {
+                return Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          right: 12.0,
+                          top: 4,
+                          left: 10,
+                        ),
+                        child: Icon(
+                          FLucideIcons.chevronLeft,
+                          size: 28,
+                          color: context.theme.colors.primary,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        _partialTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: context.theme.colors.primary,
+                        ),
+                      ),
+                    ),
+                    FButton.icon(
+                      variant: .ghost,
+                      onPress: () {
+                        context.push(
+                          '/mobileWebView',
+                          extra: WebviewParam(
+                            meta: widget.meta,
+                            url: widget.detailUrl,
+                          ),
+                        );
+                      },
+                      child: Icon(
+                        FLucideIcons.globe,
+                        size: 24,
+                        color: context.theme.colors.primary,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
           desktopBody: DesktopDetailSkeletonContent(
             meta: widget.meta,
             items: widget.items,

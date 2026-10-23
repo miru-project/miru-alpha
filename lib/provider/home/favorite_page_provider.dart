@@ -174,7 +174,11 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
 
   /// Toggle the AND/OR filtering mode for selected favorite groups.
   void setFilterMode(FavoriteFilterMode mode) {
+    // The state field is what the UI watches — writing only the cache left
+    // the segmented control stuck on the default mode (UX-review: "make
+    // sure the buttons are function").
     cacheFilterMode = mode;
+    state = state.copyWith(filterMode: mode);
     filterFavoriteGroups(state.selectedFavoriteGroups);
   }
 
@@ -192,24 +196,41 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
   //  At mobile home favorite page
   void filterFavoriteGroups(List<FavoriteGroup> favGroups) {
     cacheFavGroup = favGroups;
-    if (favGroups.isEmpty) {
-      state = state.copyWith(
-        filteredFavorites: state.favorites,
-        selectedFavoriteGroups: [],
-      );
-      return;
-    }
-    final favGroup = state.favoriteGroups
-        .where((e) => favGroups.contains(e))
-        .toList();
-
-    final favs = cacheFilterMode == FavoriteFilterMode.and
-        ? _intersectFavorites(favGroup)
-        : favGroup.expand((e) => e.favorites).toList();
     state = state.copyWith(
-      filteredFavorites: favs,
+      filteredFavorites: favoritesInGroups(favGroups),
       selectedFavoriteGroups: favGroups,
     );
+  }
+
+  /// Group-scoped favorites: the union (OR mode) or intersection (AND mode)
+  /// of the given groups' favorites; every favorite when [favGroups] is
+  /// empty. Shared by the favorites-page filter, the dashboard's Dynamic
+  /// Feed, the tag strip and the manager sheet so all four read ONE
+  /// selection.
+  List<Favorite> favoritesInGroups(List<FavoriteGroup> favGroups) {
+    if (favGroups.isEmpty) return state.favorites;
+    // Match by name: the database keys groups by name, and a captured
+    // [FavoriteGroup] object breaks equality after a favorites refresh.
+    final favGroup = state.favoriteGroups
+        .where((e) => favGroups.any((g) => g.name == e.name))
+        .toList();
+    return cacheFilterMode == FavoriteFilterMode.and
+        ? _intersectFavorites(favGroup)
+        : favGroup.expand((e) => e.favorites).toList();
+  }
+
+  /// Toggles a group in the selection BY NAME. The dashboard's tag strip and
+  /// the manager sheet both call this, so the two surfaces cannot disagree
+  /// about which groups the feed filters by.
+  void toggleGroupName(String name) {
+    final isSelected = state.selectedFavoriteGroups.any((g) => g.name == name);
+    final next = isSelected
+        ? state.selectedFavoriteGroups.where((g) => g.name != name).toList()
+        : [
+            ...state.selectedFavoriteGroups,
+            ...state.favoriteGroups.where((g) => g.name == name),
+          ];
+    filterFavoriteGroups(next);
   }
 
   List<Favorite> _intersectFavorites(List<FavoriteGroup> groups) {

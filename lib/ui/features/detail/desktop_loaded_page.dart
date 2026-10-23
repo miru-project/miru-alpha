@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:miru_alpha/ui/core/widget/app_svgs.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
@@ -103,14 +103,9 @@ class DesktopLoadedPage extends HookConsumerWidget {
                             ),
                             children: [
                               FTile(
-                                prefix: SvgPicture.asset(
-                                  'assets/svg/anilist.svg',
-                                  width: 24,
-                                  height: 24,
-                                  colorFilter: .mode(
-                                    context.theme.colors.foreground,
-                                    .srcIn,
-                                  ),
+                                prefix: anilistLogo(
+                                  size: 24,
+                                  color: context.theme.colors.foreground,
                                 ),
                                 title: Text('tracking.anilist.name'.i18n),
                                 suffix: Text(

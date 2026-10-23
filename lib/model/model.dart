@@ -247,6 +247,7 @@ class Detail {
   final List<String> downloaded;
   final String detailUrl;
   final String package;
+  final List<String>? tags;
 
   Detail({
     this.id,
@@ -258,6 +259,7 @@ class Detail {
     this.downloaded = const [],
     required this.detailUrl,
     required this.package,
+    this.tags,
   });
 
   factory Detail.fromJson(Map<String, dynamic> json) {
@@ -281,6 +283,7 @@ class Detail {
           const [],
       detailUrl: json['detailUrl'] as String,
       package: json['package'] as String,
+      tags: (json['tags'] as List?)?.map((e) => e.toString()).toList(),
     );
   }
 
@@ -295,6 +298,7 @@ class Detail {
       'downloaded': downloaded,
       'detailUrl': detailUrl,
       'package': package,
+      'tags': tags,
     };
   }
 
@@ -315,6 +319,7 @@ class Detail {
       downloaded: downloaded,
       detailUrl: detailUrl,
       package: package,
+      tags: extensionDetail.tags,
     );
   }
 }

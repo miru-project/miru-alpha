@@ -13,6 +13,7 @@ import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dar
     as pb_extension;
 import 'package:miru_alpha/provider/download_provider.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
+import 'package:miru_alpha/utils/core/episode_label.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/core/miru_directory.dart';
@@ -25,6 +26,7 @@ class MobileDetailTile extends ConsumerWidget {
     super.key,
     required this.item,
     required this.idx,
+    required this.position,
     required this.selectedGpIndex,
     required this.detail,
     required this.meta,
@@ -36,6 +38,10 @@ class MobileDetailTile extends ConsumerWidget {
 
   final ExtensionEpisode item;
   final int idx;
+
+  /// 1-based ordinal of [item] within its group, independent of the visual
+  /// (possibly reversed) tile order — used for the number badge.
+  final int position;
   final int selectedGpIndex;
   final Detail detail;
   final ExtensionMeta meta;
@@ -60,7 +66,43 @@ class MobileDetailTile extends ConsumerWidget {
       }),
     );
 
+    final h = history;
+    final finished =
+        h != null && h.totalProgress > 0 && h.progress >= h.totalProgress;
+    final partial = h != null && !finished && h.progress > 0;
+    final frac = h != null && h.totalProgress > 0
+        ? (h.progress / h.totalProgress).clamp(0.0, 1.0)
+        : 0.0;
+
     return FTile(
+      // Compact rows: the default 14.5px content padding stacked on the
+      // 44px touch-floor of the suffix download button made every tile
+      // ~73px tall. 8px vertical keeps the list dense while the full-row
+      // tap target and the 44px button stay intact.
+      style: .delta(
+        contentStyle: .delta(
+          suffixedPadding: EdgeInsetsGeometryDelta.value(
+            const EdgeInsets.fromLTRB(15, 8, 13, 8),
+          ),
+          titleSpacing: 2,
+        ),
+      ),
+      prefix: SizedBox(
+        width: 24,
+        // Plain bold ordinal (the reference drops the bordered box) —
+        // "01 | Asa and Yuru"; the watching state is carried by the
+        // title badge and the progress bar instead.
+        child: Text(
+          position.toString().padLeft(2, '0'),
+          textAlign: TextAlign.center,
+          style: context.theme.typography.body.sm.copyWith(
+            fontWeight: FontWeight.w700,
+            color: partial
+                ? context.theme.colors.primary
+                : context.theme.colors.mutedForeground,
+          ),
+        ),
+      ),
       suffix: FTappableGroup.isolate(
         child: FButton.icon(
           variant: .ghost,
@@ -74,14 +116,42 @@ class MobileDetailTile extends ConsumerWidget {
                   child: FCircularProgress(),
                 )
               : isDownloaded
-              ? Icon(
-                  FLucideIcons.folderCheck,
-                  color: context.theme.colors.primary,
-                )
+              ? Icon(FLucideIcons.circleCheck, color: const Color(0xFF34D399))
               : Icon(FLucideIcons.arrowDownToLine),
         ),
       ),
-      title: Text(item.name),
+      title: Row(
+        children: [
+          Flexible(
+            child: Text(
+              // The prefix box already carries the number, so the raw
+              // "Episode N - " prefix is stripped ("01 | Asa and Yuru").
+              stripEpisodePrefix(item.name),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (partial) ...[
+            const SizedBox(width: 6),
+            FBadge(
+              variant: .primary,
+              style: .delta(
+                padding: EdgeInsetsGeometryDelta.value(
+                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                ),
+              ),
+              child: Text(
+                'media.watching'.i18n,
+                style: context.theme.typography.body.xs2.copyWith(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                  color: context.theme.colors.primaryForeground,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
       onPress: () {
         final donwloadList = ref.watch(
           detailPr.select((value) => value.downloadList),
@@ -110,23 +180,54 @@ class MobileDetailTile extends ConsumerWidget {
           ),
         );
       },
-      subtitle:
-          (history == null && item.update.isEmpty && downloadProgress == null)
+      subtitle: (h == null && item.update.isEmpty && downloadProgress == null)
           ? SizedBox.shrink()
-          : Row(
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                if (item.update.isNotEmpty) ...[
-                  Text(_dateFormatter(DateTime.tryParse(item.update))),
-                  Text(' • '),
-                ],
-                if (history != null) ...[
-                  Text(_progressIndicator(history!)),
-                  Text(' • '),
-                ],
-                if (downloadProgress != null)
-                  Text(
-                    "${downloadProgress.status.name} - ${(downloadProgress.progress / (downloadProgress.total == 0 ? 1 : downloadProgress.total) * 100).toStringAsFixed(1)}%",
+                if (h != null && h.totalProgress > 0) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(2),
+                    child: SizedBox(
+                      height: 4,
+                      width: double.infinity,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: context.theme.colors.muted,
+                        ),
+                        child: FractionallySizedBox(
+                          alignment: Alignment.centerLeft,
+                          widthFactor: finished ? 1.0 : frac,
+                          child: ColoredBox(
+                            // Micro-state fill: green once the episode is fully
+                            // watched, cyan while it is still in progress.
+                            color: finished
+                                ? const Color(0xFF22C55E)
+                                : const Color(0xFF22D3EE),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
+                  const SizedBox(height: 4),
+                ],
+                Row(
+                  children: [
+                    if (item.update.isNotEmpty) ...[
+                      Text(_dateFormatter(DateTime.tryParse(item.update))),
+                      Text(' • '),
+                    ],
+                    if (h != null) ...[
+                      Text(_progressIndicator(h)),
+                      Text(' • '),
+                    ],
+                    if (downloadProgress != null)
+                      Text(
+                        "${downloadProgress.status.name} - ${(downloadProgress.progress / (downloadProgress.total == 0 ? 1 : downloadProgress.total) * 100).toStringAsFixed(1)}%",
+                      ),
+                  ],
+                ),
               ],
             ),
     );
