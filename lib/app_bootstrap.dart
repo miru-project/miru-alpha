@@ -1,0 +1,285 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:code_forge/code_forge.dart';
+import 'package:flutter/foundation.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:forui/forui.dart';
+import 'package:fvp/fvp.dart';
+import 'package:macos_window_utils/macos/ns_window_button_type.dart';
+import 'package:macos_window_utils/window_manipulator.dart';
+import 'package:miru_alpha/miru_core/core.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/utils/theme/miru_themes.dart';
+import 'package:miru_alpha/miru_core/event_service.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/core/miru_directory.dart';
+import 'package:miru_alpha/utils/download/ffmpeg_util.dart';
+import 'package:miru_alpha/utils/http/request.dart';
+import 'package:miru_alpha/utils/router/router_util.dart';
+import 'package:miru_alpha/ui/core/core/toast.dart';
+import 'package:miru_alpha/ui/core/error.dart';
+import 'package:volume_controller/volume_controller.dart';
+import 'package:window_manager/window_manager.dart';
+
+/// Runs the whole app: widget-binding init, window setup, core services and
+/// the router.
+///
+/// The widget binding is INJECTED via [ensureBinding] so this file carries no
+/// marionette imports: the release entry (`lib/main.dart`) passes
+/// `WidgetsFlutterBinding.ensureInitialized`, and the debug-only entry
+/// (`lib/main_debug.dart`, the only file allowed to import
+/// `marionette_flutter`/`marionette_logging`) passes the marionette binding.
+/// That keeps both packages out of the release compile graph entirely —
+/// a `if (kDebugMode)` conditional import does NOT do this: only
+/// `dart.library.*` conditions are honoured, everything else resolves to the
+/// default branch, so the previous self-referencing conditional imported the
+/// real packages into every build.
+Future<void> runMiruApp({required void Function() ensureBinding}) async {
+  runZonedGuarded<void>(
+    () async {
+      ensureBinding();
+      await MiruDirectory.ensureInitialized();
+      MiruLog.ensureInitialized();
+
+      bool errPrint(
+        Object error,
+        StackTrace stack, [
+        String source = 'platform-dispatcher',
+      ]) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showSimpleToast(error.toString());
+        });
+        MiruLog.recordCrash(error, stack, source: source);
+        logger.severe('Uncaught error [$source]: $error');
+        logger.severe(stack.toString());
+        return false;
+      }
+
+      Widget errFunc(FlutterErrorDetails details) {
+        errPrint(
+          details.exception,
+          details.stack ?? StackTrace.empty,
+          'flutter-error',
+        );
+        return ErrorDisplay(
+          err: details.exception,
+          stack: details.stack ?? StackTrace.current,
+        );
+      }
+
+      void bindErrorWidget() {
+        if (kDebugMode) return;
+        ErrorWidget.builder = errFunc;
+        FlutterError.onError = errFunc;
+        PlatformDispatcher.instance.onError = errPrint;
+      }
+
+      bindErrorWidget();
+      if (!(Platform.isAndroid || Platform.isIOS || kIsWeb)) {
+        await windowManager.ensureInitialized();
+        WindowOptions windowOptions = WindowOptions(
+          // Debug launches start phone-sized (412x915) so every run in the
+          // agent loop lands on the mobile scaffold without external
+          // window-manager scripting; the window stays freely resizable, so
+          // the desktop layout is still one drag away (breakpoint-driven:
+          // forui `sm` 640 / `lg` 1024). Release keeps the desktop default.
+          size: kDebugMode ? const Size(412, 915) : const Size(1300, 800),
+          // Freely resizable. The layout is breakpoint-driven (forui `sm` 640
+          // / `lg` 1024): below `lg` the sidebar collapses into the bottom-nav
+          // mobile scaffold, below `sm` the touch theme tokens apply. Both
+          // extremes are live-verified, so the window is only floored at a
+          // phone-ish minimum instead of being clamped to desktop width.
+          minimumSize: Size(400, 480),
+          center: true,
+          skipTaskbar: false,
+          backgroundColor: Colors.transparent,
+          titleBarStyle: TitleBarStyle.hidden,
+        );
+        windowManager.waitUntilReadyToShow(windowOptions, () async {
+          await windowManager.show();
+          await windowManager.focus();
+        });
+      }
+      FFMpegUtils.ensureInitialized();
+      Core.loadConfig();
+      MiruRequest.ensureInitalized(host: Core.baseUrl);
+      if (Platform.isMacOS) {
+        await WindowManipulator.initialize(enableWindowDelegate: true);
+        await WindowManipulator.addToolbar();
+        await WindowManipulator.overrideStandardWindowButtonPosition(
+          buttonType: NSWindowButtonType.closeButton,
+          offset: const Offset(15, 18),
+        );
+        await WindowManipulator.overrideStandardWindowButtonPosition(
+          buttonType: NSWindowButtonType.miniaturizeButton,
+          offset: const Offset(35, 18),
+        );
+      }
+
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+      SystemChrome.setEnabledSystemUIMode(.immersive);
+      await RustLib.init();
+      runApp(
+        ProviderScope(
+          retry: (retryCount, error) => null,
+          child: EntryLoadingState(),
+        ),
+      );
+    },
+    (error, stack) {
+      if (!MiruLog.hasInit) {
+        MiruLog.defaultError(error, stack);
+      }
+      showSimpleToast(error.toString());
+      MiruLog.recordCrash(error, stack, source: 'run-zoned');
+      logger.severe('Uncaught error [run-zoned]: $error');
+      logger.severe(stack.toString());
+    },
+  );
+}
+
+class EntryLoadingState extends StatefulHookWidget {
+  const EntryLoadingState({super.key});
+  @override
+  createState() => _EntryLoadingState();
+}
+
+class _EntryLoadingState extends State<EntryLoadingState> {
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    Core.ensureInitialized().then((_) {
+      setState(() {
+        _initialized = true;
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_initialized) {
+      return const App();
+    }
+
+    return FTheme(
+      data: MediaQuery.of(context).platformBrightness == .dark
+          ? MiruThemes.neutral.dark.desktop
+          : MiruThemes.neutral.light.desktop,
+      child: FScaffold(
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _initialized
+                    ? "common.initializing_miru_core".i18n
+                    : "Initializing Miru core...",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+              ),
+              const SizedBox(height: 5),
+              FCircularProgress.pinwheel(
+                style: .delta(iconStyle: .delta(size: 20)),
+              ),
+              Text("Address: ${Core.host}:${Core.port}"),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class App extends ConsumerStatefulWidget {
+  const App({super.key});
+  @override
+  createState() => _App();
+}
+
+class _App extends ConsumerState<App> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    VolumeController.instance.showSystemUI = false;
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+    registerWith(
+      options: {
+        'platforms': ['windows', 'linux', 'macos', 'android', 'ios'],
+        'video.decoders': ['D3D11', 'NVDEC', 'FFmpeg'],
+        'player': {'buffer': '2000+600000'},
+      },
+    );
+
+    miruEventService.start();
+    miruEventService.extensionStream.listen((data) {
+      ref
+          .read(extensionPageProvider.notifier)
+          .setMetaData(data.map((e) => ExtensionMeta.fromProto(e)).toList());
+    });
+  }
+
+  void poll(dynamic data) {
+    if (data is List<ExtensionMeta>) {
+      ref.read(extensionPageProvider.notifier).setMetaData(data);
+    } else if (data is String) {
+      logger.info('Error received: $data');
+    } else {
+      logger.info('Unknown data type received: $data');
+    }
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    // Re-derive the Forui theme so that, in 'system' mode, an OS light/dark
+    // switch updates every colour-dependent widget style, not just Material's.
+    ref
+        .read(applicationControllerProvider.notifier)
+        .onPlatformBrightnessChanged();
+    super.didChangePlatformBrightness();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = ref.watch(applicationControllerProvider);
+    return MaterialApp.router(
+      showPerformanceOverlay: kProfileMode,
+      supportedLocales: FLocalizations.supportedLocales,
+      key: ValueKey(c.language),
+      // FToaster hosts every showFToast(...); without it a toast throws, and
+      // one fired from the error handler re-enters that handler every frame.
+      builder: (context, child) => FTheme(
+        data: c.themeData,
+        child: FToaster(child: child!),
+      ),
+      themeMode: c.themeMode,
+      title: 'Miru Alpha',
+      localizationsDelegates: [
+        I18nUtils.flutterI18nDelegate,
+        ...GlobalMaterialLocalizations.delegates,
+      ],
+      routerConfig: RouterUtil.appRouter,
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}

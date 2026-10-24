@@ -599,7 +599,6 @@
     "in_progress": "{count} 个进行中",
     "quick_access": "快速访问",
     "shortcuts": "快捷方式",
-    "favorites_entry": "收藏 ({count})",
     "sources_value": "{count} 个源",
     "synced_count": "已同步 {count}",
     "trackers": "追踪",

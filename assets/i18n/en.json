@@ -637,7 +637,6 @@
     "in_progress": "{count} In Progress",
     "quick_access": "Quick Access",
     "shortcuts": "Shortcuts",
-    "favorites_entry": "Favorites ({count})",
     "sources_value": "{count} Sources",
     "synced_count": "{count} Synced",
     "trackers": "Trackers",

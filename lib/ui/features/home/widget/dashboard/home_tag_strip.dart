@@ -29,9 +29,6 @@ class HomeTagStrip extends ConsumerWidget {
     final selectedFavGrp = ref.watch(
       favoritePageProvider.select((s) => s.selectedFavoriteGroups),
     );
-    final favoriteCount = ref.watch(
-      favoritePageProvider.select((s) => s.favorites.length),
-    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

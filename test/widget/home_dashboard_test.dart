@@ -344,15 +344,9 @@ void main() {
                   path: '/',
                   builder: (context, state) => const HomeView(),
                 ),
-                // Probe targets for the shortcut tiles' tap wiring: the tests
+                // Probe target for the shortcut tiles' tap wiring: the tests
                 // assert the tap CARRIED the navigation, not just that the
                 // widget renders.
-                GoRoute(
-                  path: '/home/favorite',
-                  builder: (_, _) => const Scaffold(
-                    body: Center(child: Text('probe-favorite')),
-                  ),
-                ),
                 GoRoute(
                   path: '/home/download',
                   builder: (_, _) => const Scaffold(
@@ -637,30 +631,21 @@ void main() {
     expect(compactCount(2891), '2.9k');
   });
 
-  testWidgets(
-    'favorite tags header: favorites pill enters the favorites page',
-    (tester) async {
-      await pumpDashboard(
-        tester,
-        favoriteItems: [favorite('Fav Anime', 'bangumi')],
-      );
+  testWidgets('favorite tags header: no favorites shortcut (removed pill)', (
+    tester,
+  ) async {
+    await pumpDashboard(
+      tester,
+      favoriteItems: [favorite('Fav Anime', 'bangumi')],
+    );
 
-      // The consolidated local-collection entry (audit round 2) lives on the
-      // tags header — the Quick Access tile is gone.
-      expect(find.text('home.favorites_entry'), findsOneWidget);
-      expect(find.text('home.local_favorites'), findsNothing);
-
-      // Function check: the tap navigates to the favorites page.
-      await tester.tap(find.byKey(const Key('homeFavoritesShortcut')));
-      // Two pumps: the first processes the tap and the router's push, the
-      // second builds the pushed page (a single pump reports the probe as
-      // missing even though navigation worked).
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text('probe-favorite'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    },
-  );
+    // The consolidated "Favorites (N)" pill was removed from the header in
+    // b310d2b — intentional absence guards, so a reintroduction of either
+    // label is caught by the suite.
+    expect(find.text('home.favorites_entry'), findsNothing);
+    expect(find.text('home.local_favorites'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('downloads tile tap enters the download manager', (tester) async {
     await pumpDashboard(tester);
