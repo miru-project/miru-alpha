@@ -3,14 +3,26 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/foundation.dart';
 
 class AnimatedBox extends HookWidget {
-  const AnimatedBox({required this.child, this.onTap, super.key})
-    : horizontalPadding = 10,
-      verticalPadding = 5;
-  const AnimatedBox.nopadding({required this.child, this.onTap, super.key})
-    : horizontalPadding = 0,
-      verticalPadding = 0;
+  const AnimatedBox({
+    required this.child,
+    this.onTap,
+    this.onLongPress,
+    super.key,
+  }) : horizontalPadding = 10,
+       verticalPadding = 5;
+  const AnimatedBox.nopadding({
+    required this.child,
+    this.onTap,
+    this.onLongPress,
+    super.key,
+  }) : horizontalPadding = 0,
+       verticalPadding = 0;
   final Widget child;
   final VoidCallback? onTap;
+
+  /// Long-press action (e.g. a remove sheet on home rails); FTappable
+  /// already owns the gesture, so no extra detector is layered on.
+  final VoidCallback? onLongPress;
   final double horizontalPadding;
   final double verticalPadding;
 
@@ -25,6 +37,7 @@ class AnimatedBox extends HookWidget {
       child: FTappable(
         behavior: .translucent,
         onPress: onTap,
+        onLongPress: onLongPress,
         child: RepaintBoundary(
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),

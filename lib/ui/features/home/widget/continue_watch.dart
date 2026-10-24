@@ -6,7 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/user_data.dart';
 import 'package:miru_alpha/provider/home/history_page_provider.dart';
+import 'package:miru_alpha/ui/features/history_favorite/shared/list_helpers.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
+import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/watch/history_session.dart';
 import 'package:miru_alpha/ui/core/amination/animated_box.dart';
 import 'package:miru_alpha/ui/core/core/image_widget.dart';
@@ -164,6 +166,16 @@ class _ContinueWatchingCard extends ConsumerWidget {
       // the same record cannot disagree about which episode to resume.
       onTap: () =>
           openHistoryWatchSession(context: context, ref: ref, history: item),
+      // Long-press offers removal, mirroring the history list's sheet.
+      onLongPress: () => showRemoveSheet(
+        context: context,
+        title: item.title,
+        actionLabel: 'home.remove_from_continue'.i18n,
+        actionIcon: FLucideIcons.trash2,
+        destructive: true,
+        onRemove: () =>
+            ref.read(historyPageProvider.notifier).deleteHistory(item),
+      ),
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
         child: SizedBox(

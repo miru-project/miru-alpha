@@ -30,49 +30,63 @@ class HomeSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.theme.colors;
-    return Row(
-      children: [
-        if (leading case final icon?) ...[
-          Icon(icon, size: 18, color: colors.primary),
-          const SizedBox(width: 6),
-        ],
-        Expanded(
-          child: Row(
-            children: [
-              Flexible(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.theme.typography.body.lg.copyWith(
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.3,
-                    height: 1.1,
-                  ),
-                ),
-              ),
-              // Non-flex after the Flexible title: the chip hugs the text
-              // when the title is short and the title ellipsises when long.
-              if (titleTrailing case final titleTrailing?) ...[
-                const SizedBox(width: 6),
-                FittedBox(fit: BoxFit.scaleDown, child: titleTrailing),
-              ],
+    // The trailing slot must be BOUNDED for its FittedBox to scale down: a
+    // Row hands non-flex children unbounded width (flex.dart's
+    // _constraintsForNonFlexChild), so an unbounded FittedBox never scales
+    // and a wide trailing (long raw i18n keys, large user text scales)
+    // overflows the header instead of shrinking. Cap it at 60% of the row —
+    // every current trailing is narrower, so nothing visually changes.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxTrailingWidth = constraints.maxWidth * 0.6;
+        return Row(
+          children: [
+            if (leading case final icon?) ...[
+              Icon(icon, size: 18, color: colors.primary),
+              const SizedBox(width: 6),
             ],
-          ),
-        ),
-        if (trailing case final trailing?) ...[
-          // Non-flex child AFTER the Expanded title: the title absorbs all
-          // slack, so the trailing is pinned to the row's right edge. The
-          // old Flexible(child: FittedBox(...)) made the trailing a second
-          // flex child — Expanded and Flexible split the leftover width
-          // 1:1, so a natural-width pill was laid out at the row's
-          // midpoint and never reached the right edge (and the FittedBox's
-          // alignment never applied: under loose constraints it sizes to
-          // its child, so there is no room to align within).
-          const SizedBox(width: 8),
-          FittedBox(fit: BoxFit.scaleDown, child: trailing),
-        ],
-      ],
+            Expanded(
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.theme.typography.body.lg.copyWith(
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.3,
+                        height: 1.1,
+                      ),
+                    ),
+                  ),
+                  // Non-flex after the Flexible title: the chip hugs the text
+                  // when the title is short and the title ellipsises when long.
+                  if (titleTrailing case final titleTrailing?) ...[
+                    const SizedBox(width: 6),
+                    FittedBox(fit: BoxFit.scaleDown, child: titleTrailing),
+                  ],
+                ],
+              ),
+            ),
+            if (trailing case final trailing?) ...[
+              // Non-flex child AFTER the Expanded title: the title absorbs all
+              // slack, so the trailing is pinned to the row's right edge. The
+              // old Flexible(child: FittedBox(...)) made the trailing a second
+              // flex child — Expanded and Flexible split the leftover width
+              // 1:1, so a natural-width pill was laid out at the row's
+              // midpoint and never reached the right edge (and the FittedBox's
+              // alignment never applied: under loose constraints it sizes to
+              // its child, so there is no room to align within).
+              const SizedBox(width: 8),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxTrailingWidth),
+                child: FittedBox(fit: BoxFit.scaleDown, child: trailing),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 }

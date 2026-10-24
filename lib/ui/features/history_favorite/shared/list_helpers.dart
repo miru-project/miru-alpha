@@ -126,12 +126,18 @@ void showRemoveSheet({
   required String actionLabel,
   required IconData actionIcon,
   required VoidCallback onRemove,
+  bool destructive = false,
 }) {
   showActionsSheet(
     context: context,
     title: title,
     actions: [
-      SheetAction(label: actionLabel, icon: actionIcon, onPress: onRemove),
+      SheetAction(
+        label: actionLabel,
+        icon: actionIcon,
+        onPress: onRemove,
+        destructive: destructive,
+      ),
     ],
   );
 }

@@ -24,6 +24,7 @@ import 'package:miru_alpha/ui/features/home/views/home_view.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_dashboard_view.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_dynamic_feed.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_poster_rail.dart';
+import 'package:miru_alpha/ui/features/home/widget/dashboard/home_quick_access_grid.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_resume_rail.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_section_header.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_top_bar.dart';
@@ -48,9 +49,14 @@ class MockupSpec {
   static const posterWidth = 130.0;
   static const posterHeight = 195.0;
 
-  /// Quick Access `gap-2` — 8px between the four shortcut cards.
+  /// Quick Access `gap-2` — 8px between the three shortcut tiles.
   static const gridGap = 8.0;
-  static const gridIconChip = 32.0;
+
+  /// Quick Access tile chip `w-7 h-7`.
+  static const gridIconChip = 28.0;
+
+  /// Quick Access tile `min-h-[76px]`.
+  static const gridTileMinHeight = 76.0;
 
   /// Top-bar quick actions `w-11 h-11` (44 on touch; the test surface runs the
   /// desktop platform variant, whose floor is 40).
@@ -185,6 +191,16 @@ void main() {
     ..date = (date ?? DateTime.now().subtract(const Duration(days: 3)))
         .toIso8601String();
 
+  proto.DownloadProgress activeDownload({
+    required int progress,
+    required int total,
+  }) => proto.DownloadProgress()
+    ..taskId = 1
+    ..title = 'Ep'
+    ..status = proto.DownloadStatus.DOWNLOADING
+    ..progress = progress
+    ..total = total;
+
   AnilistMedia trendingMedia(
     int id,
     String title, {
@@ -209,6 +225,7 @@ void main() {
     List<History> historyItems = const [],
     List<Favorite> favoriteItems = const [],
     List<proto.Download> downloads = const [],
+    List<proto.DownloadProgress> activeDownloads = const [],
     List<AnilistMedia> trendingItems = _emptyTrending,
     HomeTrending Function()? trendingOverride,
     AnilistUser? accountUser,
@@ -259,7 +276,7 @@ void main() {
             AsyncData(
               DownloadState(
                 history: downloads,
-                active: const [],
+                active: activeDownloads,
                 page: 1,
                 hasMore: false,
               ),
@@ -312,7 +329,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await tester.binding.setSurfaceSize(const Size(400, 900));
+    await tester.binding.setSurfaceSize(dashboardTestSurface);
     addTearDown(() async => tester.binding.setSurfaceSize(null));
 
     await tester.pumpWidget(
@@ -326,6 +343,21 @@ void main() {
                 GoRoute(
                   path: '/',
                   builder: (context, state) => const HomeView(),
+                ),
+                // Probe targets for the shortcut tiles' tap wiring: the tests
+                // assert the tap CARRIED the navigation, not just that the
+                // widget renders.
+                GoRoute(
+                  path: '/home/favorite',
+                  builder: (_, _) => const Scaffold(
+                    body: Center(child: Text('probe-favorite')),
+                  ),
+                ),
+                GoRoute(
+                  path: '/home/download',
+                  builder: (_, _) => const Scaffold(
+                    body: Center(child: Text('probe-download')),
+                  ),
                 ),
               ],
             ),
@@ -520,18 +552,21 @@ void main() {
     expect(find.text('home.quick_access'), findsOneWidget);
     expect(find.text('home.shortcuts'), findsOneWidget);
 
-    // Recency-driven: the recently accessed source is its own card (label =
-    // the source's name, tap enters its catalogue), then the stable
-    // favorites and tracker entries. No generic card while a recent exists.
+    // Recency-driven: the recently accessed source is its own tile (label =
+    // the source's name, tap enters its catalogue), then the downloads and
+    // tracker entries. No generic tile while a recent exists, and no
+    // Favorites tile — the local-collection entry lives in the Favorite
+    // Tags header (audit round 2: duplicate pathway).
     expect(find.text('Pkg Source'), findsOneWidget);
     expect(find.text('v1.0.0'), findsOneWidget);
     expect(find.text('extension.name'), findsNothing);
-    expect(find.text('home.local_favorites'), findsOneWidget);
+    expect(find.text('download.name'), findsOneWidget);
     expect(find.text('home.trackers'), findsOneWidget);
-    // No Tags card — the Favorite Tags section below owns tag management.
+    expect(find.text('home.local_favorites'), findsNothing);
+    // No Tags tile — the Favorite Tags section below owns tag management.
     expect(find.text('home.local_tags'), findsNothing);
 
-    // 32px icon chips, one per card.
+    // 28px icon chips, one per tile.
     final chips = find.byKey(const Key('homeGridIconChip'));
     expect(chips, findsNWidgets(3));
     for (final box in tester.renderObjectList<RenderBox>(chips)) {
@@ -539,20 +574,26 @@ void main() {
       expect(box.size.height, MockupSpec.gridIconChip);
     }
 
-    // Equal-width cards on ONE row (recent source / favorites / trackers).
-    final cards = tester
+    // Three equal-width tiles on ONE row (the mock's grid-cols-3 — the
+    // 2×2 variant was reverted for vertical viewport waste), each at least
+    // the mock's min-h-[76px].
+    final tiles = tester
         .renderObjectList<RenderBox>(find.byType(MiruCard))
         .map(
-          (box) =>
-              (width: box.size.width, top: box.localToGlobal(Offset.zero).dy),
+          (box) => (
+            width: box.size.width,
+            height: box.size.height,
+            top: box.localToGlobal(Offset.zero).dy,
+          ),
         )
-        .where((c) => c.width < 250)
+        .where((t) => t.width < 250)
         .toList();
-    expect(cards.length, 3);
-    final widths = cards.map((c) => c.width).toSet();
-    expect(widths.length, 1);
-    final tops = cards.map((c) => c.top).toSet();
-    expect(tops.length, 1);
+    expect(tiles.length, 3);
+    expect(tiles.map((t) => t.width).toSet().length, 1);
+    expect(tiles.map((t) => t.top).toSet().length, 1);
+    for (final tile in tiles) {
+      expect(tile.height, greaterThanOrEqualTo(MockupSpec.gridTileMinHeight));
+    }
     expect(tester.takeException(), isNull);
   });
 
@@ -561,11 +602,11 @@ void main() {
   ) async {
     await pumpDashboard(tester);
 
-    // No recent access yet: the generic extension card offers the source
+    // No recent access yet: the generic extension tile offers the source
     // count and routes to the extension manager.
     expect(find.text('extension.name'), findsOneWidget);
     expect(find.text('home.sources_value'), findsOneWidget);
-    expect(find.text('home.local_favorites'), findsOneWidget);
+    expect(find.text('download.name'), findsOneWidget);
     expect(find.text('home.trackers'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -586,8 +627,76 @@ void main() {
       ),
     );
 
-    expect(find.text('home.watch_read'), findsOneWidget);
+    expect(find.text('home.synced_count'), findsOneWidget);
     expect(find.text('home.not_linked'), findsNothing);
+  });
+
+  test('trackers metric compacts thousands into one line of caption', () {
+    expect(compactCount(940), '940');
+    expect(compactCount(1000), '1.0k');
+    expect(compactCount(2891), '2.9k');
+  });
+
+  testWidgets(
+    'favorite tags header: favorites pill enters the favorites page',
+    (tester) async {
+      await pumpDashboard(
+        tester,
+        favoriteItems: [favorite('Fav Anime', 'bangumi')],
+      );
+
+      // The consolidated local-collection entry (audit round 2) lives on the
+      // tags header — the Quick Access tile is gone.
+      expect(find.text('home.favorites_entry'), findsOneWidget);
+      expect(find.text('home.local_favorites'), findsNothing);
+
+      // Function check: the tap navigates to the favorites page.
+      await tester.tap(find.byKey(const Key('homeFavoritesShortcut')));
+      // Two pumps: the first processes the tap and the router's push, the
+      // second builds the pushed page (a single pump reports the probe as
+      // missing even though navigation worked).
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('probe-favorite'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('downloads tile tap enters the download manager', (tester) async {
+    await pumpDashboard(tester);
+
+    await tester.tap(find.text('download.name'));
+    // Two pumps: the first processes the tap and the router's push, the
+    // second builds the pushed page.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('probe-download'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('downloads tile: active count caption and progress ring', (
+    tester,
+  ) async {
+    await pumpDashboard(
+      tester,
+      activeDownloads: [
+        activeDownload(progress: 30, total: 100),
+        activeDownload(progress: 90, total: 100),
+      ],
+    );
+
+    expect(find.text('download.active_count'), findsOneWidget);
+    // Tasks running: the mock's donut replaces the tile's chevron.
+    expect(find.byKey(const Key('homeDownloadsProgressRing')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('downloads tile idle: count caption, no ring', (tester) async {
+    await pumpDashboard(tester);
+
+    expect(find.text('download.active_count'), findsOneWidget);
+    expect(find.byKey(const Key('homeDownloadsProgressRing')), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('tag strip: chips with counts, select toggle, manage', (
@@ -637,10 +746,13 @@ void main() {
     // search filter panel).
     expect(find.text('FAVORITE.FILTER_MODE'), findsOneWidget);
     expect(find.text('FAVORITE.CURRENT_GROUPS'), findsOneWidget);
-    // Height budget: the sheet may not pass 45% of the viewport, so the
-    // feed behind stays visible for the live preview.
+    // Sheet height budget: the sheet may not pass 45% of the viewport, so
+    // the feed behind stays visible for the live preview.
     final sheetHeight = tester.getSize(find.byType(FavoriteGroupSheet)).height;
-    expect(sheetHeight, lessThanOrEqualTo(900 * 0.45 + 2));
+    expect(
+      sheetHeight,
+      lessThanOrEqualTo(dashboardTestSurface.height * 0.45 + 2),
+    );
     // AND/OR is the shared segmented control: selected = primary fill,
     // unselected = bordered outline (dark-mode contrast fix).
     final modeControl = find.byType(MiruSegmentedControl<FavoriteFilterMode>);
@@ -957,3 +1069,10 @@ void main() {
 }
 
 const _emptyTrending = <AnilistMedia>[];
+
+/// Harness viewport for the full-dashboard pumps. Tall enough that every
+/// section (the 2×2 Quick Access grid through the Source Feed) is built
+/// inside the surface — below-the-fold slivers materialize lazily and their
+/// finders would report nothing. Width stays at 400: every width-based
+/// mockup assertion depends on it.
+const dashboardTestSurface = Size(400, 1080);

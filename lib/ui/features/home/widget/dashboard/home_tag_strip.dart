@@ -10,9 +10,12 @@ import 'package:miru_alpha/ui/features/home/widget/dashboard/home_section_header
 import 'package:miru_alpha/utils/core/i18n.dart';
 
 /// "Favorite Tags" — the favorite-group chip strip. The selected chip
-/// scopes the Dynamic Feed below it; Manage opens the favorites page where the
-/// groups are administered. The strip's right edge fades out (mockup
-/// `mask-image`) to hint at the scrollable overflow.
+/// scopes the Dynamic Feed below it; Manage opens the tag manager and the
+/// trailing "Favorites (N)" pill enters the favorites page. This header is
+/// the dashboard's local-collection hub: the Quick Access Favorites tile was
+/// consolidated here (UX audit round 2 — duplicate pathway). The strip's
+/// right edge fades out (mockup `mask-image`) to hint at the scrollable
+/// overflow.
 class HomeTagStrip extends ConsumerWidget {
   const HomeTagStrip({super.key});
 
@@ -26,6 +29,9 @@ class HomeTagStrip extends ConsumerWidget {
     final selectedFavGrp = ref.watch(
       favoritePageProvider.select((s) => s.selectedFavoriteGroups),
     );
+    final favoriteCount = ref.watch(
+      favoritePageProvider.select((s) => s.favorites.length),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,23 +42,29 @@ class HomeTagStrip extends ConsumerWidget {
             // No leading glyph: the hash read as noise next to the title
             // (UX-review) — the strip's chips carry the tag identity.
             title: 'home.favorite_tags'.i18n,
-            trailing: FButton(
-              variant: .ghost,
-              mainAxisSize: .min,
-              // "Manage" opens the SAME tag manager the favorites page uses
-              // (showFavoriteGroupSheet) — one surface, no route jump and no
-              // second implementation.
-              onPress: () => showFavoriteGroupSheet(context),
-              suffix: const Icon(FLucideIcons.penLine, size: 14),
-              style: .delta(
-                contentStyle: FButtonContentStyleDelta.delta(
-                  constraints: const BoxConstraints(minHeight: 28),
-                  padding: EdgeInsetsGeometryDelta.value(
-                    const EdgeInsets.symmetric(horizontal: 8),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 4),
+                FButton(
+                  variant: .ghost,
+                  mainAxisSize: .min,
+                  // "Manage" opens the SAME tag manager the favorites page
+                  // uses (showFavoriteGroupSheet) — one surface, no route
+                  // jump and no second implementation.
+                  onPress: () => showFavoriteGroupSheet(context),
+                  suffix: const Icon(FLucideIcons.penLine, size: 14),
+                  style: .delta(
+                    contentStyle: FButtonContentStyleDelta.delta(
+                      constraints: const BoxConstraints(minHeight: 28),
+                      padding: EdgeInsetsGeometryDelta.value(
+                        const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                    ),
                   ),
+                  child: Text('common.manage'.i18n),
                 ),
-              ),
-              child: Text('common.manage'.i18n),
+              ],
             ),
           ),
         ),
