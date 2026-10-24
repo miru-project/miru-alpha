@@ -52,8 +52,22 @@ dependencies:
   riverpod_annotation: ^4.0.0
   volume_controller: ^3.3.1
   screen_brightness: ^2.0.1
+  # Linux implementation of the federated screen_brightness plugin — still
+  # used by the manga reader overlay (the video player now uses fvp's
+  # setBrightness video effect instead). Vendored from upstream
+  # aaassseee/screen_brightness @ feature/linux_support (8de2e6b) because the
+  # branch does not compile: its dispatcher calls handlers defined below it
+  # with no prototypes, and its CMake never links Xrandr. The vendored copy
+  # adds the forward declarations and the X11/Xrandr linkage. Drop this for a
+  # git/path dep on upstream once the branch lands fixed.
+  screen_brightness_linux:
+    path: third_party/screen_brightness_linux
   hooks_riverpod: ^3.0.1
-  fvp: ^0.39.0
+  # 0.39.1 downloads mdk-sdk at CMake configure time (cmake/deps.cmake) instead
+  # of shipping linux/mdk-sdk in the package; hook/build.dart resolves the
+  # libffmpeg link input from the extracted SDK (with a self-sufficient
+  # fallback download on a fresh checkout).
+  fvp: ^0.39.1
   video_player: ^2.9.1
   flutter_hooks: ^0.21.2
   easy_refresh: ^4.0.0
@@ -79,7 +93,7 @@ dependencies:
   smooth_sheets: ^1.0.0
   wakelock_plus: ^1.4.0
   url_launcher: ^6.3.2
-  code_forge: ^10.2.0
+  code_forge: ^11.3.0
   code_assets: any
   hooks: any
   native_toolchain_c: any
@@ -97,7 +111,7 @@ dev_dependencies:
   json_serializable: ^6.8.0
   ffigen: ^23.0.0
   freezed: ^4.0.0
-  mcp_server: ^2.2.3
+  mcp_server: ^3.0.0
   flutter_lints: ^6.0.0
   riverpod_generator: ^4.0.0+1
   flutter_launcher_icons: ^0.14.4
