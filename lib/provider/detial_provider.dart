@@ -239,7 +239,10 @@ class Detial extends _$Detial {
                   saved.episodes!.map((e) => e.toProto3Json()).toList(),
                 )
               : ''
-          ..headers = saved.headers != null ? jsonEncode(saved.headers) : '';
+          ..headers = saved.headers != null ? jsonEncode(saved.headers) : ''
+          // The extension's detail tags (e.g. an AniList extension's AniList
+          // tags) ride the same state — the hero chips read them from here.
+          ..tags.addAll(saved.tags ?? const <String>[]);
         state = state.copyWith(
           detailInfo: protoDetail,
           status: DetialStatus.ready,
@@ -414,7 +417,8 @@ class Detial extends _$Detial {
           ..detailUrl = detailUrl
           ..package = meta.packageName
           ..episodes = extDetail.episodes.toString()
-          ..headers = '',
+          ..headers = ''
+          ..tags.addAll(extDetail.tags),
       );
       debugPrint('[DetailProvider] forceRefreshDetail data saved to DB');
 
@@ -423,7 +427,8 @@ class Detial extends _$Detial {
         ..cover = extDetail.cover
         ..desc = extDetail.desc
         ..detailUrl = detailUrl
-        ..package = meta.packageName;
+        ..package = meta.packageName
+        ..tags.addAll(extDetail.tags);
       if (extDetail.episodes.isNotEmpty) {
         final episodesJson = extDetail.episodes
             .map((e) => e.toProto3Json())

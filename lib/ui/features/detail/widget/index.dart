@@ -1,4 +1,5 @@
 export 'desktop_detail_box.dart';
+export 'detail_tag_chips.dart';
 export 'desktop_detail_item_box.dart';
 export 'download_button.dart';
 export 'favorite_dialog.dart';

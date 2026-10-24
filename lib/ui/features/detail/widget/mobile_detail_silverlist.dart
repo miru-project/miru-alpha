@@ -67,14 +67,12 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                   // Flexible keeps the header row overflow-free at 320 px
                   // (the heading is 112 px; with the selector and sort
                   // button the inflexible sum exceeded the inner width).
-                  Flexible(
-                    child: Text(
-                      'media.episodes'.i18n,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.theme.typography.body.sm.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  Text(
+                    'media.episodes'.i18n,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.theme.typography.body.sm.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -175,8 +173,8 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                       isReverse.value = !isReverse.value;
                     },
                     child: isReverse.value
-                        ? Icon(FLucideIcons.arrowUpNarrowWide)
-                        : Icon(FLucideIcons.arrowDownNarrowWide),
+                        ? Icon(FLucideIcons.arrowUp10)
+                        : Icon(FLucideIcons.arrowDown01),
                   ),
                 ],
               ),

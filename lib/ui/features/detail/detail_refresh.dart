@@ -50,7 +50,8 @@ Future<void> forceRefreshDetail(
         ..episodes = jsonEncode(
           extDetail.episodes.map((e) => e.toProto3Json()).toList(),
         )
-        ..headers = '',
+        ..headers = ''
+        ..tags.addAll(extDetail.tags),
     );
     debugPrint('[DetailPage] forceRefreshDetail data saved to DB');
 
@@ -59,7 +60,8 @@ Future<void> forceRefreshDetail(
       ..cover = extDetail.cover
       ..desc = extDetail.desc
       ..detailUrl = detailUrl
-      ..package = meta.packageName;
+      ..package = meta.packageName
+      ..tags.addAll(extDetail.tags);
     if (extDetail.episodes.isNotEmpty) {
       final episodesJson = extDetail.episodes
           .map((e) => e.toProto3Json())

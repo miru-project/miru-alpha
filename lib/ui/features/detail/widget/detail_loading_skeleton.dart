@@ -421,8 +421,8 @@ class _HeroSkeleton extends StatelessWidget {
         // below it (space-y-4 plus the CTA section's pt-2).
         const SizedBox(height: 24),
         // Inert CTA — a single full-width bar matching content's lone
-        // Play/Resume button.
-        DetailSkeleton(height: 40, borderRadius: 8),
+        // two-line Play/Resume button.
+        DetailSkeleton(height: 60, borderRadius: 8),
         const SizedBox(height: 16),
         if (description.isEmpty) ...[
           const DetailSkeleton(width: double.infinity, height: 12),

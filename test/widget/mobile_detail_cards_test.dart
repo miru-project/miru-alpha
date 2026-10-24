@@ -272,9 +272,15 @@ void main() {
       );
       await tester.pump();
 
-      // No history: "Play Ep. 1 · Episode 1" and no remaining-time chip.
-      expect(find.text('Play Ep. 1 · Episode 1'), findsOneWidget);
+      // No history: "Play Ep. 1" over the episode name, no remaining chip.
+      expect(find.text('Play Ep. 1'), findsOneWidget);
+      expect(find.text('Episode 1'), findsOneWidget);
       expect(find.textContaining('remaining'), findsNothing);
+      // Content is start-aligned, not centered: the title begins left of the
+      // button's midpoint (icon + padding), per the mock.
+      final buttonRect = tester.getRect(find.byType(FButton));
+      final titleLeft = tester.getTopLeft(find.text('Play Ep. 1')).dx;
+      expect(titleLeft, lessThan(buttonRect.center.dx));
       expect(tester.takeException(), isNull);
     });
 
@@ -327,8 +333,13 @@ void main() {
       await tester.pump();
 
       // (600 - 90) / 60 = 8.5 -> ceil -> 9 minutes remaining.
-      expect(find.text('Resume Ep. 1 · Episode 1'), findsOneWidget);
+      expect(find.text('Resume Ep. 1'), findsOneWidget);
+      expect(find.text('Episode 1'), findsOneWidget);
       expect(find.text('9m remaining'), findsOneWidget);
+      // The remaining-time chip sits at the button's right edge.
+      final buttonRight = tester.getRect(find.byType(FButton)).right;
+      final chipRight = tester.getTopRight(find.text('9m remaining')).dx;
+      expect(buttonRight - chipRight, lessThan(24));
       expect(tester.takeException(), isNull);
     });
   });

@@ -11,6 +11,7 @@ import 'package:miru_alpha/provider/detail_page_provider.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
+import 'package:miru_alpha/ui/features/detail/widget/detail_tag_chips.dart';
 import 'package:miru_alpha/ui/features/detail/widget/desktop_detail_image_view.dart';
 import 'package:miru_alpha/ui/features/extension/widget/text_cover.dart';
 import 'package:miru_alpha/ui/features/detail/widget/favorite_dialog.dart';
@@ -19,7 +20,6 @@ import 'package:miru_alpha/utils/core/html_text.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
-import 'package:miru_alpha/utils/store/miru_settings.dart';
 
 /// Mobile detail hero, mirroring the reference header block: the cover
 /// beside a column holding the title, one merged secondary meta row
@@ -126,7 +126,11 @@ class MobileDetailHero extends ConsumerWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  _CategoryTags(detail: detail, meta: meta, detailPr: detailPr),
+                  DetailTagChips(
+                    detail: detail,
+                    meta: meta,
+                    detailPr: detailPr,
+                  ),
                 ],
               ),
             ),
@@ -149,9 +153,10 @@ class MobileDetailHero extends ConsumerWidget {
   }
 }
 
-/// The primary call to action: a full-width resume-aware button — "Resume
-/// Ep. N · name" with the remaining time while an episode is partially
-/// watched, "Play Ep. N · name" otherwise. It is the only action in this
+/// The primary call to action: a full-width resume-aware button with the
+/// episode-number action ("Resume Ep. N" / "Play Ep. N") on top and the
+/// episode's own name as a muted second line, plus the remaining time
+/// while an episode is partially watched. It is the only action in this
 /// row: per-episode downloads live on each episode tile below, so a
 /// batch-download button here only duplicated them.
 class _PlayCta extends ConsumerWidget {
@@ -173,17 +178,14 @@ class _PlayCta extends ConsumerWidget {
     final episodeName = target == null ? null : _episodeAt(ref, target)?.name;
     final remaining = _remainingMinutes(ref, target);
 
-    final label = target == null
+    // Two-line CTA: the episode-number action on top, the episode's own
+    // name muted underneath (no target renders the bare Play title only).
+    final title = target == null
         ? 'common.play'.i18n
         : remaining > 0
-        ? 'media.resume_episode'.fill({
-            'ep': '${target + 1}',
-            'name': stripEpisodePrefix(episodeName ?? ''),
-          })
-        : 'media.play_episode_named'.fill({
-            'ep': '${target + 1}',
-            'name': stripEpisodePrefix(episodeName ?? ''),
-          });
+        ? 'media.resume_episode'.fill({'ep': '${target + 1}'})
+        : 'media.play_episode'.fill({'ep': '${target + 1}'});
+    final name = target == null ? null : stripEpisodePrefix(episodeName ?? '');
 
     // Single full-width CTA — see the class doc: the batch-download icon
     // that used to sit beside it duplicated the per-episode download
@@ -208,16 +210,41 @@ class _PlayCta extends ConsumerWidget {
               ),
             )
           : null,
-      // FButton's content row is not flexible, so the label must be
-      // wrapped in a Flexible itself — the episode name makes the
-      // label far wider than the button's slot.
+      // FButton's content row is not flexible, so the two-line column must
+      // be wrapped in a Flexible itself — the episode name makes the
+      // content far wider than the button's slot.
       builder: _flexChild,
-      child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.theme.typography.body.sm.copyWith(
+              fontWeight: FontWeight.w700,
+              color: context.theme.colors.primaryForeground,
+            ),
+          ),
+          if (name != null && name.isNotEmpty)
+            Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.theme.typography.body.xs2.copyWith(
+                color: context.theme.colors.primaryForeground.withAlpha(190),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
-  /// FButton's documented `builder` hook; wrapping the label in [Flexible]
-  /// is what lets the internal Row shrink instead of overflowing.
+  /// FButton's documented `builder` hook; wrapping the content in [Expanded]
+  /// left-aligns the icon + text at the button's start edge and pushes the
+  /// remaining-time suffix to the far right, and lets the internal Row shrink
+  /// instead of overflowing.
   static Widget _flexChild(
     BuildContext context,
     FButtonStyle style,
@@ -225,7 +252,7 @@ class _PlayCta extends ConsumerWidget {
     IconThemeData iconStyle,
     FCircularProgressStyle progressStyle,
     Widget? child,
-  ) => Flexible(child: child ?? const SizedBox.shrink());
+  ) => Expanded(child: child ?? const SizedBox.shrink());
 
   /// The episode at [index] of the active group.
   ExtensionEpisode? _episodeAt(WidgetRef ref, int index) {
@@ -355,68 +382,6 @@ class _Cover extends StatelessWidget {
   }
 }
 
-/// Reference category pills: one chip per TMDB genre whose +/✓ indicator
-/// stars the tag into [SettingKey.favoriteTags]. TMDB is fetched once here
-/// for the genre list — the expanded cast body reuses the same result.
-class _CategoryTags extends HookConsumerWidget {
-  const _CategoryTags({
-    required this.detail,
-    required this.meta,
-    required this.detailPr,
-  });
-
-  final Detail detail;
-  final ExtensionMeta meta;
-  final DetialProvider detailPr;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final starred = useState<Set<String>>(
-      MiruSettings.getFavoriteTags().toSet(),
-    );
-    useEffect(() {
-      final notifier = ref.read(detailPr.notifier);
-      Future.microtask(() async {
-        try {
-          final mediaType = meta.type == ExtensionType.bangumi ? 'tv' : 'movie';
-          await notifier.fetchTMDBDetail(detail.title, mediaType);
-        } catch (_) {
-          // TMDB is optional metadata: a failed lookup hides the chips
-          // instead of failing the detail page.
-        }
-      });
-      return null;
-    }, const []);
-
-    final genres = ref
-        .watch(
-          detailPr.select(
-            (value) => value.tmdbDetail?.genres ?? const <String>[],
-          ),
-        )
-        // A TMDB genre colliding with the media-type label ("Video") would
-        // re-introduce the duplicate the hero no longer shows anywhere.
-        .where((genre) => genre != detailTypeLabel(meta.type))
-        .toList();
-    if (genres.isEmpty) return const SizedBox.shrink();
-
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: [
-        for (final genre in genres)
-          SmallBadge(
-            label: genre,
-            variant: starred.value.contains(genre) ? .primary : .outline,
-            onPress: () {
-              starred.value = MiruSettings.toggleFavoriteTag(genre).toSet();
-            },
-          ),
-      ],
-    );
-  }
-}
-
 /// Muted metadata style shared by every segment of the hero's dot-row.
 /// `body.sm` — the row now owns a full line under the poster, so it reads
 /// as content rather than caption text.
@@ -429,13 +394,6 @@ Widget metaDot(BuildContext context) => Padding(
   padding: const EdgeInsets.symmetric(horizontal: 3),
   child: Text('•', style: metaStyle(context)),
 );
-
-String detailTypeLabel(ExtensionType type) => switch (type) {
-  ExtensionType.bangumi => 'media.video'.i18n,
-  ExtensionType.manga => 'media.manga'.i18n,
-  ExtensionType.fikushon => 'media.novel'.i18n,
-  ExtensionType.all => 'common.all'.i18n,
-};
 
 /// Two-line rich-text description parsed from the extension's inline HTML
 /// (`<i>`/`<b>`/`<br>` …) with an explicit Read more / Show less toggle;

@@ -225,6 +225,20 @@ class _Loaded extends HookConsumerWidget {
                 ],
               ),
               const SizedBox(height: 20),
+              // Metadata tag chips only when the extension ships tags —
+              // desktop never had the TMDB genre fallback, so none arrives.
+              if (DetailTagChips.metadataTagsOf(
+                detail,
+                meta.type,
+              ).isNotEmpty) ...[
+                DetailTagChips(
+                  detail: detail,
+                  meta: meta,
+                  detailPr: detailPr,
+                  tmdbFallback: false,
+                ),
+                const SizedBox(height: 20),
+              ],
               // Use Wrap for responsive layout that wraps on small screens
               Wrap(
                 spacing: 12,
