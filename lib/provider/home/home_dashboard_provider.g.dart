@@ -41,7 +41,7 @@ final class HomeDashboardProvider
   }
 }
 
-String _$homeDashboardHash() => r'bdf7c042c912aa5fdcd62e3b9a30eec41b5cc91c';
+String _$homeDashboardHash() => r'a5df62d9a4341dfde6bbd6b0f83d14769ad5ce4d';
 
 abstract class _$HomeDashboard extends $Notifier<HomeDashboardState> {
   HomeDashboardState build();

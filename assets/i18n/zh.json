@@ -37,6 +37,7 @@
     "status": "状态",
     "confirm": "确认",
     "cancel": "取消",
+    "undo": "撤销",
     "save": "保存",
     "delete": "删除",
     "add": "添加",
@@ -107,7 +108,8 @@
     "months_ago": "{months} 个月前",
     "years_ago": "{years} 年前",
     "history_tools": {},
-    "download_tools": {}
+    "download_tools": {},
+    "share": "分享"
   },
   "media": {
     "episode": {
@@ -150,7 +152,9 @@
     "cast_members": "{count} 位成员",
     "cast_role_main": "主要",
     "cast_role_supporting": "其他",
-    "watching": "观看中"
+    "watching": "观看中",
+    "episode_number": "第 {n} 集",
+    "overview": "概览"
   },
   "extension": {
     "name": "扩展",
@@ -618,5 +622,44 @@
     "in_progress_one": "1 个进行中",
     "time_left": "剩余 {n} 分钟",
     "feed_title": "动态：{tag}"
+  },
+  "watch": {
+    "source": "来源",
+    "speed": "播放速度",
+    "now": "正在播放",
+    "prev_episode": "上一集",
+    "next_episode": "下一集",
+    "synced_count": "已同步 ({count})",
+    "ep_progress": "第 {current}/{total} 集",
+    "seek_back": "后退 10 秒",
+    "seek_forward": "前进 10 秒",
+    "fullscreen": "全屏",
+    "exit_fullscreen": "退出全屏",
+    "auto_rotation_on": "自动旋转开",
+    "auto_rotation_off": "自动旋转关",
+    "lock_screen": "锁定屏幕",
+    "unlock_screen": "点按解锁",
+    "tab_mirror": "线路",
+    "tab_resolution": "画质",
+    "tab_subtitle": "字幕",
+    "tab_speed": "速度",
+    "remove_episode": "移除剧集",
+    "history_deleted": "已删除观看记录",
+    "playback_settings": "播放设置",
+    "no_subtitles": "无字幕",
+    "no_quality_options": "无画质选项",
+    "toggle_subtitles": "切换字幕",
+    "now_playing": "正在播放",
+    "ep_indicator": "第 {current}/{total} 集",
+    "cast": "投屏",
+    "up_next": "接下来播放",
+    "cast_searching": "正在搜索局域网内的设备…",
+    "cast_devices": "设备",
+    "cast_no_devices": "未发现 DLNA 设备",
+    "cast_connecting": "连接中…",
+    "cast_connected": "正在投屏到 {name}",
+    "cast_failed": "无法连接 {name}",
+    "cast_stopped": "投屏已停止",
+    "cast_preparing": "正在为该设备准备 MP4…"
   }
 }

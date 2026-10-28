@@ -179,9 +179,9 @@ Future<ProviderContainer> pumpSearch(
   final extensions =
       metas ??
       [
-        _meta('a.pkg', 'Miruro'),
-        _meta('b.pkg', 'Rawkuma', type: ExtensionType.manga),
-        _meta('c.pkg', 'Nyaa'),
+        _meta('a.pkg', 'ExampleA'),
+        _meta('b.pkg', 'ExampleC', type: ExtensionType.manga),
+        _meta('c.pkg', 'ExampleB'),
       ];
 
   final container = ProviderContainer(
@@ -292,7 +292,7 @@ void main() {
       // of sources the tab actually shows.
       expect(find.text('search.sources_available'), findsOneWidget);
       expect(find.text('search.all_sources'), findsOneWidget);
-      for (final name in ['Miruro', 'Rawkuma', 'Nyaa']) {
+      for (final name in ['ExampleA', 'ExampleC', 'ExampleB']) {
         expect(find.text(name), findsOneWidget);
       }
       // The tab is a source list only: no query UI lives here.
@@ -372,12 +372,16 @@ void main() {
     testWidgets('submitting a query swaps the body for aggregated results', (
       tester,
     ) async {
-      final miruro = _meta('a.pkg', 'Miruro');
-      final rawkuma = _meta('b.pkg', 'Rawkuma', type: ExtensionType.manga);
+      final exampleA = _meta('a.pkg', 'ExampleA');
+      final exampleC = _meta('b.pkg', 'ExampleC', type: ExtensionType.manga);
       final aggregate = GlobalSearchAggregate(
         entries: [
-          _entry(miruro, 'Frieren: Beyond Journey', update: '2026-01-02 10:00'),
-          _entry(rawkuma, 'Frieren manga'),
+          _entry(
+            exampleA,
+            'Frieren: Beyond Journey',
+            update: '2026-01-02 10:00',
+          ),
+          _entry(exampleC, 'Frieren manga'),
         ],
         done: 2,
         total: 2,
@@ -456,9 +460,9 @@ void main() {
     testWidgets('tapping a recent search submits it and shows results', (
       tester,
     ) async {
-      final miruro = _meta('a.pkg', 'Miruro');
+      final exampleA = _meta('a.pkg', 'ExampleA');
       final aggregate = GlobalSearchAggregate(
-        entries: [_entry(miruro, 'Frieren: Beyond Journey')],
+        entries: [_entry(exampleA, 'Frieren: Beyond Journey')],
         done: 1,
         total: 1,
         failed: const [],
@@ -488,12 +492,12 @@ void main() {
     testWidgets('the By Extension mode groups hits into shelves', (
       tester,
     ) async {
-      final miruro = _meta('a.pkg', 'Miruro');
-      final rawkuma = _meta('b.pkg', 'Rawkuma', type: ExtensionType.manga);
+      final exampleA = _meta('a.pkg', 'ExampleA');
+      final exampleC = _meta('b.pkg', 'ExampleC', type: ExtensionType.manga);
       final aggregate = GlobalSearchAggregate(
         entries: [
-          _entry(miruro, 'Frieren: Beyond Journey'),
-          _entry(rawkuma, 'Frieren manga'),
+          _entry(exampleA, 'Frieren: Beyond Journey'),
+          _entry(exampleC, 'Frieren manga'),
         ],
         done: 2,
         total: 3,
@@ -516,12 +520,12 @@ void main() {
       // One shelf per hit-bearing source: a header naming the source, then a
       // horizontal rail of poster cards (no source tag repeated per card); the
       // scope's third (empty) source lands in the empty-shelves footer.
-      expect(find.text('Miruro'), findsWidgets);
-      expect(find.text('Rawkuma'), findsWidgets);
+      expect(find.text('ExampleA'), findsWidgets);
+      expect(find.text('ExampleC'), findsWidgets);
 
       // Cards carry the extension's own @description as the informative line
       // under the title, and no action button.
-      expect(find.text('Rawkuma provider'), findsOneWidget);
+      expect(find.text('ExampleC provider'), findsOneWidget);
       expect(find.text('search.read'), findsNothing);
       expect(find.text('search.open'), findsNothing);
       expect(find.text('history_tools.watch'), findsNothing);
@@ -548,11 +552,11 @@ void main() {
     testWidgets('tapping a shelf header opens the extension with the keyword', (
       tester,
     ) async {
-      final miruro = _meta('a.pkg', 'Miruro');
+      final exampleA = _meta('a.pkg', 'ExampleA');
       final aggregate = GlobalSearchAggregate(
         entries: [
-          _entry(miruro, 'Frieren: Beyond Journey'),
-          _entry(miruro, 'Frieren OVA'),
+          _entry(exampleA, 'Frieren: Beyond Journey'),
+          _entry(exampleA, 'Frieren OVA'),
         ],
         done: 1,
         total: 1,
@@ -572,7 +576,7 @@ void main() {
 
       // The shelf header (extension name) navigates to the extension's own
       // search page, carrying the keyword that produced these results.
-      await tester.tap(find.text('Miruro'));
+      await tester.tap(find.text('ExampleA'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
@@ -582,13 +586,13 @@ void main() {
   });
 
   group('orderGlobalResults', () {
-    final miruro = _meta('a.pkg', 'Miruro');
-    final rawkuma = _meta('b.pkg', 'Rawkuma');
+    final exampleA = _meta('a.pkg', 'ExampleA');
+    final exampleC = _meta('b.pkg', 'ExampleC');
 
     test('relevance ranks exact matches above loose ones', () {
       final entries = [
         GlobalSearchEntry(
-          meta: miruro,
+          meta: exampleA,
           item: (ExtensionListItem()
             ..title = 'Something else'
             ..url = 'https://example.com/a'),
@@ -596,7 +600,7 @@ void main() {
           origin: 0,
         ),
         GlobalSearchEntry(
-          meta: miruro,
+          meta: exampleA,
           item: (ExtensionListItem()
             ..title = 'Frieren'
             ..url = 'https://example.com/b'),
@@ -604,7 +608,7 @@ void main() {
           origin: 1,
         ),
         GlobalSearchEntry(
-          meta: rawkuma,
+          meta: exampleC,
           item: (ExtensionListItem()
             ..title = 'Frieren goes on'
             ..url = 'https://example.com/c'),
@@ -629,7 +633,7 @@ void main() {
     test('latest prefers the newest parseable timestamp', () {
       final entries = [
         GlobalSearchEntry(
-          meta: miruro,
+          meta: exampleA,
           item: (ExtensionListItem()
             ..title = 'old'
             ..url = 'https://example.com/a'
@@ -638,7 +642,7 @@ void main() {
           origin: 0,
         ),
         GlobalSearchEntry(
-          meta: miruro,
+          meta: exampleA,
           item: (ExtensionListItem()
             ..title = 'new'
             ..url = 'https://example.com/b'
@@ -656,7 +660,7 @@ void main() {
     test('latest understands relative timestamps too', () {
       final entries = [
         GlobalSearchEntry(
-          meta: miruro,
+          meta: exampleA,
           item: (ExtensionListItem()
             ..title = 'older'
             ..url = 'https://example.com/old'
@@ -665,7 +669,7 @@ void main() {
           origin: 0,
         ),
         GlobalSearchEntry(
-          meta: miruro,
+          meta: exampleA,
           item: (ExtensionListItem()
             ..title = 'newest'
             ..url = 'https://example.com/new'
@@ -683,7 +687,7 @@ void main() {
     test('sourcePriority puts pinned sources first', () {
       final entries = [
         GlobalSearchEntry(
-          meta: rawkuma,
+          meta: exampleC,
           item: (ExtensionListItem()
             ..title = 'unpinned'
             ..url = 'https://example.com/a'),
@@ -691,7 +695,7 @@ void main() {
           origin: 0,
         ),
         GlobalSearchEntry(
-          meta: miruro,
+          meta: exampleA,
           item: (ExtensionListItem()
             ..title = 'pinned'
             ..url = 'https://example.com/b'),
@@ -718,8 +722,8 @@ void main() {
       Set<String> specific = const {},
     }) => SearchPageState(
       metaData: [
-        _meta('a.pkg', 'Miruro', type: ExtensionType.bangumi),
-        _meta('b.pkg', 'Rawkuma', type: ExtensionType.manga),
+        _meta('a.pkg', 'ExampleA', type: ExtensionType.bangumi),
+        _meta('b.pkg', 'ExampleC', type: ExtensionType.manga),
         _meta('c.pkg', 'Novel', type: ExtensionType.fikushon),
       ],
       pinnedExtensions: {},
@@ -786,8 +790,8 @@ void main() {
         overrides: [
           extensionPageProvider.overrideWith(
             () => _FakeExtensionPage([
-              _meta('a.pkg', 'Miruro'),
-              _meta('b.pkg', 'Nyaa'),
+              _meta('a.pkg', 'ExampleA'),
+              _meta('b.pkg', 'ExampleB'),
             ]),
           ),
         ],
@@ -804,7 +808,7 @@ void main() {
       final container = ProviderContainer(
         overrides: [
           extensionPageProvider.overrideWith(
-            () => _FakeExtensionPage([_meta('a.pkg', 'Miruro')]),
+            () => _FakeExtensionPage([_meta('a.pkg', 'ExampleA')]),
           ),
         ],
       );
@@ -823,8 +827,8 @@ void main() {
         overrides: [
           extensionPageProvider.overrideWith(
             () => _FakeExtensionPage([
-              _meta('a.pkg', 'Miruro'),
-              _meta('b.pkg', 'Nyaa'),
+              _meta('a.pkg', 'ExampleA'),
+              _meta('b.pkg', 'ExampleB'),
             ]),
           ),
         ],
@@ -875,7 +879,7 @@ void main() {
         final container = ProviderContainer(
           overrides: [
             searchPageProvider.overrideWith(
-              () => _FakeSearchPage([_meta('a.pkg', 'Miruro')]),
+              () => _FakeSearchPage([_meta('a.pkg', 'ExampleA')]),
             ),
             fetchExtensionSearchLatestProvider.overrideWith((ref, arg) async {
               final (pkg, page, query: _, filter: _) = arg;
@@ -918,7 +922,7 @@ void main() {
       tester,
     ) async {
       final aggregate = GlobalSearchAggregate(
-        entries: [_entry(_meta('a.pkg', 'Miruro'), 'Frieren')],
+        entries: [_entry(_meta('a.pkg', 'ExampleA'), 'Frieren')],
         done: 1,
         total: 1,
         failed: const [],
@@ -954,9 +958,9 @@ void main() {
     testWidgets('a tall relevance grid waits for the reader to scroll down', (
       tester,
     ) async {
-      final miruro = _meta('a.pkg', 'Miruro');
+      final exampleA = _meta('a.pkg', 'ExampleA');
       final aggregate = GlobalSearchAggregate(
-        entries: [for (var i = 0; i < 24; i++) _entry(miruro, 'Frieren $i')],
+        entries: [for (var i = 0; i < 24; i++) _entry(exampleA, 'Frieren $i')],
         done: 1,
         total: 1,
         failed: const [],
@@ -996,9 +1000,9 @@ void main() {
     testWidgets('a short buffer refills without the reader scrolling', (
       tester,
     ) async {
-      final miruro = _meta('a.pkg', 'Miruro');
+      final exampleA = _meta('a.pkg', 'ExampleA');
       final aggregate = GlobalSearchAggregate(
-        entries: [for (var i = 0; i < 12; i++) _entry(miruro, 'Frieren $i')],
+        entries: [for (var i = 0; i < 12; i++) _entry(exampleA, 'Frieren $i')],
         done: 1,
         total: 1,
         failed: const [],
@@ -1025,9 +1029,9 @@ void main() {
     testWidgets('a refresh rewinds the depth and paging still works after', (
       tester,
     ) async {
-      final miruro = _meta('a.pkg', 'Miruro');
+      final exampleA = _meta('a.pkg', 'ExampleA');
       final aggregate = GlobalSearchAggregate(
-        entries: [for (var i = 0; i < 24; i++) _entry(miruro, 'Frieren $i')],
+        entries: [for (var i = 0; i < 24; i++) _entry(exampleA, 'Frieren $i')],
         done: 1,
         total: 1,
         failed: const [],
@@ -1079,7 +1083,7 @@ void main() {
       'the next page sits behind skeleton cards while it is in flight',
       (tester) async {
         final aggregate = GlobalSearchAggregate(
-          entries: [_entry(_meta('a.pkg', 'Miruro'), 'Frieren')],
+          entries: [_entry(_meta('a.pkg', 'ExampleA'), 'Frieren')],
           done: 1,
           total: 2,
           failed: const [],
@@ -1116,7 +1120,7 @@ void main() {
       tester,
     ) async {
       final aggregate = GlobalSearchAggregate(
-        entries: [_entry(_meta('a.pkg', 'Miruro'), 'Frieren')],
+        entries: [_entry(_meta('a.pkg', 'ExampleA'), 'Frieren')],
         done: 1,
         total: 1,
         failed: const [],
@@ -1149,23 +1153,23 @@ void main() {
 
   group('score and allocation', () {
     test('matchScore is 1 for an identical title and 0 for a miss', () {
-      final miruro = _meta('a.pkg', 'Miruro');
-      expect(matchScore(_entry(miruro, 'Frieren'), 'frieren'), 1);
-      expect(matchScore(_entry(miruro, '  Frieren  '), 'Frieren'), 1);
+      final exampleA = _meta('a.pkg', 'ExampleA');
+      expect(matchScore(_entry(exampleA, 'Frieren'), 'frieren'), 1);
+      expect(matchScore(_entry(exampleA, '  Frieren  '), 'Frieren'), 1);
       expect(
-        matchScore(_entry(miruro, 'Frieren: Beyond Journey'), 'Frieren'),
+        matchScore(_entry(exampleA, 'Frieren: Beyond Journey'), 'Frieren'),
         0,
       );
-      expect(matchScore(_entry(miruro, 'Frieren'), ''), 0);
+      expect(matchScore(_entry(exampleA, 'Frieren'), ''), 0);
     });
 
     test("a source's pages are scored as length and avg", () {
-      final miruro = _meta('a.pkg', 'Miruro');
+      final exampleA = _meta('a.pkg', 'ExampleA');
       final yields = pageYields(
         [
-          _entryOnPage(miruro, 'miss one', 1),
-          _entryOnPage(miruro, 'miss two', 1),
-          _entryOnPage(miruro, 'Frieren', 2),
+          _entryOnPage(exampleA, 'miss one', 1),
+          _entryOnPage(exampleA, 'miss two', 1),
+          _entryOnPage(exampleA, 'Frieren', 2),
         ],
         'a.pkg',
         'Frieren',
@@ -1263,7 +1267,7 @@ void main() {
       tester,
     ) async {
       final aggregate = GlobalSearchAggregate(
-        entries: [_entry(_meta('a.pkg', 'Miruro'), 'Frieren')],
+        entries: [_entry(_meta('a.pkg', 'ExampleA'), 'Frieren')],
         done: 1,
         total: 1,
         failed: const [],
@@ -1358,10 +1362,10 @@ void main() {
   group('failure handling', () {
     testWidgets('a failed source offers a retry', (tester) async {
       final aggregate = GlobalSearchAggregate(
-        entries: [_entry(_meta('a.pkg', 'Miruro'), 'Frieren')],
+        entries: [_entry(_meta('a.pkg', 'ExampleA'), 'Frieren')],
         done: 1,
         total: 2,
-        failed: const ['RoyalRoad'],
+        failed: const ['ExampleD'],
         failedPackages: const ['royal.pkg'],
       );
       await pumpSearch(tester, aggregate: aggregate, location: '/search/input');
@@ -1383,7 +1387,7 @@ void main() {
       await pumpSearch(tester, dark: true);
 
       expect(find.text('search.extension_sources'), findsOneWidget);
-      expect(find.text('Miruro'), findsOneWidget);
+      expect(find.text('ExampleA'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 
@@ -1391,7 +1395,7 @@ void main() {
       tester,
     ) async {
       final aggregate = GlobalSearchAggregate(
-        entries: [_entry(_meta('a.pkg', 'Miruro'), 'Frieren')],
+        entries: [_entry(_meta('a.pkg', 'ExampleA'), 'Frieren')],
         done: 1,
         total: 1,
         failed: const [],
@@ -1492,12 +1496,12 @@ void main() {
     ) async {
       final container = await pumpSearch(tester);
 
-      // Pinned-first then name: Miruro is the first card; its eye hides it.
+      // Pinned-first then name: ExampleA is the first card; its eye hides it.
       await tester.tap(find.byIcon(FLucideIcons.eyeOff).first);
       await tester.pump();
 
-      expect(find.text('Miruro'), findsNothing);
-      expect(find.text('Rawkuma'), findsOneWidget);
+      expect(find.text('ExampleA'), findsNothing);
+      expect(find.text('ExampleC'), findsOneWidget);
       // Persisted like the pinned set, and out of the query scope.
       expect(
         MiruSettings.getSettingSync<Set<String>>(SettingKey.hiddenExtension),
@@ -1523,13 +1527,13 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Miruro'), findsOneWidget);
+      expect(find.text('ExampleA'), findsOneWidget);
       // In the hidden view the eye points the other way: restore.
       expect(find.byIcon(FLucideIcons.eye), findsOneWidget);
 
       await tester.tap(find.byIcon(FLucideIcons.eye));
       await tester.pump();
-      expect(find.text('Miruro'), findsNothing);
+      expect(find.text('ExampleA'), findsNothing);
       expect(
         MiruSettings.getSettingSync<Set<String>>(SettingKey.hiddenExtension),
         isEmpty,
@@ -1543,7 +1547,7 @@ void main() {
     testWidgets('pinned cards trade the eye for the unpin', (tester) async {
       await pumpSearch(tester, pinned: {'a.pkg'});
 
-      // Miruro pinned: unpin + settings, no eye. The two unpinned cards keep
+      // ExampleA pinned: unpin + settings, no eye. The two unpinned cards keep
       // pin + eye + settings.
       expect(find.byIcon(FLucideIcons.eyeOff), findsNWidgets(2));
       expect(find.byIcon(FLucideIcons.pinOff), findsOneWidget);

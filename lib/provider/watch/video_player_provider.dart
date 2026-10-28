@@ -4,6 +4,8 @@ import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/provider/cast/dlna_cast_bridge.dart';
+import 'package:miru_alpha/provider/cast/dlna_cast_provider.dart';
 import 'package:miru_alpha/provider/network_provider.dart';
 import 'package:miru_alpha/utils/watch/subtitle.dart';
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
@@ -28,6 +30,13 @@ class VideoPlayerTickState {
   final String currentSubtitle;
   final bool showControls;
   final bool showSettings;
+
+  /// The pane the settings surface opens on — the landscape meta chips
+  /// deep-link here (mirror / resolution / subtitle / speed); 0 keeps the
+  /// first tab. The docked panel keys its tabs on this value so a change
+  /// re-selects the pane while the panel is already mounted.
+  final int settingsTab;
+  final bool locked;
   final Map<String, String> qualityMap;
   final double ratio;
   final pb_extension.ExtensionWatch? v2watch;
@@ -47,6 +56,8 @@ class VideoPlayerTickState {
     this.currentSubtitle = '',
     this.showControls = false,
     this.showSettings = false,
+    this.settingsTab = 0,
+    this.locked = false,
     this.v2watch,
   });
 
@@ -65,6 +76,8 @@ class VideoPlayerTickState {
     bool? isShowSubtitle,
     bool? showControls,
     bool? showSettings,
+    int? settingsTab,
+    bool? locked,
     int? selectedGroupIndex,
     int? selectedEpisodeIndex,
     String? name,
@@ -89,6 +102,8 @@ class VideoPlayerTickState {
       qualityMap: qualityMap ?? this.qualityMap,
       showControls: showControls ?? this.showControls,
       showSettings: showSettings ?? this.showSettings,
+      settingsTab: settingsTab ?? this.settingsTab,
+      locked: locked ?? this.locked,
       v2watch: v2watch ?? v2watch,
     );
   }
@@ -116,10 +131,20 @@ const videoExtensions = [
 ];
 
 @riverpod
-class VideoPlayerNotifier extends _$VideoPlayerNotifier {
+class VideoPlayerNotifier extends _$VideoPlayerNotifier
+    implements DlnaPlayerSurface {
   late VideoPlayerController vidController;
   late final Size defaultSize;
   VideoPlayerController get videoPlayerController => vidController;
+
+  /// The watch result's HTTP headers (Referer/User-Agent/…): the DLNA cast
+  /// hands them to the ffmpeg engine so the source fetch passes the same
+  /// gates the local player passes.
+  Map<String, String> _streamHeaders = const {};
+
+  /// Headers for the currently loaded stream, empty when none.
+  Map<String, String> get streamHeaders => _streamHeaders;
+
   @override
   VideoPlayerTickState build(
     String? mediaUrl, {
@@ -131,6 +156,10 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     pb_extension.ExtensionWatch? v2watch,
   }) {
     defaultSize = initialRatio ?? const Size(0, 0);
+    _streamHeaders = headers ?? const {};
+    // Register the simplified player surface: the cast session forwards app
+    // actions and echoes renderer transport state back onto this notifier.
+    ref.read(dlnaCastProvider.notifier).attachPlayer(this);
     String streamUrl = mediaUrl ?? '';
     vidController = _getController(
       streamUrl,
@@ -182,7 +211,21 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     _hideTimer?.cancel();
     state = state.copyWith(showControls: v);
     if (v) {
-      // if showing, schedule auto-hide
+      // Auto-hide only while playing: a paused surface keeps its controls —
+      // the play/pause affordance stays visible (the reference mock does the
+      // same). Pausing cancels this via the tap path re-showing controls.
+      _hideTimer = Timer(const Duration(seconds: 3), () {
+        if (state.isPlaying) state = state.copyWith(showControls: false);
+      });
+    }
+  }
+
+  /// Screen lock (landscape mobile): a locked surface hides all chrome and
+  /// swallows playback gestures until the unlock pill is tapped.
+  void setLocked(bool v) {
+    _hideTimer?.cancel();
+    state = state.copyWith(locked: v, showControls: !v);
+    if (!v) {
       _hideTimer = Timer(const Duration(seconds: 3), () {
         state = state.copyWith(showControls: false);
       });
@@ -235,7 +278,13 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     vidController.pause();
     vidController.removeListener(_updatePosition);
     vidController.dispose();
-    vidController = VideoPlayerController.networkUrl(Uri.parse(url));
+    // Keep the stream headers: a fresh controller without them drops the
+    // Referer/User-Agent the source gates on, and the cast engine (fed the
+    // same headers) would then send requests the local player never does.
+    vidController = VideoPlayerController.networkUrl(
+      Uri.parse(url),
+      httpHeaders: _streamHeaders,
+    );
 
     vidController.initialize().then((_) {
       vidController.addListener(_updatePosition);
@@ -249,24 +298,55 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     });
   }
 
+  /// Controller listener: pushes the player's value into Riverpod state.
+  ///
+  /// mdk fires many notifications per second (one per frame tick), and every
+  /// push here rebuilds every watcher of this provider — pushing all of them
+  /// is the transport's lag. Only meaningful deltas are pushed instead:
+  /// 250ms position granularity (the scrubber still drags locally at full
+  /// rate via its own useState), plus any discrete flag change.
   void _updatePosition() {
+    final v = vidController.value;
+    final positionMoved =
+        (v.position - state.position).abs() >=
+        const Duration(milliseconds: 250);
+    final playStateChanged = v.isPlaying != state.isPlaying;
+    if (!positionMoved &&
+        !playStateChanged &&
+        v.duration == state.duration &&
+        v.aspectRatio == state.ratio &&
+        _sameBuffered(v.buffered, state.bufferedRange)) {
+      return;
+    }
     state = state.copyWith(
-      position: vidController.value.position,
-      isPlaying: vidController.value.isPlaying,
-      duration: vidController.value.duration,
-      buffered: vidController.value.buffered,
+      position: v.position,
+      isPlaying: v.isPlaying,
+      duration: v.duration,
+      buffered: v.buffered,
       currentSubtitle: getCurrentSubtitle(),
-      ratio: vidController.value.aspectRatio,
+      ratio: v.aspectRatio,
     );
+  }
+
+  /// Whether the two buffered ranges carry identical start/end points.
+  bool _sameBuffered(List<DurationRange> a, List<DurationRange> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].start != b[i].start || a[i].end != b[i].end) return false;
+    }
+    return true;
   }
 
   void changeSubtitle(int index) {
     state = state.copyWith(selectedSubtitleIndex: index);
   }
 
+  @override
   void play() {
     vidController.play();
     state = state.copyWith(isPlaying: true);
+    // Cast session live: the local play is the master action — mirror it.
+    DlnaCastBridge.instance.pipePlay();
   }
 
   void playOrPause() {
@@ -277,18 +357,54 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     play();
   }
 
+  @override
   void pause() {
     vidController.pause();
     state = state.copyWith(isPlaying: false);
+    DlnaCastBridge.instance.pipePause();
   }
 
   void seek(Duration position) {
     state = state.copyWith(position: position);
     vidController.seekTo(position);
+    DlnaCastBridge.instance.pipeSeek(position);
   }
 
   void seekBy(int seconds) {
     seek(state.position + Duration(seconds: seconds));
+  }
+
+  // --- DlnaPlayerSurface (the simplified player the cast session drives) ---
+
+  @override
+  Duration get position => state.position;
+
+  @override
+  Duration? get duration => state.duration;
+
+  @override
+  bool get playing => state.isPlaying;
+
+  @override
+  void seekTo(Duration position) => seek(position);
+
+  @override
+  Future<void> load(String source) async {
+    // Episode/source switch — same machinery as a quality switch: a fresh
+    // controller on the new source; the cast session re-pushes it.
+    changeVideoQuality(source);
+  }
+
+  @override
+  void syncTransport({required bool playing, required Duration position}) {
+    // RENDERER→app echo: apply without re-forwarding (no pipe* calls here).
+    state = state.copyWith(isPlaying: playing, position: position);
+    if (playing) {
+      vidController.play();
+    } else {
+      vidController.pause();
+    }
+    vidController.seekTo(position);
   }
 
   void setSpeed(double speed) {
@@ -343,6 +459,13 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
     state = state.copyWith(showSettings: !state.showSettings);
   }
 
+  /// Opens the settings surface on a specific pane — the landscape meta
+  /// chips deep-link (mirror / resolution / subtitle / speed) instead of
+  /// dumping the user on the first tab.
+  void openSettings(int tab) {
+    state = state.copyWith(settingsTab: tab, showSettings: true);
+  }
+
   Future<void> switchMirror(
     String packageName,
     pb_extension.ExtensionMirror mirror,
@@ -363,6 +486,10 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier {
         vidController.removeListener(_updatePosition);
         await vidController.dispose();
 
+        // The cast engine is fed streamHeaders — keep it in step with the
+        // headers the new controller actually uses, so both engines send the
+        // same requests after a mirror switch.
+        _streamHeaders = watchResult.headers;
         vidController = _getController(
           watchResult.url,
           watchResult.headers,

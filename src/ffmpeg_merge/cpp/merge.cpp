@@ -1,19 +1,17 @@
+// Download-merge engine: concatenates HLS/TS segments into one MP4 by
+// stream-copying packets with continuous timestamps. Exposed to Dart through
+// the single `start(argc, argv)` entry point.
 #include <cstdlib>
 #include <iostream>
+
 extern "C" {
-#include "libavcodec/avcodec.h"
-#include "libavformat/avformat.h"
-#include "libavutil/avutil.h"
 #include "libavutil/error.h"
 }
-// Cross-platform export definition
-#ifdef _WIN32
-#define EXPORT extern "C" __declspec(dllexport)
-#else
-#define EXPORT                                                                 \
-  extern "C" __attribute__((visibility("default"))) __attribute__((used))
-#endif
+
+#include "common.h"
+
 EXPORT int start(int input_file_num, char *files[]);
+
 // Global contexts and streams
 static AVFormatContext *input_ctx = nullptr;
 static AVFormatContext *output_ctx = nullptr;
@@ -21,19 +19,6 @@ static AVStream *input_video_stream = nullptr;
 static AVStream *output_video_stream = nullptr;
 static AVStream *input_audio_stream = nullptr;
 static AVStream *output_audio_stream = nullptr;
-
-// Logs the FFmpeg error for `ret` and returns it unchanged so callers can
-// propagate the failure instead of aborting the whole process. Previously this
-// called `exit(EXIT_FAILURE)`, which killed the host Flutter/Dart process when
-// invoked through FFI.
-int check_error(int ret, const char *msg) {
-  if (ret < 0) {
-    char error[AV_ERROR_MAX_STRING_SIZE];
-    av_strerror(ret, error, AV_ERROR_MAX_STRING_SIZE);
-    std::cerr << msg << ": " << error << std::endl;
-  }
-  return ret;
-}
 
 int setup_output_video_stream() {
   // Copy codec parameters for video
@@ -85,6 +70,7 @@ int64_t get_video_start_time(AVFormatContext *ctx, int video_stream_idx) {
   }
   return 0;
 }
+
 int64_t get_audio_start_time(AVFormatContext *ctx, int audio_stream_idx) {
   if (ctx->streams[audio_stream_idx]->start_time != AV_NOPTS_VALUE) {
     return ctx->streams[audio_stream_idx]->start_time;
@@ -92,7 +78,6 @@ int64_t get_audio_start_time(AVFormatContext *ctx, int audio_stream_idx) {
   return 0;
 }
 
-// Replace the existing process_packets function with this updated version.
 // Returns 0 on success, or a negative FFmpeg error code on failure so the
 // caller can abort gracefully instead of crashing the process.
 int process_packets(int64_t &last_pts_video, int64_t &last_dts_video,
@@ -323,7 +308,8 @@ int main(int argc, char *argv[]) {
       // Find video stream in new input
       input_video_stream = nullptr;
       for (unsigned int s = 0; s < input_ctx->nb_streams; s++) {
-        if (input_ctx->streams[s]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+        if (input_ctx->streams[s]->codecpar->codec_type ==
+            AVMEDIA_TYPE_VIDEO) {
           input_video_stream = input_ctx->streams[s];
           std::cout << "Found video stream in file " << argv[i] << " at index "
                     << s << std::endl;
@@ -333,10 +319,9 @@ int main(int argc, char *argv[]) {
       // Find audio stream in new input
       input_audio_stream = nullptr;
       for (unsigned int s = 0; s < input_ctx->nb_streams; s++) {
-        if (input_ctx->streams[s]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+        if (input_ctx->streams[s]->codecpar->codec_type ==
+            AVMEDIA_TYPE_AUDIO) {
           input_audio_stream = input_ctx->streams[s];
-          std::cout << "Found audio stream in file " << argv[i] << " at index "
-                    << s << std::endl;
           break;
         }
       }
@@ -374,6 +359,7 @@ fail:
   }
   return ret < 0 ? ret : EXIT_FAILURE;
 }
+
 int start(int input_file_num, char *files[]) {
   // add an empty string to the beginning of the array to match the main
   // function

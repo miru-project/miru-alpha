@@ -109,3 +109,44 @@ android {
 flutter {
     source = "../.."
 }
+
+// fvp's FindMDK.cmake links mdk's bundled libffmpeg.so into libfvp.so purely
+// so gradle packages it; mdk embeds FFmpeg statically and libfvp.so uses no
+// symbols from it (mdk dlopens only libass.so for subtitles, which stays).
+// Strip that dependency and drop the surplus file: ~8 MB per ABI, per APK.
+gradle.projectsEvaluated {
+    val fvp = rootProject.subprojects.find { it.name == "fvp" } ?: return@projectsEvaluated
+    fvp.tasks.matching { it.name.startsWith("buildCMake") }.configureEach {
+        doLast {
+            val patchelf = listOf("/usr/bin/patchelf", "patchelf").firstOrNull { p ->
+                try {
+                    ProcessBuilder(p, "--version").start().waitFor() == 0
+                } catch (_: Exception) {
+                    false
+                }
+            } ?: run {
+                println("patchelf not found: keeping mdk's bundled libffmpeg.so")
+                return@doLast
+            }
+            val buildDir = fvp.layout.buildDirectory.get().asFile
+            buildDir.walkTopDown().forEach { f ->
+                when {
+                    f.name == "libfvp.so" && f.path.contains("/obj/") -> {
+                        val rc = ProcessBuilder(
+                            patchelf, "--remove-needed", "libffmpeg.so", f.absolutePath,
+                        ).start().waitFor()
+                        if (rc == 0) {
+                            println("patchelf: dropped libffmpeg.so from ${f.relativeTo(buildDir)}")
+                        } else {
+                            println("patchelf failed on ${f.relativeTo(buildDir)} (rc=$rc)")
+                        }
+                    }
+                    f.name == "libffmpeg.so" -> {
+                        f.delete()
+                        println("removed surplus ${f.relativeTo(buildDir)}")
+                    }
+                }
+            }
+        }
+    }
+}

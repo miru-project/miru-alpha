@@ -227,7 +227,7 @@ class _ExtensionFilterBodyState extends ConsumerState<ExtensionFilterBody> {
   }
 }
 
-/// The `Miruro Filters` dialog shell, matched to the reference mock:
+/// The `ExampleA Filters` dialog shell, matched to the reference mock:
 /// tune badge + title/subtitle header with `Reset`/close, the flat
 /// [ExtensionFilterPanel] as the single scrollable, and no footer.
 ///

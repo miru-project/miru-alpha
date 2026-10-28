@@ -11,10 +11,7 @@ void main() {
         'The second season of <i>Katainaka no Ossan</i>.',
         style: style,
       );
-      expect(
-        span.toPlainText(),
-        'The second season of Katainaka no Ossan.',
-      );
+      expect(span.toPlainText(), 'The second season of Katainaka no Ossan.');
       final italic = span.children!.whereType<TextSpan>().firstWhere(
         (s) => s.text == 'Katainaka no Ossan',
       );
@@ -55,7 +52,12 @@ void main() {
         'a &amp; b &lt;tag&gt; &quot;q&quot; &#39;s&#39; x&nbsp;y',
         style: style,
       );
-      expect(span.toPlainText(), 'a & b <tag> "q" ' "'s'" ' x y');
+      expect(
+        span.toPlainText(),
+        'a & b <tag> "q" '
+        "'s'"
+        ' x y',
+      );
     });
 
     test('collapses horizontal whitespace, keeps plain text as-is', () {

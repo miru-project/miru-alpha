@@ -49,32 +49,34 @@ class MiruExpandableTabs extends StatelessWidget {
       decoration: style.decoration,
       child: Padding(
         padding: style.padding,
-        child: SizedBox(
-          width: double.infinity,
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            runAlignment: WrapAlignment.center,
-            spacing: gap,
-            runSpacing: gap,
-            children: [
-              for (var i = 0; i < children.length; i++)
-                _ExpandableTab(
-                  active: i == selectedIndex,
-                  icon: children[i].icon,
-                  label: children[i].label,
-                  onTap: () => onIndexChanged?.call(i),
-                  iconSize: iconSize,
-                  collapsedWidth: collapsedWidth,
-                  expandedWidth: expandedWidth,
-                  height: height,
-                  radius: radius,
-                  focusedOutlineStyle: style.focusedOutlineStyle,
-                  activeColor: colors.foreground,
-                  inactiveColor: colors.mutedForeground,
-                  pillColor: colors.background,
-                ),
-            ],
-          ),
+        // No forced infinite width: the bar shrink-wraps to its thumbs
+        // (a Wrap hug-fits), so a narrow host (the player settings panel)
+        // never paints empty slab wings beside the thumbs. Full-width
+        // hosts (the download page's stretch column) are unaffected — the
+        // tight constraints still expand the bar.
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          runAlignment: WrapAlignment.center,
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (var i = 0; i < children.length; i++)
+              _ExpandableTab(
+                active: i == selectedIndex,
+                icon: children[i].icon,
+                label: children[i].label,
+                onTap: () => onIndexChanged?.call(i),
+                iconSize: iconSize,
+                collapsedWidth: collapsedWidth,
+                expandedWidth: expandedWidth,
+                height: height,
+                radius: radius,
+                focusedOutlineStyle: style.focusedOutlineStyle,
+                activeColor: colors.foreground,
+                inactiveColor: colors.mutedForeground,
+                pillColor: colors.background,
+              ),
+          ],
         ),
       ),
     );

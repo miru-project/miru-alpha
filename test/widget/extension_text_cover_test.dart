@@ -40,13 +40,13 @@ void main() {
 
   group('initialsOf', () {
     test('splits camel-case words into letters', () {
-      expect(initialsOf('MangaDex'), 'MD');
-      expect(initialsOf('NovelUpdates'), 'NU');
+      expect(initialsOf('ExampleSite'), 'ES');
+      expect(initialsOf('SampleNovel'), 'SN');
     });
 
     test('takes the first two characters otherwise', () {
       expect(initialsOf('Crunchyroll'), 'CR');
-      expect(initialsOf('nyaa.si'), 'NY');
+      expect(initialsOf('exampleb.si'), 'EX');
       expect(initialsOf('M'), 'M');
     });
 
@@ -100,13 +100,13 @@ void main() {
 
   testWidgets('the same seed keeps its colour across rebuilds', (tester) async {
     await tester.pumpWidget(
-      wrap(const TextCover(seed: 'Rawkuma'), theme: MiruThemes.zinc.dark),
+      wrap(const TextCover(seed: 'ExampleC'), theme: MiruThemes.zinc.dark),
     );
     final first = colorsOf(tester);
 
     await tester.pumpWidget(
       wrap(
-        const TextCover(seed: 'Rawkuma', label: 'Updated'),
+        const TextCover(seed: 'ExampleC', label: 'Updated'),
         theme: MiruThemes.zinc.dark,
       ),
     );
@@ -121,7 +121,7 @@ void main() {
     final amber = colorsOf(tester).fill;
 
     await tester.pumpWidget(
-      wrap(const TextCover(seed: 'MangaDex'), theme: MiruThemes.zinc.dark),
+      wrap(const TextCover(seed: 'ExampleSite'), theme: MiruThemes.zinc.dark),
     );
 
     expect(colorsOf(tester).fill, isNot(amber));

@@ -10,7 +10,7 @@ import 'package:miru_alpha/ui/features/search/widget/filter_select_controls.dart
 import 'package:miru_alpha/ui/features/search/widget/filter_text_tile.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
-/// The `Miruro Filters` dialog's scrollable body: a FLAT list of labelled
+/// The `ExampleA Filters` dialog's scrollable body: a FLAT list of labelled
 /// sections, one per extension filter, with no accordion and no pinning.
 ///
 /// Layout follows the mock: every section is `[UPPERCASE label (+ count)] /

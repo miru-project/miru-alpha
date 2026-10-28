@@ -98,6 +98,11 @@ set_target_properties(${BINARY_NAME}
 # them to the application.
 include(flutter/generated_plugins.cmake)
 
+# fvp's mdk embeds FFmpeg statically on Linux and nothing links against or
+# dlopens its bundled libffmpeg.so.9 (the app's DLNA engine uses the split
+# avformat/avcodec libs) — keep it out of the bundle.
+list(FILTER PLUGIN_BUNDLED_LIBRARIES EXCLUDE REGEX "libffmpeg\\.so")
+
 # add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/ffmpeg_merge/linux ${CMAKE_BINARY_DIR}/ffmpeg_merge)
 # libmiru_core.so is built by the Dart build hook (hook/build.dart) and bundled
 # as a native code asset, so no CMake target is needed here.

@@ -51,6 +51,9 @@ class SliderThumb extends SliderComponentShape {
     final Canvas canvas = context.canvas;
     final t = Curves.easeOut.transform(activationAnimation.value);
     final baseRadius = lerpDouble(minRadius, maxRadius, t)!;
+    // The deactivated state passes zero radii — nothing to paint (the
+    // ring-thickness clamp below would also invert on a 0 radius).
+    if (baseRadius <= 0) return;
 
     final outerPaint = Paint()
       ..color = mainColor

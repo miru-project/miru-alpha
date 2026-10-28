@@ -16,6 +16,7 @@
     "status": "Status",
     "confirm": "Confirm",
     "cancel": "Cancel",
+    "undo": "Undo",
     "save": "Save",
     "delete": "Delete",
     "add": "Add",
@@ -84,7 +85,8 @@
     "days_ago": "{days} days ago",
     "weeks_ago": "{weeks} weeks ago",
     "months_ago": "{months} months ago",
-    "years_ago": "{years} years ago"
+    "years_ago": "{years} years ago",
+    "share": "Share"
   },
   "history_tools": {
     "clear_all": "Clear All",
@@ -147,7 +149,9 @@
     "cast_members": "{count} members",
     "cast_role_main": "Main",
     "cast_role_supporting": "Supporting",
-    "watching": "Watching"
+    "watching": "Watching",
+    "episode_number": "Episode {n}",
+    "overview": "Overview"
   },
   "extension": {
     "name": "Extension",
@@ -656,5 +660,44 @@
     "in_progress_one": "1 In Progress",
     "time_left": "{n}m left",
     "feed_title": "Feed: {tag}"
+  },
+  "watch": {
+    "source": "Source",
+    "speed": "Playback speed",
+    "now": "Now",
+    "prev_episode": "Prev Ep",
+    "next_episode": "Next Ep",
+    "synced_count": "Synced ({count})",
+    "ep_progress": "Ep {current}/{total}",
+    "seek_back": "Seek back 10 seconds",
+    "seek_forward": "Seek forward 10 seconds",
+    "fullscreen": "Fullscreen",
+    "exit_fullscreen": "Exit fullscreen",
+    "auto_rotation_on": "Auto rotation on",
+    "auto_rotation_off": "Auto rotation off",
+    "lock_screen": "Lock screen",
+    "unlock_screen": "Tap to unlock",
+    "tab_mirror": "Mirror",
+    "tab_resolution": "Resolution",
+    "tab_subtitle": "Subtitle",
+    "tab_speed": "Speed",
+    "remove_episode": "Remove episode",
+    "history_deleted": "History has been deleted",
+    "playback_settings": "Playback settings",
+    "no_subtitles": "No subtitles",
+    "no_quality_options": "No quality options",
+    "toggle_subtitles": "Toggle subtitles",
+    "now_playing": "Now Playing",
+    "ep_indicator": "Ep {current}/{total}",
+    "cast": "Cast",
+    "up_next": "Up Next",
+    "cast_searching": "Searching for devices on this network…",
+    "cast_devices": "Devices",
+    "cast_no_devices": "No DLNA devices found",
+    "cast_connecting": "Connecting…",
+    "cast_connected": "Now casting to {name}",
+    "cast_failed": "Could not connect to {name}",
+    "cast_stopped": "Cast stopped",
+    "cast_preparing": "Preparing MP4 for this renderer…"
   }
 }

@@ -73,7 +73,7 @@ const _edgeTolerance = 2.0;
 const _order = ['hero', 'trackers-cast', 'episodes'];
 
 ExtensionMeta _meta() => ExtensionMeta(
-  name: 'Miruro',
+  name: 'ExampleA',
   version: '2.0.0',
   author: 't',
   license: 'MIT',

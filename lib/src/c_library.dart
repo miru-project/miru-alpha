@@ -9,7 +9,11 @@ CLibrary getCLibrary({
     language: Language.cpp,
     name: 'ffmpeg_merge',
     assetName: 'src/ffmpeg_merge/ffmpeg_merge.g.dart',
-    sources: ['src/ffmpeg_merge/cpp/main.cpp'],
+    sources: [
+      'src/ffmpeg_merge/cpp/merge.cpp',
+      'src/ffmpeg_merge/cpp/dlna_stream.cpp',
+      'src/ffmpeg_merge/cpp/dlna_libass.cpp',
+    ],
     includes: includes ?? <String>[],
     libraries: libraries ?? <String>[],
     libraryDirectories: libraryDirectories ?? <String>[],

@@ -34,6 +34,8 @@ class MobileDetailTile extends ConsumerWidget {
     required this.detailPr,
     required this.history,
     required this.isDownloaded,
+    this.onPress,
+    this.selected = false,
   });
 
   final ExtensionEpisode item;
@@ -46,9 +48,20 @@ class MobileDetailTile extends ConsumerWidget {
   final Detail detail;
   final ExtensionMeta meta;
   final String detailUrl;
-  final DetialProvider detailPr;
+  final DetialProvider? detailPr;
   final History? history;
   final bool isDownloaded;
+
+  /// Overrides the default "push a new /watch route" tap behaviour — the
+  /// watch page passes [EpisodeNotifier.selectEpisode] so the row switches
+  /// the already-mounted player instead of stacking another route.
+  final VoidCallback? onPress;
+
+  /// Marks the currently playing episode: native selected tile styling, a
+  /// primary-tinted ordinal and a "Now" badge in place of the download
+  /// action. (One playing indicator — the animated equalizer was removed as
+  /// a third repeat of the same fact.)
+  final bool selected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -69,7 +82,6 @@ class MobileDetailTile extends ConsumerWidget {
     final h = history;
     final finished =
         h != null && h.totalProgress > 0 && h.progress >= h.totalProgress;
-    final partial = h != null && !finished && h.progress > 0;
     final frac = h != null && h.totalProgress > 0
         ? (h.progress / h.totalProgress).clamp(0.0, 1.0)
         : 0.0;
@@ -79,7 +91,34 @@ class MobileDetailTile extends ConsumerWidget {
       // 44px touch-floor of the suffix download button made every tile
       // ~73px tall. 8px vertical keeps the list dense while the full-row
       // tap target and the 44px button stay intact.
+      selected: selected,
       style: .delta(
+        // Selected row highlight (audit round 3 minor 1; round 5 medium 2):
+        // the mock's playing card — emerald accents on a raised fill.
+        // Emitted UNCONDITIONALLY (no `.match({.selected}, …)`) on purpose:
+        // Forui 0.27.6's FItem never adds `selected` to its style variants
+        // (formVariants = platform + disabled only), so variant-matched
+        // selected decorations — forui's own included — never paint.
+        contentDecoration: .delta([
+          // .base(...) applies to the base decoration unconditionally — no
+          // `.match({.selected})`, which never paints (Forui 0.27.6's FItem
+          // omits `selected` from its style variants; see the note above).
+          // The condition lives in this build: the delta is only emitted
+          // for the active row.
+          if (selected)
+            .base(
+              DecorationDelta.boxDelta(
+                // Follows the user's selected theme accent (not a hardcoded
+                // green): the selection highlight tracks whatever primary
+                // the theme picker is set to.
+                color: context.theme.colors.primary.withAlpha(26),
+                border: Border.all(
+                  color: context.theme.colors.primary.withAlpha(128),
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+        ]),
         contentStyle: .delta(
           suffixedPadding: EdgeInsetsGeometryDelta.value(
             const EdgeInsets.fromLTRB(15, 8, 13, 8),
@@ -89,97 +128,129 @@ class MobileDetailTile extends ConsumerWidget {
       ),
       prefix: SizedBox(
         width: 24,
-        // Plain bold ordinal (the reference drops the bordered box) —
-        // "01 | Asa and Yuru"; the watching state is carried by the
-        // title badge and the progress bar instead.
+        // Plain bold ordinal on every row ("01 | Asa and Yuru"); inactive
+        // rows recede with muted ink. The playing indicators (EQ bars +
+        // NOW badge) live together at the row's right end — splitting them
+        // across the card made the eye jump twice (review round 6, minor 1).
         child: Text(
           position.toString().padLeft(2, '0'),
           textAlign: TextAlign.center,
           style: context.theme.typography.body.sm.copyWith(
             fontWeight: FontWeight.w700,
-            color: partial
+            color: selected
                 ? context.theme.colors.primary
                 : context.theme.colors.mutedForeground,
           ),
         ),
       ),
-      suffix: FTappableGroup.isolate(
-        child: FButton.icon(
-          variant: .ghost,
-          onPress: (isLoading || isDownloaded)
-              ? null
-              : () => _startDownload(context, ref, key),
-          child: isLoading
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: FCircularProgress(),
-                )
-              : isDownloaded
-              ? Icon(FLucideIcons.circleCheck, color: const Color(0xFF34D399))
-              : Icon(FLucideIcons.arrowDownToLine),
-        ),
-      ),
+      suffix: selected
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const _EqBars(),
+                const SizedBox(width: 6),
+                FBadge(
+                  variant: .primary,
+                  style: .delta(
+                    padding: EdgeInsetsGeometryDelta.value(
+                      const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    ),
+                  ),
+                  child: Text(
+                    'watch.now'.i18n,
+                    style: context.theme.typography.body.xs2.copyWith(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                      color: context.theme.colors.primaryForeground,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : FTappableGroup.isolate(
+              child: FButton.icon(
+                variant: .ghost,
+                // Fully watched: a check replaces the download affordance —
+                // the mock's watched rows carry an emerald check_circle
+                // instead of an arrow.
+                onPress: (isLoading || isDownloaded || finished)
+                    ? null
+                    : () => _startDownload(context, ref, key),
+                child: isLoading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: FCircularProgress(),
+                      )
+                    : isDownloaded || finished
+                    ? Icon(
+                        FLucideIcons.circleCheck,
+                        color: context.theme.colors.primary,
+                      )
+                    : Icon(FLucideIcons.arrowDownToLine),
+              ),
+            ),
       title: Row(
         children: [
           Flexible(
             child: Text(
               // The prefix box already carries the number, so the raw
               // "Episode N - " prefix is stripped ("01 | Asa and Yuru").
-              stripEpisodePrefix(item.name),
+              // A name that is itself a bare backend number ("0") renders
+              // as a human "Episode N" instead of "01 | 0". Fully watched
+              // episodes grey out; unplayed ones dim slightly so the
+              // active row dominates (review round 5 medium 2).
+              isBareEpisodeName(item.name)
+                  ? 'media.episode_number'.fill({'n': '$position'})
+                  : stripEpisodePrefix(item.name),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              style: selected
+                  ? context.theme.typography.body.sm.copyWith(
+                      fontWeight: FontWeight.w700,
+                    )
+                  : finished
+                  ? context.theme.typography.body.sm.copyWith(
+                      color: context.theme.colors.mutedForeground,
+                    )
+                  : context.theme.typography.body.sm.copyWith(
+                      color: context.theme.colors.foreground.withAlpha(216),
+                    ),
             ),
           ),
-          if (partial) ...[
-            const SizedBox(width: 6),
-            FBadge(
-              variant: .primary,
-              style: .delta(
-                padding: EdgeInsetsGeometryDelta.value(
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                ),
-              ),
-              child: Text(
-                'media.watching'.i18n,
-                style: context.theme.typography.body.xs2.copyWith(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w600,
-                  color: context.theme.colors.primaryForeground,
-                ),
-              ),
-            ),
-          ],
         ],
       ),
-      onPress: () {
-        final donwloadList = ref.watch(
-          detailPr.select((value) => value.downloadList),
-        );
-        final savePath = donwloadList
-            .firstWhereOrNull(
-              (element) =>
-                  element.key ==
-                  "${detail.title}-${detail.episodes?[selectedGpIndex].title}-${item.name}",
-            )
-            ?.savePath;
-        context.push<WatchParams>(
-          "/watch",
-          extra: WatchParams(
-            detailPr: detailPr,
-            name: detail.title,
-            savePath: savePath,
-            detailImageUrl: detail.cover ?? '',
-            selectedEpisodeIndex: idx,
-            selectedGroupIndex: selectedGpIndex,
-            epGroup: detail.episodes,
-            detailUrl: detailUrl,
-            url: item.url,
-            meta: meta,
-            type: meta.type,
-          ),
-        );
-      },
+      onPress:
+          onPress ??
+          () {
+            final donwloadList = detailPr == null
+                ? const <proto.Download>[]
+                : ref.watch(detailPr!.select((value) => value.downloadList));
+            final savePath = donwloadList
+                .firstWhereOrNull(
+                  (element) =>
+                      element.key ==
+                      "${detail.title}-${detail.episodes?[selectedGpIndex].title}-${item.name}",
+                )
+                ?.savePath;
+            context.push<WatchParams>(
+              "/watch",
+              extra: WatchParams(
+                detailPr: detailPr,
+                name: detail.title,
+                savePath: savePath,
+                detailImageUrl: detail.cover ?? '',
+                selectedEpisodeIndex: idx,
+                selectedGroupIndex: selectedGpIndex,
+                epGroup: detail.episodes,
+                detailUrl: detailUrl,
+                url: item.url,
+                meta: meta,
+                type: meta.type,
+              ),
+            );
+          },
       subtitle: (h == null && item.update.isEmpty && downloadProgress == null)
           ? SizedBox.shrink()
           : Column(
@@ -200,11 +271,12 @@ class MobileDetailTile extends ConsumerWidget {
                           alignment: Alignment.centerLeft,
                           widthFactor: finished ? 1.0 : frac,
                           child: ColoredBox(
-                            // Micro-state fill: green once the episode is fully
-                            // watched, cyan while it is still in progress.
+                            // Micro-state fill: full accent once the episode
+                            // is fully watched, softened accent while still
+                            // in progress (theme-driven, not hardcoded).
                             color: finished
-                                ? const Color(0xFF22C55E)
-                                : const Color(0xFF22D3EE),
+                                ? context.theme.colors.primary
+                                : context.theme.colors.primary.withAlpha(179),
                           ),
                         ),
                       ),
@@ -212,21 +284,25 @@ class MobileDetailTile extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                 ],
-                Row(
-                  children: [
-                    if (item.update.isNotEmpty) ...[
-                      Text(_dateFormatter(DateTime.tryParse(item.update))),
-                      Text(' • '),
-                    ],
-                    if (h != null) ...[
-                      Text(_progressIndicator(h)),
-                      Text(' • '),
-                    ],
+                // Separator only BETWEEN visible parts — the old
+                // per-part trailing dot left an orphan "• " after the
+                // progress when date/download were absent (audit round 3,
+                // minor 2). Inactive rows mute the line so the active
+                // row's white text dominates the list (review round 4:
+                // "inactive items recede").
+                Text(
+                  [
+                    if (item.update.isNotEmpty)
+                      _dateFormatter(DateTime.tryParse(item.update)),
+                    if (h != null) _progressIndicator(h),
                     if (downloadProgress != null)
-                      Text(
-                        "${downloadProgress.status.name} - ${(downloadProgress.progress / (downloadProgress.total == 0 ? 1 : downloadProgress.total) * 100).toStringAsFixed(1)}%",
-                      ),
-                  ],
+                      "${downloadProgress.status.name} - ${(downloadProgress.progress / (downloadProgress.total == 0 ? 1 : downloadProgress.total) * 100).toStringAsFixed(1)}%",
+                  ].join(' • '),
+                  style: selected
+                      ? null
+                      : context.theme.typography.body.xs.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                        ),
                 ),
               ],
             ),
@@ -422,5 +498,61 @@ class MobileDetailTile extends ConsumerWidget {
       return "${duration.inHours}:$twoDigitMinutes:$twoDigitSeconds";
     }
     return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+}
+
+/// The mock's "Playing" equalizer: three emerald bars bouncing on offset
+/// phases — the active row's prefix, replacing the plain ordinal.
+class _EqBars extends StatefulWidget {
+  const _EqBars();
+
+  @override
+  State<_EqBars> createState() => _EqBarsState();
+}
+
+class _EqBarsState extends State<_EqBars> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 900),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = context.theme.colors.primary;
+    Widget bar(int index, double phase, double min, double max) {
+      final t = Curves.easeInOut.transform(((_controller.value + phase) % 1.0));
+      final height = min + (max - min) * (t < 0.5 ? t * 2 : 2 - t * 2);
+      return Container(
+        width: 2.5,
+        height: height,
+        margin: const EdgeInsets.symmetric(horizontal: 1),
+        decoration: BoxDecoration(
+          color: accent,
+          borderRadius: BorderRadius.circular(2),
+        ),
+      );
+    }
+
+    return SizedBox(
+      width: 20,
+      height: 16,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, _) => Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            bar(0, 0.00, 4, 15),
+            bar(1, 0.35, 4, 15),
+            bar(2, 0.65, 4, 15),
+          ],
+        ),
+      ),
+    );
   }
 }

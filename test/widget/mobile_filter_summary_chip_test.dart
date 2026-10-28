@@ -42,7 +42,7 @@ Widget _header() {
     children: [
       const SizedBox(width: 52),
       const Expanded(
-        child: Text('Nyaa (Go variant)', overflow: TextOverflow.ellipsis),
+        child: Text('ExampleB (Go variant)', overflow: TextOverflow.ellipsis),
       ),
       MobileFilterSummaryChip(onTap: () {}),
     ],
@@ -138,7 +138,7 @@ void main() {
     );
 
     expect(
-      tester.getSize(find.text('Nyaa (Go variant)')).width,
+      tester.getSize(find.text('ExampleB (Go variant)')).width,
       greaterThan(0),
     );
   });

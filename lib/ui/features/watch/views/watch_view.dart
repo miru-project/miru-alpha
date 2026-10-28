@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/ui/features/watch/view_models/watch_view_model.dart';
+import 'package:miru_alpha/ui/features/watch/mobile_watch_page.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/loading_state.dart';
@@ -47,6 +49,11 @@ class _WatchViewMobile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Bangumi gets the portrait watch page (video viewport + detail-style
+    // sections); manga / novel keep the fullscreen reader entry.
+    if (param.type == ExtensionType.bangumi) {
+      return MobileWatchPage(param: param);
+    }
     return WatchLoadEntry(param: param);
   }
 }

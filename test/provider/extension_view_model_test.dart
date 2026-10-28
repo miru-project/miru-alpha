@@ -20,21 +20,23 @@ void main() {
       expect(notifier.state.installedPackages, isEmpty);
 
       notifier.applyMetadataSnapshot([
-        proto.ExtensionMeta(package: 'nyaa.si', version: 'v1.0.0'),
-        proto.ExtensionMeta(package: 'rawkuma.net', version: 'v0.1.0'),
+        proto.ExtensionMeta(package: 'exampleb.si', version: 'v1.0.0'),
+        proto.ExtensionMeta(package: 'exampleC.net', version: 'v0.1.0'),
       ]);
 
       expect(
         container.read(extensionViewModelProvider).installedPackages,
-        unorderedEquals(['nyaa.si', 'rawkuma.net']),
+        unorderedEquals(['exampleb.si', 'exampleC.net']),
       );
-      expect(notifier.isInstalled('nyaa.si'), isTrue);
+      expect(notifier.isInstalled('exampleb.si'), isTrue);
       expect(notifier.isInstalled('missing.pkg'), isFalse);
     });
 
     test('an empty snapshot clears the installed set', () {
       final notifier = container.read(extensionViewModelProvider.notifier);
-      notifier.applyMetadataSnapshot([proto.ExtensionMeta(package: 'nyaa.si')]);
+      notifier.applyMetadataSnapshot([
+        proto.ExtensionMeta(package: 'exampleb.si'),
+      ]);
 
       // The backend publishes the whole list, so an empty one means the folder
       // lost every extension (uninstalled from outside the app).
@@ -44,15 +46,15 @@ void main() {
         container.read(extensionViewModelProvider).installedPackages,
         isEmpty,
       );
-      expect(notifier.isInstalled('nyaa.si'), isFalse);
+      expect(notifier.isInstalled('exampleb.si'), isFalse);
     });
 
     test('maps the snapshot into domain metadata', () {
       final notifier = container.read(extensionViewModelProvider.notifier);
       notifier.applyMetadataSnapshot([
         proto.ExtensionMeta(
-          name: 'Rawkuma',
-          package: 'rawkuma.net',
+          name: 'ExampleC',
+          package: 'exampleC.net',
           version: 'v0.1.0',
           type: 'manga',
           nsfw: true,
@@ -61,8 +63,8 @@ void main() {
       ]);
 
       final meta = container.read(extensionViewModelProvider).metadata.single;
-      expect(meta.name, 'Rawkuma');
-      expect(meta.packageName, 'rawkuma.net');
+      expect(meta.name, 'ExampleC');
+      expect(meta.packageName, 'exampleC.net');
       expect(meta.type, ExtensionType.manga);
       expect(meta.nsfw, isTrue);
       expect(meta.error, 'compile failed');

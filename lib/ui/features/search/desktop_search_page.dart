@@ -79,7 +79,8 @@ class DesktopSearchPage extends HookConsumerWidget {
                           trailing: broken
                               ? FButton.icon(
                                   variant: .ghost,
-                                  onPress: () => showExtensionError(context, ext),
+                                  onPress: () =>
+                                      showExtensionError(context, ext),
                                   child: Icon(
                                     FLucideIcons.circleAlert,
                                     color: context.theme.colors.destructive,
@@ -103,7 +104,9 @@ class DesktopSearchPage extends HookConsumerWidget {
                                     FButton.icon(
                                       selected: true,
                                       onPress: () {
-                                        final newSet = {...existedPinnedExtensions};
+                                        final newSet = {
+                                          ...existedPinnedExtensions,
+                                        };
                                         if (newSet.contains(ext.packageName)) {
                                           newSet.remove(ext.packageName);
                                         } else {
@@ -185,7 +188,9 @@ class DesktopSearchPage extends HookConsumerWidget {
                                   FButton.icon(
                                     selected: true,
                                     onPress: () {
-                                      final newSet = {...existedPinnedExtensions};
+                                      final newSet = {
+                                        ...existedPinnedExtensions,
+                                      };
                                       if (newSet.contains(ext.packageName)) {
                                         newSet.remove(ext.packageName);
                                       } else {

@@ -42,14 +42,14 @@ void main() {
       final path = DownloadUtils.buildTargetPath(
         root: '/downloads',
         category: proto.DownloadCategory.video,
-        package: 'nyaa',
+        package: 'exampleb',
         title: 'My Show',
         epKey: 'Ep 1',
         extension: '.mp4',
       );
       expect(
         path,
-        equals(p.join('/downloads', 'Bangumi', 'nyaa', 'My Show', 'Ep 1.mp4')),
+        equals(p.join('/downloads', 'Bangumi', 'exampleb', 'My Show', 'Ep 1.mp4')),
       );
     });
 

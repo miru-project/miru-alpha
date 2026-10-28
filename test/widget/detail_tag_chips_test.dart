@@ -17,7 +17,7 @@ import 'package:miru_alpha/utils/theme/theme.dart';
 const _url = 'https://example.com/one-piece';
 
 ExtensionMeta _meta() => ExtensionMeta(
-  name: 'Miruro',
+  name: 'ExampleA',
   version: '2.0.0',
   author: 't',
   license: 'MIT',

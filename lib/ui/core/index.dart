@@ -12,6 +12,7 @@ export 'animted_icon/compass.dart';
 export 'animted_icon/heart.dart';
 export 'animted_icon/home.dart';
 export 'animted_icon/settings_cog.dart';
+export 'animted_icon/morph/morph.dart';
 export 'core/image_widget.dart';
 export 'widget/small_badge.dart';
 export 'widget/miru_segmented_control.dart';

@@ -39,6 +39,12 @@ class MobileLoadedPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scrollController = useScrollController();
+    // Landscape / wide-short windows render the mobile body (below the lg
+    // breakpoint) — without a column cap the hero, CTA and episode list
+    // stretch edge-to-edge across e.g. 1000px. Cap the content to a
+    // centered 720px column; portrait phones keep the 16px gutter.
+    final screenW = MediaQuery.widthOf(context);
+    final inset = screenW > 752 ? (screenW - 720) / 2 : 16.0;
     return EasyRefresh(
       header: const ForuiHeader(),
       triggerAxis: Axis.vertical,
@@ -60,7 +66,7 @@ class MobileLoadedPage extends HookConsumerWidget {
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: inset),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -87,6 +93,7 @@ class MobileLoadedPage extends HookConsumerWidget {
               meta: meta,
               detailUrl: detailUrl,
               detailPr: detailPr,
+              horizontalInset: inset,
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 300)),
           ],

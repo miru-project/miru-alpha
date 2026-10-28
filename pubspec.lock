@@ -289,6 +289,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.2"
+  dlna_dart:
+    dependency: "direct main"
+    description:
+      name: dlna_dart
+      sha256: da607931548720331b7503f72c426fa7fbd19e9144a4778d293c16a5bc186407
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.1"
   easy_refresh:
     dependency: "direct main"
     description:
@@ -1308,6 +1316,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  sensors_plus:
+    dependency: "direct main"
+    description:
+      name: sensors_plus
+      sha256: "50a01f66846bff68de947bd5df225c3627c923c467f758867f3916350be059ac"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.1.1"
+  sensors_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: sensors_plus_platform_interface
+      sha256: "9e12a92569bf14ae04b2f086c3e087177a47e527b7666ae1bbe5f70f8450ab19"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
   share_plus:
     dependency: "direct main"
     description:
@@ -1853,18 +1877,18 @@ packages:
     dependency: transitive
     description:
       name: xml
-      sha256: "67f0aff7be013d107995e9b75bf4e7f2c3ef2dfdb2c8e68024bba0a7fd5756a4"
+      sha256: "971043b3a0d3da28727e40ed3e0b5d18b742fa5a68665cca88e74b7876d5e025"
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.1"
+    version: "6.6.1"
   xml2json:
     dependency: transitive
     description:
       name: xml2json
-      sha256: "0c1cb4e84105bdc3a8c67efc4673d317932f6fd7cc9a46cb4438bea375b7bb9b"
+      sha256: "8a7ae63b76676f083d81287b61f03222952609c0507893bc62e60a4a588a9702"
       url: "https://pub.dev"
     source: hosted
-    version: "6.2.9"
+    version: "6.2.7"
   yaml:
     dependency: transitive
     description:

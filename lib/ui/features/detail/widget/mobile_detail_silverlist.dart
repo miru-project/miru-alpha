@@ -17,12 +17,18 @@ class MobileDetailSilverlist extends HookConsumerWidget {
   final ExtensionMeta meta;
   final String detailUrl;
   final DetialProvider detailPr;
+
+  /// Horizontal inset for the episode section — the wide-viewport column
+  /// cap from [MobileLoadedPage] so the list shares the hero's column.
+  final double horizontalInset;
+
   const MobileDetailSilverlist({
     super.key,
     required this.detail,
     required this.meta,
     required this.detailUrl,
     required this.detailPr,
+    this.horizontalInset = 16,
   });
 
   @override
@@ -48,9 +54,9 @@ class MobileDetailSilverlist extends HookConsumerWidget {
         // block above by `space-y-4` (16) plus the section's own `pt-2`
         // (8) — 24px of air so the large list doesn't crowd the
         // trackers/cast cards. The bottom keeps the smaller 12.
-        padding: const EdgeInsets.only(
-          left: 16,
-          right: 16,
+        padding: EdgeInsets.only(
+          left: horizontalInset,
+          right: horizontalInset,
           top: 24,
           bottom: 12,
         ),

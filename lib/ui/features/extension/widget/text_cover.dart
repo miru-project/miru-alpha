@@ -101,9 +101,9 @@ class TextCover extends StatelessWidget {
 }
 
 /// Up to three initials. A name with camel-case humps splits into words and
-/// takes their first letters (`MangaDex` -> `MD`, `NovelUpdates` -> `NU`);
+/// takes their first letters (`ExampleSite` -> `ES`, `SampleNovel` -> `SN`);
 /// anything else takes its first two characters (`Crunchyroll` -> `CR`,
-/// `nyaa.si` -> `NY`). Empty input renders `?`.
+/// `exampleb.si` -> `EX`). Empty input renders `?`.
 String initialsOf(String name) {
   final trimmed = name.trim();
   if (trimmed.isEmpty) return '?';

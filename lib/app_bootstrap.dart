@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:code_forge/code_forge.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +19,7 @@ import 'package:miru_alpha/miru_core/event_service.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/core/miru_directory.dart';
+import 'package:miru_alpha/utils/core/system_ui.dart';
 import 'package:miru_alpha/utils/download/ffmpeg_util.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/router/router_util.dart';
@@ -129,8 +129,11 @@ Future<void> runMiruApp({required void Function() ensureBinding}) async {
         DeviceOrientation.landscapeLeft,
         DeviceOrientation.landscapeRight,
       ]);
-      SystemChrome.setEnabledSystemUIMode(.immersive);
-      await RustLib.init();
+      // Status bar hidden app-wide; the bottom system navigation bar stays.
+      // Video fullscreen temporarily hides both (immersiveSticky) and every
+      // exit path restores this exact mode (mobile_watch_page.dart) so the
+      // status bar never comes back on other pages.
+      AppSystemUi.restore();
       runApp(
         ProviderScope(
           retry: (retryCount, error) => null,
@@ -212,6 +215,8 @@ class App extends ConsumerStatefulWidget {
 }
 
 class _App extends ConsumerState<App> with WidgetsBindingObserver {
+  Timer? _statusBarRehideTimer;
+
   @override
   void initState() {
     VolumeController.instance.showSystemUI = false;
@@ -222,6 +227,13 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
         'platforms': ['windows', 'linux', 'macos', 'android', 'ios'],
         'video.decoders': ['D3D11', 'NVDEC', 'FFmpeg'],
         'player': {'buffer': '2000+600000'},
+        // mdk's own verbosity: 'all' (fvp's default) emits a per-frame
+        // "VideoFrame@… to be destroyed is not rendered" FINEST line while a
+        // hidden surface plays — ~15 lines/s into miru.log. 'debug' keeps
+        // the FFmpeg/hls diagnostics (fvp maps them to FINE) and drops only
+        // the per-frame spam. fvp applies the 'global' options AFTER its
+        // own hardcoded log:"all", so this wins.
+        'global': {'log': 'debug'},
       },
     );
 
@@ -254,7 +266,23 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
   }
 
   @override
+  void didChangeMetrics() {
+    // Android: pulling down the notification shade (or any inset change —
+    // keyboard, rotation) re-shows the status bar and the app's hidden state
+    // is NOT re-asserted when the shade closes, so the bar stays on every
+    // page. Re-apply the hidden mode once things settle: restarting the timer
+    // on every change dismisses the bar one second after the last one.
+    if (AppSystemUi.surfaceOwned) return;
+    _statusBarRehideTimer?.cancel();
+    _statusBarRehideTimer = Timer(const Duration(seconds: 1), () {
+      AppSystemUi.restore();
+    });
+    super.didChangeMetrics();
+  }
+
+  @override
   void dispose() {
+    _statusBarRehideTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
