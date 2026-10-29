@@ -1,9 +1,17 @@
 // libass-direct implementation — see dlna_libass.h.
 //
-// The libass API is resolved with dlsym against a manually mirrored
-// ASS_Image layout (stable public ABI of libass), so this compiles without
-// any libass headers on any platform.
+// The libass API is resolved dynamically (dlsym on POSIX, LoadLibraryA on
+// Windows) against a manually mirrored ASS_Image layout (stable public ABI
+// of libass), so this compiles without any libass headers on any platform.
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
 #include <dlfcn.h>
+#endif
 
 #include <cstdio>
 #include <cstdlib>
@@ -44,6 +52,21 @@ static DlnaAssFns fns;
 
 bool DlnaAssApi::load() {
   if (ok) return true;
+#ifdef _WIN32
+  // No libass DLL ships with the bundled Windows ffmpeg build: these loads
+  // normally fail and the burn path stays disabled (ok == false).
+  const char *names[] = {"libass.dll", "libass-9.dll", "libass-8.dll",
+                         "libass-6.dll", "libass-5.dll"};
+  for (const char *name : names) {
+    handle = LoadLibraryA(name);
+    if (handle) break;
+  }
+  if (!handle) return false;
+  auto sym = [&](const char *n) {
+    return reinterpret_cast<void *>(
+        GetProcAddress(static_cast<HMODULE>(handle), n));
+  };
+#else
   const char *names[] = {"libass.so.9", "libass.so.8", "libass.so.6",
                          "libass.so.5", "libass.so"};
   for (const char *name : names) {
@@ -52,6 +75,7 @@ bool DlnaAssApi::load() {
   }
   if (!handle) return false;
   auto sym = [&](const char *n) { return dlsym(handle, n); };
+#endif
   fns.library_init = (void *(*)(void))sym("ass_library_init");
   fns.library_done = (void (*)(void *))sym("ass_library_done");
   fns.renderer_init = (void *(*)(void *))sym("ass_renderer_init");
@@ -74,7 +98,11 @@ bool DlnaAssApi::load() {
 }
 
 void DlnaAssApi::unload() {
+#ifdef _WIN32
+  if (handle) FreeLibrary(static_cast<HMODULE>(handle));
+#else
   if (handle) dlclose(handle);
+#endif
   handle = nullptr;
   ok = false;
 }

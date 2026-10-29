@@ -13,7 +13,9 @@
 #include <new>
 #include <string>
 #include <thread>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 extern "C" {
 #include "libavfilter/avfilter.h"
@@ -463,10 +465,17 @@ static int setup_transcode(dlna_stream *s) {
   s->srcCtx = s->sinkCtx = nullptr;
   if (s->assBurn) {
     // libass-direct: subtitle text (SRT or ASS) is composited in-engine.
+    // fontKind 1 = Android system-font fallback (no fontconfig on android);
+    // the /system/fonts probe is Android-only, every other platform lets
+    // libass autodetect (kind 0).
+#ifdef __ANDROID__
     int fontKind = 0;
     if (access("/system/fonts", R_OK) == 0) {
       fontKind = 1;
     }
+#else
+    const int fontKind = 0;
+#endif
     if (!s->ass.open(s->assData.c_str(), s->vdecCtx->width,
                      s->vdecCtx->height, fontKind)) {
       s->assBurn = false;

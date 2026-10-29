@@ -61,6 +61,14 @@ void main(List<String> args) async {
         libraryDirectories: libraryDirectories
             .map((uri) => uri.toFilePath())
             .toList(),
+        flags: input.config.code.targetOS == OS.windows
+            // MSVC-only: the engine relies on C++ unwinding (try/catch around
+            // the session-thread handshake) and native_toolchain_c never adds
+            // /EHsc itself — without it MSVC skips destructor unwinding
+            // (C4530). /utf-8 stops the CP932-locale C4819 misreads of the
+            // SDK headers' UTF-8 comments.
+            ? const ['/EHsc', '/utf-8']
+            : const [],
       ).build(
         input: input,
         output: output,
@@ -701,18 +709,24 @@ Future<FFmpegBuildResult> _buildWindows(
   includes.add(includeDir);
   libraryDirectories.add(libDir);
   // Link the split import libs; native_toolchain_c appends .lib on Windows.
-  libraries.addAll(['avformat', 'avcodec', 'avutil', 'swresample']);
+  // avfilter is REQUIRED: the DLNA subtitle-burn transcode path references
+  // the filter-graph API (the Android/Linux link lists already include it).
+  libraries.addAll(
+    ['avformat', 'avcodec', 'avutil', 'swresample', 'avfilter'],
+  );
 
-  // Bundle the split DLLs the merge engine's imports resolve to. swscale
-  // rides along for the future transcode rung. If fvp's mdk bundle ships
-  // same-named DLLs into the app dir, one copy wins the dedupe — remux
-  // works with either build; only x264 transcode would be lost.
+  // Bundle the split DLLs the merge engine's imports resolve to. avfilter-12
+  // serves the DLNA transcode path and itself loads swscale-10 (swscale ships
+  // even though nothing references it directly yet). If fvp's mdk bundle
+  // ships same-named DLLs into the app dir, one copy wins the dedupe —
+  // remux works with either build; only x264 transcode would be lost.
   final dlls = [
     'avformat-63.dll',
     'avcodec-63.dll',
     'avutil-61.dll',
     'swresample-7.dll',
     'swscale-10.dll',
+    'avfilter-12.dll',
   ];
   for (final dll in dlls) {
     final file = binDir.resolve(dll);

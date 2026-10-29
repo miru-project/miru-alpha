@@ -40,7 +40,10 @@ add_definitions(-DUNICODE -D_UNICODE)
 # of modifying this function.
 function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
-  target_compile_options(${TARGET} PRIVATE /W4 /WX /wd"4100")
+  # /utf-8: read sources AND third-party headers (fvp's mdk-sdk ships UTF-8
+  # comments) as UTF-8. Without it a CP932-locale host misreads them, firing
+  # C4819 — fatal here because of /WX below.
+  target_compile_options(${TARGET} PRIVATE /W4 /WX /utf-8 /wd"4100")
   target_compile_options(${TARGET} PRIVATE /EHsc)
   target_compile_definitions(${TARGET} PRIVATE "_HAS_EXCEPTIONS=0")
   target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:_DEBUG>")
@@ -66,6 +69,15 @@ include(flutter/generated_plugins.cmake)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../src/miru_core/windows ${CMAKE_BINARY_DIR}/miru_core)
 list(APPEND PLUGIN_BUNDLED_LIBRARIES ${miru_core_bundled_libraries})
+
+# fvp's mdk-sdk bundles its own FFmpeg build (ffmpeg-9.dll, picked by
+# FindMDK.cmake's *ffmpeg*.* glob — no opt-out variable there). Nothing
+# imports it: mdk.dll has no ffmpeg entry in its import table and probes
+# only "libffmpeg" at runtime (verified with dumpbin), and playback routes
+# through the avbuild split DLLs bundled by hook/build.dart
+# (avformat-63.dll etc.). Drop it from the bundle to avoid shipping a
+# second, unused FFmpeg copy.
+list(FILTER PLUGIN_BUNDLED_LIBRARIES EXCLUDE REGEX "[/\\]ffmpeg(-[0-9]+)?\\.dll$")
 
 # === Installation ===
 # Support files are copied into place next to the executable, so that it can

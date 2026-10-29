@@ -4,6 +4,7 @@ CLibrary getCLibrary({
   List<String>? includes,
   List<String>? libraries,
   List<String>? libraryDirectories,
+  List<String> flags = const [],
 }) {
   return CLibrary(
     language: Language.cpp,
@@ -17,5 +18,6 @@ CLibrary getCLibrary({
     includes: includes ?? <String>[],
     libraries: libraries ?? <String>[],
     libraryDirectories: libraryDirectories ?? <String>[],
+    flags: flags,
   );
 }

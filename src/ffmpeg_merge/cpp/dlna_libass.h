@@ -1,9 +1,10 @@
-// libass-direct subtitle burn: loads libass at runtime via dlopen/dlsym (no
-// build-time dependency) and composites ASS/SRT subtitles onto decoded
-// YUV420P frames before the encoder. This is the burn path wherever the
-// linked ffmpeg lacks the ass/subtitles filters (avbuild android/windows):
-// the libass.so shipped inside the app (fvp's mdk-sdk on android, the system
-// library on linux) is used as-is.
+// libass-direct subtitle burn: loads libass at runtime via dlopen/dlsym
+// (LoadLibraryA/GetProcAddress on Windows; no build-time dependency) and
+// composites ASS/SRT subtitles onto decoded YUV420P frames before the
+// encoder. This is the burn path wherever the linked ffmpeg lacks the
+// ass/subtitles filters (avbuild android/windows): the libass.so shipped
+// inside the app (fvp's mdk-sdk on android, the system library on linux) is
+// used as-is.
 //
 // Threading: all calls happen on the stream's worker isolate, like the rest
 // of the engine.
