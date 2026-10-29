@@ -454,15 +454,16 @@ String _resolveNdkPath(String sdkRoot) {
 }
 
 /// Linux build step — links the merge/DLNA engine against the avbuild 9.1
-/// GPL split libs (x264/x265/aac embedded). Their sonames
-/// (libavformat.so.63 ...) never collide with fvp's mdk-sdk libffmpeg.so.9,
-/// so both ffmpeg copies coexist in one process.
+/// GPL split libs (x264/x265 embedded; drawtext font stack from the system).
+/// Their sonames (libavformat.so.63 ...) never collide with fvp's mdk-sdk
+/// libffmpeg.so.9, so both ffmpeg copies coexist in one process. USER RULE:
+/// avbuild only — the BtbN shared build is never used, on any platform.
 Future<FFmpegBuildResult> _buildLinux(
   BuildInput input,
   BuildOutputBuilder output,
 ) async {
   // Build the Go miru_core native library (c-shared) for this Linux arch and
-  // register it as a bundled code asset. Replaces the old
+  // register it as a bundled native code asset. Replaces the old
   // src/miru_core/linux/CMakeLists.txt target, which never rebuilt the .so on
   // Go source changes because it declared no dependencies.
   await _buildMiruCore(input, output);
@@ -471,27 +472,20 @@ Future<FFmpegBuildResult> _buildLinux(
   final libraries = <String>[];
   final libraryDirectories = <Uri>[];
 
-  // Linux engine: BtbN's full GPL shared build on x64 — the ONLY prebuilt
-  // shipping libass (ass/subtitles filters) TOGETHER with libx264, so the
-  // subtitle-burn path gets true libass rendering. Everything (libass,
-  // x264, fontconfig…) is statically linked inside the ffmpeg libs (only
-  // system libc/libm in NEEDED), and the sonames never collide with fvp's
-  // mdk-sdk libffmpeg.so.9. arm64 linux keeps the avbuild gpl-lite archive.
-  final bool isX64 = input.config.code.targetArchitecture == Architecture.x64;
-  final String dirName;
-  final String downloadUrl;
-  if (isX64) {
-    // Keep dirName == the archive's own root so extraction lands where the
-    // hook looks; the BtbN 'latest' artifact name is version-stable.
-    dirName = 'ffmpeg-master-latest-linux64-gpl-shared';
-    downloadUrl =
-        'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/'
-        'ffmpeg-master-latest-linux64-gpl-shared.tar.xz';
-  } else {
-    dirName = 'ffmpeg-9.1-linux-clang-gpl-lite';
-    downloadUrl =
-        'https://sourceforge.net/projects/avbuild/files/linux/$dirName.tar.xz/download';
-  }
+  // Linux engine: avbuild 9.1 GPL split libs on every arch (one archive
+  // ships amd64 + arm64 under lib/<arch>/). Verified capabilities
+  // (config-amd64.txt + strings probes): libx264/libx265 encoders for the
+  // burn path, drawtext (freetype/fontconfig/fribidi/harfbuzz as DT_NEEDED
+  // system libs), hls/dash/matroska/mov demuxers, the mpegts muxer, and the
+  // http/crypto protocol set. avfilter has NO ass/subtitles filter — burn
+  // uses the engine's libass-direct path (system libass dlopen) with the
+  // drawtext chain as fallback — and there is no mpegts demuxer, so live-TS
+  // sources cannot be opened for a cast (mp4/mkv/HLS inputs unaffected).
+  // Keep dirName == the archive's own root so extraction lands where the
+  // hook looks.
+  final dirName = 'ffmpeg-9.1-linux-clang-gpl-lite';
+  final downloadUrl =
+      'https://sourceforge.net/projects/avbuild/files/linux/$dirName.tar.xz/download';
   final ffmpegDir = input.packageRoot.resolve('.dart_tool/$dirName/');
   final archiveFile = input.packageRoot.resolve('.dart_tool/$dirName.tar.xz');
 
@@ -528,26 +522,20 @@ Future<FFmpegBuildResult> _buildLinux(
   // Re-run this hook when the archive or extraction changes.
   output.dependencies.add(archiveFile);
 
-  final String libSubdir;
-  if (isX64) {
-    libSubdir = 'lib'; // BtbN ships a single-arch (x64) layout
-  } else {
-    libSubdir = input.config.code.targetArchitecture == Architecture.arm64
-        ? 'lib/arm64'
-        : 'lib/amd64';
-  }
+  final String libSubdir =
+      input.config.code.targetArchitecture == Architecture.arm64
+      ? 'lib/arm64'
+      : 'lib/amd64';
   final libDir = Directory.fromUri(ffmpegDir.resolve('$libSubdir/'));
   // The transcode path (subtitle burn) additionally needs avfilter + swscale.
-  final splitLibs = isX64
-      ? [
-          'libavformat',
-          'libavcodec',
-          'libavutil',
-          'libswresample',
-          'libswscale',
-          'libavfilter',
-        ]
-      : _ffmpegSplitLibNames;
+  final splitLibs = [
+    'libavformat',
+    'libavcodec',
+    'libavutil',
+    'libswresample',
+    'libswscale',
+    'libavfilter',
+  ];
 
   // The linker resolves -lavformat via an unversioned symlink onto the real
   // versioned file; repair every split lib's entry (the extraction leaves
@@ -593,13 +581,6 @@ Future<FFmpegBuildResult> _buildLinux(
     libraryDirectories: libraryDirectories,
   );
 }
-
-const _ffmpegSplitLibNames = [
-  'libavformat',
-  'libavcodec',
-  'libavutil',
-  'libswresample',
-];
 
 /// The versioned real file behind [name] (libavformat.so.63.16.100).
 File _realSplitLibFile(Directory libDir, String name) {
@@ -711,9 +692,7 @@ Future<FFmpegBuildResult> _buildWindows(
   // Link the split import libs; native_toolchain_c appends .lib on Windows.
   // avfilter is REQUIRED: the DLNA subtitle-burn transcode path references
   // the filter-graph API (the Android/Linux link lists already include it).
-  libraries.addAll(
-    ['avformat', 'avcodec', 'avutil', 'swresample', 'avfilter'],
-  );
+  libraries.addAll(['avformat', 'avcodec', 'avutil', 'swresample', 'avfilter']);
 
   // Bundle the split DLLs the merge engine's imports resolve to. avfilter-12
   // serves the DLNA transcode path and itself loads swscale-10 (swscale ships
