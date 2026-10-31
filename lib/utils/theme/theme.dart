@@ -177,6 +177,14 @@ class ThemeUtils {
   }
 
   static FThemeData getThemeData(MiruPlatformTheme theme) {
+    // The debug mobile preview renders the app inside a phone-sized
+    // MediaQuery while the desktop window keeps its real size — the theme
+    // must follow the PREVIEW width (touch tokens), not the window's.
+    final previewWidth = mobilePreviewWidth;
+    if (previewWidth != null) {
+      final breakpoints = theme.desktop.breakpoints;
+      return previewWidth < breakpoints.sm ? theme.touch : theme.desktop;
+    }
     final views = PlatformDispatcher.instance.views;
     if (views.isEmpty) {
       // No views available (e.g. during headless testing or early startup).
@@ -192,4 +200,10 @@ class ThemeUtils {
       _ => theme.desktop,
     };
   }
+
+  /// When the debug mobile preview is active, the width the theme should
+  /// resolve against (touch tokens below `breakpoints.sm`) instead of the
+  /// real desktop window's. `null` = no preview, resolve normally. Set
+  /// exclusively through [ApplicationController.setMobilePreviewWidth].
+  static double? mobilePreviewWidth;
 }

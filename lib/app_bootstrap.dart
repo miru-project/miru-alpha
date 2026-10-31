@@ -15,6 +15,7 @@ import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
 import 'package:miru_alpha/utils/theme/miru_themes.dart';
+import 'package:miru_alpha/utils/theme/theme.dart';
 import 'package:miru_alpha/miru_core/event_service.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/utils/core/log.dart';
@@ -85,17 +86,12 @@ Future<void> runMiruApp({required void Function() ensureBinding}) async {
       if (!(Platform.isAndroid || Platform.isIOS || kIsWeb)) {
         await windowManager.ensureInitialized();
         WindowOptions windowOptions = WindowOptions(
-          // Debug launches start phone-sized (412x915) so every run in the
-          // agent loop lands on the mobile scaffold without external
-          // window-manager scripting; the window stays freely resizable, so
-          // the desktop layout is still one drag away (breakpoint-driven:
-          // forui `sm` 640 / `lg` 1024). Release keeps the desktop default.
-          size: kDebugMode ? const Size(412, 915) : const Size(1300, 800),
-          // Freely resizable. The layout is breakpoint-driven (forui `sm` 640
-          // / `lg` 1024): below `lg` the sidebar collapses into the bottom-nav
-          // mobile scaffold, below `sm` the touch theme tokens apply. Both
-          // extremes are live-verified, so the window is only floored at a
-          // phone-ish minimum instead of being clamped to desktop width.
+          // Desktop launches start desktop-sized (the original default) in
+          // every mode — the window is breakpoint-driven (forui `sm` 640 /
+          // `lg` 1024) and freely resizable down to the phone-ish floor, so
+          // the mobile layout is one drag away; the launch size never fakes
+          // a phone viewport.
+          size: const Size(1300, 800),
           minimumSize: Size(400, 480),
           center: true,
           skipTaskbar: false,
@@ -175,6 +171,12 @@ class _EntryLoadingState extends State<EntryLoadingState> {
   @override
   Widget build(BuildContext context) {
     if (_initialized) {
+      // The desktop app's UI (user directive): the PHONE UI centered in a
+      // 412×915 frame — the window keeps its real desktop size, the frame
+      // renders the touch theme. Touch builds (Android/iOS) render natively.
+      if (!(Platform.isAndroid || Platform.isIOS)) {
+        return MiruMobilePreviewShell(child: const App());
+      }
       return const App();
     }
 
@@ -308,6 +310,166 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
       ],
       routerConfig: RouterUtil.appRouter,
       debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+/// The desktop app's UI (user directive): the PHONE UI, centered in a
+/// 412×915 frame — an Android-emulator-style window inside the real desktop
+/// window, which itself is never resized or re-initialized. **Ctrl+Shift+P**
+/// swaps portrait (412x915) <-> landscape (915x412). **Ctrl+Shift+D** (debug
+/// builds only) bypasses the frame: the child renders full-bleed at the real
+/// window size, so the width-based breakpoints (forui `lg` 1024) reach the
+/// superseded desktop layouts (sidebar shell, desktop player) for
+/// development; the shipped desktop UI stays the phone frame. The handler
+/// only OBSERVES the combos (always returns false), so it never consumes
+/// events a real keyboard owner needs; plain typing never matches them. The
+/// theme resolves its FORUI MOBILE (touch) variant against the frame width —
+/// the desktop window's size must not leak desktop design tokens into the
+/// phone frame; the desktop passthrough restores real-window resolution
+/// (`setMobilePreviewWidth(null)`).
+class MiruMobilePreviewShell extends ConsumerStatefulWidget {
+  const MiruMobilePreviewShell({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<MiruMobilePreviewShell> createState() =>
+      _MiruMobilePreviewShellState();
+}
+
+class _MiruMobilePreviewShellState
+    extends ConsumerState<MiruMobilePreviewShell> {
+  static const _modes = [Size(412, 915), Size(915, 412)];
+
+  int _mode = 0;
+
+  /// Debug-only desktop passthrough: bypass the phone frame and render the
+  /// child full-bleed at the real window size (desktop layouts reachable).
+  bool _desktop = false;
+
+  bool _onKey(KeyEvent event) {
+    if (event is! KeyDownEvent) return false;
+    final combo =
+        HardwareKeyboard.instance.isControlPressed &&
+        HardwareKeyboard.instance.isShiftPressed;
+    if (combo && event.logicalKey == LogicalKeyboardKey.keyP) {
+      setState(() => _mode = (_mode + 1) % _modes.length);
+      _syncPreviewWidth();
+    }
+    if (combo && kDebugMode && event.logicalKey == LogicalKeyboardKey.keyD) {
+      setState(() => _desktop = !_desktop);
+      _syncPreviewWidth();
+    }
+    return false;
+  }
+
+  /// Theme width follows the mode: the frame's width in the phone preview
+  /// (touch tokens), `null` in the desktop passthrough (real-window
+  /// resolution -> desktop tokens at the 1300px launch window).
+  void _syncPreviewWidth() {
+    ref
+        .read(applicationControllerProvider.notifier)
+        .setMobilePreviewWidth(_desktop ? null : _modes[_mode].width);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    HardwareKeyboard.instance.addHandler(_onKey);
+    // The frame is the DEFAULT desktop UI: resolve the theme against the
+    // frame width from the first build (deferred — provider writes during
+    // the tree build phase are rejected).
+    ThemeUtils.mobilePreviewWidth = _modes[_mode].width;
+    Future.microtask(() {
+      ref
+          .read(applicationControllerProvider.notifier)
+          .setMobilePreviewWidth(_modes[_mode].width);
+    });
+  }
+
+  @override
+  void dispose() {
+    HardwareKeyboard.instance.removeHandler(_onKey);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final real = MediaQuery.of(context);
+    // The structure NEVER changes across mode switches: the child stays at
+    // the same tree position behind the same widget chain, so toggling does
+    // not unmount/remount it (an App remount re-runs initState and fires its
+    // stream listeners against a disposed element). The frame takes a BOUNDED
+    // height (label space subtracted) so the FittedBox actually scales the
+    // phone down instead of overflowing a shorter window — Column children
+    // get unbounded main-axis constraints, which is why the bare FittedBox
+    // never scaled.
+    return LayoutBuilder(
+      builder: (context, window) {
+        final labelSpace = 24.0;
+        final frameH = (window.maxHeight - labelSpace).clamp(
+          0.0,
+          double.infinity,
+        );
+        // Desktop passthrough: the frame IS the real window — full-bleed
+        // 1:1, so the width breakpoints (forui `lg` 1024) see the desktop
+        // size and the desktop layouts render.
+        final frameSize = _desktop
+            ? Size(window.maxWidth, window.maxHeight)
+            : _modes[_mode];
+        return ColoredBox(
+          color: const Color(0xFF09090B),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Above MaterialApp there is no Directionality — the label
+              // brings its own. Empty placeholder slots in desktop mode so
+              // the frame slot (and the child's element chain) never moves.
+              if (_desktop)
+                const SizedBox.shrink()
+              else
+                Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Text(
+                    'MIRU MOBILE ${frameSize.width.toInt()}x'
+                    '${frameSize.height.toInt()} (Ctrl+Shift+P: swap'
+                    '${kDebugMode ? ', Ctrl+Shift+D: desktop' : ''})',
+                    style: const TextStyle(color: Colors.white38, fontSize: 11),
+                  ),
+                ),
+              if (_desktop)
+                const SizedBox.shrink()
+              else
+                const SizedBox(height: 6),
+              SizedBox(
+                width: window.maxWidth,
+                height: _desktop ? window.maxHeight : frameH,
+                child: FittedBox(
+                  // scaleDown, never contain: a frame smaller than the
+                  // window renders 1:1 (true phone sizes) — only a frame
+                  // taller than the window is scaled DOWN to fit. The
+                  // desktop frame equals the window, so it is also 1:1.
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: frameSize.width,
+                    height: frameSize.height,
+                    child: MediaQuery(
+                      data: real.copyWith(
+                        size: frameSize,
+                        padding: EdgeInsets.zero,
+                        viewInsets: EdgeInsets.zero,
+                      ),
+                      child: widget.child,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -153,6 +153,16 @@ class ApplicationController extends _$ApplicationController {
     );
   }
 
+  /// Debug mobile preview hook: while [width] is non-null the theme resolves
+  /// its touch/desktop variant against [width] instead of the real window,
+  /// so a desktop preview of the phone layout renders FORUI MOBILE tokens
+  /// (the touch design), not the desktop ones. `null` restores the real
+  /// window-driven resolution.
+  void setMobilePreviewWidth(double? width) {
+    ThemeUtils.mobilePreviewWidth = width;
+    _refreshThemeData();
+  }
+
   /// Re-resolves the theme when the OS brightness changes while in 'system'
   /// mode. Wired from [App] via `didChangePlatformBrightness`.
   void onPlatformBrightnessChanged() {
