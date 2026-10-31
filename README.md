@@ -243,19 +243,3 @@ conventions and known limitations — lives in
 ## License
 
 This project is licensed under the GPL-3.0 License.
-
-## Download links
-
-All release artifacts are published on the
-[Releases page](https://github.com/miru-project/miru-alpha/releases) — pre-releases
-are not exposed via `/releases/latest`, so download from the most recent
-`*-alpha*` release there.
-
-| Platform | Artifacts | Notes |
-| --- | --- | --- |
-| Android | `app-arm64-v8a-release.apk`, `app-armeabi-v7a-release.apk`, `app-x86_64-release.apk` | For most modern Android devices, use arm64-v8a |
-| Linux | `Miru-Alpha-linux.tar.gz` | Extract and run the binary |
-| Windows | `Miru-Alpha-windows.zip` | Extract and run Miru-alpha.exe |
-
-You can also link directly by tag if you know it:
-`https://github.com/miru-project/miru-alpha/releases/download/vX.Y.Z-alpha/<filename>`
