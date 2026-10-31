@@ -1,9 +1,19 @@
+import 'package:dio/dio.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 
 class SubtitleUtil {
-  static Future<List<Subtitle>> parseVttSubtitles(String url) async {
+  /// Parses a VTT subtitle from [url]. [headers] carries the watch
+  /// result's HTTP headers (Referer/User-Agent/…): subtitle CDNs gate on
+  /// the same headers the video stream needs — a bare request answers 403.
+  static Future<List<Subtitle>> parseVttSubtitles(
+    String url, {
+    Map<String, String> headers = const {},
+  }) async {
     // #todo
-    final dynamic rawData = await MiruRequest.get(url);
+    final dynamic rawData = await MiruRequest.get(
+      url,
+      options: Options(headers: headers),
+    );
     final String data = rawData as String;
     final List<Subtitle> subtitles = [];
     RegExp regExp = RegExp(

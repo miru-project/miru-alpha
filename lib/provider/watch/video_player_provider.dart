@@ -8,10 +8,14 @@ import 'package:miru_alpha/provider/cast/dlna_cast_bridge.dart';
 import 'package:miru_alpha/provider/cast/dlna_cast_provider.dart';
 import 'package:miru_alpha/provider/network_provider.dart';
 import 'package:miru_alpha/utils/watch/subtitle.dart';
+import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
     as pb_extension;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:video_player/video_player.dart';
+// The FVPControllerExtensions: setExternalSubtitle routes the subtitle into
+// mdk's native (libass) renderer instead of the Dart software overlay.
+import 'package:fvp/fvp.dart';
 
 import 'package:material_ui/material_ui.dart';
 part 'video_player_provider.g.dart';
@@ -455,13 +459,43 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
   }
 
   void setSubSelectedIndex(int index) {
-    state = state.copyWith(selectedSubtitleIndex: index, isShowSubtitle: true);
-    SubtitleUtil.parseVttSubtitles(state.subtitlesRaw[index].url).then((value) {
+    // Native (libass) render path first: mdk loads the subtitle as an
+    // external media track and draws it into the frame — no Dart-side VTT
+    // parsing, no software text overlay. The URL rides the app's standard
+    // image/media proxy, exactly like covers and screenshots do; a source
+    // that needs special fetching (TLS fingerprinting, tokens) is the
+    // EXTENSION'S job to hand back as a working proxyable URL. Falls back
+    // to the Dart VTT overlay when the fvp platform is not the engine.
+    final subUrl = state.subtitlesRaw[index].url;
+    try {
+      vidController.setExternalSubtitle(
+        MiruRequest.proxyUrl(subUrl).toString(),
+      );
+      state = state.copyWith(
+        selectedSubtitleIndex: index,
+        isShowSubtitle: false,
+        subtitles: const [],
+      );
+      return;
+    } catch (_) {
+      // Not the fvp platform — software overlay fallback below.
+    }
+    // Fetch with the stream's headers: the subtitle CDN gates on the same
+    // Referer/User-Agent the video source does — a bare URL request 403s.
+    SubtitleUtil.parseVttSubtitles(subUrl, headers: _streamHeaders).then((
+      value,
+    ) {
       setSubtitles(value, index);
     });
   }
 
   void closeSubtitle() {
+    // Stop the native (libass) render too: mdk keeps drawing the active
+    // external subtitle track until it is disabled. No-op when the fvp
+    // platform is not the engine (the Dart overlay needs no teardown).
+    try {
+      vidController.setSubtitleTracks(const []);
+    } catch (_) {}
     state = state.copyWith(isShowSubtitle: false);
   }
 
