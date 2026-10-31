@@ -304,6 +304,20 @@ Future<void> _verifyParity(
   }
 }
 
+/// Sizes the whole test view, not just the render surface.
+///
+/// `tester.binding.setSurfaceSize` resizes the render view but NOT the
+/// [FlutterView] metrics, so `MediaQuery.widthOf` keeps reporting the
+/// default 800×600 test window and [MobileLoadedPage] takes its wide-layout
+/// branch (>752 px → a 720 px column inset 40 px), which both overflows a
+/// 360 px surface and breaks the 16 px gutter parity with the skeleton.
+/// Pinning the view's metrics makes the page see the intended width.
+void _sizeView(WidgetTester tester, Size size) {
+  tester.view.devicePixelRatio = 1.0;
+  tester.view.physicalSize = size * tester.view.devicePixelRatio;
+  addTearDown(tester.view.reset);
+}
+
 void main() {
   // I18nUtils.flutterI18nDelegate reads the language setting at first use.
   setUpAll(MiruSettings.seedDefaultsForTest);
@@ -315,8 +329,7 @@ void main() {
       'skeleton and fetched content keep the same layout at ${width}px '
       '(tapped-card phase)',
       (tester) async {
-        await tester.binding.setSurfaceSize(surface);
-        addTearDown(() async => tester.binding.setSurfaceSize(null));
+        _sizeView(tester, surface);
         await _verifyParity(tester, withDetail: false);
       },
     );
@@ -325,8 +338,7 @@ void main() {
       'skeleton and fetched content keep the same layout at ${width}px '
       '(detail-known phase)',
       (tester) async {
-        await tester.binding.setSurfaceSize(surface);
-        addTearDown(() async => tester.binding.setSurfaceSize(null));
+        _sizeView(tester, surface);
         await _verifyParity(tester, withDetail: true);
       },
     );
@@ -334,8 +346,7 @@ void main() {
 
   testWidgets('MobileLoadedPage renders this skeleton while Detial loads '
       '(no second shell)', (tester) async {
-    await tester.binding.setSurfaceSize(const Size(360, 844));
-    addTearDown(() async => tester.binding.setSurfaceSize(null));
+    _sizeView(tester, const Size(360, 844));
 
     final meta = _meta();
     final fixture = _protoDetail();

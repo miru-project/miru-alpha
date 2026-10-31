@@ -9,8 +9,10 @@ import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/model/anilist_model.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
+import 'package:miru_alpha/provider/tracking/anilist_provider.dart';
 import 'package:miru_alpha/ui/features/detail/widget/mobile_detail_cards.dart';
 import 'package:miru_alpha/ui/features/detail/widget/mobile_detail_hero.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
@@ -75,6 +77,16 @@ class _FakeDownloads extends DownloadNotifier {
   AsyncValue<DownloadState> build() => AsyncData(DownloadState());
 }
 
+/// Signed-in AniList account so the unlinked row offers `Link`.
+class _FakeAccount extends AnilistAccount {
+  _FakeAccount(this.user);
+
+  final AnilistUser user;
+
+  @override
+  Future<AnilistUser?> build() async => user;
+}
+
 Widget _harness(Widget child) => FTheme(
   data: ThemeUtils.getThemeData(MiruThemes.zinc.light),
   child: MaterialApp(
@@ -88,10 +100,12 @@ Widget _harness(Widget child) => FTheme(
   ),
 );
 
-/// Pumps [MobileTrackersCastSection] with an optional tracker list.
+/// Pumps [MobileTrackersCastSection] with an optional tracker list and an
+/// optional signed-in AniList account.
 Future<ProviderContainer> _pumpSection(
   WidgetTester tester, {
   List<proto.Tracker>? trackers,
+  AnilistUser? account,
 }) async {
   final meta = _meta();
   final fixture = _protoDetail(trackers: trackers);
@@ -101,6 +115,8 @@ Future<ProviderContainer> _pumpSection(
     overrides: [
       detailPr.overrideWith(() => _FakeDetial(fixture)),
       downloadProvider.overrideWith(() => _FakeDownloads()),
+      if (account != null)
+        anilistAccountProvider.overrideWith(() => _FakeAccount(account)),
     ],
   );
   addTearDown(container.dispose);
@@ -198,13 +214,44 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('offers a link row when AniList is not linked', (tester) async {
-      await _pumpSection(tester);
+    testWidgets(
+      'offers a login row when AniList is neither linked nor logged in',
+      (tester) async {
+        await _pumpSection(tester);
+
+        await _tapTrackerCard(tester);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Not linked'), findsOneWidget);
+        // Not linked + no account: the panel offers the AniList login first —
+        // the per-detail Link picker only appears once an account exists.
+        expect(find.text('Login'), findsOneWidget);
+        expect(find.text('Connected'), findsNothing);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets('offers the link row once an AniList account is signed in', (
+      tester,
+    ) async {
+      await _pumpSection(
+        tester,
+        account: AnilistUser(
+          name: 'Tester',
+          id: 1,
+          avatar: AnilistAvatar(),
+          statistics: AnilistStatistics(
+            anime: AnilistMediaStatistics(),
+            manga: AnilistMediaStatistics(),
+          ),
+        ),
+      );
 
       await _tapTrackerCard(tester);
       await tester.pumpAndSettle();
 
       expect(find.text('Not linked'), findsOneWidget);
+      // Logged in but no tracker record yet: the row links the detail.
       expect(find.text('Link'), findsOneWidget);
       expect(find.text('Connected'), findsNothing);
       expect(tester.takeException(), isNull);

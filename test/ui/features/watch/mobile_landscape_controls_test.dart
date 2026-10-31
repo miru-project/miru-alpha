@@ -225,6 +225,20 @@ void main() {
     expect(find.text('Ep 1 · Dera and Hana'), findsOneWidget);
     expect(find.text('Episodes'), findsOneWidget);
     expect(find.text('18'), findsOneWidget);
+
+    // The Episodes entry is docked directly right of the bottom play/pause
+    // button — no longer the header's upper-right end. The dock's icon is
+    // the size-14 variant (the center disc paints a 30px one).
+    final episodes = tester.getCenter(find.text('Episodes'));
+    final play = tester.getCenter(
+      find.byWidgetPredicate(
+        (w) => w is Icon && w.icon == FLucideIcons.pause && w.size == 14,
+      ),
+    );
+    final nowPlaying = tester.getCenter(find.text('Now Playing'));
+    expect(episodes.dx, greaterThan(play.dx));
+    expect((episodes.dy - play.dy).abs(), lessThan(30));
+    expect(episodes.dy, greaterThan(nowPlaying.dy));
     // The meta row's always-present speed chip (deep-links to the Speed pane).
     expect(find.text('1.0x'), findsOneWidget);
     expect(find.byIcon(FLucideIcons.minimize), findsOneWidget);

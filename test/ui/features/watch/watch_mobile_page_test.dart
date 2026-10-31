@@ -16,7 +16,7 @@ import 'package:miru_alpha/ui/features/detail/widget/mobile_detail_tile.dart';
 import 'package:miru_alpha/ui/features/watch/widget/watch_favorite_button.dart';
 import 'package:miru_alpha/ui/features/watch/widget/watch_metadata_card.dart';
 import 'package:miru_alpha/ui/features/watch/widget/watch_header_section.dart';
-import 'package:miru_alpha/ui/features/watch/mobile_watch_page.dart'
+import 'package:miru_alpha/ui/features/watch/widget/watch_content_body.dart'
     show EpisodeList;
 import 'package:miru_alpha/ui/features/watch/video_player/widget/side_settings_menu.dart';
 import 'package:miru_alpha/ui/features/watch/widget/watch_tracker_bar.dart';
