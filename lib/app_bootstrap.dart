@@ -171,10 +171,12 @@ class _EntryLoadingState extends State<EntryLoadingState> {
   @override
   Widget build(BuildContext context) {
     if (_initialized) {
-      // The desktop app's UI (user directive): the PHONE UI centered in a
-      // 412×915 frame — the window keeps its real desktop size, the frame
-      // renders the touch theme. Touch builds (Android/iOS) render natively.
-      if (!(Platform.isAndroid || Platform.isIOS)) {
+      // The phone frame is a DEBUG development presentation (user directive,
+      // like the MCP/marionette debug binding): debug builds on desktop
+      // render the mobile UI in the 412×915 frame; release/profile builds
+      // render the app natively — the frame never ships. Touch builds
+      // (Android/iOS) always render natively.
+      if (kDebugMode && !(Platform.isAndroid || Platform.isIOS)) {
         return MiruMobilePreviewShell(child: const App());
       }
       return const App();
@@ -314,14 +316,18 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
   }
 }
 
-/// The desktop app's UI (user directive): the PHONE UI, centered in a
-/// 412×915 frame — an Android-emulator-style window inside the real desktop
-/// window, which itself is never resized or re-initialized. **Ctrl+Shift+P**
-/// swaps portrait (412x915) <-> landscape (915x412). **Ctrl+Shift+D** (debug
-/// builds only) bypasses the frame: the child renders full-bleed at the real
+/// The DEBUG desktop presentation (user directive, like the MCP debug
+/// binding): the PHONE UI, centered in a 412×915 frame — an
+/// Android-emulator-style window inside the real desktop window, which
+/// itself is never resized or re-initialized. **Ctrl+Shift+P**
+/// swaps portrait (412x915) <-> landscape (915x412). **Ctrl+Shift+D**
+/// bypasses the frame: the child renders full-bleed at the real
 /// window size, so the width-based breakpoints (forui `lg` 1024) reach the
 /// superseded desktop layouts (sidebar shell, desktop player) for
-/// development; the shipped desktop UI stays the phone frame. The handler
+/// development. RELEASE/PROFILE BUILDS NEVER WRAP: the bootstrap only
+/// mounts this shell under `kDebugMode`, so shipped desktop/touch builds
+/// render the app natively with window/platform-resolved theming. The
+/// handler
 /// only OBSERVES the combos (always returns false), so it never consumes
 /// events a real keyboard owner needs; plain typing never matches them. The
 /// theme resolves its FORUI MOBILE (touch) variant against the frame width —
