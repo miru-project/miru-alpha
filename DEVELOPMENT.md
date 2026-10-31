@@ -198,3 +198,30 @@ cannot resume the wrong one.
 | Scriggo extension deps | `cd src/miru_core/miru-core && make gen-deps` |
 | Lint | `flutter analyze --no-pub` |
 | Tests | `flutter test` |
+
+---
+
+## 13. Release pipeline
+
+`.github/workflows/release_alpha.yml` is tag-driven:
+
+1. `prepare` checks out with full history (needed to diff for release notes),
+   stamps the version from the tag (`tool/pubspec_from_tag.sh`), generates the
+   release body (`tool/release_body.sh`) and creates the release with
+   `ncipollo/release-action@v1` using `prerelease: true`.
+2. `build-and-release-android` / `-windows` / `-linux` build the platform
+   artifact and attach it to that same release, also with `prerelease: true`.
+
+Every published tag therefore appears on
+<https://github.com/miru-project/miru-alpha/releases> as a pre-release with
+the same asset set: `app-arm64-v8a-release.apk`, `app-armeabi-v7a-release.apk`,
+`app-x86_64-release.apk`, `Miru-Alpha-linux.tar.gz`, `Miru-Alpha-windows.zip`.
+
+Every checkout in both workflows must use `submodules: true` — the build hook
+fails with "Go module not found" when `src/miru_core/miru-core/go.mod` is
+missing. `prbuild.yml` additionally publishes per-push dev artifacts through
+`actions/upload-artifact`.
+
+Toolchains are pinned in the workflow `env` block and match the README
+prerequisites: Flutter `3.47.7`, Go `1.27.3`. No Rust toolchain is required —
+the native layer is Go (backend shared library) and C++ (`ffmpeg_merge`).

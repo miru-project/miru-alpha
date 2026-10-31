@@ -1,6 +1,7 @@
 # Miru Alpha
 
 [![Dev Build CI](https://github.com/miru-project/miru-alpha/actions/workflows/prbuild.yml/badge.svg)](https://github.com/miru-project/miru-alpha/actions/workflows/prbuild.yml)
+[![Latest alpha pre-release](https://img.shields.io/github/v/release/miru-project/miru-alpha?include_prereleases&sort=semver)](https://github.com/miru-project/miru-alpha/releases)
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](#license)
 ![Status: alpha](https://img.shields.io/badge/status-alpha-orange)
 
@@ -12,7 +13,22 @@ Miru is a versatile, free and open-source application designed for streaming vid
 
 Miru ships **no content of its own** — everything you watch or read comes from extensions you install yourself, and you are responsible for what you install. If you want a curated, out-of-the-box catalogue with official sources, this is not that tool.
 
-To grab the latest development builds, visit [GitHub Actions Releases](https://github.com/miru-project/miru-alpha/actions). Release builds are tag-driven; CI compiles the Go core per platform through Flutter build hooks and publishes alpha APKs and desktop artifacts. Notable changes are tracked in [CHANGELOG.md](CHANGELOG.md).
+## Getting the app
+
+Pre-built alpha releases are published on the
+[Releases page](https://github.com/miru-project/miru-alpha/releases) — every
+tag there is marked **pre-release**, and each one ships the same set of
+artifacts:
+
+| Platform | Artifact |
+| --- | --- |
+| Android | [app-arm64-v8a-release.apk](https://github.com/miru-project/miru-alpha/releases/latest/download/app-arm64-v8a-release.apk), [app-armeabi-v7a-release.apk](https://github.com/miru-project/miru-alpha/releases/latest/download/app-armeabi-v7a-release.apk), [app-x86_64-release.apk](https://github.com/miru-project/miru-alpha/releases/latest/download/app-x86_64-release.apk) |
+| Linux | [Miru-Alpha-linux.tar.gz](https://github.com/miru-project/miru-alpha/releases/latest/download/Miru-Alpha-linux.tar.gz) |
+| Windows | [Miru-Alpha-windows.zip](https://github.com/miru-project/miru-alpha/releases/latest/download/Miru-Alpha-windows.zip) |
+
+For bleeding-edge builds from every push, use the
+[Actions artifacts](https://github.com/miru-project/miru-alpha/actions) instead.
+Notable changes are tracked in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -227,3 +243,19 @@ conventions and known limitations — lives in
 ## License
 
 This project is licensed under the GPL-3.0 License.
+
+## Download links
+
+All release artifacts are published on the
+[Releases page](https://github.com/miru-project/miru-alpha/releases) — pre-releases
+are not exposed via `/releases/latest`, so download from the most recent
+`*-alpha*` release there.
+
+| Platform | Artifacts | Notes |
+| --- | --- | --- |
+| Android | `app-arm64-v8a-release.apk`, `app-armeabi-v7a-release.apk`, `app-x86_64-release.apk` | For most modern Android devices, use arm64-v8a |
+| Linux | `Miru-Alpha-linux.tar.gz` | Extract and run the binary |
+| Windows | `Miru-Alpha-windows.zip` | Extract and run Miru-alpha.exe |
+
+You can also link directly by tag if you know it:
+`https://github.com/miru-project/miru-alpha/releases/download/vX.Y.Z-alpha/<filename>`
