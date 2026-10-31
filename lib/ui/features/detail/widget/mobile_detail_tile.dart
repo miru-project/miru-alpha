@@ -19,7 +19,20 @@ import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/core/miru_directory.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
+import 'package:miru_alpha/ui/core/widget/pulsing_dot.dart';
 import 'package:path/path.dart' as p;
+
+/// Transient playback state a watch page can pin onto one episode row.
+enum EpisodeTileStatus {
+  /// The row whose stream is being resolved right now (watch request in
+  /// flight): accent row, pulsing "Loading" pill in place of the download
+  /// action.
+  resolving,
+
+  /// The row whose resolution failed: error-tinted row, "Failed" badge and
+  /// a retry control in place of the download action.
+  failed,
+}
 
 class MobileDetailTile extends ConsumerWidget {
   const MobileDetailTile({
@@ -36,6 +49,9 @@ class MobileDetailTile extends ConsumerWidget {
     required this.isDownloaded,
     this.onPress,
     this.selected = false,
+    this.status,
+    this.statusDetail,
+    this.onRetry,
   });
 
   final ExtensionEpisode item;
@@ -63,6 +79,20 @@ class MobileDetailTile extends ConsumerWidget {
   /// a third repeat of the same fact.)
   final bool selected;
 
+  /// Transient playback state pinned onto one row by the watch page's
+  /// loading / error shells: the episode being resolved while the watch
+  /// request is in flight, or the one whose resolution failed. `null` (the
+  /// default) renders the plain list row.
+  final EpisodeTileStatus? status;
+
+  /// One-line reason shown under a [EpisodeTileStatus.failed] row
+  /// (e.g. the watch error's own message).
+  final String? statusDetail;
+
+  /// Retry action for a [EpisodeTileStatus.failed] row — the page's watch
+  /// invalidation. The retry control only renders when both are set.
+  final VoidCallback? onRetry;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final key =
@@ -85,6 +115,11 @@ class MobileDetailTile extends ConsumerWidget {
     final frac = h != null && h.totalProgress > 0
         ? (h.progress / h.totalProgress).clamp(0.0, 1.0)
         : 0.0;
+
+    final resolving = status == EpisodeTileStatus.resolving;
+    final failed = status == EpisodeTileStatus.failed;
+    final accent = context.theme.colors.primary;
+    final errorColor = context.theme.colors.error;
 
     return FTile(
       // Compact rows: the default 14.5px content padding stacked on the
@@ -111,10 +146,28 @@ class MobileDetailTile extends ConsumerWidget {
                 // Follows the user's selected theme accent (not a hardcoded
                 // green): the selection highlight tracks whatever primary
                 // the theme picker is set to.
-                color: context.theme.colors.primary.withAlpha(26),
-                border: Border.all(
-                  color: context.theme.colors.primary.withAlpha(128),
-                ),
+                color: accent.withAlpha(26),
+                border: Border.all(color: accent.withAlpha(128)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          // The loading shell's resolving row: the same raised treatment as
+          // the selected row, keyed to the accent the theme carries.
+          if (resolving)
+            .base(
+              DecorationDelta.boxDelta(
+                color: accent.withAlpha(20),
+                border: Border.all(color: accent.withAlpha(115)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          // The error shell's failed row: the mock's error-container wash
+          // with a hairline error border.
+          if (failed)
+            .base(
+              DecorationDelta.boxDelta(
+                color: errorColor.withAlpha(18),
+                border: Border.all(color: errorColor.withAlpha(90)),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -137,13 +190,19 @@ class MobileDetailTile extends ConsumerWidget {
           textAlign: TextAlign.center,
           style: context.theme.typography.body.sm.copyWith(
             fontWeight: FontWeight.w700,
-            color: selected
-                ? context.theme.colors.primary
+            color: failed
+                ? errorColor
+                : selected || resolving
+                ? accent
                 : context.theme.colors.mutedForeground,
           ),
         ),
       ),
-      suffix: selected
+      suffix: resolving
+          ? _ResolvingPill(accent: accent)
+          : failed
+          ? _RetryButton(onRetry: onRetry, color: errorColor)
+          : selected
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -206,9 +265,13 @@ class MobileDetailTile extends ConsumerWidget {
                   : stripEpisodePrefix(item.name),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: selected
+              style: selected || resolving
                   ? context.theme.typography.body.sm.copyWith(
                       fontWeight: FontWeight.w700,
+                    )
+                  : failed
+                  ? context.theme.typography.body.sm.copyWith(
+                      fontWeight: FontWeight.w600,
                     )
                   : finished
                   ? context.theme.typography.body.sm.copyWith(
@@ -219,6 +282,30 @@ class MobileDetailTile extends ConsumerWidget {
                     ),
             ),
           ),
+          if (failed) ...[
+            const SizedBox(width: 6),
+            FBadge(
+              variant: .destructive,
+              style: .delta(
+                padding: EdgeInsetsGeometryDelta.value(
+                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                ),
+                labelTextStyle: TextStyleDelta.delta(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.4,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(FLucideIcons.triangleAlert, size: 9),
+                  const SizedBox(width: 3),
+                  Text('watch.episode_failed'.i18n),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
       onPress:
@@ -251,7 +338,35 @@ class MobileDetailTile extends ConsumerWidget {
               ),
             );
           },
-      subtitle: (h == null && item.update.isEmpty && downloadProgress == null)
+      subtitle: resolving
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                PulsingDot(color: accent, size: 5),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    'watch.resolving_stream'.i18n,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.theme.typography.body.xs.copyWith(
+                      color: accent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : failed && statusDetail != null
+          ? Text(
+              statusDetail!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.theme.typography.body.xs.copyWith(
+                color: errorColor.withAlpha(204),
+              ),
+            )
+          : (h == null && item.update.isEmpty && downloadProgress == null)
           ? SizedBox.shrink()
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -498,6 +613,80 @@ class MobileDetailTile extends ConsumerWidget {
       return "${duration.inHours}:$twoDigitMinutes:$twoDigitSeconds";
     }
     return "$twoDigitMinutes:$twoDigitSeconds";
+  }
+}
+
+/// The loading shell's trailing pill on the resolving row: pulsing dot +
+/// "Loading" on an accent badge. Non-interactive — the row itself is the
+/// tap target while the watch request resolves.
+class _ResolvingPill extends StatelessWidget {
+  const _ResolvingPill({required this.accent});
+
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return FBadge(
+      variant: .primary,
+      style: .delta(
+        decoration: DecorationDelta.shapeDelta(color: accent.withAlpha(38)),
+        labelTextStyle: TextStyleDelta.delta(
+          color: accent,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+        padding: EdgeInsetsGeometryDelta.value(
+          const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          PulsingDot(color: accent, size: 5),
+          const SizedBox(width: 5),
+          Text('watch.loading_badge'.i18n),
+        ],
+      ),
+    );
+  }
+}
+
+/// The error shell's trailing retry control on the failed row — the mock's
+/// outline "Retry" button keyed to the error color.
+class _RetryButton extends StatelessWidget {
+  const _RetryButton({required this.onRetry, required this.color});
+
+  final VoidCallback? onRetry;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return FTappableGroup.isolate(
+      child: FButton(
+        variant: .outline,
+        size: .xs,
+        mainAxisSize: .min,
+        onPress: onRetry,
+        style: .delta(
+          contentStyle: .delta(
+            // 36px floor: the family floor of this list's controls. The
+            // suffix slot narrows with the row (long titles + the Failed
+            // badge on 320-wide phones) — a 40px floor overflowed it.
+            constraints: const BoxConstraints(minHeight: 36),
+          ),
+        ),
+        // No prefix icon: the tile's suffix slot narrows with the row
+        // (long titles + the Failed badge) and the icon+text pair
+        // overflowed it by 10px on 320-wide phones.
+        child: Text(
+          'search.retry'.i18n,
+          style: context.theme.typography.body.xs.copyWith(
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
   }
 }
 

@@ -1,13 +1,21 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
+    as pb_extension;
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/provider/watch/video_player_provider.dart';
 import 'package:miru_alpha/ui/features/watch/video_player/widget/cast_sheet.dart';
+import 'package:miru_alpha/ui/features/watch/widget/watch_error_kind.dart';
+import 'package:miru_alpha/ui/features/watch/widget/watch_error_viewport.dart'
+    show MirrorPickerButton;
 import 'package:miru_alpha/ui/features/watch/video_player/widget/mobile_gesture.dart';
 import 'package:miru_alpha/ui/features/watch/video_player/widget/mobile_landscape_controls.dart';
 import 'package:miru_alpha/ui/features/watch/video_player/widget/player_overlay_atoms.dart';
+import 'package:miru_alpha/ui/features/watch/widget/watch_error_details_dialog.dart';
 import 'package:miru_alpha/ui/features/watch/video_player/widget/seek_bar.dart';
 import 'package:miru_alpha/ui/features/watch/video_player/widget/side_settings_menu.dart';
 import 'package:miru_alpha/ui/features/watch/video_player/widget/subtitle.dart';
@@ -58,6 +66,19 @@ class WatchVideoViewport extends ConsumerWidget {
     final showSettings = ref.watch(vidPr.select((s) => s.showSettings));
     final duration = ref.watch(vidPr.select((s) => s.duration));
     final isPlaying = ref.watch(vidPr.select((s) => s.isPlaying));
+    final playerError = ref.watch(vidPr.select((s) => s.playerError));
+    // The V2 mirror list rides the player state — the fallback picker for
+    // video-request errors (another mirror is another stream URL).
+    final mirrors = ref.watch(
+      vidPr.select(
+        (s) => <pb_extension.ExtensionMirror>[
+          for (final group
+              in (s.v2watch?.groups ??
+                  const <pb_extension.ExtensionMirrorGroup>[]))
+            ...group.mirrors,
+        ],
+      ),
+    );
 
     final settingsWidth =
         // Same budget both orientations: the docked landscape panel uses the
@@ -139,6 +160,21 @@ class WatchVideoViewport extends ConsumerWidget {
               ),
             ),
           ),
+          // The video engine's request failure (fvp): the stream server
+          // answered non-200 (403 expired link, 404, 5xx) — the taxonomy's
+          // video-request error, surfaced as an in-canvas card with the
+          // engine's verbatim message. Retry re-requests the SAME url,
+          // Switch Mirror re-requests another mirror's url (V2 sources).
+          if (playerError != null)
+            _VideoRequestErrorCard(
+              vidPr: vidPr,
+              error: playerError,
+              mirrors: mirrors,
+              onSelectMirror: (url) {
+                ref.read(vidPr.notifier).changeVideoQuality(url);
+                ref.read(vidPr.notifier).clearPlayerError();
+              },
+            ),
           // side settings panel — fullscreen only (the portrait page opens
           // the same content as a bottom sheet from the source pill; the
           // panel could not fit the ~230px 16:9 box).
@@ -165,6 +201,149 @@ class WatchVideoViewport extends ConsumerWidget {
 
 /// The mock's control rows. Text sits on the raw video canvas, so colours
 /// are explicit whites on scrims rather than theme tokens.
+/// The video-request error card: the taxonomy's [WatchErrorKind
+/// .videoRequest] surface for failures AFTER the watch request resolved —
+/// the stream server answered 403/404/5xx or the demuxer failed. Retry
+/// re-requests the same URL (transient failures, expired-then-refreshed
+/// links); Switch Mirror re-requests another mirror's URL.
+class _VideoRequestErrorCard extends ConsumerWidget {
+  const _VideoRequestErrorCard({
+    required this.vidPr,
+    required this.error,
+    required this.mirrors,
+    required this.onSelectMirror,
+  });
+
+  final VideoPlayerNotifierProvider vidPr;
+  final String error;
+  final List<pb_extension.ExtensionMirror> mirrors;
+  final ValueChanged<String> onSelectMirror;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final errorColor = context.theme.colors.error;
+    final info = WatchErrorInfo.videoRequest(error);
+    return Positioned.fill(
+      child: ColoredBox(
+        color: Colors.black.withAlpha(216),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: errorColor.withAlpha(31),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: errorColor.withAlpha(77)),
+                  ),
+                  child: Icon(FLucideIcons.unplug, size: 20, color: errorColor),
+                ),
+                const SizedBox(height: 10),
+                FBadge(
+                  variant: .destructive,
+                  style: .delta(
+                    padding: EdgeInsetsGeometryDelta.value(
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    ),
+                    labelTextStyle: TextStyleDelta.delta(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                    ),
+                  ),
+                  child: Text(info.categoryLabel),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'watch.playback_interrupted'.i18n,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  info.message,
+                  textAlign: TextAlign.center,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white.withAlpha(178),
+                    fontSize: 11,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'watch.error_video_hint'.i18n,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white.withAlpha(128),
+                    fontSize: 11,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    // The user directive: the SMALLER button size (sm) —
+                    // the 40px md box dwarfed the compacted card.
+                    FButton(
+                      variant: .primary,
+                      size: .sm,
+                      mainAxisSize: .min,
+                      prefix: const Icon(FLucideIcons.rotateCcw, size: 15),
+                      onPress: () {
+                        // Re-request the same stream URL — the engine
+                        // re-opens it and a healthy tick clears the card.
+                        // dataSource is non-null while a stream is set —
+                        // the error card only renders over a live player.
+                        final url = ref
+                            .read(vidPr.notifier)
+                            .vidController
+                            .dataSource;
+                        ref.read(vidPr.notifier).changeVideoQuality(url);
+                        ref.read(vidPr.notifier).clearPlayerError();
+                      },
+                      child: Text('watch.retry_connection'.i18n),
+                    ),
+                    if (mirrors.isNotEmpty)
+                      MirrorPickerButton(
+                        mirrors: mirrors,
+                        onSelectMirror: onSelectMirror,
+                      ),
+                  ],
+                ),
+                // The in-player diagnostics affordance: the engine's own
+                // error text as the dump — copyable from the dialog.
+                const SizedBox(height: 6),
+                FButton(
+                  variant: .ghost,
+                  size: .xs,
+                  mainAxisSize: .min,
+                  prefix: const Icon(FLucideIcons.info, size: 14),
+                  onPress: () =>
+                      unawaited(showWatchErrorDetails(context, info.detail)),
+                  child: Text('watch.error_details'.i18n),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ControlsOverlay extends ConsumerWidget {
   const _ControlsOverlay({
     required this.vidPr,

@@ -74,7 +74,7 @@ final class DlnaCastProvider
   }
 }
 
-String _$dlnaCastHash() => r'004fa3c1ca5bfbac42221162fb0a6acec9fb427d';
+String _$dlnaCastHash() => r'e3ecb6ab54247c39310601fe733666f37d79937e';
 
 /// Drives the DLNA device search, the connected renderer's transport, and
 /// the TWO-WAY sync between the app player (via [DlnaPlayerSurface]) and the

@@ -22,7 +22,8 @@ final class WatchProvider
     with $FutureModifier<WatchResult>, $FutureProvider<WatchResult> {
   WatchProvider._({
     required WatchFamily super.from,
-    required (String, String, ExtensionMeta) super.argument,
+    required (String, String, ExtensionMeta, {String? mirrorUrl})
+    super.argument,
   }) : super(
          retry: null,
          name: r'watchProvider',
@@ -49,8 +50,15 @@ final class WatchProvider
 
   @override
   FutureOr<WatchResult> create(Ref ref) {
-    final argument = this.argument as (String, String, ExtensionMeta);
-    return watch(ref, argument.$1, argument.$2, argument.$3);
+    final argument =
+        this.argument as (String, String, ExtensionMeta, {String? mirrorUrl});
+    return watch(
+      ref,
+      argument.$1,
+      argument.$2,
+      argument.$3,
+      mirrorUrl: argument.mirrorUrl,
+    );
   }
 
   @override
@@ -64,13 +72,13 @@ final class WatchProvider
   }
 }
 
-String _$watchHash() => r'faf588491117dd032aa14a62eff70ff3a357d8d5';
+String _$watchHash() => r'501fb109a3fe2d39156bce007de388e94f0caad9';
 
 final class WatchFamily extends $Family
     with
         $FunctionalFamilyOverride<
           FutureOr<WatchResult>,
-          (String, String, ExtensionMeta)
+          (String, String, ExtensionMeta, {String? mirrorUrl})
         > {
   WatchFamily._()
     : super(
@@ -81,8 +89,15 @@ final class WatchFamily extends $Family
         isAutoDispose: true,
       );
 
-  WatchProvider call(String watchUrl, String detailUrl, ExtensionMeta meta) =>
-      WatchProvider._(argument: (watchUrl, detailUrl, meta), from: this);
+  WatchProvider call(
+    String watchUrl,
+    String detailUrl,
+    ExtensionMeta meta, {
+    String? mirrorUrl,
+  }) => WatchProvider._(
+    argument: (watchUrl, detailUrl, meta, mirrorUrl: mirrorUrl),
+    from: this,
+  );
 
   @override
   String toString() => r'watchProvider';

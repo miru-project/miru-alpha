@@ -13,13 +13,27 @@ import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dar
     as pb_extension;
 part 'extension_provider.g.dart';
 
+/// Thrown when the V2 watch call resolved the mirror groups but resolving
+/// the chosen mirror failed. Carries the resolved [v2watch] so the error UI
+/// can offer the remaining mirrors as a fallback ("Switch Mirror").
+class WatchMirrorException implements Exception {
+  const WatchMirrorException(this.v2watch, this.cause);
+
+  final pb_extension.ExtensionWatch v2watch;
+  final Object cause;
+
+  @override
+  String toString() => 'Mirror resolution failed: $cause';
+}
+
 @riverpod
 Future<WatchResult> watch(
   Ref ref,
   String watchUrl,
   String detailUrl,
-  ExtensionMeta meta,
-) async {
+  ExtensionMeta meta, {
+  String? mirrorUrl,
+}) async {
   try {
     // Get download info if exists
     final downloaded = await MiruGrpcClient.downloadClient
@@ -51,19 +65,33 @@ Future<WatchResult> watch(
           orElse: () => watchResult.groups.first,
         );
         if (group.mirrors.isNotEmpty) {
-          final index = watchResult.hasDefaultIndex()
-              ? watchResult.defaultIndex
-              : 0;
-          final mirror = (index >= 0 && index < group.mirrors.length)
-              ? group.mirrors[index]
-              : group.mirrors.first;
+          pb_extension.ExtensionMirror mirror;
+          if (mirrorUrl != null) {
+            mirror = group.mirrors.firstWhere(
+              (m) => m.url == mirrorUrl,
+              orElse: () => group.mirrors.first,
+            );
+          } else {
+            final index = watchResult.hasDefaultIndex()
+                ? watchResult.defaultIndex
+                : 0;
+            mirror = (index >= 0 && index < group.mirrors.length)
+                ? group.mirrors[index]
+                : group.mirrors.first;
+          }
 
           // Call mirror which now returns the specialized mirror object
-          final resolved = await MiruCoreEndpoint.mirror(
-            meta.packageName,
-            mirror.url,
-          );
-          return WatchResult(data: resolved, v2watch: watchResult);
+          try {
+            final resolved = await MiruCoreEndpoint.mirror(
+              meta.packageName,
+              mirror.url,
+            );
+            return WatchResult(data: resolved, v2watch: watchResult);
+          } catch (e) {
+            // The mirror list itself resolved — surface it so the error UI
+            // can offer another mirror instead of a dead-end retry.
+            throw WatchMirrorException(watchResult, e);
+          }
         }
       }
       throw Exception("Can't find mirror link in extension V2");

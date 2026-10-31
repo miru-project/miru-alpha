@@ -68,7 +68,7 @@ final class VideoPlayerNotifierProvider
 }
 
 String _$videoPlayerNotifierHash() =>
-    r'd200b83ce2c20fd63d89c63ee7c4fb7926f6c1f4';
+    r'ce249b1df6a98d286dc39159879531b4c5ff1a45';
 
 final class VideoPlayerNotifierFamily extends $Family
     with

@@ -40,6 +40,13 @@ class VideoPlayerTickState {
   final Map<String, String> qualityMap;
   final double ratio;
   final pb_extension.ExtensionWatch? v2watch;
+
+  /// The video engine's request failure (fvp): the stream server answered
+  /// non-200 (403 expired link, 404 gone, timeouts) or the demuxer failed.
+  ///surfaced verbatim on the viewport's video-request error card; `null`
+  /// while playback is healthy. Retry re-requests the same URL, Switch
+  /// Mirror re-requests another mirror's URL.
+  final String? playerError;
   VideoPlayerTickState({
     this.position = Duration.zero,
     this.isPlaying = false,
@@ -59,6 +66,7 @@ class VideoPlayerTickState {
     this.settingsTab = 0,
     this.locked = false,
     this.v2watch,
+    this.playerError,
   });
 
   VideoPlayerTickState copyWith({
@@ -84,6 +92,8 @@ class VideoPlayerTickState {
     String? currentSubtitle,
     double? ratio,
     Map<String, String>? qualityMap,
+    String? playerError,
+    bool clearPlayerError = false,
   }) {
     return VideoPlayerTickState(
       position: position ?? this.position,
@@ -105,6 +115,9 @@ class VideoPlayerTickState {
       settingsTab: settingsTab ?? this.settingsTab,
       locked: locked ?? this.locked,
       v2watch: v2watch ?? v2watch,
+      // The error is CLEARABLE: clearPlayerError resets it (retry/switch
+      // re-request the stream and a healthy tick must clear the card).
+      playerError: clearPlayerError ? null : (playerError ?? this.playerError),
     );
   }
 }
@@ -274,6 +287,11 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
     3.0,
   ];
 
+  /// Clears the video-request error card (a fresh re-request is starting).
+  void clearPlayerError() {
+    state = state.copyWith(clearPlayerError: true);
+  }
+
   void changeVideoQuality(String url) {
     vidController.pause();
     vidController.removeListener(_updatePosition);
@@ -311,8 +329,11 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
         (v.position - state.position).abs() >=
         const Duration(milliseconds: 250);
     final playStateChanged = v.isPlaying != state.isPlaying;
+    final errorNow = v.hasError ? v.errorDescription : null;
+    final errorChanged = errorNow != state.playerError;
     if (!positionMoved &&
         !playStateChanged &&
+        !errorChanged &&
         v.duration == state.duration &&
         v.aspectRatio == state.ratio &&
         _sameBuffered(v.buffered, state.bufferedRange)) {
@@ -325,6 +346,12 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
       buffered: v.buffered,
       currentSubtitle: getCurrentSubtitle(),
       ratio: v.aspectRatio,
+      // The video engine's request failure (the stream server answering
+      // 403/404/5xx, expired signed links, demuxer failures) — video_player
+      // reports it on the controller value; surface it verbatim for the
+      // video-request error card. A healthy value clears it.
+      playerError: errorNow,
+      clearPlayerError: !v.hasError,
     );
   }
 

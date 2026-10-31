@@ -84,7 +84,6 @@ class MobileLandscapeControls extends ConsumerWidget {
               title: title,
               episodeName: episodeName,
               videoType: videoType,
-              epLength: epLength,
               onClose: onClose,
               autoRotate: autoRotate,
               onToggleAutoRotate: onToggleAutoRotate,
@@ -104,7 +103,11 @@ class MobileLandscapeControls extends ConsumerWidget {
                   : null,
             ),
             const Spacer(),
-            _BottomDock(vidPr: vidPr, onToggleFullscreen: onToggleFullscreen),
+            _BottomDock(
+              vidPr: vidPr,
+              epCount: epLength,
+              onToggleFullscreen: onToggleFullscreen,
+            ),
           ],
         ),
       ),
@@ -112,15 +115,15 @@ class MobileLandscapeControls extends ConsumerWidget {
   }
 }
 
-/// Top row: back · left-anchored title block · episodes pill · auto-rotate ·
-/// cast. (The lock lives on the portrait overlay only.)
+/// Top row: back · left-anchored title block · auto-rotate · cast.
+/// (The lock lives on the portrait overlay only; the Episodes pane entry
+/// moved down into the transport dock.)
 class _HeaderRow extends ConsumerWidget {
   const _HeaderRow({
     required this.vidPr,
     required this.title,
     required this.episodeName,
     required this.videoType,
-    required this.epLength,
     required this.onClose,
     this.autoRotate,
     this.onToggleAutoRotate,
@@ -130,7 +133,6 @@ class _HeaderRow extends ConsumerWidget {
   final String title;
   final String episodeName;
   final String videoType;
-  final int epLength;
   final VoidCallback onClose;
 
   /// Auto-rotation state + toggle (default off): the same arming switch the
@@ -140,8 +142,6 @@ class _HeaderRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.read(vidPr.notifier);
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 4, 6, 0),
       child: Row(
@@ -238,13 +238,6 @@ class _HeaderRow extends ConsumerWidget {
             semanticLabel: 'watch.cast'.i18n,
             icon: const Icon(FLucideIcons.cast, size: 18),
           ),
-          const SizedBox(width: 4),
-          // The reference's drawer toggle: opens the docked panel (episodes
-          // · mirrors · resolution · subtitle) from the header cluster.
-          _EpisodesButton(
-            onPress: () => notifier.openSettings(0),
-            count: epLength,
-          ),
         ],
       ),
     );
@@ -309,11 +302,17 @@ class _TransportCluster extends StatelessWidget {
 
 /// Bottom: scrubber + timestamps + meta chips, then the transport dock.
 /// Episode prev/next live in the center cluster now — the dock keeps play,
-/// the Episodes pane entry and exit fullscreen.
+/// the Episodes pane entry right beside it, the settings chips and exit
+/// fullscreen.
 class _BottomDock extends ConsumerWidget {
-  const _BottomDock({required this.vidPr, required this.onToggleFullscreen});
+  const _BottomDock({
+    required this.vidPr,
+    required this.epCount,
+    required this.onToggleFullscreen,
+  });
 
   final VideoPlayerNotifierProvider vidPr;
+  final int epCount;
   final VoidCallback onToggleFullscreen;
 
   @override
@@ -365,6 +364,14 @@ class _BottomDock extends ConsumerWidget {
                       : FLucideIcons.play,
                   size: 14,
                 ),
+              ),
+              const SizedBox(width: 8),
+              // The reference's drawer toggle, docked next to play/pause:
+              // opens the docked panel (episodes · mirrors · resolution ·
+              // subtitle) with Episodes as its first pane.
+              _EpisodesButton(
+                onPress: () => notifier.openSettings(0),
+                count: epCount,
               ),
               const Spacer(),
               // Reference bottom-right cluster: mirror · subtitle · quality

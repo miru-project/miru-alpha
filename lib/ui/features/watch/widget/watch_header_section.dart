@@ -25,6 +25,7 @@ class WatchHeaderSection extends ConsumerWidget {
     required this.detailUrl,
     required this.epProvider,
     required this.favorited,
+    this.statusMeta,
   });
 
   final String showTitle;
@@ -36,6 +37,11 @@ class WatchHeaderSection extends ConsumerWidget {
   final String detailUrl;
   final EpisodeNotifierProvider epProvider;
   final bool favorited;
+
+  /// Overrides the default "S{n} · Episode n" meta line — the loading and
+  /// error shells replace it with their own status ("Now Loading · Ep 1",
+  /// "Episode 1 · Stream unavailable"). `null` keeps the default line.
+  final Widget? statusMeta;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -63,17 +69,17 @@ class WatchHeaderSection extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    // "S1 · Episode 3 "Yuru & Asa"" — the group doubles as
-                    // the season label; a quoted episode name reads as the
-                    // episode's title, bare numbers are dropped.
-                    '$groupTitle · ${_episodeMeta(ep.selectedEpisodeIndex)}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.theme.typography.body.xs.copyWith(
-                      color: context.theme.colors.mutedForeground,
-                    ),
-                  ),
+                  // The loading / error shells override the meta line with
+                  // their own status; the default reads "S1 · Episode 3".
+                  statusMeta ??
+                      Text(
+                        '$groupTitle · ${_episodeMeta(ep.selectedEpisodeIndex)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.theme.typography.body.xs.copyWith(
+                          color: context.theme.colors.mutedForeground,
+                        ),
+                      ),
                 ],
               ),
             ),
