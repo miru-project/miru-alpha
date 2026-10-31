@@ -138,6 +138,7 @@ class _TMDBSection extends HookConsumerWidget {
                 FAvatar(
                   image: ExtendedNetworkImageProvider(
                     MiruRequest.proxyUrl(url).toString(),
+                    retries: 1,
                   ),
                 )
               else

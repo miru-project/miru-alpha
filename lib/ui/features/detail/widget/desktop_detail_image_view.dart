@@ -111,6 +111,7 @@ class _DetailImageViewerPageState extends State<_DetailImageViewerPage> {
               color: Colors.transparent,
               child: ExtendedImage.network(
                 MiruRequest.proxyUrl(widget.coverUrl).toString(),
+                retries: 1,
                 mode: .gesture,
                 initGestureConfigHandler: (state) => GestureConfig(
                   minScale: 0.9,

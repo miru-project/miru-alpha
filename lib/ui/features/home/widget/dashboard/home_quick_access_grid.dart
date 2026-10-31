@@ -233,6 +233,7 @@ Widget _sourceIcon(ExtensionMeta meta) {
   if (meta.icon != null && meta.icon!.isNotEmpty) {
     return ExtendedImage.network(
       MiruRequest.proxyUrl(meta.icon!).toString(),
+      retries: 1,
       width: 16,
       height: 16,
       fit: BoxFit.contain,

@@ -82,6 +82,7 @@ class MobileDetailHero extends ConsumerWidget {
                       if (meta.icon != null && meta.icon!.isNotEmpty)
                         ExtendedImage.network(
                           MiruRequest.proxyUrl(meta.icon!).toString(),
+                          retries: 1,
                           width: 16,
                           height: 16,
                           loadStateChanged: (state) {

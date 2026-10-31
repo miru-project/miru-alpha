@@ -42,6 +42,26 @@ import 'package:window_manager/window_manager.dart';
 /// `dart.library.*` conditions are honoured, everything else resolves to the
 /// default branch, so the previous self-referencing conditional imported the
 /// real packages into every build.
+
+/// Errors that reach the global handlers but must never toast — they are
+/// still logged/recorded below. The noisy ones are `StateError`s, rendered
+/// "Bad state: ...": extended_image pushes a failed network load through the
+/// image stream as `StateError('Failed to load <url>.')` once per retry
+/// (and [ImageWidget] already renders that failure as its error child), and
+/// Riverpod's "Using ref when a widget is about to or has been unmounted"
+/// spams the same signature. Any "Bad state:" error is framework noise of
+/// that kind, so the whole signature is silenced for the toast.
+bool _isNoisyBadStateError(Object error) {
+  if (error.toString().contains('Bad state:')) return true;
+  if (error is StateError) {
+    final message = error.message.toString();
+    return message.startsWith('Failed to load') ||
+        message.contains('is an empty file') ||
+        message.startsWith('User cancel request');
+  }
+  return false;
+}
+
 Future<void> runMiruApp({required void Function() ensureBinding}) async {
   runZonedGuarded<void>(
     () async {
@@ -54,9 +74,11 @@ Future<void> runMiruApp({required void Function() ensureBinding}) async {
         StackTrace stack, [
         String source = 'platform-dispatcher',
       ]) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showSimpleToast(error.toString());
-        });
+        if (!_isNoisyBadStateError(error)) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showSimpleToast(error.toString());
+          });
+        }
         MiruLog.recordCrash(error, stack, source: source);
         logger.severe('Uncaught error [$source]: $error');
         logger.severe(stack.toString());
@@ -141,7 +163,9 @@ Future<void> runMiruApp({required void Function() ensureBinding}) async {
       if (!MiruLog.hasInit) {
         MiruLog.defaultError(error, stack);
       }
-      showSimpleToast(error.toString());
+      if (!_isNoisyBadStateError(error)) {
+        showSimpleToast(error.toString());
+      }
       MiruLog.recordCrash(error, stack, source: 'run-zoned');
       logger.severe('Uncaught error [run-zoned]: $error');
       logger.severe(stack.toString());

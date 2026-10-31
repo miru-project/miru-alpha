@@ -1167,6 +1167,7 @@ class _CastRow extends StatelessWidget {
                 MiruRequest.proxyUrl(
                   TMDBProvider.getImageUrl(cast.profilePath!),
                 ).toString(),
+                retries: 1,
               ),
             )
           else

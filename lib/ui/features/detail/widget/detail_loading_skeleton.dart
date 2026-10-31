@@ -388,6 +388,7 @@ class _HeroSkeleton extends StatelessWidget {
                       if (meta.icon != null)
                         ExtendedImage.network(
                           MiruRequest.proxyUrl(meta.icon!).toString(),
+                          retries: 1,
                           width: 16,
                           height: 16,
                         )

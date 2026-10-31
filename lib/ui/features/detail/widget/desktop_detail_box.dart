@@ -128,6 +128,7 @@ class _Loaded extends HookConsumerWidget {
             fit: BoxFit.fitWidth,
             image: ExtendedNetworkImageProvider(
               MiruRequest.proxyUrl(coverUrl).toString(),
+              retries: 1,
             ),
             colorFilter: ColorFilter.mode(
               Colors.black.withAlpha(200), // optional dark overlay

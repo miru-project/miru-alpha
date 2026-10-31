@@ -21,6 +21,7 @@ class MobileUserHeader extends ConsumerWidget {
           FAvatar(
             image: ExtendedNetworkImageProvider(
               MiruRequest.proxyUrl(user.avatar.medium ?? '').toString(),
+              retries: 1,
             ),
             fallback: Text(user.name[0].toUpperCase()),
           ),
