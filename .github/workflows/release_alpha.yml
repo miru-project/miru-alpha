@@ -66,7 +66,6 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
-
       - name: Decode keystore
         run: |
           echo $ENCODED_KEYSTORE | base64 -di > android/app/keystore.jks
@@ -95,6 +94,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: "true"
 
       - name: Set pubspec version from tag
         shell: bash
