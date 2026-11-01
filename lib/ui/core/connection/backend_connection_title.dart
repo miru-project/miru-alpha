@@ -5,10 +5,10 @@ import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/provider/backend_connection_provider.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
-/// The 150ms easeInOut slide/opacity pair the mobile detail page's pinned
+/// The 800ms easeInOut slide/opacity pair the mobile detail page's pinned
 /// sliver header uses for its title reveal — reused here so the title swap
 /// speaks the same motion language.
-const _swapDuration = Duration(milliseconds: 150);
+const _swapDuration = Duration(milliseconds: 800);
 
 /// Title block driven by the backend connection gate: while the core is
 /// connecting, the connecting status (`Connecting` + `server:port`) renders;
