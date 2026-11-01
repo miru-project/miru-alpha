@@ -221,8 +221,12 @@ class DownloadNotifier extends _$DownloadNotifier {
   Future<void> _init() async {
     try {
       await _fetchInitialData();
+      // The fetch can outlive the provider (invalidation, container tear
+      // down) — never touch state or streams on a dead ref.
+      if (!ref.mounted) return;
       _startStream();
     } catch (e, stack) {
+      if (!ref.mounted) return;
       state = AsyncError(e, stack);
     }
   }

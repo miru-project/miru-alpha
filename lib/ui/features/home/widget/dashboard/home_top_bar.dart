@@ -6,6 +6,7 @@ import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/provider/home/home_trending_provider.dart';
 import 'package:miru_alpha/provider/home/history_page_provider.dart';
+import 'package:miru_alpha/ui/core/connection/backend_connection_title.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
@@ -48,18 +49,23 @@ class HomeTopBar extends ConsumerWidget {
             children: [
               // Brand group shrinks as one unit: long locales (and raw test
               // keys) scale down instead of pushing the actions off the bar.
+              // The title is connection-aware: `Connecting + server:port`
+              // slides up into `Home` when the core answers (detail-header
+              // slide).
               Flexible(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'common.home'.i18n,
-                        style: context.theme.typography.display.xl2.copyWith(
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.5,
-                          height: 1,
+                      BackendConnectionTitle(
+                        title: Text(
+                          'common.home'.i18n,
+                          style: context.theme.typography.display.xl2.copyWith(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                            height: 1,
+                          ),
                         ),
                       ),
                     ],

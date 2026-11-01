@@ -9,6 +9,9 @@ import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/provider/backend_connection_provider.dart';
+import 'package:miru_alpha/ui/core/connection/backend_connection_title.dart';
+import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/index.dart';
@@ -152,29 +155,52 @@ class _MainPageState extends ConsumerState<MainPage>
 
     useEffect(() {
       Future.microtask(() async {
+        // The dialog reads backend-persisted settings; hold it until the
+        // connection gate resolves (the bootstrap seeded synchronous
+        // defaults) so an already-chosen directory never re-prompts.
+        await ref.read(backendConnectionProvider.future);
+        // The gate's appearance reload can flip MaterialApp's language key,
+        // which REMOUNTS the whole app. Let that frame land before showing
+        // anything: a stale element exits here instead of pushing a dialog
+        // onto the navigator that is about to be torn down.
+        await WidgetsBinding.instance.endOfFrame;
+        if (!context.mounted) return;
         final downloadPath = MiruSettings.getSettingSync<String>(
           SettingKey.downloadPath,
         );
-        if (downloadPath.isEmpty && context.mounted) {
+        if (downloadPath.isEmpty) {
           showMiruDialog(
             context: context,
-            actions: [
-              FButton(
-                onPress: () async {
-                  String? result = await FilePicker.getDirectoryPath();
-                  if (result != null) {
-                    MiruSettings.setSettingSync(
-                      SettingKey.downloadPath,
-                      result,
-                    );
-                    if (context.mounted) Navigator.of(context).pop();
-                  }
-                },
-                child: Text('settings.select_directory'.i18n),
+            builder: (dialogContext, style, animation) => FTheme(
+              data: dialogContext.theme,
+              child: MiruDialog(
+                style: style,
+                animation: animation,
+                title: Text('settings.download_directory'.i18n),
+                body: Text('settings.select_download_directory'.i18n),
+                actions: [
+                  FButton(
+                    onPress: () async {
+                      final result = await FilePicker.getDirectoryPath();
+                      if (result == null) return;
+                      MiruSettings.setSettingSync(
+                        SettingKey.downloadPath,
+                        result,
+                      );
+                      // Close the DIALOG's route. Popping the page's captured
+                      // context resolved to the shell page (the dialog was
+                      // already gone after the appearance remount) and
+                      // popped the last go_router page — the fresh-start
+                      // crash.
+                      if (dialogContext.mounted) {
+                        Navigator.of(dialogContext).pop();
+                      }
+                    },
+                    child: Text('settings.select_directory'.i18n),
+                  ),
+                ],
               ),
-            ],
-            title: Text('settings.download_directory'.i18n),
-            body: Text('settings.select_download_directory'.i18n),
+            ),
           );
         }
       });
@@ -319,29 +345,41 @@ class _MainPageState extends ConsumerState<MainPage>
                 children: [
                   Padding(
                     padding: .symmetric(horizontal: 10),
-                    child: Row(
-                      children: [
-                        Text(
-                          "common.miru".i18n,
-                          style: context.theme.typography.body.xl3.copyWith(
-                            fontWeight: .bold,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsetsGeometry.directional(
-                            start: 10,
-                            top: 15,
-                          ),
-                          child: Text(
-                            "common.alpha".i18n,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              decoration: TextDecoration.none,
+                    // Sidebar brand is connection-aware like the mobile home
+                    // bar: `Connecting + server:port` slides up into the
+                    // `Miru Alpha` wordmark when the core answers. The
+                    // FittedBox is the mobile bar's same brand guard — raw
+                    // test keys (and any long locale) scale down instead of
+                    // overflowing the sidebar.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: BackendConnectionTitle(
+                        title: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "common.miru".i18n,
+                              style: context.theme.typography.body.xl3.copyWith(
+                                fontWeight: .bold,
+                              ),
                             ),
-                          ),
+                            Padding(
+                              padding: EdgeInsetsGeometry.directional(
+                                start: 10,
+                                top: 15,
+                              ),
+                              child: Text(
+                                "common.alpha".i18n,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                   FDivider(

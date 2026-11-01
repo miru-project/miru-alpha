@@ -1,5 +1,6 @@
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/model/user_data.dart';
+import 'package:miru_alpha/provider/backend_connection_provider.dart';
 import 'package:miru_alpha/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'favorite_page_provider.g.dart';
@@ -72,6 +73,10 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
 
   // INIT
   Future<void> init() async {
+    // Favorites read the backend DB; hold on the connection gate so a cold
+    // start shows the section's loading state instead of a failed fetch.
+    await ref.read(backendConnectionProvider.future);
+    if (!ref.mounted) return;
     await refreshFavoritesAndGroup();
     state = state.copyWith(filteredFavorites: state.favorites);
   }

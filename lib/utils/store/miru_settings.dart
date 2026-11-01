@@ -1,13 +1,76 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/core/miru_directory.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
+import 'package:path/path.dart' as p;
 
 class MiruSettings {
   static Map<String, String> _settingsCache = {};
+
+  /// Appearance/locale keys mirrored into the on-disk session file
+  /// (`session_settings.json`, next to the DB). They are the settings the
+  /// app reads SYNCHRONOUSLY during the connecting window (theme, colors,
+  /// language for the i18n delegate), so a local copy lets the first frames
+  /// render the user's real appearance before the backend answers.
+  /// Deliberately small — everything else stays backend-authoritative.
+  static const Set<String> _sessionKeys = {
+    SettingKey.theme,
+    SettingKey.baseColor,
+    SettingKey.accentColor,
+    SettingKey.baseColorTintStrength,
+    SettingKey.language,
+    SettingKey.mobiletitleIsonTop,
+  };
+
+  /// Test seam: overrides the session file location (the real path needs
+  /// the platform directory plugins).
+  @visibleForTesting
+  static String? sessionFilePathOverride;
+
+  static String get _sessionFilePath =>
+      sessionFilePathOverride ??
+      p.join(MiruDirectory.getDirectory, 'session_settings.json');
+
+  /// Loads the session copy into the cache. Bootstrap runs this before
+  /// `runApp`, after [seedDefaults]: precedence is defaults < session file <
+  /// backend DB (the gate overlays DB values once connected).
+  static void loadSessionSettings() {
+    try {
+      final file = File(_sessionFilePath);
+      if (!file.existsSync()) return;
+      final decoded = jsonDecode(file.readAsStringSync());
+      if (decoded is! Map) return;
+      for (final key in _sessionKeys) {
+        final value = decoded[key];
+        if (value != null) _settingsCache[key] = value.toString();
+      }
+      logger.info('Session settings loaded from $_sessionFilePath');
+    } catch (e) {
+      logger.warning('Failed to read session settings: $e');
+    }
+  }
+
+  /// Writes the session-tracked keys from the cache to the session file.
+  /// Called on every tracked write and after the backend settings load, so
+  /// the copy always mirrors the last-known truth.
+  static void persistSessionSettings() {
+    try {
+      final values = {
+        for (final key in _sessionKeys)
+          if (_settingsCache[key] != null) key: _settingsCache[key]!,
+      };
+      File(_sessionFilePath).writeAsStringSync(jsonEncode(values));
+    } catch (e) {
+      logger.warning('Failed to write session settings: $e');
+    }
+  }
+
+  static bool _isSessionTracked(String key) => _sessionKeys.contains(key);
   static Future<void> getAllSetting() async {
     try {
       final response = await MiruGrpcClient.appSettingClient.getAppSetting(
@@ -31,6 +94,7 @@ class MiruSettings {
           ..settings.add(proto.AppSetting(key: key, value: value.toString())),
       );
       _settingsCache[key] = value.toString();
+      if (_isSessionTracked(key)) persistSessionSettings();
     } catch (e) {
       logger.info('Failed to set setting $key to $value via gRPC: $e');
     }
@@ -39,6 +103,8 @@ class MiruSettings {
   static Future<void> ensureInitialized() async {
     await getAllSetting();
     await _initSettings();
+    // Keep the session copy in step with the authoritative DB values.
+    persistSessionSettings();
     logger.info('Settings initialized');
   }
 
@@ -126,6 +192,7 @@ class MiruSettings {
 
   static void setSettingSync(String key, String value) {
     _settingsCache[key] = value;
+    if (_isSessionTracked(key)) persistSessionSettings();
     setSetting(key, value);
   }
 
@@ -140,6 +207,19 @@ class MiruSettings {
     _settingsCache
       ..clear()
       ..addAll(_defaultSettings.map((key, value) => MapEntry(key, '$value')));
+  }
+
+  /// Seeds the settings cache with the shipped defaults WITHOUT contacting
+  /// the backend (missing keys only — never overwrites a fetched value).
+  ///
+  /// The bootstrap runs this before `runApp`: the init page is gone, so the
+  /// first frames read theme/language synchronously while the connection gate
+  /// is still pending. [ensureInitialized] later overlays the user's
+  /// persisted values on top of the same defaults.
+  static void seedDefaults() {
+    for (final entry in _defaultSettings.entries) {
+      _settingsCache[entry.key] ??= '${entry.value}';
+    }
   }
 
   static T? getSetting<T>(String key) {

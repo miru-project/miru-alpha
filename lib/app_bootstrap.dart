@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
@@ -14,12 +13,12 @@ import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
-import 'package:miru_alpha/utils/theme/miru_themes.dart';
+import 'package:miru_alpha/provider/backend_connection_provider.dart';
+import 'package:miru_alpha/utils/store/storage_index.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
 import 'package:miru_alpha/miru_core/event_service.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/utils/core/log.dart';
-import 'package:miru_alpha/utils/core/miru_directory.dart';
 import 'package:miru_alpha/utils/core/system_ui.dart';
 import 'package:miru_alpha/utils/download/ffmpeg_util.dart';
 import 'package:miru_alpha/utils/http/request.dart';
@@ -127,6 +126,14 @@ Future<void> runMiruApp({required void Function() ensureBinding}) async {
       }
       FFMpegUtils.ensureInitialized();
       Core.loadConfig();
+      // Seed synchronous defaults so the first frames resolve theme/language
+      // while the backend connection gate is still pending — the init page
+      // that used to absorb this window is gone. The session file (the
+      // appearance keys' local copy, next to the DB) then overrides the
+      // defaults with the user's last-known values, and the gate overlays
+      // the authoritative DB values once the core answers.
+      MiruSettings.seedDefaults();
+      MiruSettings.loadSessionSettings();
       MiruRequest.ensureInitalized(host: Core.baseUrl);
       if (Platform.isMacOS) {
         await WindowManipulator.initialize(enableWindowDelegate: true);
@@ -152,11 +159,12 @@ Future<void> runMiruApp({required void Function() ensureBinding}) async {
       // exit path restores this exact mode (mobile_watch_page.dart) so the
       // status bar never comes back on other pages.
       AppSystemUi.restore();
+      // The init page is gone: the app mounts immediately and the backend
+      // connection gate (backendConnectionProvider) holds data operations —
+      // surfaces show their per-op loading states and the home/desktop title
+      // bars render the connecting status until the core answers.
       runApp(
-        ProviderScope(
-          retry: (retryCount, error) => null,
-          child: EntryLoadingState(),
-        ),
+        ProviderScope(retry: (retryCount, error) => null, child: RootWidget()),
       );
     },
     (error, stack) {
@@ -173,66 +181,23 @@ Future<void> runMiruApp({required void Function() ensureBinding}) async {
   );
 }
 
-class EntryLoadingState extends StatefulHookWidget {
-  const EntryLoadingState({super.key});
-  @override
-  createState() => _EntryLoadingState();
-}
-
-class _EntryLoadingState extends State<EntryLoadingState> {
-  bool _initialized = false;
-
-  @override
-  void initState() {
-    Core.ensureInitialized().then((_) {
-      setState(() {
-        _initialized = true;
-      });
-    });
-    super.initState();
-  }
+/// App root: picks the presentation synchronously — the phone frame is a
+/// DEBUG development presentation (user directive, like the MCP/marionette
+/// debug binding): debug builds on desktop render the mobile UI in the
+/// 412×915 frame; release/profile builds render the app natively — the frame
+/// never ships. Touch builds (Android/iOS) always render natively.
+///
+/// There is no init screen: [App] mounts immediately and backend-dependent
+/// work waits on the connection gate instead.
+class RootWidget extends StatelessWidget {
+  const RootWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    if (_initialized) {
-      // The phone frame is a DEBUG development presentation (user directive,
-      // like the MCP/marionette debug binding): debug builds on desktop
-      // render the mobile UI in the 412×915 frame; release/profile builds
-      // render the app natively — the frame never ships. Touch builds
-      // (Android/iOS) always render natively.
-      if (kDebugMode && !(Platform.isAndroid || Platform.isIOS)) {
-        return MiruMobilePreviewShell(child: const App());
-      }
-      return const App();
+    if (kDebugMode && !(Platform.isAndroid || Platform.isIOS)) {
+      return MiruMobilePreviewShell(child: const App());
     }
-
-    return FTheme(
-      data: MediaQuery.of(context).platformBrightness == .dark
-          ? MiruThemes.neutral.dark.desktop
-          : MiruThemes.neutral.light.desktop,
-      child: FScaffold(
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                _initialized
-                    ? "common.initializing_miru_core".i18n
-                    : "Initializing Miru core...",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-              ),
-              const SizedBox(height: 5),
-              FCircularProgress.pinwheel(
-                style: .delta(iconStyle: .delta(size: 20)),
-              ),
-              Text("Address: ${Core.host}:${Core.port}"),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ),
-    );
+    return const App();
   }
 }
 
@@ -271,6 +236,11 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
           .read(extensionPageProvider.notifier)
           .setMetaData(data.map((e) => ExtensionMeta.fromProto(e)).toList());
     });
+
+    // Kick the global backend gate: it drives the connecting -> online
+    // lifecycle every surface reads (title bars, data gates). Deferred so
+    // provider access never lands during the widget build phase.
+    Future.microtask(() => ref.read(backendConnectionProvider));
   }
 
   void poll(dynamic data) {

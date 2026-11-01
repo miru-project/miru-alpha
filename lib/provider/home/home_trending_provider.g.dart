@@ -12,7 +12,9 @@ part of 'home_trending_provider.dart';
 ///
 /// One merged query over AniList's public trending list (anime and manga
 /// mixed), fetched once per app run and refreshed only through [refresh] —
-/// keepAlive so revisiting the home tab never re-queries the API.
+/// keepAlive so revisiting the home tab never re-queries the API. The fetch
+/// rides the backend proxy, so it holds on the global connection gate until
+/// the core is online.
 
 @ProviderFor(HomeTrending)
 final homeTrendingProvider = HomeTrendingProvider._();
@@ -21,14 +23,18 @@ final homeTrendingProvider = HomeTrendingProvider._();
 ///
 /// One merged query over AniList's public trending list (anime and manga
 /// mixed), fetched once per app run and refreshed only through [refresh] —
-/// keepAlive so revisiting the home tab never re-queries the API.
+/// keepAlive so revisiting the home tab never re-queries the API. The fetch
+/// rides the backend proxy, so it holds on the global connection gate until
+/// the core is online.
 final class HomeTrendingProvider
     extends $AsyncNotifierProvider<HomeTrending, List<AnilistMedia>> {
   /// Trending catalogue for the home rail.
   ///
   /// One merged query over AniList's public trending list (anime and manga
   /// mixed), fetched once per app run and refreshed only through [refresh] —
-  /// keepAlive so revisiting the home tab never re-queries the API.
+  /// keepAlive so revisiting the home tab never re-queries the API. The fetch
+  /// rides the backend proxy, so it holds on the global connection gate until
+  /// the core is online.
   HomeTrendingProvider._()
     : super(
         from: null,
@@ -48,13 +54,15 @@ final class HomeTrendingProvider
   HomeTrending create() => HomeTrending();
 }
 
-String _$homeTrendingHash() => r'9b64a1879257f49c45d733b3e6b2bb86726906c5';
+String _$homeTrendingHash() => r'24a4bd3ffa7605f36f475ddf3434b52cd4438ae3';
 
 /// Trending catalogue for the home rail.
 ///
 /// One merged query over AniList's public trending list (anime and manga
 /// mixed), fetched once per app run and refreshed only through [refresh] —
-/// keepAlive so revisiting the home tab never re-queries the API.
+/// keepAlive so revisiting the home tab never re-queries the API. The fetch
+/// rides the backend proxy, so it holds on the global connection gate until
+/// the core is online.
 
 abstract class _$HomeTrending extends $AsyncNotifier<List<AnilistMedia>> {
   FutureOr<List<AnilistMedia>> build();

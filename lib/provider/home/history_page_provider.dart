@@ -1,4 +1,5 @@
 import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/provider/backend_connection_provider.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/store/database_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -29,6 +30,10 @@ class HistoryPageNotifier extends _$HistoryPageNotifier {
   HistoryPageState build() {
     Future.microtask(() async {
       try {
+        // History reads the backend DB; hold on the connection gate so a
+        // cold start shows the section's loading state instead of a failed
+        // fetch.
+        await ref.read(backendConnectionProvider.future);
         final history = await DatabaseService.getHistoriesByType();
         if (!ref.mounted) return;
         final savedKeys = {

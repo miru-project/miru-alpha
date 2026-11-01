@@ -64,7 +64,12 @@ const bool kMobileTitleOnTopEnabled = true;
 @Riverpod(keepAlive: true)
 class ApplicationController extends _$ApplicationController {
   @override
-  ApplicationState build() {
+  ApplicationState build() => _stateFromSettings();
+
+  /// Derives [ApplicationState] from the settings cache. Used by [build] and
+  /// by [reloadFromSettings] (the backend gate re-applies it once the user's
+  /// persisted settings replace the bootstrap defaults).
+  ApplicationState _stateFromSettings() {
     final themeText = MiruSettings.getSettingSync<String>(SettingKey.theme);
     final baseColor = MiruSettings.getSettingSync<String>(SettingKey.baseColor);
     final primaryColor = MiruSettings.getSettingSync<String>(
@@ -99,6 +104,11 @@ class ApplicationController extends _$ApplicationController {
       tintStrength: tintStrength,
     );
   }
+
+  /// Re-reads every appearance/language value from the settings cache and
+  /// publishes a fresh [ApplicationState]. Called by the backend connection
+  /// gate once the user's persisted settings finish loading.
+  void reloadFromSettings() => state = _stateFromSettings();
 
   static ThemeMode _themeModeFromText(String text) => switch (text) {
     'light' => ThemeMode.light,

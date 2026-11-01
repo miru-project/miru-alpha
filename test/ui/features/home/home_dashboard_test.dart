@@ -11,6 +11,7 @@ import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/model/user_data.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/provider/backend_connection_provider.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
@@ -122,6 +123,13 @@ class _FakeAnilistAccount extends AnilistAccount {
   @override
   Future<AnilistUser?> build() async => _user;
   final AnilistUser? _user;
+}
+
+/// Pre-connected gate: the tests run without the gRPC backend, so the
+/// connection blocker resolves immediately.
+class _FakeBackendConnection extends BackendConnection {
+  @override
+  Future<void> build() async {}
 }
 
 class _FakeHomeTrending extends HomeTrending {
@@ -245,6 +253,7 @@ void main() {
     final container = ProviderContainer(
       retry: (_, _) => null,
       overrides: [
+        backendConnectionProvider.overrideWith(_FakeBackendConnection.new),
         favoritePageProvider.overrideWith(
           () => _FakeFavoritePageNotifier(
             FavoritePageState(

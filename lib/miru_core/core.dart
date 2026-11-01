@@ -25,11 +25,25 @@ class MiruCoreIsolateData {
 class Core {
   // config location
   static String configLoc = '';
-  static late Map<String, dynamic> configData;
+  static Map<String, dynamic>? configData;
   static bool isInit = false;
-  static String get port => configData['port'] ?? '3000';
-  static String get host => configData['address'] ?? '127.0.0.1';
+
+  /// Resilient address accessors: with the init page gone these are read
+  /// while the connection gate is still pending (the connecting title), and
+  /// before [loadConfig] has run (widget tests). They fall back to the
+  /// shipped defaults instead of throwing a late-initialization error.
+  static String get port => _configField('port', '3000');
+  static String get host => _configField('address', '127.0.0.1');
   static String get baseUrl => 'http://$host:$port';
+
+  static String _configField(String key, String fallback) {
+    if (configData case final Map<String, dynamic> data) {
+      final value = data[key];
+      if (value is String && value.isNotEmpty) return value;
+    }
+    return fallback;
+  }
+
   static late String extensionPath;
 
   static String get getExtensionPath => extensionPath;
@@ -58,6 +72,7 @@ class Core {
       configData = {};
       shouldWrite = true;
     }
+    final config = configData!;
 
     // Apply defaults for missing fields so the config always contains the
     // full set of keys the Go backend + Dart gRPC client rely on.
@@ -79,21 +94,21 @@ class Core {
     };
 
     defaultConfig.forEach((key, value) {
-      if (!configData.containsKey(key)) {
+      if (!config.containsKey(key)) {
         logger.info('Config missing "$key", applying default: $value');
-        configData[key] = value;
+        config[key] = value;
         shouldWrite = true;
       }
     });
     // Also ensure the fields are non-empty, e.g. an old config could carry an
     // empty string that would otherwise break port resolution on the backend.
     for (final key in ["address", "port", "gRPCPort"]) {
-      final v = configData[key];
+      final v = config[key];
       if (v == null || (v is String && v.isEmpty)) {
         logger.info(
           'Config "$key" empty, applying default: ${defaultConfig[key]}',
         );
-        configData[key] = defaultConfig[key];
+        config[key] = defaultConfig[key];
         shouldWrite = true;
       }
     }

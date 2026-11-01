@@ -1,6 +1,7 @@
 {
   "common": {
     "home": "首页",
+    "connecting": "连接中",
     "search": "搜索",
     "settings": "设置",
     "favorite": {
@@ -97,7 +98,6 @@
     "no_licenses_found": "未找到许可证",
     "remove_favorite": "取消收藏",
     "package_not_found": "未找到包",
-    "initializing_miru_core": "正在初始化 Miru Core",
     "saved_to": "已保存到",
     "just_now": "刚刚",
     "minutes_ago": "{minutes} 分钟前",

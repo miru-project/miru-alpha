@@ -1,6 +1,7 @@
 {
   "common": {
     "home": "Home",
+    "connecting": "Connecting",
     "search": "Search",
     "settings": "Settings",
     "history": "History",
@@ -76,7 +77,6 @@
     "no_licenses_found": "No licenses found",
     "remove_favorite": "Remove Favorite",
     "package_not_found": "Package not found",
-    "initializing_miru_core": "Initializing Miru Core",
     "saved_to": "Saved to",
     "just_now": "Just now",
     "minutes_ago": "{minutes} minutes ago",
