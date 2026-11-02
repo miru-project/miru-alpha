@@ -230,7 +230,15 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
       },
     );
 
-    miruEventService.start();
+    // The event stream is a backend operation like any other: start it once
+    // the connection gate confirms the core answers. Starting it during the
+    // connecting window only floods the log with connection-refused retries
+    // (initial-state + event-stream errors every 5s) while the core is still
+    // coming up.
+    Future.microtask(() async {
+      await ref.read(backendConnectionProvider.future);
+      miruEventService.start();
+    });
     miruEventService.extensionStream.listen((data) {
       ref
           .read(extensionPageProvider.notifier)
@@ -239,8 +247,8 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
 
     // Kick the global backend gate: it drives the connecting -> online
     // lifecycle every surface reads (title bars, data gates). Deferred so
-    // provider access never lands during the widget build phase.
-    Future.microtask(() => ref.read(backendConnectionProvider));
+    // provider access never lands during the widget build phase. The
+    // microtask above already reads the provider's future, which starts it.
   }
 
   void poll(dynamic data) {

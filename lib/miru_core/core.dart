@@ -9,6 +9,7 @@ import 'package:logging/logging.dart';
 
 import 'package:miru_alpha/generated_bindings.dart';
 import 'package:miru_alpha/miru_core/network.dart';
+import 'package:miru_alpha/miru_core/vm_service_rescue.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/store/storage_index.dart';
 import 'package:path/path.dart' as p;
@@ -47,6 +48,15 @@ class Core {
   static late String extensionPath;
 
   static String get getExtensionPath => extensionPath;
+
+  /// How long [loadMiruCore] waits for the spawned isolate's startup
+  /// handshake before treating it as stranded (see the rescue flow there).
+  static const _isolateStartTimeout = Duration(seconds: 10);
+
+  /// The currently running miru core isolate, so a re-spawn can stop a
+  /// previous attempt first instead of leaving a zombie behind.
+  static Isolate? _coreIsolate;
+
   static Future<void> ensureInitialized() async {
     await CoreNetwork.ensureInitialized();
     await CoreNetwork.waitForServerLoaded();
@@ -129,6 +139,13 @@ class Core {
     final configPath = data.configPath;
     final token = data.token;
     final sendPort = data.sendPort;
+
+    // First breath: confirm the entry point actually started running. A
+    // debugger's pause-on-start can strand this isolate before any statement
+    // executes (see [loadMiruCore]); without this handshake the main isolate
+    // cannot tell a stranded isolate apart from a slow one.
+    sendPort.send(const {'event': 'isolateStarted'});
+
     BackgroundIsolateBinaryMessenger.ensureInitialized(token);
     await MiruDirectory.ensureInitialized();
     MiruLog.initForIsolate(sendPort);
@@ -202,12 +219,23 @@ class Core {
 
   static Future<void> loadMiruCore() async {
     logger.info('Loading Miru Core...');
+    // A previous spawn attempt may have left an isolate behind (stranded
+    // paused, or crashed mid-load). It owns nothing the new one needs —
+    // stop it first so a retry never accumulates zombies.
+    _coreIsolate?.kill(priority: Isolate.immediate);
+    _coreIsolate = null;
+
     final location = configLoc;
     final token = RootIsolateToken.instance!;
+    final started = Completer<void>();
     final receivePort = ReceivePort();
     final sendPort = receivePort.sendPort;
 
     receivePort.listen((message) {
+      if (message is Map && message['event'] == 'isolateStarted') {
+        if (!started.isCompleted) started.complete();
+        return;
+      }
       if (message is Map<String, dynamic>) {
         final level = Level.LEVELS.firstWhere(
           (l) => l.name == message['level'],
@@ -248,7 +276,37 @@ class Core {
       startIsolateNativeMiruCore,
       MiruCoreIsolateData(location, token, sendPort),
     );
+    _coreIsolate = isolate;
     isolate.addErrorListener(errorPort.sendPort);
-    return;
+    try {
+      // The handshake arrives within milliseconds when the isolate actually
+      // runs. A timeout means it never started: a pause-on-start debug
+      // session strands freshly spawned isolates in PauseStart, and only the
+      // VM service (or a human at the debugger) can resume them.
+      await started.future.timeout(_isolateStartTimeout);
+    } on TimeoutException {
+      logger.warning(
+        'Miru core isolate did not confirm startup within '
+        '${_isolateStartTimeout.inSeconds}s — likely stranded paused by the '
+        "debugger's pause-on-start; attempting a VM service resume",
+      );
+      final resumed = await VmServiceRescue.resumePausedIsolates(
+        nameContains: 'startIsolateNativeMiruCore',
+      );
+      if (resumed > 0) {
+        try {
+          await started.future.timeout(const Duration(seconds: 5));
+          logger.info('Miru core isolate started after VM service resume');
+          return;
+        } on TimeoutException {
+          logger.severe('Miru core isolate stayed silent after resume');
+        }
+      }
+      isolate.kill(priority: Isolate.immediate);
+      throw StateError(
+        'Miru core isolate never started (paused at spawn and no VM service '
+        'resume succeeded)',
+      );
+    }
   }
 }

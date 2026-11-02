@@ -49,8 +49,22 @@ class CoreNetwork {
         logger.info('Miru core loaded (gRPC)');
         return;
       } catch (e) {
-        if (failedCount == 1) {
-          await Core.loadMiruCore();
+        // The first failure spawns the isolate. Later re-attempts (one per
+        // minute) cover an isolate that never started: a debugger's
+        // pause-on-start can strand the spawn, and when no VM service resume
+        // succeeds a fresh spawn is the only remaining recovery. Bounded by
+        // Core.loadMiruCore's own retry/kill logic, so retries never stack
+        // zombies.
+        if (failedCount == 1 || failedCount % 600 == 0) {
+          try {
+            await Core.loadMiruCore();
+          } catch (error, stack) {
+            logger.severe(
+              'Failed to start the miru core isolate',
+              error,
+              stack,
+            );
+          }
         }
         await Future.delayed(const Duration(milliseconds: 100));
         failedCount++;
