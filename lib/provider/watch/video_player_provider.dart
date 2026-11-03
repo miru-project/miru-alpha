@@ -223,6 +223,23 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
   Timer? _hideTimer;
   int prevTime = 0;
 
+  /// A scrub (seekbar drag / swipe seek) is in flight: the chrome auto-hide
+  /// holds off so the bar cannot fade out mid-drag.
+  bool _scrubbing = false;
+
+  /// Seek target awaiting engine arrival (see [_updatePosition]): mdp/mdk
+  /// keeps reporting the pre-seek position through the whole HLS rebuffer,
+  /// so echoing it back snapped the thumb and time label backwards after
+  /// release. Display holds the target until the engine lands.
+  Duration? _seekTarget;
+  DateTime _seekAt = DateTime.fromMillisecondsSinceEpoch(0);
+
+  /// Engine position within this band of [_seekTarget] counts as landed.
+  static const _seekArrivalBand = Duration(milliseconds: 900);
+
+  /// Watchdog: never hold the displayed target longer than this.
+  static const _seekHoldCap = Duration(seconds: 6);
+
   /// Manually set showControls state and cancel existing timer if hiding.
   void setShowControls(bool v) {
     _hideTimer?.cancel();
@@ -232,7 +249,25 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
       // the play/pause affordance stays visible (the reference mock does the
       // same). Pausing cancels this via the tap path re-showing controls.
       _hideTimer = Timer(const Duration(seconds: 3), () {
-        if (state.isPlaying) state = state.copyWith(showControls: false);
+        if (state.isPlaying && !_scrubbing) {
+          state = state.copyWith(showControls: false);
+        }
+      });
+    }
+  }
+
+  /// Scrub session marker (seekbar drag start/end). While active the
+  /// auto-hide is suspended; on end the 3s timer re-arms like a fresh
+  /// control reveal.
+  void setScrubbing(bool v) {
+    if (_scrubbing == v) return;
+    _scrubbing = v;
+    _hideTimer?.cancel();
+    if (!v && state.showControls && state.isPlaying) {
+      _hideTimer = Timer(const Duration(seconds: 3), () {
+        if (state.isPlaying && !_scrubbing) {
+          state = state.copyWith(showControls: false);
+        }
       });
     }
   }
@@ -244,7 +279,7 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
     state = state.copyWith(locked: v, showControls: !v);
     if (!v) {
       _hideTimer = Timer(const Duration(seconds: 3), () {
-        state = state.copyWith(showControls: false);
+        if (!_scrubbing) state = state.copyWith(showControls: false);
       });
     }
   }
@@ -329,6 +364,33 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
   /// rate via its own useState), plus any discrete flag change.
   void _updatePosition() {
     final v = vidController.value;
+    // Seek in flight: hold the displayed target (the user's release point)
+    // until the engine actually lands — echoing the engine's stale
+    // pre-seek position snapped the thumb backwards mid-rebuffer. Only
+    // non-position fields move during the hold; errors still surface.
+    if (_seekTarget != null) {
+      final arrived = (v.position - _seekTarget!).abs() <= _seekArrivalBand;
+      if (!arrived && DateTime.now().difference(_seekAt) < _seekHoldCap) {
+        final errorNow = v.hasError ? v.errorDescription : null;
+        if (v.isPlaying == state.isPlaying &&
+            v.duration == state.duration &&
+            v.aspectRatio == state.ratio &&
+            errorNow == state.playerError &&
+            _sameBuffered(v.buffered, state.bufferedRange)) {
+          return;
+        }
+        state = state.copyWith(
+          isPlaying: v.isPlaying,
+          duration: v.duration,
+          buffered: v.buffered,
+          ratio: v.aspectRatio,
+          playerError: errorNow,
+          clearPlayerError: !v.hasError,
+        );
+        return;
+      }
+      _seekTarget = null;
+    }
     final positionMoved =
         (v.position - state.position).abs() >=
         const Duration(milliseconds: 250);
@@ -397,6 +459,8 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
 
   void seek(Duration position) {
     state = state.copyWith(position: position);
+    _seekTarget = position;
+    _seekAt = DateTime.now();
     vidController.seekTo(position);
     DlnaCastBridge.instance.pipeSeek(position);
   }

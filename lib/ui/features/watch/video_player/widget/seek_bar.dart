@@ -76,6 +76,8 @@ class SeekBar extends HookConsumerWidget {
             value: sliderValue.value.clamp(0.0, vidLen.toDouble()),
             onChangeStart: (value) {
               isSliderDraggingRef.value = true;
+              // Scrub session: the chrome auto-hide holds off until release.
+              ref.read(vidPr.notifier).setScrubbing(true);
             },
             onChanged: (value) {
               sliderValue.value = value;
@@ -86,6 +88,7 @@ class SeekBar extends HookConsumerWidget {
                   .seek(Duration(milliseconds: value.toInt()));
               logger.info(value, 'seek_end');
               isSliderDraggingRef.value = false;
+              ref.read(vidPr.notifier).setScrubbing(false);
             },
           ),
         ),

@@ -34,8 +34,20 @@ class MobileGestureOverlay extends HookConsumerWidget {
     final isBrightness = useState(false);
     final isVolume = useState(false);
 
+    // Hold-to-3x is a bare-video gesture: with the chrome up the same hold
+    // is how the user grabs the seekbar — the long-press recognizer both
+    // raced the speed mid-scrub and stole still holds from the slider
+    // (dead drags). Unregistered while the chrome or the lock is on, so it
+    // never enters the arena against the scrubber.
+    final showControls = ref.watch(vidPr.select((s) => s.showControls));
+    final holdSpeedEnabled =
+        !showControls && !ref.watch(vidPr.select((s) => s.locked));
+
     final dragDuration = useState(Duration.zero);
     final dragPosition = useState(Duration.zero);
+    // True between a hold-speed boost's start and its end: the effect below
+    // uses it to restore the rate if the hold is torn down mid-gesture.
+    final speedBoosted = useState(false);
     // The double-tap seek feedback: (direction, stamp) — the stamp keys the
     // [PlayerSeekBurst] so every double-tap replays the animation even in
     // the same direction.
@@ -55,6 +67,19 @@ class MobileGestureOverlay extends HookConsumerWidget {
           .setBrightness(currentBrightness.value);
       return null;
     }, [vidPr, duration]);
+    // The boost must never outlive its hold: if the chrome flips on
+    // mid-hold (second-finger tap fires onTap) the end callback
+    // unregisters and the restore never runs — reset here instead of
+    // leaving the player racing at 3x. Deferred per the useEffect rule.
+    useEffect(() {
+      if (!holdSpeedEnabled && speedBoosted.value) {
+        Future.microtask(() {
+          c.setSpeed(1);
+          speedBoosted.value = false;
+        });
+      }
+      return null;
+    }, [holdSpeedEnabled]);
     return Stack(
       children: [
         if (isSeeking.value)
@@ -154,6 +179,9 @@ class MobileGestureOverlay extends HookConsumerWidget {
           },
           onHorizontalDragStart: (details) {
             if (ref.read(vidPr).locked) return;
+            // Stream not ready (duration unknown): the accumulation clamps
+            // to 0 and the preview reads 0:00 / 0:00 — no scrub to have.
+            if (duration <= Duration.zero) return;
             dragPosition.value = position;
           },
           onVerticalDragEnd: (details) {
@@ -162,7 +190,7 @@ class MobileGestureOverlay extends HookConsumerWidget {
           },
           // 左右滑动
           onHorizontalDragUpdate: (details) {
-            final duration = ref.read(vidPr.select((s) => s.duration));
+            if (duration <= Duration.zero) return;
             double scale = 200000 / MediaQuery.of(context).size.width;
             Duration pos =
                 dragPosition.value +
@@ -182,14 +210,24 @@ class MobileGestureOverlay extends HookConsumerWidget {
             isSeeking.value = false;
             dragDuration.value = Duration.zero;
           },
-          onLongPressStart: (details) {
-            if (ref.read(vidPr).locked) return;
-            c.setSpeed(3);
-          },
-          onLongPressEnd: (details) {
-            if (ref.read(vidPr).locked) return;
-            c.setSpeed(1);
-          },
+          onLongPressStart: holdSpeedEnabled
+              ? (details) {
+                  c.setSpeed(3);
+                  speedBoosted.value = true;
+                }
+              : null,
+          onLongPressCancel: holdSpeedEnabled
+              ? () {
+                  c.setSpeed(1);
+                  speedBoosted.value = false;
+                }
+              : null,
+          onLongPressEnd: holdSpeedEnabled
+              ? (details) {
+                  c.setSpeed(1);
+                  speedBoosted.value = false;
+                }
+              : null,
           child: child,
         ),
         // The double-tap seek burst rides ABOVE the video: the animated
