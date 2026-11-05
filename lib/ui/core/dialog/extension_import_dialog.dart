@@ -52,10 +52,7 @@ Future<void> showExtensionImportDialog(BuildContext context) async {
         onPress: () async {
           Navigator.of(context).pop();
           try {
-            final result = await FilePicker.pickFiles(
-              type: .custom,
-              allowedExtensions: ['js', 'go'],
-            );
+            final result = await FilePicker.pickFiles(type: .any);
             if (result.isEmpty) return;
             final reg = RegExp(r'^\w.+\.\w+\.(js|go)$');
             for (final file in result) {
