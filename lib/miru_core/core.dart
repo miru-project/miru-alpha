@@ -9,7 +9,6 @@ import 'package:logging/logging.dart';
 
 import 'package:miru_alpha/generated_bindings.dart';
 import 'package:miru_alpha/miru_core/network.dart';
-import 'package:miru_alpha/miru_core/vm_service_rescue.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/store/storage_index.dart';
 import 'package:path/path.dart' as p;
@@ -49,13 +48,17 @@ class Core {
 
   static String get getExtensionPath => extensionPath;
 
-  /// How long [loadMiruCore] waits for the spawned isolate's startup
-  /// handshake before treating it as stranded (see the rescue flow there).
-  static const _isolateStartTimeout = Duration(seconds: 10);
-
   /// The currently running miru core isolate, so a re-spawn can stop a
   /// previous attempt first instead of leaving a zombie behind.
   static Isolate? _coreIsolate;
+
+  /// Minimum delay between two core isolate spawns. Killing a spawned
+  /// isolate cannot cancel a native boot (initDyLib) already in flight —
+  /// a second spawn inside that window double-initializes the Go backend
+  /// (double port bind, double DB open) and aborts the process. The
+  /// [CoreNetwork.waitForServerLoaded] rescue cadence (60s) stays above it.
+  static const _spawnCooldown = Duration(seconds: 30);
+  static DateTime? _lastSpawnAt;
 
   static Future<void> ensureInitialized() async {
     await CoreNetwork.ensureInitialized();
@@ -219,6 +222,21 @@ class Core {
 
   static Future<void> loadMiruCore() async {
     logger.info('Loading Miru Core...');
+    // A second spawn inside the boot window is refused before anything else:
+    // the previous isolate may still be booting the native backend, and its
+    // kill cannot cancel that in-flight initDyLib.
+    final lastSpawnAt = _lastSpawnAt;
+    if (lastSpawnAt != null) {
+      final sinceLastSpawn = DateTime.now().difference(lastSpawnAt);
+      if (sinceLastSpawn < _spawnCooldown) {
+        logger.warning(
+          'Core isolate re-spawn skipped: last spawn '
+          '${sinceLastSpawn.inMilliseconds}ms ago, cooldown '
+          '${_spawnCooldown.inSeconds}s — native boot may still be in flight',
+        );
+        return;
+      }
+    }
     // A previous spawn attempt may have left an isolate behind (stranded
     // paused, or crashed mid-load). It owns nothing the new one needs —
     // stop it first so a retry never accumulates zombies.
@@ -272,41 +290,12 @@ class Core {
       MiruLog.recordCrash(error.toString(), stack, source: 'miru-core-isolate');
     });
 
+    _lastSpawnAt = DateTime.now();
     final isolate = await Isolate.spawn(
       startIsolateNativeMiruCore,
       MiruCoreIsolateData(location, token, sendPort),
     );
     _coreIsolate = isolate;
     isolate.addErrorListener(errorPort.sendPort);
-    try {
-      // The handshake arrives within milliseconds when the isolate actually
-      // runs. A timeout means it never started: a pause-on-start debug
-      // session strands freshly spawned isolates in PauseStart, and only the
-      // VM service (or a human at the debugger) can resume them.
-      await started.future.timeout(_isolateStartTimeout);
-    } on TimeoutException {
-      logger.warning(
-        'Miru core isolate did not confirm startup within '
-        '${_isolateStartTimeout.inSeconds}s — likely stranded paused by the '
-        "debugger's pause-on-start; attempting a VM service resume",
-      );
-      final resumed = await VmServiceRescue.resumePausedIsolates(
-        nameContains: 'startIsolateNativeMiruCore',
-      );
-      if (resumed > 0) {
-        try {
-          await started.future.timeout(const Duration(seconds: 5));
-          logger.info('Miru core isolate started after VM service resume');
-          return;
-        } on TimeoutException {
-          logger.severe('Miru core isolate stayed silent after resume');
-        }
-      }
-      isolate.kill(priority: Isolate.immediate);
-      throw StateError(
-        'Miru core isolate never started (paused at spawn and no VM service '
-        'resume succeeded)',
-      );
-    }
   }
 }
