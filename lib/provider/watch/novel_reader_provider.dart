@@ -41,7 +41,6 @@ const int kNovelBrightnessMax = 100;
 /// Immutable reader state: reading position plus every display preference the
 /// HUD and the settings sheet can change.
 class NovelReaderState {
-  final List<String> content;
   final NovelReadMode readMode;
   final NovelFontFamily fontFamily;
 
@@ -138,7 +137,6 @@ class NovelReaderState {
   }
 
   const NovelReaderState({
-    this.content = const [],
     this.readMode = NovelReadMode.webToon,
     this.fontFamily = NovelFontFamily.serif,
     this.fontSize = kNovelFontSizeDefault,
@@ -159,7 +157,6 @@ class NovelReaderState {
   });
 
   NovelReaderState copyWith({
-    List<String>? content,
     NovelReadMode? readMode,
     NovelFontFamily? fontFamily,
     double? fontSize,
@@ -179,7 +176,6 @@ class NovelReaderState {
     Set<String>? bookmarks,
   }) {
     return NovelReaderState(
-      content: content ?? this.content,
       readMode: readMode ?? this.readMode,
       fontFamily: fontFamily ?? this.fontFamily,
       fontSize: fontSize ?? this.fontSize,
@@ -201,6 +197,15 @@ class NovelReaderState {
   }
 }
 
+/// The one novel reader state.
+///
+/// A reader is a single full-screen surface, so the state is a single
+/// auto-dispose provider — not a family keyed on the chapter text. Family
+/// arguments are hashed into provider identity, so keying on the content
+/// minted a fresh element (and pinned the whole chapter) per fetch. The
+/// chapter text flows to the canvas through the shell's widget parameters
+/// instead; [open] injects a fresh session on entry, and leaving the reader
+/// disposes the element back to nothing.
 @riverpod
 class NovelReader extends _$NovelReader {
   /// Measured by the canvas, read by [setScrollOffset] and the page navigators.
@@ -218,8 +223,12 @@ class NovelReader extends _$NovelReader {
   final ScrollController scrollController = ScrollController();
   final PageController pageController = PageController();
 
+  /// Identity of the chapter currently opened, so a shell rebuild that passes
+  /// the same chapter does not reset the reader's position.
+  String? _openKey;
+
   @override
-  NovelReaderState build(List<String>? content, String? localPath) {
+  NovelReaderState build() {
     ref.onDispose(() {
       scrollController.removeListener(_onScroll);
       pageController.removeListener(_onPageMoved);
@@ -228,8 +237,32 @@ class NovelReader extends _$NovelReader {
     });
     scrollController.addListener(_onScroll);
     pageController.addListener(_onPageMoved);
+    return _sessionState();
+  }
+
+  /// Opens a fresh session for the chapter the shell selected.
+  ///
+  /// Re-opening the chapter that is already open is a no-op — a shell rebuild
+  /// must not throw the reader back to page one. A different chapter starts a
+  /// fresh session: position and HUD reset, the display preferences re-read
+  /// from the store (they are persisted, so this only re-syncs them).
+  void open({required int groupIndex, required int episodeIndex}) {
+    final key = '$groupIndex:$episodeIndex';
+    if (key == _openKey && ref.mounted) return;
+    _openKey = key;
+    _isAdjusting = false;
+    _layout = const NovelLayout(
+      blockHeights: [],
+      blockFirstLines: [],
+      totalLine: 0,
+      pages: [],
+    );
+    state = _sessionState();
+  }
+
+  /// Fresh session state: persisted display preferences, no position.
+  NovelReaderState _sessionState() {
     return NovelReaderState(
-      content: content ?? const [],
       readMode: _readSetting<NovelReadMode>(
         SettingKey.novelReadingMode,
         NovelReadMode.webToon,
@@ -312,10 +345,6 @@ class NovelReader extends _$NovelReader {
   static double _snap(double value, double step, double min, double max) {
     final snapped = (value / step).roundToDouble() * step;
     return snapped.clamp(min, max);
-  }
-
-  void setContent(List<String> content) {
-    state = state.copyWith(content: content);
   }
 
   // ---------------------------------------------------------------------

@@ -14,7 +14,8 @@ void main() {
   /// Live zoom, mirrored out of the surface by the builder.
   Widget subject({
     required Widget scrollable,
-    VoidCallback? onTap,
+    ValueChanged<Offset>? onTapUp,
+    double? doubleTapScale,
     ReaderZoomController? controller,
     Size? Function(Size viewport)? contentSize,
   }) {
@@ -25,7 +26,8 @@ void main() {
           height: 600,
           child: ReaderZoomSurface(
             controller: controller,
-            onTap: onTap,
+            onTapUp: onTapUp,
+            doubleTapScale: doubleTapScale ?? 2.5,
             contentSize: contentSize,
             builder: (context, zoom) {
               scale = zoom.scale;
@@ -38,6 +40,14 @@ void main() {
       ),
     );
   }
+
+  /// Closes the double-tap recognizer's disambiguation window (300 ms) and the
+  /// per-pointer minimum-spacing timer (40 ms) it arms on every pointer down.
+  /// A gesture test that ends while either is pending fails the binding's
+  /// pending-timer audit, and a tap landing inside the window reads as the
+  /// second tap of a double tap.
+  Future<void> closeTapWindow(WidgetTester tester) =>
+      tester.pump(const Duration(milliseconds: 350));
 
   setUp(() {
     scale = 1;
@@ -127,6 +137,7 @@ void main() {
     await gesture.moveBy(const Offset(30, 0));
     await gesture.moveBy(const Offset(30, -60));
     await tester.pump();
+    await closeTapWindow(tester);
     final after = tester.getTopLeft(find.byKey(markerKey));
 
     // Both axes follow the finger exactly, at any scale.
@@ -218,7 +229,7 @@ void main() {
     var taps = 0;
     await tester.pumpWidget(
       subject(
-        onTap: () => taps++,
+        onTapUp: (_) => taps++,
         scrollable: const Center(child: SizedBox(width: 400, height: 600)),
       ),
     );
@@ -233,8 +244,13 @@ void main() {
     await b.up();
     await tester.pumpAndSettle();
 
+    // The pinch's stationary finger armed the double-tap window; let it
+    // close before tapping, or the tap reads as its second tap.
+    await tester.pump(const Duration(milliseconds: 350));
+
     await tester.tapAt(tester.getCenter(find.byType(SizedBox).last));
-    await tester.pumpAndSettle();
+    // A single tap resolves only once the double-tap window has closed.
+    await tester.pump(const Duration(milliseconds: 350));
 
     expect(taps, 1);
   });
@@ -265,5 +281,120 @@ void main() {
 
     expect(await pinch(150, -450), lessThanOrEqualTo(4));
     expect(await pinch(50, 250), greaterThanOrEqualTo(1));
+  });
+
+  group('double-tap zoom', () {
+    /// Two taps close enough together to read as a double tap. The first tap's
+    /// up starts the disambiguation window; the second lands inside it, past
+    /// the minimum spacing between the two. Returns the second tap's position
+    /// — the focal the zoom keeps under the finger.
+    Future<Offset> doubleTap(WidgetTester tester, Offset at) async {
+      final focal = at + const Offset(5, 5);
+      await tester.tapAt(at);
+      await tester.pump(const Duration(milliseconds: 60));
+      await tester.tapAt(focal);
+      return focal;
+    }
+
+    testWidgets('a double tap magnifies around the tapped point and spares '
+        'the single tap', (tester) async {
+      final taps = <Offset>[];
+      await tester.pumpWidget(
+        subject(
+          onTapUp: taps.add,
+          doubleTapScale: 3,
+          contentSize: (viewport) => viewport,
+          scrollable: const Center(child: SizedBox(width: 400, height: 600)),
+        ),
+      );
+      await tester.pump();
+
+      final focal = await doubleTap(tester, const Offset(300, 450));
+      await tester.pumpAndSettle();
+
+      expect(taps, isEmpty, reason: 'a double tap is not two taps');
+      expect(scale, closeTo(3, 0.01));
+      // The content under the second tap stays under it: at 1x that content
+      // was the focal itself, and 3x pulls the view origin back to 2/3 of it.
+      expect(translate.dx, closeTo(-focal.dx * 2, 1));
+      expect(translate.dy, closeTo(-focal.dy * 2, 1));
+      expect(scrollingEnabled, isFalse, reason: 'the magnified view pans');
+    });
+
+    testWidgets('a second double tap recovers the fitted view', (tester) async {
+      final taps = <Offset>[];
+      await tester.pumpWidget(
+        subject(
+          onTapUp: taps.add,
+          doubleTapScale: 3,
+          contentSize: (viewport) => viewport,
+          scrollable: const Center(child: SizedBox(width: 400, height: 600)),
+        ),
+      );
+      await tester.pump();
+
+      await doubleTap(tester, const Offset(300, 450));
+      await tester.pumpAndSettle();
+      expect(scale, closeTo(3, 0.01));
+
+      // The next tap pair starts a fresh disambiguation cycle.
+      await tester.pump(const Duration(milliseconds: 300));
+      await doubleTap(tester, const Offset(200, 300));
+      await tester.pumpAndSettle();
+
+      expect(taps, isEmpty);
+      expect(scale, closeTo(1, 0.01));
+      expect(translate, Offset.zero);
+      expect(scrollingEnabled, isTrue, reason: 'the list gets its drag back');
+    });
+
+    testWidgets('single taps still arrive, one per window', (tester) async {
+      final taps = <Offset>[];
+      await tester.pumpWidget(
+        subject(
+          onTapUp: taps.add,
+          scrollable: const Center(child: SizedBox(width: 400, height: 600)),
+        ),
+      );
+      await tester.pump();
+
+      await tester.tapAt(const Offset(100, 200));
+      await tester.pump(const Duration(milliseconds: 350));
+      expect(taps, const [Offset(100, 200)]);
+
+      // A second tap only after the first window closed: two single taps,
+      // never a zoom.
+      await tester.tapAt(const Offset(250, 350));
+      await tester.pump(const Duration(milliseconds: 350));
+      expect(taps, const [Offset(100, 200), Offset(250, 350)]);
+      expect(scale, 1);
+    });
+
+    testWidgets('a page-turn reset cuts a running zoom animation short', (
+      tester,
+    ) async {
+      final controller = ReaderZoomController();
+      await tester.pumpWidget(
+        subject(
+          controller: controller,
+          scrollable: const Center(child: SizedBox(width: 400, height: 600)),
+        ),
+      );
+      await tester.pump();
+
+      await doubleTap(tester, const Offset(300, 450));
+      // Two frames: the ticker records its start on the first, so only the
+      // second one carries animation progress.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 40));
+      expect(controller.isZoomed, isTrue, reason: 'mid-animation');
+
+      controller.reset();
+      await tester.pump();
+
+      expect(controller.isZoomed, isFalse);
+      expect(scale, closeTo(1, 0.01));
+      expect(translate, Offset.zero);
+    });
   });
 }

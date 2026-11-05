@@ -59,11 +59,9 @@ Future<({NovelReaderProvider provider, ProviderContainer container})> _pump(
 
   final source = content ?? _chapter();
   final blocks = parseNovelContent(source);
-  final provider = novelReaderProvider(source, null);
+  final provider = novelReaderProvider;
   final container = ProviderContainer(
-    overrides: [
-      provider.overrideWith(() => _FakeNovelReader(source, mode, theme)),
-    ],
+    overrides: [provider.overrideWith(() => _FakeNovelReader(mode, theme))],
   );
   addTearDown(container.dispose);
   await tester.binding.setSurfaceSize(_surface);
@@ -81,9 +79,8 @@ Future<({NovelReaderProvider provider, ProviderContainer container})> _pump(
 
 /// A reader whose only job is to start in a known mode on a known paper.
 class _FakeNovelReader extends NovelReader {
-  _FakeNovelReader(this._content, this._mode, this._theme);
+  _FakeNovelReader(this._mode, this._theme);
 
-  final List<String> _content;
   final NovelReadMode _mode;
   final NovelTheme _theme;
 
@@ -91,9 +88,8 @@ class _FakeNovelReader extends NovelReader {
   // mode and paper. Overriding it outright left the reader with no listeners at
   // all, which is why a swipe moved the page view without the state following.
   @override
-  NovelReaderState build(List<String>? content, String? localPath) => super
-      .build(content, localPath)
-      .copyWith(content: _content, readMode: _mode, theme: _theme);
+  NovelReaderState build() =>
+      super.build().copyWith(readMode: _mode, theme: _theme);
 }
 
 void main() {
@@ -167,15 +163,11 @@ void main() {
     const statusBarPixels = 132.0;
     final statusBar = statusBarPixels / tester.view.devicePixelRatio;
     final source = _chapter();
-    final provider = novelReaderProvider(source, null);
+    final provider = novelReaderProvider;
     final container = ProviderContainer(
       overrides: [
         provider.overrideWith(
-          () => _FakeNovelReader(
-            source,
-            NovelReadMode.standard,
-            NovelTheme.midnight,
-          ),
+          () => _FakeNovelReader(NovelReadMode.standard, NovelTheme.midnight),
         ),
       ],
     );
@@ -233,11 +225,11 @@ void main() {
         const statusBarPixels = 132.0;
         final statusBar = statusBarPixels / tester.view.devicePixelRatio;
         final source = _chapter();
-        final provider = novelReaderProvider(source, null);
+        final provider = novelReaderProvider;
         final container = ProviderContainer(
           overrides: [
             provider.overrideWith(
-              () => _FakeNovelReader(source, mode, NovelTheme.midnight),
+              () => _FakeNovelReader(mode, NovelTheme.midnight),
             ),
           ],
         );
@@ -292,11 +284,11 @@ void main() {
         tester,
       ) async {
         final source = _chapter();
-        final provider = novelReaderProvider(source, null);
+        final provider = novelReaderProvider;
         final container = ProviderContainer(
           overrides: [
             provider.overrideWith(
-              () => _FakeNovelReader(source, mode, NovelTheme.midnight),
+              () => _FakeNovelReader(mode, NovelTheme.midnight),
             ),
           ],
         );
@@ -356,12 +348,8 @@ void main() {
     final source = _chapter();
     final container = ProviderContainer(
       overrides: [
-        novelReaderProvider(source, null).overrideWith(
-          () => _FakeNovelReader(
-            source,
-            NovelReadMode.webToon,
-            NovelTheme.midnight,
-          ),
+        novelReaderProvider.overrideWith(
+          () => _FakeNovelReader(NovelReadMode.webToon, NovelTheme.midnight),
         ),
       ],
     );
@@ -373,7 +361,7 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: _app(
-          novelProvider: novelReaderProvider(source, null),
+          novelProvider: novelReaderProvider,
           blocks: parseNovelContent(source),
           onTapZone: zones.add,
         ),

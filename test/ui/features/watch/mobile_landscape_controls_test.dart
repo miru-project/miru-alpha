@@ -72,6 +72,7 @@ class _FakeVideoPlayer extends VideoPlayerNotifier {
     ExtensionBangumiWatchTorrent? torrent,
     String? localPath,
     pb.ExtensionWatch? v2watch,
+    Map<String, String> qualityMap = const {},
   }) {
     // The gesture overlay's brightness effect reads `videoPlayerController`
     // once the fake reports a duration — construct (never initialize) the
@@ -105,6 +106,7 @@ class _MirrorTestVideoPlayer extends _FakeVideoPlayer {
     ExtensionBangumiWatchTorrent? torrent,
     String? localPath,
     pb.ExtensionWatch? v2watch,
+    Map<String, String> qualityMap = const {},
   }) {
     vidController = VideoPlayerController.networkUrl(Uri.parse(_url));
     return VideoPlayerTickState(
@@ -138,6 +140,7 @@ class _GestureTestVideoPlayer extends _FakeVideoPlayer {
     ExtensionBangumiWatchTorrent? torrent,
     String? localPath,
     pb.ExtensionWatch? v2watch,
+    Map<String, String> qualityMap = const {},
   }) {
     vidController = VideoPlayerController.networkUrl(Uri.parse(_url));
     return VideoPlayerTickState(

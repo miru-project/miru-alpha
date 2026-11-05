@@ -61,12 +61,32 @@ class MiruMangaReader extends HookConsumerWidget {
       0,
       episodes.isEmpty ? 0 : episodes.length - 1,
     );
-    final mangaProvider = mangaReaderProvider(
-      epState.selectedEpisodeIndex,
-      episodes.length,
-      value,
-    );
+    // One reader state for the whole app (see [MangaReader]): the shell opens
+    // the selected episode on it and keys the canvas on the same identity, so
+    // an episode switch rebuilds the canvas from page one instead of keeping
+    // the previous chapter's scroll position.
+    final mangaProvider = mangaReaderProvider;
     final state = container.watch(mangaProvider);
+    final totalPages = value?.urls.length ?? 0;
+
+    // Session injection on entry: the single reader state opens the selected
+    // episode fresh — position and HUD reset, the display preferences re-read
+    // from the store (they are persisted, so this only re-syncs them).
+    // Deferred per the build-phase rule: a provider mutation inside a build
+    // lifecycle throws, so the open lands in the first microtask after it.
+    // Re-opening the episode that is already open is a no-op inside
+    // [MangaReader.open].
+    useEffect(() {
+      final reader = container.read(mangaReaderProvider.notifier);
+      Future.microtask(
+        () => reader.open(
+          groupIndex: groupIndex,
+          episodeIndex: episodeIndex,
+          totalPage: totalPages,
+        ),
+      );
+      return null;
+    }, [groupIndex, episodeIndex, totalPages]);
 
     // Screen preferences are a side effect of the settings, so they are an
     // effect rather than a build side effect: the applied values are remembered
@@ -88,10 +108,12 @@ class MiruMangaReader extends HookConsumerWidget {
       const [],
     );
 
-    // Snapshots history for the outgoing episode and re-arms it for the incoming
-    // one. Provider identity changes when the selected episode changes, so the
-    // provider itself is the effect's key: the cleanup is what detects the
-    // switch, and it also runs when the reader leaves the tree.
+    // Snapshots history for the outgoing episode and re-arms it for the
+    // incoming one. The chapter identity is the effect's key: the cleanup is
+    // what detects the switch, and it also runs when the reader leaves the
+    // tree. listenManual — not listen — because plain ref.listen subscriptions
+    // close at the start of every rebuild, which would leave the save armed
+    // with the entry snapshot forever.
     final historySave = useRef<Future<void> Function()?>(null);
     void flushHistory() {
       final save = historySave.value;
@@ -100,7 +122,7 @@ class MiruMangaReader extends HookConsumerWidget {
     }
 
     useEffect(() {
-      container.listen<MangaReaderState>(mangaProvider, (_, next) {
+      container.listenManual<MangaReaderState>(mangaProvider, (_, next) {
         historySave.value = container
             .read(epProvider.notifier)
             .prepareHistorySave(
@@ -108,19 +130,16 @@ class MiruMangaReader extends HookConsumerWidget {
               totalProgress: next.totalPage,
             );
       });
-      if (container.exists(mangaProvider)) {
-        historySave.value = container
-            .read(epProvider.notifier)
-            .prepareHistorySave(
-              progress: container.read(mangaProvider).historyProgress,
-              totalProgress: container.read(mangaProvider).totalPage,
-            );
-      }
-      // Riverpod replaces the listener when this effect re-runs for a new
-      // provider, and closes it with the element, so the cleanup is only about
-      // snapshotting the outgoing episode.
+      historySave.value = container
+          .read(epProvider.notifier)
+          .prepareHistorySave(
+            progress: container.read(mangaProvider).historyProgress,
+            totalProgress: container.read(mangaProvider).totalPage,
+          );
+      // The manual listener lives until the element unmounts; the cleanup is
+      // only about snapshotting the outgoing episode.
       return flushHistory;
-    }, [mangaProvider]);
+    }, [groupIndex, episodeIndex]);
 
     final chapterLabel = episodes.isEmpty ? '' : episodes[episodeIndex].name;
     final reader = container.read(mangaProvider.notifier);
@@ -147,21 +166,24 @@ class MiruMangaReader extends HookConsumerWidget {
             if (isDrag && state.hudVisible) reader.setHudVisible(false);
             return false;
           },
-          child: MiruMangaViewPort(
-            data: value,
-            epProvider: epProvider,
-            mangaProvider: mangaProvider,
-            meta: meta,
-            name: name,
-            onTapCenter: reader.toggleHud,
-            // A magnified pan is raw pointer tracking: the view pins its
-            // scrollable, so there is no drag for the notification listener
-            // above to see and the view reports the move itself.
-            onViewMoved: () {
-              if (container.read(mangaProvider).hudVisible) {
-                reader.setHudVisible(false);
-              }
-            },
+          child: KeyedSubtree(
+            key: ValueKey('manga-canvas-$groupIndex-$episodeIndex'),
+            child: MiruMangaViewPort(
+              data: value,
+              epProvider: epProvider,
+              mangaProvider: mangaProvider,
+              meta: meta,
+              name: name,
+              onTapCenter: reader.toggleHud,
+              // A magnified pan is raw pointer tracking: the view pins its
+              // scrollable, so there is no drag for the notification listener
+              // above to see and the view reports the move itself.
+              onViewMoved: () {
+                if (container.read(mangaProvider).hudVisible) {
+                  reader.setHudVisible(false);
+                }
+              },
+            ),
           ),
         ),
         // The HUD halves and the status pill cross-fade rather than being swapped

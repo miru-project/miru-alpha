@@ -13,10 +13,10 @@ ProviderContainer _container() {
 }
 
 NovelReader _reader(ProviderContainer container) =>
-    container.read(novelReaderProvider(const ['A line.'], null).notifier);
+    container.read(novelReaderProvider.notifier);
 
 NovelReaderState _state(ProviderContainer container) =>
-    container.read(novelReaderProvider(const ['A line.'], null));
+    container.read(novelReaderProvider);
 
 /// A layout big enough to page through, so the position fields are meaningful.
 NovelLayout _layout({int lines = 40, int pages = 6}) => NovelLayout(
@@ -319,18 +319,45 @@ void main() {
     });
   });
 
+  group('chapter sessions', () {
+    test('open resets the position for a new chapter', () {
+      final container = _container();
+      final reader = _reader(container);
+
+      reader.setLayout(_layout());
+      expect(_state(container).totalPage, isNot(0));
+
+      reader.open(groupIndex: 0, episodeIndex: 1);
+
+      final state = _state(container);
+      expect(state.page, 0);
+      expect(state.totalPage, 0);
+      expect(state.line, 0);
+    });
+
+    test('re-opening the same chapter is a no-op', () {
+      final container = _container();
+      final reader = _reader(container);
+      reader.open(groupIndex: 0, episodeIndex: 0);
+      reader.setLayout(_layout());
+      final before = _state(container);
+      expect(before.totalPage, isNot(0));
+
+      reader.open(groupIndex: 0, episodeIndex: 0);
+
+      expect(_state(container).totalPage, before.totalPage);
+      expect(_state(container).line, before.line);
+    });
+  });
+
   group('content', () {
     test('the chapter content is split into blocks on the way in', () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-      final provider = novelReaderProvider(const [
+      final blocks = parseNovelContent(const [
         'It was November.',
         '',
         '> A letter, for me.',
         'https://example.com/plate.jpg',
-      ], null);
-
-      final blocks = parseNovelContent(container.read(provider).content);
+      ]);
       expect(blocks, hasLength(3));
       expect(blocks.first, isA<NovelParagraph>());
       expect(blocks[1], isA<NovelQuote>());

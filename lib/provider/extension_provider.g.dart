@@ -8,99 +8,79 @@ part of 'extension_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The one watch session: the content pipeline for whichever watch surface is
+/// open. The shell injects the request on entry — and re-injects on every
+/// episode / mirror change — through [WatchSession.load]; leaving the page
+/// disposes the element back to the idle state. Not a family: the request
+/// args belong to the page that is open, not to provider identity.
 
-@ProviderFor(watch)
-final watchProvider = WatchFamily._();
+@ProviderFor(WatchSession)
+final watchSessionProvider = WatchSessionProvider._();
 
-final class WatchProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<WatchResult>,
-          WatchResult,
-          FutureOr<WatchResult>
-        >
-    with $FutureModifier<WatchResult>, $FutureProvider<WatchResult> {
-  WatchProvider._({
-    required WatchFamily super.from,
-    required (String, String, ExtensionMeta, {String? mirrorUrl})
-    super.argument,
-  }) : super(
-         retry: null,
-         name: r'watchProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
+/// The one watch session: the content pipeline for whichever watch surface is
+/// open. The shell injects the request on entry — and re-injects on every
+/// episode / mirror change — through [WatchSession.load]; leaving the page
+/// disposes the element back to the idle state. Not a family: the request
+/// args belong to the page that is open, not to provider identity.
+final class WatchSessionProvider
+    extends $NotifierProvider<WatchSession, AsyncValue<WatchResult>> {
+  /// The one watch session: the content pipeline for whichever watch surface is
+  /// open. The shell injects the request on entry — and re-injects on every
+  /// episode / mirror change — through [WatchSession.load]; leaving the page
+  /// disposes the element back to the idle state. Not a family: the request
+  /// args belong to the page that is open, not to provider identity.
+  WatchSessionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'watchSessionProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
-  String debugGetCreateSourceHash() => _$watchHash();
-
-  @override
-  String toString() {
-    return r'watchProvider'
-        ''
-        '$argument';
-  }
+  String debugGetCreateSourceHash() => _$watchSessionHash();
 
   @$internal
   @override
-  $FutureProviderElement<WatchResult> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  WatchSession create() => WatchSession();
 
-  @override
-  FutureOr<WatchResult> create(Ref ref) {
-    final argument =
-        this.argument as (String, String, ExtensionMeta, {String? mirrorUrl});
-    return watch(
-      ref,
-      argument.$1,
-      argument.$2,
-      argument.$3,
-      mirrorUrl: argument.mirrorUrl,
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<WatchResult> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<WatchResult>>(value),
     );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is WatchProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
   }
 }
 
-String _$watchHash() => r'501fb109a3fe2d39156bce007de388e94f0caad9';
+String _$watchSessionHash() => r'9fcfa7acb2df6bd6791ba118569df1001d656c09';
 
-final class WatchFamily extends $Family
-    with
-        $FunctionalFamilyOverride<
-          FutureOr<WatchResult>,
-          (String, String, ExtensionMeta, {String? mirrorUrl})
-        > {
-  WatchFamily._()
-    : super(
-        retry: null,
-        name: r'watchProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
+/// The one watch session: the content pipeline for whichever watch surface is
+/// open. The shell injects the request on entry — and re-injects on every
+/// episode / mirror change — through [WatchSession.load]; leaving the page
+/// disposes the element back to the idle state. Not a family: the request
+/// args belong to the page that is open, not to provider identity.
 
-  WatchProvider call(
-    String watchUrl,
-    String detailUrl,
-    ExtensionMeta meta, {
-    String? mirrorUrl,
-  }) => WatchProvider._(
-    argument: (watchUrl, detailUrl, meta, mirrorUrl: mirrorUrl),
-    from: this,
-  );
-
+abstract class _$WatchSession extends $Notifier<AsyncValue<WatchResult>> {
+  AsyncValue<WatchResult> build();
+  @$mustCallSuper
   @override
-  String toString() => r'watchProvider';
+  WhenComplete runBuild() {
+    final ref =
+        this.ref as $Ref<AsyncValue<WatchResult>, AsyncValue<WatchResult>>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<WatchResult>, AsyncValue<WatchResult>>,
+              AsyncValue<WatchResult>,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
 }
 
 @ProviderFor(fetchExtensionRepo)

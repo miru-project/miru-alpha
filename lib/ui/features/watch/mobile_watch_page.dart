@@ -11,6 +11,7 @@ import 'package:miru_alpha/provider/cast/dlna_cast_provider.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/provider/watch/video_player_provider.dart';
 import 'package:miru_alpha/provider/extension_provider.dart';
+import 'package:miru_alpha/ui/features/watch/video_player/widget/resolved_playback.dart';
 import 'package:miru_alpha/ui/features/watch/widget/watch_content_body.dart';
 import 'package:miru_alpha/ui/features/watch/widget/watch_error_state.dart';
 import 'package:miru_alpha/ui/features/watch/widget/watch_loading_state.dart';
@@ -94,21 +95,29 @@ class _MobileWatchPageState extends ConsumerState<MobileWatchPage> {
         .urls[epNotifier.selectedEpisodeIndex]
         .url;
     final meta = widget.param.meta;
-    // The chosen fallback mirror (error state's "Switch Mirror") re-keys
-    // the watch family; a new episode drops the override.
+    // The chosen fallback mirror (error state's "Switch Mirror") re-loads
+    // the watch session; a new episode drops the override.
     final mirrorOverride = useState<String?>(null);
     final watchedUrl = useState(url);
     if (watchedUrl.value != url) {
       watchedUrl.value = url;
       mirrorOverride.value = null;
     }
-    final watchPr = watchProvider(
-      url,
-      widget.param.detailUrl,
-      meta,
-      mirrorUrl: mirrorOverride.value,
-    );
-    final snapshot = ref.watch(watchPr);
+    // Session injection: the single watch session loads on entry and on
+    // every episode / mirror change — the family re-key it replaces.
+    useEffect(() {
+      final session = ref.read(watchSessionProvider.notifier);
+      Future.microtask(
+        () => session.load(
+          watchUrl: url,
+          detailUrl: widget.param.detailUrl,
+          meta: meta,
+          mirrorUrl: mirrorOverride.value,
+        ),
+      );
+      return null;
+    }, [url, mirrorOverride.value]);
+    final snapshot = ref.watch(watchSessionProvider);
 
     return snapshot.when(
       loading: () => WatchLoadingState(
@@ -122,7 +131,7 @@ class _MobileWatchPageState extends ConsumerState<MobileWatchPage> {
         error: error,
         trace: trace,
         onBack: () => Navigator.of(context).maybePop(),
-        onRetry: () => ref.invalidate(watchPr),
+        onRetry: () => ref.read(watchSessionProvider.notifier).retry(),
         onSelectMirror: (mirrorUrl) => mirrorOverride.value = mirrorUrl,
       ),
       data: (value) => _MobileWatchLoaded(param: widget.param, result: value),
@@ -148,14 +157,43 @@ class _MobileWatchLoaded extends HookConsumerWidget {
             watch_data.unwrapAll(result.data, param.type),
           );
 
+    // Multi-variant masters collapse to one variant BEFORE the player is
+    // created (see [useResolvedPlayback]); torrent/local skips the resolve.
+    final resolveUrl =
+        (downloadData?.savePath == null && bangumi?.torrent == null)
+        ? bangumi?.url
+        : null;
+    final resolved = useResolvedPlayback(
+      resolveUrl,
+      bangumi?.headers ?? const {},
+    );
+    if (resolveUrl != null && resolved == null) {
+      // One manifest round-trip (~300ms): black canvas instead of letting
+      // mdk probe every variant of the master playlist.
+      return const SizedBox.expand(child: ColoredBox(color: Colors.black));
+    }
+
     final vidProvider = videoPlayerProvider(
-      bangumi?.url,
-      subtitlesRaw: bangumi?.subtitles,
+      resolved?.playbackUrl ?? bangumi?.url,
       headers: bangumi?.headers,
       torrent: bangumi?.torrent,
       localPath: downloadData?.savePath,
-      v2watch: result.v2watch,
+      qualityMap: resolved?.qualityMap ?? const {},
     );
+
+    // Session data off-band: the family key stays scalars — the watch
+    // protobuf and the subtitle list belong to the open page, not to a keyed
+    // element (see VideoPlayerNotifier.setSession).
+    useEffect(() {
+      final notifier = ref.read(vidProvider.notifier);
+      Future.microtask(
+        () => notifier.setSession(
+          subtitlesRaw: bangumi?.subtitles,
+          v2watch: result.v2watch,
+        ),
+      );
+      return null;
+    }, [vidProvider]);
 
     final fullscreen = useState(false);
     final hasEnteredFullscreen = useState(false);

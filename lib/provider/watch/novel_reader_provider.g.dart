@@ -8,32 +8,52 @@ part of 'novel_reader_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The one novel reader state.
+///
+/// A reader is a single full-screen surface, so the state is a single
+/// auto-dispose provider — not a family keyed on the chapter text. Family
+/// arguments are hashed into provider identity, so keying on the content
+/// minted a fresh element (and pinned the whole chapter) per fetch. The
+/// chapter text flows to the canvas through the shell's widget parameters
+/// instead; [open] injects a fresh session on entry, and leaving the reader
+/// disposes the element back to nothing.
 
 @ProviderFor(NovelReader)
-final novelReaderProvider = NovelReaderFamily._();
+final novelReaderProvider = NovelReaderProvider._();
 
+/// The one novel reader state.
+///
+/// A reader is a single full-screen surface, so the state is a single
+/// auto-dispose provider — not a family keyed on the chapter text. Family
+/// arguments are hashed into provider identity, so keying on the content
+/// minted a fresh element (and pinned the whole chapter) per fetch. The
+/// chapter text flows to the canvas through the shell's widget parameters
+/// instead; [open] injects a fresh session on entry, and leaving the reader
+/// disposes the element back to nothing.
 final class NovelReaderProvider
     extends $NotifierProvider<NovelReader, NovelReaderState> {
-  NovelReaderProvider._({
-    required NovelReaderFamily super.from,
-    required (List<String>?, String?) super.argument,
-  }) : super(
-         retry: null,
-         name: r'novelReaderProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
+  /// The one novel reader state.
+  ///
+  /// A reader is a single full-screen surface, so the state is a single
+  /// auto-dispose provider — not a family keyed on the chapter text. Family
+  /// arguments are hashed into provider identity, so keying on the content
+  /// minted a fresh element (and pinned the whole chapter) per fetch. The
+  /// chapter text flows to the canvas through the shell's widget parameters
+  /// instead; [open] injects a fresh session on entry, and leaving the reader
+  /// disposes the element back to nothing.
+  NovelReaderProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'novelReaderProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$novelReaderHash();
-
-  @override
-  String toString() {
-    return r'novelReaderProvider'
-        ''
-        '$argument';
-  }
 
   @$internal
   @override
@@ -46,51 +66,22 @@ final class NovelReaderProvider
       providerOverride: $SyncValueProvider<NovelReaderState>(value),
     );
   }
-
-  @override
-  bool operator ==(Object other) {
-    return other is NovelReaderProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
 }
 
-String _$novelReaderHash() => r'9e8aea46905370feb5bb5d538054180853469b30';
+String _$novelReaderHash() => r'6a7039abe31a856751b4a1cd958d92a9a7783d54';
 
-final class NovelReaderFamily extends $Family
-    with
-        $ClassFamilyOverride<
-          NovelReader,
-          NovelReaderState,
-          NovelReaderState,
-          NovelReaderState,
-          (List<String>?, String?)
-        > {
-  NovelReaderFamily._()
-    : super(
-        retry: null,
-        name: r'novelReaderProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  NovelReaderProvider call(List<String>? content, String? localPath) =>
-      NovelReaderProvider._(argument: (content, localPath), from: this);
-
-  @override
-  String toString() => r'novelReaderProvider';
-}
+/// The one novel reader state.
+///
+/// A reader is a single full-screen surface, so the state is a single
+/// auto-dispose provider — not a family keyed on the chapter text. Family
+/// arguments are hashed into provider identity, so keying on the content
+/// minted a fresh element (and pinned the whole chapter) per fetch. The
+/// chapter text flows to the canvas through the shell's widget parameters
+/// instead; [open] injects a fresh session on entry, and leaving the reader
+/// disposes the element back to nothing.
 
 abstract class _$NovelReader extends $Notifier<NovelReaderState> {
-  late final _$args = ref.$arg as (List<String>?, String?);
-  List<String>? get content => _$args.$1;
-  String? get localPath => _$args.$2;
-
-  NovelReaderState build(List<String>? content, String? localPath);
+  NovelReaderState build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
@@ -103,6 +94,6 @@ abstract class _$NovelReader extends $Notifier<NovelReaderState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(ref, () => build(_$args.$1, _$args.$2));
+    return element.handleCreate(ref, build);
   }
 }

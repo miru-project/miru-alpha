@@ -10,6 +10,7 @@ import 'package:miru_alpha/ui/features/watch/video_player/widget/player_scaffold
 import 'package:miru_alpha/ui/features/watch/video_player/widget/side_settings_menu.dart';
 import 'package:miru_alpha/ui/features/watch/video_player/widget/subtitle.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
+import 'package:miru_alpha/ui/features/watch/video_player/widget/resolved_playback.dart';
 import 'package:miru_alpha/provider/watch/video_player_provider.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
@@ -17,7 +18,7 @@ import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dar
 import 'package:video_player/video_player.dart';
 import 'package:window_manager/window_manager.dart';
 
-class MiruVideoPlayer extends ConsumerWidget {
+class MiruVideoPlayer extends HookConsumerWidget {
   const MiruVideoPlayer.local({
     super.key,
     required this.name,
@@ -54,21 +55,53 @@ class MiruVideoPlayer extends ConsumerWidget {
   @override
   Widget build(context, WidgetRef ref) {
     final screenRatio = MediaQuery.of(context).size;
+    // Multi-variant masters collapse to one variant BEFORE the player
+    // exists (see [useResolvedPlayback]); torrent/local skips the resolve.
+    final resolveUrl = (localPath == null && torrent == null)
+        ? value?.url
+        : null;
+    final resolved = useResolvedPlayback(
+      resolveUrl,
+      value?.headers ?? const {},
+    );
+    // The resolve takes one manifest fetch (~300ms): keep the canvas black
+    // instead of opening the master playlist.
+    if (resolveUrl != null && resolved == null) {
+      return const SizedBox.expand(child: ColoredBox(color: Colors.black));
+    }
     final vidProvider = videoPlayerProvider(
-      value?.url,
-      subtitlesRaw: value?.subtitles,
+      resolved?.playbackUrl ?? value?.url,
       headers: value?.headers,
       torrent: torrent,
       localPath: localPath,
-      v2watch: v2watch,
+      qualityMap: resolved?.qualityMap ?? const {},
     );
+
+    // Session data off-band: the family key stays scalars (see
+    // VideoPlayerNotifier.setSession) — the watch protobuf and the subtitle
+    // list belong to the open page, not to a keyed element.
+    useEffect(() {
+      final notifier = ref.read(vidProvider.notifier);
+      Future.microtask(
+        () => notifier.setSession(
+          subtitlesRaw: value?.subtitles,
+          v2watch: v2watch,
+        ),
+      );
+      return null;
+    }, [vidProvider]);
 
     return Stack(
       children: [
         //video player
         Consumer(
           builder: (context, ref, child) {
-            final ratio = ref.watch(vidProvider.select((s) => s.ratio));
+            // (ratio, playbackEpoch): the epoch rebinds the VideoPlayer to
+            // the fresh controller after a quality/mirror swap even when
+            // the new stream's aspect ratio is unchanged.
+            final (ratio, _) = ref.watch(
+              vidProvider.select((s) => (s.ratio, s.playbackEpoch)),
+            );
             final showSettings = ref.watch(
               vidProvider.select((s) => s.showSettings),
             );

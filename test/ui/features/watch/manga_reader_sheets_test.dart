@@ -25,10 +25,6 @@ class _FakeEpisodes extends EpisodeNotifier {
   EpisodeNotifierState build(WatchParams param) => _state;
 }
 
-ExtensionMangaWatch _watch(int pages) => ExtensionMangaWatch(
-  urls: [for (var i = 1; i <= pages; i++) 'https://example.com/p$i.png'],
-);
-
 /// Several real manga sources stash the chapter URL in `description`, so the
 /// fixture does too: the drawer must not surface it.
 ExtensionEpisodeGroup _group(int episodes, {String title = 'Volume 1'}) =>
@@ -185,8 +181,10 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
-      mangaProvider = mangaReaderProvider(0, 4, _watch(10));
-      container.read(mangaProvider);
+      mangaProvider = mangaReaderProvider;
+      container
+          .read(mangaProvider.notifier)
+          .open(groupIndex: 0, episodeIndex: 0, totalPage: 10);
     });
 
     testWidgets('opens as a modal sheet with every display control', (
@@ -367,8 +365,10 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
-      mangaProvider = mangaReaderProvider(0, 4, _watch(10));
-      container.read(mangaProvider);
+      mangaProvider = mangaReaderProvider;
+      container
+          .read(mangaProvider.notifier)
+          .open(groupIndex: 0, episodeIndex: 0, totalPage: 10);
     });
 
     testWidgets('lists chapters newest-first by default', (tester) async {
@@ -520,8 +520,10 @@ void main() {
         ],
       );
       addTearDown(emptyContainer.dispose);
-      final emptyManga = mangaReaderProvider(0, 0, null);
-      emptyContainer.read(emptyManga);
+      final emptyManga = mangaReaderProvider;
+      emptyContainer
+          .read(emptyManga.notifier)
+          .open(groupIndex: 0, episodeIndex: 0, totalPage: 0);
 
       await tester.binding.setSurfaceSize(const Size(430, 900));
       addTearDown(() => tester.binding.setSurfaceSize(null));

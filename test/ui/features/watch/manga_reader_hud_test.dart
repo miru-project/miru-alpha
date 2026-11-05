@@ -192,7 +192,7 @@ void main() {
     expect(find.text('8%'), findsOneWidget);
 
     // A centre tap animates the overlay in.
-    container.read(mangaReaderProvider(0, 5, _watch()).notifier).toggleHud();
+    container.read(mangaReaderProvider.notifier).toggleHud();
     await _pumpReader(tester);
 
     expect(_hudOpacity(tester), 1);
@@ -221,7 +221,7 @@ void main() {
     );
     await _pumpReader(tester);
 
-    final reader = container.read(mangaReaderProvider(0, 5, _watch()).notifier);
+    final reader = container.read(mangaReaderProvider.notifier);
     reader.setHudVisible(true);
     await _pumpReader(tester);
     expect(_hudOpacity(tester), 1);
@@ -296,7 +296,7 @@ void main() {
     );
     await _pumpReader(tester);
 
-    final reader = container.read(mangaReaderProvider(0, 5, _watch()).notifier)
+    final reader = container.read(mangaReaderProvider.notifier)
       ..setHudVisible(true);
     await _pumpReader(tester);
     expect(_scrubberFraction(tester), 0);
@@ -334,9 +334,7 @@ void main() {
     );
     await _pumpReader(tester);
 
-    container
-        .read(mangaReaderProvider(0, 5, _watch()).notifier)
-        .setHudVisible(true);
+    container.read(mangaReaderProvider.notifier).setHudVisible(true);
     await _pumpReader(tester);
 
     // At rest the numbers at either end of the track say enough.
@@ -384,7 +382,7 @@ void main() {
     );
     await _pumpReader(tester);
 
-    final reader = container.read(mangaReaderProvider(0, 5, _watch()).notifier)
+    final reader = container.read(mangaReaderProvider.notifier)
       ..setHudVisible(true);
     await _pumpReader(tester);
 
@@ -438,9 +436,7 @@ void main() {
     expect(_hiddenSlide(tester, find.byType(ReaderTopBar)), lessThan(0));
     expect(_hiddenSlide(tester, find.byType(ReaderBottomBar)), greaterThan(0));
 
-    container
-        .read(mangaReaderProvider(0, 5, _watch()).notifier)
-        .setHudVisible(true);
+    container.read(mangaReaderProvider.notifier).setHudVisible(true);
     await _pumpReader(tester);
 
     expect(_hiddenSlide(tester, find.byType(ReaderTopBar)), 0);
@@ -468,9 +464,7 @@ void main() {
     );
     await _pumpReader(tester);
 
-    container
-        .read(mangaReaderProvider(0, 5, _watch()).notifier)
-        .setHudVisible(true);
+    container.read(mangaReaderProvider.notifier).setHudVisible(true);
     await _pumpReader(tester);
 
     // Both HUD halves name the chapter, so scope the assertion to the panel.
@@ -517,26 +511,22 @@ void main() {
 
       // Turn edge paging off: the edges must stop working, but the centre must
       // not, or the overlay could never be summoned again.
-      final reader = container.read(
-        mangaReaderProvider(0, 5, _watch()).notifier,
-      );
+      final reader = container.read(mangaReaderProvider.notifier);
       reader.setTapToTurnPage(false);
       await _pumpReader(tester);
 
       final centre = tester.getCenter(find.byType(MiruMangaViewPort));
       await tester.tapAt(centre);
+      // The tap resolves once the double-tap window closes (no frame is
+      // scheduled meanwhile, so a bare pump would not wait for it).
+      await tester.pump(const Duration(milliseconds: 350));
       await _pumpReader(tester);
-      expect(
-        container.read(mangaReaderProvider(0, 5, _watch())).hudVisible,
-        isTrue,
-      );
+      expect(container.read(mangaReaderProvider).hudVisible, isTrue);
 
       await tester.tapAt(centre);
+      await tester.pump(const Duration(milliseconds: 350));
       await _pumpReader(tester);
-      expect(
-        container.read(mangaReaderProvider(0, 5, _watch())).hudVisible,
-        isFalse,
-      );
+      expect(container.read(mangaReaderProvider).hudVisible, isFalse);
     },
   );
 
@@ -561,7 +551,7 @@ void main() {
     );
     await _pumpReader(tester);
 
-    final provider = mangaReaderProvider(0, 5, _watch());
+    final provider = mangaReaderProvider;
     final viewport = find.byType(MiruMangaViewPort);
     final box = tester.getRect(viewport);
 
@@ -572,11 +562,13 @@ void main() {
     await _pumpReader(tester);
 
     await tester.tapAt(Offset(box.right - 8, box.center.dy));
+    await tester.pump(const Duration(milliseconds: 350));
     await _pumpReader(tester);
     expect(container.read(provider).itemPosition, 1);
     expect(container.read(provider).hudVisible, isFalse);
 
     await tester.tapAt(Offset(box.left + 8, box.center.dy));
+    await tester.pump(const Duration(milliseconds: 350));
     await _pumpReader(tester);
     expect(container.read(provider).itemPosition, 0);
     expect(container.read(provider).hudVisible, isFalse);
@@ -601,7 +593,7 @@ void main() {
     );
     await _pumpReader(tester);
 
-    final provider = mangaReaderProvider(0, 5, _watch());
+    final provider = mangaReaderProvider;
     final reader = container.read(provider.notifier);
     reader
       ..setHudVisible(true)
@@ -640,7 +632,7 @@ void main() {
     );
     await _pumpReader(tester);
 
-    final provider = mangaReaderProvider(0, 5, _watch());
+    final provider = mangaReaderProvider;
     container.read(provider.notifier)
       ..setHudVisible(true)
       ..changeReadMode(MangaReadMode.webToon);
@@ -697,7 +689,7 @@ void main() {
     );
     await _pumpReader(tester);
 
-    final provider = mangaReaderProvider(0, 5, _watch());
+    final provider = mangaReaderProvider;
     container.read(provider.notifier).setHudVisible(true);
     await _pumpReader(tester);
 
@@ -738,7 +730,7 @@ void main() {
     );
     await _pumpReader(tester);
 
-    final provider = mangaReaderProvider(0, 5, _watch());
+    final provider = mangaReaderProvider;
     container.read(provider.notifier)
       ..setHudVisible(true)
       ..setBrightnessMode(MangaBrightnessMode.manual);
@@ -810,7 +802,7 @@ void main() {
     await _pumpReader(tester);
 
     container
-        .read(mangaReaderProvider(0, 5, _watch()).notifier)
+        .read(mangaReaderProvider.notifier)
         .changeReadMode(MangaReadMode.webToon);
     await _pumpReader(tester);
 
@@ -826,7 +818,7 @@ void main() {
 
     // The gap is now *between* pages: each page but the last carries a
     // trailing pad, instead of the whole list being inset.
-    final gap = container.read(mangaReaderProvider(0, 5, _watch())).pageGap;
+    final gap = container.read(mangaReaderProvider).pageGap;
     expect(
       tester
           .widget<Padding>(
@@ -863,7 +855,7 @@ void main() {
     );
     await _pumpReader(tester);
 
-    final provider = mangaReaderProvider(0, 5, _watch());
+    final provider = mangaReaderProvider;
     final canvas = find.byType(MiruMangaViewPort);
     // The page itself brings identity transforms along, so the zoom is the
     // largest scale anywhere under the canvas.
@@ -903,6 +895,7 @@ void main() {
     // Turning the page gives the magnification back, so the next page is not a
     // cropped fragment.
     await tester.tapAt(Offset(page.right - 8, 400));
+    await tester.pump(const Duration(milliseconds: 350));
     await _pumpReader(tester);
     await _settleTransition(tester);
 
@@ -932,7 +925,7 @@ void main() {
     await _pumpReader(tester);
 
     container
-        .read(mangaReaderProvider(0, 5, _watch()).notifier)
+        .read(mangaReaderProvider.notifier)
         .changeReadMode(MangaReadMode.webToon);
     await _pumpReader(tester);
 
@@ -972,7 +965,7 @@ void main() {
 
     // Brightness drives the device display, not an overlay. A default reader
     // must not paint a black veil on top of the artwork at any value.
-    final provider = mangaReaderProvider(0, 5, _watch());
+    final provider = mangaReaderProvider;
     for (final value in [100, 85, 20]) {
       container.read(provider.notifier).setBrightness(value);
       await _pumpReader(tester);

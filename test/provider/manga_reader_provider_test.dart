@@ -4,11 +4,7 @@ import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/provider/watch/manga_reader_provider.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
 
-/// Synthetic `example.com` pages — no real site is contacted.
-ExtensionMangaWatch _watch(int pages) => ExtensionMangaWatch(
-  urls: [for (var i = 1; i <= pages; i++) 'https://example.com/p$i.png'],
-);
-
+/// Tests run against a bare container: no widget tree, no backend.
 ProviderContainer _container() {
   final container = ProviderContainer();
   addTearDown(container.dispose);
@@ -63,7 +59,9 @@ void main() {
   group('MangaReader', () {
     test('brightness defaults to 100 so no scrim is painted over the page', () {
       final container = _container();
-      final state = container.read(mangaReaderProvider(0, 8, _watch(8)));
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8);
+      final state = container.read(mangaReaderProvider);
       expect(state.brightness, 100);
       expect(state.brightness, kMangaBrightnessDefault);
     });
@@ -74,9 +72,10 @@ void main() {
       MiruSettings.setSettingSync(SettingKey.mangaTapToTurnPage, 'false');
 
       final container = _container();
-      final state = container.read(mangaReaderProvider(0, 8, _watch(8)));
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8);
+      final state = container.read(mangaReaderProvider);
       expect(state.totalPage, 8);
-      expect(state.content, hasLength(8));
       expect(state.brightness, 40);
       expect(state.fitMode, MangaFitMode.original);
       expect(state.tapToTurnPage, isFalse);
@@ -86,23 +85,29 @@ void main() {
 
     test('setters clamp and persist', () {
       final container = _container();
-      final provider = mangaReaderProvider(0, 8, _watch(8));
-      final reader = container.read(provider.notifier);
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8);
 
       reader.setBrightness(5);
-      expect(container.read(provider).brightness, kMangaBrightnessMin);
+      expect(
+        container.read(mangaReaderProvider).brightness,
+        kMangaBrightnessMin,
+      );
       expect(
         MiruSettings.getSettingSync<int>(SettingKey.mangaBrightness),
         kMangaBrightnessMin,
       );
 
       reader.setBrightness(500);
-      expect(container.read(provider).brightness, kMangaBrightnessMax);
+      expect(
+        container.read(mangaReaderProvider).brightness,
+        kMangaBrightnessMax,
+      );
 
       reader.setPageGap(-4);
-      expect(container.read(provider).pageGap, kMangaPageGapMin);
+      expect(container.read(mangaReaderProvider).pageGap, kMangaPageGapMin);
       reader.setPageGap(999);
-      expect(container.read(provider).pageGap, kMangaPageGapMax);
+      expect(container.read(mangaReaderProvider).pageGap, kMangaPageGapMax);
       expect(
         MiruSettings.getSettingSync<int>(SettingKey.mangaPageGap),
         kMangaPageGapMax,
@@ -111,8 +116,8 @@ void main() {
 
     test('display settings persist through MiruSettings', () {
       final container = _container();
-      final provider = mangaReaderProvider(0, 8, _watch(8));
-      final reader = container.read(provider.notifier);
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8);
 
       reader.setFitMode(MangaFitMode.fitHeight);
       reader.setCanvasBackground(MangaCanvasBackground.darkGray);
@@ -151,8 +156,8 @@ void main() {
 
     test('resetDisplaySettings restores every shipped default', () {
       final container = _container();
-      final provider = mangaReaderProvider(0, 8, _watch(8));
-      final reader = container.read(provider.notifier);
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8);
 
       reader
         ..setFitMode(MangaFitMode.original)
@@ -165,7 +170,7 @@ void main() {
         ..changeReadMode(MangaReadMode.webToon)
         ..resetDisplaySettings();
 
-      final state = container.read(provider);
+      final state = container.read(mangaReaderProvider);
       expect(state.readMode, MangaReadMode.standard);
       expect(state.fitMode, MangaFitMode.fitWidth);
       expect(state.canvasBackground, MangaCanvasBackground.black);
@@ -178,58 +183,58 @@ void main() {
 
     test('HUD starts hidden, toggles, and is not persisted', () {
       final container = _container();
-      final provider = mangaReaderProvider(0, 8, _watch(8));
-      final reader = container.read(provider.notifier);
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8);
 
-      expect(container.read(provider).hudVisible, isFalse);
+      expect(container.read(mangaReaderProvider).hudVisible, isFalse);
       reader.toggleHud();
-      expect(container.read(provider).hudVisible, isTrue);
+      expect(container.read(mangaReaderProvider).hudVisible, isTrue);
       reader.toggleHud();
-      expect(container.read(provider).hudVisible, isFalse);
+      expect(container.read(mangaReaderProvider).hudVisible, isFalse);
       // Chapter position is untouched by a HUD toggle.
-      expect(container.read(provider).itemPosition, 0);
+      expect(container.read(mangaReaderProvider).itemPosition, 0);
     });
 
     test('setPageNumber clamps to the chapter and jumpTo moves it', () {
       final container = _container();
-      final provider = mangaReaderProvider(0, 5, _watch(5));
-      final reader = container.read(provider.notifier);
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 5);
 
       reader.setPageNumber(99);
-      expect(container.read(provider).itemPosition, 4);
+      expect(container.read(mangaReaderProvider).itemPosition, 4);
       reader.setPageNumber(-3);
-      expect(container.read(provider).itemPosition, 0);
+      expect(container.read(mangaReaderProvider).itemPosition, 0);
 
       reader.jumpTo(2);
-      expect(container.read(provider).itemPosition, 2);
-      expect(container.read(provider).page, 3);
+      expect(container.read(mangaReaderProvider).itemPosition, 2);
+      expect(container.read(mangaReaderProvider).page, 3);
     });
 
     test('stepPage saturates at both ends', () {
       final container = _container();
-      final provider = mangaReaderProvider(0, 3, _watch(3));
-      final reader = container.read(provider.notifier);
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 3);
 
       reader.stepPage(-1);
-      expect(container.read(provider).itemPosition, 0);
+      expect(container.read(mangaReaderProvider).itemPosition, 0);
       reader.stepPage(1);
       reader.stepPage(1);
       reader.stepPage(1);
-      expect(container.read(provider).itemPosition, 2);
+      expect(container.read(mangaReaderProvider).itemPosition, 2);
       reader.stepPage(5);
-      expect(container.read(provider).itemPosition, 2);
+      expect(container.read(mangaReaderProvider).itemPosition, 2);
     });
 
     test('an empty chapter never records a page', () {
       final container = _container();
-      final provider = mangaReaderProvider(0, 0, null);
-      final reader = container.read(provider.notifier);
-      expect(container.read(provider).totalPage, 0);
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 0);
+      expect(container.read(mangaReaderProvider).totalPage, 0);
 
       reader.setPageNumber(3);
       reader.jumpTo(1);
-      expect(container.read(provider).itemPosition, 0);
-      expect(container.read(provider).historyProgress, 0);
+      expect(container.read(mangaReaderProvider).itemPosition, 0);
+      expect(container.read(mangaReaderProvider).historyProgress, 0);
     });
   });
 }

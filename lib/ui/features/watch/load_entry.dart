@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:miru_alpha/provider/extension_provider.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:forui/forui.dart';
@@ -87,11 +88,22 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
         .urls[epNotifier.selectedEpisodeIndex]
         .url;
     final meta = widget.param.meta;
+    // Session injection: the single watch session loads on entry and on
+    // every episode change — the family re-key it replaces.
+    useEffect(() {
+      final session = ref.read(watchSessionProvider.notifier);
+      Future.microtask(
+        () => session.load(
+          watchUrl: url,
+          detailUrl: widget.param.detailUrl,
+          meta: meta,
+        ),
+      );
+      return null;
+    }, [url]);
     return Consumer(
       builder: (context, ref, child) {
-        final snapshot = ref.watch(
-          watchProvider(url, widget.param.detailUrl, meta),
-        );
+        final snapshot = ref.watch(watchSessionProvider);
         return FTheme(
           data: ref.watch(applicationControllerProvider).themeData,
           child: snapshot.when(

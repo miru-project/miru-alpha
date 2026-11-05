@@ -79,6 +79,7 @@ class _FakeVideoPlayer extends VideoPlayerNotifier {
     ExtensionBangumiWatchTorrent? torrent,
     String? localPath,
     pb.ExtensionWatch? v2watch,
+    Map<String, String> qualityMap = const {},
   }) {
     // The settings tabs read the controller's `dataSource` for the
     // quality/mirror selection marks — an uninitialized late field would

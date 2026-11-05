@@ -54,7 +54,7 @@ class WebtoonZoomSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ReaderZoomSurface(
-      onTap: onTap,
+      onTapUp: onTap == null ? null : (position) => onTap!(),
       onScaleChanged: onScaleChanged,
       onViewMoved: onViewMoved,
       minScale: minScale,

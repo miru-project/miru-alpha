@@ -64,7 +64,7 @@ class MiruNovelReader extends HookConsumerWidget {
       0,
       episodes.isEmpty ? 0 : episodes.length - 1,
     );
-    final novelProvider = novelReaderProvider(value?.content, localPath);
+    final novelProvider = novelReaderProvider;
     final state = container.watch(novelProvider);
     final reader = container.read(novelProvider.notifier);
 
@@ -74,6 +74,20 @@ class MiruNovelReader extends HookConsumerWidget {
       () => parseNovelContent(value?.content ?? const <String>[]),
       [value?.content],
     );
+
+    // Session injection on entry: the single reader state opens the selected
+    // chapter fresh — position zero, display preferences re-read — the way a
+    // per-chapter element used to. Deferred per the build-phase rule: a
+    // provider mutation inside a build lifecycle throws, so the open lands in
+    // the first microtask after it. Re-opening the same chapter is a no-op
+    // inside [NovelReader.open].
+    useEffect(() {
+      final reader = container.read(novelReaderProvider.notifier);
+      Future.microtask(
+        () => reader.open(groupIndex: groupIndex, episodeIndex: episodeIndex),
+      );
+      return null;
+    }, [groupIndex, episodeIndex]);
 
     // Screen preferences are a side effect of the settings, so they are an
     // effect rather than a build side effect: the applied values are remembered
@@ -95,10 +109,12 @@ class MiruNovelReader extends HookConsumerWidget {
       const [],
     );
 
-    // Snapshots history for the outgoing chapter and re-arms it for the incoming
-    // one. Provider identity changes when the selected episode changes, so the
-    // provider itself is the effect's key: the cleanup is what detects the
-    // switch, and it also runs when the reader leaves the tree.
+    // Snapshots history for the outgoing chapter and re-arms it for the
+    // incoming one. The chapter identity is the effect's key: the cleanup is
+    // what detects the switch, and it also runs when the reader leaves the
+    // tree. listenManual — not listen — because plain ref.listen subscriptions
+    // close at the start of every rebuild, which would leave the save armed
+    // with the entry snapshot forever.
     final historySave = useRef<Future<void> Function()?>(null);
     void flushHistory() {
       final save = historySave.value;
@@ -107,21 +123,18 @@ class MiruNovelReader extends HookConsumerWidget {
     }
 
     useEffect(() {
-      container.listen<NovelReaderState>(novelProvider, (_, next) {
+      container.listenManual<NovelReaderState>(novelProvider, (_, next) {
         historySave.value = _prepareHistory(container, epProvider, next);
       });
-      if (container.exists(novelProvider)) {
-        historySave.value = _prepareHistory(
-          container,
-          epProvider,
-          container.read(novelProvider),
-        );
-      }
-      // Riverpod replaces the listener when this effect re-runs for a new
-      // provider, and closes it with the element, so the cleanup is only about
-      // snapshotting the outgoing episode.
+      historySave.value = _prepareHistory(
+        container,
+        epProvider,
+        container.read(novelProvider),
+      );
+      // The manual listener lives until the element unmounts; the cleanup is
+      // only about snapshotting the outgoing chapter.
       return flushHistory;
-    }, [novelProvider]);
+    }, [groupIndex, episodeIndex]);
 
     final chapterLabel = episodes.isEmpty ? '' : episodes[episodeIndex].name;
     final mediaPadding = MediaQuery.paddingOf(context);
@@ -176,6 +189,9 @@ class MiruNovelReader extends HookConsumerWidget {
                 return false;
               },
               child: NovelReadingView(
+                // Keyed per chapter: a fresh canvas re-attaches the shared
+                // controllers at offset zero instead of landing mid-chapter.
+                key: ValueKey('novel-canvas-$groupIndex-$episodeIndex'),
                 blocks: blocks,
                 chapterTitle: chapterLabel,
                 chapterOrdinal: episodeIndex + 1,

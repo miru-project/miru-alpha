@@ -26,12 +26,79 @@ class WatchMirrorException implements Exception {
   String toString() => 'Mirror resolution failed: $cause';
 }
 
+/// The one watch session: the content pipeline for whichever watch surface is
+/// open. The shell injects the request on entry — and re-injects on every
+/// episode / mirror change — through [WatchSession.load]; leaving the page
+/// disposes the element back to the idle state. Not a family: the request
+/// args belong to the page that is open, not to provider identity.
 @riverpod
-Future<WatchResult> watch(
-  Ref ref,
-  String watchUrl,
-  String detailUrl,
-  ExtensionMeta meta, {
+class WatchSession extends _$WatchSession {
+  String? _watchUrl;
+  String? _detailUrl;
+  ExtensionMeta? _meta;
+  String? _mirrorUrl;
+
+  /// Bumped per fetch; a stale completion never overwrites a newer one.
+  int _fetchToken = 0;
+
+  @override
+  AsyncValue<WatchResult> build() {
+    ref.onDispose(() {
+      _watchUrl = null;
+      _detailUrl = null;
+      _meta = null;
+      _mirrorUrl = null;
+    });
+    return const AsyncLoading();
+  }
+
+  /// Loads the content for [watchUrl]. The shell's effect keys on the
+  /// selected episode's url and the chosen mirror, so both drive this.
+  Future<void> load({
+    required String watchUrl,
+    required String detailUrl,
+    required ExtensionMeta meta,
+    String? mirrorUrl,
+  }) async {
+    _watchUrl = watchUrl;
+    _detailUrl = detailUrl;
+    _meta = meta;
+    _mirrorUrl = mirrorUrl;
+    await _fetch();
+  }
+
+  /// Re-requests the current args — the error state's retry.
+  Future<void> retry() => _fetch();
+
+  Future<void> _fetch() async {
+    final watchUrl = _watchUrl;
+    final detailUrl = _detailUrl;
+    final meta = _meta;
+    if (watchUrl == null || detailUrl == null || meta == null) return;
+    final token = ++_fetchToken;
+    state = const AsyncLoading();
+    try {
+      final result = await resolveWatch(
+        watchUrl: watchUrl,
+        detailUrl: detailUrl,
+        meta: meta,
+        mirrorUrl: _mirrorUrl,
+      );
+      if (token != _fetchToken) return;
+      state = AsyncData(result);
+    } catch (error, stack) {
+      if (token != _fetchToken) return;
+      state = AsyncError(error, stack);
+    }
+  }
+}
+
+/// The content pipeline the session runs: download short-circuit, extension
+/// watch call, V2 mirror resolution.
+Future<WatchResult> resolveWatch({
+  required String watchUrl,
+  required String detailUrl,
+  required ExtensionMeta meta,
   String? mirrorUrl,
 }) async {
   try {

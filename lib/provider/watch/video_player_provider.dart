@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
@@ -51,6 +52,11 @@ class VideoPlayerTickState {
   /// while playback is healthy. Retry re-requests the same URL, Switch
   /// Mirror re-requests another mirror's URL.
   final String? playerError;
+
+  /// Bumped on every controller swap (quality / mirror switch): the video
+  /// surface watches it so the `VideoPlayer` widget rebinds to the fresh
+  /// controller even when the new stream's aspect ratio is unchanged.
+  final int playbackEpoch;
   VideoPlayerTickState({
     this.position = Duration.zero,
     this.isPlaying = false,
@@ -71,6 +77,7 @@ class VideoPlayerTickState {
     this.locked = false,
     this.v2watch,
     this.playerError,
+    this.playbackEpoch = 0,
   });
 
   VideoPlayerTickState copyWith({
@@ -98,6 +105,8 @@ class VideoPlayerTickState {
     Map<String, String>? qualityMap,
     String? playerError,
     bool clearPlayerError = false,
+    int? playbackEpoch,
+    pb_extension.ExtensionWatch? v2watch,
   }) {
     return VideoPlayerTickState(
       position: position ?? this.position,
@@ -118,10 +127,11 @@ class VideoPlayerTickState {
       showSettings: showSettings ?? this.showSettings,
       settingsTab: settingsTab ?? this.settingsTab,
       locked: locked ?? this.locked,
-      v2watch: v2watch ?? v2watch,
       // The error is CLEARABLE: clearPlayerError resets it (retry/switch
       // re-request the stream and a healthy tick must clear the card).
       playerError: clearPlayerError ? null : (playerError ?? this.playerError),
+      playbackEpoch: playbackEpoch ?? this.playbackEpoch,
+      v2watch: v2watch ?? this.v2watch,
     );
   }
 }
@@ -159,21 +169,27 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
   /// gates the local player passes.
   Map<String, String> _streamHeaders = const {};
 
+  /// The family's torrent / local-file source: quality switches are
+  /// meaningless for them (no HLS manifest to resolve).
+  ExtensionBangumiWatchTorrent? _familyTorrent;
+  String? _familyLocalPath;
+
   /// Headers for the currently loaded stream, empty when none.
   Map<String, String> get streamHeaders => _streamHeaders;
 
   @override
   VideoPlayerTickState build(
     String? mediaUrl, {
-    List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
     Map<String, String>? headers,
     Size? initialRatio,
     ExtensionBangumiWatchTorrent? torrent,
     String? localPath,
-    pb_extension.ExtensionWatch? v2watch,
+    Map<String, String> qualityMap = const {},
   }) {
     defaultSize = initialRatio ?? const Size(0, 0);
     _streamHeaders = headers ?? const {};
+    _familyTorrent = torrent;
+    _familyLocalPath = localPath;
     // Register the simplified player surface: the cast session forwards app
     // actions and echoes renderer transport state back onto this notifier.
     ref.read(dlnaCastProvider.notifier).attachPlayer(this);
@@ -185,14 +201,31 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
       localPath,
     );
     final initialState = VideoPlayerTickState(
-      subtitlesRaw: subtitlesRaw ?? const [],
       showControls: false,
       ratio: vidController.value.aspectRatio,
-      v2watch: v2watch,
+      qualityMap: qualityMap,
     );
 
-    Future.microtask(() => _init(mediaUrl, headers ?? const {}));
+    Future.microtask(() => _init(mediaUrl, headers ?? const {}, qualityMap));
     return initialState;
+  }
+
+  /// Injects the session data the shell resolved — the watch protobuf and the
+  /// subtitle list — after the element exists. Family arguments are hashed
+  /// into provider identity, so protobufs must never ride the family key;
+  /// they belong to the open page, not to a keyed element.
+  void setSession({
+    List<ExtensionBangumiWatchSubtitle>? subtitlesRaw,
+    pb_extension.ExtensionWatch? v2watch,
+  }) {
+    if (!ref.mounted) return;
+    final nextSubtitles =
+        subtitlesRaw ?? const <ExtensionBangumiWatchSubtitle>[];
+    if (listEquals(state.subtitlesRaw, nextSubtitles) &&
+        state.v2watch == v2watch) {
+      return;
+    }
+    state = state.copyWith(subtitlesRaw: nextSubtitles, v2watch: v2watch);
   }
 
   VideoPlayerController _getController(
@@ -284,7 +317,11 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
     }
   }
 
-  void _init(String? url, Map<String, String> headers) {
+  void _init(
+    String? url,
+    Map<String, String> headers,
+    Map<String, String> familyQualityMap,
+  ) {
     ref.onDispose(() {
       _hideTimer?.cancel();
       vidController.removeListener(_updatePosition);
@@ -309,6 +346,13 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
     if (torrent != null || url == null || localPath != null) {
       return;
     }
+    if (familyQualityMap.isNotEmpty) {
+      // The manifest was already fetched + parsed before the player was
+      // created (the master collapsed to its first variant there) — reuse
+      // it instead of re-fetching the same URL.
+      state = state.copyWith(qualityMap: familyQualityMap);
+      return;
+    }
     getQuality(url, headers).then((val) {
       state = state.copyWith(qualityMap: val);
     });
@@ -331,27 +375,45 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
     state = state.copyWith(clearPlayerError: true);
   }
 
-  void changeVideoQuality(String url) {
+  /// Quality / mirror / retry switch. The target URL is resolved first (a
+  /// mirror can hand back a multi-variant master — collapse it to one
+  /// variant like the initial load; a known variant url skips the fetch),
+  /// the fresh controller is built BESIDE the running one and swapped in
+  /// only after it is ready; the old controller is disposed post-frame so
+  /// the surface never renders a dead controller.
+  Future<void> changeVideoQuality(String url) async {
+    _seekTarget = null;
+    if (_familyTorrent != null || _familyLocalPath != null) return;
+    final knownVariant = state.qualityMap.containsValue(url);
+    final src = knownVariant
+        ? (qualityMap: state.qualityMap, playbackUrl: url)
+        : await resolvePlayback(url, _streamHeaders);
     vidController.pause();
-    vidController.removeListener(_updatePosition);
-    vidController.dispose();
-    // Keep the stream headers: a fresh controller without them drops the
-    // Referer/User-Agent the source gates on, and the cast engine (fed the
-    // same headers) would then send requests the local player never does.
-    vidController = VideoPlayerController.networkUrl(
-      Uri.parse(url),
+    final old = vidController;
+    final fresh = VideoPlayerController.networkUrl(
+      Uri.parse(src.playbackUrl),
+      // Keep the stream headers: a fresh controller without them drops the
+      // Referer/User-Agent the source gates on, and the cast engine (fed
+      // the same headers) would then send requests the local player never
+      // does.
       httpHeaders: _streamHeaders,
     );
-
-    vidController.initialize().then((_) {
-      vidController.addListener(_updatePosition);
-      vidController.play();
-
-      state = state.copyWith(
-        isPlaying: true,
-        duration: vidController.value.duration,
-        buffered: vidController.value.buffered,
-      );
+    await fresh.initialize();
+    old.removeListener(_updatePosition);
+    vidController = fresh;
+    fresh.addListener(_updatePosition);
+    fresh.play();
+    state = state.copyWith(
+      playbackEpoch: state.playbackEpoch + 1,
+      isPlaying: true,
+      duration: fresh.value.duration,
+      buffered: fresh.value.buffered,
+      ratio: fresh.value.aspectRatio,
+      qualityMap: src.qualityMap,
+      clearPlayerError: true,
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      old.dispose();
     });
   }
 
@@ -608,43 +670,50 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
       );
 
       if (watchResult is pb_extension.ExtensionBangumiWatch) {
-        vidController.removeListener(_updatePosition);
-        await vidController.dispose();
-
+        _seekTarget = null;
         // The cast engine is fed streamHeaders — keep it in step with the
         // headers the new controller actually uses, so both engines send the
         // same requests after a mirror switch.
         _streamHeaders = watchResult.headers;
-        vidController = _getController(
-          watchResult.url,
+        // A mirror's url may be a multi-variant master — collapse it to one
+        // variant like the initial load. The same fetch also carries the
+        // variant map (no second manifest GET).
+        final src = await resolvePlayback(watchResult.url, watchResult.headers);
+        final old = vidController;
+        final fresh = _getController(
+          src.playbackUrl,
           watchResult.headers,
           watchResult.torrent,
           null,
         );
-
-        await vidController.initialize();
-        vidController.addListener(_updatePosition);
+        await fresh.initialize();
+        old.removeListener(_updatePosition);
+        vidController = fresh;
+        fresh.addListener(_updatePosition);
 
         if (isPlaying) {
-          vidController.play();
+          fresh.play();
         }
 
-        await vidController.seekTo(currentPosition);
+        await fresh.seekTo(currentPosition);
 
         state = state.copyWith(
+          playbackEpoch: state.playbackEpoch + 1,
           subtitlesRaw: watchResult.subtitles,
-          duration: vidController.value.duration,
+          duration: fresh.value.duration,
           isPlaying: isPlaying,
           position: currentPosition,
-          ratio: vidController.value.aspectRatio,
+          ratio: fresh.value.aspectRatio,
+          qualityMap: src.qualityMap,
         );
 
         // Subtitles re-init if needed
         initSubtitle(watchResult.subtitles);
 
-        // Quality re-init
-        getQuality(watchResult.url, watchResult.headers).then((val) {
-          state = state.copyWith(qualityMap: val);
+        // The old controller stays the bound surface until this state write
+        // rebuilds the video consumer; dispose it after that frame.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          old.dispose();
         });
       }
     } catch (e) {

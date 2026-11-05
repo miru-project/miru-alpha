@@ -167,9 +167,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       if (page != 0) {
-        container
-            .read(mangaReaderProvider(0, 2, data).notifier)
-            .setPageNumber(page);
+        container.read(mangaReaderProvider.notifier).setPageNumber(page);
         await tester.pump();
       }
       await tester.pumpWidget(const SizedBox.shrink());
@@ -185,23 +183,17 @@ void main() {
   test('new manga session never inherits another reader progress', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
-    final first = mangaReaderProvider(
-      0,
-      2,
-      ExtensionMangaWatch(urls: List.filled(10, '')),
-    );
-    final second = mangaReaderProvider(
-      1,
-      2,
-      ExtensionMangaWatch(urls: List.filled(3, '')),
-    );
-    final firstSubscription = container.listen(first, (_, _) {});
-    final secondSubscription = container.listen(second, (_, _) {});
-    addTearDown(firstSubscription.close);
-    addTearDown(secondSubscription.close);
-    container.read(first.notifier).setPageNumber(9);
-    expect(container.read(first).historyProgress, 10);
-    expect(container.read(second).historyProgress, 1);
-    expect(container.read(second).totalPage, 3);
+    final reader = container.read(mangaReaderProvider.notifier);
+    final subscription = container.listen(mangaReaderProvider, (_, _) {});
+    addTearDown(subscription.close);
+    reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 10);
+    container.read(mangaReaderProvider.notifier).setPageNumber(9);
+    expect(container.read(mangaReaderProvider).historyProgress, 10);
+
+    // A different chapter starts a fresh session: position resets, the
+    // chapter size re-keys.
+    reader.open(groupIndex: 0, episodeIndex: 1, totalPage: 3);
+    expect(container.read(mangaReaderProvider).historyProgress, 1);
+    expect(container.read(mangaReaderProvider).totalPage, 3);
   });
 }

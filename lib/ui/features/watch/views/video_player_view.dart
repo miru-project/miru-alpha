@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/index.dart';
@@ -51,10 +52,20 @@ class VideoPlayerView extends HookConsumerWidget {
     final screenRatio = MediaQuery.of(context).size;
     final vidProvider = videoPlayerProvider(
       value?.url ?? mediaUrl,
-      subtitlesRaw: value?.subtitles,
       headers: value?.headers,
       localPath: localPath,
     );
+
+    // Session data off-band: the family key stays scalars — the subtitle
+    // list belongs to the open page, not to a keyed element (see
+    // VideoPlayerNotifier.setSession).
+    useEffect(() {
+      final notifier = ref.read(vidProvider.notifier);
+      Future.microtask(
+        () => notifier.setSession(subtitlesRaw: value?.subtitles),
+      );
+      return null;
+    }, [vidProvider]);
     final vidState = ref.watch(vidProvider);
 
     return Stack(

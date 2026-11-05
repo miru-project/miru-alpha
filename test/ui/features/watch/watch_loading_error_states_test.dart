@@ -151,6 +151,7 @@ class _FakeErrorVideoPlayer extends VideoPlayerNotifier {
     ExtensionBangumiWatchTorrent? torrent,
     String? localPath,
     pb.ExtensionWatch? v2watch,
+    Map<String, String> qualityMap = const {},
   }) {
     vidController = VideoPlayerController.networkUrl(Uri.parse(_url));
     // Duration ZERO: the gesture overlay's fvp brightness effect fires
@@ -173,7 +174,7 @@ class _FakeErrorVideoPlayer extends VideoPlayerNotifier {
   }
 
   @override
-  void changeVideoQuality(String url) {
+  Future<void> changeVideoQuality(String url) async {
     requests.add(url);
     state = state.copyWith(clearPlayerError: true);
   }

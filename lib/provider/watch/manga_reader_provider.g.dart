@@ -8,33 +8,73 @@ part of 'manga_reader_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The one manga reader state.
+///
+/// A reader is a single full-screen surface, so the state is a single
+/// auto-dispose provider — not a family minting an element per episode. An
+/// episode switch is [MangaReader.open]; leaving the reader disposes the
+/// element and everything it holds.
+///
+/// The family it replaces took the watch response as an argument. Family
+/// arguments are hashed into the provider identity and stringified on every
+/// state change by the debug tooling, so a fresh protobuf object per fetch
+/// minted a new element each rebuild and pinned the whole page URL list on
+/// every retained identity until the heap gave out.
+///
+/// The page URLs are not state either: the viewport reads them from the watch
+/// data it already holds, and the live scroll position streams to the canvas
+/// through [ScrollOffsetListener] instead of Riverpod state.
 
 @ProviderFor(MangaReader)
-final mangaReaderProvider = MangaReaderFamily._();
+final mangaReaderProvider = MangaReaderProvider._();
 
+/// The one manga reader state.
+///
+/// A reader is a single full-screen surface, so the state is a single
+/// auto-dispose provider — not a family minting an element per episode. An
+/// episode switch is [MangaReader.open]; leaving the reader disposes the
+/// element and everything it holds.
+///
+/// The family it replaces took the watch response as an argument. Family
+/// arguments are hashed into the provider identity and stringified on every
+/// state change by the debug tooling, so a fresh protobuf object per fetch
+/// minted a new element each rebuild and pinned the whole page URL list on
+/// every retained identity until the heap gave out.
+///
+/// The page URLs are not state either: the viewport reads them from the watch
+/// data it already holds, and the live scroll position streams to the canvas
+/// through [ScrollOffsetListener] instead of Riverpod state.
 final class MangaReaderProvider
     extends $NotifierProvider<MangaReader, MangaReaderState> {
-  MangaReaderProvider._({
-    required MangaReaderFamily super.from,
-    required (int, int, ExtensionMangaWatch?, {Map<String, String>? headers})
-    super.argument,
-  }) : super(
-         retry: null,
-         name: r'mangaReaderProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
+  /// The one manga reader state.
+  ///
+  /// A reader is a single full-screen surface, so the state is a single
+  /// auto-dispose provider — not a family minting an element per episode. An
+  /// episode switch is [MangaReader.open]; leaving the reader disposes the
+  /// element and everything it holds.
+  ///
+  /// The family it replaces took the watch response as an argument. Family
+  /// arguments are hashed into the provider identity and stringified on every
+  /// state change by the debug tooling, so a fresh protobuf object per fetch
+  /// minted a new element each rebuild and pinned the whole page URL list on
+  /// every retained identity until the heap gave out.
+  ///
+  /// The page URLs are not state either: the viewport reads them from the watch
+  /// data it already holds, and the live scroll position streams to the canvas
+  /// through [ScrollOffsetListener] instead of Riverpod state.
+  MangaReaderProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'mangaReaderProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
   @override
   String debugGetCreateSourceHash() => _$mangaReaderHash();
-
-  @override
-  String toString() {
-    return r'mangaReaderProvider'
-        ''
-        '$argument';
-  }
 
   @$internal
   @override
@@ -47,67 +87,29 @@ final class MangaReaderProvider
       providerOverride: $SyncValueProvider<MangaReaderState>(value),
     );
   }
-
-  @override
-  bool operator ==(Object other) {
-    return other is MangaReaderProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
 }
 
-String _$mangaReaderHash() => r'90b6ce2b7d29af3a3ed57b97091a8d12019e1c07';
+String _$mangaReaderHash() => r'a661f99ba9bab65cff17132a6191b65b41bf6c50';
 
-final class MangaReaderFamily extends $Family
-    with
-        $ClassFamilyOverride<
-          MangaReader,
-          MangaReaderState,
-          MangaReaderState,
-          MangaReaderState,
-          (int, int, ExtensionMangaWatch?, {Map<String, String>? headers})
-        > {
-  MangaReaderFamily._()
-    : super(
-        retry: null,
-        name: r'mangaReaderProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  MangaReaderProvider call(
-    int epIndex,
-    int total,
-    ExtensionMangaWatch? data, {
-    Map<String, String>? headers,
-  }) => MangaReaderProvider._(
-    argument: (epIndex, total, data, headers: headers),
-    from: this,
-  );
-
-  @override
-  String toString() => r'mangaReaderProvider';
-}
+/// The one manga reader state.
+///
+/// A reader is a single full-screen surface, so the state is a single
+/// auto-dispose provider — not a family minting an element per episode. An
+/// episode switch is [MangaReader.open]; leaving the reader disposes the
+/// element and everything it holds.
+///
+/// The family it replaces took the watch response as an argument. Family
+/// arguments are hashed into the provider identity and stringified on every
+/// state change by the debug tooling, so a fresh protobuf object per fetch
+/// minted a new element each rebuild and pinned the whole page URL list on
+/// every retained identity until the heap gave out.
+///
+/// The page URLs are not state either: the viewport reads them from the watch
+/// data it already holds, and the live scroll position streams to the canvas
+/// through [ScrollOffsetListener] instead of Riverpod state.
 
 abstract class _$MangaReader extends $Notifier<MangaReaderState> {
-  late final _$args =
-      ref.$arg
-          as (int, int, ExtensionMangaWatch?, {Map<String, String>? headers});
-  int get epIndex => _$args.$1;
-  int get total => _$args.$2;
-  ExtensionMangaWatch? get data => _$args.$3;
-  Map<String, String>? get headers => _$args.headers;
-
-  MangaReaderState build(
-    int epIndex,
-    int total,
-    ExtensionMangaWatch? data, {
-    Map<String, String>? headers,
-  });
+  MangaReaderState build();
   @$mustCallSuper
   @override
   WhenComplete runBuild() {
@@ -120,9 +122,6 @@ abstract class _$MangaReader extends $Notifier<MangaReaderState> {
               Object?,
               Object?
             >;
-    return element.handleCreate(
-      ref,
-      () => build(_$args.$1, _$args.$2, _$args.$3, headers: _$args.headers),
-    );
+    return element.handleCreate(ref, build);
   }
 }

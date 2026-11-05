@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/utils/core/log.dart';
@@ -33,9 +31,13 @@ const kMangaPageGapDefault = 0;
 
 /// Immutable reader state: page position plus every display preference the
 /// reader HUD and the settings sheet can change.
+///
+/// Deliberately excludes the page URL list and the live scroll offset. The
+/// viewport reads the URLs from the watch data it already holds, and the scroll
+/// position streams to the canvas through [ScrollOffsetListener] — neither
+/// belongs in watched state, where every copy and every rebuild would carry
+/// them along.
 class MangaReaderState {
-  final List<String> content;
-  final double offset;
   final int itemPosition;
   final int totalPage;
   final MangaReadMode readMode;
@@ -85,8 +87,6 @@ class MangaReaderState {
   double get progress => totalPage == 0 ? 0 : historyProgress / totalPage;
 
   const MangaReaderState({
-    this.content = const [],
-    this.offset = 0,
     this.totalPage = 0,
     this.itemPosition = 0,
     this.readMode = MangaReadMode.standard,
@@ -103,8 +103,6 @@ class MangaReaderState {
   });
 
   MangaReaderState copyWith({
-    List<String>? content,
-    double? offset,
     int? itemPosition,
     int? totalPage,
     MangaReadMode? readMode,
@@ -120,9 +118,7 @@ class MangaReaderState {
     Set<String>? bookmarks,
   }) {
     return MangaReaderState(
-      content: content ?? this.content,
       totalPage: totalPage ?? this.totalPage,
-      offset: offset ?? this.offset,
       itemPosition: itemPosition ?? this.itemPosition,
       readMode: readMode ?? this.readMode,
       hudVisible: hudVisible ?? this.hudVisible,
@@ -139,19 +135,65 @@ class MangaReaderState {
   }
 }
 
+/// The one manga reader state.
+///
+/// A reader is a single full-screen surface, so the state is a single
+/// auto-dispose provider — not a family minting an element per episode. An
+/// episode switch is [MangaReader.open]; leaving the reader disposes the
+/// element and everything it holds.
+///
+/// The family it replaces took the watch response as an argument. Family
+/// arguments are hashed into the provider identity and stringified on every
+/// state change by the debug tooling, so a fresh protobuf object per fetch
+/// minted a new element each rebuild and pinned the whole page URL list on
+/// every retained identity until the heap gave out.
+///
+/// The page URLs are not state either: the viewport reads them from the watch
+/// data it already holds, and the live scroll position streams to the canvas
+/// through [ScrollOffsetListener] instead of Riverpod state.
 @riverpod
 class MangaReader extends _$MangaReader {
   bool isAdjusting = false;
+
+  /// Identity of the episode currently opened, so a shell rebuild that passes
+  /// the same episode does not reset the reader's position.
+  String? _openKey;
+
   @override
-  MangaReaderState build(
-    int epIndex,
-    int total,
-    ExtensionMangaWatch? data, {
-    Map<String, String>? headers,
+  MangaReaderState build() {
+    ref.onDispose(() {
+      pageController.dispose();
+      itemPositionsListener.itemPositions.removeListener(
+        _whenItemPositionChange,
+      );
+    });
+    initListener();
+    return _sessionState();
+  }
+
+  /// Opens [episodeIndex] of [groupIndex] with [totalPage] pages.
+  ///
+  /// Re-opening the episode that is already open is a no-op — a refetch of the
+  /// same chapter must not throw the reader back to page one. A different
+  /// episode starts a fresh session: position and HUD reset, the display
+  /// preferences re-read from the store (they are persisted, so this only
+  /// re-syncs them).
+  void open({
+    required int groupIndex,
+    required int episodeIndex,
+    required int totalPage,
   }) {
-    final initState = MangaReaderState(
-      content: data?.urls ?? [],
-      totalPage: data?.urls.length ?? 0,
+    final key = '$groupIndex:$episodeIndex:$totalPage';
+    if (key == _openKey && ref.mounted) return;
+    _openKey = key;
+    isAdjusting = false;
+    state = _sessionState(totalPage: totalPage);
+  }
+
+  /// A fresh session state: the persisted display preferences, no position.
+  MangaReaderState _sessionState({int totalPage = 0}) {
+    return MangaReaderState(
+      totalPage: totalPage,
       readMode: _readSetting<MangaReadMode>(
         SettingKey.mangaReadingMode,
         MangaReadMode.standard,
@@ -177,15 +219,6 @@ class MangaReader extends _$MangaReader {
       keepScreenOn: _readSetting<bool>(SettingKey.mangaKeepScreenOn, true),
       tapToTurnPage: _readSetting<bool>(SettingKey.mangaTapToTurnPage, true),
     );
-    ref.onDispose(() {
-      _scrollSubscription?.cancel();
-      pageController.dispose();
-      itemPositionsListener.itemPositions.removeListener(
-        _whenItemPositionChange,
-      );
-    });
-    initListener();
-    return initState;
   }
 
   // Settings may be missing (fresh install before the gRPC store answers, or
@@ -204,7 +237,6 @@ class MangaReader extends _$MangaReader {
     }
   }
 
-  StreamSubscription<double>? _scrollSubscription;
   final itemPositionsListener = ItemPositionsListener.create();
   final scrollOffsetController = ScrollOffsetController();
   final scrollOffsetListener = ScrollOffsetListener.create();
@@ -213,13 +245,17 @@ class MangaReader extends _$MangaReader {
   /// Plain [PageController]: the reader's zoom is a paint transform over the
   /// pages, so nothing needs extended_image's own page controller — and its
   /// gesture page view would put a third set of recognisers in the arena.
-  final PageController pageController = PageController();
+  ///
+  /// `keepPage: false` so a fresh canvas (an episode switch rebuilds it)
+  /// attaches at page one instead of restoring the previous episode's page.
+  final PageController pageController = PageController(keepPage: false);
+
+  bool _listenersInitialized = false;
 
   void initListener() {
+    if (_listenersInitialized) return;
+    _listenersInitialized = true;
     itemPositionsListener.itemPositions.addListener(_whenItemPositionChange);
-    _scrollSubscription = scrollOffsetListener.changes.listen(
-      _whenScrollOffsetChange,
-    );
   }
 
   void _whenItemPositionChange() {
@@ -230,10 +266,6 @@ class MangaReader extends _$MangaReader {
     if (visible.isEmpty) return;
     final firstVisible = visible.reduce((a, b) => a.index < b.index ? a : b);
     setPageNumber(firstVisible.index);
-  }
-
-  void _whenScrollOffsetChange(double val) {
-    state = state.copyWith(offset: val);
   }
 
   void changeReadMode(MangaReadMode mode) {
@@ -340,7 +372,13 @@ class MangaReader extends _$MangaReader {
   // Set the page number
   void setPageNumber(int page) {
     if (isAdjusting || state.totalPage == 0) return;
-    state = state.copyWith(itemPosition: page.clamp(0, state.totalPage - 1));
+    final next = page.clamp(0, state.totalPage - 1);
+    // The item-position stream fires on every scroll frame. Without this
+    // guard, every frame allocated a fresh state and rebuilt every watcher —
+    // the reader shell, the viewport and both HUD halves — while the pages
+    // moved, which is the scroll-time memory and jank spiral.
+    if (next == state.itemPosition) return;
+    state = state.copyWith(itemPosition: next);
   }
 
   /// Steps the page by [delta], clamped to the available range.

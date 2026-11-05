@@ -153,39 +153,38 @@ class _PagedPages extends HookConsumerWidget {
         // no further, never the neighbouring one.
         contentSize: (viewport) => viewport,
         onViewMoved: onViewMoved,
-        builder: (context, zoom) => GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          // Always installed: the centre tap is how the HUD is dismissed and
-          // summoned, so it must work even when edge paging is switched off.
-          onTapUp: (details) => _onTap(context, details.localPosition, onStep),
-          child: PageView.builder(
-            reverse: reverse,
-            controller: pageController,
-            // Swiping pages is a one-finger gesture, so it belongs to the page
-            // view until the reader zooms in; from then on the same drag pans
-            // the magnified page instead of turning it.
-            physics: zoom.scrollingEnabled
-                ? null
-                : const NeverScrollableScrollPhysics(),
-            itemCount: urls.length,
-            itemBuilder: (context, index) => zoom.wrap(
-              MangaImage(
-                imageUrl: urls[index],
-                fit: switch (state.fitMode) {
-                  MangaFitMode.fitWidth => .fitWidth,
-                  MangaFitMode.fitHeight => .fitHeight,
-                  MangaFitMode.original => .none,
-                },
-                invertColors: state.invertColors,
-              ),
+        // Always installed: the centre tap is how the HUD is dismissed and
+        // summoned, so it must work even when edge paging is switched off.
+        // Living on the zoom surface (not a wrapper here) lets it tell a tap
+        // from the surface's own double-tap zoom.
+        onTapUp: (position) => _onTap(context, position, onStep),
+        builder: (context, zoom) => PageView.builder(
+          reverse: reverse,
+          controller: pageController,
+          // Swiping pages is a one-finger gesture, so it belongs to the page
+          // view until the reader zooms in; from then on the same drag pans
+          // the magnified page instead of turning it.
+          physics: zoom.scrollingEnabled
+              ? null
+              : const NeverScrollableScrollPhysics(),
+          itemCount: urls.length,
+          itemBuilder: (context, index) => zoom.wrap(
+            MangaImage(
+              imageUrl: urls[index],
+              fit: switch (state.fitMode) {
+                MangaFitMode.fitWidth => .fitWidth,
+                MangaFitMode.fitHeight => .fitHeight,
+                MangaFitMode.original => .none,
+              },
+              invertColors: state.invertColors,
             ),
-            onPageChanged: (index) {
-              onPageChanged(index);
-              // A new page starts unzoomed: leaving the magnification behind
-              // would mean stepping into a cropped fragment of it.
-              pageZoom.reset();
-            },
           ),
+          onPageChanged: (index) {
+            onPageChanged(index);
+            // A new page starts unzoomed: leaving the magnification behind
+            // would mean stepping into a cropped fragment of it.
+            pageZoom.reset();
+          },
         ),
       ),
     );

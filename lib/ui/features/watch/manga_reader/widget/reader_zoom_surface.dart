@@ -73,11 +73,20 @@ class ReaderZoomController {
 /// pan that only moved the paint would walk the view off the window the list
 /// laid out and leave the screen black. The horizontal half stays in the
 /// transform, because a list has no sideways scroll.
+///
+/// A double tap toggles the magnification: from the fitted view it animates to
+/// [ReaderZoomSurface.doubleTapScale] around the tapped point — whose content
+/// stays under the finger — and from any magnified view it animates straight
+/// back to 1x. Tap and double tap share the framework's own disambiguation, so
+/// a single tap resolves only once the double-tap window has closed (the same
+/// bargain every reader offering both makes), while a double tap never leaks
+/// the single-tap action.
 class ReaderZoomSurface extends StatefulWidget {
   const ReaderZoomSurface({
     super.key,
     required this.builder,
-    this.onTap,
+    this.onTapUp,
+    this.doubleTapScale = 2.5,
     this.onScaleChanged,
     this.minScale = 1,
     this.maxScale = 4,
@@ -94,8 +103,13 @@ class ReaderZoomSurface extends StatefulWidget {
   /// [ReaderZoom.scrollingEnabled] to decide the scrollable's physics.
   final Widget Function(BuildContext context, ReaderZoom zoom) builder;
 
-  /// Fired on a tap that was not a drag, so the reader can toggle its HUD.
-  final VoidCallback? onTap;
+  /// Fired on a tap that was not a drag, with the tap's position in the
+  /// surface's own coordinates, so the reader can apply its tap zones.
+  final ValueChanged<Offset>? onTapUp;
+
+  /// Scale a double tap toggles to, clamped into [minScale]..[maxScale]. A
+  /// second double tap always returns to [minScale] with no translation.
+  final double doubleTapScale;
 
   /// Reports the live scale, for tests and for any dependent UI.
   final ValueChanged<double>? onScaleChanged;
@@ -153,7 +167,7 @@ class ReaderZoomSurface extends StatefulWidget {
 }
 
 class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   /// Live pointers, oldest first. Only the first two take part in a gesture.
   final Map<int, Offset> _pointers = {};
 
@@ -193,6 +207,24 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
   /// scroll of the same speed would.
   VelocityTracker? _panVelocity;
 
+  /// Drives the animated half of the double-tap zoom, so the view glides
+  /// between the fitted and the magnified state instead of jumping.
+  late final AnimationController _zoomAnim = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 200),
+  )..addListener(_stepZoomAnim);
+
+  /// Endpoints of the running zoom animation, captured when it starts so a
+  /// touch that interrupts it continues from wherever it had reached.
+  double _zoomFromScale = 1;
+  Offset _zoomFromTranslate = Offset.zero;
+  double _zoomToScale = 1;
+  Offset _zoomToTranslate = Offset.zero;
+
+  /// Where a confirmed double tap wants its zoom, captured on the second
+  /// tap's down and spent by its up; a cancelled second tap clears it.
+  Offset? _doubleTapFocal;
+
   double get _minScale => widget.minScale;
 
   bool get _zoomed => _scale > _minScale;
@@ -213,6 +245,7 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
   }
 
   void _reset() {
+    _stopZoomAnim();
     if (!_zoomed && _translate == Offset.zero) return;
     setState(() {
       _scale = widget.minScale;
@@ -244,8 +277,25 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
           onPointerMove: _onPointerMove,
           onPointerUp: _onPointerUp,
           onPointerCancel: _onPointerUp,
-          child: _TapWrapper(
-            onTap: widget.onTap,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTapUp: widget.onTapUp == null
+                ? null
+                : (details) => widget.onTapUp!(details.localPosition),
+            // The focal is captured on the second tap's down but the zoom only
+            // starts on its up: the recognizer's callbacks are dispatched
+            // before this Listener's own, so a zoom started on the down would
+            // be killed by _onPointerDown's animation stop the same instant.
+            onDoubleTapDown: (details) {
+              _stopFling();
+              _doubleTapFocal = details.localPosition;
+            },
+            onDoubleTapCancel: () => _doubleTapFocal = null,
+            onDoubleTap: () {
+              final focal = _doubleTapFocal;
+              _doubleTapFocal = null;
+              if (focal != null) _handleDoubleTap(focal);
+            },
             child: widget.builder(context, zoom),
           ),
         );
@@ -323,14 +373,12 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
     // A touch means the reader is driving now. Any coast still running has to
     // stop: it would otherwise fight the pan for every move, and — because the
     // fling controller is still animating — the *next* flick would find it busy
-    // and be given no inertia at all. That is what made a second scroll in a
-    // row stop dead where the first one coasted.
-    // A touch means the reader is driving now. Any coast still running has to
-    // stop: it would otherwise fight the pan for every move, and — because the
-    // fling controller is still animating — the *next* flick would find it busy
     // and be given no inertia of its own. That is what made a scroll after a
-    // coast stop dead where the first one sailed.
+    // coast stop dead where the first one sailed. The zoom animation is
+    // interrupted the same way: the gesture re-bases from wherever the view
+    // had reached.
     _stopFling();
+    _stopZoomAnim();
     _rebase();
     // The second finger pins the scrollable, so the physics have to change
     // before the gesture can move anything.
@@ -444,28 +492,58 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
     if (delta != 0) widget.onVerticalScroll?.call(delta);
   }
 
+  /// The double-tap toggle: a magnified view is given back whole, and a fitted
+  /// one is magnified around the tapped point, whose content stays under the
+  /// finger while the view grows.
+  void _handleDoubleTap(Offset focal) {
+    _stopFling();
+    _stopZoomAnim();
+    if (_zoomed) {
+      _animateZoom(_minScale, Offset.zero);
+      return;
+    }
+    final target = widget.doubleTapScale.clamp(_minScale, widget.maxScale);
+    // Painted position = content * scale + translate, so rebuilding the
+    // translation for [target] from the content currently under the tap keeps
+    // that content painting under it. The y origin is expressed against the
+    // scrollable's offset, exactly like the gesture-derived one.
+    final content = (focal - _translate) / _scale;
+    final origin = Offset(
+      content.dx - focal.dx / target,
+      _offset + content.dy - focal.dy / target,
+    );
+    _animateZoom(target, _translationFor(target, origin));
+  }
+
+  void _animateZoom(double scale, Offset translate) {
+    _zoomFromScale = _scale;
+    _zoomFromTranslate = _translate;
+    _zoomToScale = scale;
+    _zoomToTranslate = translate;
+    _zoomAnim.forward(from: 0);
+  }
+
+  void _stepZoomAnim() {
+    final t = Curves.easeOutCubic.transform(_zoomAnim.value);
+    final nextScale = _zoomFromScale + (_zoomToScale - _zoomFromScale) * t;
+    final nextTranslate = Offset.lerp(_zoomFromTranslate, _zoomToTranslate, t)!;
+    if (nextScale == _scale && nextTranslate == _translate) return;
+    setState(() {
+      _scale = nextScale;
+      _translate = nextTranslate;
+    });
+    widget.onScaleChanged?.call(_scale);
+  }
+
+  void _stopZoomAnim() {
+    if (_zoomAnim.isAnimating) _zoomAnim.stop();
+  }
+
   @override
   void dispose() {
     _fling.dispose();
+    _zoomAnim.dispose();
     widget.controller?._reset = null;
     super.dispose();
-  }
-}
-
-/// A tap (rather than a drag) on the page.
-class _TapWrapper extends StatelessWidget {
-  const _TapWrapper({required this.child, this.onTap});
-
-  final Widget child;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    if (onTap == null) return child;
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTapUp: (_) => onTap!(),
-      child: child,
-    );
   }
 }

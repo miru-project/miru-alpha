@@ -28,7 +28,7 @@ void main() {
 
   /// [longStrip] makes the chapter long enough that a coast is never clipped by
   /// the end of the list, so a test measures inertia and not the boundary.
-  Widget subject({bool longStrip = false}) {
+  Widget subject({bool longStrip = false, VoidCallback? onTap}) {
     final items = longStrip ? 60 : 10;
     return MaterialApp(
       home: Scaffold(
@@ -43,6 +43,7 @@ void main() {
             itemScrollController: itemController,
             maxScale: 4,
             onScaleChanged: scales.add,
+            onTap: onTap,
             itemBuilder: (context, index) =>
                 SizedBox(height: 400, child: Text('page $index')),
           ),
@@ -60,6 +61,14 @@ void main() {
         .map((transform) => transform.transform.getMaxScaleOnAxis())
         .reduce(math.max);
   }
+
+  /// Closes the double-tap recognizer's disambiguation window (300 ms) and the
+  /// per-pointer minimum-spacing timer (40 ms) it arms on every pointer down.
+  /// A gesture test that ends while either is pending fails the binding's
+  /// pending-timer audit, and a tap landing inside the window reads as the
+  /// second tap of a double tap.
+  Future<void> closeTapWindow(WidgetTester tester) =>
+      tester.pump(const Duration(milliseconds: 350));
 
   group('scrolling', () {
     testWidgets('a one-finger drag scrolls the list', (tester) async {
@@ -115,6 +124,7 @@ void main() {
       // 100px apart -> 200px apart is 2x.
       await left.moveTo(const Offset(50, 200));
       await tester.pump();
+      await closeTapWindow(tester);
 
       expect(currentScale(tester), closeTo(2, 0.01));
       expect(scales.last, closeTo(2, 0.01));
@@ -231,6 +241,7 @@ void main() {
 
       // Zooming is paint-only: the list is neither jumped nor remounted, so the
       // position that gets recorded is the position the reader was left at.
+      await closeTapWindow(tester);
       expect(currentScale(tester), greaterThan(1));
       expect(offsetController.offset, closeTo(before, 0.5));
       expect(
@@ -296,6 +307,7 @@ void main() {
       await left.moveTo(const Offset(50, 200));
       await right.moveTo(const Offset(250, 200));
       await tester.pump();
+      await closeTapWindow(tester);
 
       final expected =
           const Offset(150, 200) - (const Offset(150, 300) - markerStart) * 2;
@@ -587,6 +599,7 @@ void main() {
       // 10px apart -> 200px apart is 20x, far past the 4x ceiling.
       await left.moveTo(const Offset(5, 200));
       await tester.pump();
+      await closeTapWindow(tester);
 
       expect(scales.last, 4);
       expect(currentScale(tester), 4);
@@ -613,6 +626,9 @@ void main() {
       await right.up();
       await left.up();
       await tester.pumpAndSettle();
+      // The stationary finger armed the double-tap window; close it before the
+      // next touch, or that touch reads as its second tap.
+      await closeTapWindow(tester);
 
       final scale = currentScale(tester);
       expect(scale, greaterThan(1));
@@ -650,6 +666,7 @@ void main() {
       await out.up();
       await tester.pumpAndSettle();
       expect(currentScale(tester), closeTo(1, 0.01));
+      await closeTapWindow(tester);
 
       await tester.drag(find.byType(WebtoonZoomSurface), const Offset(0, -200));
       await tester.pumpAndSettle();
@@ -682,11 +699,62 @@ void main() {
       await tester.pump();
 
       await tester.tapAt(const Offset(200, 200));
-      await tester.pumpAndSettle();
+      // A single tap resolves only once the double-tap window has closed, and
+      // no frame is scheduled meanwhile, so pumpAndSettle would not wait.
+      await tester.pump(const Duration(milliseconds: 350));
 
       expect(taps, 1);
       expect(offsetController.offset, 0);
       expect(scales, isEmpty);
+    });
+  });
+
+  group('double-tap zoom', () {
+    /// Two taps close enough together to read as a double tap.
+    Future<void> doubleTap(WidgetTester tester, Offset at) async {
+      await tester.tapAt(at);
+      await tester.pump(const Duration(milliseconds: 60));
+      await tester.tapAt(at + const Offset(5, 5));
+    }
+
+    testWidgets('a double tap zooms the strip and never fires the tap', (
+      tester,
+    ) async {
+      var taps = 0;
+      await tester.pumpWidget(subject(onTap: () => taps++));
+      await tester.pump();
+
+      await doubleTap(tester, const Offset(200, 200));
+      await tester.pumpAndSettle();
+
+      expect(taps, 0, reason: 'a double tap is not two taps');
+      expect(currentScale(tester), closeTo(2.5, 0.01));
+      expect(scales.last, closeTo(2.5, 0.01));
+
+      // The next tap pair starts a fresh disambiguation cycle.
+      await tester.pump(const Duration(milliseconds: 300));
+      await doubleTap(tester, const Offset(200, 200));
+      await tester.pumpAndSettle();
+
+      expect(taps, 0);
+      expect(currentScale(tester), closeTo(1, 0.01));
+      // The zoom never moves the list's own offset: the vertical lives in the
+      // paint translation, and zooming out hands it straight back.
+      expect(offsetController.offset, 0);
+    });
+
+    testWidgets('a single tap still fires once the window closes', (
+      tester,
+    ) async {
+      var taps = 0;
+      await tester.pumpWidget(subject(onTap: () => taps++));
+      await tester.pump();
+
+      await tester.tapAt(const Offset(200, 200));
+      await tester.pump(const Duration(milliseconds: 350));
+
+      expect(taps, 1);
+      expect(currentScale(tester), 1);
     });
   });
 }

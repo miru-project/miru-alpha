@@ -93,7 +93,12 @@ class WatchVideoViewport extends ConsumerWidget {
           // video surface
           Consumer(
             builder: (context, ref, _) {
-              final ratio = ref.watch(vidPr.select((s) => s.ratio));
+              // (ratio, playbackEpoch): the epoch rebinds the VideoPlayer to
+              // the fresh controller after a quality/mirror swap even when
+              // the new stream's aspect ratio is unchanged.
+              final (ratio, _) = ref.watch(
+                vidPr.select((s) => (s.ratio, s.playbackEpoch)),
+              );
               return Center(
                 child: AspectRatio(
                   aspectRatio: ratio == 0 ? 16 / 9 : ratio,
