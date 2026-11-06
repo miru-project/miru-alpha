@@ -3,9 +3,14 @@
 #
 # Implements the release flow end to end, driven by ONE tag:
 #   tag (pushed by dev) -> regenerate CHANGELOG.md (git-cliff) ->
-#   set pubspec.yaml -> commit "chore(release): <tag>" ->
+#   set pubspec.yaml -> commit "chore(release): <tag> [skip ci]" ->
 #   move the tag onto that commit (delete + re-tag, message preserved) ->
 #   (optional) push the moved tag.
+#
+# The commit carries [skip ci] and the script no-ops when the tag already
+# points at a release commit, so the re-created tag cannot re-trigger the
+# release workflow into a loop. Android versionCode is derived at build
+# time (--build-number from git history), never from the version string.
 #
 # The script is deliberately push-free by default so it can be rehearsed
 # locally; pass --push only from CI (release_alpha.yml prepare job).
@@ -66,6 +71,23 @@ fi
 VERSION="${TAG#v}"
 VERSION="${VERSION%%+*}"
 
+# Idempotency guard: pushing the moved tag re-fires the tag-triggered
+# workflow; that run must be a no-op. A tag pointing at a chore(release)
+# commit means this release was already prepared.
+tag_subject="$(git log -1 --format=%s "refs/tags/$TAG")"
+if [[ $tag_subject == 'chore(release):'* ]]; then
+  echo "tag $TAG already points at a release commit; nothing to do"
+  if [[ -n $OUTPUT_FILE ]]; then
+    {
+      echo "already_released=true"
+      echo "version=$VERSION"
+      echo "tag=$TAG"
+      echo "release_sha=$(git rev-parse "refs/tags/$TAG^{commit}")"
+    } >>"$OUTPUT_FILE"
+  fi
+  exit 0
+fi
+
 # Previous version tag: newest tag that is NOT this tag and NOT on HEAD
 # (re-tagging the same commit must not empty the diff range).
 excludes=(--exclude "$TAG")
@@ -85,7 +107,7 @@ if [[ $DRY_RUN -eq 1 ]]; then
   echo "--- version: $VERSION (prev: ${PREV_TAG:-none})"
   echo "--- would regenerate $CONFIG output into CHANGELOG.md"
   echo "--- would set pubspec.yaml version: $VERSION"
-  echo "--- would commit: chore(release): $TAG"
+  echo "--- would commit: chore(release): $TAG [skip ci]"
   echo "--- would move tag $TAG to that commit, keeping its message:"
   printf '%s\n' "$TAG_MSG"
   [[ $PUSH -eq 0 ]] || echo "--- would push :refs/tags/$TAG then refs/tags/$TAG"
@@ -100,7 +122,7 @@ bash tool/pubspec_from_tag.sh "$TAG"
 
 # 3. Release body = just this release's section, without the leading blank.
 if [[ -n $BODY_FILE ]]; then
-  git-cliff --config "$CONFIG" --tag "$TAG" --strip all 2>/dev/null \
+  git-cliff --config "$CONFIG" --tag "$TAG" --strip header 2>/dev/null \
     | sed '/./,$!d' >"$BODY_FILE"
   echo "release body written: $BODY_FILE"
 fi
@@ -112,16 +134,16 @@ if git diff --cached --quiet; then
   echo "nothing to commit; releasing current HEAD"
 else
   if [[ -n "$(git config user.name)" && -n "$(git config user.email)" ]]; then
-    git commit -m "chore(release): $TAG" -- pubspec.yaml CHANGELOG.md
+    git commit -m "chore(release): $TAG [skip ci]" -- pubspec.yaml CHANGELOG.md
   else
     # CI runners have no git identity configured.
     GIT_AUTHOR_NAME="miru-release-bot" \
     GIT_AUTHOR_EMAIL="miru-release-bot@users.noreply.github.com" \
     GIT_COMMITTER_NAME="miru-release-bot" \
     GIT_COMMITTER_EMAIL="miru-release-bot@users.noreply.github.com" \
-    git commit -m "chore(release): $TAG" -- pubspec.yaml CHANGELOG.md
+    git commit -m "chore(release): $TAG [skip ci]" -- pubspec.yaml CHANGELOG.md
   fi
-  echo "committed: chore(release): $TAG"
+  echo "committed: chore(release): $TAG [skip ci]"
 fi
 RELEASE_SHA="$(git rev-parse HEAD)"
 

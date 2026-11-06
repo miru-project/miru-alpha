@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: alpha-release-${{ github.ref_name }}
+  cancel-in-progress: false
+
 env:
   FLUTTER_VERSION: "3.47.7"
   GO_VERSION: "1.27.3"
@@ -16,7 +20,7 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.set.outputs.version }}
+      already_released: ${{ steps.prep.outputs.already_released }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,20 +32,24 @@ jobs:
         with:
           tool: git-cliff
 
-      - name: Set pubspec version from tag
-        id: set
-        run: |
-          bash tool/pubspec_from_tag.sh
-          echo "version=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml | head -1)" >> "$GITHUB_OUTPUT"
-
-      - name: Generate release message with git-cliff
-        run: |
-          git-cliff --tag "${GITHUB_REF_NAME}" --strip header > release_body.md || bash tool/release_body.sh > release_body.md
+      # One call runs the whole flow: regenerate CHANGELOG.md (git-cliff),
+      # set pubspec from the tag, commit "chore(release): <tag> [skip ci]",
+      # move the tag onto that commit and push it. If the tag already points
+      # at a release commit (the re-created tag re-fired this workflow), it
+      # exits as a no-op and every later job is skipped.
+      - name: Prepare release (changelog, pubspec, commit, retag, push)
+        id: prep
+        run: >
+          bash tool/release_prepare.sh --push
+          --body-file release_body.md
+          --output "$GITHUB_OUTPUT"
 
       - name: Show release message
+        if: steps.prep.outputs.already_released != 'true'
         run: cat release_body.md
 
       - name: Create release
+        if: steps.prep.outputs.already_released != 'true'
         uses: ncipollo/release-action@v1
         with:
           bodyFile: release_body.md
@@ -50,6 +58,7 @@ jobs:
 
   build-and-release-android:
     needs: prepare
+    if: needs.prepare.outputs.already_released != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -78,8 +87,15 @@ jobs:
 
       - run: flutter pub get
 
+      # Android versionCode: invisible monotonic integer derived from git
+      # history, never part of the version string (tags carry no +N).
+      # +100000 keeps it above the legacy +100002-era versionCodes.
+      - name: Derive Android versionCode
+        id: vcode
+        run: echo "code=$((100000 + $(git rev-list --count HEAD)))" >> "$GITHUB_OUTPUT"
+
       - name: Collect Apks
-        run: flutter build apk --release --split-per-abi --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
+        run: flutter build apk --release --split-per-abi --build-number=${{ steps.vcode.outputs.code }} --dart-define=TMDB_API_KEY=${{ secrets.TMDB_API_KEY }} --dart-define=TMDB_ACCESS_TOKEN=${{ secrets.TMDB_ACCESS_TOKEN }}
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -94,6 +110,7 @@ jobs:
 
   build-and-release-windows:
     needs: prepare
+    if: needs.prepare.outputs.already_released != 'true'
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -135,6 +152,7 @@ jobs:
 
   build-and-release-linux:
     needs: prepare
+    if: needs.prepare.outputs.already_released != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
