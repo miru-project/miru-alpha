@@ -72,7 +72,11 @@ class ReaderZoomController {
 /// scrollable through [onVerticalScroll] — a transform cannot build content, so a
 /// pan that only moved the paint would walk the view off the window the list
 /// laid out and leave the screen black. The horizontal half stays in the
-/// transform, because a list has no sideways scroll.
+/// transform, because a list has no sideways scroll — and on release it keeps
+/// the drag's velocity on the platform's own deceleration, coasting and
+/// settling like the vertical does instead of stopping dead. At the content's
+/// horizontal edges the coast is hard-clipped: it loses its velocity at the
+/// bound rather than overshooting past it and springing back.
 ///
 /// A double tap toggles the magnification: from the fitted view it animates to
 /// [ReaderZoomSurface.doubleTapScale] around the tapped point — whose content
@@ -201,6 +205,23 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
 
   /// Position the last fling tick was applied at.
   double _flingPosition = 0;
+
+  /// The horizontal half of the same coast: a flick sideways leaves the
+  /// transform with the drag's velocity, decelerating on the platform's own
+  /// curve exactly like the vertical does, instead of stopping dead the
+  /// moment the finger does.
+  late final AnimationController _hFling = AnimationController.unbounded(
+    vsync: this,
+  )..addListener(_stepHFling);
+
+  /// Content-space view-origin x the horizontal coast was last applied at.
+  double _hFlingPosition = 0;
+
+  /// Far edge the running horizontal coast is clipped to, the same value the
+  /// simulation was given. The step clamps to it: the coast loses its velocity
+  /// at the bound instead of overshooting into the black beyond the content
+  /// and springing back.
+  double _hFlingTrailingExtent = 0;
 
   /// Pan velocity for the current gesture, tracked exactly the way the
   /// framework tracks a drag — so a flick carries the momentum an ordinary
@@ -424,6 +445,11 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
         return;
       }
       _translate = _translationFor(scale, origin);
+      // The paged path pans in the transform alone; its release velocity is
+      // tracked the same way the scrollable path's is, so a sideways flick
+      // coasts here too. During a pinch the pointer speed is the fingers',
+      // not the view's — it must not become a fling.
+      if (!pinching) _trackPanVelocity(event);
       widget.onViewMoved?.call();
     });
   }
@@ -447,18 +473,23 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
 
   /// Continues a magnified pan with the platform's own friction, so a flick
   /// through a zoomed strip settles like an ordinary scroll instead of stopping
-  /// dead the moment the finger does.
+  /// dead the moment the finger does — on both axes: the vertical hands its
+  /// coast to the inner scrollable, the horizontal keeps it in the transform.
   void _startFling() {
+    final velocity = _panVelocity?.getVelocity().pixelsPerSecond;
+    _panVelocity = null;
+    if (velocity == null) return;
+    _startVerticalFling(velocity.dy);
+    _startHorizontalFling(velocity.dx);
+  }
+
+  void _startVerticalFling(double pointerDy) {
     final scroll = widget.onVerticalScroll;
+    if (scroll == null || _fling.isAnimating) return;
     // A finger travelling up (negative dy) scrolls forward, which is a positive
     // content velocity — the opposite sign to the pointer's own.
-    final velocity = _panVelocity == null
-        ? null
-        : -_panVelocity!.getVelocity().pixelsPerSecond.dy / _scale;
-    _panVelocity = null;
-    if (scroll == null || velocity == null || _fling.isAnimating) return;
-    // Divided by the scale above: a 2000 px/s flick of a page magnified 3x is
-    // ~660 px/s of content. Below this it is a drag, not a flick.
+    final velocity = -pointerDy / _scale;
+    // Below this it is a drag, not a flick.
     if (velocity.abs() < 120) return;
     _flingPosition = _offset;
     _fling.value = _flingPosition;
@@ -480,8 +511,42 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
     );
   }
 
+  void _startHorizontalFling(double pointerDx) {
+    if (_hFling.isAnimating) return;
+    // Same sign convention as the vertical: the view origin moves against the
+    // finger, so the content keeps travelling the way the drag was heading.
+    final velocity = -pointerDx / _scale;
+    if (velocity.abs() < 120) return;
+    final content = widget.contentSize?.call(_viewport);
+    _hFlingPosition = _viewOrigin.dx;
+    _hFlingTrailingExtent = content == null
+        ? double.infinity
+        : (content.width - _viewport.width / _scale).clamp(
+            0.0,
+            double.infinity,
+          );
+    _hFling.value = _hFlingPosition;
+    _hFling.animateWith(
+      BouncingScrollSimulation(
+        spring: SpringDescription.withDampingRatio(
+          mass: 0.5,
+          stiffness: 100,
+          ratio: 1.1,
+        ),
+        position: _hFlingPosition,
+        velocity: velocity,
+        leadingExtent: 0,
+        // Hard-clipped in _stepHFling at this edge: the coast stops dead at
+        // the bound rather than overshooting and springing back.
+        trailingExtent: _hFlingTrailingExtent,
+        tolerance: Tolerance.defaultTolerance,
+      ),
+    );
+  }
+
   void _stopFling() {
     if (_fling.isAnimating) _fling.stop();
+    if (_hFling.isAnimating) _hFling.stop();
     _panVelocity = null;
   }
 
@@ -490,6 +555,23 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
     final delta = next - _flingPosition;
     _flingPosition = next;
     if (delta != 0) widget.onVerticalScroll?.call(delta);
+  }
+
+  void _stepHFling() {
+    var next = _hFling.value;
+    // Hard clip: outside the content the coast loses its velocity — the view
+    // freezes at the bound instead of painting the black beyond it and
+    // springing back. Leading edge and far edge, symmetrically.
+    final clipped = next.clamp(0.0, _hFlingTrailingExtent);
+    if (clipped != next) {
+      _hFling.stop();
+      next = clipped;
+    }
+    if (next == _hFlingPosition) return;
+    _hFlingPosition = next;
+    setState(() {
+      _translate = Offset(-_scale * next, _translate.dy);
+    });
   }
 
   /// The double-tap toggle: a magnified view is given back whole, and a fitted
@@ -542,6 +624,7 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
   @override
   void dispose() {
     _fling.dispose();
+    _hFling.dispose();
     _zoomAnim.dispose();
     widget.controller?._reset = null;
     super.dispose();

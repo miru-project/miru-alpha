@@ -192,6 +192,258 @@ void main() {
     expect(translate.dy, closeTo(-600, 1));
   });
 
+  testWidgets("a magnified pan's horizontal velocity coasts like a scroll", (
+    tester,
+  ) async {
+    const markerKey = ValueKey('page');
+    await tester.pumpWidget(
+      subject(
+        contentSize: (viewport) => viewport,
+        scrollable: const Center(
+          child: SizedBox(key: markerKey, width: 400, height: 600),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    // Zoom to 2x with a horizontal-only pinch.
+    final a = await tester.startGesture(const Offset(150, 300), pointer: 1);
+    final b = await tester.startGesture(const Offset(250, 300), pointer: 2);
+    await tester.pump();
+    await a.moveTo(const Offset(50, 300));
+    await tester.pump();
+    await a.up();
+    await b.up();
+    await tester.pumpAndSettle();
+    expect(scale, closeTo(2, 0.01));
+
+    // Drag left and let go mid-flick. The moves carry real timestamps and come
+    // in threes, because the framework's velocity estimator needs a few
+    // samples, exactly as it does for an ordinary drag. The pinch itself pans
+    // the view (its focal moved), leaving ~75 content px of slack on this
+    // side; the drag stays inside it so the flick has room to coast.
+    final gesture = await tester.startGesture(const Offset(200, 300));
+    await gesture.moveBy(
+      const Offset(-20, 0),
+      timeStamp: const Duration(milliseconds: 8),
+    );
+    await gesture.moveBy(
+      const Offset(-20, 0),
+      timeStamp: const Duration(milliseconds: 16),
+    );
+    await gesture.moveBy(
+      const Offset(-50, 0),
+      timeStamp: const Duration(milliseconds: 24),
+    );
+    await tester.pump(const Duration(milliseconds: 16));
+    final atRelease = translate;
+    await gesture.up();
+    // The ticker's first tick lands with no elapsed time; the coast moves
+    // from the second frame on.
+    await tester.pump(const Duration(milliseconds: 16));
+    await tester.pump(const Duration(milliseconds: 16));
+
+    // The release velocity carries: the page keeps travelling the way the
+    // drag was heading instead of stopping dead under the finger.
+    expect(translate.dx, lessThan(atRelease.dx));
+
+    await tester.pumpAndSettle(const Duration(milliseconds: 16));
+    // At rest, against the content's far edge: 2x on a 400px page leaves 200
+    // content px of slack, which is 400 painted pixels.
+    final settled = translate;
+    expect(settled.dx, closeTo(-400, 1));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(translate.dx, closeTo(settled.dx, 0.5));
+  });
+
+  testWidgets('the horizontal coast hard-clips at the content edges', (
+    tester,
+  ) async {
+    const markerKey = ValueKey('page');
+    await tester.pumpWidget(
+      subject(
+        contentSize: (viewport) => viewport,
+        scrollable: const Center(
+          child: SizedBox(key: markerKey, width: 400, height: 600),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    // Zoom to 2x with a horizontal-only pinch.
+    final a = await tester.startGesture(const Offset(150, 300), pointer: 1);
+    final b = await tester.startGesture(const Offset(250, 300), pointer: 2);
+    await tester.pump();
+    await a.moveTo(const Offset(50, 300));
+    await tester.pump();
+    await a.up();
+    await b.up();
+    await tester.pumpAndSettle();
+
+    // A hot flick released while the view already sits against the far edge:
+    // the drag was clamped there, so the coast starts with nothing but the
+    // finger's velocity pointing out of the content.
+    final gesture = await tester.startGesture(const Offset(200, 300));
+    await gesture.moveBy(
+      const Offset(-20, 0),
+      timeStamp: const Duration(milliseconds: 8),
+    );
+    await gesture.moveBy(
+      const Offset(-20, 0),
+      timeStamp: const Duration(milliseconds: 16),
+    );
+    await gesture.moveBy(
+      const Offset(-3000, 0),
+      timeStamp: const Duration(milliseconds: 24),
+    );
+    await tester.pump(const Duration(milliseconds: 16));
+    await gesture.up();
+
+    // Sample every coast frame: the view must never paint past the content's
+    // edge — no black strip beyond it — and must not spring back; the coast
+    // loses its velocity at the bound.
+    var worst = 0.0;
+    for (var i = 0; i < 12; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+      worst = math.min(worst, translate.dx);
+    }
+    expect(worst, greaterThan(-400.5));
+
+    await tester.pumpAndSettle(const Duration(milliseconds: 16));
+    // At rest exactly against the content's far edge: 400 painted px at 2x.
+    expect(translate.dx, closeTo(-400, 1));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(translate.dx, closeTo(-400, 0.5));
+
+    // The leading edge, symmetric: a hot rightward flick released against it
+    // cannot paint past it either.
+    final back = await tester.startGesture(const Offset(200, 300));
+    await back.moveBy(
+      const Offset(20, 0),
+      timeStamp: const Duration(milliseconds: 8),
+    );
+    await back.moveBy(
+      const Offset(20, 0),
+      timeStamp: const Duration(milliseconds: 16),
+    );
+    await back.moveBy(
+      const Offset(3000, 0),
+      timeStamp: const Duration(milliseconds: 24),
+    );
+    await tester.pump(const Duration(milliseconds: 16));
+    await back.up();
+    var best = 0.0;
+    for (var i = 0; i < 12; i++) {
+      await tester.pump(const Duration(milliseconds: 16));
+      best = math.max(best, translate.dx);
+    }
+    expect(best, lessThan(0.5));
+    await tester.pumpAndSettle(const Duration(milliseconds: 16));
+    expect(translate.dx, closeTo(0, 1));
+  });
+
+  testWidgets('a touch stops the horizontal coast and pans from there', (
+    tester,
+  ) async {
+    const markerKey = ValueKey('page');
+    await tester.pumpWidget(
+      subject(
+        contentSize: (viewport) => viewport,
+        scrollable: const Center(
+          child: SizedBox(key: markerKey, width: 400, height: 600),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final a = await tester.startGesture(const Offset(150, 300), pointer: 1);
+    final b = await tester.startGesture(const Offset(250, 300), pointer: 2);
+    await tester.pump();
+    await a.moveTo(const Offset(50, 300));
+    await tester.pump();
+    await a.up();
+    await b.up();
+    await tester.pumpAndSettle();
+
+    // Flick right and let the coast start. A gentle flick keeps the coast
+    // short and in-range, so the follow-up pan cannot clamp.
+    final gesture = await tester.startGesture(const Offset(200, 300));
+    await gesture.moveBy(
+      const Offset(8, 0),
+      timeStamp: const Duration(milliseconds: 8),
+    );
+    await gesture.moveBy(
+      const Offset(8, 0),
+      timeStamp: const Duration(milliseconds: 16),
+    );
+    await gesture.moveBy(
+      const Offset(20, 0),
+      timeStamp: const Duration(milliseconds: 24),
+    );
+    await tester.pump(const Duration(milliseconds: 16));
+    await gesture.up();
+    // The ticker's first tick lands with no elapsed time; the coast moves
+    // from the second frame on.
+    await tester.pump(const Duration(milliseconds: 16));
+    final coasting = translate;
+    await tester.pump(const Duration(milliseconds: 32));
+    // The coast runs on: the view keeps travelling after the finger lifted.
+    final coasted = translate;
+    expect(coasted.dx, greaterThan(coasting.dx));
+
+    // A touch takes the view over: the coast stops...
+    final hand = await tester.startGesture(const Offset(200, 300));
+    await tester.pump(const Duration(milliseconds: 16));
+    await tester.pump(const Duration(milliseconds: 16));
+    final stopped = translate;
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(translate.dx, closeTo(stopped.dx, 0.5));
+
+    // ...and the pan continues 1:1 from wherever the coast had reached.
+    await hand.moveBy(const Offset(20, 0));
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(translate.dx, closeTo(stopped.dx + 20, 0.5));
+    await hand.up();
+    await tester.pumpAndSettle(const Duration(milliseconds: 16));
+  });
+
+  testWidgets('a slow magnified pan stops where the finger lifted', (
+    tester,
+  ) async {
+    const markerKey = ValueKey('page');
+    await tester.pumpWidget(
+      subject(
+        contentSize: (viewport) => viewport,
+        scrollable: const Center(
+          child: SizedBox(key: markerKey, width: 400, height: 600),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final a = await tester.startGesture(const Offset(150, 300), pointer: 1);
+    final b = await tester.startGesture(const Offset(250, 300), pointer: 2);
+    await tester.pump();
+    await a.moveTo(const Offset(50, 300));
+    await tester.pump();
+    await a.up();
+    await b.up();
+    await tester.pumpAndSettle();
+
+    // A drag without timestamps carries no velocity the tracker can see —
+    // below the flick threshold the pan keeps the old contract and freezes.
+    final gesture = await tester.startGesture(const Offset(200, 300));
+    await gesture.moveBy(const Offset(-30, 0));
+    await gesture.moveBy(const Offset(-30, 0));
+    await tester.pump();
+    await closeTapWindow(tester);
+    final atRelease = translate;
+    await gesture.up();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(translate, atRelease);
+  });
+
   testWidgets('the controller gives a magnified view back to the reader', (
     tester,
   ) async {

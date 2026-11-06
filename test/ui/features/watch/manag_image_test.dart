@@ -12,6 +12,10 @@ import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/theme/miru_themes.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
 
+/// The shared diameter of the loading placeholder's two indicators: the
+/// indeterminate spinner and the determinate ring render at the same size.
+const _loadingIndicatorSize = 36.0;
+
 /// A valid 1x1 PNG, repeated so the body is a few KB and the stream carries
 /// more than one chunk.
 final Uint8List _pngBytes = () {
@@ -137,27 +141,76 @@ void main() {
     expect(box.width, 400);
     expect(box.height, 600);
     expect(find.byType(FCircularProgress), findsOneWidget);
+    // The spinner paints at the same diameter the determinate ring uses.
+    final spinnerBox = tester.getSize(
+      find.descendant(
+        of: find.byType(FCircularProgress),
+        matching: find.byType(CustomPaint),
+      ),
+    );
+    expect(spinnerBox.width, _loadingIndicatorSize);
+    expect(spinnerBox.height, _loadingIndicatorSize);
   });
 
-  testWidgets('a known progress shows the real percent and bar fill', (
+  testWidgets('a known progress shows the determinate ring without text', (
     tester,
   ) async {
     await tester.pumpWidget(
       _wrap(const SizedBox.expand(child: MobileMangaLoading(progress: 0.42))),
     );
 
-    expect(find.text('42%'), findsOneWidget);
-    expect(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is FractionallySizedBox &&
-            widget.widthFactor != null &&
-            (widget.widthFactor! - 0.42).abs() < 0.0001,
+    // The ring carries the real fraction: forui ships no determinate circular
+    // progress, so the placeholder paints one from forui's own tokens.
+    final paint = tester.widget<CustomPaint>(
+      find.descendant(
+        of: find.byType(MobileMangaLoading),
+        matching: find.byType(CustomPaint),
       ),
-      findsOneWidget,
     );
+    final ring = paint.painter! as dynamic;
+    expect(ring.progress, closeTo(0.42, 0.001));
+    // The ring occupies the same square the spinner does.
+    final ringBox = tester.getSize(
+      find.descendant(
+        of: find.byType(MobileMangaLoading),
+        matching: find.byType(CustomPaint),
+      ),
+    );
+    expect(ringBox.width, _loadingIndicatorSize);
+    expect(ringBox.height, _loadingIndicatorSize);
+    // No percent text: the ring is the whole indicator.
+    expect(find.textContaining('%'), findsNothing);
     // A real value replaces the spinner.
     expect(find.byType(FCircularProgress), findsNothing);
+  });
+
+  testWidgets('the spinner shares the ring style exactly', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        Column(
+          children: const [
+            Expanded(child: MobileMangaLoading()),
+            Expanded(child: MobileMangaLoading(progress: 0.42)),
+          ],
+        ),
+      ),
+    );
+
+    final paints = find.descendant(
+      of: find.byType(MobileMangaLoading),
+      matching: find.byType(CustomPaint),
+    );
+    expect(paints, findsNWidgets(2));
+    final spinner =
+        tester.widget<CustomPaint>(paints.first).painter! as dynamic;
+    final ring = tester.widget<CustomPaint>(paints.last).painter! as dynamic;
+
+    // Same painter and same tokens: track, fill and stroke are identical by
+    // construction, so the two states read as one indicator.
+    expect(spinner.runtimeType, ring.runtimeType);
+    expect(spinner.track, ring.track);
+    expect(spinner.fill, ring.fill);
+    expect(spinner.strokeWidth, ring.strokeWidth);
   });
 
   testWidgets('an unknown total keeps the indeterminate spinner', (

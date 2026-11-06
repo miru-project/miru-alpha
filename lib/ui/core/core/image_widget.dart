@@ -30,6 +30,7 @@ class ImageWidget extends StatelessWidget {
     this.fit,
     this.errChild = const Icon(FLucideIcons.cloudAlert),
     this.loadingChild = const Center(child: FCircularProgress()),
+    this.loadingProgressBuilder,
     this.borderRadius = 10,
     this.clipBehavior = Clip.antiAlias,
     this.retries = 1,
@@ -41,6 +42,21 @@ class ImageWidget extends StatelessWidget {
   final BoxFit? fit;
   final Widget errChild;
   final Widget loadingChild;
+
+  /// Builds the loading state from the live download progress, in place of
+  /// [loadingChild].
+  ///
+  /// The fraction is real: bytes received / total bytes from the image stream's
+  /// chunk events. It is null when the server did not report a total size, so
+  /// callers can fall back to an indeterminate indicator instead of a made-up
+  /// number. Enabling this installs a chunk listener on the image stream —
+  /// every chunk then rebuilds the loading child — which is why it is opt-in.
+  ///
+  /// Note the reader's pages go through the local core proxy, which currently
+  /// buffers the whole body before answering, so the events usually arrive as
+  /// one final 1.0 jump. The value stays real, and becomes granular the moment
+  /// a load streams (direct URLs, or the proxy streaming responses).
+  final Widget Function(double? progress)? loadingProgressBuilder;
   final double borderRadius;
   final Clip clipBehavior;
   final String title;
@@ -61,6 +77,7 @@ class ImageWidget extends StatelessWidget {
     this.height,
     this.fit,
     this.loadingChild = const Center(child: FCircularProgress()),
+    this.loadingProgressBuilder,
     this.borderRadius = 10,
     this.clipBehavior = Clip.antiAlias,
     this.retries = 1,
@@ -98,11 +115,22 @@ class ImageWidget extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
+      // Only listen for chunks when someone consumes them; the listener makes
+      // every chunk rebuild this widget.
+      handleLoadingProgress: loadingProgressBuilder != null,
       loadStateChanged: (ExtendedImageState state) {
         controller?._attach(state);
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
-            return loadingChild;
+            final builder = loadingProgressBuilder;
+            if (builder == null) return loadingChild;
+            final event = state.loadingProgress;
+            final expected = event?.expectedTotalBytes ?? 0;
+            return builder(
+              event == null || expected <= 0
+                  ? null
+                  : (event.cumulativeBytesLoaded / expected).clamp(0.0, 1.0),
+            );
           case LoadState.completed:
             return null;
           case LoadState.failed:

@@ -62,6 +62,21 @@ void main() {
         .reduce(math.max);
   }
 
+  /// The zoom's paint translation x: the outermost [Transform] under the
+  /// surface is the translate, the inner one the scale — read back through
+  /// its matrix.
+  double zoomTranslateDx(WidgetTester tester) => tester
+      .widgetList<Transform>(
+        find.descendant(
+          of: find.byType(WebtoonZoomSurface),
+          matching: find.byType(Transform),
+        ),
+      )
+      .first
+      .transform
+      .getTranslation()
+      .x;
+
   /// Closes the double-tap recognizer's disambiguation window (300 ms) and the
   /// per-pointer minimum-spacing timer (40 ms) it arms on every pointer down.
   /// A gesture test that ends while either is pending fails the binding's
@@ -550,6 +565,65 @@ void main() {
             'the reverse flick travelled ${back.abs()}, '
             'a lone one ${alone.abs()}',
       );
+    });
+
+    testWidgets('a magnified sideways flick coasts in the transform', (
+      tester,
+    ) async {
+      await tester.pumpWidget(subject(longStrip: true));
+      await tester.pump();
+
+      // Magnify once; the flick below happens at that zoom.
+      final zoomA = await tester.startGesture(
+        const Offset(150, 200),
+        pointer: 1,
+      );
+      final zoomB = await tester.startGesture(
+        const Offset(250, 200),
+        pointer: 2,
+      );
+      await tester.pump();
+      await zoomA.moveTo(const Offset(50, 200));
+      await tester.pump();
+      await zoomA.up();
+      await zoomB.up();
+      await tester.pumpAndSettle();
+      expect(currentScale(tester), greaterThan(1));
+
+      // Sideways drag with real timestamps, released mid-flick: the list has
+      // no sideways scroll, so the coast belongs to the transform — and it
+      // decelerates exactly like the vertical does instead of stopping dead.
+      // The pinch left ~75 content px of sideways slack; the drag stays
+      // inside it so the flick has room to coast.
+      final gesture = await tester.startGesture(const Offset(200, 500));
+      await gesture.moveBy(
+        const Offset(-20, 0),
+        timeStamp: const Duration(milliseconds: 8),
+      );
+      await gesture.moveBy(
+        const Offset(-20, 0),
+        timeStamp: const Duration(milliseconds: 16),
+      );
+      await gesture.moveBy(
+        const Offset(-50, 0),
+        timeStamp: const Duration(milliseconds: 24),
+      );
+      await tester.pump(const Duration(milliseconds: 16));
+      final atRelease = zoomTranslateDx(tester);
+      await gesture.up();
+      // The ticker's first tick lands with no elapsed time; the coast moves
+      // from the second frame on.
+      await tester.pump(const Duration(milliseconds: 16));
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(zoomTranslateDx(tester), lessThan(atRelease));
+
+      await tester.pumpAndSettle(const Duration(milliseconds: 16));
+      // At rest, against the content's edge: 2x on a 400px-wide viewport
+      // leaves 200 content px of slack, which is 400 painted pixels.
+      final settled = zoomTranslateDx(tester);
+      expect(settled, closeTo(-400, 1));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(zoomTranslateDx(tester), closeTo(settled, 0.5));
     });
 
     testWidgets('pinching back together returns to 1x', (tester) async {
