@@ -161,38 +161,8 @@ class SearchPageSingleView extends HookConsumerWidget {
                   ),
                 ),
                 MobileFilterSummaryChip(
-                  onTap: () => _openFilterDialog(context, ref),
+                  onTap: () => _openFilterDialog(context),
                 ),
-                // FButton.icon(
-                //   variant: FButtonVariant.secondary,
-                //   onPress: () => ,
-                //   child: Stack(
-                //     alignment: Alignment.center,
-                //     children: [
-                //       const Icon(FLucideIcons.listFilter),
-                //       if (ref.watch(
-                //         searchPageSingleProviderProvider.select(
-                //           (v) => v.selected.values.any((e) => e.isNotEmpty),
-                //         ),
-                //       ))
-                //         Positioned(
-                //           right: -2,
-                //           top: -2,
-                //           child: Container(
-                //             padding: const EdgeInsets.all(2),
-                //             decoration: BoxDecoration(
-                //               color: context.theme.colors.primary,
-                //               shape: BoxShape.circle,
-                //             ),
-                //             constraints: const BoxConstraints(
-                //               minWidth: 8,
-                //               minHeight: 8,
-                //             ),
-                //           ),
-                //         ),
-                //     ],
-                //   ),
-                // ),
               ],
             ),
           ),
@@ -290,21 +260,15 @@ class SearchPageSingleView extends HookConsumerWidget {
     );
   }
 
-  Future<void> _openFilterDialog(BuildContext context, WidgetRef ref) async {
-    final notifier = ref.read(searchPageSingleProviderProvider.notifier);
-    final initialSelected = Map<String, List<String>>.from(
-      ref
-          .read(searchPageSingleProviderProvider)
-          .selected
-          .map((k, v) => MapEntry(k, [...v])),
-    );
-    final confirm = await showMiruDialog<bool>(
+  /// Leaving the dialog is the commit: `SearchFilterDialog.close` publishes
+  /// the staged selection before popping, so nothing happens after the await.
+  Future<void> _openFilterDialog(BuildContext context) async {
+    await showMiruDialog(
       context: context,
       builder: (context, style, animation) => FTheme(
         data: context.theme,
         child: SearchFilterDialog(style: style, animation: animation),
       ),
     );
-    if (confirm != true) notifier.setSelected(initialSelected);
   }
 }
