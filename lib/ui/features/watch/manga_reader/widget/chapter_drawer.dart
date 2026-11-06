@@ -1,13 +1,14 @@
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
+import 'package:forui_hooks/forui_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
-import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_button.dart';
-import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_top_bar.dart';
+import 'package:miru_alpha/ui/core/widget/eq_bars.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_sheet.dart';
 import 'package:miru_alpha/utils/core/date_format.dart';
+import 'package:miru_alpha/utils/core/episode_label.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
 /// Opens the chapter list as a FORUI modal sheet and resolves once dismissed.
@@ -20,33 +21,26 @@ Future<void> showChapterDrawer(
   BuildContext context, {
   required EpisodeNotifierProvider epProvider,
 
-  /// Bookmarked chapters, keyed `"<groupIndex>:<episodeIndex>"`.
-  required Set<String> bookmarks,
-
   /// 1-based position within the open chapter, in the unit the reader navigates
   /// (manga pages, novel lines). Zero when nothing has been read yet.
   required int openPosition,
 
   /// Total units in the open chapter, in the same unit as [openPosition].
   required int openTotal,
-
-  /// Adds or removes the bookmark for one chapter, leaving the rest alone.
-  required void Function(int groupIndex, int episodeIndex) onToggleBookmark,
-
-  /// Opens the reader's own settings sheet, after the drawer steps aside.
-  required VoidCallback onOpenSettings,
 }) {
   return showFSheet<void>(
     context: context,
     side: .btt,
-    mainAxisMaxRatio: 0.9,
+    // The sheet's own size cap is out of the picture: the
+    // [DraggableScrollableSheet] inside owns grow/collapse so the LIST drags
+    // the sheet with it — pulling the list at its top edge collapses and then
+    // dismisses the sheet, the way a scrollable material bottom sheet behaves.
+    // FORUI's own doc: a scrollable child wants `mainAxisMaxRatio: null`.
+    mainAxisMaxRatio: null,
     builder: (context) => _ChapterDrawer(
       epProvider: epProvider,
-      bookmarks: bookmarks,
       openPosition: openPosition,
       openTotal: openTotal,
-      onToggleBookmark: onToggleBookmark,
-      onOpenSettings: onOpenSettings,
     ),
   );
 }
@@ -54,26 +48,54 @@ Future<void> showChapterDrawer(
 /// Which direction the chapter list is sorted in.
 enum ChapterOrder { ascending, descending }
 
-/// Fixed height of a chapter row, so the list reads as one rhythm rather than a
-/// column of differently sized rows.
-const kChapterTileHeight = 64.0;
-
-class _ChapterDrawer extends HookConsumerWidget {
+class _ChapterDrawer extends StatelessWidget {
   const _ChapterDrawer({
     required this.epProvider,
-    required this.bookmarks,
     required this.openPosition,
     required this.openTotal,
-    required this.onToggleBookmark,
-    required this.onOpenSettings,
   });
 
   final EpisodeNotifierProvider epProvider;
-  final Set<String> bookmarks;
   final int openPosition;
   final int openTotal;
-  final void Function(int groupIndex, int episodeIndex) onToggleBookmark;
-  final VoidCallback onOpenSettings;
+
+  @override
+  Widget build(BuildContext context) {
+    return DraggableScrollableSheet(
+      expand: false,
+      // Open at the ~90% cap the sheet used to have. Dragging the list at its
+      // top edge collapses toward [minChildSize], where FORUI's sheet closes
+      // it (it listens for the sheet's own min-extent notification).
+      minChildSize: 0.5,
+      initialChildSize: 0.9,
+      maxChildSize: 0.9,
+      builder: (context, scrollController) => _ChapterSheetBody(
+        epProvider: epProvider,
+        openPosition: openPosition,
+        openTotal: openTotal,
+        scrollController: scrollController,
+      ),
+    );
+  }
+}
+
+/// The drawer's panel: handle, header, filter field and the chapter list.
+///
+/// Hooks live here rather than in [_ChapterDrawer] because the list's scroll
+/// controller only exists inside the sheet's builder, and the auto-scroll
+/// effect needs it.
+class _ChapterSheetBody extends HookConsumerWidget {
+  const _ChapterSheetBody({
+    required this.epProvider,
+    required this.openPosition,
+    required this.openTotal,
+    required this.scrollController,
+  });
+
+  final EpisodeNotifierProvider epProvider;
+  final int openPosition;
+  final int openTotal;
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -87,60 +109,77 @@ class _ChapterDrawer extends HookConsumerWidget {
     final order = useState(ChapterOrder.descending);
     final filter = useState('');
 
-    // The bookmark set is mirrored locally rather than watched from a provider:
-    // the drawer is a separate route, so the reader's state is not the thing
-    // that repaints it. Every toggle is written straight through, so a reopened
-    // drawer shows the same ticks.
-    final localBookmarks = useState(bookmarks);
-    void toggle(int group, int episode) {
-      onToggleBookmark(group, episode);
-      final next = {...localBookmarks.value};
-      if (!next.remove('$group:$episode')) next.add('$group:$episode');
-      localBookmarks.value = next;
-    }
-
-    final listController = useMemoized(ScrollController.new, const []);
-    useEffect(
-      () =>
-          () => listController.dispose(),
-      const [],
-    );
-
     final episodes = group?.urls ?? const <ExtensionEpisode>[];
     final visible = _filter(episodes, filter.value, order.value);
+    final selectedDisplay = visible.indexWhere(
+      (entry) => entry.index == epState.selectedEpisodeIndex,
+    );
+
+    // The open chapter is brought into view once the list has laid out, and
+    // again after every sort flip (the flip reverses the rows under a fixed
+    // scroll offset, which would otherwise leave the open chapter off-screen).
+    // A row the lazy list never built (far from the top) is jumped to by
+    // estimate first and refined on the following frame.
+    final selectedKey = useMemoized(GlobalKey.new, const []);
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        void reveal() => Scrollable.ensureVisible(
+          selectedKey.currentContext!,
+          alignment: 0.25,
+          duration: const Duration(milliseconds: 250),
+        );
+        if (selectedKey.currentContext != null) {
+          reveal();
+        } else if (selectedDisplay > 0 && scrollController.hasClients) {
+          final estimate = (selectedDisplay * 72.0).clamp(
+            0.0,
+            scrollController.position.maxScrollExtent,
+          );
+          scrollController.jumpTo(estimate);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (selectedKey.currentContext != null) reveal();
+          });
+        }
+      });
+      return null;
+    }, [order.value]);
 
     return ReaderSheetPanel(
-      maxHeightFactor: 1,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const ReaderSheetHandle(),
+          // Header, laid out like the detail page's episode section: a
+          // "Chapters (N)" heading, then the volume selector and the sort
+          // toggle pinned to the right edge. The heading sits on the CONTENT
+          // text grid (the card's inner text line, where the ordinals and the
+          // field's hint start — x≈32), inset one step from the card edge
+          // below it, instead of hanging on the card's border line.
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 8, 4),
+            padding: const EdgeInsets.fromLTRB(32, 0, 16, 4),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Title + count share ONE Expanded slot. A loose Flexible
+                // beside a Spacer loses its unused flex share as trailing
+                // dead space (RenderFlex never redistributes it), which left
+                // the close button ~58px short of the row's end.
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+                  child: Row(
                     children: [
-                      Text(
-                        'reader.manga.chapters_title'.i18n,
-                        style: context.theme.typography.body.lg.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: context.theme.colors.foreground,
+                      Flexible(
+                        child: Text(
+                          'reader.manga.chapters_title'.i18n,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.theme.typography.body.sm.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: context.theme.colors.foreground,
+                          ),
                         ),
                       ),
-                      // Reference: the manga name, a bullet, and how many
-                      // chapters are on offer.
+                      const SizedBox(width: 6),
                       Text(
-                        group == null
-                            ? 'reader.manga.no_chapters'.i18n
-                            : '${group.title} · '
-                                  '${'reader.manga.chapters_available'.i18n.replaceFirst('{count}', '${episodes.length}')}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        '(${episodes.length})',
                         style: context.theme.typography.body.xs.copyWith(
                           color: context.theme.colors.mutedForeground,
                         ),
@@ -148,88 +187,56 @@ class _ChapterDrawer extends HookConsumerWidget {
                     ],
                   ),
                 ),
-                FButton.icon(
-                  variant: .ghost,
-                  size: .sm,
-                  onPress: () => Navigator.of(context).maybePop(),
-                  child: const Icon(FLucideIcons.x, size: 16),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-            child: FTextField(
-              hint: 'reader.manga.filter_chapters'.i18n,
-              control: FTextFieldControl.lifted(
-                value: TextEditingValue(text: filter.value),
-                onChange: (value) => filter.value = value.text,
-              ),
-              prefixBuilder: (context, style, variants) => Icon(
-                FLucideIcons.search,
-                size: 16,
-                color: context.theme.colors.mutedForeground,
-              ),
-              clearable: (_) => filter.value.isNotEmpty,
-            ),
-          ),
-          // Reference: a single arrow that flips the order. A two-option strip
-          // put both labels in a column the panel could not afford, and the
-          // state is already obvious from the list itself.
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
-            child: Row(
-              children: [
-                // Icon only: the arrow says which order the list is in, and
-                // `FTappable` lays its child out unconstrained, so a label with
-                // an ellipsis inside one has nothing to ellipsise against.
-                _GhostControl(
+                if (epState.epGroup.length > 1) ...[
+                  _GroupSelector(
+                    groups: epState.epGroup,
+                    selected: groupIndex,
+                    onSelect: (index) => epReader.selectEpisode(index, 0),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                // Sort keeps the outline box; the close is a bare ghost glyph
+                // in a content-tight box, flush with the row's trailing inset
+                // — a full-width hit box around a 16px glyph read as a huge
+                // dead zone at the sheet's edge.
+                _headerIconButton(
+                  context,
                   icon: order.value == ChapterOrder.descending
-                      ? FLucideIcons.arrowDown
-                      : FLucideIcons.arrowUp,
-                  semanticsLabel: 'reader.manga.order.${order.value.name}'.i18n,
+                      ? const Icon(FLucideIcons.arrowUp10)
+                      : const Icon(FLucideIcons.arrowDown01),
                   onPress: () =>
                       order.value = order.value == ChapterOrder.descending
                       ? ChapterOrder.ascending
                       : ChapterOrder.descending,
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: _GhostControl(
-                    icon: FLucideIcons.navigation,
-                    semanticsLabel: 'reader.manga.jump'.i18n,
-                    label: 'reader.manga.jump'.i18n,
-                    onPress: () => _jump(context, ref, episodes, order.value),
-                  ),
+                _headerIconButton(
+                  context,
+                  variant: .ghost,
+                  // 40 = the touch-target floor: the glyph stays visually
+                  // where it was, the hit box stops failing Fitts's Law.
+                  box: 40,
+                  icon: const Icon(FLucideIcons.x, size: 16),
+                  semanticLabel: 'common.close'.i18n,
+                  onPress: () => Navigator.of(context).maybePop(),
                 ),
               ],
             ),
           ),
-          // The reference's horizontal carousel of volumes, mirrored from the
-          // extension's `epGroup` and drawn with FORUI's own tile so the
-          // selected volume gets the same focused outline a selected chapter
-          // does. Tapping one selects the group and its first episode, which is
-          // what the extension API's `selectEpisode` means.
-          if (epState.epGroup.length > 1)
-            SizedBox(
-              // Tall enough for a tile (56) plus the carousel's own padding.
-              height: 72,
-              child: ListView.separated(
-                scrollDirection: .horizontal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                itemCount: epState.epGroup.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 8),
-                itemBuilder: (context, index) => _GroupTile(
-                  label: epState.epGroup[index].title,
-                  chapters: epState.epGroup[index].urls.length,
-                  selected: index == groupIndex,
-                  onPress: () => epReader.selectEpisode(index, 0),
-                ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            // A plain FORUI field: the hand-prefixed search icon never aligned
+            // its baseline with the hint text, and the field carries its own
+            // clear affordance.
+            child: FTextField(
+              hint: 'reader.manga.filter_chapters'.i18n,
+              control: FTextFieldControl.lifted(
+                value: TextEditingValue(text: filter.value),
+                onChange: (value) => filter.value = value.text,
               ),
+              clearable: (_) => filter.value.isNotEmpty,
             ),
+          ),
           Expanded(
             child: visible.isEmpty
                 ? Padding(
@@ -243,99 +250,42 @@ class _ChapterDrawer extends HookConsumerWidget {
                       ),
                     ),
                   )
-                // FORUI's own tile group, so the chapter list gets its
-                // dividers, spacing and selection styling — and its scroll
-                // view — instead of a hand-rolled box per row.
-                : FTileGroup.builder(
-                    count: visible.length,
-                    tileBuilder: (context, index) {
-                      final entry = visible[index];
-                      return _ChapterTile(
-                        position: entry.index,
-                        episode: entry.episode,
-                        selected: entry.index == epState.selectedEpisodeIndex,
-                        isLatest: entry.index == episodes.length - 1,
-                        bookmarked: localBookmarks.value.contains(
-                          '$groupIndex:${entry.index}',
-                        ),
-                        page: entry.index == epState.selectedEpisodeIndex
-                            ? openPosition
-                            : 0,
-                        totalPage: openTotal,
-                        onBookmark: () => toggle(groupIndex, entry.index),
-                        onPress: () =>
-                            _open(context, epReader, groupIndex, entry.index),
-                      );
-                    },
-                  ),
-          ),
-          // Reference: the drawer closes on a sticky two-action bar.
-          Container(
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: context.theme.colors.border),
-              ),
-            ),
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ReaderButton(
-                    variant: .secondary,
-                    onPress: () =>
-                        toggle(groupIndex, epState.selectedEpisodeIndex),
-                    child: Row(
-                      mainAxisSize: .min,
-                      spacing: 4,
-                      children: [
-                        Icon(
-                          localBookmarks.value.contains(
-                                '$groupIndex:${epState.selectedEpisodeIndex}',
-                              )
-                              ? FLucideIcons.bookmarkCheck
-                              : FLucideIcons.bookmark,
-                          size: 16,
-                        ),
-                        ReaderLabel(
-                          localBookmarks.value.contains(
-                                '$groupIndex:${epState.selectedEpisodeIndex}',
-                              )
-                              ? 'reader.manga.add_bookmark_added'.i18n
-                              : 'reader.manga.add_bookmark'.i18n,
-                          style: context.theme.typography.body.xs,
-                          maxWidth: 120,
-                        ),
-                      ],
+                // FORUI's own tile group with full dividers — the same list
+                // chrome the detail page's episode section uses. The scroll
+                // controller is the sheet's: the two scroll as one. The group
+                // is inset to the SAME 16px line as the filter field above it,
+                // so the sheet reads one grid instead of a full-bleed list
+                // under a padded field.
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: FTileGroup.builder(
+                      scrollController: scrollController,
+                      divider: .full,
+                      count: visible.length,
+                      tileBuilder: (context, index) {
+                        final entry = visible[index];
+                        final selected =
+                            entry.index == epState.selectedEpisodeIndex;
+                        final tile = _ChapterTile(
+                          position: entry.index,
+                          episode: entry.episode,
+                          selected: selected,
+                          page: selected ? openPosition : 0,
+                          totalPage: openTotal,
+                          onPress: () =>
+                              _open(context, epReader, groupIndex, entry.index),
+                        );
+                        return selected
+                            ? KeyedSubtree(key: selectedKey, child: tile)
+                            : tile;
+                      },
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ReaderButton(
-                    variant: .primary,
-                    onPress: () {
-                      // Settings are a sheet of their own, so the drawer steps
-                      // aside for it.
-                      Navigator.of(context).maybePop();
-                      onOpenSettings();
-                    },
-                    child: Row(
-                      mainAxisSize: .min,
-                      spacing: 4,
-                      children: [
-                        const Icon(FLucideIcons.slidersHorizontal, size: 16),
-                        ReaderLabel(
-                          'reader.manga.settings'.i18n,
-                          style: context.theme.typography.body.xs,
-                          maxWidth: 120,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
+          // The last row must clear the home indicator: FORUI's bottom sheet
+          // keeps the bottom inset in MediaQuery (it only strips the top), so
+          // the panel pays it here rather than clipping behind it.
+          SizedBox(height: MediaQuery.paddingOf(context).bottom + 8),
         ],
       ),
     );
@@ -354,53 +304,6 @@ class _ChapterDrawer extends HookConsumerWidget {
     Navigator.of(context).maybePop();
   }
 
-  /// The reference's fast-jump: ask for a number and open that chapter.
-  Future<void> _jump(
-    BuildContext context,
-    WidgetRef ref,
-    List<ExtensionEpisode> episodes,
-    ChapterOrder order,
-  ) async {
-    final controller = TextEditingController();
-    final groupIndex = ref.read(epProvider).selectedGroupIndex;
-    final input = await showFSheet<String>(
-      context: context,
-      side: .btt,
-      builder: (context) => ReaderSheetPanel(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const ReaderSheetHandle(),
-              FTextField(
-                autofocus: true,
-                hint: 'reader.manga.jump_hint'.i18n,
-                keyboardType: TextInputType.number,
-                control: FTextFieldControl.managed(controller: controller),
-              ),
-              const SizedBox(height: 12),
-              ReaderButton(
-                variant: .primary,
-                onPress: () =>
-                    Navigator.of(context).pop(controller.text.trim()),
-                child: ReaderLabel('reader.manga.jump'.i18n),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    controller.dispose();
-    final number = int.tryParse(input ?? '');
-    if (number == null || episodes.isEmpty) return;
-    // The list is a filtered, sorted view, so the number is matched against the
-    // source order: "chapter 3" means the third one the extension listed.
-    final index = number.clamp(1, episodes.length) - 1;
-    ref.read(epProvider.notifier).selectEpisode(groupIndex, index);
-    if (context.mounted) Navigator.of(context).maybePop();
-  }
-
   List<_ChapterEntry> _filter(
     List<ExtensionEpisode> episodes,
     String query,
@@ -411,11 +314,15 @@ class _ChapterDrawer extends HookConsumerWidget {
       (entry) =>
           needle.isEmpty || entry.value.name.toLowerCase().contains(needle),
     );
-    final ordered = matches.toList();
+    // The toggle is a REVERSE, nothing more: ascending is the source's own
+    // order, descending is that reversed. No title parsing, no re-sorting.
+    final entries = [
+      for (final entry in matches) _ChapterEntry(entry.key, entry.value),
+    ];
     if (order == ChapterOrder.descending) {
-      ordered.sort((a, b) => b.key.compareTo(a.key));
+      entries.sort((a, b) => b.index.compareTo(a.index));
     }
-    return [for (final entry in ordered) _ChapterEntry(entry.key, entry.value)];
+    return entries;
   }
 }
 
@@ -426,10 +333,40 @@ class _ChapterEntry {
   final ExtensionEpisode episode;
 }
 
-/// One chapter, as FORUI's own [FTile].
-///
-/// The open chapter is `selected`, so its focus outline is FORUI's rather than
-/// a border drawn here, and tapping a row goes straight to that chapter: the
+/// The header's compact icon button, shared by the sort toggle and the close
+/// button so the pair is one control group. [box] sizes the hit box; the
+/// glyph stays content-centred inside it with no extra dead space.
+Widget _headerIconButton(
+  BuildContext context, {
+  required Widget icon,
+  FButtonVariant variant = .outline,
+  double box = 36,
+  String? semanticLabel,
+  required VoidCallback onPress,
+}) => FButton.icon(
+  variant: variant,
+  size: .xs,
+  style: .delta(
+    iconContentStyle: .delta(
+      constraints: BoxConstraints(minWidth: box, minHeight: box),
+      padding: EdgeInsetsGeometryDelta.value(
+        EdgeInsets.symmetric(
+          horizontal: (box - 16) / 2,
+          vertical: (box - 16) / 2,
+        ),
+      ),
+    ),
+  ),
+  onPress: onPress,
+  child: semanticLabel == null
+      ? icon
+      : Semantics(label: semanticLabel, button: true, child: icon),
+);
+
+/// One chapter, laid out like the detail page's episode row: a muted ordinal
+/// that pairs with the title's own chapter number, the stripped title as the
+/// primary label, and the open chapter as the accent-carded "playing" row with
+/// a reading-progress bar. Tapping a row goes straight to that chapter — the
 /// extension's `selectedEpisodeIndex` is all the reader needs, so there is no
 /// intermediate confirm step.
 class _ChapterTile extends StatelessWidget {
@@ -437,11 +374,8 @@ class _ChapterTile extends StatelessWidget {
     required this.position,
     required this.episode,
     required this.selected,
-    required this.isLatest,
-    required this.bookmarked,
     required this.page,
     required this.totalPage,
-    required this.onBookmark,
     required this.onPress,
   });
 
@@ -451,182 +385,227 @@ class _ChapterTile extends StatelessWidget {
 
   final ExtensionEpisode episode;
   final bool selected;
-
-  /// Whether this is the newest chapter in the source list.
-  final bool isLatest;
-
-  final bool bookmarked;
   final int page;
   final int totalPage;
-  final VoidCallback onBookmark;
   final VoidCallback onPress;
 
   @override
   Widget build(BuildContext context) {
+    final accent = context.theme.colors.primary;
     return FTile(
       onPress: onPress,
       selected: selected,
-      prefix: _badge(context),
-      title: ReaderLabel(episode.name, style: context.theme.typography.body.sm),
-      subtitle: ReaderLabel(
-        _subtitle(),
-        softWrap: true,
-        style: context.theme.typography.body.xs.copyWith(
-          color: selected
-              ? context.theme.colors.foreground
-              : context.theme.colors.mutedForeground,
+      style: .delta(
+        contentDecoration: .delta([
+          // Same raised treatment as the detail list's playing row. Emitted
+          // UNCONDITIONALLY (no `.match({.selected}, …)`) on purpose: Forui
+          // 0.27.6's FItem never adds `selected` to its style variants, so
+          // variant-matched selected decorations never paint — the condition
+          // lives here in the build.
+          if (selected)
+            .base(
+              DecorationDelta.boxDelta(
+                color: accent.withAlpha(26),
+                border: Border.all(color: accent.withAlpha(128)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+        ]),
+        contentStyle: .delta(
+          suffixedPadding: EdgeInsetsGeometryDelta.value(
+            // Leading 16 puts the ordinal on the sheet's content-text grid
+            // (x=32, the same line as the heading and the field's text); the
+            // forui default's 15 landed it one pixel off.
+            const EdgeInsets.fromLTRB(16, 8, 13, 8),
+          ),
+          titleSpacing: 2,
         ),
       ),
-      suffix: selected
-          // The open chapter gets the reference's Resume action rather than the
-          // bookmark it shares with every other row.
-          ? ReaderButton(
-              variant: .primary,
-              height: ReaderControlSize.compact,
-              onPress: onPress,
-              child: ReaderLabel(
-                'reader.manga.resume'.i18n,
-                style: context.theme.typography.body.xs,
-                maxWidth: 90,
-              ),
-            )
-          : ReaderIconAction(
-              icon: bookmarked
-                  ? FLucideIcons.bookmarkCheck
-                  : FLucideIcons.bookmark,
-              tooltip: 'reader.manga.add_bookmark'.i18n,
-              height: ReaderControlSize.compact,
-              onPress: onBookmark,
-            ),
-    );
-  }
-
-  /// Reference states: a "Reading" pill for the open chapter, a "New" pill for
-  /// the newest release, the position number otherwise.
-  Widget _badge(BuildContext context) {
-    if (selected) {
-      return FBadge(
-        variant: .primary,
-        child: Text('reader.manga.reading'.i18n),
-      );
-    }
-    if (isLatest) {
-      return FBadge(variant: .secondary, child: Text('reader.manga.new'.i18n));
-    }
-    return FBadge(variant: .secondary, child: Text('${position + 1}'));
-  }
-
-  /// Never falls back to [ExtensionEpisode.url] or `.description`: several manga
-  /// sources put the chapter URL in `description`, and a raw URL is noise in a
-  /// list of chapter names. Reading progress, then the extension's update
-  /// stamp, and nothing at all if there is no stamp.
-  String _subtitle() {
-    if (selected && totalPage > 0) {
-      return '${'reader.manga.page'.i18n} $page/$totalPage';
-    }
-    return tryFormatTimeAgo(episode.update) ?? '';
-  }
-}
-
-/// A borderless control for the drawer's filter row.
-///
-/// An `FButton` cannot be laid out here: the drawer's column passes an unbounded
-/// width down, and FORUI's button content row then has a flexible child with no
-/// width to fill. `FTappable` plus a box keeps the row shrink-wrapping.
-class _GhostControl extends StatelessWidget {
-  const _GhostControl({
-    required this.icon,
-    required this.semanticsLabel,
-    required this.onPress,
-    this.label,
-  });
-
-  final IconData icon;
-  final String semanticsLabel;
-  final VoidCallback onPress;
-
-  /// Visible text. Omitted for an icon-only control.
-  final String? label;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.theme.colors;
-    final text = label;
-    return FTappable(
-      onPress: onPress,
-      semanticsLabel: semanticsLabel,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-        child: text == null
-            ? Icon(icon, size: 16, color: colors.mutedForeground)
-            : Row(
-                // `max` with a flexible label: this control is given a bounded
-                // width by an `Expanded`, and a long translation has to
-                // ellipsise rather than overflow the row.
-                mainAxisSize: .max,
-                spacing: 4,
-                children: [
-                  Icon(icon, size: 16, color: colors.mutedForeground),
-                  Flexible(
-                    child: Text(
-                      text,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.theme.typography.body.xs.copyWith(
-                        color: colors.mutedForeground,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-}
-
-/// One volume from the extension's `epGroup`.
-///
-/// An [FTile], like a chapter row, so both halves of the drawer share FORUI's
-/// selection styling. It deliberately avoids [FButton]: this lives in a
-/// horizontally scrolling list, where a button's content row has no width to
-/// work with.
-class _GroupTile extends StatelessWidget {
-  const _GroupTile({
-    required this.label,
-    required this.chapters,
-    required this.selected,
-    required this.onPress,
-  });
-
-  final String label;
-  final int chapters;
-  final bool selected;
-  final VoidCallback onPress;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.theme.colors;
-    return ConstrainedBox(
-      // A tile lays out to the width it is given, and a horizontal carousel
-      // gives it none, so the width is bounded here — the reference's pills are
-      // a fixed-ish size anyway.
-      constraints: const BoxConstraints(minWidth: 108, maxWidth: 190),
-      child: FTile(
-        onPress: onPress,
-        selected: selected,
-        title: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+      // Secondary metadata, deliberately quiet: the title is the row's
+      // primary label, and a bold ordinal next to a regular title reads
+      // inverted (the number used to outweigh the content).
+      prefix: SizedBox(
+        width: 30,
+        child: Text(
+          _ordinal(),
+          textAlign: TextAlign.center,
           style: context.theme.typography.body.xs.copyWith(
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-            color: selected ? colors.foreground : colors.mutedForeground,
+            fontWeight: FontWeight.w500,
+            color: selected ? accent : context.theme.colors.mutedForeground,
           ),
         ),
-        subtitle: Text(
-          '$chapters',
-          style: context.theme.typography.body.xs.copyWith(
-            color: colors.mutedForeground,
+      ),
+      // No trailing action: the row itself opens the chapter, and bookmarking
+      // lives in the reader top bar for the open chapter only.
+      suffix: selected
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const EqBars(),
+                const SizedBox(width: 6),
+                FBadge(
+                  variant: .primary,
+                  style: .delta(
+                    padding: EdgeInsetsGeometryDelta.value(
+                      const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    ),
+                  ),
+                  child: Text(
+                    'reader.manga.reading'.i18n,
+                    style: context.theme.typography.body.xs2.copyWith(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.4,
+                      color: context.theme.colors.primaryForeground,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : null,
+      title: Text(
+        _title(),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: context.theme.typography.body.sm.copyWith(
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+          color: context.theme.colors.foreground.withAlpha(216),
+        ),
+      ),
+      subtitle: _subtitle(context),
+    );
+  }
+
+  /// The prefix box carries the row's source position: a plain, quiet
+  /// counter that stays stable whichever way the list is reversed.
+  String _ordinal() => '${position + 1}';
+
+  /// The prefix box already carries the ordinal, so an "Episode N - " title
+  /// prefix is stripped the same way the detail list strips it. A name that is
+  /// itself a bare backend number ("0") renders as a human "Episode N" instead
+  /// of "01 | 0".
+  String _title() {
+    if (isBareEpisodeName(episode.name)) {
+      return 'media.episode_number'.fill({'n': '${position + 1}'});
+    }
+    return stripEpisodePrefix(episode.name);
+  }
+
+  /// The open chapter reads like the detail list's in-progress row: a thin
+  /// progress bar, then the page position. Other rows show the extension's
+  /// update stamp, and nothing at all if there is no stamp. Never falls back to
+  /// [ExtensionEpisode.url] or `.description`: several manga sources put the
+  /// chapter URL in `description`, and a raw URL is noise in a chapter list.
+  Widget _subtitle(BuildContext context) {
+    if (selected && totalPage > 0) {
+      final frac = (page / totalPage).clamp(0.0, 1.0);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: SizedBox(
+              height: 4,
+              width: double.infinity,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: context.theme.colors.muted),
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: frac,
+                  child: ColoredBox(color: context.theme.colors.primary),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${'reader.manga.page'.i18n} $page/$totalPage',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.theme.typography.body.xs.copyWith(
+              color: context.theme.colors.mutedForeground,
+            ),
+          ),
+        ],
+      );
+    }
+    final date = tryFormatTimeAgo(episode.update);
+    if (date == null || date.isEmpty) return const SizedBox.shrink();
+    return Text(
+      date,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: context.theme.typography.body.xs.copyWith(
+        color: context.theme.colors.mutedForeground,
+      ),
+    );
+  }
+}
+
+/// The detail list's volume picker: an outline button showing the open volume's
+/// title, opening a tile menu of every `epGroup` entry. Selecting one switches
+/// the group and its first episode, which is what the extension API's
+/// `selectEpisode` means.
+class _GroupSelector extends HookWidget {
+  const _GroupSelector({
+    required this.groups,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final List<ExtensionEpisodeGroup> groups;
+  final int selected;
+  final void Function(int index) onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = useFPopoverController();
+    return FPopoverMenu.tiles(
+      menuAnchor: .topCenter,
+      menu: [
+        .group(
+          children: [
+            for (var i = 0; i < groups.length; i++)
+              FTile(
+                onPress: () {
+                  onSelect(i);
+                  controller.toggle();
+                },
+                title: Text(groups[i].title),
+              ),
+          ],
+        ),
+      ],
+      control: .managed(controller: controller),
+      child: FButton(
+        variant: .outline,
+        size: .xs,
+        mainAxisAlignment: .start,
+        style: .delta(
+          contentStyle: .delta(
+            constraints: const BoxConstraints(minHeight: 36),
+          ),
+        ),
+        onPress: () {
+          controller.toggle();
+        },
+        suffix: Icon(
+          FLucideIcons.chevronDown,
+          size: 14,
+          color: context.theme.colors.mutedForeground,
+        ),
+        // Cap keeps long volume titles from squeezing the sort button on
+        // 320 px phones, exactly like the detail list's selector.
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 100),
+          child: Text(
+            groups[selected].title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.theme.typography.body.xs.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),

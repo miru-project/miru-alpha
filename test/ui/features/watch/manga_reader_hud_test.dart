@@ -313,7 +313,139 @@ void main() {
     expect(find.text('6 / 12'), findsOneWidget);
   });
 
-  testWidgets('the scrubber badge only shows while it is being dragged', (
+  testWidgets(
+    'a jump settles: the scrubber hold clears when the scroll lands',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(430, 900));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final container = _container();
+      await tester.pumpWidget(
+        _wrap(
+          container,
+          MiruMangaReader(
+            value: _watch(),
+            name: 'TestManga',
+            meta: _meta,
+            url: 'https://example.com/c1',
+            epProvider: episodeProvider(_params()),
+          ),
+        ),
+      );
+      await _pumpReader(tester);
+
+      final reader = container.read(mangaReaderProvider.notifier)
+        // Webtoon: the animated `scrollTo` is the path the scrub's snap-back
+        // came through, so the settling contract is pinned here.
+        ..changeReadMode(MangaReadMode.webToon);
+      await _pumpReader(tester);
+
+      reader.jumpTo(6);
+      // The target wins immediately — the position stream may not yet agree.
+      expect(container.read(mangaReaderProvider).jumpSettling, isTrue);
+      expect(container.read(mangaReaderProvider).page, 7);
+
+      // The three-phase scroll arms its animations across post-frame
+      // callbacks, so settle by pumping until the hold clears (bounded to
+      // ~1.2s of pumped time — the animation itself is 100ms).
+      var settled = false;
+      for (var frame = 0; frame < 24 && !settled; frame++) {
+        await tester.pump(const Duration(milliseconds: 50));
+        settled = !container.read(mangaReaderProvider).jumpSettling;
+      }
+      expect(settled, isTrue, reason: 'the jump settles once the scroll lands');
+      expect(container.read(mangaReaderProvider).page, 7);
+    },
+  );
+
+  test('a webtoon jump with a detached list never locks the reader', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final provider = mangaReaderProvider;
+    container.read(provider.notifier)
+      ..open(groupIndex: 0, episodeIndex: 0, totalPage: 12)
+      ..changeReadMode(MangaReadMode.webToon);
+
+    // No widget ever attached the item scroll controller: `scrollTo` used to
+    // throw synchronously and left the jump flags armed forever — page
+    // updates gated off, scrubber thumb locked on its last target.
+    container.read(provider.notifier).jumpTo(5);
+    expect(container.read(provider).jumpSettling, isFalse);
+    // The chosen target still wins (it is written before the jump arms).
+    expect(container.read(provider).page, 6);
+
+    // The position stream is not gated: scrolling reports normally.
+    container.read(provider.notifier).setPageNumber(2);
+    expect(container.read(provider).page, 3);
+  });
+
+  testWidgets('the scrubber shows one live page label', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(430, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
+    final container = _container();
+    await tester.pumpWidget(
+      _wrap(
+        container,
+        MiruMangaReader(
+          value: _watch(),
+          name: 'TestManga',
+          meta: _meta,
+          url: 'https://example.com/c1',
+          epProvider: episodeProvider(_params()),
+        ),
+      ),
+    );
+    await _pumpReader(tester);
+
+    container.read(mangaReaderProvider.notifier).setHudVisible(true);
+    await _pumpReader(tester);
+
+    final label = find.byKey(const ValueKey('scrub-page-label'));
+    // At rest the label is the reader's page.
+    expect(tester.widget<Text>(label).data, '1');
+
+    // `tapAndSlideThumb` only slides from the thumb, which at page one sits on
+    // the left edge of the track.
+    final track = tester.getRect(find.byType(FSlider));
+    final gesture = await tester.startGesture(
+      Offset(track.left, track.center.dy),
+    );
+    // Two moves: the first resolves the drag gesture, the second carries the
+    // change the scrubber reacts to.
+    await gesture.moveBy(const Offset(20, 0));
+    await gesture.moveBy(const Offset(60, 0));
+    await _pumpReader(tester);
+
+    // While the drag is live the SAME label carries the finger's page — no
+    // floating badge stack a second number on top, and the thumb's tooltip
+    // carries the page in the theme's primary colour.
+    final scrubPage = int.parse(tester.widget<Text>(label).data!);
+    expect(scrubPage, greaterThan(1));
+    expect(find.textContaining('reader.manga.page'), findsNothing);
+    final primary = FTheme.of(
+      tester.element(find.byType(FSlider)),
+    ).colors.primary;
+    final tooltipTexts = tester
+        .widgetList<Text>(find.text('$scrubPage'))
+        .where((t) => t.style?.color == primary)
+        .toList();
+    expect(
+      tooltipTexts,
+      hasLength(1),
+      reason: 'the drag tooltip shows the page in primary',
+    );
+
+    await gesture.up();
+    await _pumpReader(tester);
+    await _settleTransition(tester);
+
+    // On release the label falls back to the reader's page — the drag target.
+    final state = container.read(mangaReaderProvider);
+    expect(tester.widget<Text>(label).data, '${state.page}');
+  });
+
+  testWidgets('the thumb adopts the reader page once the drag ends', (
     tester,
   ) async {
     await tester.binding.setSurfaceSize(const Size(430, 900));
@@ -337,28 +469,27 @@ void main() {
     container.read(mangaReaderProvider.notifier).setHudVisible(true);
     await _pumpReader(tester);
 
-    // At rest the numbers at either end of the track say enough.
-    expect(find.textContaining('reader.manga.page'), findsNothing);
-
-    // `tapAndSlideThumb` only slides from the thumb, which at page one sits on
-    // the left edge of the track.
     final track = tester.getRect(find.byType(FSlider));
     final gesture = await tester.startGesture(
       Offset(track.left, track.center.dy),
     );
-    // Two moves: the first resolves the drag gesture, the second carries the
-    // change the scrubber reacts to.
     await gesture.moveBy(const Offset(20, 0));
     await gesture.moveBy(const Offset(60, 0));
     await _pumpReader(tester);
-    expect(find.textContaining('reader.manga.page'), findsOneWidget);
-
     await gesture.up();
     await _pumpReader(tester);
-    // The badge fades out rather than vanishing, so the switcher keeps it
-    // mounted for its duration; past that it is gone.
-    await tester.pump(const Duration(milliseconds: 200));
-    expect(find.textContaining('reader.manga.page'), findsNothing);
+    // Let the jump's 100ms scroll land.
+    await _settleTransition(tester);
+
+    // At rest the thumb shows the reader's page — no hold, no lock: the two
+    // numbers agree because the drag target was written into the provider.
+    final state = container.read(mangaReaderProvider);
+    final span = state.totalPage - 1;
+    expect(
+      _scrubberFraction(tester),
+      closeTo((state.page - 1) / span, 0.01),
+      reason: 'the thumb falls back to the reader page on release',
+    );
   });
 
   testWidgets('the scrubber announces a page number, not a percentage', (

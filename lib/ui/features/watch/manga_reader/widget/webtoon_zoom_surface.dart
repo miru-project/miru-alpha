@@ -21,6 +21,7 @@ class WebtoonZoomSurface extends StatelessWidget {
     required this.scrollOffsetListener,
     required this.itemScrollController,
     this.onTap,
+    this.doubleTapEnabled = true,
     this.minScale = 1,
     this.maxScale = 4,
     this.onScaleChanged,
@@ -37,6 +38,11 @@ class WebtoonZoomSurface extends StatelessWidget {
 
   /// Fired on a tap (no drag), so the reader can toggle its HUD.
   final VoidCallback? onTap;
+
+  /// Whether a double tap toggles the magnification (see
+  /// [ReaderZoomSurface.doubleTapEnabled]). The reader disables it while its
+  /// overlay is up so taps resolve instantly instead of arming the zoom.
+  final bool doubleTapEnabled;
 
   final double minScale;
   final double maxScale;
@@ -55,6 +61,7 @@ class WebtoonZoomSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     return ReaderZoomSurface(
       onTapUp: onTap == null ? null : (position) => onTap!(),
+      doubleTapEnabled: doubleTapEnabled,
       onScaleChanged: onScaleChanged,
       onViewMoved: onViewMoved,
       minScale: minScale,

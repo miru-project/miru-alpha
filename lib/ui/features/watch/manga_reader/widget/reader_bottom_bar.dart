@@ -68,10 +68,12 @@ class ReaderBottomBar extends ConsumerWidget {
             onSelect: onOpenChapters,
           ),
           const SizedBox(height: 14),
-          // Row 2 — page scrubber with a floating page badge.
+          // Row 2 — page scrubber.
           _PageScrubber(
             page: state.page,
             totalPage: state.totalPage,
+            episodeKey:
+                '${epState.selectedGroupIndex}:${epState.selectedEpisodeIndex}',
             onScrub: reader.jumpTo,
           ),
           const SizedBox(height: 14),
@@ -209,7 +211,7 @@ class _ChapterNavRow extends StatelessWidget {
   }
 }
 
-/// Current page, [FSlider] with a floating page badge, total page.
+/// Current page, [FSlider], total page.
 ///
 /// The slider is a 0..1 fraction; [totalPage] remaps it to a one-based page
 /// number so the widget is identical for a 3-page and a 300-page chapter.
@@ -218,146 +220,139 @@ class _ChapterNavRow extends StatelessWidget {
 /// reads its `initial` value once, so a managed slider keeps the page it was
 /// built with and never follows the reader. Lifting it lets the page drive the
 /// thumb while the thumb drives the page.
+///
+/// The thumb has exactly two masters, in order: the FINGER while a drag is
+/// live, and the reader's page at rest. The raw fraction under the finger is
+/// mirrored into local state so the thumb moves with it continuously (no step
+/// quantisation between changes — that stutter is what made the thumb feel
+/// stuck), while the quantised page is what the reader is told. On release the
+/// raw fraction is dropped and the thumb adopts the reader's page —
+/// [MangaReader.jumpTo] writes the chosen target into the provider
+/// synchronously, so that is the page the drag picked, never the old one.
+///
+/// The reader's own jump machinery (`isAdjusting` / `jumpSettling`, which
+/// suppresses intermediate pages while a jump's 100ms scroll animates) is the
+/// provider's business and never reaches this widget; the two logics were
+/// coupled before and a jump whose completion never landed locked the thumb
+/// on its last target for the rest of the session.
 class _PageScrubber extends HookWidget {
   const _PageScrubber({
     required this.page,
     required this.totalPage,
+    required this.episodeKey,
     required this.onScrub,
   });
 
   final int page;
   final int totalPage;
+
+  /// Identity of the open chapter: a switch clears whatever drag state the
+  /// previous chapter left behind.
+  final String episodeKey;
+
+  /// Scrubs to the zero-based page index.
   final ValueChanged<int> onScrub;
 
   @override
   Widget build(BuildContext context) {
-    // True between the first change of a drag and its end, which is the only
-    // time the page badge is shown: at rest the two numbers at either end of the
-    // track already say where the reader is.
-    final scrubbing = useState(false);
+    // The raw 0..1 fraction under the finger while a drag is live; null at
+    // rest, where the thumb follows the reader's page.
+    final scrubFraction = useState<double?>(null);
 
-    // Page the thumb is being dragged to, kept here so the badge and the thumb
-    // follow the finger instead of waiting for the page change to come back
-    // through the provider.
+    // One-based page the drag is on — the badge's number while the raw
+    // fraction moves the thumb.
     final scrubPage = useState(0);
+
+    // A chapter switch (including one a background refetch re-selects) must
+    // not leave the thumb pinned to a dead chapter's fraction.
+    useEffect(() {
+      scrubFraction.value = null;
+      scrubPage.value = 0;
+      return null;
+    }, [episodeKey]);
 
     final colors = context.theme.colors;
     final mono = context.theme.typography.body.xs;
     final last = totalPage <= 0 ? 1 : totalPage;
     final span = last - 1;
-    final moving = scrubbing.value && scrubPage.value > 0;
-    final page = moving ? scrubPage.value : this.page;
-    final fraction = span <= 0 ? 1.0 : (page - 1) / span;
+    final pageFraction = span <= 0 ? 1.0 : (page - 1) / span;
+    final scrubbing = scrubFraction.value != null;
+    final fraction = scrubFraction.value ?? pageFraction.clamp(0, 1);
     final muted = mono.copyWith(color: colors.mutedForeground);
 
+    // One row, one live label: the leading number IS the current page (the
+    // finger's page while a drag is live, the reader's page at rest) and the
+    // trailing number is the total. A floating badge above the thumb and
+    // FORUI's own drag tooltip stacked on top of that label read as three
+    // numbers for one fact.
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Sized by its own content, not a fixed box: a three-digit total wraps
         // inside a 24px slot and the row grows a second line. `softWrap: false`
         // keeps a long run on one line, and the slider is the flexible part.
-        Text('$page', maxLines: 1, softWrap: false, style: muted),
+        Text(
+          '${scrubbing ? scrubPage.value : page}',
+          key: const ValueKey('scrub-page-label'),
+          maxLines: 1,
+          softWrap: false,
+          style: muted,
+        ),
         const SizedBox(width: 8),
         Expanded(
-          child: Column(
-            mainAxisSize: .min,
-            children: [
-              // The badge gets its own row rather than being overlaid, so no
-              // overlap offsets have to be tuned. It is only mounted while the
-              // thumb moves, so the resting panel stays as quiet as the
-              // reference.
-              SizedBox(
-                height: 18,
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 120),
-                  child: moving
-                      ? Align(
-                          key: const ValueKey('page-badge'),
-                          // Alignment.x maps -1..1 onto 0..1, so this keeps the
-                          // badge over the thumb as it travels.
-                          alignment: Alignment(fraction.clamp(0, 1) * 2 - 1, 0),
-                          child: FittedBox(child: _PageBadge(page: page)),
-                        )
-                      : const SizedBox(
-                          key: ValueKey('page-badge-empty'),
-                          height: 18,
-                        ),
-                ),
+          child: FSlider(
+            control: FSliderControl.liftedContinuous(
+              value: FSliderValue(max: fraction),
+              onChange: (value) {
+                // Quantise only what the reader is told; the thumb keeps
+                // the raw fraction so it tracks the finger exactly.
+                final index = (value.max * span).round().clamp(0, last - 1);
+                scrubFraction.value = value.max.clamp(0.0, 1.0);
+                scrubPage.value = index + 1;
+                onScrub(index);
+              },
+            ),
+            // Reference metrics: 6px track (FORUI's `crossAxisExtent`
+            // already matches), 16px white thumb with a 2px dark ring
+            // (FORUI uses a 25px thumb on touch platforms), so the thumb
+            // separates from the page instead of taking the app's accent.
+            style: FSliderStyleDelta.delta(
+              thumbSize: 16,
+              thumbStyle: FSliderThumbStyleDelta.delta(
+                borderColor: FVariantsValueDelta.delta([
+                  FVariantValueDeltaOperation.variants(colors.background),
+                ]),
+                borderWidth: 2,
               ),
-              FSlider(
-                control: FSliderControl.liftedContinuous(
-                  value: FSliderValue(max: fraction.clamp(0, 1)),
-                  stepPercentage: span <= 0 ? 1 : 1 / span,
-                  onChange: (value) {
-                    final next = (value.max * span).round() + 1;
-                    scrubbing.value = true;
-                    scrubPage.value = next;
-                    onScrub(next);
-                  },
-                ),
-                // Reference metrics: 6px track (FORUI's `crossAxisExtent`
-                // already matches), 16px white thumb with a 2px dark ring
-                // (FORUI uses a 25px thumb on touch platforms), so the thumb
-                // separates from the page instead of taking the app's accent.
-                style: FSliderStyleDelta.delta(
-                  thumbSize: 16,
-                  thumbStyle: FSliderThumbStyleDelta.delta(
-                    borderColor: FVariantsValueDelta.delta([
-                      FVariantValueDeltaOperation.variants(colors.background),
-                    ]),
-                    borderWidth: 2,
-                  ),
-                ),
-                // Fires when the drag or the tap ends, i.e. when the badge has
-                // served its purpose.
-                onEnd: (_) => scrubbing.value = false,
-                tooltipBuilder: (_, value) =>
-                    Text('${(value * span).round() + 1}'),
-                // Both callbacks get the raw 0..1 fraction, so both remap it to
-                // a one-based page number: the formatter is what the slider
-                // *announces* (without it a screen reader says "0%"), and the
-                // value formatter is what it announces for a step.
-                semanticFormatterCallback: (value) =>
-                    '${(value.max * span).round() + 1}',
-                semanticValueFormatterCallback: (value) =>
-                    '${(value * span).round() + 1}',
+            ),
+            // Fires when the drag or the tap ends: the finger's fraction
+            // is retired and the thumb falls back to the reader's page.
+            onEnd: (_) => scrubFraction.value = null,
+            // The drag label rides the thumb in the theme's primary. An empty
+            // bubble (the shrink hack) rendered as a textless pill on the
+            // thumb — the number is the drag's whole point. The builder gets
+            // a tooltip controller, not a context, so the colour comes from
+            // the build-scope theme.
+            tooltipBuilder: (_, value) => Text(
+              '${(value * span).round() + 1}',
+              style: mono.copyWith(
+                color: colors.primary,
+                fontWeight: FontWeight.w600,
               ),
-            ],
+            ),
+            // Both callbacks get the raw 0..1 fraction, so both remap it to
+            // a one-based page number: the formatter is what the slider
+            // *announces* (without it a screen reader says "0%"), and the
+            // value formatter is what it announces for a step.
+            semanticFormatterCallback: (value) =>
+                '${(value.max * span).round() + 1}',
+            semanticValueFormatterCallback: (value) =>
+                '${(value * span).round() + 1}',
           ),
         ),
         const SizedBox(width: 8),
         Text('$totalPage', maxLines: 1, softWrap: false, style: muted),
       ],
-    );
-  }
-}
-
-/// Floating "Page N" badge pinned above the scrubber thumb.
-class _PageBadge extends StatelessWidget {
-  const _PageBadge({required this.page});
-
-  final int page;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.theme.colors;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.card,
-        borderRadius: .circular(4),
-        border: Border.all(color: colors.border),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-        child: Text(
-          '${'reader.manga.page'.i18n} $page',
-          maxLines: 1,
-          style: context.theme.typography.body.xs.copyWith(
-            color: colors.foreground,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
     );
   }
 }

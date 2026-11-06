@@ -64,6 +64,11 @@ class MiruMangaViewPort extends ConsumerWidget {
         onStep: reader.stepPage,
         onTapCenter: onTapCenter,
         onViewMoved: onViewMoved,
+        // While the overlay is up, taps must resolve the instant the finger
+        // lifts: with the double-tap recogniser armed they waited out the
+        // disambiguation window (the toggle felt dead) and a second quick tap
+        // zoomed instead of dismissing.
+        doubleTapEnabled: !state.hudVisible,
       ),
       MangaReadMode.webToon => _WebtoonPages(
         urls: urls,
@@ -71,6 +76,7 @@ class MiruMangaViewPort extends ConsumerWidget {
         gap: gap,
         mangaProvider: mangaProvider,
         onViewMoved: onViewMoved,
+        doubleTapEnabled: !state.hudVisible,
       ),
     };
 
@@ -122,6 +128,7 @@ class _PagedPages extends HookConsumerWidget {
     required this.onPageChanged,
     required this.onStep,
     required this.onTapCenter,
+    required this.doubleTapEnabled,
     this.onViewMoved,
   });
 
@@ -139,6 +146,9 @@ class _PagedPages extends HookConsumerWidget {
   final VoidCallback onTapCenter;
   final VoidCallback? onViewMoved;
 
+  /// Whether double taps zoom (see [ReaderZoomSurface.doubleTapEnabled]).
+  final bool doubleTapEnabled;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // The page turn resets the magnification, so the surface needs a handle on
@@ -148,6 +158,7 @@ class _PagedPages extends HookConsumerWidget {
       padding: EdgeInsets.symmetric(vertical: gap),
       child: ReaderZoomSurface(
         controller: pageZoom,
+        doubleTapEnabled: doubleTapEnabled,
         // A page fills the viewport, so that is also the content a magnified
         // page is panned around: the reader can reach the edges of the page and
         // no further, never the neighbouring one.
@@ -217,6 +228,7 @@ class _WebtoonPages extends ConsumerWidget {
     required this.state,
     required this.gap,
     required this.mangaProvider,
+    required this.doubleTapEnabled,
     this.onViewMoved,
   });
 
@@ -225,6 +237,9 @@ class _WebtoonPages extends ConsumerWidget {
   final double gap;
   final MangaReaderProvider mangaProvider;
   final VoidCallback? onViewMoved;
+
+  /// Whether double taps zoom (see [ReaderZoomSurface.doubleTapEnabled]).
+  final bool doubleTapEnabled;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -239,6 +254,7 @@ class _WebtoonPages extends ConsumerWidget {
       scrollOffsetListener: reader.scrollOffsetListener,
       itemScrollController: reader.itemScrollController,
       onTap: reader.toggleHud,
+      doubleTapEnabled: doubleTapEnabled,
       onViewMoved: onViewMoved,
       itemCount: urls.length,
       // The gap belongs *between* pages, not around the list: a trailing pad on

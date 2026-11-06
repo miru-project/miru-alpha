@@ -19,6 +19,7 @@ import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/core/miru_directory.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
+import 'package:miru_alpha/ui/core/widget/eq_bars.dart';
 import 'package:miru_alpha/ui/core/widget/pulsing_dot.dart';
 import 'package:path/path.dart' as p;
 
@@ -206,7 +207,7 @@ class MobileDetailTile extends ConsumerWidget {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const _EqBars(),
+                const EqBars(),
                 const SizedBox(width: 6),
                 FBadge(
                   variant: .primary,
@@ -684,62 +685,6 @@ class _RetryButton extends StatelessWidget {
             color: color,
             fontWeight: FontWeight.w600,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The mock's "Playing" equalizer: three emerald bars bouncing on offset
-/// phases — the active row's prefix, replacing the plain ordinal.
-class _EqBars extends StatefulWidget {
-  const _EqBars();
-
-  @override
-  State<_EqBars> createState() => _EqBarsState();
-}
-
-class _EqBarsState extends State<_EqBars> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 900),
-  )..repeat();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = context.theme.colors.primary;
-    Widget bar(int index, double phase, double min, double max) {
-      final t = Curves.easeInOut.transform(((_controller.value + phase) % 1.0));
-      final height = min + (max - min) * (t < 0.5 ? t * 2 : 2 - t * 2);
-      return Container(
-        width: 2.5,
-        height: height,
-        margin: const EdgeInsets.symmetric(horizontal: 1),
-        decoration: BoxDecoration(
-          color: accent,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      );
-    }
-
-    return SizedBox(
-      width: 20,
-      height: 16,
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, _) => Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            bar(0, 0.00, 4, 15),
-            bar(1, 0.35, 4, 15),
-            bar(2, 0.65, 4, 15),
-          ],
         ),
       ),
     );

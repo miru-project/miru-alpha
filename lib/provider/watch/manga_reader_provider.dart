@@ -49,6 +49,15 @@ class MangaReaderState {
   /// the same way.
   final bool hudVisible;
 
+  /// True while a programmatic jump's scroll animation is still in flight.
+  ///
+  /// The page scrubber holds the thumb where the reader left it until this
+  /// clears — the position stream keeps reporting intermediate pages while the
+  /// jump animates, and adopting them mid-scrub is what made the thumb snap
+  /// back (worst in webtoon mode, whose animated `scrollTo` supersession
+  /// churns the position stream the most).
+  final bool jumpSettling;
+
   final MangaFitMode fitMode;
   final MangaCanvasBackground canvasBackground;
 
@@ -91,6 +100,7 @@ class MangaReaderState {
     this.itemPosition = 0,
     this.readMode = MangaReadMode.standard,
     this.hudVisible = false,
+    this.jumpSettling = false,
     this.fitMode = MangaFitMode.fitWidth,
     this.canvasBackground = MangaCanvasBackground.black,
     this.brightnessMode = kMangaBrightnessModeDefault,
@@ -107,6 +117,7 @@ class MangaReaderState {
     int? totalPage,
     MangaReadMode? readMode,
     bool? hudVisible,
+    bool? jumpSettling,
     MangaFitMode? fitMode,
     MangaCanvasBackground? canvasBackground,
     MangaBrightnessMode? brightnessMode,
@@ -122,6 +133,7 @@ class MangaReaderState {
       itemPosition: itemPosition ?? this.itemPosition,
       readMode: readMode ?? this.readMode,
       hudVisible: hudVisible ?? this.hudVisible,
+      jumpSettling: jumpSettling ?? this.jumpSettling,
       fitMode: fitMode ?? this.fitMode,
       canvasBackground: canvasBackground ?? this.canvasBackground,
       brightnessMode: brightnessMode ?? this.brightnessMode,
@@ -371,7 +383,17 @@ class MangaReader extends _$MangaReader {
 
   // Set the page number
   void setPageNumber(int page) {
+    // Listener echoes only: while a jump is animating the stream reports the
+    // intermediate pages it flies over, which must not overwrite the target.
     if (isAdjusting || state.totalPage == 0) return;
+    _writePage(page);
+  }
+
+  /// Writes the reading position. The jump target is authoritative — it wins
+  /// over any in-flight suppression, so a scrub's every tick lands even while
+  /// the previous jump's animation is still running.
+  void _writePage(int page) {
+    if (state.totalPage == 0) return;
     final next = page.clamp(0, state.totalPage - 1);
     // The item-position stream fires on every scroll frame. Without this
     // guard, every frame allocated a fresh state and rebuilt every watcher —
@@ -384,25 +406,69 @@ class MangaReader extends _$MangaReader {
   /// Steps the page by [delta], clamped to the available range.
   void stepPage(int delta) => jumpTo(state.itemPosition + delta);
 
-  // Jump to the page and set the page number
+  /// Bumped per jump. A scroll animation superseded by the next scrub tick
+  /// still completes its own future — without the token its completion would
+  /// clear [isAdjusting] while the NEWEST jump is mid-flight, un-gate the
+  /// position stream, and let intermediate pages churn the state behind the
+  /// reader's back (the scrub thumb's snap-back in webtoon mode).
+  int _jumpGeneration = 0;
+
+  /// Arms the settling flag for jump [token]. No-op when a newer jump has
+  /// already taken over, so a scrub drag writes the flag once, not per tick.
+  void _beginJump(int token) {
+    isAdjusting = true;
+    if (token == _jumpGeneration && !state.jumpSettling) {
+      state = state.copyWith(jumpSettling: true);
+    }
+  }
+
+  /// Clears the jump flags — but only for the jump that is still the newest.
+  void _endJump(int token) {
+    if (!ref.mounted || token != _jumpGeneration) return;
+    isAdjusting = false;
+    if (state.jumpSettling) state = state.copyWith(jumpSettling: false);
+  }
+
+  // Jump to the page and set the page number. [page] is the zero-based index
+  // the position stream reports.
   void jumpTo(int page) {
     if (state.totalPage == 0) return;
-    setPageNumber(page);
+    _writePage(page);
+    final token = ++_jumpGeneration;
     switch (state.readMode) {
       case MangaReadMode.webToon:
-        isAdjusting = true;
+        // A detached controller throws synchronously out of `scrollTo`; the
+        // exception would leave the jump flags armed forever — page updates
+        // gated off and the scrubber thumb locked on its last target.
+        if (!itemScrollController.isAttached) return;
+        _beginJump(token);
         itemScrollController
             .scrollTo(index: page, duration: const Duration(milliseconds: 100))
-            .then((_) {
-              if (ref.mounted) isAdjusting = false;
-            });
+            .then(
+              (_) => _endJump(token),
+              // An errored or cancelled scroll must still release the jump;
+              // a dropped completion is the frozen-reader bug.
+              onError: (Object error, StackTrace stack) {
+                logger.warning('webtoon jump did not land', error, stack);
+                _endJump(token);
+              },
+            );
       case MangaReadMode.rightToLeft || MangaReadMode.standard:
         if (pageController.hasClients) {
-          pageController.animateToPage(
-            page,
-            duration: const Duration(milliseconds: 100),
-            curve: Curves.easeInOut,
-          );
+          _beginJump(token);
+          pageController
+              .animateToPage(
+                page,
+                duration: const Duration(milliseconds: 100),
+                curve: Curves.easeInOut,
+              )
+              .then(
+                (_) => _endJump(token),
+                onError: (Object error, StackTrace stack) {
+                  logger.warning('page jump did not land', error, stack);
+                  _endJump(token);
+                },
+              );
         }
     }
   }

@@ -61,7 +61,9 @@ class ReaderSheetHandle extends StatelessWidget {
       width: 40,
       height: 4,
       decoration: BoxDecoration(
-        color: context.theme.colors.border,
+        // Muted-foreground, not the hairline border colour: a drag handle at
+        // border contrast disappears against the panel.
+        color: context.theme.colors.mutedForeground,
         borderRadius: .circular(2),
       ),
     );

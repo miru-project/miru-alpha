@@ -20,6 +20,11 @@ class ReaderTopBar extends StatelessWidget {
     required this.onOpenSettings,
     this.onToggleBookmark,
     this.bookmarked = false,
+
+    /// The display's top safe-area inset (status bar / notch). The bar's
+    /// frosted chrome grows upward to COVER that strip — content stays below
+    /// it — so the artwork never shows through above the bar as a bare band.
+    this.topInset = 0,
   });
 
   final String title;
@@ -30,11 +35,17 @@ class ReaderTopBar extends StatelessWidget {
   final VoidCallback? onToggleBookmark;
   final bool bookmarked;
 
+  /// Top safe-area inset carried inside the chrome (see the constructor).
+  final double topInset;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.theme.colors;
     return ReaderBarChrome(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      // The chrome fills the safe area: the inset is padding ABOVE the row, so
+      // the surface and its bottom hairline span from the very top of the
+      // screen down past the buttons.
+      padding: EdgeInsets.fromLTRB(16, 10 + topInset, 16, 10),
       child: SizedBox(
         height: 48,
         child: Row(

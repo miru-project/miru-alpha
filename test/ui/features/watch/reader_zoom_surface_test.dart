@@ -15,6 +15,7 @@ void main() {
   Widget subject({
     required Widget scrollable,
     ValueChanged<Offset>? onTapUp,
+    bool? doubleTapEnabled,
     double? doubleTapScale,
     ReaderZoomController? controller,
     Size? Function(Size viewport)? contentSize,
@@ -27,6 +28,7 @@ void main() {
           child: ReaderZoomSurface(
             controller: controller,
             onTapUp: onTapUp,
+            doubleTapEnabled: doubleTapEnabled ?? true,
             doubleTapScale: doubleTapScale ?? 2.5,
             contentSize: contentSize,
             builder: (context, zoom) {
@@ -505,6 +507,56 @@ void main() {
     await tester.pump(const Duration(milliseconds: 350));
 
     expect(taps, 1);
+  });
+
+  testWidgets('a double tap zooms without leaking the single-tap action', (
+    tester,
+  ) async {
+    // Guards the framework disambiguation the HUD relies on: the reader hands
+    // the HUD toggle in as `onTapUp`, so a double tap that leaked it would
+    // dismiss the overlay mid-zoom.
+    var taps = 0;
+    await tester.pumpWidget(
+      subject(
+        onTapUp: (_) => taps++,
+        scrollable: const Center(child: SizedBox(width: 400, height: 600)),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tapAt(const Offset(200, 300));
+    await tester.pump(const Duration(milliseconds: 80));
+    await tester.tapAt(const Offset(200, 300));
+    await tester.pumpAndSettle();
+
+    expect(taps, 0, reason: 'a double tap never leaks the single-tap action');
+    expect(scale, closeTo(2.5, 0.01), reason: 'the double tap zoomed instead');
+  });
+
+  testWidgets('with the double tap disabled, taps resolve immediately', (
+    tester,
+  ) async {
+    // The reader disables the double tap while its overlay is up: the toggle
+    // then lands the moment the finger lifts, and a second quick tap cannot
+    // zoom by accident — it is just another tap.
+    var taps = 0;
+    await tester.pumpWidget(
+      subject(
+        onTapUp: (_) => taps++,
+        doubleTapEnabled: false,
+        scrollable: const Center(child: SizedBox(width: 400, height: 600)),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tapAt(const Offset(200, 300));
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(taps, 1, reason: 'no double-tap window to wait out');
+
+    await tester.tapAt(const Offset(200, 300));
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(taps, 2);
+    expect(scale, 1, reason: 'a double tap no longer zooms');
   });
 
   testWidgets('the scale is clamped at both ends', (tester) async {

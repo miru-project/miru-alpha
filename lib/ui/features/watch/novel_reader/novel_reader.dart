@@ -141,12 +141,8 @@ class MiruNovelReader extends HookConsumerWidget {
     void openChapters() => showChapterDrawer(
       context,
       epProvider: epProvider,
-      bookmarks: state.bookmarks,
       openPosition: state.historyProgress,
       openTotal: state.totalProgress,
-      onToggleBookmark: reader.toggleBookmark,
-      onOpenSettings: () =>
-          showNovelSettingsSheet(context, novelProvider: novelProvider),
     );
 
     void openSettings() =>
@@ -220,20 +216,18 @@ class MiruNovelReader extends HookConsumerWidget {
               child: ReaderOverlayLayer(
                 visible: state.hudVisible,
                 offset: -8,
-                child: Padding(
-                  // The reference header is edge-to-edge, so the bar itself
-                  // carries the inset and there is no horizontal margin here.
-                  padding: EdgeInsets.only(top: mediaPadding.top),
-                  child: ReaderTopBar(
-                    title: name,
-                    subtitle: chapterLabel,
-                    onBack: () => Navigator.of(context).maybePop(),
-                    onToggleChapters: openChapters,
-                    onOpenSettings: openSettings,
-                    bookmarked: reader.isBookmarked(groupIndex, episodeIndex),
-                    onToggleBookmark: () =>
-                        reader.toggleBookmark(groupIndex, episodeIndex),
-                  ),
+                // The chrome carries the safe-area inset so it covers the
+                // status-bar strip (same as the manga reader).
+                child: ReaderTopBar(
+                  title: name,
+                  subtitle: chapterLabel,
+                  topInset: mediaPadding.top,
+                  onBack: () => Navigator.of(context).maybePop(),
+                  onToggleChapters: openChapters,
+                  onOpenSettings: openSettings,
+                  bookmarked: reader.isBookmarked(groupIndex, episodeIndex),
+                  onToggleBookmark: () =>
+                      reader.toggleBookmark(groupIndex, episodeIndex),
                 ),
               ),
             ),

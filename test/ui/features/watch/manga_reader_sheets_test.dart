@@ -85,14 +85,8 @@ class _SheetLauncher extends ConsumerWidget {
           : showChapterDrawer(
               context,
               epProvider: epProvider,
-              bookmarks: ref.watch(mangaProvider).bookmarks,
               openPosition: ref.watch(mangaProvider).page,
               openTotal: ref.watch(mangaProvider).totalPage,
-              onToggleBookmark: ref.read(mangaProvider.notifier).toggleBookmark,
-              onOpenSettings: () => showReaderSettingsSheet(
-                context,
-                mangaProvider: mangaProvider,
-              ),
             ),
       child: Text(settings ? 'open-settings' : 'open-chapters'),
     );
@@ -390,15 +384,21 @@ void main() {
 
     testWidgets('ascending order reverses the list', (tester) async {
       await openDrawer(tester);
-      // The order is one arrow, not a two-option strip.
-      final arrow = find.byIcon(FLucideIcons.arrowDown);
+      // The order is one 36x36 toggle in the header, like the detail list's.
+      final arrow = find.byIcon(FLucideIcons.arrowUp10);
       expect(arrow, findsOneWidget);
       await tester.tap(arrow);
       await _pumpFrames(tester);
-      expect(find.byIcon(FLucideIcons.arrowUp), findsOneWidget);
+      expect(find.byIcon(FLucideIcons.arrowDown01), findsOneWidget);
 
       expect(find.text('Chapter 1'), findsOneWidget);
       expect(find.text('Chapter 4'), findsOneWidget);
+      // Ascending is the source's own order: 1 above 4. The toggle is a
+      // plain reverse — no re-sorting beyond that.
+      expect(
+        tester.getTopLeft(find.text('Chapter 1')).dy,
+        lessThan(tester.getTopLeft(find.text('Chapter 4')).dy),
+      );
     });
 
     testWidgets('tapping a chapter selects it and closes the drawer', (
@@ -412,39 +412,37 @@ void main() {
       expect(find.text('reader.manga.chapters_title'), findsNothing);
     });
 
-    testWidgets('volume chips switch the listed group', (tester) async {
+    testWidgets('the volume selector switches the listed group', (
+      tester,
+    ) async {
       await openDrawer(tester);
-      await tester.tap(find.text('Volume 2'));
+      // The selector is the detail list's outline button showing the open
+      // volume; the menu lists every volume as tiles.
+      await tester.tap(find.text('Volume 1'));
+      await _pumpFrames(tester);
+      await tester.tap(find.text('Volume 2').last);
       await _pumpFrames(tester);
 
       expect(container.read(epProvider).selectedGroupIndex, 1);
       expect(container.read(epProvider).selectedEpisodeIndex, 0);
-      // Volume 2 only holds three chapters, which the header says.
+      // The selector button now names the open volume.
       expect(find.textContaining('Volume 2'), findsWidgets);
     });
 
-    testWidgets('the drawer bookmarks the open chapter and remembers it', (
-      tester,
-    ) async {
+    testWidgets('chapter rows carry no trailing action', (tester) async {
       await openDrawer(tester);
 
-      // The rows carry the affordance; the sticky bar's is last in the tree and
-      // toggles the *open* chapter.
-      expect(find.byIcon(FLucideIcons.bookmark), findsWidgets);
-      await _tapVisible(tester, find.byIcon(FLucideIcons.bookmark).last);
-      expect(container.read(mangaProvider.notifier).isBookmarked(0, 0), isTrue);
-      // Persisted, so the set survives a relaunch.
-      expect(
-        MiruSettings.getSettingSync<String>(SettingKey.mangaBookmarks),
-        contains('0:0'),
-      );
+      // Bookmarking lives in the reader top bar for the open chapter only;
+      // the list rows are plain: a tap opens, nothing else trails them.
+      expect(find.byIcon(FLucideIcons.bookmark), findsNothing);
+      expect(find.byIcon(FLucideIcons.bookmarkCheck), findsNothing);
     });
-    testWidgets('the open chapter offers Resume instead of the bookmark', (
-      tester,
-    ) async {
+    testWidgets('the open chapter shows the reading indicator', (tester) async {
       await openDrawer(tester);
 
-      expect(find.text('reader.manga.resume'), findsOneWidget);
+      // The open chapter is the accent-carded playing row: EQ bars plus the
+      // Reading badge, like the detail list's active row.
+      expect(find.text('reader.manga.reading'), findsOneWidget);
     });
 
     testWidgets('filtering narrows the list to matching names', (tester) async {
@@ -505,6 +503,26 @@ void main() {
       await openDrawer(tester);
       expect(find.text('reader.manga.reading'), findsOneWidget);
     });
+
+    testWidgets(
+      'dragging the list at its top edge collapses the sheet with it',
+      (tester) async {
+        await openDrawer(tester);
+
+        final panel = find.byType(ReaderSheetPanel);
+        final before = tester.getSize(panel).height;
+        // The list sits at its top offset: a downward drag must move the SHEET,
+        // not attempt to scroll the list.
+        await tester.drag(find.text('Chapter 4'), const Offset(0, 120));
+        await _pumpFrames(tester);
+
+        expect(
+          tester.getSize(panel).height,
+          lessThan(before - 60),
+          reason: 'the list drag collapses the sheet (they scroll together)',
+        );
+      },
+    );
 
     testWidgets('an empty chapter list explains itself', (tester) async {
       final groups = <ExtensionEpisodeGroup>[];

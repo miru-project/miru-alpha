@@ -90,6 +90,7 @@ class ReaderZoomSurface extends StatefulWidget {
     super.key,
     required this.builder,
     this.onTapUp,
+    this.doubleTapEnabled = true,
     this.doubleTapScale = 2.5,
     this.onScaleChanged,
     this.minScale = 1,
@@ -110,6 +111,13 @@ class ReaderZoomSurface extends StatefulWidget {
   /// Fired on a tap that was not a drag, with the tap's position in the
   /// surface's own coordinates, so the reader can apply its tap zones.
   final ValueChanged<Offset>? onTapUp;
+
+  /// Whether a double tap toggles the magnification. False hands every tap to
+  /// [onTapUp] the moment the finger lifts — with the recogniser registered,
+  /// each tap waits out the double-tap window first, which is why the reader's
+  /// HUD toggle felt dead while the overlay was up: a second quick tap then
+  /// read as a double tap and zoomed instead of dismissing.
+  final bool doubleTapEnabled;
 
   /// Scale a double tap toggles to, clamped into [minScale]..[maxScale]. A
   /// second double tap always returns to [minScale] with no translation.
@@ -307,16 +315,25 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
             // starts on its up: the recognizer's callbacks are dispatched
             // before this Listener's own, so a zoom started on the down would
             // be killed by _onPointerDown's animation stop the same instant.
-            onDoubleTapDown: (details) {
-              _stopFling();
-              _doubleTapFocal = details.localPosition;
-            },
-            onDoubleTapCancel: () => _doubleTapFocal = null,
-            onDoubleTap: () {
-              final focal = _doubleTapFocal;
-              _doubleTapFocal = null;
-              if (focal != null) _handleDoubleTap(focal);
-            },
+            // With [doubleTapEnabled] false the recogniser is not registered
+            // at all, so taps resolve the instant the finger lifts instead of
+            // waiting out the double-tap window.
+            onDoubleTapDown: widget.doubleTapEnabled
+                ? (details) {
+                    _stopFling();
+                    _doubleTapFocal = details.localPosition;
+                  }
+                : null,
+            onDoubleTapCancel: widget.doubleTapEnabled
+                ? () => _doubleTapFocal = null
+                : null,
+            onDoubleTap: widget.doubleTapEnabled
+                ? () {
+                    final focal = _doubleTapFocal;
+                    _doubleTapFocal = null;
+                    if (focal != null) _handleDoubleTap(focal);
+                  }
+                : null,
             child: widget.builder(context, zoom),
           ),
         );

@@ -204,30 +204,23 @@ class MiruMangaReader extends HookConsumerWidget {
           child: ReaderOverlayLayer(
             visible: state.hudVisible,
             offset: -8,
-            child: Padding(
-              // The reference header is edge-to-edge, so the bar itself carries
-              // the inset and there is no horizontal margin here.
-              padding: EdgeInsets.only(top: mediaPadding.top),
-              child: ReaderTopBar(
-                title: name,
-                subtitle: chapterLabel,
-                onBack: () => Navigator.of(context).maybePop(),
-                onToggleChapters: () => showChapterDrawer(
-                  context,
-                  epProvider: epProvider,
-                  bookmarks: state.bookmarks,
-                  openPosition: state.page,
-                  openTotal: state.totalPage,
-                  onToggleBookmark: reader.toggleBookmark,
-                  onOpenSettings: () => showReaderSettingsSheet(
-                    context,
-                    mangaProvider: mangaProvider,
-                  ),
-                ),
-                onOpenSettings: () => showReaderSettingsSheet(
-                  context,
-                  mangaProvider: mangaProvider,
-                ),
+            // The bar carries the safe-area inset INSIDE its chrome, so the
+            // frosted surface covers the status-bar strip instead of leaving
+            // the canvas showing through above it.
+            child: ReaderTopBar(
+              title: name,
+              subtitle: chapterLabel,
+              topInset: mediaPadding.top,
+              onBack: () => Navigator.of(context).maybePop(),
+              onToggleChapters: () => showChapterDrawer(
+                context,
+                epProvider: epProvider,
+                openPosition: state.page,
+                openTotal: state.totalPage,
+              ),
+              onOpenSettings: () => showReaderSettingsSheet(
+                context,
+                mangaProvider: mangaProvider,
               ),
             ),
           ),
@@ -248,14 +241,8 @@ class MiruMangaReader extends HookConsumerWidget {
                 onOpenChapters: () => showChapterDrawer(
                   context,
                   epProvider: epProvider,
-                  bookmarks: state.bookmarks,
                   openPosition: state.page,
                   openTotal: state.totalPage,
-                  onToggleBookmark: reader.toggleBookmark,
-                  onOpenSettings: () => showReaderSettingsSheet(
-                    context,
-                    mangaProvider: mangaProvider,
-                  ),
                 ),
               ),
             ),
