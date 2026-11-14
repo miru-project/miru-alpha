@@ -625,6 +625,11 @@ Future<void> _ensureSplitLibLink(Directory libDir, String name) async {
 /// the matching split DLLs. The archive is .7z (Dart's archive package cannot
 /// read it): Windows 10+ bundles bsdtar as tar.exe, which reads 7z, with the
 /// preinstalled 7z.exe as fallback.
+///
+/// avbuild regenerated the archive on 2026-11-10 with the libs and DLLs moved
+/// into arch subdirs (lib/x64/, bin/x64/, bin/arm64/); the pre-2026-11 archive
+/// kept them flat in lib/ and bin/. Both layouts are accepted so a cached
+/// extraction keeps working.
 Future<FFmpegBuildResult> _buildWindows(
   BuildInput input,
   BuildOutputBuilder output,
@@ -640,15 +645,40 @@ Future<FFmpegBuildResult> _buildWindows(
   final archiveFile = input.packageRoot.resolve('.dart_tool/$archiveName.7z');
 
   if (!Directory.fromUri(ffmpegDir).existsSync()) {
-    logger.info('Downloading FFmpeg for Windows ($archiveName)...');
-    final dio = Dio();
-    final response = await dio.download(
-      downloadUrl,
-      archiveFile.toFilePath(),
-      options: Options(followRedirects: true, responseType: ResponseType.bytes),
-    );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to download FFmpeg: HTTP ${response.statusCode}');
+    // SourceForge mirrors sometimes serve a TRUNCATED body with HTTP 200
+    // (CI hit exactly that: a 20 MiB prefix of the 36.5 MiB archive that
+    // still extracted far enough to fail later on a missing DLL). Validate
+    // the archive with `tar -tf` before extraction and redownload on
+    // failure — bsdtar exits non-zero on an incomplete 7z stream.
+    for (var attempt = 1; ; attempt++) {
+      logger.info('Downloading FFmpeg for Windows ($archiveName)...');
+      final dio = Dio();
+      final response = await dio.download(
+        downloadUrl,
+        archiveFile.toFilePath(),
+        options: Options(
+          followRedirects: true,
+          responseType: ResponseType.bytes,
+        ),
+      );
+      if (response.statusCode != 200) {
+        throw Exception(
+          'Failed to download FFmpeg: HTTP ${response.statusCode}',
+        );
+      }
+      final probe = await Process.run('tar', ['-tf', archiveFile.toFilePath()]);
+      if (probe.exitCode == 0) break;
+      logger.warning(
+        'FFmpeg archive failed validation (attempt $attempt): '
+                '${probe.stderr}'
+            .trim(),
+      );
+      if (attempt >= 3) {
+        throw Exception(
+          'FFmpeg download failed archive validation after $attempt attempts.',
+        );
+      }
+      await File.fromUri(archiveFile).delete();
     }
 
     final outputDir = input.packageRoot.resolve('.dart_tool/').toFilePath();
@@ -677,9 +707,25 @@ Future<FFmpegBuildResult> _buildWindows(
   // Re-run this hook when the archive or extraction changes.
   output.dependencies.add(archiveFile);
 
+  // The 2026-11-10 archive splits lib/ and bin/ per architecture; prefer the
+  // arch subdir and fall back to the flat pre-2026-11 layout.
+  final archDirName = switch (input.config.code.targetArchitecture) {
+    Architecture.x64 => 'x64',
+    Architecture.arm64 => 'arm64',
+    _ => throw Exception(
+      'Unsupported Windows architecture: '
+      '${input.config.code.targetArchitecture}',
+    ),
+  };
+  Uri resolveDir(String base) {
+    final archDir = ffmpegDir.resolve('$base/$archDirName/');
+    if (Directory.fromUri(archDir).existsSync()) return archDir;
+    return ffmpegDir.resolve('$base/');
+  }
+
   final includeDir = ffmpegDir.resolve('include/');
-  final libDir = ffmpegDir.resolve('lib/');
-  final binDir = ffmpegDir.resolve('bin/');
+  final libDir = resolveDir('lib');
+  final binDir = resolveDir('bin');
 
   if (!Directory.fromUri(libDir).existsSync()) {
     throw Exception(
