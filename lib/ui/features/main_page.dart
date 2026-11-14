@@ -215,11 +215,13 @@ class _HeaderIconButton extends StatelessWidget {
   }
 }
 
-/// The sidebar toggle's glyph (user directive 2026-11-13): the same runtime
-/// glyph-extracted [MorphIcon] the mobile watch player uses for
-/// play<->pause — panel-left-close <-> panel-left-open on the snappy
-/// spring. While the extraction is in flight the plain icon renders (same
-/// look, cached after the first resolve).
+/// The sidebar toggle's transition (user directive 2026-11-13, revised after
+/// live review): a two-phase POP — the outgoing glyph shrinks into its
+/// centroid, the incoming one grows back out. The morph engine's path morph
+/// is WRONG for this pair: the panel icons' chevron subpath rotates ~180°
+/// between them, and the engine's polar interpolation averages both chains
+/// rotated ±90° at mid-flight — both glyphs visibly superimposed (the
+/// "stacked" render). The pop never overlaps, by construction.
 class _PanelToggleIcon extends HookWidget {
   const _PanelToggleIcon({required this.collapsed});
 
@@ -227,40 +229,43 @@ class _PanelToggleIcon extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final glyphs = useFuture(
-      useMemoized(
-        () => Future.wait([
-          MorphGlyphs.icon(FLucideIcons.panelLeftClose),
-          MorphGlyphs.icon(FLucideIcons.panelLeftOpen),
-        ]),
-      ),
+    final controller = useAnimationController(
+      duration: const Duration(milliseconds: 170),
     );
-    final extracted = glyphs.data;
-    final glyph = extracted == null
-        ? null
-        : collapsed
-        ? extracted[1]
-        : extracted[0];
-    return glyph == null
-        ? Icon(
-            collapsed
-                ? FLucideIcons.panelLeftOpen
-                : FLucideIcons.panelLeftClose,
+    final armed = useRef(false);
+    useEffect(() {
+      if (armed.value) {
+        controller.forward(from: 0);
+      } else {
+        armed.value = true;
+      }
+      return null;
+    }, [collapsed]);
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        final t = controller.value;
+        final idle = t == 0 && !controller.isAnimating;
+        // First half: the OUTGOING glyph (pre-toggle state) shrinks to
+        // nothing; second half: the incoming glyph grows back. The two never
+        // coexist, so no mid-frame shows both icons.
+        final firstHalf = t < 0.5;
+        final showOpen = idle
+            ? collapsed
+            : (firstHalf ? !collapsed : collapsed);
+        final phase = idle
+            ? 1.0
+            : Curves.easeOut.transform(firstHalf ? 1.0 - t * 2 : (t - 0.5) * 2);
+        return Transform.scale(
+          scale: phase,
+          child: Icon(
+            showOpen ? FLucideIcons.panelLeftOpen : FLucideIcons.panelLeftClose,
             size: 18,
             semanticLabel: 'sidebar.toggle'.i18n,
-          )
-        : Semantics(
-            // The painted glyph carries no semantics of its own — keep the
-            // toggle's label for screen readers (the fallback Icon branch
-            // supplies its own).
-            label: 'sidebar.toggle'.i18n,
-            child: MorphIcon(
-              icon: glyph,
-              size: 18,
-              spring: SpringPreset.snappy,
-              color: context.theme.colors.foreground,
-            ),
-          );
+          ),
+        );
+      },
+    );
   }
 }
 
