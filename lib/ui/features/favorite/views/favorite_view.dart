@@ -58,7 +58,7 @@ class _FavoriteViewState extends ConsumerState<FavoriteView> {
       context: context,
       ref: ref,
       title: 'common.remove_favorite'.i18n,
-      body: 'common.favorite.remove_favorite_confirm'.i18n,
+      body: 'favorite.remove_favorite_confirm'.i18n,
       onConfirm: () =>
           ref.read(favoritePageProvider.notifier).deleteFavorite(favorite),
     );

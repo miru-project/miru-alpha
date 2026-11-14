@@ -49,7 +49,9 @@ void main() {
       );
       expect(
         path,
-        equals(p.join('/downloads', 'Bangumi', 'exampleb', 'My Show', 'Ep 1.mp4')),
+        equals(
+          p.join('/downloads', 'Bangumi', 'exampleb', 'My Show', 'Ep 1.mp4'),
+        ),
       );
     });
 

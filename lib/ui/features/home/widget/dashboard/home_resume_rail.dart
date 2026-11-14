@@ -112,6 +112,9 @@ class HomeResumeRail extends ConsumerWidget {
   }
 }
 
+/// One resume card: 16:9-style cover with type / remaining chips and a
+/// progress hairline over the title block. Mobile-rail only — the desktop
+/// continue grid builds its own card with the mock's element layout.
 class _ResumeCard extends ConsumerWidget {
   const _ResumeCard({super.key, required this.item});
 

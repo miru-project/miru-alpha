@@ -16,7 +16,7 @@ class MobileActiveDownloadSection extends ConsumerWidget {
       data: (data) => data.active.isEmpty
           ? Center(child: Text("download.no_active_downloads".i18n))
           : FTileGroup.builder(
-              label: Text("download.active_tasks".i18n),
+              label: Text("common.active_tasks".i18n),
               count: data.active.length,
               tileBuilder: (context, index) {
                 final item = data.active[index];

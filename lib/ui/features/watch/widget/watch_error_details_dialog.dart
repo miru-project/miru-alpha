@@ -8,10 +8,7 @@ import 'package:miru_alpha/utils/core/i18n.dart';
 /// scrollable) with copy-to-clipboard. Popped from the in-player info
 /// affordance of both failure cards (the extension-bridge card and the
 /// loaded viewport's video-request card).
-Future<void> showWatchErrorDetails(
-  BuildContext context,
-  String detailText,
-) {
+Future<void> showWatchErrorDetails(BuildContext context, String detailText) {
   return showFDialog(
     context: context,
     builder: (context, style, animations) => FDialog.adaptive(

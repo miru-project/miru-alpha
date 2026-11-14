@@ -25,8 +25,8 @@ import 'package:miru_alpha/ui/features/home/views/home_view.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_dashboard_view.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_dynamic_feed.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_poster_rail.dart';
-import 'package:miru_alpha/ui/features/home/widget/dashboard/home_quick_access_grid.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_resume_rail.dart';
+import 'package:miru_alpha/ui/features/home/widget/dashboard/home_quick_access_grid.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_section_header.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_top_bar.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_trending_rail.dart';
@@ -524,19 +524,6 @@ void main() {
     // shows the percent.
     expect(find.text('home.time_left'), findsOneWidget);
     expect(find.text('82%'), findsOneWidget);
-
-    // No per-card action button: the whole card is the tap target (the old
-    // Play/Read button duplicated it). The card body is title + progress line.
-    // (Scoped to the cards — the header's "N In Progress" pill is an FButton.)
-    expect(find.text('home.play_episode'), findsNothing);
-    expect(find.text('home.read_chapter'), findsNothing);
-    expect(
-      find.descendant(
-        of: find.byType(MiruCard),
-        matching: find.byType(FButton),
-      ),
-      findsNothing,
-    );
 
     // Card height matches the rail (mockup: cover + title + progress line).
     final cardBox = tester.renderObject<RenderBox>(

@@ -5,18 +5,24 @@ import 'package:forui/forui.dart';
 /// The compact rectangular badge used on dense cards (extension list tile,
 /// search source card): the 12px label step on a tightened padding instead
 /// of forui's touch padding. Pass [onPress] to make it tappable — FBadge
-/// itself is display-only, so the tap surface wraps it.
+/// itself is display-only, so the tap surface wraps it. [labelColor] tints
+/// the label (semantic count accents) while keeping the variant's surface.
 class SmallBadge extends StatelessWidget {
   const SmallBadge({
     super.key,
     required this.label,
     this.variant = FBadgeVariant.secondary,
     this.onPress,
+    this.labelColor,
   });
 
   final String label;
   final FBadgeVariant variant;
   final VoidCallback? onPress;
+
+  /// Overrides the label colour (e.g. semantic count accents on the shell
+  /// sidebar); the variant's own surface/border stay untouched.
+  final Color? labelColor;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +35,7 @@ class SmallBadge extends StatelessWidget {
         labelTextStyle: TextStyleDelta.delta(
           fontSize: context.theme.typography.body.xs2.fontSize,
           fontWeight: FontWeight.w500,
+          color: labelColor,
         ),
       ),
       child: Text(label),

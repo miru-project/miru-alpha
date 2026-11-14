@@ -29,7 +29,16 @@ import 'package:miru_alpha/utils/router/page_entry.dart';
 /// context of the page beneath it), or the generic "search globally" hint
 /// otherwise. When a keyword is active, a trailing clear button resets it.
 class SearchTrigger extends HookConsumerWidget {
-  const SearchTrigger({super.key});
+  const SearchTrigger({super.key, this.trailing, this.compact = false});
+
+  /// Optional control rendered inside the field after the shortcut chip
+  /// (the header's grid-density toggle rides here, mock Chunk A).
+  final Widget? trailing;
+
+  /// The shell header's compact geometry (refined mock): fixed 224px-wide,
+  /// 28px-tall input with a 12px label — an input field, not a flexing
+  /// command bar. The page/window-bar trigger keeps the default.
+  final bool compact;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -52,6 +61,84 @@ class SearchTrigger extends HookConsumerWidget {
       } else {
         ref.read(searchPageProvider.notifier).setQuery('');
       }
+    }
+
+    // Compact shell-header geometry (refined mock): a fixed 224x28 input
+    // — lowest-surface fill, hairline border, 12px label, trailing kbd chip.
+    // It is an overlay trigger, not a real text field.
+    if (compact) {
+      final colors = context.theme.colors;
+      return FTappable(
+        behavior: HitTestBehavior.translucent,
+        onPress: () {
+          ref.read(searchPageProvider.notifier).setOpen(true);
+        },
+        child: Container(
+          height: 28,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: colors.background,
+            borderRadius: context.theme.style.borderRadius.xs2,
+            border: Border.fromBorderSide(BorderSide(color: colors.border)),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                hasText ? FLucideIcons.textCursorInput : FLucideIcons.search,
+                size: 14,
+                color: hasText ? colors.primary : colors.mutedForeground,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  displayText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.theme.typography.body.xs2.copyWith(
+                    color: hasText ? colors.foreground : colors.mutedForeground,
+                  ),
+                ),
+              ),
+              if (hasText)
+                GestureDetector(
+                  onTap: clearQuery,
+                  child: Padding(
+                    padding: const EdgeInsets.all(3),
+                    child: Icon(
+                      FLucideIcons.x,
+                      size: 13,
+                      color: colors.mutedForeground,
+                    ),
+                  ),
+                )
+              else ...[
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.muted,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.fromBorderSide(
+                      BorderSide(color: colors.border),
+                    ),
+                  ),
+                  child: Text(
+                    'Ctrl K',
+                    style: context.theme.typography.body.xs2.copyWith(
+                      fontSize: 10,
+                      color: colors.foreground,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
     }
 
     return FTappable(
@@ -107,6 +194,38 @@ class SearchTrigger extends HookConsumerWidget {
                         ),
                       ),
                     ),
+                  ] else ...[
+                    // The mock's keyboard-affordance chip at the input's right
+                    // edge — desktop power users see the Ctrl+K shortcut the
+                    // shell's key handler already owns.
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: context.theme.colors.muted,
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.fromBorderSide(
+                          BorderSide(color: context.theme.colors.border),
+                        ),
+                      ),
+                      child: Text(
+                        'Ctrl K',
+                        style: context.theme.typography.body.xs2.copyWith(
+                          // Sharper than the muted secondary tone: the kbd
+                          // chip is an affordance, not body text (3 audit
+                          // rounds flagged it blending into the placeholder).
+                          color: context.theme.colors.foreground,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    if (trailing != null) ...[
+                      const SizedBox(width: 6),
+                      trailing!,
+                    ],
                   ],
                 ],
               ),
@@ -571,7 +690,7 @@ class _RecentSearchesSection extends ConsumerWidget {
               style: context.theme.typography.body.xs.copyWith(
                 color: context.theme.colors.mutedForeground,
                 letterSpacing: 0.5,
-                fontSize: 11,
+                fontSize: 12,
               ),
             ),
             const Spacer(),

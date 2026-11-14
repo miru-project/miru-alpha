@@ -251,6 +251,49 @@ class AniListProvider {
         .toList();
   }
 
+  /// Banner catalogue: trending media with the wide artwork, description and
+  /// title variants the home banner renders. Adult content excluded.
+  static Future<List<AnilistMedia>> trendingBannerPage({
+    required AnilistType type,
+    int page = 1,
+    int perPage = 5,
+  }) async {
+    final query =
+        """{Page(page:$page, perPage:$perPage){
+  media(type:${_typeToQuery(type)}, sort:TRENDING_DESC, isAdult:false){
+    id
+    type
+    status
+    episodes
+    chapters
+    meanScore
+    description(asHtml:false)
+    bannerImage
+    coverImage{
+        large
+    }
+    title{
+        romaji
+        english
+        userPreferred
+    }
+  }
+}}
+""";
+    final res = await postRequest(queryString: query);
+    if (res == null) {
+      throw Exception('AniList request failed');
+    }
+    final data = res['data'];
+    if (data == null) {
+      throw Exception('AniList response missing data');
+    }
+    final media = data['Page']['media'] as List;
+    return media
+        .map((e) => AnilistMedia.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   static Future<int> editList({
     required AnilistMediaListStatus status,
     int? mediaId,

@@ -7,9 +7,12 @@ import 'package:miru_alpha/ui/features/search/widget/search_filter_controls.dart
 
 /// The dashboard's media-type tablist: the shared [MiruSegmentedControl]
 /// (forui-styled inset track + FButton segments, forui radius tokens)
-/// scoped to this provider.
+/// scoped to this provider. [dense] selects the shell header's compact
+/// tab-bar geometry (refined mock); the dashboard keeps the default.
 class HomeTypeSwitch extends ConsumerWidget {
-  const HomeTypeSwitch({super.key});
+  const HomeTypeSwitch({super.key, this.dense = false});
+
+  final bool dense;
 
   static const _options = [
     ExtensionType.all,
@@ -22,6 +25,7 @@ class HomeTypeSwitch extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = ref.watch(homeDashboardProvider.select((s) => s.type));
     return MiruSegmentedControl<ExtensionType>(
+      dense: dense,
       segments: [
         for (final option in _options)
           MiruSegment(value: option, label: searchExtensionTypeLabel(option)),

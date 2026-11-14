@@ -573,15 +573,16 @@ class ExtensionGridView extends HookConsumerWidget {
                               hintText: 'common.all'.i18n.toUpperCase(),
                               title: "common.status".i18n,
                               items: [
-                                'common.installed'.i18n,
-                                'common.not_installed'.i18n,
+                                'extension.installed'.i18n,
+                                'extension.not_installed'.i18n,
                               ],
                               onChange: (val) {
-                                if (val == 'common.installed'.i18n) {
+                                if (val == 'extension.installed'.i18n) {
                                   notifier.filterByInstallStatus(
                                     'extension.installed',
                                   );
-                                } else if (val == 'common.not_installed'.i18n) {
+                                } else if (val ==
+                                    'extension.not_installed'.i18n) {
                                   notifier.filterByInstallStatus(
                                     'extension.not_installed',
                                   );

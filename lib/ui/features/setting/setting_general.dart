@@ -17,7 +17,10 @@ class SettingGeneral extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = ref.read(applicationControllerProvider.notifier);
     return ListView(
-      padding: .all(0),
+      // Bottom inset so the dialog/page floor never slices the last tile's
+      // subtitle or its selector border mid-line (the list edge otherwise
+      // reads as truncation). 40 keeps a clear gap at max scroll.
+      padding: .fromLTRB(0, 0, 0, 40),
       children: [
         SettingGroup(
           isMobileLayout: isMobileLayout,

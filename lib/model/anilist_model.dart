@@ -110,6 +110,7 @@ class AnilistMedia {
   final int? episodes;
   final int? meanScore;
   final String? description;
+  final String? bannerImage;
   final bool? isFavourite;
   final AnilistTitle title;
   final AnilistCoverImage coverImage;
@@ -125,6 +126,7 @@ class AnilistMedia {
     this.episodes,
     this.meanScore,
     this.description,
+    this.bannerImage,
     this.isFavourite,
     required this.title,
     required this.coverImage,

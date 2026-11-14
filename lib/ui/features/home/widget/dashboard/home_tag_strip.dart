@@ -17,7 +17,11 @@ import 'package:miru_alpha/utils/core/i18n.dart';
 /// right edge fades out (mockup `mask-image`) to hint at the scrollable
 /// overflow.
 class HomeTagStrip extends ConsumerWidget {
-  const HomeTagStrip({super.key});
+  const HomeTagStrip({super.key, this.horizontalPadding = 16});
+
+  /// The page gutter the header and chip rail align to; the desktop dashboard
+  /// passes its wider 28px edge, mobile keeps the default 16.
+  final double horizontalPadding;
 
   static const _chipHeight = 34.0;
 
@@ -34,7 +38,7 @@ class HomeTagStrip extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: HomeSectionHeader(
             // No leading glyph: the hash read as noise next to the title
             // (UX-review) — the strip's chips carry the tag identity.
@@ -78,7 +82,7 @@ class HomeTagStrip extends ConsumerWidget {
             height: _chipHeight,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               itemCount: groups.length + 1,
               separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (context, index) => index == groups.length
@@ -150,7 +154,13 @@ class _NewTagChip extends StatelessWidget {
 }
 
 /// Inline group creation — the strip's own add flow, persisted through the
-/// favorites provider (unlike the legacy dialog's state-only add).
+/// favorites provider (unlike the legacy dialog's state-only add). Public so
+/// the desktop shelves row reuses the same dialog instead of a second one.
+Future<void> showCreateFavoriteGroupDialog(
+  BuildContext context,
+  WidgetRef ref,
+) => _showNewTagDialog(context, ref);
+
 Future<void> _showNewTagDialog(BuildContext context, WidgetRef ref) async {
   final controller = TextEditingController();
   try {

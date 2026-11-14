@@ -109,7 +109,11 @@
     "years_ago": "{years} 年前",
     "history_tools": {},
     "download_tools": {},
-    "share": "分享"
+    "share": "分享",
+    "manage": "管理",
+    "retry": "重试",
+    "connected": "已连接",
+    "offline": "离线"
   },
   "media": {
     "episode": {
@@ -211,7 +215,8 @@
     "failed": "失败",
     "available": "可用",
     "updates": "更新",
-    "repos": "仓库"
+    "repos": "仓库",
+    "author": "作者"
   },
   "tracking": {
     "name": "追踪",
@@ -253,7 +258,10 @@
     "enabled": "已启用",
     "synced": "已同步 {synced}/{total}",
     "not_synced": "未同步",
-    "open_provider": "在 {provider} 中打开"
+    "open_provider": "在 {provider} 中打开",
+    "empty": "暂无追踪内容",
+    "load_failed": "追踪加载失败",
+    "login": "登录"
   },
   "settings": {
     "labels": {
@@ -262,9 +270,9 @@
         "information": ""
       },
       "tmdb_api_key": {
-        "name": "TMDB api key",
-        "information": "用于 tmdb-api 的 api",
-        "hint": "输入您的 TMDB Api 密钥"
+        "name": "TMDB API 密钥",
+        "information": "TMDB 元数据服务的凭据",
+        "hint": "输入您的 TMDB API 密钥"
       },
       "allow_nsfw": {
         "name": "允许 NSFW",
@@ -287,7 +295,7 @@
       },
       "base_color": {
         "name": "基础颜色",
-        "information": "更改中性基础调色板（背景、表面、文字）"
+        "information": "背景与表面的中性基础调色板"
       },
       "primary_color": {
         "name": "主色",
@@ -425,7 +433,11 @@
       "export_failed": "Failed to export log",
       "file_missing": "Log file not found"
     },
-    "title": "设置"
+    "title": "设置",
+    "language": "语言",
+    "load_failed": "设置加载失败",
+    "mobile_title_on_top": "移动端标题始终置顶",
+    "theme": "主题"
   },
   "reader": {
     "manga": {
@@ -447,6 +459,50 @@
       "brightness_options": {
         "auto": "自动",
         "manual": "手动"
+      },
+      "add_bookmark": "添加书签",
+      "add_bookmark_added": "已添加书签",
+      "apply_defaults": "应用默认设置",
+      "back": "返回",
+      "bookmark": "书签",
+      "canvas_background": "画布背景",
+      "canvas_options": {
+        "black": "黑色",
+        "darkGray": "深灰色",
+        "light": "白色"
+      },
+      "chapters": "章节",
+      "chapters_available": "共 {count} 章",
+      "chapters_title": "章节",
+      "filter_chapters": "按名称筛选...",
+      "fit_mode": "图像适配",
+      "fit_options": {
+        "fitWidth": "适配宽度"
+      },
+      "invert_colors": {
+        "hint": "夜间阅读反色滤镜",
+        "name": "反色"
+      },
+      "jump": "跳转",
+      "jump_hint": "跳转至章节号",
+      "keep_screen_on": {
+        "hint": "阻止屏幕自动休眠",
+        "name": "保持屏幕常亮"
+      },
+      "next": "下一页",
+      "no_chapters": "暂无章节",
+      "order": {
+        "ascending": "升序",
+        "descending": "降序"
+      },
+      "page": "页",
+      "page_gap": "页间距",
+      "previous": "上一页",
+      "resume": "继续阅读",
+      "settings": "阅读器设置",
+      "tap_to_turn_page": {
+        "hint": "点击左右边缘进行翻页",
+        "name": "点按区域翻页"
       }
     },
     "novel": {
@@ -595,7 +651,10 @@
   },
   "history_tools": {
     "clear_all": "清除全部",
-    "watch": "观看"
+    "watch": "观看",
+    "detail_missing": "无法从媒体库加载该条目",
+    "episode_unavailable": "该集已在此扩展中失效",
+    "go_to_detail": "前往详情"
   },
   "home": {
     "continue_playing": "继续观看",
@@ -603,13 +662,15 @@
     "in_progress": "{count} 个进行中",
     "quick_access": "快速访问",
     "shortcuts": "快捷方式",
-    "sources_value": "{count} 个源",
+    "sources_value": "{count} 个源可用",
     "synced_count": "已同步 {count}",
     "trackers": "追踪",
     "not_linked": "未连接",
     "favorite_tags": "收藏标签",
     "feed_empty": "暂无收藏",
     "resume_empty": "暂无进行中的内容",
+    "resume_empty_title": "暂无进行中的内容",
+    "resume_empty_subtitle": "在扩展中开始观看、阅读或串流的内容会显示在这里。",
     "explore": "探索媒体库",
     "view_all": "查看全部",
     "trending": "热门趋势",
@@ -621,7 +682,38 @@
     "location_progress": "{p}/{t}",
     "in_progress_one": "1 个进行中",
     "time_left": "剩余 {n} 分钟",
-    "feed_title": "动态：{tag}"
+    "feed_title": "动态：{tag}",
+    "chapter_chip": "第 {n} 话",
+    "continue_reading": "继续阅读与观看",
+    "dock_queue": "队列（{count}）",
+    "episode_chip": "第 {n} 集",
+    "manage_tags": "管理标签",
+    "new_shelf": "新建分区",
+    "no_cover_preview": "无封面",
+    "shelves": "分区",
+    "view_history": "查看历史",
+    "volume_chip": "第 {n} 卷",
+    "banner": {
+      "watch": "观看",
+      "bookmark": "书签",
+      "bookmarked": "已添加书签",
+      "empty": "暂无推荐内容",
+      "no_key": "未配置 API 密钥",
+      "offline": "离线",
+      "movie": "电影",
+      "show": "剧集",
+      "anime": "动漫",
+      "manga": "漫画",
+      "dock_queue": "队列 ({count})"
+    },
+    "sync_library": "同步媒体库",
+    "library_empty_title": "你的资料库还是空的",
+    "library_empty_subtitle": "在浏览扩展时将动画、漫画或小说标记为收藏，建立你的个人书架。",
+    "favorites_empty_cta": "浏览扩展",
+    "watch": "观看",
+    "read": "阅读",
+    "shelf_empty": "当前筛选下此书架没有内容。",
+    "shelf_empty_cta": "清除筛选"
   },
   "watch": {
     "source": "来源",
@@ -687,6 +779,37 @@
     "cast_preparing": "正在为该设备准备 MP4…",
     "error_details": "错误详情",
     "loading_video": "正在加载视频...",
-    "resolving_stream_via": "正在通过以下扩展解析流"
+    "resolving_stream_via": "正在通过以下扩展解析流",
+    "load_failed": "观看内容加载失败"
+  },
+  "detail": {
+    "load_failed": "详情加载失败",
+    "loading": "加载中…"
+  },
+  "detail_not_found": "未找到详情",
+  "favorite": {
+    "add_new_group": "添加新的收藏组",
+    "all-tags": "全部标签",
+    "and": "匹配全部 (AND)",
+    "current_groups": "当前分组",
+    "enter_group_name": "输入组名...",
+    "filter_mode": "筛选模式",
+    "manage_tags": "管理标签",
+    "manage_tags_desc": "通过创建和管理收藏组来组织您的分组。",
+    "name": "收藏夹",
+    "name_exists": "名称已存在",
+    "or": "匹配任一 (OR)",
+    "remove_favorite_confirm": "从收藏中移除该项？",
+    "select_groups": "选择分组",
+    "select_groups_desc": "选择要筛选的收藏分组",
+    "title": "收藏"
+  },
+  "sidebar": {
+    "library": "资料库",
+    "not_synced": "未同步",
+    "webdav_caption": "远程云存储",
+    "toggle": "切换侧栏 (Ctrl+B)",
+    "frequent_extensions": "常用扩展",
+    "tags": "标签"
   }
 }

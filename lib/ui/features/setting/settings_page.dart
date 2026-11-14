@@ -5,6 +5,8 @@ import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/ui/features/setting/setting_network.dart';
 import 'package:miru_alpha/ui/features/setting/setting_general.dart';
+import 'package:miru_alpha/ui/features/main_page/desktop_sidebar.dart'
+    show SafeFSidebar;
 import 'package:miru_alpha/utils/router/router_util.dart';
 import 'setting_extension.dart';
 import 'setting_log.dart';
@@ -31,15 +33,26 @@ class SettingsPage extends HookWidget {
   }
 }
 
-class SettingPage extends ConsumerStatefulWidget {
-  const SettingPage({super.key, required this.selected});
-  final SideBarName selected;
-  @override
-  createState() => _SettingItemsState();
-}
+/// The desktop settings sections that render real content — shared by the
+/// settings dialog nav and the deep-link page sidebar. Sections still rendering
+/// empty stubs (player, reader, about, tracking, download) stay out until they
+/// have something to show.
+const settingsSections = <(SideBarName, String, IconData)>[
+  (SideBarName.general, 'common.general', FLucideIcons.menu),
+  (SideBarName.extension, 'settings.extension.name', FLucideIcons.blocks),
+  (SideBarName.network, 'settings.miru_core.name', FLucideIcons.serverCog),
+  (SideBarName.advanced, 'settings.logging.name', FLucideIcons.scrollText),
+  (SideBarName.developer, 'common.developer', FLucideIcons.code),
+];
 
-class _SettingItemsState extends ConsumerState<SettingPage> {
-  Widget selected(SideBarName name, BuildContext context) {
+/// One settings section's content pane (desktop dialog + deep-link page).
+class SettingsSectionBody extends ConsumerWidget {
+  const SettingsSectionBody({super.key, required this.name});
+
+  final SideBarName name;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     switch (name) {
       case SideBarName.general:
         return SettingScaffold(
@@ -53,24 +66,24 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
         );
       case SideBarName.player:
         // return SettingPlayer();
-        return Center();
+        return const Center();
       case SideBarName.network:
         return SettingNetwork();
       case SideBarName.reader:
         // return SettingReader();
-        return Center();
+        return const Center();
       case SideBarName.advanced:
         return SettingScaffold(
           title: 'settings.logging.name'.i18n,
           child: SettingLog(),
         );
       case SideBarName.about:
-        return Center();
+        return const Center();
       case SideBarName.tracking:
-        return Center();
+        return const Center();
       case SideBarName.download:
         // return SettingDownload();
-        return Center();
+        return const Center();
       case SideBarName.developer:
         return SettingScaffold(
           title: 'common.developer'.i18n,
@@ -91,7 +104,16 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
         );
     }
   }
+}
 
+class SettingPage extends ConsumerStatefulWidget {
+  const SettingPage({super.key, required this.selected});
+  final SideBarName selected;
+  @override
+  createState() => _SettingItemsState();
+}
+
+class _SettingItemsState extends ConsumerState<SettingPage> {
   void _pushtoPage(BuildContext context, Widget page) =>
       Navigator.of(context).push(RouterUtil.createRoute(page));
   @override
@@ -103,7 +125,7 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
           child: SnapSheetHeader(title: 'common.settings'.i18n),
         ),
       ],
-      desktopBody: selected(widget.selected, context),
+      desktopBody: _DesktopSettingsBody(selected: widget.selected),
       slivers: [
         SliverPadding(
           padding: .only(bottom: 80),
@@ -233,6 +255,63 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
             ]),
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// Desktop settings shell for the deep-link routes: the header gear opens the
+/// settings DIALOG (primary UX); this page remains the `/settings/<name>`
+/// fallback with its own section sidebar + content pane.
+class _DesktopSettingsBody extends StatelessWidget {
+  const _DesktopSettingsBody({required this.selected});
+
+  final SideBarName selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.theme.colors;
+    return Row(
+      crossAxisAlignment: .stretch,
+      children: [
+        SafeFSidebar(
+          width: 200,
+          header: Padding(
+            padding: .symmetric(horizontal: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'common.settings'.i18n,
+                  style: context.theme.typography.body.sm.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                FDivider(
+                  style: FDividerStyleDelta.delta(
+                    padding: EdgeInsetsGeometryDelta.value(.only(bottom: 5)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          children: [
+            FSidebarGroup(
+              label: const SizedBox.shrink(),
+              children: [
+                for (final (name, labelKey, icon) in settingsSections)
+                  FSidebarItem(
+                    selected: selected == name,
+                    icon: Icon(icon),
+                    label: Text(labelKey.i18n),
+                    onPress: () => context.go('/settings/${name.name}'),
+                  ),
+              ],
+            ),
+          ],
+        ),
+        Container(width: 1, color: colors.border),
+        Expanded(child: SettingsSectionBody(name: selected)),
       ],
     );
   }

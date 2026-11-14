@@ -53,7 +53,7 @@ class ExtensionDetailView extends HookConsumerWidget {
                   },
                   child: Text(
                     isInstalled
-                        ? 'common.uninstall'.i18n
+                        ? 'extension.uninstall'.i18n
                         : 'common.install'.i18n,
                   ),
                 ),

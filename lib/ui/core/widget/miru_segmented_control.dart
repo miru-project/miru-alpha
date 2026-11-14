@@ -21,6 +21,10 @@ class MiruSegment<T> {
 /// 32px segments inside a 42px track. The mock's flex-1 equal segments are
 /// preserved on common phone widths; below the tracked minimum the strip
 /// scrolls horizontally instead of squeezing labels.
+///
+/// [dense] switches to the shell header's compact tab bar (refined mock):
+/// 24px segments (12px labels, `px-3 py-1`) in a `p-0.5` track, laid out at
+/// intrinsic width — no flex sizing, no scroll fallback.
 class MiruSegmentedControl<T> extends StatelessWidget {
   const MiruSegmentedControl({
     super.key,
@@ -32,6 +36,7 @@ class MiruSegmentedControl<T> extends StatelessWidget {
     this.selectionMarkers = false,
     this.dimUnselectedText = false,
     this.trackColor,
+    this.dense = false,
   });
 
   final List<MiruSegment<T>> segments;
@@ -68,8 +73,12 @@ class MiruSegmentedControl<T> extends StatelessWidget {
   /// screens); at 360px+ the segments stay equal and flex-1 like the mock.
   static const double minSegmentWidth = 78;
 
+  /// The shell header's compact tab-bar geometry (refined mock): 24px
+  /// segments, 12px labels, intrinsic-width track.
+  final bool dense;
+
   static const _gap = 4.0;
-  static const _trackPadding = 4.0;
+  static double _trackPadding(bool dense) => dense ? 2.0 : 4.0;
 
   @override
   Widget build(BuildContext context) {
@@ -81,35 +90,54 @@ class MiruSegmentedControl<T> extends StatelessWidget {
         border: Border.all(color: colors.border),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(_trackPadding),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final fits =
-                constraints.maxWidth >=
-                segments.length * minSegmentWidth +
-                    (segments.length - 1) * _gap;
-            final row = Row(
-              children: [
-                for (final (i, segment) in segments.indexed) ...[
-                  if (fits)
-                    Expanded(child: _segment(context, segment))
-                  else
-                    SizedBox(
-                      width: minSegmentWidth,
-                      child: _segment(context, segment),
-                    ),
-                  if (i != segments.length - 1) const SizedBox(width: _gap),
+        padding: EdgeInsets.all(_trackPadding(dense)),
+        child: dense
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final (i, segment) in segments.indexed) ...[
+                    // FButton's content row carries a Flexible — it needs a
+                    // bounded width, but the dense tab bar hugs its labels.
+                    // IntrinsicWidth bounds each segment to its label.
+                    IntrinsicWidth(child: _segment(context, segment)),
+                    if (i != segments.length - 1) const SizedBox(width: _gap),
+                  ],
                 ],
-              ],
-            );
-            return fits
-                ? row
-                : SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: row,
+              )
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  // An unbounded maxWidth (a Row sibling slot, a scroll
+                  // view) must take the scroll path: `infinity >= needed`
+                  // would otherwise claim "fits" and hand Expanded children
+                  // infinite constraints — the classic non-zero-flex crash.
+                  final fits =
+                      constraints.maxWidth.isFinite &&
+                      constraints.maxWidth >=
+                          segments.length * minSegmentWidth +
+                              (segments.length - 1) * _gap;
+                  final row = Row(
+                    children: [
+                      for (final (i, segment) in segments.indexed) ...[
+                        if (fits)
+                          Expanded(child: _segment(context, segment))
+                        else
+                          SizedBox(
+                            width: minSegmentWidth,
+                            child: _segment(context, segment),
+                          ),
+                        if (i != segments.length - 1)
+                          const SizedBox(width: _gap),
+                      ],
+                    ],
                   );
-          },
-        ),
+                  return fits
+                      ? row
+                      : SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: row,
+                        );
+                },
+              ),
       ),
     );
   }
@@ -122,58 +150,89 @@ class MiruSegmentedControl<T> extends StatelessWidget {
     // token (8 − 4) — while keeping forui's squircle shape and variant
     // colours.
     final radii = context.theme.style.borderRadius;
-    return FButton(
-      variant: selected ? selectedVariant : unselectedVariant,
-      size: .sm,
-      onPress: () => onSelected(segment.value),
-      semanticsLabel: segment.label,
-      // Radio marker: filled dot on the selected segment, empty ring on the
-      // others. The icon inherits the variant's own foreground colour from
-      // the button's IconTheme.
-      prefix: selectionMarkers
-          ? Icon(
-              selected ? FLucideIcons.circleDot : FLucideIcons.circle,
-              size: 12,
-            )
-          : null,
-      style: .delta(
-        contentStyle: FButtonContentStyleDelta.delta(
-          // HTML ref: a `py-1.5` (6px) segment around the 20px label-md line
-          // = 32px, inside a `p-1` + border track = 42px total. FORUI's own
-          // touch `.sm` measures 42px per segment (v12 padding + 18px label
-          // + 40 min) — the content box, not the size variant, is what
-          // pins the height: 18px label + 2×7 = 32.
-          constraints: const BoxConstraints(minHeight: 32),
-          padding: EdgeInsetsGeometryDelta.value(
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-          ),
-        ),
-        decoration: FVariantsDelta.delta([
-          FVariantOperation.all(
-            DecorationDelta.shapeDelta(
-              shape: RoundedSuperellipseBorder(borderRadius: radii.xs2),
-            ),
-          ),
-        ]),
-      ),
-      // The label borrows the variant's own text colour (typography tokens
-      // bake in colors.foreground, which vanishes on the primary fill) and
-      // opts into shrinking: FButton's content row is not flexible, so a
-      // bare Text overflows instead of ellipsising.
-      builder: (context, style, textStyle, iconStyle, progressStyle, child) =>
-          Flexible(
-            child: Text(
-              segment.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.theme.typography.body.xs.copyWith(
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                color: dimUnselectedText && !selected
-                    ? textStyle.color?.withValues(alpha: 0.65)
-                    : textStyle.color,
+    // Own semantics node per segment: FButton/FTappable hard-set
+    // selected:false internally (their merge would swallow an outer flag),
+    // so carry label + button role + selected state here and exclude the
+    // inner node — screen readers get a real selected radio-chip.
+    return Semantics(
+      container: true,
+      button: true,
+      selected: selected,
+      excludeSemantics: true,
+      label: segment.label,
+      onTap: () => onSelected(segment.value),
+      child: FButton(
+        variant: selected ? selectedVariant : unselectedVariant,
+        size: .sm,
+        onPress: () => onSelected(segment.value),
+        semanticsLabel: segment.label,
+        // Radio marker: filled dot on the selected segment, empty ring on the
+        // others. The icon inherits the variant's own foreground colour from
+        // the button's IconTheme.
+        prefix: selectionMarkers
+            ? Icon(
+                selected ? FLucideIcons.circleDot : FLucideIcons.circle,
+                size: 12,
+              )
+            : null,
+        style: .delta(
+          contentStyle: FButtonContentStyleDelta.delta(
+            // Default HTML ref: a `py-1.5` (6px) segment around the 20px
+            // label-md line = 32px, inside a `p-1` + border track = 42px
+            // total. FORUI's own touch `.sm` measures 42px per segment (v12
+            // padding + 18px label + 40 min) — the content box, not the size
+            // variant, is what pins the height: 18px label + 2×7 = 32.
+            // Dense (shell header tab bar): the mock's `px-3 py-1` around a
+            // 12px label = 24px, inside a `p-0.5` track.
+            constraints: BoxConstraints(minHeight: dense ? 24 : 32),
+            padding: EdgeInsetsGeometryDelta.value(
+              EdgeInsets.symmetric(
+                horizontal: dense ? 12 : 10,
+                vertical: dense ? 4 : 7,
               ),
             ),
           ),
+          decoration: FVariantsDelta.delta([
+            FVariantOperation.all(
+              DecorationDelta.shapeDelta(
+                shape: RoundedSuperellipseBorder(borderRadius: radii.xs2),
+              ),
+            ),
+          ]),
+        ),
+        // The label borrows the variant's own text colour (typography tokens
+        // bake in colors.foreground, which vanishes on the primary fill) and
+        // opts into shrinking: FButton's content row is not flexible, so a
+        // bare Text overflows instead of ellipsising.
+        builder: (context, style, textStyle, iconStyle, progressStyle, child) =>
+            Flexible(
+              child: Semantics(
+                selected: selected,
+                child: Text(
+                  segment.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: dense
+                      ? context.theme.typography.body.xs2.copyWith(
+                          fontWeight: selected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: dimUnselectedText && !selected
+                              ? textStyle.color?.withValues(alpha: 0.65)
+                              : textStyle.color,
+                        )
+                      : context.theme.typography.body.xs.copyWith(
+                          fontWeight: selected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: dimUnselectedText && !selected
+                              ? textStyle.color?.withValues(alpha: 0.65)
+                              : textStyle.color,
+                        ),
+                ),
+              ),
+            ),
+      ),
     );
   }
 }

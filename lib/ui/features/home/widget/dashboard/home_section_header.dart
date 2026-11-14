@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/widgets.dart';
 
 import 'package:forui/forui.dart';
@@ -150,32 +152,41 @@ class HomeChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.theme.colors;
-    return FBadge(
-      style: .delta(
-        decoration: .boxDelta(
-          color: colors.background.withAlpha(230),
-          border: Border.fromBorderSide(BorderSide(color: colors.border)),
-          borderRadius: BorderRadius.circular(4),
+    // Frosted glass, not a solid pill: the audit flagged the heavy dark
+    // chips as poster-art blockers. A translucent fill over a small-area
+    // BackdropFilter keeps the artwork readable underneath.
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(6),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: FBadge(
+          style: .delta(
+            decoration: .boxDelta(
+              color: colors.background.withAlpha(165),
+              border: Border.fromBorderSide(BorderSide(color: colors.border)),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            padding: EdgeInsetsGeometryDelta.value(
+              const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            ),
+            labelTextStyle: .delta(
+              fontSize: 12,
+              height: 1,
+              fontWeight: FontWeight.w600,
+              color: colors.foreground,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon case final icon?) ...[
+                Icon(icon, size: 12, color: colors.foreground),
+                const SizedBox(width: 4),
+              ],
+              Text(label),
+            ],
+          ),
         ),
-        padding: EdgeInsetsGeometryDelta.value(
-          const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        ),
-        labelTextStyle: .delta(
-          fontSize: 10,
-          height: 1,
-          fontWeight: FontWeight.w600,
-          color: colors.foreground,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon case final icon?) ...[
-            Icon(icon, size: 11, color: colors.foreground),
-            const SizedBox(width: 3),
-          ],
-          Text(label),
-        ],
       ),
     );
   }

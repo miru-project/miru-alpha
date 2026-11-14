@@ -15,7 +15,11 @@ import 'package:miru_alpha/utils/core/i18n.dart';
 /// "Source Feed" — newest finished downloads, one divided tile per item, so
 /// the downloads page keeps a home entry point.
 class HomeSourceFeed extends ConsumerWidget {
-  const HomeSourceFeed({super.key});
+  const HomeSourceFeed({super.key, this.horizontalPadding = 16});
+
+  /// The page gutter the header and tile list align to; the desktop dashboard
+  /// passes 0 (its ListView owns the 28px edge), mobile keeps the default 16.
+  final double horizontalPadding;
 
   static const _maxRows = 5;
 
@@ -30,7 +34,7 @@ class HomeSourceFeed extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: HomeSectionHeader(
             title: 'home.source_feed'.i18n,
             trailing: items.isEmpty
@@ -45,7 +49,7 @@ class HomeSourceFeed extends ConsumerWidget {
         ),
         const SizedBox(height: 12),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: items.isEmpty
               ? HomeEmpty(text: 'download.no_download_history'.i18n)
               : FTileGroup(

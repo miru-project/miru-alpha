@@ -103,6 +103,7 @@ AnilistMedia _$AnilistMediaFromJson(Map<String, dynamic> json) => AnilistMedia(
   episodes: (json['episodes'] as num?)?.toInt(),
   meanScore: (json['meanScore'] as num?)?.toInt(),
   description: json['description'] as String?,
+  bannerImage: json['bannerImage'] as String?,
   isFavourite: json['isFavourite'] as bool?,
   title: AnilistTitle.fromJson(json['title'] as Map<String, dynamic>),
   coverImage: AnilistCoverImage.fromJson(
@@ -132,6 +133,7 @@ Map<String, dynamic> _$AnilistMediaToJson(AnilistMedia instance) =>
       'episodes': instance.episodes,
       'meanScore': instance.meanScore,
       'description': instance.description,
+      'bannerImage': instance.bannerImage,
       'isFavourite': instance.isFavourite,
       'title': instance.title,
       'coverImage': instance.coverImage,

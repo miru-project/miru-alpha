@@ -5,6 +5,15 @@ import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
 
+/// TMDB calls need a credential (dart-define or Settings); the banner surfaces
+/// this as a settings hint instead of a generic offline state.
+class TmdbApiKeyMissingException implements Exception {
+  const TmdbApiKeyMissingException();
+
+  @override
+  String toString() => 'TmdbApiKeyMissingException';
+}
+
 class TMDBProvider {
   static const apiKey = String.fromEnvironment('TMDB_API_KEY');
   static const apiAccessToken = String.fromEnvironment('TMDB_ACCESS_TOKEN');
@@ -99,6 +108,43 @@ class TMDBProvider {
 
   static String getImageUrl(String path) {
     return "https://image.tmdb.org/t/p/w300$path";
+  }
+
+  /// Wide backdrop for hero artwork; [getImageUrl] keeps w300 for posters.
+  static String getBackdropUrl(String path) {
+    return "https://image.tmdb.org/t/p/w1280$path";
+  }
+
+  /// True when any credential variant (dart-define or Settings) is configured.
+  static bool get hasCredential =>
+      _authVariants("https://api.themoviedb.org/3/configuration").isNotEmpty;
+
+  /// "New on streaming" discover preset: titles carrying a flatrate
+  /// (subscription) offer in the US region, newest first. A vote floor keeps
+  /// the date-desc sort from surfacing unrated filler.
+  ///
+  /// Throws [TmdbApiKeyMissingException] when no credential is configured.
+  static Future<List<dynamic>> apiDiscoverNewOnStreaming({
+    required String mediaType,
+    int page = 1,
+  }) async {
+    final type = mediaType == "tv" ? "tv" : "movie";
+    final sortBy = type == "tv"
+        ? "first_air_date.desc"
+        : "primary_release_date.desc";
+    final url =
+        "https://api.themoviedb.org/3/discover/$type"
+        "?language=en-US&page=$page&sort_by=$sortBy"
+        "&with_watch_monetization_types=flatrate&watch_region=US"
+        "&vote_count.gte=30";
+
+    if (!hasCredential) {
+      logger.warning('TMDB discover skipped: no api key configured');
+      throw const TmdbApiKeyMissingException();
+    }
+    final resp = await _authGet(url);
+    if (resp == null) throw const TmdbApiKeyMissingException();
+    return resp['results'] as List;
   }
 
   static Future<TMDBDetail?> apiSearch(String query, String mediaType) async {

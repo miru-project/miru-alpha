@@ -43,7 +43,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
         return;
       }
       if (favGroup.value.any((element) => element.name == text)) {
-        errorText.value = 'Same name exists';
+        errorText.value = 'favorite.name_exists'.i18n;
         return;
       }
       errorText.value = null;
@@ -57,7 +57,7 @@ class _FavoriteTabState extends ConsumerState<FavoriteTab> {
           Row(
             children: [
               Text(
-                "common.favorite.title".i18n,
+                "favorite.title".i18n,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 28,

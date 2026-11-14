@@ -51,7 +51,7 @@
     "miru": "Miru",
     "alpha": "Alpha",
     "webdav": "WebDav",
-    "signin": "Signin",
+    "signin": "Sign In",
     "licenses": "Licenses",
     "close": "Close",
     "install": "Install",
@@ -86,7 +86,11 @@
     "weeks_ago": "{weeks} weeks ago",
     "months_ago": "{months} months ago",
     "years_ago": "{years} years ago",
-    "share": "Share"
+    "share": "Share",
+    "download": "Download",
+    "retry": "Retry",
+    "connected": "connected",
+    "offline": "offline"
   },
   "history_tools": {
     "clear_all": "Clear All",
@@ -109,7 +113,8 @@
     "filter_mode": "Filter Mode",
     "and": "Match ALL (AND)",
     "or": "Match ANY (OR)",
-    "all-tags": "All tags"
+    "all-tags": "All tags",
+    "name_exists": "Name already exists"
   },
   "media": {
     "episode": {
@@ -151,7 +156,10 @@
     "cast_role_supporting": "Supporting",
     "watching": "Watching",
     "episode_number": "Episode {n}",
-    "overview": "Overview"
+    "overview": "Overview",
+    "download_started": "Download started",
+    "downloaded": "Downloaded",
+    "failed_to_start_download": "Failed to start download"
   },
   "extension": {
     "name": "Extension",
@@ -208,7 +216,8 @@
     "failed": "Failed",
     "available": "Available",
     "updates": "Updates",
-    "repos": "Repos"
+    "repos": "Repos",
+    "author": "Author"
   },
   "tracking": {
     "name": "Tracking",
@@ -251,7 +260,9 @@
     "connected": "Connected",
     "not_linked": "Not linked",
     "not_synced": "Not synced",
-    "open_provider": "Open in {provider}"
+    "open_provider": "Open in {provider}",
+    "empty": "No tracked titles yet",
+    "load_failed": "Failed to load tracking"
   },
   "settings": {
     "labels": {
@@ -260,9 +271,9 @@
         "information": ""
       },
       "tmdb_api_key": {
-        "name": "TMDB api key",
-        "information": "api for tmdb-api",
-        "hint": "Enter your TMDB Api key"
+        "name": "TMDB API Key",
+        "information": "TMDB metadata provider credentials",
+        "hint": "Enter your TMDB API key"
       },
       "allow_nsfw": {
         "name": "Enable NSFW Content",
@@ -285,7 +296,7 @@
       },
       "base_color": {
         "name": "Base Color",
-        "information": "Change the neutral base palette (background, surface, text)"
+        "information": "Neutral base palette for background and surfaces"
       },
       "primary_color": {
         "name": "Primary Color",
@@ -423,7 +434,11 @@
       "export_failed": "Failed to export log",
       "file_missing": "Log file not found"
     },
-    "title": "Settings"
+    "title": "Settings",
+    "language": "Language",
+    "load_failed": "Failed to load settings",
+    "mobile_title_on_top": "Mobile title always on top",
+    "theme": "Theme"
   },
   "reader": {
     "manga": {
@@ -641,13 +656,15 @@
     "in_progress": "{count} In Progress",
     "quick_access": "Quick Access",
     "shortcuts": "Shortcuts",
-    "sources_value": "{count} Sources",
+    "sources_value": "{count} Sources Active",
     "synced_count": "{count} Synced",
     "trackers": "Trackers",
     "not_linked": "Not linked",
     "favorite_tags": "Favorite Tags",
     "feed_empty": "No favorites yet",
     "resume_empty": "Nothing in progress yet",
+    "resume_empty_title": "No media in progress",
+    "resume_empty_subtitle": "Titles you start watching, reading, or streaming across your extensions will appear here.",
     "explore": "Explore Catalog",
     "view_all": "View All",
     "trending": "Trending",
@@ -659,7 +676,38 @@
     "location_progress": "{p}/{t}",
     "in_progress_one": "1 In Progress",
     "time_left": "{n}m left",
-    "feed_title": "Feed: {tag}"
+    "feed_title": "Feed: {tag}",
+    "chapter_chip": "Ch {n}",
+    "continue_reading": "Continue Reading & Watching",
+    "dock_queue": "Trending Queue ({count})",
+    "episode_chip": "Ep {n}",
+    "manage_tags": "Manage Tags",
+    "new_shelf": "New Shelf",
+    "no_cover_preview": "No cover",
+    "shelves": "Shelves",
+    "view_history": "View History",
+    "volume_chip": "Vol {n}",
+    "banner": {
+      "watch": "Watch",
+      "bookmark": "Bookmark",
+      "bookmarked": "Bookmarked",
+      "empty": "No titles to show",
+      "no_key": "No API key configured",
+      "offline": "Offline",
+      "movie": "Movie",
+      "show": "Show",
+      "anime": "Anime",
+      "manga": "Manga",
+      "dock_queue": "Trending Queue ({count})"
+    },
+    "sync_library": "Sync Library",
+    "library_empty_title": "Your library is empty",
+    "library_empty_subtitle": "Mark anime, manga, or novels as favorites while browsing extensions to build your personal shelf.",
+    "favorites_empty_cta": "Browse Extensions",
+    "watch": "Watch",
+    "read": "Read",
+    "shelf_empty": "Nothing in this shelf for the current filter.",
+    "shelf_empty_cta": "Clear Filter"
   },
   "watch": {
     "source": "Source",
@@ -725,6 +773,20 @@
     "cast_preparing": "Preparing MP4 for this renderer…",
     "error_details": "Error details",
     "loading_video": "Loading video...",
-    "resolving_stream_via": "Resolving stream via"
-  }
+    "resolving_stream_via": "Resolving stream via",
+    "load_failed": "Failed to load watch content"
+  },
+  "detail": {
+    "load_failed": "Failed to load details",
+    "loading": "Loading…"
+  },
+  "sidebar": {
+    "library": "Library",
+    "not_synced": "Not Synced",
+    "webdav_caption": "Remote Cloud Storage",
+    "toggle": "Toggle Sidebar (Ctrl+B)",
+    "frequent_extensions": "Frequent Extensions",
+    "tags": "Tags"
+  },
+  "detail_not_found": "Details not found"
 }

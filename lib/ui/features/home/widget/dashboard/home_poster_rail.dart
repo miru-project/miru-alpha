@@ -68,7 +68,12 @@ class HomePosterCard extends StatelessWidget {
     this.badge,
     this.overlay,
     this.subtitle,
+    this.width = kHomePosterWidth,
   });
+
+  /// Tile width; the desktop grids pass a computed column width, the mobile
+  /// rails keep [kHomePosterWidth].
+  final double width;
 
   final String title;
   final VoidCallback onTap;
@@ -89,12 +94,12 @@ class HomePosterCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.theme.colors;
     final typography = context.theme.typography;
-    final height = kHomePosterWidth * 3 / 2;
+    final height = width * 3 / 2;
 
     return AnimatedBox.nopadding(
       onTap: onTap,
       child: SizedBox(
-        width: kHomePosterWidth,
+        width: width,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -102,7 +107,7 @@ class HomePosterCard extends StatelessWidget {
             Stack(
               children: [
                 SizedBox(
-                  width: kHomePosterWidth,
+                  width: width,
                   height: height,
                   child: (cover == null || cover!.isEmpty)
                       ? DecoratedBox(
@@ -119,7 +124,7 @@ class HomePosterCard extends StatelessWidget {
                         )
                       : ImageWidget(
                           imageUrl: cover,
-                          width: kHomePosterWidth,
+                          width: width,
                           height: height,
                           fit: BoxFit.cover,
                           borderRadius: 10,

@@ -2,6 +2,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:miru_alpha/model/home_banner_model.dart';
+import 'package:miru_alpha/provider/home/home_banner_provider.dart';
 import 'package:miru_alpha/ui/features/home/views/home_view.dart';
 import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/provider/home/history_page_provider.dart';
@@ -41,6 +43,13 @@ class _FakeApplicationController extends ApplicationController {
 
   @override
   ApplicationState build() => _state;
+}
+
+class _FakeHomeBanner extends HomeBanner {
+  _FakeHomeBanner();
+
+  @override
+  Future<List<HomeBannerItem>> build() async => const [];
 }
 
 void main() {
@@ -86,6 +95,7 @@ void main() {
         applicationControllerProvider.overrideWith(
           () => _FakeApplicationController(appState),
         ),
+        homeBannerProvider.overrideWith(_FakeHomeBanner.new),
       ],
     );
 

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/foundation.dart';
@@ -56,13 +58,19 @@ class AnimatedBox extends HookWidget {
             // LayoutBuilder captures parent constraints, then we scale within fixed bounds
             child: LayoutBuilder(
               builder: (context, constraints) {
+                // Normalize degenerate constraints: transient layouts (route
+                // transitions, collapsed parents) can hand down negative
+                // minimums — clamping keeps the AnimatedScale's SizedBox
+                // valid instead of throwing.
+                final w = constraints.maxWidth.isFinite
+                    ? math.max(0.0, constraints.maxWidth)
+                    : null;
+                final h = constraints.maxHeight.isFinite
+                    ? math.max(0.0, constraints.maxHeight)
+                    : null;
                 return SizedBox(
-                  width: constraints.maxWidth.isFinite
-                      ? constraints.maxWidth
-                      : null,
-                  height: constraints.maxHeight.isFinite
-                      ? constraints.maxHeight
-                      : null,
+                  width: w,
+                  height: h,
                   child: ExcludeSemantics(
                     child: AnimatedScale(
                       scale: isHovered.value ? 1.02 : 1.0,

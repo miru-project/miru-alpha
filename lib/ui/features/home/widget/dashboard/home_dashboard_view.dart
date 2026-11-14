@@ -13,6 +13,9 @@ const kHomeSectionGap = 24.0;
 /// Mobile bento dashboard in the mockup's section order: type switcher,
 /// Continue Playing, Quick Access, favorite tags, Dynamic Feed, Trending and
 /// the Source Feed.
+///
+/// The hero banner (`HomeBannerSection`) is DESKTOP-ONLY by user directive —
+/// never mount it here without explicit consent.
 class HomeDashboardView extends StatelessWidget {
   const HomeDashboardView({super.key});
 

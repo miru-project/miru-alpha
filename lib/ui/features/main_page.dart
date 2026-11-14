@@ -5,24 +5,27 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
-import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
 import 'package:miru_alpha/provider/backend_connection_provider.dart';
-import 'package:miru_alpha/ui/core/connection/backend_connection_title.dart';
+
 import 'package:miru_alpha/ui/core/widget/miru_dialog.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/features/detail/widget/detail_nav_buttons.dart';
 import 'package:miru_alpha/ui/features/search/widget/desktop_search_overlay.dart';
+import 'package:miru_alpha/ui/features/setting/settings_dialog.dart';
 import 'package:miru_alpha/provider/search/search_page_provider.dart';
-import 'package:miru_alpha/model/setting_items.dart';
+import 'package:miru_alpha/provider/shell/shell_ui_provider.dart';
+import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dev_tool/widget/dev_tool_panel.dart';
+import 'main_page/desktop_sidebar.dart';
+import 'home/widget/dashboard/home_type_switch.dart';
 
 class MainPage extends StatefulHookConsumerWidget {
   final StatefulNavigationShell? child;
@@ -32,26 +35,275 @@ class MainPage extends StatefulHookConsumerWidget {
   createState() => _MainPageState();
 }
 
-class FIconNavItem {
-  final String text;
-  final IconData icon;
-  final String? page;
-  final bool expaned;
-  final List<FIconNavItem>? subItems;
-  const FIconNavItem({
-    required this.text,
-    required this.icon,
-    this.page,
-    this.subItems,
-    this.expaned = false,
-  });
-}
-
 class NavItem {
   final String text;
   final IconData icon;
   const NavItem({required this.text, required this.icon});
 }
+
+/// Header context slot rule: the format switcher scopes the home dashboard,
+/// so it renders only on the home route — never over Settings, Extension,
+/// Tracking or the home subpages (each owns its own filters). Pure so the
+/// scoping contract is unit-testable like [sidebarIndexForLocation].
+bool headerShowsFormatPills(String location) =>
+    location == '/' || location == '/home' || location.startsWith('/home?');
+
+/// The unified 44px header (refined desktop mock): brand + Desktop tag, the
+/// route-scoped context slot, the command search, sync + settings and the
+/// window controls — one bar owning window drag (mock Chunk A).
+class _UnifiedHeader extends ConsumerWidget {
+  const _UnifiedHeader();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.theme.colors;
+    // Context slot: the format pills scope the home dashboard, so they render
+    // only on the home route (audit: no media filters over Settings/Extension).
+    final showPills = headerShowsFormatPills(
+      GoRouterState.of(context).uri.toString(),
+    );
+    final sidebarCollapsed = ref.watch(sidebarCollapsedProvider);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.background,
+        border: Border.fromBorderSide(BorderSide(color: colors.border)),
+      ),
+      child: DragToMoveArea(
+        child: SizedBox(
+          height: 44,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                // Sidebar collapse toggle (mock: dock_to_left, Ctrl+B) —
+                // occupies the slot the old traffic dots held. The key is
+                // the tests' tap target: the morphing glyph paints via
+                // CustomPaint, so find.byIcon cannot see it.
+                Padding(
+                  key: const Key('sidebarToggle'),
+                  padding: const EdgeInsets.only(right: 4),
+                  child: _HeaderIconButton(
+                    onTap: () =>
+                        ref.read(sidebarCollapsedProvider.notifier).toggle(),
+                    child: _PanelToggleIcon(collapsed: sidebarCollapsed),
+                  ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      'common.miru'.i18n,
+                      style: context.theme.typography.body.sm.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      'common.alpha'.i18n,
+                      style: context.theme.typography.body.sm.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: colors.mutedForeground,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 8),
+                const SmallBadge(label: 'Desktop'),
+                const SizedBox(width: 12),
+                // Format pills live in the header now (mock: global scope
+                // above the canvas, not home-scoped) — but only ON home;
+                // elsewhere the center slot is empty.
+                if (showPills) ...[
+                  const SizedBox(width: 12),
+                  const HomeTypeSwitch(dense: true),
+                ],
+                const Spacer(),
+                const SizedBox(width: 12),
+                // Compact command search (refined mock): fixed 224x28 input trigger —
+                // the overlay it opens is unchanged.
+                const SizedBox(width: 224, child: SearchTrigger(compact: true)),
+                const SizedBox(width: 12),
+                // Sync CTA (mock: library sync moved from the sidebar into
+                // the header dock) — the extension store's own refresh.
+                _HeaderIconButton(
+                  icon: FLucideIcons.refreshCw,
+                  semanticLabel: 'home.sync_library'.i18n,
+                  onTap: () => ref
+                      .read(extensionPageProvider.notifier)
+                      .loadRepos(force: true),
+                ),
+                const SizedBox(width: 4),
+                _HeaderIconButton(
+                  icon: FLucideIcons.settings,
+                  // VSCode-style modal (user directive 2026-11-12) — the
+                  // /settings/<name> routes stay as deep-link fallbacks.
+                  onTap: () => showSettingsDialog(context),
+                ),
+                const SizedBox(width: 8),
+                _VerticalDivider(),
+                const SizedBox(width: 4),
+                // Window controls (mock right cluster).
+                _WindowDot(
+                  color: colors.mutedForeground.withAlpha(179),
+                  onTap: () => windowManager.minimize(),
+                  square: true,
+                  icon: FLucideIcons.minus,
+                ),
+                _WindowDot(
+                  color: colors.mutedForeground.withAlpha(179),
+                  onTap: () async {
+                    if (await windowManager.isMaximized()) {
+                      await windowManager.unmaximize();
+                    } else {
+                      await windowManager.maximize();
+                    }
+                  },
+                  square: true,
+                  icon: FLucideIcons.square,
+                ),
+                _WindowDot(
+                  color: const Color(0xCCC6412F),
+                  onTap: () => windowManager.close(),
+                  square: true,
+                  icon: FLucideIcons.x,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A 1px vertical divider used between header clusters.
+class _VerticalDivider extends StatelessWidget {
+  const _VerticalDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(width: 1, height: 16, color: context.theme.colors.border);
+  }
+}
+
+/// 36px ghost icon button for the header's utility cluster — forui's own
+/// hover/press states instead of a hand-rolled container.
+class _HeaderIconButton extends StatelessWidget {
+  const _HeaderIconButton({
+    required this.onTap,
+    this.icon,
+    this.child,
+    this.semanticLabel,
+  });
+
+  final VoidCallback onTap;
+
+  /// Glyph used when no custom [child] is supplied.
+  final IconData? icon;
+  final Widget? child;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    return FButton.icon(
+      variant: .ghost,
+      size: .sm,
+      onPress: onTap,
+      child: child ?? Icon(icon, size: 18, semanticLabel: semanticLabel),
+    );
+  }
+}
+
+/// The sidebar toggle's glyph (user directive 2026-11-13): the same runtime
+/// glyph-extracted [MorphIcon] the mobile watch player uses for
+/// play<->pause — panel-left-close <-> panel-left-open on the snappy
+/// spring. While the extraction is in flight the plain icon renders (same
+/// look, cached after the first resolve).
+class _PanelToggleIcon extends HookWidget {
+  const _PanelToggleIcon({required this.collapsed});
+
+  final bool collapsed;
+
+  @override
+  Widget build(BuildContext context) {
+    final glyphs = useFuture(
+      useMemoized(
+        () => Future.wait([
+          MorphGlyphs.icon(FLucideIcons.panelLeftClose),
+          MorphGlyphs.icon(FLucideIcons.panelLeftOpen),
+        ]),
+      ),
+    );
+    final extracted = glyphs.data;
+    final glyph = extracted == null
+        ? null
+        : collapsed
+        ? extracted[1]
+        : extracted[0];
+    return glyph == null
+        ? Icon(
+            collapsed
+                ? FLucideIcons.panelLeftOpen
+                : FLucideIcons.panelLeftClose,
+            size: 18,
+            semanticLabel: 'sidebar.toggle'.i18n,
+          )
+        : Semantics(
+            // The painted glyph carries no semantics of its own — keep the
+            // toggle's label for screen readers (the fallback Icon branch
+            // supplies its own).
+            label: 'sidebar.toggle'.i18n,
+            child: MorphIcon(
+              icon: glyph,
+              size: 18,
+              spring: SpringPreset.snappy,
+              color: context.theme.colors.foreground,
+            ),
+          );
+  }
+}
+
+/// One header control: either a 12px traffic dot or a square window button
+/// (mock: a dot cluster left AND min/max/close buttons right).
+class _WindowDot extends StatelessWidget {
+  const _WindowDot({
+    required this.color,
+    this.onTap,
+    this.square = false,
+    this.icon,
+  });
+
+  final Color color;
+  final VoidCallback? onTap;
+  final bool square;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: square
+            ? Container(
+                width: 24,
+                height: 28,
+                alignment: Alignment.center,
+                child: Icon(icon, size: 13, color: color),
+              )
+            : Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+              ),
+      ),
+    );
+  }
+}
+
+/// The emerald live accent shared by the header pills.
+const kHeaderEmerald = Color(0xFF34D399);
 
 class _MainPageState extends ConsumerState<MainPage>
     with SingleTickerProviderStateMixin {
@@ -62,79 +314,6 @@ class _MainPageState extends ConsumerState<MainPage>
     NavItem(text: 'common.search', icon: Icons.explore_outlined),
     NavItem(text: 'extension.name', icon: Icons.extension_outlined),
     NavItem(text: 'common.settings', icon: Icons.settings_outlined),
-  ];
-
-  static final List<FIconNavItem> _fIconNavItem = [
-    FIconNavItem(text: 'common.home', icon: FLucideIcons.house, page: "/home"),
-    FIconNavItem(
-      text: 'common.history',
-      icon: FLucideIcons.history,
-      page: "/home/history",
-    ),
-    FIconNavItem(
-      text: 'favorite.name',
-      icon: FLucideIcons.bookHeart,
-      page: "/home/favorite",
-    ),
-    FIconNavItem(
-      text: 'download.name',
-      icon: FLucideIcons.download,
-      page: "/home/download",
-    ),
-    FIconNavItem(
-      text: 'common.search',
-      icon: FLucideIcons.search,
-      page: "/search",
-    ),
-    FIconNavItem(
-      text: 'extension.name',
-      icon: FLucideIcons.blocks,
-      page: "/extension",
-    ),
-    FIconNavItem(
-      text: 'tracking.name',
-      icon: FLucideIcons.clipboardClock,
-      page: "/tracking",
-    ),
-    FIconNavItem(
-      text: 'common.settings',
-      icon: FLucideIcons.settings,
-      subItems: _fLucideIconsettingSubItem,
-    ),
-  ];
-
-  static const sideBarIconMap = <SideBarName, IconData>{
-    SideBarName.general: FLucideIcons.menu,
-    SideBarName.extension: FLucideIcons.blocks,
-    SideBarName.player: FLucideIcons.play,
-    SideBarName.network: FLucideIcons.server,
-    SideBarName.reader: FLucideIcons.bookOpen,
-    SideBarName.advanced: FLucideIcons.cog,
-    SideBarName.download: FLucideIcons.download,
-    SideBarName.about: FLucideIcons.inbox,
-    SideBarName.tracking: FLucideIcons.arrowUpDown,
-    SideBarName.developer: FLucideIcons.code,
-  };
-  static const sideBarTranslationMap = <SideBarName, String>{
-    SideBarName.general: 'common.general',
-    SideBarName.extension: 'extension.name',
-    SideBarName.player: 'common.player',
-    SideBarName.network: 'common.network',
-    SideBarName.reader: 'common.reader',
-    SideBarName.advanced: 'common.advanced',
-    SideBarName.about: 'common.about',
-    SideBarName.tracking: 'tracking.name',
-    SideBarName.download: 'common.download',
-    SideBarName.developer: 'common.developer',
-  };
-
-  static final List<FIconNavItem> _fLucideIconsettingSubItem = [
-    for (var item in SideBarName.values)
-      FIconNavItem(
-        text: sideBarTranslationMap[item]!,
-        icon: sideBarIconMap[item]!,
-        page: "/settings/${item.name}",
-      ),
   ];
 
   @override
@@ -206,6 +385,34 @@ class _MainPageState extends ConsumerState<MainPage>
       });
       return null;
     }, []);
+
+    // The mock's ⌘K / Ctrl+K command-search shortcut: ONE handler owns the
+    // key on the shell (rule 21) and opens the same overlay the top-bar
+    // trigger opens — identical state, no second search surface. Ctrl+B
+    // toggles the sidebar collapse.
+    useEffect(() {
+      if (DeviceUtil.isMobile) return null;
+      bool onKey(KeyEvent event) {
+        // addHandler receives keyDown AND keyUp — act on the press only
+        // (a toggle would fire twice and cancel itself, exposed by Ctrl+B).
+        if (event is! KeyDownEvent) return false;
+        final modifier =
+            HardwareKeyboard.instance.isControlPressed ||
+            HardwareKeyboard.instance.isMetaPressed;
+        if (modifier && event.logicalKey == LogicalKeyboardKey.keyK) {
+          ref.read(searchPageProvider.notifier).setOpen(true);
+          return true;
+        }
+        if (modifier && event.logicalKey == LogicalKeyboardKey.keyB) {
+          ref.read(sidebarCollapsedProvider.notifier).toggle();
+          return true;
+        }
+        return false;
+      }
+
+      HardwareKeyboard.instance.addHandler(onKey);
+      return () => HardwareKeyboard.instance.removeHandler(onKey);
+    }, const []);
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     return FTheme(
@@ -334,210 +541,47 @@ class _MainPageState extends ConsumerState<MainPage>
             if (!DeviceUtil.isMobile) const _DesktopSearchOverlay(),
           ],
         ),
-        desktopWidget: FScaffold(
-          key: messengerKey,
-          sidebar: SafeFSidebar(
-            autofocus: true,
-            header: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        desktopWidget: Column(
+          children: [
+            // High-Density rev: ONE unified 44px header owns window controls,
+            // identity, the format pills, the command search and telemetry —
+            // the old 40+56px double stack is gone (reclaims ~52px).
+            const _UnifiedHeader(),
+            Expanded(
+              child: Row(
                 children: [
-                  Padding(
-                    padding: .symmetric(horizontal: 10),
-                    // Sidebar brand is connection-aware like the mobile home
-                    // bar: `Connecting + server:port` slides up into the
-                    // `Miru Alpha` wordmark when the core answers. The
-                    // FittedBox is the mobile bar's same brand guard — raw
-                    // test keys (and any long locale) scale down instead of
-                    // overflowing the sidebar.
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: BackendConnectionTitle(
-                        title: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "common.miru".i18n,
-                              style: context.theme.typography.body.xl3.copyWith(
-                                fontWeight: .bold,
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsetsGeometry.directional(
-                                start: 10,
-                                top: 15,
-                              ),
-                              child: Text(
-                                "common.alpha".i18n,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.none,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  FDivider(
-                    style: FDividerStyleDelta.delta(
-                      padding: EdgeInsetsGeometryDelta.value(.only(bottom: 5)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            footer: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: FTappable(
-                onPress: () {},
-                child: FTappable(
-                  onPress: () {
-                    iconsMessageToast(
-                      title: 'common.wip'.i18n,
-                      icon: FLucideIcons.construction,
-                    );
-                  },
-                  child: MiruCard(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
-                      ),
-                      child: Row(
-                        spacing: 10,
+                  Expanded(
+                    child: FScaffold(
+                      key: messengerKey,
+                      sidebar: const DesktopSidebar(),
+                      child: Stack(
+                        // Expand: only positioned children + a closed
+                        // overlay would otherwise size the Stack to zero
+                        // and blank the whole branch (seen live at
+                        // 1300x800 after the header merge).
+                        fit: StackFit.expand,
                         children: [
-                          FAvatar.raw(
-                            child: Icon(
-                              FLucideIcons.userRound,
-                              size: 18,
-                              color: context.theme.colors.mutedForeground,
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 2,
-                              children: [
-                                Text(
-                                  'common.webdav'.i18n,
-                                  style: context.theme.typography.body.sm
-                                      .copyWith(fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  'common.signin'.i18n,
-                                  style: context.theme.typography.body.xs
-                                      .copyWith(
-                                        color: context
-                                            .theme
-                                            .colors
-                                            .mutedForeground,
-                                      ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            children: [
-              HookBuilder(
-                builder: (context) {
-                  final selectedIndex = useState("");
-                  return FSidebarGroup(
-                    label: Text(
-                      'common.overview'.i18n,
-                      style: TextStyle(
-                        // fontFamily: 'Noto Sans CJK TC', // Be explicit
-                        fontWeight: FontWeight.w400,
-                        textBaseline: TextBaseline.alphabetic,
-                      ),
-                    ),
-                    children: [
-                      for (var i = 0; i < _fIconNavItem.length; i++) ...[
-                        FSidebarItem(
-                          initiallyExpanded: true,
-                          label: Text(_fIconNavItem[i].text.i18n),
-                          icon: Icon(_fIconNavItem[i].icon),
-                          onPress: () {
-                            // widget.child.goBranch(i);
-                            if (_fIconNavItem[i].page != null) {
-                              context.go(_fIconNavItem[i].page!);
-                            }
-
-                            selected.value = i;
-                          },
-                          selected: selected.value == i,
-                          children: _fIconNavItem[i].subItems != null
-                              ? _fIconNavItem[i].subItems!
-                                    .map(
-                                      (e) => FSidebarItem(
-                                        selected: e.text == selectedIndex.value,
-                                        label: Text(e.text.i18n),
-                                        icon: Icon(e.icon),
-                                        onPress: () {
-                                          if (e.page != null) {
-                                            context.go(e.page!);
-                                          }
-                                          selected.value = i;
-                                          selectedIndex.value = e.text;
-                                        },
-                                      ),
-                                    )
-                                    .toList()
-                              : [],
-                        ),
-                      ],
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 7),
-                  child: Stack(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (!DeviceUtil.isMobile) ...[
-                            const DragWindows(),
-                            const FDivider(
-                              style: FDividerStyleDelta.delta(
-                                padding: EdgeInsetsGeometryDelta.value(
-                                  EdgeInsets.zero,
-                                ),
-                              ),
-                            ),
-                          ],
-                          FTheme(
-                            data: themeData,
-                            child: Expanded(
+                          // Positioned.fill: the routed shell must fill the
+                          // canvas — an Expanded here would be a Flex child
+                          // inside a Stack (ParentData crash on branch
+                          // activation).
+                          Positioned.fill(
+                            child: FTheme(
+                              data: themeData,
                               child: widget.child ?? const SizedBox(),
                             ),
                           ),
+                          if (!DeviceUtil.isMobile)
+                            const _DesktopSearchOverlay(),
                         ],
                       ),
-                      if (!DeviceUtil.isMobile) const _DesktopSearchOverlay(),
-                    ],
+                    ),
                   ),
-                ),
+                  const DevToolPanel(),
+                ],
               ),
-              const DevToolPanel(),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -599,47 +643,4 @@ class _DesktopSearchOverlay extends ConsumerWidget {
 
 extension StringExtension on String {
   String capitalize() => '${this[0].toUpperCase()}${substring(1)}';
-}
-
-class SafeFSidebar extends StatelessWidget {
-  final bool? autofocus;
-  final Widget? header;
-  final Widget? footer;
-  final List<Widget>? children;
-  final double? width;
-
-  const SafeFSidebar({
-    super.key,
-    this.autofocus,
-    this.header,
-    this.footer,
-    this.children,
-    this.width,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        minWidth: width ?? 160,
-        maxWidth: width ?? 200,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          header ?? SizedBox(),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: children ?? const [],
-              ),
-            ),
-          ),
-          footer ?? SizedBox(),
-        ],
-      ),
-    );
-  }
 }
