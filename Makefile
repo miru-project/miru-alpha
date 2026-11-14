@@ -9,7 +9,7 @@ TAG_PREFIX := v
 # Release flow: `make release VERSION=...` pushes the tag, and the Alpha
 # Release CI regenerates CHANGELOG.md, commits it, retags and builds.
 
-.PHONY: help tag-commit tag push-tag release untag changelog version pubspec-version
+.PHONY: help tag-commit tag push-tag release untag changelog version pubspec-version bump
 
 gen-proto:
 	@echo "Generating protobuf..."
@@ -45,6 +45,8 @@ help:
 	@echo "  make changelog                    Regenerate CHANGELOG.md (git-cliff)"
 	@echo "  make version                      Show pubspec version"
 	@echo "  make pubspec-version VERSION=...  Set pubspec version"
+	@echo "  make bump VERSION=2.0.3-alpha     Commit the version bump on main,"
+	@echo "                                    then cut the release: make release VERSION=..."
 
 # Tag HEAD with an annotated release tag. Accepts TAG=v2.0.3-alpha or
 # VERSION=2.0.3-alpha (v added automatically). Refuses to overwrite an
@@ -118,3 +120,25 @@ pubspec-version:
 	fi
 	@sed -i "s/^version:.*/version: $(VERSION)/" pubspec.yaml
 	@echo "Set pubspec.yaml version to $(VERSION)"
+
+# Commit a version bump on main so the branch carries the released version
+# between releases (CI otherwise only writes it onto the tag). Tag the bump
+# commit with `make release`; prepare in CI re-derives the version, finds it
+# unchanged and releases on top of the bump commit.
+#
+# Do NOT name the bump commit "chore(release):..." — release_prepare.sh
+# treats a tag pointing at that subject as already released and skips the
+# whole flow.
+bump:
+	$(eval VERSION_VAL := $(VERSION:v%=%))
+	@if [ -z "$(VERSION_VAL)" ]; then \
+		echo "Error: VERSION must be specified (e.g., make bump VERSION=2.0.3-alpha)"; \
+		exit 1; \
+	fi
+	@if ! [[ "$(VERSION_VAL)" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z-]+)?$$ ]]; then \
+		echo "Error: invalid version '$(VERSION_VAL)' — allowed: X.Y.Z or X.Y.Z-<word> (no -alphaN, no +N)"; \
+		exit 1; \
+	fi
+	@sed -i "s/^version:.*/version: $(VERSION_VAL)/" pubspec.yaml
+	@git commit -m "chore: bump version to $(VERSION_VAL)" -- pubspec.yaml
+	@echo "Bumped pubspec.yaml to $(VERSION_VAL) on $$(git rev-parse --short HEAD) — now: make release VERSION=$(VERSION_VAL)"
