@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 
 
+## Unreleased
+
+### Other Changes
+- Add bump target for version-bump commits (make)
+- Bump version to 2.0.3-alpha
+## 2.0.3-alpha - 2026-11-14
+
+### Bug Fixes
+- Prevent CI overwrite (CI/release)
+- Filter out noisy image bad state (errlog/ImageProvider)
+- Remove initializing screen on mobile and desktop
+- Recover core isolate stranded by debugger pause-on-start (core)
+- Mobile scrub seeks once on release and holds the thumb (ui/watch)
+- Remove duplicated restart
+- Remove custom file extension restriction (extension/import)
+- Don't refresh `createfilter` after `search` fired (search)
+- Fix relese CI error (CI)
+- Survive avbuild archive relayout and truncated downloads (windows)
+- Two-phase pop for the toggle glyph, not a path morph (sidebar)
+- Give the re-created tag a CI identity, not just the commit (release)
+- Stop build-job uploads from wiping the release notes (release)
+
+### Features
+- Smooth horizontal scroll , double tap zoom(unzoom) and image loading progress (mobille/manga)
+- Reader overhaul - scroll-together chapter sheet, scrubber rework, zoom tap fix (watch/manga)
+- Unified shell, hero banner and dashboard overhaul (desktop)
+- Collapsed rail keeps Frequent Extensions as icon rows (sidebar)
+
+### Other Changes
+- Extend slide time to 800ms (ui/home)
+
+### Refactor
+- Single-session riverpod watch content to prevent OOM (ui/watch)
 ## 2.0.2-alpha - 2026-10-31
 
 ### Bug Fixes
