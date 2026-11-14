@@ -154,11 +154,13 @@ void main() {
     );
 
     // Widget tests render raw i18n keys. The chip row carries rank,
-    // format and score; the pickers moved into the Customize popover.
+    // format and score; the catalogue picker (source + format tabs) docks
+    // top-left (2026-11-13: TMDB movie/show selectable in the banner).
     expect(find.text('#1 Trending'), findsOneWidget);
     // `.i18n` returns the raw key in the bare harness (no uppercasing in
-    // this chip) — assert the key form (harness trap).
-    expect(find.text('home.banner.anime'), findsOneWidget);
+    // this chip) — the eyebrow chip AND the picker's Anime tab both show
+    // it (harness trap).
+    expect(find.text('home.banner.anime'), findsNWidgets(2));
     expect(find.text('9.1 / 10'), findsOneWidget);
     expect(find.text('Frieren'), findsOneWidget);
     expect(find.text('Sousou no Frieren'), findsOneWidget);
@@ -168,8 +170,7 @@ void main() {
     expect(find.text('home.banner.bookmark'), findsNothing);
     expect(find.text('home.dock_queue'), findsOneWidget);
     expect(find.byIcon(FLucideIcons.info), findsOneWidget);
-    expect(find.byKey(const Key('bannerSourcePicker')), findsNothing);
-    expect(find.byKey(const Key('bannerFormatPicker')), findsNothing);
+    expect(find.byKey(const Key('bannerCataloguePicker')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -348,8 +349,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));
 
-      // The chip row resolves the nested home.banner.anime label.
-      expect(find.text('Anime'), findsOneWidget);
+      // The chip row and the catalogue picker's Anime tab both resolve the
+      // nested home.banner.anime label.
+      expect(find.text('Anime'), findsNWidgets(2));
       expect(find.text('home.banner.anime'), findsNothing);
 
       // The app's own language switch (what the settings screen calls): the
@@ -360,7 +362,7 @@ void main() {
           .changeLanguage('zh');
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text('动漫'), findsOneWidget);
+      expect(find.text('动漫'), findsNWidgets(2));
       expect(find.text('Anime'), findsNothing);
       expect(find.text('home.banner.anime'), findsNothing);
       expect(tester.takeException(), isNull);

@@ -74,25 +74,58 @@ class HomeBannerSection extends HookConsumerWidget {
           );
         }
         if (banner.hasError) {
-          return _BannerError(height: height, error: banner.error);
+          return _bannerFramed(
+            selection: selection,
+            child: _BannerError(height: height, error: banner.error),
+          );
         }
         final items = banner.value ?? const [];
         if (items.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: SizedBox(
-              height: height,
-              child: HomeEmpty(text: 'home.banner.empty'.i18n),
+          return _bannerFramed(
+            selection: selection,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                height: height,
+                child: HomeEmpty(text: 'home.banner.empty'.i18n),
+              ),
             ),
           );
         }
-        return _BannerCarousel(
-          key: ValueKey((selection.source, selection.format)),
-          items: items,
-          height: height,
+        return _bannerFramed(
           selection: selection,
+          child: _BannerCarousel(
+            key: ValueKey((selection.source, selection.format)),
+            items: items,
+            height: height,
+            selection: selection,
+          ),
         );
       },
+    );
+  }
+
+  /// Overlays the catalogue picker on a non-skeleton state. The CHILD owns
+  /// its own 16px gutter (carousel/error both carry one) — the frame adds no
+  /// padding, or the parity contract with the skeleton shifts. Visible on
+  /// error/empty too, so a missing TMDB key never traps the user on a dead
+  /// banner (switch back to AniList right there).
+  Widget _bannerFramed({
+    required HomeBannerSelectionState selection,
+    required Widget child,
+  }) {
+    return Stack(
+      children: [
+        child,
+        Positioned(
+          left: 28,
+          top: 12,
+          child: _BannerCataloguePicker(
+            key: const Key('bannerCataloguePicker'),
+            selection: selection,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -151,6 +184,99 @@ class _BannerCarousel extends HookConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The catalogue picker docked at the banner's top-left (the mock's
+/// editorial top row, now functional): the source tabs (AniList | TMDB) and
+/// the selected source's format chips (Movie/TV Show, Anime/Manga) on the
+/// dock's frosted glass. Switching the source resets the format and the
+/// provider refetches (the banner watches the selection); switching to TMDB
+/// without a configured key lands on the key-hint error state, where this
+/// picker stays reachable.
+class _BannerCataloguePicker extends ConsumerWidget {
+  const _BannerCataloguePicker({super.key, required this.selection});
+
+  final HomeBannerSelectionState selection;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.theme.colors;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.background.withAlpha(204),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.fromBorderSide(BorderSide(color: colors.border)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(5),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 4,
+              children: [
+                for (final source in HomeBannerSource.values)
+                  _PickerChip(
+                    label: source.label,
+                    selected: selection.source == source,
+                    onTap: () => ref
+                        .read(homeBannerSelectionProvider.notifier)
+                        .setSource(source),
+                  ),
+                if (selection.source.formats.length > 1) ...[
+                  Container(width: 1, height: 16, color: colors.border),
+                  for (final format in selection.source.formats)
+                    _PickerChip(
+                      label: format.i18nKey.i18n,
+                      selected: selection.format == format,
+                      onTap: () => ref
+                          .read(homeBannerSelectionProvider.notifier)
+                          .setFormat(format),
+                    ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One picker tab: forui's own secondary fill when active, ghost otherwise.
+class _PickerChip extends StatelessWidget {
+  const _PickerChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return FButton(
+      variant: selected ? .secondary : .ghost,
+      mainAxisSize: .min,
+      onPress: onTap,
+      style: .delta(
+        contentStyle: FButtonContentStyleDelta.delta(
+          constraints: const BoxConstraints(minHeight: 24),
+          padding: EdgeInsetsGeometryDelta.value(
+            const EdgeInsets.symmetric(horizontal: 8),
+          ),
+        ),
+      ),
+      // The label keeps forui's own style; the selected state reads through
+      // the secondary fill alone (a base TextStyle override would drop the
+      // variant's label colour).
+      child: Text(label),
     );
   }
 }
