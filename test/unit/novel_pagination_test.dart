@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/ui/features/watch/novel_reader/novel_content.dart';

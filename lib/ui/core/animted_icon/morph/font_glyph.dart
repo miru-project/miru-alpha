@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart' show IconData;
+import 'package:material_ui/material_ui.dart' show IconData;
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'icon_input.dart';

@@ -47,6 +47,7 @@ Output/
 /android/app/.cxx
 
 /android/app/build
+/android/build
 *.aar
 *.jar
 

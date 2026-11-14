@@ -5,12 +5,10 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   fvp
   screen_brightness_windows
-  screen_retriever_windows
-  share_plus
   url_launcher_windows
+  share_plus
   volume_controller
   webview_all_windows
-  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

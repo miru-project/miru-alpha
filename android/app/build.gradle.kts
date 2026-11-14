@@ -21,11 +21,18 @@ fun getApiKey(name:String): String? {
     }
 }
 
-val keystorePath = System.getenv("KEYSTORE") ?: getApiKey("storeFile") ?: "keystore.jks"
+// key.properties (android/, gitignored) is the AUTHORITATIVE local signing
+// source; the environment is only a fallback (CI exports the same names and
+// has no key.properties). Environment-first made the signature depend on the
+// launching shell: a GUI VSCode launch never sources ~/.bashrc, so it fell
+// through to the debug config while a terminal build signed with the release
+// keystore. File-first signs both paths identically.
+val keystorePath = getApiKey("storeFile") ?: System.getenv("KEYSTORE") ?: "keystore.jks"
 val storeFileRef = file(keystorePath)
-val storePasswordRef: String? = System.getenv("KEYSTORE_PASSWORD") ?: getApiKey("storePassword")
-val keyAliasRef: String? = System.getenv("KEY_ALIAS") ?:getApiKey("keyAlias")
-val keyPasswordRef: String? = System.getenv("KEY_PASSWORD") ?: getApiKey("keyPassword")
+val storePasswordRef: String? = getApiKey("storePassword") ?: System.getenv("KEYSTORE_PASSWORD")
+val keyAliasRef: String? = getApiKey("keyAlias") ?: System.getenv("KEY_ALIAS")
+val keyPasswordRef: String? = getApiKey("keyPassword") ?: System.getenv("KEY_PASSWORD")
+println("release storeFile: $keystorePath")
 
 
 android {

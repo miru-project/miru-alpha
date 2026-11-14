@@ -23,6 +23,7 @@ import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:file_picker/file_picker.dart';
+
 import 'dev_tool/widget/dev_tool_panel.dart';
 import 'main_page/desktop_sidebar.dart';
 import 'home/widget/dashboard/home_type_switch.dart';
@@ -146,17 +147,19 @@ class _UnifiedHeader extends ConsumerWidget {
                 // Window controls (mock right cluster).
                 _WindowDot(
                   color: colors.mutedForeground.withAlpha(179),
-                  onTap: () => windowManager.minimize(),
+                  onTap: () => WindowManager.instance.getCurrent()?.minimize(),
                   square: true,
                   icon: FLucideIcons.minus,
                 ),
                 _WindowDot(
                   color: colors.mutedForeground.withAlpha(179),
-                  onTap: () async {
-                    if (await windowManager.isMaximized()) {
-                      await windowManager.unmaximize();
+                  onTap: () {
+                    final window = WindowManager.instance.getCurrent();
+                    if (window == null) return;
+                    if (window.isMaximized) {
+                      window.unmaximize();
                     } else {
-                      await windowManager.maximize();
+                      window.maximize();
                     }
                   },
                   square: true,
@@ -164,7 +167,7 @@ class _UnifiedHeader extends ConsumerWidget {
                 ),
                 _WindowDot(
                   color: const Color(0xCCC6412F),
-                  onTap: () => windowManager.close(),
+                  onTap: () => WindowManager.instance.getCurrent()?.close(),
                   square: true,
                   icon: FLucideIcons.x,
                 ),

@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miru_alpha/ui/core/scrollable_position_list/scrollable_positioned_list.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/webtoon_zoom_surface.dart';

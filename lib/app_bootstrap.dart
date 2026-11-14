@@ -105,24 +105,29 @@ Future<void> runMiruApp({required void Function() ensureBinding}) async {
 
       bindErrorWidget();
       if (!(Platform.isAndroid || Platform.isIOS || kIsWeb)) {
-        await windowManager.ensureInitialized();
-        WindowOptions windowOptions = WindowOptions(
-          // Desktop launches start desktop-sized (the original default) in
-          // every mode — the window is breakpoint-driven (forui `sm` 640 /
-          // `lg` 1024) and freely resizable down to the phone-ish floor, so
-          // the mobile layout is one drag away; the launch size never fakes
-          // a phone viewport.
-          size: const Size(1300, 800),
-          minimumSize: Size(400, 480),
-          center: true,
-          skipTaskbar: false,
-          backgroundColor: Colors.transparent,
-          titleBarStyle: TitleBarStyle.hidden,
-        );
-        windowManager.waitUntilReadyToShow(windowOptions, () async {
-          await windowManager.show();
-          await windowManager.focus();
-        });
+        try {
+          final window = WindowManager.instance.getCurrent();
+          if (window != null) {
+            // Desktop launches start desktop-sized (the original default) in
+            // every mode — the window is breakpoint-driven (forui `sm` 640 /
+            // `lg` 1024) and freely resizable down to the phone-ish floor, so
+            // the mobile layout is one drag away; the launch size never fakes
+            // a phone viewport. (window_manager 0.7: no WindowOptions /
+            // waitUntilReadyToShow anymore — the engine's window already
+            // exists, so configure it directly. `skipTaskbar: false` was the
+            // platform default and 0.7 has no window-background option; the
+            // theme paints it.)
+            window.titleBarStyle = TitleBarStyle.hidden;
+            window.setSize(const Size(1300, 800).toNative(), false);
+            window.minimumSize = const Size(400, 480).toNative();
+            window.center();
+            window.show();
+            window.focus();
+          }
+        } on ArgumentError {
+          // No native window library in this process (widget tests): leave
+          // the harness's window alone.
+        }
       }
       FFMpegUtils.ensureInitialized();
       Core.loadConfig();

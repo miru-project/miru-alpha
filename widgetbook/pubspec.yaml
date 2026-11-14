@@ -1,0 +1,23 @@
+name: widgetbook_workspace
+description: "Miru component catalog (Widgetbook workspace app)."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+  widgetbook: ^3.25.0
+  forui: ^0.27.2
+  miru_alpha:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

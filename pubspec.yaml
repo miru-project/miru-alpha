@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 2.0.3-alpha
 
 environment:
-  sdk: ^3.12.0
+  sdk: ^3.13.0
   flutter: ">=3.44.0"
 
 # Dependencies specify other packages that your package needs in order to work.
@@ -37,7 +37,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   # cupertino_icons: ^1.0.6
-  window_manager: ^0.5.1
+  window_manager: ^0.7.0
   flutter_svg: ^2.0.10+1
   intl: ^0.20.2
   macos_window_utils: ^1.5.0
@@ -67,7 +67,7 @@ dependencies:
   # of shipping linux/mdk-sdk in the package; hook/build.dart resolves the
   # libffmpeg link input from the extracted SDK (with a self-sufficient
   # fallback download on a fresh checkout).
-  fvp: ^0.39.1
+  fvp: ^0.40.0
   video_player: ^2.9.1
   flutter_hooks: ^0.21.2
   easy_refresh: ^4.0.0
@@ -118,9 +118,8 @@ dev_dependencies:
   riverpod_generator: ^4.0.0+1
   flutter_launcher_icons: ^0.14.4
   forui_cli: ^0.27.0
-  marionette_flutter: ^0.7.0
-  marionette_logging: ^0.7.0
-
+  marionette_flutter: any
+  marionette_logging: any
 build:
   cache: true
   incremental: true

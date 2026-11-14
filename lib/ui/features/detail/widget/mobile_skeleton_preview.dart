@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/widget_previews.dart';
 
 @Preview(name: 'Mobile Detail Skeleton', size: Size(375, 812))
