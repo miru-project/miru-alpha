@@ -223,5 +223,5 @@ missing. `prbuild.yml` additionally publishes per-push dev artifacts through
 `actions/upload-artifact`.
 
 Toolchains are pinned in the workflow `env` block and match the README
-prerequisites: Flutter `3.47.7`, Go `1.27.3`. No Rust toolchain is required —
+prerequisites: Flutter `3.50.0`, Go `1.27.3`. No Rust toolchain is required —
 the native layer is Go (backend shared library) and C++ (`ffmpeg_merge`).

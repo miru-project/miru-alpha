@@ -113,7 +113,7 @@ test/
 
 Pinned to what CI builds with (`.github/workflows/prbuild.yml` → `release_alpha.yml`):
 
-- **Flutter**: `3.47.7` (stable channel).
+- **Flutter**: `3.50.0` (stable channel).
 - **Go**: `1.27.3` — the backend is compiled to a shared library by the Dart build hook.
 - **C++ toolchain** (CMake + a C++ compiler) — the native `ffmpeg_merge` library is built from source during the Flutter build.
 - **Git** (with submodules — `src/miru_core/miru-core` is checked out with `submodules: true`).
