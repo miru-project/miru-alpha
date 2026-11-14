@@ -7,6 +7,7 @@ import 'package:miru_alpha/provider/download_provider.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/provider/shell/shell_ui_provider.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/model.dart' show ExtensionType;
 import 'package:miru_alpha/ui/features/extension/widget/text_cover.dart';
 import 'package:miru_alpha/ui/features/favorite/widget/favorite_group_sheet.dart';
@@ -94,6 +95,23 @@ int? sidebarIndexForLocation(String location, List<FIconNavItem> items) {
   return best;
 }
 
+/// Frequent Extensions (mock): the user's favorites grouped by source
+/// package, connected-favorite count DESCENDING, capped at 4 — shared by the
+/// expanded sidebar group and the collapsed rail (user directive 2026-11-13:
+/// the rail keeps the group as single extension icons below a divider).
+List<(ExtensionMeta, int)> frequentExtensionsFor(WidgetRef ref) {
+  final favs = ref.watch(favoritePageProvider.select((s) => s.favorites));
+  final extMeta = ref.watch(extensionPageProvider.select((s) => s.metaData));
+  final favCounts = <String, int>{};
+  for (final f in favs) {
+    favCounts[f.package] = (favCounts[f.package] ?? 0) + 1;
+  }
+  return [
+    for (final m in extMeta)
+      if (favCounts[m.packageName] case final n? when n > 0) (m, n),
+  ]..sort((a, b) => b.$2.compareTo(a.$2));
+}
+
 class DesktopSidebar extends HookConsumerWidget {
   const DesktopSidebar({super.key});
 
@@ -111,18 +129,9 @@ class DesktopSidebar extends HookConsumerWidget {
     // Collapsed icon rail (header toggle / Ctrl+B): 56px, icons only, no
     // labels/counts/shelves — tooltips carry the names.
     final collapsed = ref.watch(sidebarCollapsedProvider);
-    // Frequent Extensions (mock): the user's favorites grouped by source
-    // package, connected-favorite count DESCENDING, capped at 4.
-    final favs = ref.watch(favoritePageProvider.select((s) => s.favorites));
-    final extMeta = ref.watch(extensionPageProvider.select((s) => s.metaData));
-    final favCounts = <String, int>{};
-    for (final f in favs) {
-      favCounts[f.package] = (favCounts[f.package] ?? 0) + 1;
-    }
-    final frequentExtensions = [
-      for (final m in extMeta)
-        if (favCounts[m.packageName] case final n? when n > 0) (m, n),
-    ]..sort((a, b) => b.$2.compareTo(a.$2));
+    // Frequent Extensions (mock): favorites grouped by source package,
+    // connected-favorite count DESCENDING — shared with the collapsed rail.
+    final frequentExtensions = frequentExtensionsFor(ref);
     // Tags (mock): every group, connected-favorites count DESCENDING,
     // unlimited length — the sidebar column scrolls.
     final sortedGroups = [...groups]
@@ -298,38 +307,10 @@ class DesktopSidebar extends HookConsumerWidget {
               ),
               for (final (meta, _) in frequentExtensions)
                 FSidebarItem(
-                  // The source's real icon — the same treatment as the
-                  // extension list tiles' app-icon slot (muted square, image
-                  // with the TextCover glyph fallback), scaled to 20px. The
-                  // category glyph mirrors `extensionTypeIcon`, mapped on the
-                  // shell's ExtensionType.
-                  icon: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      color: colors.muted,
-                      alignment: Alignment.center,
-                      child: ImageWidget(
-                        imageUrl: meta.icon,
-                        width: 20,
-                        height: 20,
-                        fit: BoxFit.cover,
-                        borderRadius: 0,
-                        errChild: TextCover(
-                          seed: meta.name,
-                          icon: switch (meta.type) {
-                            ExtensionType.bangumi => FLucideIcons.play,
-                            ExtensionType.manga => FLucideIcons.bookOpen,
-                            ExtensionType.fikushon => FLucideIcons.bookMarked,
-                            _ => FLucideIcons.package,
-                          },
-                          size: 20,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // The source's real icon — the shared 20px tile (same
+                  // treatment as the collapsed rail and the extension list
+                  // tiles).
+                  icon: _ExtensionIcon20(meta: meta),
                   label: Row(
                     children: [
                       Expanded(
@@ -442,9 +423,11 @@ class DesktopSidebar extends HookConsumerWidget {
   }
 }
 
-/// The collapsed 56px icon rail: nav icons only (tooltips carry the names,
-/// the selected one keeps forui's secondary fill), the WebDAV icon with its
-/// emerald indicator dot at the bottom. Labels, counts and shelves hide.
+/// The collapsed 56px icon rail: nav icons (tooltips carry the names, the
+/// selected one keeps forui's secondary fill), a divider, then the Frequent
+/// Extensions as single extension icons (user directive 2026-11-13) — the
+/// same real-icon treatment as the expanded group — and the WebDAV icon with
+/// its emerald indicator dot at the bottom. Labels, counts and tags hide.
 class _CollapsedRail extends ConsumerWidget {
   const _CollapsedRail({required this.selected});
 
@@ -453,6 +436,9 @@ class _CollapsedRail extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.theme.colors;
+    // Capped at 4: the rail is a fixed-height column (no scroll) — the same
+    // cap the mock gave the group.
+    final frequent = frequentExtensionsFor(ref).take(4).toList();
     return Column(
       children: [
         const SizedBox(height: 8),
@@ -471,6 +457,32 @@ class _CollapsedRail extends ConsumerWidget {
               ),
             ),
           ),
+        if (frequent.isNotEmpty) ...[
+          // The divider splits the nav menu from the extension icons.
+          FDivider(
+            style: FDividerStyleDelta.delta(
+              padding: EdgeInsetsGeometryDelta.value(
+                const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              ),
+            ),
+          ),
+          for (final (meta, _) in frequent)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Tooltip(
+                message: meta.name,
+                child: FButton.icon(
+                  variant: .ghost,
+                  size: .sm,
+                  onPress: () => context.push(
+                    '/search/single',
+                    extra: SearchPageParam(meta: meta),
+                  ),
+                  child: _ExtensionIcon20(meta: meta),
+                ),
+              ),
+            ),
+        ],
         const Spacer(),
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
@@ -519,6 +531,47 @@ class _CollapsedRail extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The 20px source-icon tile — the same real-icon treatment as the expanded
+/// Frequent Extensions group and the extension list tiles: muted square, the
+/// source's icon with the TextCover glyph fallback.
+class _ExtensionIcon20 extends StatelessWidget {
+  const _ExtensionIcon20({required this.meta});
+
+  final ExtensionMeta meta;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.theme.colors;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: Container(
+        width: 20,
+        height: 20,
+        color: colors.muted,
+        alignment: Alignment.center,
+        child: ImageWidget(
+          imageUrl: meta.icon,
+          width: 20,
+          height: 20,
+          fit: BoxFit.cover,
+          borderRadius: 0,
+          errChild: TextCover(
+            seed: meta.name,
+            icon: switch (meta.type) {
+              ExtensionType.bangumi => FLucideIcons.play,
+              ExtensionType.manga => FLucideIcons.bookOpen,
+              ExtensionType.fikushon => FLucideIcons.bookMarked,
+              _ => FLucideIcons.package,
+            },
+            size: 20,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+      ),
     );
   }
 }
