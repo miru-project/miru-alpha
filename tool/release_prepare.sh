@@ -127,22 +127,24 @@ if [[ -n $BODY_FILE ]]; then
   echo "release body written: $BODY_FILE"
 fi
 
+# CI runners have no git identity configured. The commit and the annotated
+# re-tag below BOTH need one (an annotated tag records a tagger, taken from
+# the committer ident), so export the bot identity once for every later git
+# write instead of per-command.
+if [[ -z "$(git config user.name)" || -z "$(git config user.email)" ]]; then
+  export GIT_AUTHOR_NAME="miru-release-bot"
+  export GIT_AUTHOR_EMAIL="miru-release-bot@users.noreply.github.com"
+  export GIT_COMMITTER_NAME="miru-release-bot"
+  export GIT_COMMITTER_EMAIL="miru-release-bot@users.noreply.github.com"
+fi
+
 # 4. Commit the release artifacts. Reruns of a failed prepare are idempotent:
 #    nothing staged -> no new commit, the tag simply moves to HEAD.
 git add pubspec.yaml CHANGELOG.md
 if git diff --cached --quiet; then
   echo "nothing to commit; releasing current HEAD"
 else
-  if [[ -n "$(git config user.name)" && -n "$(git config user.email)" ]]; then
-    git commit -m "chore(release): $TAG [skip ci]" -- pubspec.yaml CHANGELOG.md
-  else
-    # CI runners have no git identity configured.
-    GIT_AUTHOR_NAME="miru-release-bot" \
-    GIT_AUTHOR_EMAIL="miru-release-bot@users.noreply.github.com" \
-    GIT_COMMITTER_NAME="miru-release-bot" \
-    GIT_COMMITTER_EMAIL="miru-release-bot@users.noreply.github.com" \
-    git commit -m "chore(release): $TAG [skip ci]" -- pubspec.yaml CHANGELOG.md
-  fi
+  git commit -m "chore(release): $TAG [skip ci]" -- pubspec.yaml CHANGELOG.md
   echo "committed: chore(release): $TAG [skip ci]"
 fi
 RELEASE_SHA="$(git rev-parse HEAD)"
