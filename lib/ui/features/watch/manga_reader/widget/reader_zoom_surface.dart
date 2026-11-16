@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -85,6 +87,13 @@ class ReaderZoomController {
 /// a single tap resolves only once the double-tap window has closed (the same
 /// bargain every reader offering both makes), while a double tap never leaks
 /// the single-tap action.
+///
+/// **Once the view is magnified the double-tap recogniser is disarmed**: the
+/// window made every HUD toggle land ~300 ms after the lift, and the second
+/// quick tap of an impatient reader hid what the first had just shown — the
+/// "the HUD appears and instantly disappears" report. While zoomed, taps
+/// resolve the moment the finger lifts, and un-zooming is the pinch's job
+/// (converging fingers clamp at the min scale and hand the drag back).
 class ReaderZoomSurface extends StatefulWidget {
   const ReaderZoomSurface({
     super.key,
@@ -183,6 +192,9 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
   /// Live pointers, oldest first. Only the first two take part in a gesture.
   final Map<int, Offset> _pointers = {};
 
+  /// TEMP DIAGNOSTIC: where each live pointer went down.
+  final Map<int, Offset> _downAt = {};
+
   double _scale = 1;
 
   /// Paint translation, frozen once the fingers lift so the zoomed view stays
@@ -256,6 +268,28 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
 
   double get _minScale => widget.minScale;
 
+  /// True from a gesture's second finger down until the last finger lifts: a
+  /// pinched gesture's finger lifts must never read as taps (the raw
+  /// instant-tap path in [_onPointerUp]) nor seed the double-tap recogniser.
+  bool _gesturePinched = false;
+
+  /// A zoomed tap fires once the double-tap window closes, so a double tap
+  /// (which un-zooms) never triggers the HUD. A second tap's down or a new
+  /// gesture cancels the pending fire.
+  Timer? _pendingTapFire;
+  Offset? _pendingTapAt;
+
+  /// Set by the double-tap recogniser's down (which dispatches before this
+  /// Listener's) and consumed by [_onPointerDown]: the gesture is a double
+  /// tap's second tap, so its lift must not schedule a HUD fire either.
+  bool _pendingSecondTap = false;
+  bool _gestureIsDoubleTap = false;
+
+  void _cancelPendingTapFire() {
+    _pendingTapFire?.cancel();
+    _pendingTapFire = null;
+  }
+
   bool get _zoomed => _scale > _minScale;
 
   @override
@@ -308,26 +342,42 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
           onPointerCancel: _onPointerUp,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
+            // While magnified the raw pointer path detects taps instantly
+            // (_onPointerUp): the tap recogniser here would hold the arena
+            // for the double-tap window, delaying every HUD toggle by 300 ms
+            // and letting the next contact dismiss what the tap had shown.
+            // The build-time gate alone is stale (a build before the pinch
+            // leaves the recogniser armed), so the callback re-checks: while
+            // magnified the raw pointer path owns the tap and fires it once.
             onTapUp: widget.onTapUp == null
                 ? null
-                : (details) => widget.onTapUp!(details.localPosition),
+                : (details) {
+                    if (_zoomed) return;
+                    widget.onTapUp!(details.localPosition);
+                  },
             // The focal is captured on the second tap's down but the zoom only
             // starts on its up: the recognizer's callbacks are dispatched
             // before this Listener's own, so a zoom started on the down would
             // be killed by _onPointerDown's animation stop the same instant.
-            // With [doubleTapEnabled] false the recogniser is not registered
-            // at all, so taps resolve the instant the finger lifts instead of
-            // waiting out the double-tap window.
-            onDoubleTapDown: widget.doubleTapEnabled
+            // While the view is magnified the double-tap recogniser stays
+            // armed EVEN when the shell flips [doubleTapEnabled] off for its
+            // HUD toggle: the flip landing mid-double-tap disarmed the
+            // recogniser, so the zoom-out never fired and the two taps
+            // resolved as show-HUD + hide-HUD (the "double click does not
+            // zoom out / layout appears then disappears" report). The cost is
+            // that a magnified single tap resolves once the window closes
+            // (~300 ms after the lift) — the standard double-tap bargain.
+            onDoubleTapDown: (widget.doubleTapEnabled || _zoomed)
                 ? (details) {
                     _stopFling();
                     _doubleTapFocal = details.localPosition;
+                    _pendingSecondTap = true;
                   }
                 : null,
-            onDoubleTapCancel: widget.doubleTapEnabled
+            onDoubleTapCancel: (widget.doubleTapEnabled || _zoomed)
                 ? () => _doubleTapFocal = null
                 : null,
-            onDoubleTap: widget.doubleTapEnabled
+            onDoubleTap: (widget.doubleTapEnabled || _zoomed)
                 ? () {
                     final focal = _doubleTapFocal;
                     _doubleTapFocal = null;
@@ -407,7 +457,15 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
   }
 
   void _onPointerDown(PointerDownEvent event) {
+    if (_pointers.isNotEmpty) _gesturePinched = true;
+    // A second tap makes the previous one a double-tap: its pending HUD fire
+    // must never happen (the un-zoom double-tap triggered the HUD report),
+    // and this second tap's own lift must not schedule a new one either.
+    _cancelPendingTapFire();
+    _gestureIsDoubleTap = _pendingSecondTap;
+    _pendingSecondTap = false;
     _pointers[event.pointer] = event.localPosition;
+    _downAt[event.pointer] = event.localPosition;
     // A touch means the reader is driving now. Any coast still running has to
     // stop: it would otherwise fight the pan for every move, and — because the
     // fling controller is still animating — the *next* flick would find it busy
@@ -432,6 +490,16 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
     final pinching = _pointers.length >= 2;
     if (!pinching && !_zoomed) return;
 
+    // The flick's release velocity includes the approach, but sub-slop drift
+    // is a tap, not a pan: it must not move the view or dismiss the HUD.
+    if (!pinching) _trackPanVelocity(event);
+    final downAt = _downAt[event.pointer];
+    if (!pinching &&
+        downAt != null &&
+        (event.localPosition - downAt).distance < kTouchSlop) {
+      return;
+    }
+
     var scale = _scale;
     if (pinching) {
       final distance = _focalDistance;
@@ -448,15 +516,30 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
       final origin = _gestureOrigin;
       final scroll = widget.onVerticalScroll;
       if (!pinching && scroll != null) {
-        // The vertical goes to the inner scrollable so the content it has built
-        // follows the view; the horizontal stays in the transform, because a
-        // list has no sideways scroll. The vertical translation then stays where
-        // the pinch left it and the view origin follows the new offset.
-        final delta = origin.dy - _panAnchor.dy;
-        scroll(delta);
-        _panAnchor = origin;
-        final dx = _clampOrigin(Offset(origin.dx, 0), scale).dx;
-        _translate = Offset(-scale * dx, _translate.dy);
+        // The vertical splits between the inner scrollable and the paint: the
+        // scrollable can only express the UNZOOMED range [0, maxScrollExtent],
+        // so freezing the translation here made everything above/below a
+        // zoomed window unreachable — zoom the lower half of a strip and the
+        // top of the content could never be scrolled to. The scrollable moves
+        // as far as it can toward the clamped target origin, and the paint
+        // translation absorbs whatever it could not express.
+        final clamped = _clampOrigin(origin, scale);
+        final delta = clamped.dy - _panAnchor.dy;
+        // The scrollable only expresses the unzoomed range — clamp the move to
+        // it and let the paint translation absorb the rest. Feeding jumpTo an
+        // out-of-range target forced the position past its floor, where the
+        // list cannot render the content above its start: panning up from a
+        // zoomed window was bounded at the zoom position.
+        final maxScroll = widget.scrollExtent?.call() ?? 0;
+        final current = _offset;
+        final scrollableDelta =
+            ((current + delta).clamp(0.0, maxScroll)) - current;
+        if (scrollableDelta != 0) scroll(scrollableDelta);
+        _panAnchor = clamped;
+        _translate = Offset(
+          -scale * clamped.dx,
+          scale * (_offset - clamped.dy),
+        );
         _trackPanVelocity(event);
         widget.onViewMoved?.call();
         return;
@@ -479,7 +562,36 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
 
   void _onPointerUp(PointerEvent event) {
     _pointers.remove(event.pointer);
+    final start = _downAt.remove(event.pointer);
     final wasZoomed = _zoomed;
+    // A sub-slop lift while magnified IS a tap: fire it instantly (the tap
+    // recogniser is disarmed while zoomed) and discard the micro-drift
+    // velocity so no coast starts — the coast's synthetic scroll dismissed
+    // the HUD the tap had just shown.
+    final travel = start == null
+        ? null
+        : (event.localPosition - start).distance;
+    final wasPinch = _gesturePinched;
+    if (_pointers.isEmpty) _gesturePinched = false;
+    if (_zoomed &&
+        !wasPinch &&
+        !_gestureIsDoubleTap &&
+        travel != null &&
+        travel < kTouchSlop) {
+      // Fire after the double-tap window: a second tap cancels this, so a
+      // double tap (zoom or un-zoom) never triggers the HUD, while a single
+      // tap still toggles it. The dismissal race that made this window feel
+      // broken (the HUD appearing then instantly hiding) is fixed separately:
+      // sub-slop drift neither pans nor starts a coast.
+      _pendingTapAt = event.localPosition;
+      _cancelPendingTapFire();
+      _pendingTapFire = Timer(kDoubleTapTimeout, () {
+        final at = _pendingTapAt;
+        _pendingTapFire = null;
+        if (at != null) widget.onTapUp?.call(at);
+      });
+      _panVelocity = null;
+    }
     // Whatever is left on screen is what the reader keeps looking at, so the
     // gesture re-baselines and the scrollable is handed back on the next build.
     _rebase();
@@ -640,6 +752,7 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
 
   @override
   void dispose() {
+    _cancelPendingTapFire();
     _fling.dispose();
     _hFling.dispose();
     _zoomAnim.dispose();

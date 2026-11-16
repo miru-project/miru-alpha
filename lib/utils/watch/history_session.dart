@@ -13,6 +13,29 @@ import 'package:miru_alpha/utils/router/page_entry.dart';
 /// episode group that contains it.
 typedef HistoryEpisodeRef = ({int episodeIndex, int groupIndex});
 
+/// The reading position history holds for one episode, in the units the reader
+/// reported it in: 1-based [progress] of [totalProgress] — pages for a paged
+/// reading mode, lines in a continuous one.
+typedef SavedReadingProgress = ({int progress, int totalProgress});
+
+/// Finds the position history holds for [episodeUrl] of [package].
+///
+/// Returns null when nothing usable is stored: no row for the episode, or one
+/// that never got past its opening page/line.
+SavedReadingProgress? findSavedReadingProgress({
+  required List<History> history,
+  required String package,
+  required String episodeUrl,
+}) {
+  if (episodeUrl.isEmpty) return null;
+  for (final row in history) {
+    if (row.package != package || row.url != episodeUrl) continue;
+    if (row.totalProgress <= 0 || row.progress <= 1) return null;
+    return (progress: row.progress, totalProgress: row.totalProgress);
+  }
+  return null;
+}
+
 /// Resolves a [history] row to concrete episode coordinates inside [detail].
 ///
 /// The indices stored on the row are positional, so an extension that re-orders

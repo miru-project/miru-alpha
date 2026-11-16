@@ -185,6 +185,11 @@ class MangaReader extends _$MangaReader {
 
   /// Opens [episodeIndex] of [groupIndex] with [totalPage] pages.
   ///
+  /// [resumePage] is the zero-based page history reported for this episode
+  /// (see `findSavedReadingProgress`): a re-entered chapter opens there
+  /// instead of page one, and the session state carries it from the first
+  /// frame so the HUD and the armed history snapshot agree with it.
+  ///
   /// Re-opening the episode that is already open is a no-op — a refetch of the
   /// same chapter must not throw the reader back to page one. A different
   /// episode starts a fresh session: position and HUD reset, the display
@@ -194,12 +199,40 @@ class MangaReader extends _$MangaReader {
     required int groupIndex,
     required int episodeIndex,
     required int totalPage,
+    int? resumePage,
   }) {
     final key = '$groupIndex:$episodeIndex:$totalPage';
     if (key == _openKey && ref.mounted) return;
     _openKey = key;
     isAdjusting = false;
-    state = _sessionState(totalPage: totalPage);
+    final session = _sessionState(totalPage: totalPage);
+    if (resumePage == null || resumePage <= 0 || totalPage <= 0) {
+      state = session;
+      return;
+    }
+    state = session.copyWith(itemPosition: resumePage.clamp(0, totalPage - 1));
+  }
+
+  /// Instant restore of [page] onto the canvas.
+  ///
+  /// The shell calls this one frame after [open] — the fresh canvas attaches
+  /// the controllers while that frame lays out, so the jump targets the new
+  /// canvas rather than the outgoing one. Instant on purpose: an animated fly
+  /// through a resumed chapter churns the position stream and builds pages the
+  /// reader never looks at.
+  void restorePosition(int page) {
+    if (!ref.mounted || state.totalPage == 0) return;
+    final target = page.clamp(0, state.totalPage - 1);
+    switch (state.readMode) {
+      case MangaReadMode.webToon:
+        if (itemScrollController.isAttached) {
+          itemScrollController.jumpTo(index: target);
+        }
+      case MangaReadMode.rightToLeft || MangaReadMode.standard:
+        if (pageController.hasClients) {
+          pageController.jumpToPage(target);
+        }
+    }
   }
 
   /// A fresh session state: the persisted display preferences, no position.
@@ -288,10 +321,19 @@ class MangaReader extends _$MangaReader {
 
   void setHudVisible(bool visible) {
     if (visible == state.hudVisible) return;
+    // TEMP DIAGNOSTIC (zoomed HUD bounce): every HUD transition with a marker
+    // of who asked for it. Remove once the double-toggle root cause lands.
+    logger.info(
+      'HUD ${visible ? "SHOW" : "HIDE"} zoomPending=${isAdjusting ? "jump" : "no"}',
+    );
     state = state.copyWith(hudVisible: visible);
   }
 
-  void toggleHud() => setHudVisible(!state.hudVisible);
+  void toggleHud() {
+    // TEMP DIAGNOSTIC: proves whether one physical tap reaches here twice.
+    logger.info('HUD toggleHud (was ${state.hudVisible ? "shown" : "hidden"})');
+    setHudVisible(!state.hudVisible);
+  }
 
   void setFitMode(MangaFitMode mode) {
     if (mode == state.fitMode) return;

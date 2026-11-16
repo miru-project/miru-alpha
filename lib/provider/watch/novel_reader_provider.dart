@@ -240,13 +240,26 @@ class NovelReader extends _$NovelReader {
     return _sessionState();
   }
 
+  /// The position history reported for the chapter being opened, waiting for
+  /// the canvas's first measurement (see [open]).
+  ({int progress, int totalProgress})? _pendingResume;
+
   /// Opens a fresh session for the chapter the shell selected.
+  ///
+  /// [resume] is the position history reported for this chapter (see
+  /// `findSavedReadingProgress`): a re-entered chapter opens there. The saved
+  /// total only maps onto the new layout once the canvas has measured it, so
+  /// the pair is held in [_pendingResume] and consumed by [setLayout].
   ///
   /// Re-opening the chapter that is already open is a no-op — a shell rebuild
   /// must not throw the reader back to page one. A different chapter starts a
   /// fresh session: position and HUD reset, the display preferences re-read
   /// from the store (they are persisted, so this only re-syncs them).
-  void open({required int groupIndex, required int episodeIndex}) {
+  void open({
+    required int groupIndex,
+    required int episodeIndex,
+    ({int progress, int totalProgress})? resume,
+  }) {
     final key = '$groupIndex:$episodeIndex';
     if (key == _openKey && ref.mounted) return;
     _openKey = key;
@@ -257,6 +270,7 @@ class NovelReader extends _$NovelReader {
       totalLine: 0,
       pages: [],
     );
+    _pendingResume = resume == null || resume.progress <= 1 ? null : resume;
     state = _sessionState();
   }
 
@@ -359,7 +373,7 @@ class NovelReader extends _$NovelReader {
   /// the old number meaningless. The reader is put back on the line they were
   /// reading, whichever mode they came from or go to.
   void setLayout(NovelLayout layout) {
-    final anchor = _anchorLine();
+    final anchor = _resumeAnchor(layout) ?? _anchorLine();
     _layout = layout;
     final totalLine = layout.totalLine;
     final totalPage = layout.pages.length;
@@ -409,6 +423,32 @@ class NovelReader extends _$NovelReader {
       );
       _isAdjusting = false;
     }
+  }
+
+  /// Resolves the pending resume onto [layout] and consumes it.
+  ///
+  /// History stores the position in the unit the reading mode navigated in,
+  /// which the reader only learns once the canvas has measured: a total equal
+  /// to the measured line count is a line, one equal to the measured page
+  /// count is a page, and anything else is a reflow (different font, device or
+  /// mode) where the saved fraction converts to this layout's lines.
+  ///
+  /// Returns null while there is nothing to consume — no resume, or an empty
+  /// first measurement, which keeps the pending pair for a real layout.
+  int? _resumeAnchor(NovelLayout layout) {
+    final pending = _pendingResume;
+    if (pending == null || layout.totalLine <= 0) return null;
+    _pendingResume = null;
+    final (:progress, :totalProgress) = pending;
+    if (totalProgress == layout.totalLine) {
+      return progress.clamp(1, layout.totalLine);
+    }
+    if (layout.pages.isNotEmpty && totalProgress == layout.pages.length) {
+      final page = progress.clamp(1, layout.pages.length);
+      return layout.pages[page - 1].startLine;
+    }
+    final ratio = progress / totalProgress;
+    return ((ratio * layout.totalLine).round()).clamp(1, layout.totalLine);
   }
 
   /// The line the reader is looking at, in the current layout.

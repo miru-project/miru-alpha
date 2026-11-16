@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -47,6 +48,18 @@ class ReaderOverlayLayer extends StatelessWidget {
   }
 }
 
+/// Whether the reader may hand the screen brightness to the platform.
+///
+/// The Linux screen-brightness plugin drives X11/RandR, and under the Flutter
+/// 3.50 engine a native failure in it takes the whole app down before the
+/// Dart-side try/catch can see anything — every reader SIGSEGV of 2026-11-16
+/// died inside this call chain (the X11 auth error preceded each one), while
+/// reader ran perfectly with the call isolated out. The readers skip the
+/// platform call on Linux; the brightness controls still manage the stored
+/// state, and the platform call returns when the plugin is safe again.
+// ignore: constant_identifier_names
+final bool kReaderBrightnessSupported = !Platform.isLinux;
+
 /// What has already been handed to the platform channels for one reader, so a
 /// rebuild does not re-issue a brightness or wakelock call every frame.
 @immutable
@@ -88,10 +101,12 @@ void applyReaderScreenPreferences(
         auto: true,
         keepScreenOn: keepScreenOn,
       );
-      try {
-        unawaited(ScreenBrightness().resetApplicationScreenBrightness());
-      } catch (error, stack) {
-        logger.fine('brightness release failed', error, stack);
+      if (kReaderBrightnessSupported) {
+        try {
+          unawaited(ScreenBrightness().resetApplicationScreenBrightness());
+        } catch (error, stack) {
+          logger.fine('brightness release failed', error, stack);
+        }
       }
     }
   } else {
@@ -101,12 +116,14 @@ void applyReaderScreenPreferences(
         auto: false,
         keepScreenOn: keepScreenOn,
       );
-      try {
-        unawaited(
-          ScreenBrightness().setApplicationScreenBrightness(brightness / 100),
-        );
-      } catch (error, stack) {
-        logger.fine('brightness apply failed', error, stack);
+      if (kReaderBrightnessSupported) {
+        try {
+          unawaited(
+            ScreenBrightness().setApplicationScreenBrightness(brightness / 100),
+          );
+        } catch (error, stack) {
+          logger.fine('brightness apply failed', error, stack);
+        }
       }
     }
   }
@@ -136,9 +153,11 @@ Future<void> releaseReaderScreen() async {
   } catch (error, stack) {
     logger.fine('wakelock release failed', error, stack);
   }
-  try {
-    await ScreenBrightness().resetApplicationScreenBrightness();
-  } catch (error, stack) {
-    logger.fine('brightness reset failed', error, stack);
+  if (kReaderBrightnessSupported) {
+    try {
+      await ScreenBrightness().resetApplicationScreenBrightness();
+    } catch (error, stack) {
+      logger.fine('brightness reset failed', error, stack);
+    }
   }
 }

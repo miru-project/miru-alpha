@@ -6,6 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/provider/home/history_page_provider.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/provider/watch/novel_reader_provider.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/chapter_drawer.dart';
@@ -16,6 +17,7 @@ import 'package:miru_alpha/ui/features/watch/novel_reader/novel_content.dart';
 import 'package:miru_alpha/ui/features/watch/novel_reader/widget/novel_bottom_bar.dart';
 import 'package:miru_alpha/ui/features/watch/novel_reader/widget/novel_reading_view.dart';
 import 'package:miru_alpha/ui/features/watch/novel_reader/widget/novel_settings_sheet.dart';
+import 'package:miru_alpha/utils/watch/history_session.dart';
 
 /// Full-screen novel (fiction) reader.
 ///
@@ -81,10 +83,25 @@ class MiruNovelReader extends HookConsumerWidget {
     // provider mutation inside a build lifecycle throws, so the open lands in
     // the first microtask after it. Re-opening the same chapter is a no-op
     // inside [NovelReader.open].
+    //
+    // A chapter history has a reported position for re-opens there. The saved
+    // unit (pages or lines) only maps onto the chapter once the canvas has
+    // measured it, so the pair rides into [NovelReader.setLayout] instead of
+    // being jumped from here.
     useEffect(() {
       final reader = container.read(novelReaderProvider.notifier);
+      final episodeUrl = episodes.isEmpty ? '' : episodes[episodeIndex].url;
+      final saved = findSavedReadingProgress(
+        history: container.read(historyPageProvider).history,
+        package: meta.packageName,
+        episodeUrl: episodeUrl,
+      );
       Future.microtask(
-        () => reader.open(groupIndex: groupIndex, episodeIndex: episodeIndex),
+        () => reader.open(
+          groupIndex: groupIndex,
+          episodeIndex: episodeIndex,
+          resume: saved,
+        ),
       );
       return null;
     }, [groupIndex, episodeIndex]);

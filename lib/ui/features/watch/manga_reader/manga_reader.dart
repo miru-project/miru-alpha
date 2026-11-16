@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/index.dart';
+import 'package:miru_alpha/provider/home/history_page_provider.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/provider/watch/manga_reader_provider.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/chapter_drawer.dart';
@@ -14,6 +15,8 @@ import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_overlay.
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_settings_sheet.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_status_pill.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_top_bar.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/watch/history_session.dart';
 
 /// Full-screen manga reader.
 ///
@@ -76,15 +79,31 @@ class MiruMangaReader extends HookConsumerWidget {
     // lifecycle throws, so the open lands in the first microtask after it.
     // Re-opening the episode that is already open is a no-op inside
     // [MangaReader.open].
+    //
+    // A chapter history has a reported page for re-opens there instead of page
+    // one: the session state adopts it, and the canvas jump waits one frame so
+    // it targets the fresh canvas rather than the outgoing one.
     useEffect(() {
       final reader = container.read(mangaReaderProvider.notifier);
-      Future.microtask(
-        () => reader.open(
+      final episodeUrl = episodes.isEmpty ? '' : episodes[episodeIndex].url;
+      final saved = findSavedReadingProgress(
+        history: container.read(historyPageProvider).history,
+        package: meta.packageName,
+        episodeUrl: episodeUrl,
+      );
+      final resumePage = saved == null ? null : saved.progress - 1;
+      Future.microtask(() {
+        reader.open(
           groupIndex: groupIndex,
           episodeIndex: episodeIndex,
           totalPage: totalPages,
-        ),
-      );
+          resumePage: resumePage,
+        );
+        if (resumePage == null) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          reader.restorePosition(resumePage);
+        });
+      });
       return null;
     }, [groupIndex, episodeIndex, totalPages]);
 
@@ -163,7 +182,10 @@ class MiruMangaReader extends HookConsumerWidget {
                 notification is ScrollStartNotification &&
                 notification.dragDetails != null &&
                 notification.metrics.axis == Axis.vertical;
-            if (isDrag && state.hudVisible) reader.setHudVisible(false);
+            if (isDrag && state.hudVisible) {
+              logger.info('HUD hide via scrollStart drag');
+              reader.setHudVisible(false);
+            }
             return false;
           },
           child: KeyedSubtree(
@@ -180,6 +202,7 @@ class MiruMangaReader extends HookConsumerWidget {
               // above to see and the view reports the move itself.
               onViewMoved: () {
                 if (container.read(mangaProvider).hudVisible) {
+                  logger.info('HUD hide via onViewMoved');
                   reader.setHudVisible(false);
                 }
               },

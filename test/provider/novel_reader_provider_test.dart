@@ -350,6 +350,121 @@ void main() {
     });
   });
 
+  group('resume from history', () {
+    test('a position saved in lines lands on that line', () {
+      final container = _container();
+      final reader = _reader(container);
+      reader.open(
+        groupIndex: 0,
+        episodeIndex: 0,
+        resume: (progress: 16, totalProgress: 40),
+      );
+      // The saved unit only maps onto the chapter once the canvas measured it.
+      expect(_state(container).line, 0);
+
+      reader.setLayout(_layout(lines: 40, pages: 6));
+
+      expect(_state(container).line, 16);
+    });
+
+    test('a position saved in pages lands on the page holding it', () {
+      final container = _container();
+      final reader = _reader(container);
+      reader.open(
+        groupIndex: 0,
+        episodeIndex: 0,
+        resume: (progress: 4, totalProgress: 6),
+      );
+      reader.changeReadMode(NovelReadMode.standard);
+
+      // Page 4 opens on line 16 in the fixture.
+      reader.setLayout(_layout(lines: 40, pages: 6));
+
+      expect(_state(container).page, 4);
+      expect(_state(container).line, 16);
+    });
+
+    test('the resumed session reports the pair history stored', () {
+      final container = _container();
+      final reader = _reader(container);
+      reader.open(
+        groupIndex: 0,
+        episodeIndex: 0,
+        resume: (progress: 4, totalProgress: 6),
+      );
+      reader.changeReadMode(NovelReadMode.standard);
+
+      reader.setLayout(_layout(lines: 40, pages: 6));
+
+      expect(_state(container).historySnapshot, (
+        progress: 4,
+        totalProgress: 6,
+      ));
+    });
+
+    test('a reflowed chapter converts the saved fraction', () {
+      final container = _container();
+      final reader = _reader(container);
+      reader.open(
+        groupIndex: 0,
+        episodeIndex: 0,
+        resume: (progress: 20, totalProgress: 40),
+      );
+
+      // A different font size repacked the chapter: neither total matches.
+      reader.setLayout(_layout(lines: 80, pages: 12));
+
+      expect(_state(container).line, 40);
+    });
+
+    test('the resume anchor is consumed once', () {
+      final container = _container();
+      final reader = _reader(container);
+      reader.open(
+        groupIndex: 0,
+        episodeIndex: 0,
+        resume: (progress: 16, totalProgress: 40),
+      );
+      reader.setLayout(_layout(lines: 40, pages: 6));
+      expect(_state(container).line, 16);
+
+      // The reader moves on; a re-measure must not throw them back.
+      reader.setLine(30);
+      reader.setLayout(_layout(lines: 40, pages: 6));
+
+      expect(_state(container).line, 30);
+    });
+
+    test('a chapter entered without a resume drops a stale one', () {
+      final container = _container();
+      final reader = _reader(container);
+      reader.open(
+        groupIndex: 0,
+        episodeIndex: 0,
+        resume: (progress: 16, totalProgress: 40),
+      );
+
+      reader.open(groupIndex: 0, episodeIndex: 1);
+      reader.setLayout(_layout(lines: 40, pages: 6));
+
+      expect(_state(container).line, 1);
+    });
+
+    test('an opening-page position never resumes', () {
+      final container = _container();
+      final reader = _reader(container);
+      reader.open(
+        groupIndex: 0,
+        episodeIndex: 0,
+        resume: (progress: 1, totalProgress: 40),
+      );
+
+      reader.setLayout(_layout(lines: 40, pages: 6));
+
+      expect(_state(container).line, 1);
+    });
+  });
+
   group('content', () {
     test('the chapter content is split into blocks on the way in', () {
       final blocks = parseNovelContent(const [

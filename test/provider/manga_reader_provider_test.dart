@@ -237,4 +237,66 @@ void main() {
       expect(container.read(mangaReaderProvider).historyProgress, 0);
     });
   });
+
+  group('resume from history', () {
+    test('open adopts the reported page as the session position', () {
+      final container = _container();
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8, resumePage: 4);
+
+      final state = container.read(mangaReaderProvider);
+      expect(state.itemPosition, 4);
+      expect(state.page, 5);
+      expect(state.historyProgress, 5);
+    });
+
+    test('the reported page clamps to the chapter', () {
+      final container = _container();
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8, resumePage: 99);
+
+      expect(container.read(mangaReaderProvider).itemPosition, 7);
+    });
+
+    test('no reported page opens at page one', () {
+      final container = _container();
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8);
+
+      expect(container.read(mangaReaderProvider).itemPosition, 0);
+    });
+
+    test('re-opening the same episode keeps the adopted position', () {
+      final container = _container();
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8, resumePage: 4);
+
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8);
+
+      expect(container.read(mangaReaderProvider).itemPosition, 4);
+    });
+
+    test('restorePosition without a canvas keeps the adopted position', () {
+      final container = _container();
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8, resumePage: 4);
+      reader.changeReadMode(MangaReadMode.webToon);
+
+      // No widget tree: neither controller is attached, so the restore is a
+      // guarded no-op and the adopted position stays.
+      reader.restorePosition(4);
+
+      expect(container.read(mangaReaderProvider).itemPosition, 4);
+    });
+
+    test('restorePosition clamps a stale target', () {
+      final container = _container();
+      final reader = container.read(mangaReaderProvider.notifier);
+      reader.open(groupIndex: 0, episodeIndex: 0, totalPage: 8);
+
+      reader.restorePosition(99);
+
+      expect(container.read(mangaReaderProvider).itemPosition, 0);
+    });
+  });
 }
