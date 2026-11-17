@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
-import 'package:forui_hooks/forui_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/index.dart';
@@ -11,6 +10,11 @@ import 'package:miru_alpha/provider/detail_page_provider.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
 import 'package:miru_alpha/provider/detial_provider.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
+
+/// Width of the episode-group select trigger. Shared with the loading
+/// skeleton's mirror so the skeleton→content swap doesn't reflow the
+/// header row.
+const double kDetailGroupSelectWidth = 140;
 
 class MobileDetailSilverlist extends HookConsumerWidget {
   final Detail detail;
@@ -46,7 +50,8 @@ class MobileDetailSilverlist extends HookConsumerWidget {
         child: Center(child: Text('media.no_episodes'.i18n)),
       );
     }
-    final selectGroup = detail.episodes![epGroupIdx].urls;
+    final groups = detail.episodes!;
+    final selectGroup = groups[epGroupIdx].urls;
 
     return SliverToBoxAdapter(
       child: Padding(
@@ -70,15 +75,19 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                 children: [
                   // Section heading with a plain-text count, matching the
                   // reference: "Episodes (18)" instead of a bordered chip.
-                  // Flexible keeps the header row overflow-free at 320 px
-                  // (the heading is 112 px; with the selector and sort
-                  // button the inflexible sum exceeded the inner width).
-                  Text(
-                    'media.episodes'.i18n,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.theme.typography.body.sm.copyWith(
-                      fontWeight: FontWeight.w600,
+                  // The Expanded is the row's only flex child: it absorbs
+                  // the leftover width, pins the group select and the sort
+                  // button to the right edge, and ellipsises the heading on
+                  // 320 px phones where the fixed-width select plus sort
+                  // button crowd the label.
+                  Expanded(
+                    child: Text(
+                      'media.episodes'.i18n,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.theme.typography.body.sm.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -88,77 +97,34 @@ class MobileDetailSilverlist extends HookConsumerWidget {
                       color: context.theme.colors.mutedForeground,
                     ),
                   ),
-                  // The Spacer is the row's ONLY flex child: it absorbs
-                  // the leftover width and pins the source selector and
-                  // the sort button to the right edge.
-                  const Spacer(),
-                  HookConsumer(
-                    builder: (context, ref, _) {
-                      final selectedEpGroup = ref.watch(
-                        detailPageProviderProvider.select((e) => e.epGroupIdx),
-                      );
-                      final controller = useFPopoverController();
-
-                      return FPopoverMenu.tiles(
-                        menuAnchor: .topCenter,
-                        menu: [
-                          .group(
-                            children: List.generate(
-                              detail.episodes?.length ?? 0,
-                              (idx) {
-                                return FTile(
-                                  onPress: () {
-                                    ref
-                                        .read(
-                                          detailPageProviderProvider.notifier,
-                                        )
-                                        .setEpGroup(idx);
-                                    controller.toggle();
-                                  },
-                                  title: Text(detail.episodes![idx].title),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                        control: .managed(controller: controller),
-                        child: FButton(
-                          variant: .outline,
-                          size: .xs,
-                          mainAxisAlignment: .start,
-                          style: .delta(
-                            contentStyle: .delta(
-                              constraints: const BoxConstraints(minHeight: 36),
-                            ),
-                          ),
-                          onPress: () {
-                            controller.toggle();
-                          },
-                          suffix: Icon(
-                            FLucideIcons.chevronDown,
-                            size: 14,
-                            color: context.theme.colors.mutedForeground,
-                          ),
-                          // Cap keeps long group titles from squeezing
-                          // the sort button on 320 px phones. 100 leaves
-                          // headroom below the header row's 288 px inner
-                          // width at the narrowest supported phone (112
-                          // overflowed the row by 4 px at 320).
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 100),
-                            child: Text(
-                              detail.episodes?[selectedEpGroup].title ??
-                                  'media.no_episodes'.i18n,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: context.theme.typography.body.xs.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                  const SizedBox(width: 8),
+                  // Native forui select for the episode group — the previous
+                  // FPopoverMenu + FButton trigger was a hand-rolled
+                  // lookalike. The popover opens above the field, the picked
+                  // tile carries the check mark, and autoHide closes it.
+                  SizedBox(
+                    width: kDetailGroupSelectWidth,
+                    child: FSelect<int>.rich(
+                      control: .lifted(
+                        value: epGroupIdx,
+                        onChange: (value) {
+                          if (value != null) {
+                            ref
+                                .read(detailPageProviderProvider.notifier)
+                                .setEpGroup(value);
+                          }
+                        },
+                      ),
+                      // rich children keep duplicate group titles as
+                      // separate rows — the items map would collapse them.
+                      format: (value) =>
+                          groups.elementAtOrNull(value)?.title ??
+                          groups.first.title,
+                      children: [
+                        for (final (idx, group) in groups.indexed)
+                          FSelectItem(title: Text(group.title), value: idx),
+                      ],
+                    ),
                   ),
                   const SizedBox(width: 8),
                   // 36×36 sort toggle — the reference's compact button

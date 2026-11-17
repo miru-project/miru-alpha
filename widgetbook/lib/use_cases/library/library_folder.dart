@@ -17,6 +17,7 @@ import 'extension_text_cover.dart';
 import 'favorite_view_widget.dart';
 import 'history_view_widget.dart';
 import 'mobile_detail_cards.dart';
+import 'mobile_detail_selectable.dart';
 import 'mobile_download_view_widget.dart';
 
 WidgetbookFolder buildLibraryMirroredFolder() {
@@ -27,6 +28,7 @@ WidgetbookFolder buildLibraryMirroredFolder() {
       buildDetailSkeletonParityComponent(),
       buildDetailTagChipsComponent(),
       ...buildMobileDetailCardComponents(),
+      ...buildMobileDetailSelectableComponents(),
       buildDesktopDownloadPageComponent(),
       buildDesktopFinishedDownloadComponent(),
       buildDownloadHistoryPageComponent(),

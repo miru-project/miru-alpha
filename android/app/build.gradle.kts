@@ -97,6 +97,22 @@ android {
                 signingConfigs.getByName("debug")
             }
         }
+        debug {
+            // Local debug installs sign with the SAME release key (the
+            // key.properties keystore) so a debug APK upgrades over a
+            // release install and vice versa instead of dying with
+            // INSTALL_FAILED_UPDATE_INCOMPATIBLE: signatures do not match.
+            // CI and fresh machines without key.properties keep the default
+            // debug keystore.
+            val releaseSigning = signingConfigs.findByName("release")
+            signingConfig = if (releaseSigning?.keyPassword != null) {
+                println("debug buildType: release key applied")
+                releaseSigning
+            } else {
+                println("debug buildType: default debug key applied")
+                signingConfigs.getByName("debug")
+            }
+        }
     }
     
    splits {

@@ -1,5 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:extended_image/extended_image.dart';
+// The selection's plain text arrives as `SelectedContent`, which lives in
+// flutter/rendering and is not re-exported by material_ui's widget chain.
+import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
@@ -20,6 +23,7 @@ import 'package:miru_alpha/utils/core/html_text.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
+import 'package:share_plus/share_plus.dart';
 
 /// Mobile detail hero, mirroring the reference header block: the cover
 /// beside a column holding the title, one merged secondary meta row
@@ -59,16 +63,21 @@ class MobileDetailHero extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    detail.title,
-                    style: context.theme.typography.body.lg.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                      height: 1.25,
-                      letterSpacing: -0.2,
+                  // Selectable with the mobile toolbar (Copy / Share /
+                  // Select All …) on every host — see [_MobileSelection].
+                  _MobileSelection(
+                    shareTitle: detail.title,
+                    child: Text(
+                      detail.title,
+                      style: context.theme.typography.body.lg.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                        height: 1.25,
+                        letterSpacing: -0.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
                   // Single merged secondary row — the reference stacks title,
@@ -396,6 +405,128 @@ Widget metaDot(BuildContext context) => Padding(
   child: Text('•', style: metaStyle(context)),
 );
 
+/// The hero's mobile selection chrome, regardless of the host platform.
+///
+/// The mobile layout runs on two hosts: real touch devices (Android) and
+/// the desktop phone frame (`MiruMobilePreviewShell`, a Linux host driving
+/// the frame with a mouse). Two host gaps are closed here:
+///
+/// * Toolbar shape — the default adaptive builder picks it from
+///   `Theme.of(context).platform`, which on the frame resolves to the
+///   host's desktop menu. Forcing the Material platform to android above
+///   the region makes it build the same mobile pill toolbar as a real
+///   phone (the captured theme travels into the overlay).
+/// * Share action — the framework only offers Share on real android (its
+///   own action rides the engine's `Share.invoke` channel, absent on
+///   desktop hosts), so the builder injects the app's `share_plus` action
+///   — the same one the watch header uses — whenever the region didn't.
+///
+/// The gesture set still follows the host, because the selection
+/// recognizers read `defaultTargetPlatform`, not the theme: long-press
+/// selects on touch, drag / right-click on the frame's mouse (a mouse can
+/// never long-press — Flutter gates the recognizer to touch/stylus
+/// pointers, with no per-subtree override).
+class _MobileSelection extends StatefulWidget {
+  const _MobileSelection({required this.shareTitle, required this.child});
+
+  /// Subject used when the picked text is shared (the media title).
+  final String shareTitle;
+
+  final Widget child;
+
+  @override
+  State<_MobileSelection> createState() => _MobileSelectionState();
+}
+
+class _MobileSelectionState extends State<_MobileSelection> {
+  /// The region does not expose its selected text publicly — the widget's
+  /// `onSelectionChanged` does, and the Share action reads it when pressed.
+  SelectedContent? _selected;
+
+  @override
+  Widget build(BuildContext context) {
+    // The ambient Material theme is MaterialApp's DEFAULT (the app roots its
+    // theming in forui's FTheme), so the selection chrome would paint
+    // default-light with default-blue handles inside a dark app. Derive the
+    // Material theme from the CURRENT forui palette instead: the toolbar
+    // card reads `colorScheme.surface`, the pill labels `onSurface`, the
+    // handles `colorScheme.primary`, and the text highlight the same
+    // primary-at-40% wash forui text fields use for their selection.
+    return Theme(
+      data: _selectionTheme(context),
+      child: SelectionArea(
+        onSelectionChanged: (content) => _selected = content,
+        contextMenuBuilder: _toolbar,
+        child: widget.child,
+      ),
+    );
+  }
+
+  /// Material theme for the selection chrome, derived from the CURRENT
+  /// forui palette.
+  ThemeData _selectionTheme(BuildContext context) {
+    final colors = context.theme.colors;
+    return ThemeData(
+      platform: TargetPlatform.android,
+      colorScheme: ColorScheme(
+        brightness: colors.brightness,
+        primary: colors.primary,
+        onPrimary: colors.primaryForeground,
+        secondary: colors.secondary,
+        onSecondary: colors.secondaryForeground,
+        error: colors.error,
+        onError: colors.errorForeground,
+        surface: colors.card,
+        onSurface: colors.foreground,
+      ),
+      textSelectionTheme: TextSelectionThemeData(
+        selectionColor: colors.primary.withValues(alpha: 0.4),
+        cursorColor: colors.primary,
+        selectionHandleColor: colors.primary,
+      ),
+    );
+  }
+
+  /// The region's own buttons (Copy / Select All, plus Share on real
+  /// Android) with [share] injected on hosts the framework left it out.
+  Widget _toolbar(BuildContext context, SelectableRegionState region) {
+    final items = region.contextMenuButtonItems;
+    final copyAt = items.indexWhere(
+      (item) => item.kind == ContextMenuButtonKind.copy,
+    );
+    // Copy only exists on an uncollapsed selection — a collapsed one has
+    // nothing to share, so Share joins the menu exactly then.
+    final frameworkShares = items.any(
+      (item) => item.kind == ContextMenuButtonKind.share,
+    );
+    if (copyAt != -1 && !frameworkShares) {
+      items.insert(
+        copyAt + 1,
+        ContextMenuButtonItem(
+          kind: ContextMenuButtonKind.share,
+          onPressed: () => SharePlus.instance.share(
+            ShareParams(
+              text: _selected?.plainText ?? '',
+              title: widget.shareTitle,
+            ),
+          ),
+        ),
+      );
+    }
+    // The toolbar mounts in the ROOT overlay — the framework's own theme
+    // capture resolves from the overlay context (MaterialApp's default),
+    // not the region's — so the forui-derived theme is applied HERE,
+    // directly around the toolbar.
+    return Theme(
+      data: _selectionTheme(context),
+      child: AdaptiveTextSelectionToolbar.buttonItems(
+        anchors: region.contextMenuAnchors,
+        buttonItems: items,
+      ),
+    );
+  }
+}
+
 /// Two-line rich-text description parsed from the extension's inline HTML
 /// (`<i>`/`<b>`/`<br>` …) with an explicit Read more / Show less toggle;
 /// falls back to the "no description" placeholder when none ships.
@@ -423,10 +554,16 @@ class _DescriptionSection extends HookWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text.rich(
-          htmlToSpan(desc, style: bodyStyle),
-          maxLines: expanded.value ? null : 2,
-          overflow: expanded.value ? null : TextOverflow.ellipsis,
+        // Selectable with the mobile toolbar (Copy / Share / Select All …)
+        // on every host — see [_MobileSelection]. htmlToSpan only emits
+        // TextSpans, so SelectionArea can select every segment.
+        _MobileSelection(
+          shareTitle: detail.title,
+          child: Text.rich(
+            htmlToSpan(desc, style: bodyStyle),
+            maxLines: expanded.value ? null : 2,
+            overflow: expanded.value ? null : TextOverflow.ellipsis,
+          ),
         ),
         FTappable(
           onPress: () => expanded.value = !expanded.value,

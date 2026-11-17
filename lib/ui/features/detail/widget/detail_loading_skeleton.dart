@@ -10,6 +10,7 @@ import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 
 import 'mobile_detail_hero.dart';
+import 'mobile_detail_silverlist.dart';
 import 'skeleton.dart';
 
 /// Desktop skeleton content shown while detail data is loading.
@@ -68,9 +69,8 @@ class DesktopDetailSkeletonContent extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(8),
                                 child: _coverUrl.isNotEmpty
                                     ? Image.network(
-                                        MiruRequest.proxyUrl(
-                                          _coverUrl,
-                                        ).toString(),
+                                        MiruRequest.proxyUrl(_coverUrl)
+                                            .toString(),
                                         width: 120,
                                         height: 180,
                                         fit: BoxFit.cover,
@@ -639,11 +639,10 @@ class _EpisodeListSkeleton extends StatelessWidget {
         label: Row(
           children: [
             // Section heading + plain-text count, mirroring content.
-            // Flexible keeps the row overflow-free at 320 px — the
-            // heading alone is 112 px wide, and with the selector (106)
-            // and sort button (36) the inflexible sum beat the 288 px
-            // inner width by 4 px.
-            Flexible(
+            // The Expanded heading is the row's only flex child — same
+            // flex math as `MobileDetailSilverlist`'s label row, so the
+            // skeleton→content swap doesn't reflow.
+            Expanded(
               child: Text(
                 'media.episodes'.i18n,
                 maxLines: 1,
@@ -662,43 +661,46 @@ class _EpisodeListSkeleton extends StatelessWidget {
                       color: colors.mutedForeground,
                     ),
                   ),
-            const Spacer(),
-            // Source selector shaped like the loaded page's compact
-            // trigger: source label + real group title (or a bar) +
-            // chevron, inert (no onPress).
-            FButton(
-              onPress: null,
-              variant: .outline,
-              size: .xs,
-              mainAxisAlignment: .start,
-              style: .delta(
-                contentStyle: .delta(
-                  constraints: const BoxConstraints(minHeight: 36),
+            const SizedBox(width: 8),
+            // Group selector stand-in for the loaded page's native
+            // FSelect trigger: same [kDetailGroupSelectWidth] box so
+            // the swap doesn't move the sort button, inert (no onPress).
+            SizedBox(
+              width: kDetailGroupSelectWidth,
+              child: FButton(
+                onPress: null,
+                variant: .outline,
+                size: .xs,
+                mainAxisAlignment: .start,
+                style: .delta(
+                  contentStyle: .delta(
+                    constraints: const BoxConstraints(minHeight: 36),
+                  ),
                 ),
-              ),
-              suffix: Icon(
-                FLucideIcons.chevronDown,
-                size: 14,
-                color: colors.mutedForeground,
-              ),
-              child: groupTitle != null
-                  ? ConstrainedBox(
-                      // Same 100 px cap as content's selector — the two
-                      // must stay identical for the skeleton swap.
-                      constraints: const BoxConstraints(maxWidth: 100),
-                      child: Text(
-                        groupTitle!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.theme.typography.body.xs.copyWith(
-                          fontWeight: FontWeight.w600,
+                suffix: Icon(
+                  FLucideIcons.chevronDown,
+                  size: 14,
+                  color: colors.mutedForeground,
+                ),
+                child: groupTitle != null
+                    ? ConstrainedBox(
+                        // Same effective text room as content's 140 px
+                        // FSelect trigger (box minus chevron).
+                        constraints: const BoxConstraints(maxWidth: 100),
+                        child: Text(
+                          groupTitle!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.theme.typography.body.xs.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                    )
-                  : const DetailSkeleton(width: 72, height: 12),
+                      )
+                    : const DetailSkeleton(width: 72, height: 12),
+              ),
             ),
             const SizedBox(width: 8),
-            // 36×36 sort stand-in, pinned right by the lone Spacer
+            // 36×36 sort stand-in, pinned right by the Expanded heading
             // exactly like content's sort button.
             FButton.icon(
               onPress: null,
