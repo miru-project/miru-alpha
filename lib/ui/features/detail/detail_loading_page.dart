@@ -14,8 +14,8 @@ import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/ui/features/detail/widget/detail_loading_skeleton.dart';
+
 import './widget/index.dart';
-import './detail_refresh.dart';
 
 class DetailLoadingPage extends StatefulHookConsumerWidget {
   const DetailLoadingPage({
@@ -512,7 +512,9 @@ class _DesktopDetailHeader extends ConsumerWidget {
             variant: .ghost,
             onPress: isRefreshing
                 ? null
-                : () => forceRefreshDetail(ref, detailUrl, meta),
+                : () => ref
+                      .read(detialProvider(detailUrl, meta: meta).notifier)
+                      .refreshFromExtension(),
             child: isRefreshing
                 ? const SizedBox(
                     width: 16,

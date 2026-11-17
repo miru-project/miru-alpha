@@ -787,6 +787,5 @@
     "toggle": "Toggle Sidebar (Ctrl+B)",
     "frequent_extensions": "Frequent Extensions",
     "tags": "Tags"
-  },
-  "detail_not_found": "Details not found"
+  }
 }

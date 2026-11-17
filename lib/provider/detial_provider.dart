@@ -13,6 +13,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
+import 'package:miru_alpha/ui/core/core/toast.dart';
 
 part 'detial_provider.g.dart';
 
@@ -228,23 +229,8 @@ class Detial extends _$Detial {
         final extDetail = await MiruCoreEndpoint.detail(pkg, url);
         final saved = await MiruCoreEndpoint.upsertDbDetail(extDetail);
         if (!ref.mounted) return;
-        final protoDetail = proto.Detail()
-          ..title = saved.title
-          ..cover = saved.cover ?? ''
-          ..desc = saved.desc ?? ''
-          ..detailUrl = saved.detailUrl
-          ..package = saved.package
-          ..episodes = saved.episodes != null
-              ? jsonEncode(
-                  saved.episodes!.map((e) => e.toProto3Json()).toList(),
-                )
-              : ''
-          ..headers = saved.headers != null ? jsonEncode(saved.headers) : ''
-          // The extension's detail tags (e.g. an AniList extension's AniList
-          // tags) ride the same state — the hero chips read them from here.
-          ..tags.addAll(saved.tags ?? const <String>[]);
         state = state.copyWith(
-          detailInfo: protoDetail,
+          detailInfo: _protoDetailFromSaved(saved),
           status: DetialStatus.ready,
           lastError: null,
         );
@@ -264,10 +250,11 @@ class Detial extends _$Detial {
     }
   }
 
-  /// Re-fetches the detail from the backend and bumps [DetialState.retryToken]
-  /// so widgets watching it can rebuild independently of the gRPC status.
-  /// Preserves the previous [detailInfo] and [status: ready] during refresh;
-  /// on failure: keeps cached data + shows toast; only shows error if no cache.
+  /// Re-runs the full detail load and bumps [DetialState.retryToken] so
+  /// widgets watching it can rebuild independently of the gRPC status.
+  /// Routes through [fetchDetailInfo] (DB first, extension on miss): a bare
+  /// DB re-read could never recover the error tile when the DB row doesn't
+  /// exist yet — e.g. the first load failed while the extension was down.
   Future<void> retry() async {
     // Bump retryToken so widgets can react, clear lastError
     state = state.copyWith(lastError: null, retryToken: state.retryToken + 1);
@@ -275,30 +262,43 @@ class Detial extends _$Detial {
     debugPrint(
       '[DetailProvider] retry() called for ${meta.packageName} $detailUrl',
     );
+    await fetchDetailInfo(meta.packageName, detailUrl);
+  }
 
+  /// Explicit refresh (mobile pull-to-refresh, desktop header button):
+  /// re-fetches the detail from the extension — not the DB copy — upserts
+  /// the fresh data into the DB and swaps [DetialState.detailInfo]. Tracking
+  /// links ([proto.Detail.trackIds]/[proto.Detail.trackers]) are user-side
+  /// state the extension payload can't know, so they carry over. On failure
+  /// the cached detail stays on screen ([_handleRefreshFailure]).
+  ///
+  /// Returns whether fresh data landed — the pull-to-refresh hands it to
+  /// EasyRefresh as the header's success/fail state.
+  Future<bool> refreshFromExtension() async {
+    state = state.copyWith(lastError: null, retryToken: state.retryToken + 1);
+
+    debugPrint(
+      '[DetailProvider] refreshFromExtension called for '
+      '${meta.packageName} $detailUrl',
+    );
     try {
-      final resp = await MiruGrpcClient.dbClient.getDetail(
-        proto.GetDetailRequest()
-          ..package = meta.packageName
-          ..detailUrl = detailUrl,
+      final extDetail = await MiruCoreEndpoint.detail(
+        meta.packageName,
+        detailUrl,
       );
-      debugPrint(
-        '[DetailProvider] retry() response: hasDetail=${resp.hasDetail()}',
+      final saved = await MiruCoreEndpoint.upsertDbDetail(extDetail);
+      if (!ref.mounted) return false;
+      state = state.copyWith(
+        detailInfo: _protoDetailFromSaved(saved, previous: state.detailInfo),
+        status: DetialStatus.ready,
+        lastError: null,
+        toastMessage: null,
       );
-      if (resp.hasDetail()) {
-        if (!ref.mounted) return;
-        state = state.copyWith(
-          detailInfo: resp.detail,
-          status: DetialStatus.ready,
-          lastError: null,
-          toastMessage: null,
-        );
-      } else {
-        _handleRefreshFailure('detail_not_found'.i18n);
-      }
+      return true;
     } catch (e, st) {
-      debugPrint('[DetailProvider] retry() error: $e\n$st');
+      debugPrint('[DetailProvider] refreshFromExtension error: $e\n$st');
       _handleRefreshFailure(e.toString());
+      return false;
     }
   }
 
@@ -306,7 +306,8 @@ class Detial extends _$Detial {
     if (!ref.mounted) return;
     final hasCachedData = state.detailInfo != null;
     if (hasCachedData) {
-      // Keep cached data, show toast, don't switch to error state
+      // Keep cached data on screen and say why the refresh did nothing.
+      showSimpleToast('common.refresh_failed_using_cache'.i18n);
       state = state.copyWith(
         toastMessage: 'common.refresh_failed_using_cache'.i18n,
         lastError: errorMsg,
@@ -374,101 +375,30 @@ class Detial extends _$Detial {
       state = state.copyWith(tmdbDetail: searchResult);
     }
   }
+}
 
-  /// Force refresh detail from extension (web).
-  /// Fetches fresh data from extension, saves to DB on success, shows toast and keeps old data on failure.
-  Future<void> forceRefreshDetail(
-    Ref ref,
-    String detailUrl,
-    ExtensionMeta meta,
-  ) async {
-    final provider = detialProvider(detailUrl, meta: meta);
-    final state = ref.read(provider);
-    final retryToken = state.retryToken;
-
-    // Bump retry token
-    ref.read(provider.notifier).state = state.copyWith(
-      lastError: null,
-      retryToken: retryToken + 1,
-    );
-
-    debugPrint(
-      '[DetailProvider] forceRefreshDetail called for ${meta.packageName} $detailUrl',
-    );
-
-    try {
-      // Fetch fresh data from extension (web)
-      final resp = await MiruGrpcClient.extensionClient.detail(
-        proto.DetailRequest()
-          ..pkg = meta.packageName
-          ..url = detailUrl,
-      );
-      debugPrint(
-        '[DetailProvider] forceRefreshDetail extension response received',
-      );
-
-      final extDetail = resp.data;
-      // Save fresh data to DB
-      await MiruGrpcClient.dbClient.upsertDetail(
-        proto.UpsertDetailRequest()
-          ..title = extDetail.title
-          ..cover = extDetail.cover
-          ..desc = extDetail.desc
-          ..detailUrl = detailUrl
-          ..package = meta.packageName
-          ..episodes = extDetail.episodes.toString()
-          ..headers = ''
-          ..tags.addAll(extDetail.tags),
-      );
-      debugPrint('[DetailProvider] forceRefreshDetail data saved to DB');
-
-      final newDetail = proto.Detail()
-        ..title = extDetail.title
-        ..cover = extDetail.cover
-        ..desc = extDetail.desc
-        ..detailUrl = detailUrl
-        ..package = meta.packageName
-        ..tags.addAll(extDetail.tags);
-      if (extDetail.episodes.isNotEmpty) {
-        final episodesJson = extDetail.episodes
-            .map((e) => e.toProto3Json())
-            .toList();
-        newDetail.episodes = episodesJson.toString();
-      }
-
-      ref.read(provider.notifier).state = state.copyWith(
-        detailInfo: newDetail,
-        status: DetialStatus.ready,
-        lastError: null,
-        toastMessage: 'common.force_refresh_success'.i18n,
-      );
-    } catch (e, st) {
-      debugPrint('[DetailProvider] forceRefreshDetail error: $e\n$st');
-      _handleForceRefreshFailureDetail(ref, detailUrl, meta, e.toString());
-    }
+/// Converts a saved [Detail] (the DB round-trip of an extension fetch) into
+/// the [proto.Detail] carried in [DetialState.detailInfo]. [previous] carries
+/// over fields the extension payload can't know — the user's tracking links.
+proto.Detail _protoDetailFromSaved(Detail saved, {proto.Detail? previous}) {
+  final protoDetail = proto.Detail()
+    ..title = saved.title
+    ..cover = saved.cover ?? ''
+    ..desc = saved.desc ?? ''
+    ..detailUrl = saved.detailUrl
+    ..package = saved.package
+    ..episodes = saved.episodes != null
+        ? jsonEncode(saved.episodes!.map((e) => e.toProto3Json()).toList())
+        : ''
+    ..headers = saved.headers != null ? jsonEncode(saved.headers) : ''
+    // The extension's detail tags (e.g. an AniList extension's AniList
+    // tags) ride the same state — the hero chips read them from here.
+    ..tags.addAll(saved.tags ?? const <String>[])
+    ..downloaded.addAll(saved.downloaded);
+  if (saved.id != null) protoDetail.id = saved.id!;
+  if (previous != null) {
+    protoDetail.trackIds.addAll(previous.trackIds);
+    protoDetail.trackers.addAll(previous.trackers);
   }
-
-  void _handleForceRefreshFailureDetail(
-    Ref ref,
-    String detailUrl,
-    ExtensionMeta meta,
-    String errorMsg,
-  ) {
-    final provider = detialProvider(detailUrl, meta: meta);
-    final state = ref.read(provider);
-    if (state.detailInfo != null) {
-      // Keep cached data, show toast, don't switch to error state
-      ref.read(provider.notifier).state = state.copyWith(
-        toastMessage: 'common.force_refresh_failed_using_cache'.i18n,
-        lastError: errorMsg,
-      );
-    } else {
-      // No cached data - show error state
-      ref.read(provider.notifier).state = state.copyWith(
-        status: DetialStatus.error,
-        lastError: errorMsg,
-        toastMessage: errorMsg,
-      );
-    }
-  }
+  return protoDetail;
 }
