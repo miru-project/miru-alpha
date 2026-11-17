@@ -34,10 +34,12 @@ class HomeResumeRail extends ConsumerWidget {
     final history = ref.watch(
       historyPageProvider.select((s) => s.filteredHistory),
     );
+    final hidden = watchHiddenExtensions(ref);
     final items =
         (type == ExtensionType.all
                 ? history
                 : history.where((h) => h.extensionType == type).toList())
+            .where((h) => !hidden.contains(h.package))
             .take(_maxCards)
             .toList();
 

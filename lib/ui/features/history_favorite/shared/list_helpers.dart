@@ -4,11 +4,30 @@ import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/model/user_data.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
+import 'package:miru_alpha/provider/search/search_page_provider.dart';
 import 'package:miru_alpha/ui/core/dialog/dialog.dart';
 import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
+
+/// The packages the user toggled hidden in /search (the card's eye
+/// button). Watch this — never `MiruSettings.getSettingSync` — so the
+/// surface reacts to the toggle. Hidden extensions are hidden everywhere,
+/// not just in the search tab.
+Set<String> watchHiddenExtensions(WidgetRef ref) =>
+    ref.watch(searchPageProvider.select((s) => s.hiddenExtensions));
+
+/// The [group]'s favorites that don't belong to a hidden extension.
+List<Favorite> visibleGroupFavorites(FavoriteGroup group, Set<String> hidden) =>
+    group.favorites.where((f) => !hidden.contains(f.package)).toList();
+
+/// A favorite-tag chip disappears only when every favorite in it belongs
+/// to a hidden extension. An empty tag is the user's own — keep it.
+bool tagVisible(FavoriteGroup group, Set<String> hidden) =>
+    group.favorites.isEmpty ||
+    group.favorites.any((f) => !hidden.contains(f.package));
 
 /// Looks up the [ExtensionMeta] for [package] from the loaded extension list.
 ExtensionMeta? findMeta(WidgetRef ref, String package) {

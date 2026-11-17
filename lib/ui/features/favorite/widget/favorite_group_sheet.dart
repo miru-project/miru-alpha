@@ -241,9 +241,12 @@ class FavoriteGroupSheet extends HookConsumerWidget {
 /// The count is informative while browsing but noise in a selection sheet —
 /// [FavoriteGroupSheet] chips show the bare name (UX-review: hide secondary
 /// counters during selection). Zeros are suppressed either way: an empty
-/// group reads as `anime1`, a populated one as `test (3)`.
-String favoriteGroupLabel(FavoriteGroup group) {
-  final count = group.favorites.length;
+/// group reads as `anime1`, a populated one as `test (3)`. Favorites from
+/// hidden extensions never reach the count.
+String favoriteGroupLabel(FavoriteGroup group, Set<String> hidden) {
+  final count = group.favorites
+      .where((f) => !hidden.contains(f.package))
+      .length;
   return count == 0 ? group.name : '${group.name} ($count)';
 }
 

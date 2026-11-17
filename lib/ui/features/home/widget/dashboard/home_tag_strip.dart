@@ -6,6 +6,7 @@ import 'package:miru_alpha/model/user_data.dart';
 import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/ui/core/dialog/dialog.dart';
 import 'package:miru_alpha/ui/features/favorite/widget/favorite_group_sheet.dart';
+import 'package:miru_alpha/ui/features/history_favorite/shared/list_helpers.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_section_header.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
@@ -30,6 +31,10 @@ class HomeTagStrip extends ConsumerWidget {
     final groups = ref.watch(
       favoritePageProvider.select((s) => s.favoriteGroups),
     );
+    final hidden = watchHiddenExtensions(ref);
+    // Tags whose every favorite belongs to a hidden extension disappear;
+    // empty tags are the user's own and stay.
+    final visibleGroups = groups.where((g) => tagVisible(g, hidden)).toList();
     final selectedFavGrp = ref.watch(
       favoritePageProvider.select((s) => s.selectedFavoriteGroups),
     );
@@ -83,14 +88,15 @@ class HomeTagStrip extends ConsumerWidget {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              itemCount: groups.length + 1,
+              itemCount: visibleGroups.length + 1,
               separatorBuilder: (_, _) => const SizedBox(width: 8),
-              itemBuilder: (context, index) => index == groups.length
+              itemBuilder: (context, index) => index == visibleGroups.length
                   ? _NewTagChip(onAdd: () => _showNewTagDialog(context, ref))
                   : _GroupChip(
-                      group: groups[index],
+                      group: visibleGroups[index],
+                      hidden: hidden,
                       selected: selectedFavGrp.any(
-                        (g) => g.name == groups[index].name,
+                        (g) => g.name == visibleGroups[index].name,
                       ),
                     ),
             ),
@@ -102,9 +108,14 @@ class HomeTagStrip extends ConsumerWidget {
 }
 
 class _GroupChip extends ConsumerWidget {
-  const _GroupChip({required this.group, required this.selected});
+  const _GroupChip({
+    required this.group,
+    required this.hidden,
+    required this.selected,
+  });
 
   final FavoriteGroup group;
+  final Set<String> hidden;
   final bool selected;
 
   @override
@@ -123,7 +134,7 @@ class _GroupChip extends ConsumerWidget {
           ),
         ),
       ),
-      child: Text(favoriteGroupLabel(group)),
+      child: Text(favoriteGroupLabel(group, hidden)),
     );
   }
 }

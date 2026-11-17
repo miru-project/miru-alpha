@@ -19,6 +19,7 @@ import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
+import 'package:miru_alpha/ui/features/history_favorite/shared/list_helpers.dart';
 
 /// Gap between the bento tiles (mock `gap-2`).
 const _gap = 8.0;
@@ -49,11 +50,15 @@ class HomeQuickAccessGrid extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final meta = ref.watch(extensionPageProvider.select((s) => s.metaData));
+    final hidden = watchHiddenExtensions(ref);
     // Most-recent-first package names, resolved against the installed
-    // catalogue — a since-uninstalled source drops out.
+    // catalogue — a since-uninstalled source drops out, and so does a
+    // hidden one (continue-watching / quick access stay hidden with it).
     final recents = [
       for (final pkg in MiruSettings.getRecentExtensions())
-        meta.where((m) => m.packageName == pkg).firstOrNull,
+        hidden.contains(pkg)
+            ? null
+            : meta.where((m) => m.packageName == pkg).firstOrNull,
     ].nonNulls.take(_maxRecent).toList();
 
     // Exactly three tiles on one row: the first slot carries the recent
@@ -254,6 +259,8 @@ class _ExtensionCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final meta = ref.watch(extensionPageProvider.select((s) => s.metaData));
+    final hidden = watchHiddenExtensions(ref);
+    final visibleCount = meta.where((m) => !hidden.contains(m.packageName)).length;
 
     return AnimatedBox.nopadding(
       onTap: () => context.push('/extension'),
@@ -267,7 +274,7 @@ class _ExtensionCard extends ConsumerWidget {
         caption: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (meta.isNotEmpty) ...[
+            if (visibleCount > 0) ...[
               Container(
                 width: 6,
                 height: 6,
@@ -280,7 +287,7 @@ class _ExtensionCard extends ConsumerWidget {
             ],
             Flexible(
               child: Text(
-                'home.sources_value'.i18n.fill({'count': '${meta.length}'}),
+                'home.sources_value'.i18n.fill({'count': '$visibleCount'}),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: _captionStyle(

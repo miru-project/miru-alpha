@@ -20,6 +20,7 @@ import 'package:miru_alpha/ui/features/main_page/desktop_sidebar.dart'
     show kShelfDotColors;
 import 'package:miru_alpha/ui/features/home/widget/desktop_dashboard/home_cover_fallback.dart';
 import 'package:miru_alpha/ui/features/home/widget/desktop_dashboard/display_title.dart';
+import 'package:miru_alpha/ui/features/history_favorite/shared/list_helpers.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_tag_strip.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_section_header.dart';
 import 'package:miru_alpha/ui/features/search/widget/search_filter_controls.dart';
@@ -45,6 +46,10 @@ class HomeDesktopFeed extends ConsumerWidget {
     final favorites = ref.watch(
       favoritePageProvider.select((s) => s.favorites),
     );
+    final hidden = watchHiddenExtensions(ref);
+    final visibleFavorites = hidden.isEmpty
+        ? favorites
+        : favorites.where((f) => !hidden.contains(f.package)).toList();
     final groups = ref.watch(
       favoritePageProvider.select((s) => s.favoriteGroups),
     );
@@ -53,9 +58,9 @@ class HomeDesktopFeed extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _ShelvesRow(groups: groups, favorites: favorites),
+        _ShelvesRow(groups: groups, favorites: visibleFavorites),
         const SizedBox(height: 20),
-        if (favorites.isEmpty)
+        if (visibleFavorites.isEmpty)
           // Mock library-empty invite (2026-11-12): full-width DASHED-border
           // panel, 56px heart chip, title + subtitle + Browse Extensions —
           // the whole-library empty (filters not involved).
@@ -178,6 +183,7 @@ class _ShelvesRow extends ConsumerWidget {
     final selected = ref.watch(
       favoritePageProvider.select((s) => s.selectedFavoriteGroups),
     );
+    final hidden = watchHiddenExtensions(ref);
     final filterActive = selected.isNotEmpty;
 
     return Row(
@@ -220,10 +226,12 @@ class _ShelvesRow extends ConsumerWidget {
                       child: Text('${'common.all'.i18n} (${favorites.length})'),
                     ),
                     // Empty collections stay hidden (progressive
-                    // disclosure): a "0 items" pill is noise on the home
-                    // canvas — the Manage Tags sheet still reaches them.
+                    // disclosure) — and so does a shelf whose every
+                    // favorite belongs to a hidden extension.
                     for (final group in groups.where(
-                      (g) => g.favorites.isNotEmpty,
+                      (g) =>
+                          g.favorites.isNotEmpty &&
+                          visibleGroupFavorites(g, hidden).isNotEmpty,
                     ))
                       FButton(
                         variant: selected.any((g) => g.name == group.name)
@@ -242,7 +250,7 @@ class _ShelvesRow extends ConsumerWidget {
                           ),
                         ),
                         child: Text(
-                          '${group.name} (${group.favorites.length})',
+                          '${group.name} (${visibleGroupFavorites(group, hidden).length})',
                         ),
                       ),
                     FButton(
@@ -334,6 +342,10 @@ class _FavoritesSection extends ConsumerWidget {
     final favorites = ref.watch(
       favoritePageProvider.select((s) => s.favorites),
     );
+    final hidden = watchHiddenExtensions(ref);
+    final visibleFavorites = hidden.isEmpty
+        ? favorites
+        : favorites.where((f) => !hidden.contains(f.package)).toList();
     final selected = ref.watch(
       favoritePageProvider.select((s) => s.selectedFavoriteGroups),
     );
@@ -342,7 +354,7 @@ class _FavoritesSection extends ConsumerWidget {
         .whereType<FavoriteGroup>()
         .toList();
     final scoped = selectedGroups.isEmpty
-        ? favorites
+        ? visibleFavorites
         : ref
               .read(favoritePageProvider.notifier)
               .favoritesInGroups(selectedGroups);

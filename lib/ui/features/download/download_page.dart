@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +10,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/core/empty_state.dart';
 import 'package:forui/forui.dart';
+
 import './widget/index.dart';
+
 import 'package:miru_alpha/provider/application_controller_provider.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
 
@@ -59,11 +63,11 @@ class DownloadPage extends ConsumerWidget {
                   Text("settings.select_download_directory_tip".i18n),
               child: FButton.icon(
                 onPress: () async {
-                  String? result = await FilePicker.getDirectoryPath();
+                  Uri? result = await FilePicker.pickDirectory();
                   if (result != null) {
                     MiruSettings.setSettingSync(
                       SettingKey.downloadPath,
-                      result,
+                      result.toFilePath(windows: Platform.isWindows),
                     );
                   }
                 },
@@ -158,12 +162,13 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
                             ),
                             child: FButton.icon(
                               onPress: () async {
-                                final result =
-                                    await FilePicker.getDirectoryPath();
+                                final result = await FilePicker.pickDirectory();
                                 if (result != null) {
                                   MiruSettings.setSettingSync(
                                     SettingKey.downloadPath,
-                                    result,
+                                    result.toFilePath(
+                                      windows: Platform.isWindows,
+                                    ),
                                   );
                                 }
                               },

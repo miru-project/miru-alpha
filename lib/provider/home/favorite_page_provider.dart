@@ -2,6 +2,7 @@ import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/model/user_data.dart';
 import 'package:miru_alpha/provider/backend_connection_provider.dart';
 import 'package:miru_alpha/utils/store/database_service.dart';
+import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'favorite_page_provider.g.dart';
 
@@ -209,19 +210,42 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
 
   /// Group-scoped favorites: the union (OR mode) or intersection (AND mode)
   /// of the given groups' favorites; every favorite when [favGroups] is
-  /// empty. Shared by the favorites-page filter, the dashboard's Dynamic
-  /// Feed, the tag strip and the manager sheet so all four read ONE
-  /// selection.
+  /// empty. Hidden extensions contribute nothing to either. Shared by the
+  /// favorites-page filter, the dashboard's Dynamic Feed, the tag strip and
+  /// the manager sheet so all four read ONE selection.
   List<Favorite> favoritesInGroups(List<FavoriteGroup> favGroups) {
-    if (favGroups.isEmpty) return state.favorites;
+    // Read fresh each call — favorites changes never carry the hidden set,
+    // so a cached read would leak hidden-extension favorites into the feed.
+    final hidden = MiruSettings.getSettingSync<Set<String>>(
+      SettingKey.hiddenExtension,
+    );
+    bool visible(Favorite f) => !hidden.contains(f.package);
+
+    if (favGroups.isEmpty) {
+      return hidden.isEmpty ? state.favorites : state.favorites.where(visible).toList();
+    }
     // Match by name: the database keys groups by name, and a captured
     // [FavoriteGroup] object breaks equality after a favorites refresh.
     final favGroup = state.favoriteGroups
         .where((e) => favGroups.any((g) => g.name == e.name))
         .toList();
+    if (hidden.isEmpty) {
+      return cacheFilterMode == FavoriteFilterMode.and
+          ? _intersectFavorites(favGroup)
+          : favGroup.expand((e) => e.favorites).toList();
+    }
+    final visibleGroups = [
+      for (final g in favGroup)
+        FavoriteGroup(
+          id: g.id,
+          name: g.name,
+          date: g.date,
+          favorites: g.favorites.where(visible).toList(),
+        ),
+    ];
     return cacheFilterMode == FavoriteFilterMode.and
-        ? _intersectFavorites(favGroup)
-        : favGroup.expand((e) => e.favorites).toList();
+        ? _intersectFavorites(visibleGroups)
+        : visibleGroups.expand((e) => e.favorites).toList();
   }
 
   /// Toggles a group in the selection BY NAME. The dashboard's tag strip and

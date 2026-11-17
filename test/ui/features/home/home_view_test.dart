@@ -12,6 +12,7 @@ import 'package:miru_alpha/provider/application_controller_provider.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
 import 'package:miru_alpha/utils/theme/miru_themes.dart';
 import 'package:forui/forui.dart';
+import 'package:miru_alpha/utils/store/miru_settings.dart';
 
 class _FakeFavoritePageNotifier extends FavoritePageNotifier {
   _FakeFavoritePageNotifier(this._state);
@@ -53,6 +54,8 @@ class _FakeHomeBanner extends HomeBanner {
 }
 
 void main() {
+  setUp(MiruSettings.seedDefaultsForTest);
+
   testWidgets('HomeView renders correctly', (WidgetTester tester) async {
     final favoriteState = FavoritePageState(
       favorites: const [],

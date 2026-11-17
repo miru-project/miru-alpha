@@ -30,10 +30,15 @@ class HomeDynamicFeed extends ConsumerWidget {
     final favorites = ref.watch(
       favoritePageProvider.select((s) => s.favorites),
     );
+    final hidden = watchHiddenExtensions(ref);
+    final visibleFavorites = hidden.isEmpty
+        ? favorites
+        : favorites.where((f) => !hidden.contains(f.package)).toList();
     // No favorites yet: the section hides entirely instead of stacking a
     // second dead-end empty state under the resume shelf (UX-review) — the
-    // Trending rail carries the empty dashboard.
-    if (favorites.isEmpty) return const SizedBox.shrink();
+    // Trending rail carries the empty dashboard. Favorites from hidden
+    // extensions don't count towards making the section visible.
+    if (visibleFavorites.isEmpty) return const SizedBox.shrink();
     final selected = ref.watch(
       favoritePageProvider.select((s) => s.selectedFavoriteGroups),
     );
@@ -45,9 +50,9 @@ class HomeDynamicFeed extends ConsumerWidget {
         .whereType<FavoriteGroup>()
         .toList();
     final scoped = selectedGroups.isEmpty
-        ? favorites
+        ? visibleFavorites
         // Read, not watch: the watched selects above already trigger the
-        // rebuild when the selection or the favorites change.
+        // rebuild when the selection, the favorites or the hidden set change.
         : ref
               .read(favoritePageProvider.notifier)
               .favoritesInGroups(selectedGroups);

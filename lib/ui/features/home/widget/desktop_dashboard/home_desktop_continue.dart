@@ -47,6 +47,7 @@ class HomeDesktopContinue extends ConsumerWidget {
     final history = ref.watch(
       historyPageProvider.select((s) => s.filteredHistory),
     );
+    final hidden = watchHiddenExtensions(ref);
     // One card per show: history keeps an entry per episode, so the same
     // series can appear twice side by side. Dedupe by title keeping the
     // NEWEST entry (the list is date-desc), then cap.
@@ -55,6 +56,7 @@ class HomeDesktopContinue extends ConsumerWidget {
         (type == ExtensionType.all
                 ? history
                 : history.where((h) => h.extensionType == type).toList())
+            .where((h) => !hidden.contains(h.package))
             .where((h) => seenTitles.add(h.title))
             .toList();
     // The count chip reports EVERYTHING in progress (the section is a

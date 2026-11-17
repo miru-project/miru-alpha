@@ -368,11 +368,11 @@ class _MainPageState extends ConsumerState<MainPage>
                 actions: [
                   FButton(
                     onPress: () async {
-                      final result = await FilePicker.getDirectoryPath();
+                      final result = await FilePicker.pickDirectory();
                       if (result == null) return;
                       MiruSettings.setSettingSync(
                         SettingKey.downloadPath,
-                        result,
+                        result.toFilePath(windows: Platform.isWindows),
                       );
                       // Close the DIALOG's route. Popping the page's captured
                       // context resolved to the shell page (the dialog was
