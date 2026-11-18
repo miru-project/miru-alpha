@@ -259,20 +259,22 @@ void main() {
     await _pumpReader(tester);
 
     // The pill is positioned with left/right 0, so anything in its chain that
-    // passes those constraints through (a clip, a blur) hands the badge a tight
+    // passes those constraints through (a clip, a blur) hands the card a tight
     // full-width constraint and the pill spans the screen.
     final canvas = tester.getRect(find.byType(MiruMangaViewPort));
     // The pill's own box is the full width (it is positioned left/right 0); what
-    // has to be content-sized is the frosted surface inside it.
+    // has to be content-sized is the frosted card inside it.
     final surface = tester.getRect(
       find.descendant(
         of: find.byType(ReaderStatusPill),
-        matching: find.byType(FBadge),
+        matching: find.byType(ReaderSurface),
       ),
     );
     expect(surface.width, lessThanOrEqualTo(canvas.width - 32));
-    // ...and it stays centred rather than pinned to the leading edge.
-    expect(surface.center.dx, closeTo(canvas.center.dx, 1));
+    // ...and it stays centred rather than pinned to the leading edge. The card
+    // sits inside the expand/shrink AnimatedSize box, so allow a few dp of
+    // animation lag: the invariant is "centred", not "sub-pixel".
+    expect(surface.center.dx, closeTo(canvas.center.dx, 4));
   });
 
   testWidgets('the page scrubber follows the page it is reporting', (

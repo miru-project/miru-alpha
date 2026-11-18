@@ -13,6 +13,7 @@ import 'package:miru_alpha/ui/features/watch/manga_reader/widget/manga_viewport.
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_bottom_bar.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_overlay.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_settings_sheet.dart';
+import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_position_pill.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_status_pill.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_top_bar.dart';
 import 'package:miru_alpha/utils/core/log.dart';
@@ -294,15 +295,23 @@ class MiruMangaReader extends HookConsumerWidget {
         Positioned(
           left: 0,
           right: 0,
-          bottom: mediaPadding.bottom + 24,
+          top: 0,
+          bottom: 0,
           child: ReaderOverlayLayer(
             visible: !state.hudVisible,
             offset: 8,
-            child: ReaderStatusPill(
-              chapterLabel: chapterLabel,
-              page: state.page,
-              totalPage: state.totalPage,
-              progress: state.progress,
+            child: ReaderPositionPill(
+              isolated: state.hudVisible,
+              childBuilder: (borderRadius, compact, showGrip) =>
+                  ReaderStatusPill(
+                    chapterLabel: chapterLabel,
+                    page: state.page,
+                    totalPage: state.totalPage,
+                    progress: state.progress,
+                    borderRadius: borderRadius,
+                    compact: compact,
+                    showGrip: showGrip,
+                  ),
             ),
           ),
         ),

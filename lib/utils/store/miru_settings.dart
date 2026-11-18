@@ -127,10 +127,8 @@ class MiruSettings {
     SettingKey.aniListUserId: '',
     SettingKey.autoTracking: 'true',
     SettingKey.windowSize: "1280,720",
-    SettingKey.androidWebviewUA:
-        "Mozilla/5.0 (Linux; Android 13; Android) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.43 Mobile Safari/537.36",
-    SettingKey.windowsWebviewUA:
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+    SettingKey.androidWebviewUA: "Mozilla/5.0 (Linux; Android 13; Android) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.43 Mobile Safari/537.36",
+    SettingKey.windowsWebviewUA: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
     SettingKey.proxy: '',
     SettingKey.proxyActivate: 'false',
     SettingKey.proxyList: {}.toString(),
@@ -181,6 +179,14 @@ class MiruSettings {
     SettingKey.mangaKeepScreenOn: "true",
     SettingKey.mangaTapToTurnPage: "true",
     SettingKey.mangaBookmarks: "",
+    // readerPillAnchor: which snap slot the draggable progress pill rests on.
+    // Name of one of `ReaderPillAnchor`: `line` (vertical center line,
+    // y along the safe-area segment from `readerPillLineY`) or one of the
+    // four corners. Legacy `bottomCenter` maps onto `line` at fraction 1.0.
+    SettingKey.readerPillAnchor: "line",
+    // readerPillLineY: rest fraction along the vertical center line,
+    // 0 = top end of the safe-area segment, 1 = bottom end.
+    SettingKey.readerPillLineY: "1.0",
   };
   static Future<void> _initSettings() async {
     for (final entry in _defaultSettings.entries) {
@@ -385,6 +391,8 @@ class SettingKey {
   static const mangaBrightness = 'MangaBrightness';
   static const mangaPageGap = 'MangaPageGap';
   static const mangaInvertColors = 'MangaInvertColors';
+  static const readerPillAnchor = 'ReaderPillAnchor';
+  static const readerPillLineY = 'ReaderPillLineY';
   static const mangaKeepScreenOn = 'MangaKeepScreenOn';
   static const mangaTapToTurnPage = 'MangaTapToTurnPage';
   static const mangaBookmarks = 'MangaBookmarks';
