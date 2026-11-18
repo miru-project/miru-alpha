@@ -91,12 +91,28 @@ class MiruMangaReader extends HookConsumerWidget {
     // A chapter history has a reported page for re-opens there instead of page
     // one: the session state adopts it, and the canvas jump waits one frame so
     // it targets the fresh canvas rather than the outgoing one.
+    //
+    // Declared before the open effect because its completion callback clears
+    // the armed save (see `onChapterCompleted` below).
+    final historySave = useRef<Future<void> Function()?>(null);
+    void flushHistory() {
+      final save = historySave.value;
+      historySave.value = null;
+      if (save != null) unawaited(save());
+    }
+
     useEffect(() {
       final reader = container.read(mangaReaderProvider.notifier);
       // A chapter flip initiated by the infinite webtoon itself must not
       // reset the canvas — the effect would otherwise jump the scroller
       // back to the top and reload the chapter.
       if (reader.consumeChapterFlip()) return null;
+      // The window already tracks this chapter (a chain flip landed here):
+      // the session refresh that follows re-runs this effect with a new
+      // page count, and re-opening would collapse the window and jump to
+      // the chapter's history position. The flip's one-shot guard is spent
+      // by then, so the tracked-chapter check is what holds the line.
+      if (reader.tracksEpisode(episodeIndex)) return null;
       final episodeUrl = episodes.isEmpty ? '' : episodes[episodeIndex].url;
       final saved = findSavedReadingProgress(
         history: container.read(historyPageProvider).history,
@@ -118,6 +134,18 @@ class MiruMangaReader extends HookConsumerWidget {
           onTrackedEpisodeChanged: (flipGroup, flipEpisode) => container
               .read(epProvider.notifier)
               .selectEpisode(flipGroup, flipEpisode),
+          // Crossing forward finishes the outgoing chapter: its completion
+          // write supersedes the armed snapshot (which holds the last
+          // reported page, possibly mid-chapter after a fast fling).
+          onChapterCompleted: (flipGroup, flipEpisode, totalFlipped) {
+            historySave.value = null;
+            container
+                .read(epProvider.notifier)
+                .saveHistory(
+                  progress: totalFlipped,
+                  totalProgress: totalFlipped,
+                );
+          },
         );
         // Always land on the entry page — a direct chapter switch (drawer,
         // prev/next, restore) must not keep a stale offset from the
@@ -155,28 +183,21 @@ class MiruMangaReader extends HookConsumerWidget {
     // tree. listenManual — not listen — because plain ref.listen subscriptions
     // close at the start of every rebuild, which would leave the save armed
     // with the entry snapshot forever.
-    final historySave = useRef<Future<void> Function()?>(null);
-    void flushHistory() {
-      final save = historySave.value;
-      historySave.value = null;
-      if (save != null) unawaited(save());
-    }
-
     useEffect(() {
-      container.listenManual<MangaReaderState>(mangaProvider, (_, next) {
-        historySave.value = container
-            .read(epProvider.notifier)
-            .prepareHistorySave(
-              progress: next.historyProgress,
-              totalProgress: next.totalPage,
-            );
-      });
-      historySave.value = container
-          .read(epProvider.notifier)
-          .prepareHistorySave(
-            progress: container.read(mangaProvider).historyProgress,
-            totalProgress: container.read(mangaProvider).totalPage,
-          );
+      // Re-arm only when the SAVED quantities change — not on HUD toggles,
+      // jump flags or window growth, which copy the reader state just as
+      // often and re-read three providers + allocate a History snapshot
+      // each time. listenManual fires once on subscribe, which covers the
+      // initial arm — arming again here double-registered the chapter at
+      // open.
+      container.listenManual(
+        mangaProvider.select((s) => (s.historyProgress, s.totalPage)),
+        (_, next) {
+          historySave.value = container
+              .read(epProvider.notifier)
+              .prepareHistorySave(progress: next.$1, totalProgress: next.$2);
+        },
+      );
       // The manual listener lives until the element unmounts; the cleanup is
       // only about snapshotting the outgoing episode.
       return flushHistory;

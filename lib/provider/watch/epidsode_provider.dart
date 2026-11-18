@@ -158,9 +158,9 @@ class EpisodeNotifier extends _$EpisodeNotifier {
                     // have advanced the list): ask AniList for the live
                     // episode number and never push a smaller one over it.
                     final onlineProgress =
-                        (await AniListProvider.getMediaList(
-                          mediaId,
-                        )).mediaListEntry?.progress ??
+                        (await AniListProvider.getMediaList(mediaId))
+                            .mediaListEntry
+                            ?.progress ??
                         0;
                     if (newProgress <= onlineProgress) {
                       // Online is already at or beyond this episode — heal
@@ -196,6 +196,10 @@ class EpisodeNotifier extends _$EpisodeNotifier {
       selectedGroupIndex: groupIndex,
       selectedEpisodeIndex: episodeIndex,
     );
+    // Keep the captured state in step: prepareHistorySave bakes the episode
+    // identity (url, episodeId, title) from it, so a stale capture writes
+    // the new chapter's progress onto the previous chapter's history row.
+    _capturedState = state;
   }
 
   void putInformation(

@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart' show IterableExtension;
+import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
@@ -312,6 +313,30 @@ class ScrollOffsetController {
   double get maxScrollExtent =>
       _scrollableListState?.primary.scrollController.position.maxScrollExtent ??
       0;
+
+  /// Furthest the list can scroll above its anchor, in pixels — negative when
+  /// content exists above the anchored item, 0 while it is not attached.
+  ///
+  /// The list anchors on [ItemScrollController.notifyItemsInsertedBefore]'s
+  /// re-pinned item, so everything the reader scrolled up into (a prepended
+  /// chapter, for instance) lives at negative offsets. A transform derived
+  /// from [offset] needs this bound to clamp against.
+  double get minScrollExtent =>
+      _scrollableListState?.primary.scrollController.position.minScrollExtent ??
+      0;
+
+  /// The direction the user is currently scrolling, or [ScrollDirection.idle]
+  /// when nothing is driving the list — no drag, no coast, no programmatic
+  /// jump.
+  ///
+  /// Readers trigger their edge-of-window loading from the position stream,
+  /// which reports on every layout; without the direction a boot-time report
+  /// looks exactly like an approach to the head and fires both neighbours'
+  /// fetches at once.
+  ScrollDirection get userScrollDirection =>
+      _scrollableListState?.primary.scrollController.position
+          .userScrollDirection ??
+      ScrollDirection.idle;
 
   Future<void> animateScroll({
     required double offset,

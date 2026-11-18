@@ -44,13 +44,14 @@ void main() {
 
   List<ExtensionEpisode> episodes() => [
     for (var i = 1; i <= 4; i++)
-      ExtensionEpisode(name: 'Chapter $i', url: 'https://example.com/chapter-$i'),
+      ExtensionEpisode(
+        name: 'Chapter $i',
+        url: 'https://example.com/chapter-$i',
+      ),
   ];
 
   ExtensionMangaWatch chapter4() => ExtensionMangaWatch(
-    urls: [
-      for (var i = 0; i < 2; i++) 'https://example.com/chapter-4-p$i',
-    ],
+    urls: [for (var i = 0; i < 2; i++) 'https://example.com/chapter-4-p$i'],
   );
 
   List<String> pagesFor(String url) {
@@ -72,16 +73,12 @@ void main() {
     detailImageUrl: '',
     detailUrl: 'https://example.com/d',
     savePath: null,
-    epGroup: [
-      ExtensionEpisodeGroup(title: 'Volume 1', urls: episodes()),
-    ],
+    epGroup: [ExtensionEpisodeGroup(title: 'Volume 1', urls: episodes())],
   );
 
   EpisodeNotifierState fakeState() => EpisodeNotifierState(
     name: 'TestManga',
-    epGroup: [
-      ExtensionEpisodeGroup(title: 'Volume 1', urls: episodes()),
-    ],
+    epGroup: [ExtensionEpisodeGroup(title: 'Volume 1', urls: episodes())],
   );
 
   Future<void> bootReader(
@@ -115,12 +112,17 @@ void main() {
   testWidgets(
     'two upward prepends with 100ms fetch behave and keep the flat index',
     (tester) async {
+      // Phone-sized viewport so each page is ~585px and a 600px drag
+      // reliably crosses a page boundary.
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(390, 844);
+      addTearDown(tester.view.reset);
+
       final w = chapter4();
       final c = ProviderContainer(
         overrides: [
-          episodeProvider(
-            makeParams(w),
-          ).overrideWith(() => _FakeEpisodes(fakeState())),
+          episodeProvider(makeParams(w))
+              .overrideWith(() => _FakeEpisodes(fakeState())),
         ],
       );
       addTearDown(c.dispose);
@@ -135,47 +137,56 @@ void main() {
 
       await bootReader(tester, c, w);
 
-      // Boot: ch2 and ch3 are loading slots above the anchor (ch4).
+      // Boot: ONLY the anchor (ch4) is in the window. Neighbours are lazy —
+      // they load one at a time, in the direction the reader travels.
+      expect(c.read(mangaReaderProvider).segments.map((s) => s.episodeIndex), [
+        3,
+      ], reason: 'lazy boot: nothing loads before a scroll');
       expect(
-        c.read(mangaReaderProvider).segments.map((s) => s.episodeIndex),
-        [1, 2, 3],
-        reason: 'boot prefetches neighbours as loading slots',
-      );
-      expect(
-        c.read(mangaReaderProvider).segments.last.items,
+        c.read(mangaReaderProvider).segments.single.items,
         isNotNull,
         reason: 'the anchor itself is always loaded',
       );
 
-      // Boot's neighbour fetches resolve 100ms later.
-      await tester.pump(const Duration(milliseconds: 120));
-      for (var frame = 0; frame < 4; frame++) {
-        await tester.pump(const Duration(milliseconds: 16));
-      }
-      expect(
-        c.read(mangaReaderProvider).segments.map((s) => s.episodeIndex),
-        [1, 2, 3],
-      );
-      expect(
-        c.read(mangaReaderProvider).segments.every((s) => s.items != null),
-        isTrue,
-      );
+      final positions = notifier.itemPositionsListener as ItemPositionsNotifier;
 
-      final positions =
-          notifier.itemPositionsListener as ItemPositionsNotifier;
-
-      // ── prepend #1: user reaches the first page → ch1 loads ──
-      for (var frame = 0; frame < 5; frame++) {
-        positions.itemPositions.value = [
-          ItemPosition(index: 0, itemLeadingEdge: 0, itemTrailingEdge: 1),
-        ];
-        await tester.pump(const Duration(milliseconds: 20));
+      // ── upward drags: ch3, ch2, ch1 prepend one at a time ──
+      Future<void> dragUpUntil(int expectedFirst) async {
+        for (var attempt = 0; attempt < 8; attempt++) {
+          final window = c
+              .read(mangaReaderProvider)
+              .segments
+              .map((s) => s.episodeIndex)
+              .toList();
+          if (window.isNotEmpty && window.first == expectedFirst) return;
+          await tester.drag(find.byType(MiruMangaReader), const Offset(0, 600));
+          await tester.pump(const Duration(milliseconds: 120));
+          for (var frame = 0; frame < 4; frame++) {
+            await tester.pump(const Duration(milliseconds: 16));
+          }
+        }
       }
-      expect(
-        c.read(mangaReaderProvider).segments.map((s) => s.episodeIndex),
-        [0, 1, 2, 3],
-        reason: 'loading slot for ch1 prepended',
-      );
+
+      await dragUpUntil(2);
+      expect(c.read(mangaReaderProvider).segments.map((s) => s.episodeIndex), [
+        2,
+        3,
+      ], reason: 'the first upward scroll loads ch3 as the single buffer');
+
+      await dragUpUntil(1);
+      expect(c.read(mangaReaderProvider).segments.map((s) => s.episodeIndex), [
+        1,
+        2,
+        3,
+      ], reason: 'the second upward scroll loads ch2');
+
+      await dragUpUntil(0);
+      expect(c.read(mangaReaderProvider).segments.map((s) => s.episodeIndex), [
+        0,
+        1,
+        2,
+        3,
+      ], reason: 'loading slot for ch1 prepended');
       expect(
         c.read(mangaReaderProvider).segments.first.items,
         isNull,
@@ -185,38 +196,38 @@ void main() {
       for (var frame = 0; frame < 4; frame++) {
         await tester.pump(const Duration(milliseconds: 16));
       }
-      expect(
-        c.read(mangaReaderProvider).segments.map((s) => s.episodeIndex),
-        [0, 1, 2, 3],
-      );
+      expect(c.read(mangaReaderProvider).segments.map((s) => s.episodeIndex), [
+        0,
+        1,
+        2,
+        3,
+      ]);
       expect(
         c.read(mangaReaderProvider).segments.every((s) => s.items != null),
         isTrue,
       );
-      expect(c.read(mangaReaderProvider).trackedSegmentIndex, 3);
-
-
+      expect(
+        c.read(mangaReaderProvider).trackedSegmentIndex,
+        2,
+        reason: 'the user scrolled up into ch3, so that is the tracked segment',
+      );
 
       final slots = notifier.currentSlots();
-      expect(
-        slots.map((s) => s.kind),
-        [
-          SlotKind.seriesStart,
-          SlotKind.page,
-          SlotKind.page,
-          SlotKind.junction,
-          SlotKind.page,
-          SlotKind.page,
-          SlotKind.junction,
-          SlotKind.page,
-          SlotKind.page,
-          SlotKind.junction,
-          SlotKind.page,
-          SlotKind.page,
-          SlotKind.seriesEnd,
-        ],
-        reason: 'series start at the head, series end at the tail',
-      );
+      expect(slots.map((s) => s.kind), [
+        SlotKind.seriesStart,
+        SlotKind.page,
+        SlotKind.page,
+        SlotKind.junction,
+        SlotKind.page,
+        SlotKind.page,
+        SlotKind.junction,
+        SlotKind.page,
+        SlotKind.page,
+        SlotKind.junction,
+        SlotKind.page,
+        SlotKind.page,
+        SlotKind.seriesEnd,
+      ], reason: 'series start at the head, series end at the tail');
       expect(
         slots.indexWhere(
           (s) =>

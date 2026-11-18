@@ -39,6 +39,7 @@ class ReaderZoom {
 /// for instance, should not leave the next page magnified.
 class ReaderZoomController {
   VoidCallback? _reset;
+  VoidCallback? _reanchor;
 
   /// Whether the view is currently magnified.
   bool get isZoomed => _isZoomed;
@@ -47,6 +48,14 @@ class ReaderZoomController {
 
   /// Returns to 1x with no translation, as if the view were never zoomed.
   void reset() => _reset?.call();
+
+  /// Re-frames a magnified view after a programmatic jump (scrubber, page
+  /// step): the scale and the horizontal pan stay, the vertical translation
+  /// resets so the viewport top shows the page the jump landed on — not
+  /// stale translated content from before the jump.
+  ///
+  /// No-op at 1x, so ordinary (unmagnified) jumps are untouched.
+  void reanchor() => _reanchor?.call();
 }
 
 /// The reader's hybrid zoom: pinch to scale and drag to pan, both applied as a
@@ -109,6 +118,7 @@ class ReaderZoomSurface extends StatefulWidget {
     this.onViewMoved,
     this.scrollExtent,
     this.contentSize,
+    this.contentOrigin,
     this.controller,
   });
 
@@ -180,6 +190,17 @@ class ReaderZoomSurface extends StatefulWidget {
   /// offer and the pan is left free. [paged] hands in the viewport, because a
   /// single page fills it.
   final Size? Function(Size viewport)? contentSize;
+
+  /// Content-space offset of the topmost scrollable position — the scroll
+  /// offset's lower bound, negative when the inner scrollable is anchored
+  /// mid-list (an anchored list measures pixels against its anchor item, so
+  /// everything scrolled up into above the anchor lives at negative offsets).
+  ///
+  /// The zoom's origin math and clamps must honour this range: clamping the
+  /// origin at 0 when the reader is inside a prepended chapter snaps the
+  /// magnified view back to the anchor — the "zoom above the anchor shows
+  /// the wrong area / goes black" bug.
+  final double Function()? contentOrigin;
 
   final ReaderZoomController? controller;
 
@@ -296,6 +317,7 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
   void initState() {
     super.initState();
     widget.controller?._reset = _reset;
+    widget.controller?._reanchor = _reanchor;
   }
 
   @override
@@ -303,18 +325,34 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller?._reset = null;
+      oldWidget.controller?._reanchor = null;
       widget.controller?._reset = _reset;
+      widget.controller?._reanchor = _reanchor;
     }
   }
 
   void _reset() {
     _stopZoomAnim();
+    if (!mounted) return;
     if (!_zoomed && _translate == Offset.zero) return;
     setState(() {
       _scale = widget.minScale;
       _translate = Offset.zero;
     });
     widget.onScaleChanged?.call(_scale);
+  }
+
+  /// Re-frames a magnified view after a programmatic jump: the scale and the
+  /// horizontal pan stay, the vertical translation resets so the viewport top
+  /// shows the page the jump landed on. At 1x this is a no-op — the paint is
+  /// already the list's own offset.
+  void _reanchor() {
+    if (!mounted || !_zoomed) return;
+    _stopFling();
+    _stopZoomAnim();
+    setState(() {
+      _translate = Offset(_translate.dx, 0);
+    });
   }
 
   @override
@@ -431,17 +469,30 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
 
   /// Keeps the magnified window inside the content, so a page can never be
   /// dragged out of sight and leave the reader staring at a blank canvas.
+  ///
+  /// The vertical origin range starts at [ReaderZoomSurface.contentOrigin]
+  /// (negative inside a prepended chapter of an anchored list), not at 0 —
+  /// clamping there snapped the magnified view back to the anchor item.
   Offset _clampOrigin(Offset origin, double scale) {
     final content = widget.contentSize?.call(_viewport);
     if (content == null) return origin;
-    double axis(double value, double extent, double viewportExtent) =>
-        value.clamp(
-          0.0,
-          (extent - viewportExtent / scale).clamp(0.0, double.infinity),
-        );
+    final minY = widget.contentOrigin?.call() ?? 0.0;
+    double axis(
+      double value,
+      double extent,
+      double viewportExtent,
+      double min,
+    ) {
+      final max = (min + extent - viewportExtent / scale).clamp(
+        min,
+        double.infinity,
+      );
+      return value.clamp(min, max);
+    }
+
     return Offset(
-      axis(origin.dx, content.width, _viewport.width),
-      axis(origin.dy, content.height, _viewport.height),
+      axis(origin.dx, content.width, _viewport.width, 0.0),
+      axis(origin.dy, content.height, _viewport.height, minY),
     );
   }
 
@@ -525,15 +576,18 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
         // translation absorbs whatever it could not express.
         final clamped = _clampOrigin(origin, scale);
         final delta = clamped.dy - _panAnchor.dy;
-        // The scrollable only expresses the unzoomed range — clamp the move to
-        // it and let the paint translation absorb the rest. Feeding jumpTo an
-        // out-of-range target forced the position past its floor, where the
-        // list cannot render the content above its start: panning up from a
-        // zoomed window was bounded at the zoom position.
+        // The scrollable only expresses its real range — clamp the move to
+        // it and let the paint translation absorb the rest. Feeding jumpTo
+        // an out-of-range target forced the position past its floor, where
+        // the list cannot render the content above its start: panning up
+        // from a zoomed window was bounded at the zoom position. The floor
+        // is [contentOrigin], negative above the anchor — without it a
+        // magnified pan could never travel up into a prepended chapter.
         final maxScroll = widget.scrollExtent?.call() ?? 0;
+        final minScroll = widget.contentOrigin?.call() ?? 0.0;
         final current = _offset;
         final scrollableDelta =
-            ((current + delta).clamp(0.0, maxScroll)) - current;
+            ((current + delta).clamp(minScroll, maxScroll)) - current;
         if (scrollableDelta != 0) scroll(scrollableDelta);
         _panAnchor = clamped;
         _translate = Offset(
@@ -624,6 +678,7 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
     _fling.value = _flingPosition;
     // The platform's own deceleration, so a flick through a zoomed strip coasts
     // exactly as long as an ordinary scroll would.
+    final minScroll = widget.contentOrigin?.call() ?? 0.0;
     _fling.animateWith(
       BouncingScrollSimulation(
         spring: SpringDescription.withDampingRatio(
@@ -633,7 +688,7 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
         ),
         position: _flingPosition,
         velocity: velocity,
-        leadingExtent: 0,
+        leadingExtent: minScroll,
         trailingExtent: widget.scrollExtent?.call() ?? double.infinity,
         tolerance: Tolerance.defaultTolerance,
       ),
@@ -680,6 +735,9 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
   }
 
   void _stepFling() {
+    // A tick can land after dispose (ticker teardown is async relative to
+    // the widget): never setState on a defunct state.
+    if (!mounted) return;
     final next = _fling.value;
     final delta = next - _flingPosition;
     _flingPosition = next;
@@ -687,6 +745,7 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
   }
 
   void _stepHFling() {
+    if (!mounted) return;
     var next = _hFling.value;
     // Hard clip: outside the content the coast loses its velocity — the view
     // freezes at the bound instead of painting the black beyond it and
@@ -735,6 +794,9 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
   }
 
   void _stepZoomAnim() {
+    // The animation's last tick can land after dispose — never setState on
+    // a defunct state.
+    if (!mounted) return;
     final t = Curves.easeOutCubic.transform(_zoomAnim.value);
     final nextScale = _zoomFromScale + (_zoomToScale - _zoomFromScale) * t;
     final nextTranslate = Offset.lerp(_zoomFromTranslate, _zoomToTranslate, t)!;
@@ -753,10 +815,13 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
   @override
   void dispose() {
     _cancelPendingTapFire();
+    _stopFling();
+    _stopZoomAnim();
     _fling.dispose();
     _hFling.dispose();
     _zoomAnim.dispose();
     widget.controller?._reset = null;
+    widget.controller?._reanchor = null;
     super.dispose();
   }
 }

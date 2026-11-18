@@ -283,6 +283,12 @@ class NovelReader extends _$NovelReader {
   /// the tracked chapter to another one mid-session.
   void Function(int groupIndex, int episodeIndex)? _onTrackedEpisodeChanged;
 
+  /// Invoked when the reader crosses FORWARD into a later chapter: the
+  /// outgoing chapter is finished, so its history should be written as
+  /// complete (progress == total lines) — the shell owns the write.
+  void Function(int groupIndex, int episodeIndex, int totalLines)?
+  _onChapterCompleted;
+
   /// Episode indices with an in-flight adjacent-chapter fetch.
   final Set<int> _loadingSegments = {};
 
@@ -328,6 +334,8 @@ class NovelReader extends _$NovelReader {
     ExtensionMeta? meta,
     String? detailUrl,
     void Function(int groupIndex, int episodeIndex)? onTrackedEpisodeChanged,
+    void Function(int groupIndex, int episodeIndex, int totalLines)?
+    onChapterCompleted,
   }) {
     final key = '$groupIndex:$episodeIndex';
     if (key == _openKey && ref.mounted) return;
@@ -338,6 +346,7 @@ class NovelReader extends _$NovelReader {
     _meta = meta;
     _detailUrl = detailUrl;
     _onTrackedEpisodeChanged = onTrackedEpisodeChanged;
+    _onChapterCompleted = onChapterCompleted;
     _loadingSegments.clear();
     _pendingPrependBlocks = 0;
     _layout = const NovelLayout(
@@ -348,12 +357,14 @@ class NovelReader extends _$NovelReader {
     );
     _pendingResume = resume == null || resume.progress <= 1 ? null : resume;
 
-    final name = episodes.isNotEmpty &&
+    final name =
+        episodes.isNotEmpty &&
             episodeIndex >= 0 &&
             episodeIndex < episodes.length
         ? episodes[episodeIndex].name
         : '';
-    final url = episodes.isNotEmpty &&
+    final url =
+        episodes.isNotEmpty &&
             episodeIndex >= 0 &&
             episodeIndex < episodes.length
         ? episodes[episodeIndex].url
@@ -390,7 +401,9 @@ class NovelReader extends _$NovelReader {
     final atStart = segments.first.episodeIndex == 0;
     final atEnd = segments.last.episodeIndex == _episodes.length - 1;
     if (atStart) {
-      blocks.add(NovelSeriesBoundary(isStart: true, chapterName: segments.first.name));
+      blocks.add(
+        NovelSeriesBoundary(isStart: true, chapterName: segments.first.name),
+      );
     }
     for (var i = 0; i < segments.length; i++) {
       if (i > 0) {
@@ -421,10 +434,7 @@ class NovelReader extends _$NovelReader {
     }
     if (atEnd) {
       blocks.add(
-        NovelSeriesBoundary(
-          isStart: false,
-          chapterName: segments.last.name,
-        ),
+        NovelSeriesBoundary(isStart: false, chapterName: segments.last.name),
       );
     }
     _flatCache = List<NovelContentBlock>.unmodifiable(blocks);
@@ -436,9 +446,7 @@ class NovelReader extends _$NovelReader {
   List<ChapterSegment<NovelContentBlock>>? _flatCacheKey;
 
   bool get _windowActive =>
-      state.segments.any(
-        (s) => s.items != null && s.items!.isNotEmpty,
-      );
+      state.segments.any((s) => s.items != null && s.items!.isNotEmpty);
 
   /// Per segment: the union line range it occupies, derived from the measured
   /// layout. Segments without prose report a zero-height range.
@@ -465,7 +473,10 @@ class NovelReader extends _$NovelReader {
       if (s == -1) continue;
       if (s != segIdx) {
         if (segIdx >= 0) {
-          spans[segIdx] = (startLine: start == -1 ? line : start, lineCount: count);
+          spans[segIdx] = (
+            startLine: start == -1 ? line : start,
+            lineCount: count,
+          );
         }
         segIdx = s;
         start = -1;
@@ -515,7 +526,19 @@ class NovelReader extends _$NovelReader {
   void _flipTrackedChapter(int segmentIndex, int unionLine) {
     final spans = _spansFor(_layout);
     final span = spans[segmentIndex];
+    final previous = state.trackedSegmentIndex;
     _internalChapterFlip = true;
+    if (state.segments[segmentIndex].episodeIndex >
+        state.segments[previous].episodeIndex) {
+      // Crossing forward: the reader scrolled past the outgoing chapter's
+      // end, so it is finished — its history is written as complete
+      // instead of the last reported line.
+      _onChapterCompleted?.call(
+        _groupIndex,
+        state.segments[previous].episodeIndex,
+        spans[previous].lineCount,
+      );
+    }
     _onTrackedEpisodeChanged?.call(
       _groupIndex,
       state.segments[segmentIndex].episodeIndex,
@@ -581,6 +604,9 @@ class NovelReader extends _$NovelReader {
     if (state.segments.any((s) => s.episodeIndex == boundary)) return;
     if (_loadingSegments.contains(boundary)) return;
     final episode = _episodes[boundary];
+    // The session this fetch belongs to: a re-open or a dispose must void
+    // the result, or stale blocks land in the new session's segment.
+    final session = _openKey;
     _loadingSegments.add(boundary);
     final loading = ChapterSegment<NovelContentBlock>(
       episodeIndex: boundary,
@@ -596,13 +622,13 @@ class NovelReader extends _$NovelReader {
     }
     final blocks = await _fetchChapterBlocks(episode);
     _loadingSegments.remove(boundary);
+    // Async gap: the notifier may be disposed or the session may have
+    // moved on while the fetch ran (see the manga reader's guard).
+    if (!ref.mounted || _openKey != session) return;
+    if (!state.segments.any((s) => s.episodeIndex == boundary)) return;
     _replaceSegment(
       boundary,
-      loading.copyWith(
-        items: blocks,
-        loading: false,
-        failed: blocks == null,
-      ),
+      loading.copyWith(items: blocks, loading: false, failed: blocks == null),
       atHead: direction < 0,
     );
   }
@@ -639,7 +665,9 @@ class NovelReader extends _$NovelReader {
         );
       }
     }
-    state = state.copyWith(segments: List<ChapterSegment<NovelContentBlock>>.unmodifiable(segments));
+    state = state.copyWith(
+      segments: List<ChapterSegment<NovelContentBlock>>.unmodifiable(segments),
+    );
   }
 
   void _replaceSegment(
@@ -647,13 +675,10 @@ class NovelReader extends _$NovelReader {
     ChapterSegment<NovelContentBlock> replacement, {
     required bool atHead,
   }) {
-    _commitSegments(
-      [
-        for (final segment in state.segments)
-          segment.episodeIndex == episodeIndex ? replacement : segment,
-      ],
-      atHead: atHead,
-    );
+    _commitSegments([
+      for (final segment in state.segments)
+        segment.episodeIndex == episodeIndex ? replacement : segment,
+    ], atHead: atHead);
   }
 
   /// Retries a failed chapter slot (tapping its error tile).
@@ -665,6 +690,7 @@ class NovelReader extends _$NovelReader {
     if (_episodes.isEmpty || _meta == null || _detailUrl == null) return;
     if (_loadingSegments.contains(episodeIndex)) return;
     final episode = _episodes[episodeIndex];
+    final session = _openKey;
     _loadingSegments.add(episodeIndex);
     _replaceSegment(
       episodeIndex,
@@ -673,16 +699,20 @@ class NovelReader extends _$NovelReader {
     );
     final blocks = await _fetchChapterBlocks(episode);
     _loadingSegments.remove(episodeIndex);
+    // Async gap: the notifier may be disposed or the session may have
+    // moved on while the fetch ran (see `_ensureAdjacent`).
+    if (!ref.mounted || _openKey != session) return;
+    final current = state.segments.indexWhere(
+      (s) => s.episodeIndex == episodeIndex,
+    );
+    if (current < 0) return;
     _replaceSegment(
       episodeIndex,
-      state.segments[state.segments.indexWhere(
-            (s) => s.episodeIndex == episodeIndex,
-          )]
-          .copyWith(
-            items: blocks,
-            loading: false,
-            failed: blocks == null,
-          ),
+      state.segments[current].copyWith(
+        items: blocks,
+        loading: false,
+        failed: blocks == null,
+      ),
       atHead: index == 0,
     );
   }
@@ -728,6 +758,18 @@ class NovelReader extends _$NovelReader {
     final flipped = _internalChapterFlip;
     _internalChapterFlip = false;
     return flipped;
+  }
+
+  /// Whether the infinite window's tracked chapter is already
+  /// [episodeIndex] — its blocks are loaded at the reader's live scroll
+  /// position. Holds the line when the session refresh after a chain flip
+  /// re-runs the shell's open effect (see the manga reader's helper).
+  bool tracksEpisode(int episodeIndex) {
+    final segments = state.segments;
+    final tracked = state.trackedSegmentIndex;
+    return tracked >= 0 &&
+        tracked < segments.length &&
+        segments[tracked].episodeIndex == episodeIndex;
   }
 
   /// Fresh session state: persisted display preferences, no position.
@@ -852,8 +894,10 @@ class NovelReader extends _$NovelReader {
           : layout.blockHeights.fold<double>(0, (a, b) => a + b);
       _isAdjusting = true;
       scrollController.jumpTo(
-        (scrollController.offset + insertedHeight)
-            .clamp(0.0, scrollController.position.maxScrollExtent),
+        (scrollController.offset + insertedHeight).clamp(
+          0.0,
+          scrollController.position.maxScrollExtent,
+        ),
       );
       _isAdjusting = false;
       _pendingPrependBlocks = 0;
@@ -914,10 +958,7 @@ class NovelReader extends _$NovelReader {
           : ((trackedSpan.startLine + line - 2)) * state.lineExtent;
       _isAdjusting = true;
       scrollController.jumpTo(
-        offset.clamp(
-          0.0,
-          scrollController.position.maxScrollExtent,
-        ),
+        offset.clamp(0.0, scrollController.position.maxScrollExtent),
       );
       _isAdjusting = false;
     }
@@ -1054,10 +1095,8 @@ class NovelReader extends _$NovelReader {
     if (lineExtent <= 0) return;
     final target = !_windowActive || state.segments.isEmpty
         ? (line - 1) * lineExtent
-        : (_spansFor(_layout)[state.trackedSegmentIndex].startLine +
-                  line -
-                  2) *
-            lineExtent;
+        : (_spansFor(_layout)[state.trackedSegmentIndex].startLine + line - 2) *
+              lineExtent;
     setLine(line);
     _isAdjusting = true;
     unawaited(

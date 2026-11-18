@@ -60,7 +60,11 @@ class WebtoonZoomSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ReaderZoomSurface(
-      onTapUp: onTap == null ? null : (position) => onTap!(),
+      onTapUp: onTap == null
+          ? null
+          : (position) {
+              onTap!();
+            },
       doubleTapEnabled: doubleTapEnabled,
       onScaleChanged: onScaleChanged,
       onViewMoved: onViewMoved,
@@ -73,12 +77,17 @@ class WebtoonZoomSurface extends StatelessWidget {
       onVerticalScroll: (delta) =>
           scrollOffsetController.jumpScroll(offset: delta),
       scrollExtent: () => scrollOffsetController.maxScrollExtent,
-      // The list's own extent is the content: wide as the viewport, and as tall
-      // as everything that can be scrolled to. Without this a magnified page
-      // could be dragged clean off the screen.
+      // The list's own extent is the content: wide as the viewport, and as
+      // tall as everything that can be scrolled to — measured from the
+      // scrollable's minimum (negative above the anchor item), not from 0.
+      // Without the lower bound a magnified view inside a prepended chapter
+      // could never reach the content above the anchor.
+      contentOrigin: () => scrollOffsetController.minScrollExtent,
       contentSize: (viewport) => Size(
         viewport.width,
-        viewport.height + scrollOffsetController.maxScrollExtent,
+        viewport.height +
+            scrollOffsetController.maxScrollExtent -
+            scrollOffsetController.minScrollExtent,
       ),
       builder: (context, zoom) => zoom.wrap(
         ScrollablePositionedList.builder(

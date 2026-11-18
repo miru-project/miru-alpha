@@ -76,7 +76,7 @@ class MiruNovelReader extends HookConsumerWidget {
     final state = container.watch(novelProvider);
     final reader = container.read(novelProvider.notifier);
 
-        // The flat, chained list of blocks: this chapter plus every loaded
+    // The flat, chained list of blocks: this chapter plus every loaded
     // adjacent chapter, threaded with junction and boundary tiles. The provider
     // owns the window; the canvas renders it as-is.
     final anchorBlocks = useMemoized(
@@ -102,12 +102,27 @@ class MiruNovelReader extends HookConsumerWidget {
     // unit (pages or lines) only maps onto the chapter once the canvas has
     // measured it, so the pair rides into [NovelReader.setLayout] instead of
     // being jumped from here.
+    //
+    // Declared before the open effect because its completion callback clears
+    // the armed save (see `onChapterCompleted` below).
+    final historySave = useRef<Future<void> Function()?>(null);
+    void flushHistory() {
+      final save = historySave.value;
+      historySave.value = null;
+      if (save != null) unawaited(save());
+    }
+
     useEffect(() {
       final reader = container.read(novelReaderProvider.notifier);
       // A chapter flip initiated by the infinite webtoon itself must not
       // reset the canvas — the effect would otherwise jump the scroller
       // back to the top and reload the chapter.
       if (reader.consumeChapterFlip()) return null;
+      // The window already tracks this chapter (a chain flip landed here):
+      // the session refresh that follows re-runs this effect with a new
+      // block count, and re-opening would jump to the chapter's history
+      // position (see the manga reader's note).
+      if (reader.tracksEpisode(episodeIndex)) return null;
       final episodeUrl = episodes.isEmpty ? '' : episodes[episodeIndex].url;
       final saved = findSavedReadingProgress(
         history: container.read(historyPageProvider).history,
@@ -126,6 +141,17 @@ class MiruNovelReader extends HookConsumerWidget {
           onTrackedEpisodeChanged: (flipGroup, flipEpisode) => container
               .read(epProvider.notifier)
               .selectEpisode(flipGroup, flipEpisode),
+          // Crossing forward finishes the outgoing chapter: its completion
+          // write supersedes the armed snapshot (see the manga reader).
+          onChapterCompleted: (flipGroup, flipEpisode, totalFlipped) {
+            historySave.value = null;
+            container
+                .read(epProvider.notifier)
+                .saveHistory(
+                  progress: totalFlipped,
+                  totalProgress: totalFlipped,
+                );
+          },
         ),
       );
       return null;
@@ -157,22 +183,17 @@ class MiruNovelReader extends HookConsumerWidget {
     // tree. listenManual — not listen — because plain ref.listen subscriptions
     // close at the start of every rebuild, which would leave the save armed
     // with the entry snapshot forever.
-    final historySave = useRef<Future<void> Function()?>(null);
-    void flushHistory() {
-      final save = historySave.value;
-      historySave.value = null;
-      if (save != null) unawaited(save());
-    }
-
     useEffect(() {
-      container.listenManual<NovelReaderState>(novelProvider, (_, next) {
+      // Re-arm only when the saved quantities change — the snapshot record
+      // has value equality, so HUD toggles, jump flags and window growth
+      // never re-read the providers. listenManual fires once on subscribe,
+      // which covers the initial arm (see the manga reader's note).
+      container.listenManual(novelProvider.select((s) => s.historySnapshot), (
+        _,
+        next,
+      ) {
         historySave.value = _prepareHistory(container, epProvider, next);
       });
-      historySave.value = _prepareHistory(
-        container,
-        epProvider,
-        container.read(novelProvider),
-      );
       // The manual listener lives until the element unmounts; the cleanup is
       // only about snapshotting the outgoing chapter.
       return flushHistory;
@@ -315,9 +336,8 @@ class MiruNovelReader extends HookConsumerWidget {
 Future<void> Function() _prepareHistory(
   WidgetRef container,
   EpisodeNotifierProvider epProvider,
-  NovelReaderState state,
+  ({int progress, int totalProgress}) snapshot,
 ) {
-  final snapshot = state.historySnapshot;
   return container
       .read(epProvider.notifier)
       .prepareHistorySave(

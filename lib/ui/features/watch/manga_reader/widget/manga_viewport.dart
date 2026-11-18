@@ -263,25 +263,35 @@ class _WebtoonPages extends ConsumerWidget {
     // InteractiveViewer wrapper: the viewer's pan/scale recognisers would win
     // the gesture arena against the list's own drag and stop the webtoon
     // scrolling. A centre tap still summons/dismisses the HUD.
-    return WebtoonZoomSurface(
-      itemPositionsListener: reader.itemPositionsListener,
-      scrollOffsetController: reader.scrollOffsetController,
-      scrollOffsetListener: reader.scrollOffsetListener,
-      itemScrollController: reader.itemScrollController,
-      onTap: reader.toggleHud,
-      doubleTapEnabled: doubleTapEnabled,
-      onViewMoved: onViewMoved,
-      itemCount: slots.length,
-      // The gap belongs *between* pages, not around the list: a trailing pad on
-      // every page but the last separates them while letting the first page
-      // start at the top edge and the last one run to the bottom edge. Padding
-      // the list itself left a blank band the artwork never covered.
-      itemBuilder: (context, index) => _buildSlot(
-        context,
-        ref,
-        slots,
-        index,
-        gap,
+    //
+    // The overscroll listener rides here because a drag pushed past the edge
+    // of the loaded window is the only scroll signal the chain still sees
+    // when there is no content beyond it — entering at chapter C page 1 there
+    // is nothing above the anchor, so scrolling up never changes the position
+    // stream, yet it is exactly the gesture that must load chapter B.
+    return NotificationListener<OverscrollNotification>(
+      onNotification: (notification) {
+        reader.onWebtoonOverscroll(notification.overscroll);
+        return false;
+      },
+      child: WebtoonZoomSurface(
+        itemPositionsListener: reader.itemPositionsListener,
+        scrollOffsetController: reader.scrollOffsetController,
+        scrollOffsetListener: reader.scrollOffsetListener,
+        itemScrollController: reader.itemScrollController,
+        // The notifier owns the handle so a programmatic jump can re-frame
+        // the magnified view onto its landing page.
+        controller: reader.webtoonZoom,
+        onTap: reader.toggleHud,
+        doubleTapEnabled: doubleTapEnabled,
+        onViewMoved: onViewMoved,
+        itemCount: slots.length,
+        // The gap belongs *between* pages, not around the list: a trailing pad on
+        // every page but the last separates them while letting the first page
+        // start at the top edge and the last one run to the bottom edge. Padding
+        // the list itself left a blank band the artwork never covered.
+        itemBuilder: (context, index) =>
+            _buildSlot(context, ref, slots, index, gap),
       ),
     );
   }
@@ -316,9 +326,8 @@ class _WebtoonPages extends ConsumerWidget {
           nextChapterName: right.name,
           nextLoading: right.loading,
           nextFailed: right.failed,
-          onRetry: () => ref
-              .read(mangaProvider.notifier)
-              .retrySegment(right.episodeIndex),
+          onRetry: () =>
+              ref.read(mangaProvider.notifier).retrySegment(right.episodeIndex),
         );
       case SlotKind.loading:
         return ChapterLoadingTile(name: segments[slot.segmentIndex].name);
@@ -330,15 +339,9 @@ class _WebtoonPages extends ConsumerWidget {
               .retrySegment(segments[slot.segmentIndex].episodeIndex),
         );
       case SlotKind.seriesStart:
-        return SeriesBoundaryTile(
-          isStart: true,
-          name: segments.first.name,
-        );
+        return SeriesBoundaryTile(isStart: true, name: segments.first.name);
       case SlotKind.seriesEnd:
-        return SeriesBoundaryTile(
-          isStart: false,
-          name: segments.last.name,
-        );
+        return SeriesBoundaryTile(isStart: false, name: segments.last.name);
     }
   }
 }

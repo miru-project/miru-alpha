@@ -101,9 +101,8 @@ Future<void> _settleTransition(WidgetTester tester) async {
 ProviderContainer _container({EpisodeNotifierState? epState}) {
   final container = ProviderContainer(
     overrides: [
-      episodeProvider(
-        _params(),
-      ).overrideWith(() => _FakeEpisodes(epState ?? _epState())),
+      episodeProvider(_params())
+          .overrideWith(() => _FakeEpisodes(epState ?? _epState())),
     ],
   );
   addTearDown(container.dispose);
@@ -425,9 +424,9 @@ void main() {
     final scrubPage = int.parse(tester.widget<Text>(label).data!);
     expect(scrubPage, greaterThan(1));
     expect(find.textContaining('reader.manga.page'), findsNothing);
-    final primary = FTheme.of(
-      tester.element(find.byType(FSlider)),
-    ).colors.primary;
+    final primary = FTheme.of(tester.element(find.byType(FSlider)))
+        .colors
+        .primary;
     final tooltipTexts = tester
         .widgetList<Text>(find.text('$scrubPage'))
         .where((t) => t.style?.color == primary)
@@ -642,8 +641,6 @@ void main() {
       );
       await _pumpReader(tester);
 
-      // Turn edge paging off: the edges must stop working, but the centre must
-      // not, or the overlay could never be summoned again.
       final reader = container.read(mangaReaderProvider.notifier);
       reader.setTapToTurnPage(false);
       await _pumpReader(tester);
