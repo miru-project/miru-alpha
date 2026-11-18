@@ -126,6 +126,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                       meta: meta,
                       epProvider: _epProvider,
                       localPath: downloadData.savePath,
+                      detailUrl: extra.detailUrl,
                     );
                   default:
                     return MiruNovelReader.local(
@@ -134,6 +135,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                       meta: meta,
                       epProvider: _epProvider,
                       detailImageUrl: extra.detailImageUrl,
+                      detailUrl: extra.detailUrl,
                     );
                 }
               }
@@ -161,7 +163,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     value: data,
                     url: url,
                     meta: meta,
-                    // detailImageUrl: extra.detailImageUrl,
+                    detailUrl: extra.detailUrl,
                     epProvider: _epProvider,
                   );
                 default:
@@ -174,6 +176,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
                     detailImageUrl: extra.detailImageUrl,
                     value: data,
                     epProvider: _epProvider,
+                    detailUrl: extra.detailUrl,
                   );
               }
             },

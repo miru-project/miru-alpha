@@ -948,19 +948,16 @@ void main() {
     expect(list.right, closeTo(canvas.right, 0.5));
 
     // The gap is now *between* pages: each page but the last carries a
-    // trailing pad, instead of the whole list being inset.
+    // trailing pad, instead of the whole list being inset. (The window adds
+    // series-boundary tiles around the pages, so look at page slots only:
+    // the Padding whose child is the page image.)
     final gap = container.read(mangaReaderProvider).pageGap;
+    final pagePadding = find.ancestor(
+      of: find.byType(MangaImage).first,
+      matching: find.byType(Padding),
+    );
     expect(
-      tester
-          .widget<Padding>(
-            find
-                .descendant(
-                  of: find.byType(WebtoonZoomSurface),
-                  matching: find.byType(Padding),
-                )
-                .first,
-          )
-          .padding,
+      tester.widget<Padding>(pagePadding).padding,
       EdgeInsets.only(bottom: gap.toDouble()),
     );
   });

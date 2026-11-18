@@ -35,8 +35,6 @@ Widget _app({
         home: Scaffold(
           body: NovelReadingView(
             blocks: blocks,
-            chapterTitle: 'The Thirteenth Tale',
-            chapterOrdinal: 1,
             novelProvider: novelProvider,
             onTapZone: onTapZone ?? (_) {},
           ),
@@ -58,7 +56,10 @@ Future<({NovelReaderProvider provider, ProviderContainer container})> _pump(
   MiruSettings.setSettingSync(SettingKey.novelTheme, theme.name);
 
   final source = content ?? _chapter();
-  final blocks = parseNovelContent(source);
+  final blocks = [
+    const NovelChapterHeader(title: 'The Thirteenth Tale', eyebrow: 'Chapter 1'),
+    ...parseNovelContent(source),
+  ];
   final provider = novelReaderProvider;
   final container = ProviderContainer(
     overrides: [provider.overrideWith(() => _FakeNovelReader(mode, theme))],
@@ -187,9 +188,13 @@ void main() {
           data: ThemeUtils.getThemeData(MiruThemes.zinc.dark),
           child: MaterialApp(
             home: NovelReadingView(
-              blocks: parseNovelContent(source),
-              chapterTitle: 'The Thirteenth Tale',
-              chapterOrdinal: 1,
+              blocks: [
+                const NovelChapterHeader(
+                  title: 'The Thirteenth Tale',
+                  eyebrow: 'Chapter 1',
+                ),
+                ...parseNovelContent(source),
+              ],
               novelProvider: provider,
               onTapZone: (_) {},
             ),
@@ -252,9 +257,13 @@ void main() {
               data: ThemeUtils.getThemeData(MiruThemes.zinc.dark),
               child: MaterialApp(
                 home: NovelReadingView(
-                  blocks: parseNovelContent(source),
-                  chapterTitle: 'The Thirteenth Tale',
-                  chapterOrdinal: 1,
+                  blocks: [
+                    const NovelChapterHeader(
+                      title: 'The Thirteenth Tale',
+                      eyebrow: 'Chapter 1',
+                    ),
+                    ...parseNovelContent(source),
+                  ],
                   novelProvider: provider,
                   onTapZone: (_) {},
                 ),

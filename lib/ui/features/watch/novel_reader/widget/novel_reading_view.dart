@@ -10,7 +10,7 @@ import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/ui/features/watch/novel_reader/novel_content.dart';
 import 'package:miru_alpha/ui/features/watch/novel_reader/novel_pagination.dart';
 import 'package:miru_alpha/ui/features/watch/novel_reader/novel_typography.dart';
-import 'package:miru_alpha/utils/core/i18n.dart';
+import 'package:miru_alpha/ui/features/watch/novel_reader/widget/novel_boundary_tiles.dart';
 
 /// Widest the prose column ever gets, matching the reference's `max-w-lg`.
 ///
@@ -41,19 +41,11 @@ class NovelReadingView extends HookConsumerWidget {
   const NovelReadingView({
     super.key,
     required this.blocks,
-    required this.chapterTitle,
-    required this.chapterOrdinal,
     required this.novelProvider,
     required this.onTapZone,
   });
 
   final List<NovelContentBlock> blocks;
-
-  /// Chapter name, drawn under the eyebrow above the prose.
-  final String chapterTitle;
-
-  /// One-based chapter number, shown as the "Chapter One" eyebrow.
-  final int chapterOrdinal;
 
   final NovelReaderProvider novelProvider;
 
@@ -90,10 +82,6 @@ class NovelReadingView extends HookConsumerWidget {
     final textWidth = math.max(0.0, canvasWidth - margin * 2);
     final pageHeight = math.max(0.0, size.height - topInset - bottomInset);
 
-    // Built once and used for both the measurement and the render, so the packer
-    // budgets for exactly the header that gets drawn.
-    final eyebrowText = '${'reader.novel.chapter'.i18n} $chapterOrdinal';
-
     // The packer must measure at the width a block is actually drawn at, or the
     // two-column mode would measure every block full-width, find that far less
     // prose fits on a page, and then draw it twice as tall as the room it left.
@@ -101,6 +89,8 @@ class NovelReadingView extends HookConsumerWidget {
         ? math.max(0.0, (textWidth - NovelSpacing.columnGap) / 2)
         : textWidth;
 
+    // Chapter titles are baked into the inline header blocks, so the layout
+    // pass measures exactly what gets drawn.
     final metrics = useMemoized(
       () => _CanvasMetrics(
         buildNovelLayout(
@@ -112,8 +102,6 @@ class NovelReadingView extends HookConsumerWidget {
           textDirection: textDirection,
           textScaler: textScaler,
           mode: mode,
-          chapterTitle: chapterTitle,
-          chapterEyebrow: eyebrowText,
         ),
         _measureDropCap(typography, textDirection, textScaler),
       ),
@@ -128,8 +116,6 @@ class NovelReadingView extends HookConsumerWidget {
         textScaler,
         textDirection,
         mode,
-        chapterTitle,
-        eyebrowText,
       ],
     );
 
@@ -166,10 +152,9 @@ class NovelReadingView extends HookConsumerWidget {
         typography: typography,
         textWidth: textWidth,
         margin: margin,
-        chapterTitle: chapterTitle,
-        eyebrowText: eyebrowText,
         dropCapWidth: metrics.dropCapWidth,
         scrollController: reader.scrollController,
+        novelProvider: novelProvider,
       ),
       NovelReadMode.standard || NovelReadMode.doubleColumn => _PagedProse(
         layout: metrics.layout,
@@ -178,8 +163,6 @@ class NovelReadingView extends HookConsumerWidget {
         typography: typography,
         textWidth: textWidth,
         margin: margin,
-        chapterTitle: chapterTitle,
-        eyebrowText: eyebrowText,
         dropCapWidth: metrics.dropCapWidth,
         pageController: reader.pageController,
         // A mode the UI does not offer, but which older builds persisted:
@@ -379,8 +362,39 @@ Widget _novelBlock(
   required NovelPaper paper,
   required NovelTypography typography,
   required double dropCapWidth,
+  void Function(int episodeIndex)? onRetryChapter,
 }) {
   return switch (block) {
+    NovelChapterHeader(title: final t, eyebrow: final e) => _ChapterHeader(
+      chapterTitle: t,
+      eyebrowText: e,
+      paper: paper,
+      typography: typography,
+      showTitle: true,
+    ),
+    NovelJunction(
+      leftChapter: final l,
+      rightChapter: final r,
+      loading: final x,
+      failed: final f,
+      rightEpisodeIndex: final idx,
+    ) =>
+      NovelBoundaryTile(
+        leftChapter: l,
+        rightChapter: r,
+        loading: x,
+        failed: f,
+        onRetry: () => onRetryChapter?.call(idx),
+        paper: paper,
+        typography: typography,
+      ),
+    NovelSeriesBoundary(isStart: final st, chapterName: final c) =>
+      NovelSeriesBoundaryTile(
+        isStart: st,
+        chapterName: c,
+        paper: paper,
+        typography: typography,
+      ),
     NovelParagraph(text: final text, dropCap: final dropCap) => _Paragraph(
       text: text,
       dropCap: dropCap,
@@ -529,18 +543,22 @@ class _ChapterImage extends StatelessWidget {
   }
 }
 
-/// [NovelReadMode.webToon]: the whole chapter as one continuous scroll.
-class _ContinuousProse extends StatelessWidget {
+/// [NovelReadMode.webToon]: the whole loaded window as one continuous scroll.
+///
+/// The flat list carries the chapter furniture inline — a header block per
+/// chapter, junction tiles between them, series boundary tiles at the ends —
+/// so every item renders identically regardless of how many chapters are
+/// loaded.
+class _ContinuousProse extends ConsumerWidget {
   const _ContinuousProse({
     required this.blocks,
     required this.paper,
     required this.typography,
     required this.textWidth,
     required this.margin,
-    required this.chapterTitle,
-    required this.eyebrowText,
     required this.dropCapWidth,
     required this.scrollController,
+    required this.novelProvider,
   });
 
   final List<NovelContentBlock> blocks;
@@ -548,34 +566,33 @@ class _ContinuousProse extends StatelessWidget {
   final NovelTypography typography;
   final double textWidth;
   final double margin;
-  final String chapterTitle;
-  final String eyebrowText;
   final double dropCapWidth;
   final ScrollController scrollController;
+  final NovelReaderProvider novelProvider;
 
   @override
-  Widget build(BuildContext context) {
-    final header = _ChapterHeader(
-      chapterTitle: chapterTitle,
-      eyebrowText: eyebrowText,
-      paper: paper,
-      typography: typography,
-      showTitle: true,
-    );
+  Widget build(BuildContext context, WidgetRef ref) {
     return SelectionArea(
       child: ListView.builder(
         controller: scrollController,
         padding: EdgeInsets.zero,
-        itemCount: blocks.length + 1,
+        itemCount: blocks.length,
         itemBuilder: (context, index) {
-          if (index == 0) {
-            return _ProseBody(
+          final block = blocks[index];
+          // Full-width furniture never enters the prose column.
+          if (block is NovelJunction ||
+              block is NovelSeriesBoundary ||
+              block is NovelChapterHeader) {
+            return _novelBlock(
+              context,
+              index: index,
+              block: block,
               paper: paper,
               typography: typography,
-              textWidth: textWidth,
-              margin: margin,
               dropCapWidth: dropCapWidth,
-              children: [header],
+              onRetryChapter: (episodeIndex) => ref
+                  .read(novelProvider.notifier)
+                  .retrySegment(episodeIndex),
             );
           }
           return _ProseBody(
@@ -587,11 +604,14 @@ class _ContinuousProse extends StatelessWidget {
             children: [
               _novelBlock(
                 context,
-                index: index - 1,
-                block: blocks[index - 1],
+                index: index,
+                block: block,
                 paper: paper,
                 typography: typography,
                 dropCapWidth: dropCapWidth,
+                onRetryChapter: (episodeIndex) => ref
+                    .read(novelProvider.notifier)
+                    .retrySegment(episodeIndex),
               ),
             ],
           );
@@ -611,8 +631,6 @@ class _PagedProse extends StatelessWidget {
     required this.typography,
     required this.textWidth,
     required this.margin,
-    required this.chapterTitle,
-    required this.eyebrowText,
     required this.dropCapWidth,
     required this.pageController,
     required this.reverse,
@@ -624,8 +642,6 @@ class _PagedProse extends StatelessWidget {
   final NovelTypography typography;
   final double textWidth;
   final double margin;
-  final String chapterTitle;
-  final String eyebrowText;
   final double dropCapWidth;
   final PageController pageController;
   final bool reverse;
@@ -639,10 +655,10 @@ class _PagedProse extends StatelessWidget {
       itemCount: layout.pages.length,
       itemBuilder: (context, index) {
         final page = layout.pages[index];
-        // Only the page that opens the chapter carries the header, so it is not
-        // repeated on every page turn.
-        final opensChapter =
-            page.blockIndices.isNotEmpty && page.blockIndices.first == 0;
+        // Only the page that opens the chapter carries the header, so it is
+        // not repeated on every page turn. The inline chapter header is the
+        // first NovelChapterHeader in the flat list.
+        final showHeader = index == 0;
         return _PagedProsePage(
           page: page,
           blocks: blocks,
@@ -650,10 +666,8 @@ class _PagedProse extends StatelessWidget {
           typography: typography,
           textWidth: textWidth,
           margin: margin,
-          chapterTitle: chapterTitle,
-          eyebrowText: eyebrowText,
           dropCapWidth: dropCapWidth,
-          showHeader: opensChapter,
+          showHeader: showHeader,
         );
       },
     );
@@ -669,8 +683,6 @@ class _PagedProsePage extends StatelessWidget {
     required this.typography,
     required this.textWidth,
     required this.margin,
-    required this.chapterTitle,
-    required this.eyebrowText,
     required this.dropCapWidth,
     required this.showHeader,
   });
@@ -681,15 +693,25 @@ class _PagedProsePage extends StatelessWidget {
   final NovelTypography typography;
   final double textWidth;
   final double margin;
-  final String chapterTitle;
-  final String eyebrowText;
   final double dropCapWidth;
   final bool showHeader;
 
   @override
   Widget build(BuildContext context) {
+    final header = showHeader
+        ? blocks.whereType<NovelChapterHeader>().firstOrNull
+        : null;
     final columns = page.columnBlockIndices;
     if (columns.isEmpty) return const SizedBox.shrink();
+    final headerWidget = header == null
+        ? null
+        : _ChapterHeader(
+            chapterTitle: header.title,
+            eyebrowText: header.eyebrow,
+            paper: paper,
+            typography: typography,
+            showTitle: true,
+          );
     // A single-entry page is either a full-width oversized block or the
     // single-column mode, so it uses the whole page width.
     if (columns.length == 1) {
@@ -700,14 +722,7 @@ class _PagedProsePage extends StatelessWidget {
         margin: margin,
         dropCapWidth: dropCapWidth,
         children: [
-          if (showHeader)
-            _ChapterHeader(
-              chapterTitle: chapterTitle,
-              eyebrowText: eyebrowText,
-              paper: paper,
-              typography: typography,
-              showTitle: true,
-            ),
+          ?headerWidget,
           for (final index in columns.first)
             _novelBlock(
               context,
@@ -732,17 +747,7 @@ class _PagedProsePage extends StatelessWidget {
       margin: margin,
       dropCapWidth: dropCapWidth,
       children: [
-        // The title spans the whole measure, the way a printed book sets a
-        // chapter opening over two columns — and a half-width title would be a
-        // column of words that can outgrow the page.
-        if (showHeader)
-          _ChapterHeader(
-            chapterTitle: chapterTitle,
-            eyebrowText: eyebrowText,
-            paper: paper,
-            typography: typography,
-            showTitle: true,
-          ),
+        ?headerWidget,
         Align(
           alignment: .topCenter,
           child: SizedBox(

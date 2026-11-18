@@ -31,6 +31,7 @@ class ImageWidget extends StatelessWidget {
     this.errChild = const Icon(FLucideIcons.cloudAlert),
     this.loadingChild = const Center(child: FCircularProgress()),
     this.loadingProgressBuilder,
+    this.onCompletedSize,
     this.borderRadius = 10,
     this.clipBehavior = Clip.antiAlias,
     this.retries = 1,
@@ -57,6 +58,14 @@ class ImageWidget extends StatelessWidget {
   /// one final 1.0 jump. The value stays real, and becomes granular the moment
   /// a load streams (direct URLs, or the proxy streaming responses).
   final Widget Function(double? progress)? loadingProgressBuilder;
+
+  /// Fired once the image has finished loading, with the decoded image's
+  /// pixel dimensions.
+  ///
+  /// Used by the reader pages to build a cache of page aspects — the moment
+  /// one page of a chapter is decoded, the surrounding pages (still loading)
+  /// can reserve the identical height and the list never reflows mid-flip.
+  final ValueChanged<Size>? onCompletedSize;
   final double borderRadius;
   final Clip clipBehavior;
   final String title;
@@ -78,6 +87,7 @@ class ImageWidget extends StatelessWidget {
     this.fit,
     this.loadingChild = const Center(child: FCircularProgress()),
     this.loadingProgressBuilder,
+    this.onCompletedSize,
     this.borderRadius = 10,
     this.clipBehavior = Clip.antiAlias,
     this.retries = 1,
@@ -132,6 +142,12 @@ class ImageWidget extends StatelessWidget {
                   : (event.cumulativeBytesLoaded / expected).clamp(0.0, 1.0),
             );
           case LoadState.completed:
+            final pixels = state.extendedImageInfo?.image;
+            if (pixels != null) {
+              onCompletedSize?.call(
+                Size(pixels.width.toDouble(), pixels.height.toDouble()),
+              );
+            }
             return null;
           case LoadState.failed:
             return buildErrchild();

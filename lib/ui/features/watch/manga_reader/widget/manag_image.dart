@@ -17,12 +17,18 @@ const _loadingIndicatorSize = 36.0;
 /// paged mode the viewport is the whole screen, so the ratio is honoured
 /// inside it and the placeholder sits centred on the canvas like a page.
 class MobileMangaLoading extends StatelessWidget {
-  const MobileMangaLoading({super.key, this.progress});
+  const MobileMangaLoading({super.key, this.progress, this.aspectRatio});
 
   /// Fraction of the page image already received (0..1), straight from the
   /// network image's chunk events. Null when the server did not report a total
   /// size — then the spinner stands alone rather than showing a made-up value.
   final double? progress;
+
+  /// Aspect the placeholder reserves its size from. Every page of a chapter
+  /// shares the artist's paper, so once any page of the chapter has decoded
+  /// the rest can reserve exactly that height — the strip never reflows when
+  /// the pages below land.
+  final double? aspectRatio;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +37,7 @@ class MobileMangaLoading extends StatelessWidget {
       color: colors.background,
       child: Center(
         child: AspectRatio(
-          aspectRatio: 2 / 3,
+          aspectRatio: aspectRatio ?? 2 / 3,
           child: Center(
             child: progress == null
                 // The forui spinner's icon slot carries the ring's own painter
@@ -145,15 +151,51 @@ class _RingPainter extends CustomPainter {
       oldDelegate.fill != fill;
 }
 
+/// Decoded page aspects, keyed by chapter url.
+///
+/// Every page of a chapter shares the artist's paper, so the moment one page
+/// of a chapter is decoded the surrounding loading pages can reserve the
+/// identical height and the list never reflows. Bounded so a long binge
+/// session does not accumulate it without limit.
+final Map<String, double> _decodedAspect = <String, double>{};
+const _maxAspectCacheEntries = 64;
+double aspectRatioFor(String? chapterUrl) {
+  final direct = chapterUrl == null ? null : _decodedAspect[chapterUrl];
+  if (direct != null) return direct;
+  // No measurement for this chapter yet — reuse the most recently decoded
+  // aspect from a sibling chapter; manga from the same source shares paper.
+  return _decodedAspect.isEmpty ? 2 / 3 : _decodedAspect.values.last;
+}
+
+/// Test-only: wipe the chapter aspect cache between tests.
+@visibleForTesting
+void clearDecodedAspectCacheForTest() => _decodedAspect.clear();
+
+void _rememberDecodedAspect(String chapterUrl, Size size) {
+  if (size.width <= 0 || size.height <= 0) return;
+  _decodedAspect.remove(chapterUrl);
+  _decodedAspect[chapterUrl] = size.height / size.width;
+  while (_decodedAspect.length > _maxAspectCacheEntries) {
+    _decodedAspect.remove(_decodedAspect.keys.first);
+  }
+}
+
 class MangaImage extends StatelessWidget {
   const MangaImage({
     super.key,
     required this.imageUrl,
+    this.chapterUrl,
     this.fit = .fitHeight,
     this.invertColors = false,
   });
 
   final String imageUrl;
+
+  /// Stable identifier of the chapter this page belongs to (the segment's
+  /// watch URL). The aspect ratio of every page in a chapter matches, so a
+  /// decoded sibling propagates the reserved height to the rest of the strip.
+  final String? chapterUrl;
+
   final BoxFit fit;
 
   /// Night-reading inversion, applied as a colour matrix rather than a filter
@@ -165,8 +207,13 @@ class MangaImage extends StatelessWidget {
     final image = ImageWidget(
       fit: fit,
       imageUrl: imageUrl,
-      loadingProgressBuilder: (progress) =>
-          MobileMangaLoading(progress: progress),
+      loadingProgressBuilder: (progress) => MobileMangaLoading(
+        progress: progress,
+        aspectRatio: aspectRatioFor(chapterUrl),
+      ),
+      onCompletedSize: chapterUrl == null
+          ? null
+          : (size) => _rememberDecodedAspect(chapterUrl!, size),
       borderRadius: 0,
     );
     if (!invertColors) return image;

@@ -32,6 +32,7 @@ class MiruMangaReader extends HookConsumerWidget {
     required this.meta,
     required this.url,
     required this.epProvider,
+    this.detailUrl,
   }) : localPath = null;
 
   const MiruMangaReader.local({
@@ -40,6 +41,7 @@ class MiruMangaReader extends HookConsumerWidget {
     required this.meta,
     required this.epProvider,
     required this.localPath,
+    this.detailUrl,
   }) : url = null,
        value = null;
 
@@ -49,6 +51,10 @@ class MiruMangaReader extends HookConsumerWidget {
   final String? url;
   final EpisodeNotifierProvider epProvider;
   final String? localPath;
+
+  /// Detail URL of the series; the infinite webtoon window needs it to
+  /// lazily fetch sibling chapters. Null for local downloads.
+  final String? detailUrl;
 
   @override
   Widget build(BuildContext context, WidgetRef container) {
@@ -71,6 +77,7 @@ class MiruMangaReader extends HookConsumerWidget {
     final mangaProvider = mangaReaderProvider;
     final state = container.watch(mangaProvider);
     final totalPages = value?.urls.length ?? 0;
+    final chapterLabel = episodes.isEmpty ? '' : episodes[episodeIndex].name;
 
     // Session injection on entry: the single reader state opens the selected
     // episode fresh — position and HUD reset, the display preferences re-read
@@ -85,6 +92,10 @@ class MiruMangaReader extends HookConsumerWidget {
     // it targets the fresh canvas rather than the outgoing one.
     useEffect(() {
       final reader = container.read(mangaReaderProvider.notifier);
+      // A chapter flip initiated by the infinite webtoon itself must not
+      // reset the canvas — the effect would otherwise jump the scroller
+      // back to the top and reload the chapter.
+      if (reader.consumeChapterFlip()) return null;
       final episodeUrl = episodes.isEmpty ? '' : episodes[episodeIndex].url;
       final saved = findSavedReadingProgress(
         history: container.read(historyPageProvider).history,
@@ -98,10 +109,20 @@ class MiruMangaReader extends HookConsumerWidget {
           episodeIndex: episodeIndex,
           totalPage: totalPages,
           resumePage: resumePage,
+          episodes: episodes,
+          urls: value?.urls,
+          chapterName: chapterLabel,
+          meta: meta,
+          detailUrl: detailUrl,
+          onTrackedEpisodeChanged: (flipGroup, flipEpisode) => container
+              .read(epProvider.notifier)
+              .selectEpisode(flipGroup, flipEpisode),
         );
-        if (resumePage == null) return;
+        // Always land on the entry page — a direct chapter switch (drawer,
+        // prev/next, restore) must not keep a stale offset from the
+        // previous chapter.
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          reader.restorePosition(resumePage);
+          reader.restorePosition(resumePage ?? 0);
         });
       });
       return null;
@@ -160,7 +181,6 @@ class MiruMangaReader extends HookConsumerWidget {
       return flushHistory;
     }, [groupIndex, episodeIndex]);
 
-    final chapterLabel = episodes.isEmpty ? '' : episodes[episodeIndex].name;
     final reader = container.read(mangaProvider.notifier);
     final mediaPadding = MediaQuery.paddingOf(context);
 
@@ -183,13 +203,13 @@ class MiruMangaReader extends HookConsumerWidget {
                 notification.dragDetails != null &&
                 notification.metrics.axis == Axis.vertical;
             if (isDrag && state.hudVisible) {
-              logger.info('HUD hide via scrollStart drag');
+              logger.fine('HUD hide via scrollStart drag');
               reader.setHudVisible(false);
             }
             return false;
           },
           child: KeyedSubtree(
-            key: ValueKey('manga-canvas-$groupIndex-$episodeIndex'),
+            key: ValueKey('manga-canvas-$groupIndex'),
             child: MiruMangaViewPort(
               data: value,
               epProvider: epProvider,
@@ -202,7 +222,7 @@ class MiruMangaReader extends HookConsumerWidget {
               // above to see and the view reports the move itself.
               onViewMoved: () {
                 if (container.read(mangaProvider).hudVisible) {
-                  logger.info('HUD hide via onViewMoved');
+                  logger.fine('HUD hide via onViewMoved');
                   reader.setHudVisible(false);
                 }
               },

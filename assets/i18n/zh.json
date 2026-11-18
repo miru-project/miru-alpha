@@ -503,7 +503,15 @@
       "tap_to_turn_page": {
         "hint": "点击左右边缘进行翻页",
         "name": "点按区域翻页"
-      }
+      },
+      "chapter_end": "本章结束",
+      "next_chapter": "下一章: {name}",
+      "previous_chapter": "上一章: {name}",
+      "first_chapter": "这是第一章",
+      "last_chapter": "这是最后一章",
+      "loading_chapter": "正在加载章节…",
+      "chapter_load_failed": "章节加载失败",
+      "chapter_load_failed_retry": "重试"
     },
     "novel": {
       "font_size": {

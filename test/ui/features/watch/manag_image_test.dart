@@ -280,4 +280,63 @@ void main() {
     // production alike. A slow image shows its percentages; a fast one skips
     // straight to the artwork.
   });
+
+  testWidgets(
+    'chapter aspect propagates: first page decode reserves exact ratio for siblings',
+    (tester) async {
+      await _mockPathProvider(tester);
+      clearDecodedAspectCacheForTest();
+
+      const chapterUrl = 'https://example.com/chapter-3';
+      // This covers every page *of a chapter*: they share the artist's paper.
+      // Once one page of the chapter has decoded, the remaining pages in the
+      // strip reserve the identical height and the list never reflows.
+      await tester.runAsync(
+        () => HttpOverrides.runWithHttpOverrides(() async {
+          await tester.pumpWidget(
+            _wrap(
+              SizedBox(
+                width: 200,
+                child: MangaImage(
+                  imageUrl:
+                      'http://origin.test/page-a-${DateTime.now().microsecondsSinceEpoch}.png',
+                  chapterUrl: chapterUrl,
+                ),
+              ),
+            ),
+          );
+          for (var i = 0; i < 12; i++) {
+            await Future<void>.delayed(const Duration(milliseconds: 50));
+            await tester.pump();
+          }
+          // First page decoded; its 1x1 PNG gives the store aspect == 1.
+          expect(
+            aspectRatioFor(chapterUrl),
+            1.0,
+            reason: 'decoded chapter ratio cached',
+          );
+          // A sibling page that has not loaded yet must reserve that aspect.
+          await tester.pumpWidget(
+            _wrap(
+              SizedBox(
+                width: 200,
+                child: const MangaImage(
+                  imageUrl: 'http://origin.test/page-b.png',
+                  chapterUrl: chapterUrl,
+                ),
+              ),
+            ),
+          );
+          await tester.pump();
+          final box = tester.widget<AspectRatio>(
+            find.descendant(
+              of: find.byType(MobileMangaLoading),
+              matching: find.byType(AspectRatio),
+            ),
+          );
+          expect(box.aspectRatio, 1.0);
+        }, _ChunkedPngHttpOverrides()),
+      );
+    },
+  );
 }

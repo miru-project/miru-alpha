@@ -6,6 +6,7 @@ import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/utils/network/index.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:miru_alpha/provider/watch/chapter_watch_cache.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/model/watch_result.dart';
@@ -76,9 +77,18 @@ class WatchSession extends _$WatchSession {
     final meta = _meta;
     if (watchUrl == null || detailUrl == null || meta == null) return;
     final token = ++_fetchToken;
+    // A chapter the reader windows already resolved must not take the app
+    // through another loading pass: hit the shared cache and hand the
+    // session the same result, synchronously enough that no loading branch
+    // is mounted at all.
+    final cached = WatchChapterCache.peek(watchUrl, mirrorUrl: _mirrorUrl);
+    if (cached != null) {
+      state = AsyncData(cached);
+      return;
+    }
     state = const AsyncLoading();
     try {
-      final result = await resolveWatch(
+      final result = await WatchChapterCache.resolve(
         watchUrl: watchUrl,
         detailUrl: detailUrl,
         meta: meta,

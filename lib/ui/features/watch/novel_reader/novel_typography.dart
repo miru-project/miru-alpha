@@ -222,6 +222,11 @@ abstract final class NovelSpacing {
   /// Gutter between the two columns of [NovelReadMode.doubleColumn].
   static const double columnGap = 24;
 
+  /// Box reserved for the boundary tiles (junction and series markers).
+  /// The pagination pass measures exactly this, and the canvas paints the
+  /// tile into it.
+  static const double boundaryExtent = 128;
+
   /// Hairline drawn around an inset quotation card and an embedded image.
   ///
   /// A `Border.all` adds its width to the box it draws, so the pagination pass

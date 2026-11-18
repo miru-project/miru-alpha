@@ -1,7 +1,15 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
+import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/setting_dir_index.dart';
+import 'package:miru_alpha/ui/features/watch/manga_reader/infinite_window.dart';
+import 'package:miru_alpha/ui/features/watch/watch_data.dart' as watch_data;
+import 'package:miru_alpha/provider/watch/chapter_watch_cache.dart';
+import 'package:miru_alpha/model/extension_meta_data.dart';
+import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:miru_alpha/ui/core/scrollable_position_list/scrollable_positioned_list.dart';
 
@@ -78,6 +86,15 @@ class MangaReaderState {
   final bool keepScreenOn;
   final bool tapToTurnPage;
 
+  /// The loaded chapters, in reading order. Empty outside webtoon mode.
+  /// The infinite scroll prepends/appends entries; each entry holds the
+  /// chapter's page URLs (null while loading or after an error).
+  final List<ChapterSegment<String>> segments;
+
+  /// Index into [segments] of the chapter the reader is in — the one the
+  /// position stream attributes pages to.
+  final int trackedSegmentIndex;
+
   /// Bookmarked episodes, keyed `"<groupIndex>:<episodeIndex>"`.
   ///
   /// The reference's chapter list marks the open chapter and bookmarks it from
@@ -110,6 +127,8 @@ class MangaReaderState {
     this.keepScreenOn = true,
     this.tapToTurnPage = true,
     this.bookmarks = const <String>{},
+    this.segments = const <ChapterSegment<String>>[],
+    this.trackedSegmentIndex = 0,
   });
 
   MangaReaderState copyWith({
@@ -127,6 +146,8 @@ class MangaReaderState {
     bool? keepScreenOn,
     bool? tapToTurnPage,
     Set<String>? bookmarks,
+    List<ChapterSegment<String>>? segments,
+    int? trackedSegmentIndex,
   }) {
     return MangaReaderState(
       totalPage: totalPage ?? this.totalPage,
@@ -143,6 +164,8 @@ class MangaReaderState {
       keepScreenOn: keepScreenOn ?? this.keepScreenOn,
       tapToTurnPage: tapToTurnPage ?? this.tapToTurnPage,
       bookmarks: bookmarks ?? this.bookmarks,
+      segments: segments ?? this.segments,
+      trackedSegmentIndex: trackedSegmentIndex ?? this.trackedSegmentIndex,
     );
   }
 }
@@ -167,9 +190,87 @@ class MangaReaderState {
 class MangaReader extends _$MangaReader {
   bool isAdjusting = false;
 
+  /// Highest flat index the user reached on this session.
+  ///
+  /// The positions stream re-reports slots on every build — image decode
+  /// re-flowing the list ahead of the anchor ghosts a backward blip into it.
+  /// Backward moves have to prove themselves across a few consecutive frames
+  /// before they get attribution; forwards never have to.
+  int _stableFirstVisible = 0;
+  int _backwardFrames = 0;
+  static const int _backwardHysteresisFrames = 4;
+
   /// Identity of the episode currently opened, so a shell rebuild that passes
   /// the same episode does not reset the reader's position.
   String? _openKey;
+
+  /// Episode list of the open group, captured at [open] time. The infinite
+  /// webtoon window uses it to find sibling chapters' names and watch URLs.
+  List<ExtensionEpisode> _episodes = const [];
+
+  /// Meta of the open series; the window's adjacent-chapter fetch needs it.
+  ExtensionMeta? _meta;
+
+  /// Detail URL of the open series; required for adjacent-chapter fetches.
+  String? _detailUrl;
+
+  int _groupIndex = 0;
+
+  /// Invoked with (groupIndex, episodeIndex) when the infinite window flips
+  /// the tracked chapter to another one mid-session.
+  void Function(int groupIndex, int episodeIndex)? _onTrackedEpisodeChanged;
+
+  /// Episode indices with an in-flight adjacent-chapter fetch.
+  final Set<int> _loadingSegments = {};
+
+  /// Set when the reader itself flips the tracked chapter; the shell skips
+  /// its open() reset on the same frame so the canvas stays.
+  bool _internalChapterFlip = false;
+
+  /// Memo for the flat slot list — the positions listener runs per scroll
+  /// frame, so rebuilding it every tick would allocate a list per frame.
+  List<WindowSlot>? _slotsCache;
+  List<ChapterSegment<String>>? _slotsCacheKey;
+
+  /// Test seam: replaces the network fetch for adjacent chapters.
+  @visibleForTesting
+  Future<List<String>?> Function(String url)? debugChapterFetcher;
+
+  List<WindowSlot> _slots([MangaReaderState? s]) {
+    s ??= state;
+    final cached = _slotsCache;
+    if (cached != null && identical(_slotsCacheKey, s.segments)) {
+      return cached;
+    }
+    final slots = buildSlots(
+      s.segments,
+      atSeriesStart:
+          s.segments.isNotEmpty && s.segments.first.episodeIndex == 0,
+      atSeriesEnd: s.segments.isNotEmpty &&
+          _episodes.isNotEmpty &&
+          s.segments.last.episodeIndex == _episodes.length - 1,
+    );
+    _slotsCache = slots;
+    _slotsCacheKey = s.segments;
+    return slots;
+  }
+
+  /// Flat slots for the current window (series boundaries, junctions,
+  /// pages). The webtoon canvas renders these one-for-one.
+  List<WindowSlot> currentSlots() => _slots();
+
+  int _flatIndexOfPage(int segmentIndex, int pageIndex) {
+    final slots = _slots();
+    for (var i = 0; i < slots.length; i++) {
+      final slot = slots[i];
+      if (slot.kind == SlotKind.page &&
+          slot.segmentIndex == segmentIndex &&
+          slot.pageIndex == pageIndex) {
+        return i;
+      }
+    }
+    return 0;
+  }
 
   @override
   MangaReaderState build() {
@@ -190,6 +291,14 @@ class MangaReader extends _$MangaReader {
   /// instead of page one, and the session state carries it from the first
   /// frame so the HUD and the armed history snapshot agree with it.
   ///
+  /// Webtoon mode chains chapters in one infinite list; [episodes] carries
+  /// the whole group (names + watch URLs) so the window can lazily load
+  /// sibling chapters in either direction, and [urls] carries this chapter's
+  /// already-fetched pages so the anchor segment never refetches. History,
+  /// HUD and the drawer follow whichever chapter the viewport is in: the
+  /// tracked chapter flips via [onTrackedEpisodeChanged] so the shell can
+  /// attribute the save to the right episode.
+  ///
   /// Re-opening the episode that is already open is a no-op — a refetch of the
   /// same chapter must not throw the reader back to page one. A different
   /// episode starts a fresh session: position and HUD reset, the display
@@ -200,17 +309,69 @@ class MangaReader extends _$MangaReader {
     required int episodeIndex,
     required int totalPage,
     int? resumePage,
+    List<ExtensionEpisode> episodes = const [],
+    List<String>? urls,
+    String chapterName = '',
+    ExtensionMeta? meta,
+    String? detailUrl,
+    void Function(int groupIndex, int episodeIndex)? onTrackedEpisodeChanged,
   }) {
     final key = '$groupIndex:$episodeIndex:$totalPage';
     if (key == _openKey && ref.mounted) return;
     _openKey = key;
     isAdjusting = false;
-    final session = _sessionState(totalPage: totalPage);
-    if (resumePage == null || resumePage <= 0 || totalPage <= 0) {
+
+    _groupIndex = groupIndex;
+    _episodes = List<ExtensionEpisode>.unmodifiable(episodes);
+    _meta = meta;
+    _detailUrl = detailUrl;
+    _onTrackedEpisodeChanged = onTrackedEpisodeChanged;
+    _loadingSegments.clear();
+    _slotsCache = null;
+    _slotsCacheKey = null;
+
+    final anchorUrls = urls == null
+        ? List<String>.generate(
+            totalPage,
+            (_) => '',
+            growable: false,
+          )
+        : List<String>.unmodifiable(urls);
+    final anchorTotal = anchorUrls.length;
+    final name = chapterName.isNotEmpty
+        ? chapterName
+        : episodes.isNotEmpty && episodeIndex >= 0 && episodeIndex < episodes.length
+        ? episodes[episodeIndex].name
+        : '';
+    final url = episodes.isNotEmpty &&
+            episodeIndex >= 0 &&
+            episodeIndex < episodes.length
+        ? episodes[episodeIndex].url
+        : '';
+    final anchor = ChapterSegment<String>(
+      episodeIndex: episodeIndex,
+      name: name,
+      url: url,
+      items: anchorUrls,
+    );
+
+    final session = _sessionState(totalPage: anchorTotal).copyWith(
+      segments: [anchor],
+      trackedSegmentIndex: 0,
+    );
+    // Seed the backward-hysteresis anchor at the resume position so resumes
+    // do not suppress attribution above it. The list re-anchors relative to
+    // the resume slot, so this seeds the flat index we would expect.
+    _stableFirstVisible = resumePage == null ? 0 : resumePage.clamp(
+        0, anchorTotal <= 0 ? 0 : anchorTotal - 1);
+    _backwardFrames = 0;
+    if (resumePage == null || resumePage <= 0 || anchorTotal <= 0) {
       state = session;
       return;
     }
-    state = session.copyWith(itemPosition: resumePage.clamp(0, totalPage - 1));
+    state = session.copyWith(
+      itemPosition: resumePage.clamp(0, anchorTotal - 1),
+    );
   }
 
   /// Instant restore of [page] onto the canvas.
@@ -226,7 +387,10 @@ class MangaReader extends _$MangaReader {
     switch (state.readMode) {
       case MangaReadMode.webToon:
         if (itemScrollController.isAttached) {
-          itemScrollController.jumpTo(index: target);
+          final flat = state.segments.isNotEmpty
+              ? _flatIndexOfPage(state.trackedSegmentIndex, target)
+              : target;
+          itemScrollController.jumpTo(index: flat);
         }
       case MangaReadMode.rightToLeft || MangaReadMode.standard:
         if (pageController.hasClients) {
@@ -304,6 +468,11 @@ class MangaReader extends _$MangaReader {
   }
 
   void _whenItemPositionChange() {
+    if (state.readMode == MangaReadMode.webToon &&
+        state.segments.isNotEmpty) {
+      _webtoonPositionChanged();
+      return;
+    }
     final visible = itemPositionsListener.itemPositions.value.where(
       (position) =>
           position.itemTrailingEdge > 0 && position.itemLeadingEdge < 1,
@@ -311,6 +480,217 @@ class MangaReader extends _$MangaReader {
     if (visible.isEmpty) return;
     final firstVisible = visible.reduce((a, b) => a.index < b.index ? a : b);
     setPageNumber(firstVisible.index);
+  }
+
+  void _webtoonPositionChanged() {
+    final visible = itemPositionsListener.itemPositions.value.where(
+      (position) =>
+          position.itemTrailingEdge > 0 && position.itemLeadingEdge < 1,
+    );
+    if (visible.isEmpty) {
+        return;
+    }
+    final firstVisible = visible.reduce((a, b) => a.index < b.index ? a : b);
+    final slots = _slots();
+    if (slots.isEmpty) return;
+
+    // Backward blip filter: the positions stream sometimes re-reports a slot
+    // the user has already scrolled past when an image above re-lays out the
+    // list. Require the backward position to persist across consecutive frames
+    // before letting attribution follow it.
+    final stable = _stableFirstVisible;
+    if (firstVisible.index < stable) {
+      _backwardFrames++;
+      if (_backwardFrames < _backwardHysteresisFrames) {
+        logger.fine(
+          'window_track suppressed-blip flat=${firstVisible.index} ($_backwardFrames < $_backwardHysteresisFrames)',
+        );
+        return;
+      }
+    } else {
+      _backwardFrames = 0;
+      _stableFirstVisible = firstVisible.index;
+    }
+
+    final slot = slots[firstVisible.index.clamp(0, slots.length - 1)];
+    if (slot.kind == SlotKind.page) {
+      if (slot.segmentIndex != state.trackedSegmentIndex) {
+        _flipTrackedChapter(slot.segmentIndex, slot.pageIndex);
+      } else {
+        setPageNumber(slot.pageIndex);
+      }
+    }
+    _maybeLoadAdjacent(firstVisible.index);
+  }
+
+  void _flipTrackedChapter(int segmentIndex, int localPage) {
+    final segment = state.segments[segmentIndex];
+    _internalChapterFlip = true;
+    _onTrackedEpisodeChanged?.call(_groupIndex, segment.episodeIndex);
+    state = state.copyWith(
+      trackedSegmentIndex: segmentIndex,
+      totalPage: segment.items?.length ?? state.totalPage,
+      itemPosition: segment.items == null
+          ? 0
+          : localPage.clamp(0, segment.items!.length - 1),
+    );
+  }
+
+  /// One-shot: returns true when the reader itself flipped the tracked
+  /// chapter (an infinite-scroll crossing) and clears the flag, so the shell
+  /// skips its open() reset on the same frame and keeps the canvas.
+  bool consumeChapterFlip() {
+    final flipped = _internalChapterFlip;
+    _internalChapterFlip = false;
+    return flipped;
+  }
+
+  /// Kicks off an adjacent-chapter fetch when the viewport is near either
+  /// end of the loaded window.
+  void _maybeLoadAdjacent(int flatIndex) {
+    if (_episodes.isEmpty || _meta == null || _detailUrl == null) return;
+    final length = _slots().length;
+    if (flatIndex >= length - 4) _ensureAdjacent(1);
+    if (flatIndex <= 3) _ensureAdjacent(-1);
+  }
+
+  Future<void> _ensureAdjacent(int direction) async {
+    if (_episodes.isEmpty || _meta == null || _detailUrl == null) {
+      // ignore: avoid_print
+      return;
+    }
+    if (state.segments.isEmpty) return;
+    final boundary = direction > 0
+        ? state.segments.last.episodeIndex + 1
+        : state.segments.first.episodeIndex - 1;
+    if (boundary < 0 || boundary >= _episodes.length) return;
+    if (state.segments.any((s) => s.episodeIndex == boundary)) return;
+    if (_loadingSegments.contains(boundary)) return;
+    final episode = _episodes[boundary];
+    _loadingSegments.add(boundary);
+    final loading = ChapterSegment<String>(
+      episodeIndex: boundary,
+      name: episode.name,
+      url: episode.url,
+      items: null,
+      loading: true,
+    );
+    if (direction > 0) {
+      _commitSegments([...state.segments, loading]);
+    } else {
+      _commitSegments([loading, ...state.segments], atHead: true);
+    }
+    final urls = await _fetchChapterUrls(episode);
+    _loadingSegments.remove(boundary);
+    _replaceSegment(
+      boundary,
+      loading.copyWith(items: urls, loading: false, failed: urls == null),
+      atHead: direction < 0,
+    );
+  }
+
+  /// Applies a segment list mutation, keeping the scroll position stable
+  /// when the change extends the list at its head.
+  void _commitSegments(
+    List<ChapterSegment<String>> segments, {
+    bool atHead = false,
+  }) {
+    final before = _slots().length;
+    final after = buildSlots(
+      segments,
+      atSeriesStart:
+          segments.isNotEmpty && segments.first.episodeIndex == 0,
+      atSeriesEnd: segments.isNotEmpty &&
+          _episodes.isNotEmpty &&
+          segments.last.episodeIndex == _episodes.length - 1,
+    ).length;
+    var trackedSegmentIndex = state.trackedSegmentIndex;
+    if (atHead) {
+      final delta = after - before;
+      final insertedSegments = segments.length - state.segments.length;
+      if (insertedSegments > 0) {
+        // The same logical chapter is now further into the list; the index
+        // it is tracked by moves with it.
+        trackedSegmentIndex += insertedSegments;
+      }
+      if (delta > 0 && state.readMode == MangaReadMode.webToon) {
+        itemScrollController.notifyItemsInsertedBefore(delta);
+      }
+    }
+    state = state.copyWith(
+      segments: List.unmodifiable(segments),
+      trackedSegmentIndex: trackedSegmentIndex,
+    );
+  }
+
+  /// Retries a failed chapter slot (tapping the error tile).
+  Future<void> retrySegment(int episodeIndex) async {
+    final index = state.segments.indexWhere(
+      (s) => s.episodeIndex == episodeIndex,
+    );
+    if (index < 0) return;
+    if (_episodes.isEmpty || _meta == null || _detailUrl == null) return;
+    if (_loadingSegments.contains(episodeIndex)) return;
+    final episode = _episodes[episodeIndex];
+    _loadingSegments.add(episodeIndex);
+    _replaceSegment(
+      episodeIndex,
+      state.segments[index].copyWith(loading: true, failed: false),
+      atHead: index == 0,
+    );
+    final urls = await _fetchChapterUrls(episode);
+    _loadingSegments.remove(episodeIndex);
+    _replaceSegment(
+      episodeIndex,
+      state.segments[state.segments.indexWhere(
+            (s) => s.episodeIndex == episodeIndex,
+          )]
+          .copyWith(items: urls, loading: false, failed: urls == null),
+      atHead: index == 0,
+    );
+  }
+
+  void _replaceSegment(
+    int episodeIndex,
+    ChapterSegment<String> replacement, {
+    required bool atHead,
+  }) {
+    _commitSegments(
+      [
+        for (final segment in state.segments)
+          segment.episodeIndex == episodeIndex ? replacement : segment,
+      ],
+      atHead: atHead,
+    );
+  }
+
+  Future<List<String>?> _fetchChapterUrls(ExtensionEpisode episode) async {
+    final fetcher = debugChapterFetcher;
+    if (fetcher != null) return fetcher(episode.url);
+    final meta = _meta;
+    final detailUrl = _detailUrl;
+    if (meta == null || detailUrl == null) return null;
+    try {
+      final result = await WatchChapterCache.resolve(
+        watchUrl: episode.url,
+        detailUrl: detailUrl,
+        meta: meta,
+      );
+      if (result.data is proto.Download) return null;
+      final data = watch_data.toMangaWatch(
+        watch_data.unwrapAll(result.data, meta.type),
+      );
+      final urls = data.urls;
+      if (urls.isEmpty) return null;
+      return List<String>.unmodifiable(urls);
+    } catch (error, stack) {
+      logger.warning(
+        'Failed to load adjacent chapter ${episode.url}',
+        error,
+        stack,
+      );
+      return null;
+    }
   }
 
   void changeReadMode(MangaReadMode mode) {
@@ -321,17 +701,10 @@ class MangaReader extends _$MangaReader {
 
   void setHudVisible(bool visible) {
     if (visible == state.hudVisible) return;
-    // TEMP DIAGNOSTIC (zoomed HUD bounce): every HUD transition with a marker
-    // of who asked for it. Remove once the double-toggle root cause lands.
-    logger.info(
-      'HUD ${visible ? "SHOW" : "HIDE"} zoomPending=${isAdjusting ? "jump" : "no"}',
-    );
     state = state.copyWith(hudVisible: visible);
   }
 
   void toggleHud() {
-    // TEMP DIAGNOSTIC: proves whether one physical tap reaches here twice.
-    logger.info('HUD toggleHud (was ${state.hudVisible ? "shown" : "hidden"})');
     setHudVisible(!state.hudVisible);
   }
 
@@ -477,6 +850,13 @@ class MangaReader extends _$MangaReader {
     if (state.totalPage == 0) return;
     _writePage(page);
     final token = ++_jumpGeneration;
+    final flatTarget = state.readMode == MangaReadMode.webToon &&
+            state.segments.isNotEmpty
+        ? _flatIndexOfPage(
+            state.trackedSegmentIndex,
+            page.clamp(0, state.totalPage - 1),
+          )
+        : page;
     switch (state.readMode) {
       case MangaReadMode.webToon:
         // A detached controller throws synchronously out of `scrollTo`; the
@@ -485,7 +865,10 @@ class MangaReader extends _$MangaReader {
         if (!itemScrollController.isAttached) return;
         _beginJump(token);
         itemScrollController
-            .scrollTo(index: page, duration: const Duration(milliseconds: 100))
+            .scrollTo(
+              index: flatTarget,
+              duration: const Duration(milliseconds: 100),
+            )
             .then(
               (_) => _endJump(token),
               // An errored or cancelled scroll must still release the jump;

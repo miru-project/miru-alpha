@@ -34,6 +34,7 @@ class NovelLayout {
     required this.blockFirstLines,
     required this.totalLine,
     required this.pages,
+    this.blockLineCounts = const <int>[],
   });
 
   /// Height of each block, in layout order, including the gaps around it.
@@ -42,6 +43,9 @@ class NovelLayout {
   /// 1-based line each block starts on. Zero for blocks that carry no prose
   /// (the chapter header and embedded images).
   final List<int> blockFirstLines;
+
+  /// Prose lines each block occupies. Zero for blocks that carry none.
+  final List<int> blockLineCounts;
 
   /// Lines in the whole chapter.
   final int totalLine;
@@ -114,6 +118,16 @@ double measureNovelBlock({
     );
   }
   return switch (block) {
+    NovelChapterHeader(title: final t, eyebrow: final e) =>
+      measureNovelChapterHeader(
+        width: width,
+        typography: typography,
+        textDirection: textDirection,
+        textScaler: textScaler,
+        title: t,
+        eyebrow: e,
+      ),
+    NovelJunction() || NovelSeriesBoundary() => NovelSpacing.boundaryExtent,
     NovelParagraph(text: final text) =>
       _measureProse(
             text,
@@ -273,26 +287,54 @@ NovelLayout buildNovelLayout({
   final fontSize = typography.fontSize;
   final heights = <double>[];
   final firstLines = <int>[];
+  final lineCounts = <int>[];
 
-  // The chapter header is block 0 of the layout without being a content block,
-  // so every index from here on lines up with `blocks`. It is measured across the
-  // whole page rather than one column, because that is where it is drawn: a
-  // title wrapped into half a page's width is a column of words, and in the
-  // two-column mode it can be taller than the page it sits on.
-  heights.add(
-    measureNovelChapterHeader(
-      width: headerWidth,
-      typography: typography,
-      textDirection: textDirection,
-      textScaler: textScaler,
-      title: chapterTitle,
-      eyebrow: chapterEyebrow,
-    ),
-  );
-  firstLines.add(0);
+  // Chapter headers mark a chapter boundary and carry no prose. A block list
+  // that already contains NovelChapterHeader blocks (the chained window) is
+  // measured as-is; otherwise the single chapter's header is block 0 of the
+  // layout, measured across the whole page rather than one column, because
+  // that is where it is drawn. When headers are inline, heights[i] aligns
+  // with blocks[i]; otherwise heights[i+1] does.
+  final hasInlineHeaders = blocks.any((b) => b is NovelChapterHeader);
+  final headerOffset = hasInlineHeaders ? 0 : 1;
+  if (!hasInlineHeaders) {
+    heights.add(
+      measureNovelChapterHeader(
+        width: headerWidth,
+        typography: typography,
+        textDirection: textDirection,
+        textScaler: textScaler,
+        title: chapterTitle,
+        eyebrow: chapterEyebrow,
+      ),
+    );
+    firstLines.add(0);
+    lineCounts.add(0);
+  }
 
   var line = 1;
   for (final block in blocks) {
+    if (block is NovelChapterHeader) {
+      heights.add(
+        measureNovelChapterHeader(
+          width: headerWidth,
+          typography: typography,
+          textDirection: textDirection,
+          textScaler: textScaler,
+          title: block.title,
+          eyebrow: block.eyebrow,
+        ),
+      );
+      firstLines.add(0);
+      lineCounts.add(0);
+      continue;
+    }
+    if (block is NovelJunction || block is NovelSeriesBoundary) {
+      heights.add(NovelSpacing.boundaryExtent);
+      firstLines.add(0);
+      lineCounts.add(0);
+      continue;
+    }
     heights.add(
       measureNovelBlock(
         block: block,
@@ -313,9 +355,11 @@ NovelLayout buildNovelLayout({
         fontSize,
       );
       firstLines.add(line);
+      lineCounts.add(lines);
       line += lines;
     } else {
       firstLines.add(0);
+      lineCounts.add(0);
     }
   }
 
@@ -326,6 +370,7 @@ NovelLayout buildNovelLayout({
       blockFirstLines: firstLines,
       totalLine: totalLine,
       pages: const [],
+      blockLineCounts: lineCounts,
     );
   }
   // The chapter header is drawn on whichever page opens the chapter, and the
@@ -339,6 +384,7 @@ NovelLayout buildNovelLayout({
     pageHeight: pageHeight,
     columns: mode == NovelReadMode.doubleColumn ? 2 : 1,
     leadingHeight: heights.first,
+    headerOffset: headerOffset,
   );
   return NovelLayout(
     blockHeights: heights,
@@ -350,7 +396,9 @@ NovelLayout buildNovelLayout({
       firstLines,
       pageHeight,
       heights.first,
+      headerOffset: headerOffset,
     ),
+    blockLineCounts: lineCounts,
   );
 }
 
@@ -372,8 +420,9 @@ List<NovelPage> _validatePages(
   List<double> heights,
   List<int> firstLines,
   double pageHeight,
-  double leadingHeight,
-) {
+  double leadingHeight, {
+  int headerOffset = 1,
+}) {
   if (pageHeight <= 0) return pages;
   final out = <NovelPage>[];
 
@@ -382,14 +431,14 @@ List<NovelPage> _validatePages(
     // part of that page's height and no other.
     var total = out.isEmpty ? leadingHeight : 0.0;
     for (final index in page.blockIndices) {
-      total += heights[index + 1];
+      total += heights[index + headerOffset];
     }
     if (total <= pageHeight) {
       out.add(page);
       continue;
     }
     for (final index in page.blockIndices) {
-      final line = firstLines[index + 1];
+      final line = firstLines[index + headerOffset];
       out.add(
         NovelPage(
           startLine: line > 0 ? line : page.startLine,
@@ -411,6 +460,7 @@ List<NovelPage> _pack({
   required double pageHeight,
   required int columns,
   double leadingHeight = 0,
+  int headerOffset = 1,
 }) {
   final pages = <NovelPage>[];
   // The usable height, with the measurement tolerance taken out.
@@ -461,20 +511,28 @@ List<NovelPage> _pack({
   }
 
   for (var i = 0; i < blocks.length; i++) {
-    final height = heights[i + 1];
+    final block = blocks[i];
+    final height = heights[i + headerOffset];
+
+    // A chapter header is drawn across the top of the page that opens its
+    // chapter, above the columns rather than inside one, so it comes out of
+    // that page's height instead of being counted against its first column.
+    if (block is NovelChapterHeader) {
+      startPage(startLine);
+      // The header is drawn above the columns; the prose that shares a page
+      // with it competes for what is left after it.
+      openPage = <List<int>>[<int>[]];
+      fills = <double>[height];
+      budget = usableHeight - height;
+      continue;
+    }
+
     // A block with no prose of its own (an image, a quotation) opens the page
     // it lands on, so the reader is not reported on a line before the text.
-    final line = firstLines[i + 1] > 0 ? firstLines[i + 1] : startLine;
+    final line = firstLines[i + headerOffset] > 0
+        ? firstLines[i + headerOffset]
+        : startLine;
 
-    // The chapter header sits above the first block of the first page. It is
-    // pre-filled into that page's first column so the header and the prose
-    // compete for the same budget. On a page too short to hold the header at
-    // all the fill is dropped rather than left to overflow: the header is
-    // decoration, the prose is the chapter.
-    if (i == 0 && leadingHeight > 0) {
-      openPage = <List<int>>[[]];
-      fills = <double>[leadingHeight];
-    }
 
     // Taller than a whole column: it takes a full-width page of its own,
     // because the only way to fit it in a column is to cut a line in half.

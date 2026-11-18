@@ -22,6 +22,45 @@ final class NovelParagraph extends NovelContentBlock {
       'NovelParagraph(${text.length} chars, dropCap: $dropCap)';
 }
 
+/// The chapter chain boundary blocks. They carry no prose; they render as
+/// full-width tiles between chapters, and the pagination pass reserves their
+/// measured extent.
+final class NovelChapterHeader extends NovelContentBlock {
+  const NovelChapterHeader({required this.title, required this.eyebrow});
+
+  final String title;
+  final String eyebrow;
+}
+
+/// The divider between two chained chapters; names the chapter above and
+/// the chapter below. Carries the state of the chapter below so the tile can
+/// show a spinner while it loads or a retry when it failed.
+final class NovelJunction extends NovelContentBlock {
+  const NovelJunction({
+    required this.leftChapter,
+    required this.rightChapter,
+    required this.rightEpisodeIndex,
+    this.loading = false,
+    this.failed = false,
+  });
+
+  final String leftChapter;
+  final String rightChapter;
+
+  /// Episode index of the chapter below; the retry button needs it.
+  final int rightEpisodeIndex;
+  final bool loading;
+  final bool failed;
+}
+
+/// Absolute series boundary — first / last chapter marker.
+final class NovelSeriesBoundary extends NovelContentBlock {
+  const NovelSeriesBoundary({required this.isStart, this.chapterName = ''});
+
+  final bool isStart;
+  final String chapterName;
+}
+
 /// An inset quotation — a letter, an excerpt — drawn as a raised card.
 ///
 /// Built from a run of `>`-prefixed strings. Extensions that scrape HTML

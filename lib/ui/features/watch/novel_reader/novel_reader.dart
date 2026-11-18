@@ -34,6 +34,7 @@ class MiruNovelReader extends HookConsumerWidget {
     required this.meta,
     required this.epProvider,
     required this.detailImageUrl,
+    this.detailUrl,
   }) : localPath = null;
 
   const MiruNovelReader.local({
@@ -43,6 +44,7 @@ class MiruNovelReader extends HookConsumerWidget {
     required this.epProvider,
     required this.detailImageUrl,
     required this.localPath,
+    this.detailUrl,
   }) : value = null;
 
   final ExtensionFikushonWatch? value;
@@ -51,6 +53,10 @@ class MiruNovelReader extends HookConsumerWidget {
   final EpisodeNotifierProvider epProvider;
   final String detailImageUrl;
   final String? localPath;
+
+  /// Detail URL of the series; the infinite webtoon window needs it to
+  /// lazily fetch sibling chapters. Null for local downloads.
+  final String? detailUrl;
 
   @override
   Widget build(BuildContext context, WidgetRef container) {
@@ -70,11 +76,19 @@ class MiruNovelReader extends HookConsumerWidget {
     final state = container.watch(novelProvider);
     final reader = container.read(novelProvider.notifier);
 
-    // The chapter's flat content list is split into typed blocks once, per
-    // chapter, rather than per rebuild of every block.
-    final blocks = useMemoized(
+        // The flat, chained list of blocks: this chapter plus every loaded
+    // adjacent chapter, threaded with junction and boundary tiles. The provider
+    // owns the window; the canvas renders it as-is.
+    final anchorBlocks = useMemoized(
       () => parseNovelContent(value?.content ?? const <String>[]),
       [value?.content],
+    );
+    final segmentVersion = container.watch(
+      novelReaderProvider.select((s) => s.segments),
+    );
+    final blocks = useMemoized(
+      () => container.read(novelReaderProvider.notifier).currentBlocks(),
+      [segmentVersion],
     );
 
     // Session injection on entry: the single reader state opens the selected
@@ -90,6 +104,10 @@ class MiruNovelReader extends HookConsumerWidget {
     // being jumped from here.
     useEffect(() {
       final reader = container.read(novelReaderProvider.notifier);
+      // A chapter flip initiated by the infinite webtoon itself must not
+      // reset the canvas — the effect would otherwise jump the scroller
+      // back to the top and reload the chapter.
+      if (reader.consumeChapterFlip()) return null;
       final episodeUrl = episodes.isEmpty ? '' : episodes[episodeIndex].url;
       final saved = findSavedReadingProgress(
         history: container.read(historyPageProvider).history,
@@ -101,6 +119,13 @@ class MiruNovelReader extends HookConsumerWidget {
           groupIndex: groupIndex,
           episodeIndex: episodeIndex,
           resume: saved,
+          episodes: episodes,
+          blocks: anchorBlocks,
+          meta: meta,
+          detailUrl: detailUrl,
+          onTrackedEpisodeChanged: (flipGroup, flipEpisode) => container
+              .read(epProvider.notifier)
+              .selectEpisode(flipGroup, flipEpisode),
         ),
       );
       return null;
@@ -202,12 +227,10 @@ class MiruNovelReader extends HookConsumerWidget {
                 return false;
               },
               child: NovelReadingView(
-                // Keyed per chapter: a fresh canvas re-attaches the shared
-                // controllers at offset zero instead of landing mid-chapter.
-                key: ValueKey('novel-canvas-$groupIndex-$episodeIndex'),
+                // Keyed per group: a chapter flip inside the window must not
+                // tear down the canvas — the window keeps scrolling.
+                key: ValueKey('novel-canvas-$groupIndex'),
                 blocks: blocks,
-                chapterTitle: chapterLabel,
-                chapterOrdinal: episodeIndex + 1,
                 novelProvider: novelProvider,
                 onTapZone: (fromStart) =>
                     _onTapZone(reader, state.tapToTurnPage, fromStart),

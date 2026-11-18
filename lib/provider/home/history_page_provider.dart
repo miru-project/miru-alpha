@@ -69,7 +69,7 @@ class HistoryPageNotifier extends _$HistoryPageNotifier {
       ],
     );
     filter(_type, keyword, duration);
-    logger.info('register history ${history.title}');
+    logger.fine('register history ${history.title}');
   }
 
   // DELETE

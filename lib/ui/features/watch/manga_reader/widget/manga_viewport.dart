@@ -5,12 +5,24 @@ import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
 import 'package:miru_alpha/provider/watch/manga_reader_provider.dart';
+import 'package:miru_alpha/ui/features/watch/manga_reader/infinite_window.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/manag_image.dart';
+import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_chapter_boundary.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_zoom_surface.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/webtoon_zoom_surface.dart';
 
 /// Horizontal share of the viewport treated as a "previous page" tap zone.
 const kReaderTapZoneExtent = 0.3;
+
+/// URL of the chapter that owns [imageUrl], for the aspect store shared across
+/// every page of a chapter.
+String? _chapterUrlOf(String imageUrl, MangaReaderState state) {
+  for (final segment in state.segments) {
+    final items = segment.items;
+    if (items != null && items.contains(imageUrl)) return segment.url;
+  }
+  return null;
+}
 
 /// Full-bleed page canvas.
 ///
@@ -71,7 +83,6 @@ class MiruMangaViewPort extends ConsumerWidget {
         doubleTapEnabled: !state.hudVisible,
       ),
       MangaReadMode.webToon => _WebtoonPages(
-        urls: urls,
         state: state,
         gap: gap,
         mangaProvider: mangaProvider,
@@ -182,6 +193,7 @@ class _PagedPages extends HookConsumerWidget {
           itemBuilder: (context, index) => zoom.wrap(
             MangaImage(
               imageUrl: urls[index],
+              chapterUrl: _chapterUrlOf(urls[index], state),
               fit: switch (state.fitMode) {
                 MangaFitMode.fitWidth => .fitWidth,
                 MangaFitMode.fitHeight => .fitHeight,
@@ -224,7 +236,6 @@ class _PagedPages extends HookConsumerWidget {
 
 class _WebtoonPages extends ConsumerWidget {
   const _WebtoonPages({
-    required this.urls,
     required this.state,
     required this.gap,
     required this.mangaProvider,
@@ -232,7 +243,6 @@ class _WebtoonPages extends ConsumerWidget {
     this.onViewMoved,
   });
 
-  final List<String> urls;
   final MangaReaderState state;
   final double gap;
   final MangaReaderProvider mangaProvider;
@@ -244,6 +254,11 @@ class _WebtoonPages extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final reader = ref.read(mangaProvider.notifier);
+    // The notifier owns the slot computation (it needs the episode list for
+    // the series-end markers) and memoizes it against the segments list
+    // identity — this build runs on every scroll-driven state change.
+    final slots = reader.currentSlots();
+
     // Zoom is a paint-only transform over the list rather than an
     // InteractiveViewer wrapper: the viewer's pan/scale recognisers would win
     // the gesture arena against the list's own drag and stop the webtoon
@@ -256,19 +271,74 @@ class _WebtoonPages extends ConsumerWidget {
       onTap: reader.toggleHud,
       doubleTapEnabled: doubleTapEnabled,
       onViewMoved: onViewMoved,
-      itemCount: urls.length,
+      itemCount: slots.length,
       // The gap belongs *between* pages, not around the list: a trailing pad on
       // every page but the last separates them while letting the first page
       // start at the top edge and the last one run to the bottom edge. Padding
       // the list itself left a blank band the artwork never covered.
-      itemBuilder: (context, index) => Padding(
-        padding: EdgeInsets.only(bottom: index == urls.length - 1 ? 0 : gap),
-        child: MangaImage(
-          imageUrl: urls[index],
-          fit: .fitWidth,
-          invertColors: state.invertColors,
-        ),
+      itemBuilder: (context, index) => _buildSlot(
+        context,
+        ref,
+        slots,
+        index,
+        gap,
       ),
     );
+  }
+
+  Widget _buildSlot(
+    BuildContext context,
+    WidgetRef ref,
+    List<WindowSlot> slots,
+    int index,
+    double gap,
+  ) {
+    final slot = slots[index];
+    final isLast = index == slots.length - 1;
+    final segments = state.segments;
+    switch (slot.kind) {
+      case SlotKind.page:
+        final urls = segments[slot.segmentIndex].items!;
+        return Padding(
+          padding: EdgeInsets.only(bottom: isLast ? 0 : gap),
+          child: MangaImage(
+            imageUrl: urls[slot.pageIndex],
+            chapterUrl: segments[slot.segmentIndex].url,
+            fit: .fitWidth,
+            invertColors: state.invertColors,
+          ),
+        );
+      case SlotKind.junction:
+        final left = segments[slot.segmentIndex - 1];
+        final right = segments[slot.segmentIndex];
+        return ChapterBoundaryTile(
+          endedChapterName: left.name,
+          nextChapterName: right.name,
+          nextLoading: right.loading,
+          nextFailed: right.failed,
+          onRetry: () => ref
+              .read(mangaProvider.notifier)
+              .retrySegment(right.episodeIndex),
+        );
+      case SlotKind.loading:
+        return ChapterLoadingTile(name: segments[slot.segmentIndex].name);
+      case SlotKind.error:
+        return ChapterLoadErrorTile(
+          name: segments[slot.segmentIndex].name,
+          onRetry: () => ref
+              .read(mangaProvider.notifier)
+              .retrySegment(segments[slot.segmentIndex].episodeIndex),
+        );
+      case SlotKind.seriesStart:
+        return SeriesBoundaryTile(
+          isStart: true,
+          name: segments.first.name,
+        );
+      case SlotKind.seriesEnd:
+        return SeriesBoundaryTile(
+          isStart: false,
+          name: segments.last.name,
+        );
+    }
   }
 }

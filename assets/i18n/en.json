@@ -504,7 +504,15 @@
         "light": "White"
       },
       "reading": "Reading",
-      "new": "New"
+      "new": "New",
+      "chapter_end": "End of chapter",
+      "next_chapter": "Next: {name}",
+      "previous_chapter": "Previous: {name}",
+      "first_chapter": "This is the first chapter",
+      "last_chapter": "This is the last chapter",
+      "loading_chapter": "Loading chapter...",
+      "chapter_load_failed": "Couldn't load this chapter",
+      "chapter_load_failed_retry": "Retry"
     },
     "novel": {
       "font_size": {

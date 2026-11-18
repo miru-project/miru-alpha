@@ -214,6 +214,17 @@ class ItemScrollController {
     _scrollableListState!._jumpTo(index: index, alignment: alignment);
   }
 
+  /// Re-anchor the list after [count] items were inserted *before* the
+  /// positioned item.
+  ///
+  /// The same logical item is now [count] slots further into the list; the
+  /// anchored layout re-anchors on it so the content the reader is looking
+  /// at does not move. Unlike [jumpTo] this never stops an in-flight scroll.
+  void notifyItemsInsertedBefore(int count) {
+    assert(count > 0);
+    _scrollableListState?._notifyItemsInsertedBefore(count);
+  }
+
   /// Animate the list over [duration] using the given [curve] such that the
   /// item at [index] ends up with its leading edge at the given [alignment].
   /// See [jumpTo] for an explanation of alignment.
@@ -512,6 +523,19 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
         _screenScrollCount,
     widget.minCacheExtent ?? 0,
   );
+
+  void _notifyItemsInsertedBefore(int count) {
+    if (count <= 0) return;
+    // The same logical item is now `count` slots further in the list; bump
+    // both positioning targets so the anchored layout re-anchors on the
+    // identical item. Scroll offset is already measured relative to the
+    // anchor, so the content on screen does not move — and unlike a jumpTo
+    // this never stops an in-flight scroll.
+    setState(() {
+      primary.target += count;
+      secondary.target += count;
+    });
+  }
 
   void _jumpTo({required int index, required double alignment}) {
     _stopScroll(canceled: true);
