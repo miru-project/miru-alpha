@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
-import 'package:miru_alpha/ui/core/widget/eq_bars.dart';
+import 'package:miru_alpha/ui/core/widget/book_flip_indicator.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_sheet.dart';
 import 'package:miru_alpha/utils/core/date_format.dart';
 import 'package:miru_alpha/utils/core/episode_label.dart';
@@ -441,7 +441,7 @@ class _ChapterTile extends StatelessWidget {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const EqBars(),
+                const BookFlipIndicator(),
                 const SizedBox(width: 6),
                 FBadge(
                   variant: .primary,

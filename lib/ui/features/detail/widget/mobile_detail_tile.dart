@@ -19,6 +19,7 @@ import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/core/miru_directory.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
+import 'package:miru_alpha/ui/core/widget/book_flip_indicator.dart';
 import 'package:miru_alpha/ui/core/widget/eq_bars.dart';
 import 'package:miru_alpha/ui/core/widget/pulsing_dot.dart';
 import 'package:path/path.dart' as p;
@@ -207,7 +208,11 @@ class MobileDetailTile extends ConsumerWidget {
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const EqBars(),
+                // Manga rows show the replayable book flip (the chapter the
+                // reader is on); episode rows keep the equalizer.
+                meta.type == ExtensionType.manga
+                    ? const BookFlipIndicator()
+                    : const EqBars(),
                 const SizedBox(width: 6),
                 FBadge(
                   variant: .primary,
