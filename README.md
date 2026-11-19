@@ -5,241 +5,302 @@
 [![License: GPL-3.0](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](#license)
 ![Status: alpha](https://img.shields.io/badge/status-alpha-orange)
 
-A modern rework of [miru_app](https://github.com/miru-project/miru-app).
+A rework of [miru_app](https://github.com/miru-project/miru-app).
 
-Miru is a versatile, free and open-source application designed for streaming video, reading manga, and enjoying novels with a flexible third-party extension ecosystem. Available across **Android**, **Linux**, and **Windows**.
+**English** · [简体中文](README.zh-Hans.md) · [繁體中文](README.zh-Hant.md)
 
-> **Status: alpha.** Core functionality works and is used daily in development, but APIs and extension contracts can still change between releases. Not yet hardened for general production use.
+Miru is a media client for three things — **video, manga and novels**. It
+bundles no extensions and no catalogue: every title you watch or read is
+resolved by an extension you installed. Extensions are plain JavaScript or Go
+files that anyone can write and host. Install a source, search it, and the same
+app streams, reads and downloads from it.
 
-Miru ships **no content of its own** — everything you watch or read comes from extensions you install yourself, and you are responsible for what you install. If you want a curated, out-of-the-box catalogue with official sources, this is not that tool.
+Android, Linux and Windows.
 
 ## Getting the app
 
-Pre-built alpha releases are published on the
-[Releases page](https://github.com/miru-project/miru-alpha/releases) — every
-tag there is marked **pre-release**, and each one ships the same set of
-artifacts:
+Pre-built alpha builds are on the
+[Releases page](https://github.com/miru-project/miru-alpha/releases). Every
+release tag there is marked **pre-release** and carries the same asset set:
 
 | Platform | Artifact |
 | --- | --- |
-| Android | [app-arm64-v8a-release.apk](https://github.com/miru-project/miru-alpha/releases/latest/download/app-arm64-v8a-release.apk), [app-armeabi-v7a-release.apk](https://github.com/miru-project/miru-alpha/releases/latest/download/app-armeabi-v7a-release.apk), [app-x86_64-release.apk](https://github.com/miru-project/miru-alpha/releases/latest/download/app-x86_64-release.apk) |
-| Linux | [Miru-Alpha-linux.tar.gz](https://github.com/miru-project/miru-alpha/releases/latest/download/Miru-Alpha-linux.tar.gz) |
-| Windows | [Miru-Alpha-windows.zip](https://github.com/miru-project/miru-alpha/releases/latest/download/Miru-Alpha-windows.zip) |
+| Android | `app-arm64-v8a-release.apk`, `app-armeabi-v7a-release.apk`, `app-x86_64-release.apk` |
+| Linux | `Miru-Alpha-linux.tar.gz` |
+| Windows | `Miru-Alpha-windows.zip` |
 
-For bleeding-edge builds from every push, use the
-[Actions artifacts](https://github.com/miru-project/miru-alpha/actions) instead.
-Notable changes are tracked in [CHANGELOG.md](CHANGELOG.md).
+Every push also publishes dev builds as
+[Actions artifacts](https://github.com/miru-project/miru-alpha/actions).
+Changes are listed in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
 ## Features
 
-- **Three media types**: stream video, read manga and read novels from the same extension contract —
-- **Video player**: stream HLS or MP4 with quality switching, external subtitles, 0.25×–3× speed and gesture controls (double-tap seek, edge volume / scrub)
-- **Extensions**: install community extensions for any of the three types; modern v2 JS, legacy v1 JS (old miru repos work as-is) and Go extensions coexist
-- **Extension store**: browse, filter, install, update and uninstall extensions from repo URLs, or import them by URL / file picker
-- **In-app editor**: open any installed extension's source with syntax highlighting and save patches without leaving the app
-- **Per-extension settings**: extensions register their own inputs, toggles and radio options, persist values, manage cookies and open webviews
-- **Extension filters**: extensions define select / multi-select / range / text filters, applied in one shot when the dialog closes
-- **Cast (experimental)**: throw the current stream to DLNA devices on your local network — scan, connect and control play / pause / seek / volume / mirror switching from the app, with subtitles burned in
-- **Downloads**: queue, prioritise, pause and resume; interrupted downloads recover on restart, and HLS streams convert to a single MP4 automatically
-- **History & favourites**: resume where you left off — safely, even if an extension reorders episodes — with a "Continue watching" shelf and grouped favourites
-- **Torrent streaming**: paste a magnet or `.torrent` file, pick a file from the archive and start watching while it downloads
-- **Manga reader**: read paged (left-to-right / right-to-left) or webtoon style, with brightness, colour inversion, page-gap and fit controls, bookmarks, chapter jump and zoom
-- **Novel reader**: read paged, continuous or double-column with four reading themes, font controls, tap-edge and volume-key page turns
-- **Global search**: run one query across pinned, all or hand-picked sources, sort by relevance / release date / priority, and see per-source failures with retry
-- **Detail pages**: browse episode groups and mirrors, play downloaded files offline, pull TMDB metadata and track progress on AniList inline
-- **Network privacy**: route traffic through HTTP / SOCKS proxies and browser-impersonating TLS identities
-- **Logs & diagnostics**: capture app and backend logs plus crashes, export them for support, and watch what each extension requests live in the developer panel
-- **Desktop & mobile in one**: a desktop sidebar shell and a mobile bottom-nav shell driven by breakpoints — sheets, pull-to-refresh and gestures on mobile, dialogs and wide layouts on desktop
+### Watch
+
+- **Video player** — HLS and direct video with quality switching, external
+  subtitles, and 0.25×–3× speed in eight steps.
+- **Touch and keyboard control** — double-tap to seek ±10 s, drag the right
+  edge for volume and the left edge to scrub, arrow keys to seek, space to
+  pause, fullscreen and screen-wake lock.
+- **Torrent sources** — when a source returns a magnet link or `.torrent`, the
+  file tree is resolved and the video file streams while it downloads.
+
+### Read
+
+- **Manga reader** — paged left-to-right, paged right-to-left, or continuous
+  webtoon, with per-page brightness, colour inversion, page gaps, fit modes,
+  zoom, chapter jump and bookmarks.
+- **Novel reader** — paged, continuous or double-column, four reading themes,
+  font family / size / line-height / margin controls, and page turns by tap
+  zones or the volume rocker.
+
+### Sources
+
+- **One extension contract for all three media types** — a video source, a
+  scanlation source and a novel source are the same kind of object, so one
+  install model covers everything.
+- **Three extension runtimes** — modern v2 JavaScript, legacy v1 JavaScript
+  (original `miru-app` repositories work unchanged) and Go.
+- **Repository store** — add repository URLs, browse what they publish, and
+  install, update or uninstall. Import a single extension by URL or from a
+  file instead.
+- **Extension-defined filters** — a source declares its own select,
+  multi-select, range and text controls; edits are staged and applied in one
+  shot when the dialog closes, so a query costs one round-trip.
+- **Per-extension settings** — a source registers its own inputs, toggles and
+  radio options and persists them, can clear its cookies, and can open its
+  website in an embedded webview when a source needs a real login.
+- **In-app source editor** — open any installed extension with syntax
+  highlighting and save a patch back to disk without leaving the app.
+
+### Finding things
+
+- **Global search** — one query across pinned, unpinned or all sources,
+  sorted by relevance, newest release or source priority, with per-source
+  failures listed and retryable.
+- **Resolutions and mirrors on the page** — an episode that resolves to
+  several bitrates opens a resolution picker instead of guessing, and a
+  source that publishes mirrors lets you switch between them from the player.
+
+### Keeping things
+
+- **Downloads** — a queue with per-task priority, pause and resume, a cap on
+  concurrent transfers, and automatic conversion of an HLS stream into a
+  single MP4.
+- **Restart-safe progress** — queued and interrupted tasks are rebuilt from
+  what is actually on disk after a restart.
+- **Resume** — a "continue watching" shelf and history that stay correct when
+  an extension reorders or renumbers its episodes: the saved URL is matched
+  first, and a missing episode is reported as gone instead of resuming the
+  wrong one.
+- **Favourites in groups** — file titles under tags and match several tags at
+  once with AND or OR rules.
+- **Offline playback** — finished downloads for all three media types open
+  from the download page.
+
+### Cast
+
+- **DLNA casting (experimental)** — find renderers on the local network, push
+  the current stream to them, and keep play / pause / seek in sync in both
+  directions (the TV remote moves the app's position too), with subtitles
+  burned in and episode switches re-pushing the renderer.
+
+### Network
+
+- **Proxies** — route traffic over HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5 or
+  SOCKS5h, with credentials.
+- **Browser TLS identities** — borrow a Chrome, Firefox or Safari fingerprint
+  (matching User-Agent) for sources that reject non-browser clients.
+- **A local media proxy** — images, video and subtitle URLs are re-requested
+  through the app's own proxy, so a `Referer`-gated mirror or a token-gated
+  CDN plays without the client assembling headers per request.
+
+### Diagnostics
+
+- **Logs** — Flutter and Go logs, both crash logs, and a share/export action
+  for attaching them to a bug report.
+- **Developer panel** — a console and a live network log of what each
+  extension requested, filterable per extension.
+
+### Interface
+
+- **One codebase, two shells** — a desktop sidebar shell and a mobile
+  bottom-nav shell chosen by width: dialogs and wide grids on desktop, sheets,
+  pull-to-refresh and gesture playback on mobile.
+- **Theming and languages** — light and dark Material 3 themes with seed
+  colours, English and Chinese.
 
 ---
 
-## Architecture Overview
-
-Miru Alpha separates presentation from network and data processing:
+## How it works
 
 ```text
-┌────────────────────────────────────────────────────────┐
-│                   Flutter Frontend                     │
-│  UI (Watch, Detail, Download) ── Riverpod & MVVM       │
-└───────────────────────────▲────────────────────────────┘
-                            │ gRPC & Local HTTP Proxy
-┌───────────────────────────▼────────────────────────────┐
-│                  Go Backend (miru-core)                │
-│  • gRPC Service Layer      • Extension Runtime (Go/JS) │
-│  • HTTP Stream Proxy       • Torrent Engine & SQLite   │
-└────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                    Flutter frontend                      │
+│   screens (watch · read · search · download)             │
+│   Riverpod state · MVVM                                  │
+└───────────────────────────▲──────────────────────────────┘
+                            │  gRPC  ·  local HTTP /proxy
+┌───────────────────────────▼──────────────────────────────┐
+│                    Go backend (miru-core)                │
+│   gRPC services     extension runtimes (JS + Go)         │
+│   stream proxy      torrent engine     SQLite            │
+└──────────────────────────────────────────────────────────┘
 ```
 
-The Flutter app communicates with an embedded or local Go backend via gRPC. All media fetching and extension requests are handled through the core service, guaranteeing unified proxying and security handling; images and media URLs additionally ride the local `/proxy` route so every fetch inherits the app's proxy and TLS settings.
+The Flutter app talks to an embedded Go backend over gRPC. Every extension
+call and every media fetch goes through that backend, which is what makes one
+proxy configuration and one TLS identity apply to everything the app loads.
 
-Layout is breakpoint-driven (forui `sm` 640 / `lg` 1024): below `lg` the sidebar collapses into a mobile bottom-nav scaffold, and desktop and mobile have parallel widget trees for most screens (persistent sidebar, dialogs and inline dev panels on desktop; bottom navigation, sheets, pull-to-refresh and gesture-driven playback on mobile). The desktop window is freely resizable with a phone-sized floor; macOS gets native traffic-light positioning.
+Two native pieces are compiled during the Flutter build (see
+`hook/build.dart`):
+
+- the Go backend, built as a `c-shared` library per target ABI;
+- `ffmpeg_merge`, a C++ library that concatenates HLS segments into a single
+  MP4 for downloads and remuxes streams for casting.
+
+Deep technical detail — the `/proxy` route, watch pipeline, extension
+lifecycle, player pipeline, download invariants, resume logic and logging —
+lives in [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ---
 
-## Project Map
+## Project map
 
 ```text
 lib/
-  main.dart               App entry (release & debug share it)
-  main_debug.dart         Debug entry: marionette binding for MCP/tooling
-  app_bootstrap.dart      Core init + the debug-only phone-frame shell
-  ui/features/            One folder per screen family: detail, download,
-                          extension, extension_settings, favorite, history,
-                          home, search, setting, tracking, watch, webview,
-                          source_code, license, dev_tool
-  ui/core/                Shared atoms (error display, cards, widgets)
-  provider/               Riverpod state notifiers (watch, download,
-                          extension, cast, home, ...)
-  domain/ model/ data/    Entities, models, data layer
-  utils/                  i18n (en/zh), logging, http (proxy client),
-                          router, torrent/subtitle helpers
+  main.dart               Release entry point
+  main_debug.dart         Debug entry: marionette binding for live-UI tooling
+  app_bootstrap.dart      Startup: logging, window, core handshake, router
+  ui/features/            One folder per screen family: home, search, detail,
+                          watch/{video_player, manga_reader, novel_reader},
+                          download, history, favorite, extension,
+                          extension_settings, setting, tracking, webview,
+                          source_code, dev_tool, license
+  ui/core/                Shared widgets: scaffold + sidebar, cards, dialogs,
+                          refresh, animations, error/empty/loading states
+  provider/               Riverpod state: watch, download, extension, cast,
+                          search, home, tracking, shell
+  data/                   Repositories (domain-facing) over gRPC services
+  domain/                 Entities and use cases (extension and search filtering)
+  model/                  Protobuf-backed wire models
+  miru_core/              Backend client: gRPC channels, event stream, proxy URL
+  utils/                  i18n, logging + export, router, themes, downloads,
+                          subtitles, resume, tracking clients
 src/
-  miru_core/miru-core/    Go backend: gRPC services, extension runtimes
-                          (goja + Scriggo), stream proxy, torrent engine,
-                          ent (SQLite), miru_cli
-  ffmpeg_merge/           Native C++ HLS-segment merge library
-test/
-  unit/  provider/  ui/   Unit tests, notifier tests, per-feature widget
-                          tests (incl. a watch layout matrix)
+  miru_core/miru-core/    Go backend (submodule): gRPC services, extension
+                          runtimes (goja JS + Scriggo Go), stream proxy,
+                          torrent engine, SQLite
+  ffmpeg_merge/           C++ helpers: HLS segment merge, cast streaming
+  miru_core/windows/      Windows prebuilt library
+hook/build.dart           Build hook: Go c-shared + ffmpeg_merge + FFmpeg runtimes
+test/                     unit/, provider/, ui/, domain/, utils/
+tool/                     Release tooling (version from tag, changelog)
+third_party/              Vendored plugin: Linux screen brightness
 ```
 
 ---
 
-## Building from Source
+## Building from source
 
 ### Prerequisites
 
-Pinned to what CI builds with (`.github/workflows/prbuild.yml` → `release_alpha.yml`):
+Pinned to what CI uses (`.github/workflows/prbuild.yml` and
+`release_alpha.yml`):
 
-- **Flutter**: `3.50.0` (stable channel).
-- **Go**: `1.27.3` — the backend is compiled to a shared library by the Dart build hook.
-- **C++ toolchain** (CMake + a C++ compiler) — the native `ffmpeg_merge` library is built from source during the Flutter build.
-- **Git** (with submodules — `src/miru_core/miru-core` is checked out with `submodules: true`).
+- **Flutter** `3.50.0`, stable channel
+- **Go** `1.27.3` — the backend is compiled to a shared library by the build hook
+- **CMake** and a **C++ compiler** — `ffmpeg_merge` is built from source
+- **Git**, and clone with `--recurse-submodules` (`src/miru_core/miru-core` is a
+  submodule the build hook requires)
 
-The Android/Windows/Linux build steps also pass TMDB credentials as
-compile-time constants (optional at runtime — TMDB metadata degrades
-without them):
-
-```bash
---dart-define=TMDB_API_KEY=<key> --dart-define=TMDB_ACCESS_TOKEN=<token>
-```
-
----
-
-### Platform Setup & Instructions
-
-#### Linux
-
-1. Install the required system packages (matches CI's apt list):
-   - **Debian / Ubuntu**:
-
-     ```bash
-     sudo apt-get install -y ninja-build build-essential jq libasound2-dev libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev
-     ```
-
-   - **Arch Linux**:
-
-     ```bash
-     sudo pacman -S --needed gtk3 webkit2gtk-4.1 git clang cmake ninja jq alsa-lib
-     ```
-
-2. Run or build the app:
-
-   ```bash
-   flutter run -d linux
-   # or build release bundle:
-   flutter build linux --release
-   ```
-
-   Verify your toolchain first if something fails early: `flutter doctor`
-   and `go version` should both succeed.
-
-#### Android
-
-Ensure the **Android SDK**, **NDK**, and `go` are installed and properly configured in your environment. Native libraries are automatically compiled for each target ABI during the Flutter build hook.
+TMDB credentials are compile-time constants. Without them the app runs, but
+detail pages lose metadata:
 
 ```bash
-flutter build apk --release
+flutter build <platform> --dart-define=TMDB_API_KEY=<key> \
+                         --dart-define=TMDB_ACCESS_TOKEN=<token>
 ```
 
-#### Windows
+### Linux
 
-Ensure the **Desktop development with C++** workload in Visual Studio (or Build Tools) is installed, along with CMake.
+```bash
+# Debian / Ubuntu
+sudo apt-get install -y ninja-build build-essential jq libasound2-dev \
+     libgtk-3-dev libwebkit2gtk-4.1-dev libsoup-3.0-dev
+
+# Arch
+sudo pacman -S --needed gtk3 webkit2gtk-4.1 git clang cmake ninja jq alsa-lib
+
+flutter run -d linux
+# or
+flutter build linux --release
+```
+
+### Android
+
+Install the Android SDK and NDK, then:
+
+```bash
+flutter build apk --release            # single APK
+flutter build apk --release --split-per-abi   # per-ABI, as CI ships
+```
+
+### Windows
+
+Install Visual Studio with "Desktop development with C++", plus CMake, then:
 
 ```bash
 flutter run -d windows
-# or build release executable:
+# or
 flutter build windows --release
 ```
 
+If a build fails early, run `flutter doctor` and `go version` before anything
+else — the build hook needs both.
+
 ---
 
-## Developer Guide
+## Development
 
-### Code Generation & Tooling
+### Code generation
 
-Miru Alpha relies on code generation for Protobuf contracts, Riverpod state notifiers, and JSON serialization:
+| Task | Command |
+| --- | --- |
+| Protobuf (Dart + Go) | `make gen-proto` |
+| Riverpod / Freezed, single run | `make build-runner` |
+| Riverpod / Freezed, watch | `make runner-build-watch` |
+| Scriggo extension deps (Go) | `cd src/miru_core/miru-core && make gen-deps` |
 
-- **Generate Protobuf Definitions**:
-  Regenerate Dart and Go gRPC / protobuf models:
-
-  ```bash
-  make gen-proto
-  ```
-
-- **Run Build Runner** (Riverpod & Freezed):
-
-  ```bash
-  # Single run:
-  make build-runner
-
-  # Continuous file-watch mode during development:
-  make runner-build-watch
-  ```
-
-- **Scriggo Extension Dependencies** (Go Backend):
-  When updating extension types in `src/miru_core/miru-core`:
-
-  ```bash
-  cd src/miru_core/miru-core
-  make gen-deps
-  ```
-
-### Tests & Analysis
+### Tests and analysis
 
 ```bash
-flutter analyze --no-pub   # lint; must stay clean
-flutter test               # unit + provider + per-feature widget tests
+flutter analyze --no-pub   # must stay clean
+flutter test               # unit, provider, per-feature widget, integration
 ```
 
-Suites live in `test/unit`, `test/provider` and `test/ui`, grouped per feature.
+Suites are grouped by feature: `test/unit`, `test/provider`, `test/ui`,
+`test/domain`, `test/utils`, and `integration_test/`.
 
-### Technical & development reference
+---
 
-Deep technical detail — architecture internals (the `/proxy` route, watch
-pipeline), extension runtimes and lifecycle, the video player pipeline
-(mdk/libass subtitles, torrent streaming), download/conversion invariants,
-the network stack, resume logic, logging, debug tooling, testing
-conventions and known limitations — lives in
-[DEVELOPMENT.md](DEVELOPMENT.md).
+## Known limitations
 
-### Known limitations & non-goals
-
-- **No built-in content.** Miru is a shell: streams, pages and chapters
-  come entirely from user-installed extensions.
-- **Alpha maturity.** Extension contracts and settings may change between
+- **No built-in content.** The app ships no extensions and no catalogue; it
+  only seeds the official repository URL so the store has something to browse
+  on first launch.
+- **Alpha contracts.** Extension APIs and settings may change between
   releases; databases and downloads from older alphas may need a reset.
-- **Persisted-but-unconsumed settings.** TTS (novel reader), hardware
-  acceleration, subtitle font size/colour, auto-play-next, auto-download
-  and auto-sync tracking exist in the settings model but are not wired up
-  yet.
-- **Platforms.** Android, Linux and Windows ship; iOS/macOS scaffolding
-  exists but is untested day-to-day but should be possible.
+- **Settings that exist but do nothing yet.** TTS in the novel reader,
+  hardware acceleration, subtitle font size and colour, auto-play-next,
+  auto-download, and auto-sync tracking are stored but not wired up.
+- **Platforms.** Android, Linux and Windows ship. The iOS and macOS
+  scaffolding exists and should work, but is not a daily target.
 
 ---
 
 ## License
 
-This project is licensed under the GPL-3.0 License.
+GPL-3.0. See [LICENSE](LICENSE).
