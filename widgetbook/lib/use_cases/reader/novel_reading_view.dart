@@ -122,8 +122,6 @@ WidgetbookUseCase _novelUseCase({
           container: container,
           child: NovelReadingView(
             blocks: parseNovelContent(content ?? _chapter()),
-            chapterTitle: 'The Thirteenth Tale',
-            chapterOrdinal: 1,
             novelProvider: novelReaderProvider,
             onTapZone: (_) {},
           ),

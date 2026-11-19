@@ -10,10 +10,14 @@ dependencies:
   flutter:
     sdk: flutter
   widgetbook: ^3.25.0
-  forui: ^0.27.2
+  forui: ^0.28.0
   # The app's material re-export (flutter/material is deprecated in this
   # project) — declared directly because use-case files import it.
   material_ui: any
+  # Pinned to the version the root app resolves: miru_alpha calls the
+  # `FilePicker.pickDirectory()` static added in 13.4.0, and the workspace's
+  # own resolution drifts to 13.3.3 unless it is held here.
+  file_picker: ^13.4.0
   # Declared for the mirrored use-cases (screens under Riverpod/GoRouter);
   # versions resolve through miru_alpha's own constraints.
   hooks_riverpod: any
