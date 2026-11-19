@@ -501,10 +501,8 @@ abstract class CustomViewport extends MultiChildRenderObjectWidget {
         assert(
           debugCheckHasDirectionality(
             context,
-            why:
-                'to determine the cross-axis direction when the viewport has an \'up\' axisDirection',
-            alternative:
-                'Alternatively, consider specifying the \'crossAxisDirection\' argument on the Viewport.',
+            why: 'to determine the cross-axis direction when the viewport has an \'up\' axisDirection',
+            alternative: 'Alternatively, consider specifying the \'crossAxisDirection\' argument on the Viewport.',
           ),
         );
         return textDirectionToAxisDirection(Directionality.of(context));
@@ -514,10 +512,8 @@ abstract class CustomViewport extends MultiChildRenderObjectWidget {
         assert(
           debugCheckHasDirectionality(
             context,
-            why:
-                'to determine the cross-axis direction when the viewport has a \'down\' axisDirection',
-            alternative:
-                'Alternatively, consider specifying the \'crossAxisDirection\' argument on the Viewport.',
+            why: 'to determine the cross-axis direction when the viewport has a \'down\' axisDirection',
+            alternative: 'Alternatively, consider specifying the \'crossAxisDirection\' argument on the Viewport.',
           ),
         );
         return textDirectionToAxisDirection(Directionality.of(context));

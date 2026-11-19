@@ -49,11 +49,7 @@ class ChapterSegment<T> {
   final bool loading;
   final bool failed;
 
-  ChapterSegment<T> copyWith({
-    List<T>? items,
-    bool? loading,
-    bool? failed,
-  }) {
+  ChapterSegment<T> copyWith({List<T>? items, bool? loading, bool? failed}) {
     return ChapterSegment<T>(
       episodeIndex: episodeIndex,
       name: name,
@@ -112,7 +108,9 @@ List<WindowSlot> buildSlots<T>(
     }
   }
   if (atSeriesEnd) {
-    slots.add(WindowSlot(kind: SlotKind.seriesEnd, segmentIndex: segments.length - 1));
+    slots.add(
+      WindowSlot(kind: SlotKind.seriesEnd, segmentIndex: segments.length - 1),
+    );
   }
   return slots;
 }

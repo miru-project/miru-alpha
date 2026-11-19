@@ -1,4 +1,5 @@
 import 'package:miru_alpha/miru_core/network.dart';
+
 import '../../model/index.dart';
 
 class GithubNetwork {

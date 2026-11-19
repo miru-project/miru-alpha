@@ -8,6 +8,7 @@ import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'package:miru_alpha/utils/hook/tab_controller.dart';
 import 'package:miru_alpha/ui/core/index.dart';
+
 import 'widgets/tracking_desktop.dart';
 import 'widgets/tracking_mobile.dart';
 

@@ -260,7 +260,9 @@ class _ExtensionCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final meta = ref.watch(extensionPageProvider.select((s) => s.metaData));
     final hidden = watchHiddenExtensions(ref);
-    final visibleCount = meta.where((m) => !hidden.contains(m.packageName)).length;
+    final visibleCount = meta
+        .where((m) => !hidden.contains(m.packageName))
+        .length;
 
     return AnimatedBox.nopadding(
       onTap: () => context.push('/extension'),

@@ -53,12 +53,10 @@ void main() {
   ItemPosition at(int index) =>
       ItemPosition(index: index, itemLeadingEdge: 0, itemTrailingEdge: 1);
 
-  void setPositions(
-    ProviderContainer container,
-    List<ItemPosition> positions,
-  ) {
-    final listener =
-        container.read(mangaReaderProvider.notifier).itemPositionsListener;
+  void setPositions(ProviderContainer container, List<ItemPosition> positions) {
+    final listener = container
+        .read(mangaReaderProvider.notifier)
+        .itemPositionsListener;
     (listener as ItemPositionsNotifier).itemPositions.value = positions;
   }
 
@@ -69,7 +67,8 @@ void main() {
     required String detailUrl,
     required ExtensionMeta meta,
     String? mirrorUrl,
-  }) previousResolver;
+  })
+  previousResolver;
 
   setUp(() {
     MiruSettings.seedDefaultsForTest();
@@ -78,16 +77,17 @@ void main() {
     resolveCalls = 0;
     resolvedUrls = [];
     previousResolver = WatchChapterCache.resolver;
-    WatchChapterCache.resolver = ({
-      required watchUrl,
-      required detailUrl,
-      required meta,
-      mirrorUrl,
-    }) async {
-      resolveCalls++;
-      resolvedUrls.add(watchUrl);
-      return makeResult(watchUrl);
-    };
+    WatchChapterCache.resolver =
+        ({
+          required watchUrl,
+          required detailUrl,
+          required meta,
+          mirrorUrl,
+        }) async {
+          resolveCalls++;
+          resolvedUrls.add(watchUrl);
+          return makeResult(watchUrl);
+        };
   });
 
   tearDown(() {
@@ -101,8 +101,7 @@ void main() {
     return container;
   }
 
-  test('anchor open warms both neighbours through the shared cache',
-      () async {
+  test('anchor open warms both neighbours through the shared cache', () async {
     final c = container();
     c.listen(mangaReaderProvider, (_, _) {});
     // The shell resolves the anchor watch before opening the reader — the
@@ -126,21 +125,15 @@ void main() {
     );
     await Future<void>.delayed(Duration.zero);
     await Future<void>.delayed(Duration.zero);
-    expect(
-      resolveCalls,
-      3,
-      reason: 'both neighbours are warmed on open',
-    );
+    expect(resolveCalls, 3, reason: 'both neighbours are warmed on open');
 
     // The shell reloads the watch for the anchor URL when the episode
     // opens; the cache holds it, so no network call happens again.
     final cached = WatchChapterCache.peek('chapter-2');
     expect(cached, isNotNull);
-    await c.read(watchSessionProvider.notifier).load(
-      watchUrl: 'chapter-2',
-      detailUrl: 'detail',
-      meta: meta,
-    );
+    await c
+        .read(watchSessionProvider.notifier)
+        .load(watchUrl: 'chapter-2', detailUrl: 'detail', meta: meta);
     expect(resolveCalls, 3);
     expect(
       identical(
@@ -152,102 +145,95 @@ void main() {
     );
   });
 
-  test('infinite-scroll flip is answered from the cache, not the network',
-      () async {
-    final c = container();
-    c.listen(mangaReaderProvider, (_, _) {});
-    await WatchChapterCache.resolve(
-      watchUrl: 'chapter-1',
-      detailUrl: 'detail',
-      meta: meta,
-    );
-    final notifier = c.read(mangaReaderProvider.notifier);
-    notifier.open(
-      groupIndex: 0,
-      episodeIndex: 0,
-      totalPage: 2,
-      episodes: episodes(),
-      urls: pagesOf('chapter-1', 2),
-      meta: meta,
-      detailUrl: 'detail',
-      chapterName: 'Chapter 1',
-    );
-    await Future<void>.delayed(Duration.zero);
-    await Future<void>.delayed(Duration.zero);
+  test(
+    'infinite-scroll flip is answered from the cache, not the network',
+    () async {
+      final c = container();
+      c.listen(mangaReaderProvider, (_, _) {});
+      await WatchChapterCache.resolve(
+        watchUrl: 'chapter-1',
+        detailUrl: 'detail',
+        meta: meta,
+      );
+      final notifier = c.read(mangaReaderProvider.notifier);
+      notifier.open(
+        groupIndex: 0,
+        episodeIndex: 0,
+        totalPage: 2,
+        episodes: episodes(),
+        urls: pagesOf('chapter-1', 2),
+        meta: meta,
+        detailUrl: 'detail',
+        chapterName: 'Chapter 1',
+      );
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
 
-    setPositions(c, [at(2)]);
-    await Future<void>.delayed(Duration.zero);
-    await Future<void>.delayed(Duration.zero);
-    setPositions(c, [at(4)]);
+      setPositions(c, [at(2)]);
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+      setPositions(c, [at(4)]);
 
-    // One resolve per unique chapter, none repeated for chapter-2.
-    expect(
-      c.read(mangaReaderProvider).trackedSegmentIndex,
-      1,
-    );
-    expect(
-      resolvedUrls.where((u) => u == 'chapter-2').length,
-      1,
-      reason: 'chapter-2 is resolved once: by the anchor prefetch',
-    );
+      // One resolve per unique chapter, none repeated for chapter-2.
+      expect(c.read(mangaReaderProvider).trackedSegmentIndex, 1);
+      expect(
+        resolvedUrls.where((u) => u == 'chapter-2').length,
+        1,
+        reason: 'chapter-2 is resolved once: by the anchor prefetch',
+      );
 
-    // What the shell does on every episode switch: reload watch for the
-    // selected episode's URL. Chapter-2 is already in the cache from the
-    // prefetch — zero extra network calls and the exact cached result.
-    final cached = WatchChapterCache.peek('chapter-2');
-    expect(cached, isNotNull);
-    await c.read(watchSessionProvider.notifier).load(
-      watchUrl: 'chapter-2',
-      detailUrl: 'detail',
-      meta: meta,
-    );
-    expect(
-      resolvedUrls.where((u) => u == 'chapter-2').length,
-      1,
-      reason: 'flip must not re-resolve the chapter',
-    );
-    expect(
-      identical(
-        (c.read(watchSessionProvider) as AsyncData<WatchResult>).value,
-        cached,
-      ),
-      isTrue,
-    );
-  });
+      // What the shell does on every episode switch: reload watch for the
+      // selected episode's URL. Chapter-2 is already in the cache from the
+      // prefetch — zero extra network calls and the exact cached result.
+      final cached = WatchChapterCache.peek('chapter-2');
+      expect(cached, isNotNull);
+      await c
+          .read(watchSessionProvider.notifier)
+          .load(watchUrl: 'chapter-2', detailUrl: 'detail', meta: meta);
+      expect(
+        resolvedUrls.where((u) => u == 'chapter-2').length,
+        1,
+        reason: 'flip must not re-resolve the chapter',
+      );
+      expect(
+        identical(
+          (c.read(watchSessionProvider) as AsyncData<WatchResult>).value,
+          cached,
+        ),
+        isTrue,
+      );
+    },
+  );
 
-  test('flipping to an unprefetched neighbour still resolves, one call',
-      () async {
-    final c = container();
-    c.listen(mangaReaderProvider, (_, _) {});
-    // Nothing was prefetched for chapter-3 — the load falls back to the
-    // network path exactly once and lands as data.
-    await c.read(watchSessionProvider.notifier).load(
-      watchUrl: 'chapter-3',
-      detailUrl: 'detail',
-      meta: meta,
-    );
-    expect(resolveCalls, 1);
-    expect(
-      c.read(watchSessionProvider),
-      isA<AsyncData<WatchResult>>(),
-    );
-  });
+  test(
+    'flipping to an unprefetched neighbour still resolves, one call',
+    () async {
+      final c = container();
+      c.listen(mangaReaderProvider, (_, _) {});
+      // Nothing was prefetched for chapter-3 — the load falls back to the
+      // network path exactly once and lands as data.
+      await c
+          .read(watchSessionProvider.notifier)
+          .load(watchUrl: 'chapter-3', detailUrl: 'detail', meta: meta);
+      expect(resolveCalls, 1);
+      expect(c.read(watchSessionProvider), isA<AsyncData<WatchResult>>());
+    },
+  );
 
-  test('mirror change forces a re-resolve even for a cached chapter',
-      () async {
+  test('mirror change forces a re-resolve even for a cached chapter', () async {
     final c = container();
     c.listen(watchSessionProvider, (_, _) {});
-    await c.read(watchSessionProvider.notifier).load(
-      watchUrl: 'chapter-3',
-      detailUrl: 'detail',
-      meta: meta,
-    );
-    await c.read(watchSessionProvider.notifier).load(
-      watchUrl: 'chapter-3',
-      detailUrl: 'detail',
-      meta: meta,
-      mirrorUrl: 'mirror-a',
-    );
+    await c
+        .read(watchSessionProvider.notifier)
+        .load(watchUrl: 'chapter-3', detailUrl: 'detail', meta: meta);
+    await c
+        .read(watchSessionProvider.notifier)
+        .load(
+          watchUrl: 'chapter-3',
+          detailUrl: 'detail',
+          meta: meta,
+          mirrorUrl: 'mirror-a',
+        );
     expect(resolveCalls, 2);
   });
 }

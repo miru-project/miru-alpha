@@ -222,7 +222,9 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     bool visible(Favorite f) => !hidden.contains(f.package);
 
     if (favGroups.isEmpty) {
-      return hidden.isEmpty ? state.favorites : state.favorites.where(visible).toList();
+      return hidden.isEmpty
+          ? state.favorites
+          : state.favorites.where(visible).toList();
     }
     // Match by name: the database keys groups by name, and a captured
     // [FavoriteGroup] object breaks equality after a favorites refresh.

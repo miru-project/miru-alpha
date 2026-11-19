@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+
 import 'dart:ui' show lerpDouble;
 
 enum _ThumbShape { rectangle, circular }

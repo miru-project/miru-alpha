@@ -100,9 +100,9 @@ void main() {
         double.parse(c.$2.toStringAsFixed(1)),
       );
       final got = out.map((o) => r2(centroid(o))).toSet();
-      final want = sampledOf(
-        const SvgD(threeSub),
-      ).map((s) => r2(centroid(s.pts))).toSet();
+      final want = sampledOf(const SvgD(threeSub))
+          .map((s) => r2(centroid(s.pts)))
+          .toSet();
       expect(got, want);
     });
 

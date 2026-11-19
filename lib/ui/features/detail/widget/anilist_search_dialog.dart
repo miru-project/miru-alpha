@@ -12,6 +12,7 @@ import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'package:miru_alpha/ui/core/core/image_widget.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
+
 import 'anilist_tracking_dialog.dart';
 
 class AnilistSearchDialog extends HookConsumerWidget {

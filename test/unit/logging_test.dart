@@ -12,24 +12,21 @@ import 'package:miru_alpha/utils/core/log.dart';
 /// everywhere, and why subsystem tags are expressed as child loggers rather
 /// than by leaving the tree.
 void main() {
-  test(
-    'subsystem loggers reach the root listener MiruLog writes from',
-    () async {
-      final records = <LogRecord>[];
-      final subscription = Logger.root.onRecord.listen(records.add);
-      addTearDown(subscription.cancel);
+  test('subsystem loggers reach the root listener MiruLog writes from', () async {
+    final records = <LogRecord>[];
+    final subscription = Logger.root.onRecord.listen(records.add);
+    addTearDown(subscription.cancel);
 
-      Logger('${logger.name}.router').warning('Ignoring unknown ?type="bogus"');
-      await Future<void>.delayed(Duration.zero);
+    Logger('${logger.name}.router').warning('Ignoring unknown ?type="bogus"');
+    await Future<void>.delayed(Duration.zero);
 
-      expect(records, hasLength(1));
-      expect(records.single.level, Level.WARNING);
-      // The record keeps a subsystem tag, which was the one thing dart:developer
-      // offered and the plain app logger did not.
-      expect(records.single.loggerName, '${logger.name}.router');
-      expect(records.single.message, contains('?type="bogus"'));
-    },
-  );
+    expect(records, hasLength(1));
+    expect(records.single.level, Level.WARNING);
+    // The record keeps a subsystem tag, which was the one thing dart:developer
+    // offered and the plain app logger did not.
+    expect(records.single.loggerName, '${logger.name}.router');
+    expect(records.single.message, contains('?type="bogus"'));
+  });
 
   test('a dotted name is parented to the app logger', () {
     final child = Logger('${logger.name}.router');

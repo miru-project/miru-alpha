@@ -57,7 +57,10 @@ Future<({NovelReaderProvider provider, ProviderContainer container})> _pump(
 
   final source = content ?? _chapter();
   final blocks = [
-    const NovelChapterHeader(title: 'The Thirteenth Tale', eyebrow: 'Chapter 1'),
+    const NovelChapterHeader(
+      title: 'The Thirteenth Tale',
+      eyebrow: 'Chapter 1',
+    ),
     ...parseNovelContent(source),
   ];
   final provider = novelReaderProvider;

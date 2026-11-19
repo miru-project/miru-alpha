@@ -80,11 +80,7 @@ class ChapterBoundaryTile extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           if (nextLoading) ...[
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: FCircularProgress(),
-            ),
+            const SizedBox(width: 20, height: 20, child: FCircularProgress()),
             const SizedBox(height: 6),
             Text(
               'reader.manga.loading_chapter'.i18n,
@@ -143,11 +139,7 @@ class ChapterLoadingTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 48),
       child: Column(
         children: [
-          const SizedBox(
-            width: 28,
-            height: 28,
-            child: FCircularProgress(),
-          ),
+          const SizedBox(width: 28, height: 28, child: FCircularProgress()),
           const SizedBox(height: 10),
           Text(
             'reader.manga.loading_chapter'.i18n,
@@ -182,11 +174,7 @@ class ChapterLoadErrorTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
         child: Column(
           children: [
-            Icon(
-              FLucideIcons.circleAlert,
-              size: 28,
-              color: colors.destructive,
-            ),
+            Icon(FLucideIcons.circleAlert, size: 28, color: colors.destructive),
             const SizedBox(height: 10),
             if (name.isNotEmpty) ...[
               Text(
@@ -235,10 +223,7 @@ class SeriesBoundaryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.theme.colors;
     return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: 32,
-        horizontal: 24,
-      ),
+      padding: EdgeInsets.symmetric(vertical: 32, horizontal: 24),
       child: Column(
         children: [
           Icon(

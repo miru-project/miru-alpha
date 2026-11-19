@@ -533,7 +533,6 @@ List<NovelPage> _pack({
         ? firstLines[i + headerOffset]
         : startLine;
 
-
     // Taller than a whole column: it takes a full-width page of its own,
     // because the only way to fit it in a column is to cut a line in half.
     if (height > budget) {

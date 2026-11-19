@@ -5,41 +5,43 @@ import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
+
 import '../core/log.dart';
 
 typedef StartNative = Int32 Function(Int32 num, Pointer<Pointer<Utf8>> files);
 typedef Start = int Function(int num, Pointer<Pointer<Utf8>> files);
 
-typedef DlnaStreamOpenNative =
-    Int32 Function(
-      Pointer<Utf8> url,
-      Double startSec,
-      Int32 prebufferBytes,
-      Pointer<Utf8> videoFilter,
-      Pointer<Utf8> assSubtitle,
-      Pointer<Utf8> httpHeaders,
-      Pointer<Utf8> videoCodec,
-      Pointer<Utf8> audioCodec,
-      Pointer<Pointer<Void>> outStream,
-    );
-typedef DlnaStreamOpen =
-    int Function(
-      Pointer<Utf8>,
-      double,
-      int,
-      Pointer<Utf8>,
-      Pointer<Utf8>,
-      Pointer<Utf8>,
-      Pointer<Utf8>,
-      Pointer<Utf8>,
-      Pointer<Pointer<Void>>,
-    );
+typedef DlnaStreamOpenNative = Int32 Function(
+  Pointer<Utf8> url,
+  Double startSec,
+  Int32 prebufferBytes,
+  Pointer<Utf8> videoFilter,
+  Pointer<Utf8> assSubtitle,
+  Pointer<Utf8> httpHeaders,
+  Pointer<Utf8> videoCodec,
+  Pointer<Utf8> audioCodec,
+  Pointer<Pointer<Void>> outStream,
+);
+typedef DlnaStreamOpen = int Function(
+  Pointer<Utf8>,
+  double,
+  int,
+  Pointer<Utf8>,
+  Pointer<Utf8>,
+  Pointer<Utf8>,
+  Pointer<Utf8>,
+  Pointer<Utf8>,
+  Pointer<Pointer<Void>>,
+);
 
 typedef DlnaHasLibassNative = Int32 Function();
 typedef DlnaHasLibass = int Function();
 
-typedef DlnaStreamPumpNative =
-    Int32 Function(Pointer<Void> stream, Pointer<Uint8> buf, Int32 cap);
+typedef DlnaStreamPumpNative = Int32 Function(
+  Pointer<Void> stream,
+  Pointer<Uint8> buf,
+  Int32 cap,
+);
 typedef DlnaStreamPump = int Function(Pointer<Void>, Pointer<Uint8>, int);
 
 typedef DlnaStreamSeekNative = Int32 Function(Pointer<Void> stream, Double sec);

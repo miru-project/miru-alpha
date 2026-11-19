@@ -334,7 +334,10 @@ class ScrollOffsetController {
   /// looks exactly like an approach to the head and fires both neighbours'
   /// fetches at once.
   ScrollDirection get userScrollDirection =>
-      _scrollableListState?.primary.scrollController.position
+      _scrollableListState
+          ?.primary
+          .scrollController
+          .position
           .userScrollDirection ??
       ScrollDirection.idle;
 
@@ -647,9 +650,8 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
             vsync: this,
             duration: duration,
           )..forward();
-          opacity.parent = _opacityAnimation(
-            opacityAnimationWeights,
-          ).animate(_animationController!);
+          opacity.parent = _opacityAnimation(opacityAnimationWeights)
+              .animate(_animationController!);
           secondary.scrollController.jumpTo(
             -direction *
                 (_screenScrollCount *

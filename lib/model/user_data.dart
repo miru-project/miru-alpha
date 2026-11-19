@@ -1,5 +1,6 @@
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:json_annotation/json_annotation.dart';
+
 import './model.dart';
 
 part 'user_data.g.dart';

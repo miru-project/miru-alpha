@@ -89,9 +89,8 @@ class SettingNetwork extends HookConsumerWidget {
                 title: Text('settings.proxy.name'.i18n),
                 subtitle: Text('settings.proxy.information'.i18n),
                 onPress: () {
-                  Navigator.of(
-                    context,
-                  ).push(RouterUtil.createRoute(MobileProxyPage()));
+                  Navigator.of(context)
+                      .push(RouterUtil.createRoute(MobileProxyPage()));
                 },
               ),
               FTile(

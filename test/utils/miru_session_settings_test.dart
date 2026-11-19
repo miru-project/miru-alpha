@@ -22,11 +22,9 @@ void main() {
   test('a tracked write mirrors into the session file', () {
     MiruSettings.setSettingSync('Theme', 'dark');
 
-    final written =
-        jsonDecode(
-              File(MiruSettings.sessionFilePathOverride!).readAsStringSync(),
-            )
-            as Map<String, dynamic>;
+    final written = jsonDecode(
+      File(MiruSettings.sessionFilePathOverride!).readAsStringSync(),
+    ) as Map<String, dynamic>;
     expect(written['Theme'], 'dark');
     expect(
       MiruSettings.getSettingSync<String>('Theme'),
@@ -43,9 +41,8 @@ void main() {
   });
 
   test('loadSessionSettings overrides the seeded defaults', () {
-    File(
-      MiruSettings.sessionFilePathOverride!,
-    ).writeAsStringSync(jsonEncode({'Theme': 'light', 'Language': 'zh'}));
+    File(MiruSettings.sessionFilePathOverride!)
+        .writeAsStringSync(jsonEncode({'Theme': 'light', 'Language': 'zh'}));
 
     // Simulate the bootstrap order: defaults first, session copy second.
     MiruSettings.seedDefaultsForTest();

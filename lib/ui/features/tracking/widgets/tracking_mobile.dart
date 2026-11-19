@@ -6,6 +6,7 @@ import 'package:miru_alpha/model/anilist_model.dart';
 import 'package:miru_alpha/provider/tracking/anilist_provider.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
+
 import 'anilist_media_card.dart';
 
 class MobileUserHeader extends ConsumerWidget {

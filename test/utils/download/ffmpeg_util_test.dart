@@ -334,9 +334,8 @@ void main() {
       final streamUrl = await server.streamUrl(hls);
 
       final client = HttpClient();
-      final response = await (await client.getUrl(
-        Uri.parse(streamUrl),
-      )).close();
+      final response = await (await client.getUrl(Uri.parse(streamUrl)))
+          .close();
       expect(response.statusCode, 200);
 
       // The renderer stand-in: count bytes, verify 188-byte TS packet

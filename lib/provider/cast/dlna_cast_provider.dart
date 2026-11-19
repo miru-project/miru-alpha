@@ -248,9 +248,8 @@ class DlnaCast extends _$DlnaCast {
   /// The renderer's own rejection reason, if it sent one (UPnPError
   /// errorDescription inside the thrown exception text).
   String? _reasonFrom(Object error) {
-    final match = RegExp(
-      r'<errorDescription>([^<]+)</errorDescription>',
-    ).firstMatch(error.toString());
+    final match = RegExp(r'<errorDescription>([^<]+)</errorDescription>')
+        .firstMatch(error.toString());
     return match?.group(1);
   }
 
@@ -617,9 +616,9 @@ class DlnaCast extends _$DlnaCast {
     if (!_positionUnsupported) {
       try {
         final infoXml = await device.position();
-        final rel = RegExp(
-          r'<RelTime>([^<]+)</RelTime>',
-        ).firstMatch(infoXml)?.group(1);
+        final rel = RegExp(r'<RelTime>([^<]+)</RelTime>')
+            .firstMatch(infoXml)
+            ?.group(1);
         pos = _parseClock(rel);
         _positionFails = 0;
       } catch (e) {

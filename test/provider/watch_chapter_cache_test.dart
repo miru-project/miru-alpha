@@ -45,42 +45,47 @@ void main() {
 
   tearDown(WatchChapterCache.clear);
 
-  test('resolving the same url twice hits the cache, one network call', () async {
-    var calls = 0;
-    WatchChapterCache.resolver = ({
-      required watchUrl,
-      required detailUrl,
-      required meta,
-      mirrorUrl,
-    }) async {
-      calls++;
-      return makeResult(watchUrl);
-    };
-    final first = await WatchChapterCache.resolve(
-      watchUrl: 'chapter-1',
-      detailUrl: 'detail',
-      meta: meta,
-    );
-    final second = await WatchChapterCache.resolve(
-      watchUrl: 'chapter-1',
-      detailUrl: 'detail',
-      meta: meta,
-    );
-    expect(calls, 1);
-    expect(identical(first, second), isTrue);
-  });
+  test(
+    'resolving the same url twice hits the cache, one network call',
+    () async {
+      var calls = 0;
+      WatchChapterCache.resolver =
+          ({
+            required watchUrl,
+            required detailUrl,
+            required meta,
+            mirrorUrl,
+          }) async {
+            calls++;
+            return makeResult(watchUrl);
+          };
+      final first = await WatchChapterCache.resolve(
+        watchUrl: 'chapter-1',
+        detailUrl: 'detail',
+        meta: meta,
+      );
+      final second = await WatchChapterCache.resolve(
+        watchUrl: 'chapter-1',
+        detailUrl: 'detail',
+        meta: meta,
+      );
+      expect(calls, 1);
+      expect(identical(first, second), isTrue);
+    },
+  );
 
   test('mirror url participates in the key', () async {
     var calls = 0;
-    WatchChapterCache.resolver = ({
-      required watchUrl,
-      required detailUrl,
-      required meta,
-      mirrorUrl,
-    }) async {
-      calls++;
-      return makeResult('$watchUrl|${mirrorUrl ?? ''}');
-    };
+    WatchChapterCache.resolver =
+        ({
+          required watchUrl,
+          required detailUrl,
+          required meta,
+          mirrorUrl,
+        }) async {
+          calls++;
+          return makeResult('$watchUrl|${mirrorUrl ?? ''}');
+        };
     await WatchChapterCache.resolve(
       watchUrl: 'chapter-1',
       detailUrl: 'detail',
@@ -134,22 +139,20 @@ void main() {
 
   test('session load reuses the cached chapter instead of reloading', () async {
     var calls = 0;
-    WatchChapterCache.resolver = ({
-      required watchUrl,
-      required detailUrl,
-      required meta,
-      mirrorUrl,
-    }) async {
-      calls++;
-      return makeResult(watchUrl);
-    };
+    WatchChapterCache.resolver =
+        ({
+          required watchUrl,
+          required detailUrl,
+          required meta,
+          mirrorUrl,
+        }) async {
+          calls++;
+          return makeResult(watchUrl);
+        };
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final states = <Object>[];
-    container.listen(
-      watchSessionProvider,
-      (_, next) => states.add(next),
-    );
+    container.listen(watchSessionProvider, (_, next) => states.add(next));
     // The infinite window resolving the anchor's sibling fills the cache
     // through the shared helper, exactly like the reader does.
     await WatchChapterCache.resolve(
@@ -162,9 +165,6 @@ void main() {
         .load(watchUrl: 'chapter-2', detailUrl: 'detail', meta: meta);
     expect(calls, 1, reason: 'session consumed the window-resolved chapter');
     expect(states.whereType<AsyncLoading>(), isEmpty);
-    expect(
-      container.read(watchSessionProvider),
-      isA<AsyncData<WatchResult>>(),
-    );
+    expect(container.read(watchSessionProvider), isA<AsyncData<WatchResult>>());
   });
 }

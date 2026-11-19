@@ -826,9 +826,7 @@ void main() {
     final fakeEpisodesState = EpisodeNotifierState(
       name: 'TestManga',
       selectedEpisodeIndex: entryChapter,
-      epGroup: [
-        ExtensionEpisodeGroup(title: 'Volume 1', urls: episodes()),
-      ],
+      epGroup: [ExtensionEpisodeGroup(title: 'Volume 1', urls: episodes())],
     );
     final container = ProviderContainer(
       overrides: [

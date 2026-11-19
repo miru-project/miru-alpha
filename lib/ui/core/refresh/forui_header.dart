@@ -212,13 +212,10 @@ class _ForuiIndicatorState extends State<_ForuiIndicator>
       case _ThetaPhase.spinning:
         _theta =
             _spinTheta0 +
-            elapsed.inMicroseconds /
-                _spinPeriod.inMicroseconds *
-                _twoPi;
+            elapsed.inMicroseconds / _spinPeriod.inMicroseconds * _twoPi;
         setState(() {});
       case _ThetaPhase.toAngle || _ThetaPhase.settling:
-        final t = (elapsed.inMicroseconds /
-                _tweenDuration.inMicroseconds)
+        final t = (elapsed.inMicroseconds / _tweenDuration.inMicroseconds)
             .clamp(0.0, 1.0);
         _theta = _from + (_to - _from) * _tweenCurve.transform(t);
         setState(() {});

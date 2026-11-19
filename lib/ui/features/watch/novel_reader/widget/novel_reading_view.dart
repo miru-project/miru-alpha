@@ -590,9 +590,8 @@ class _ContinuousProse extends ConsumerWidget {
               paper: paper,
               typography: typography,
               dropCapWidth: dropCapWidth,
-              onRetryChapter: (episodeIndex) => ref
-                  .read(novelProvider.notifier)
-                  .retrySegment(episodeIndex),
+              onRetryChapter: (episodeIndex) =>
+                  ref.read(novelProvider.notifier).retrySegment(episodeIndex),
             );
           }
           return _ProseBody(
@@ -609,9 +608,8 @@ class _ContinuousProse extends ConsumerWidget {
                 paper: paper,
                 typography: typography,
                 dropCapWidth: dropCapWidth,
-                onRetryChapter: (episodeIndex) => ref
-                    .read(novelProvider.notifier)
-                    .retrySegment(episodeIndex),
+                onRetryChapter: (episodeIndex) =>
+                    ref.read(novelProvider.notifier).retrySegment(episodeIndex),
               ),
             ],
           );

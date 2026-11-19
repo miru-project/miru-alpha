@@ -58,38 +58,37 @@ ItemPosition? _at(Iterable<ItemPosition> positions, int index) {
 }
 
 void main() {
-  testWidgets(
-    'prepend keeps the same logical item at the same anchor',
-    (tester) async {
-      await tester.pumpWidget(const _Harness());
-      await tester.pumpAndSettle();
+  testWidgets('prepend keeps the same logical item at the same anchor', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const _Harness());
+    await tester.pumpAndSettle();
 
-      final harness = tester.state<_HarnessState>(find.byType(_Harness));
+    final harness = tester.state<_HarnessState>(find.byType(_Harness));
 
-      // Land on item 2; it anchors to the top of the viewport.
-      harness.itemController.jumpTo(index: 2);
-      await tester.pumpAndSettle();
+    // Land on item 2; it anchors to the top of the viewport.
+    harness.itemController.jumpTo(index: 2);
+    await tester.pumpAndSettle();
 
-      final before = _positions(harness).toList();
-      final targetBefore = _at(before, 2);
-      expect(targetBefore, isNotNull);
-      expect(targetBefore!.itemLeadingEdge, closeTo(0, 0.01));
+    final before = _positions(harness).toList();
+    final targetBefore = _at(before, 2);
+    expect(targetBefore, isNotNull);
+    expect(targetBefore!.itemLeadingEdge, closeTo(0, 0.01));
 
-      // Three items are prepended above it.
-      harness.insertBefore(3);
-      await tester.pumpAndSettle();
+    // Three items are prepended above it.
+    harness.insertBefore(3);
+    await tester.pumpAndSettle();
 
-      final after = _positions(harness).toList();
-      final targetAfter = _at(after, 5);
-      expect(targetAfter, isNotNull);
-      // Same logical item, same anchor: insertion moved nothing on screen.
-      expect(targetAfter!.itemLeadingEdge, closeTo(0, 0.01));
+    final after = _positions(harness).toList();
+    final targetAfter = _at(after, 5);
+    expect(targetAfter, isNotNull);
+    // Same logical item, same anchor: insertion moved nothing on screen.
+    expect(targetAfter!.itemLeadingEdge, closeTo(0, 0.01));
 
-      // The fork's own jump API still works afterwards.
-      harness.itemController.jumpTo(index: 0);
-      await tester.pumpAndSettle();
-      final reset = _positions(harness).toList();
-      expect(_at(reset, 0)!.itemLeadingEdge, closeTo(0, 0.01));
-    },
-  );
+    // The fork's own jump API still works afterwards.
+    harness.itemController.jumpTo(index: 0);
+    await tester.pumpAndSettle();
+    final reset = _positions(harness).toList();
+    expect(_at(reset, 0)!.itemLeadingEdge, closeTo(0, 0.01));
+  });
 }

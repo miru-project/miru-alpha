@@ -43,12 +43,10 @@ List<String> _pages(String chapter, int count) => [
   for (var i = 0; i < count; i++) '$chapter-p$i',
 ];
 
-void _setPositions(
-  ProviderContainer container,
-  List<ItemPosition> positions,
-) {
-  final listener =
-      container.read(mangaReaderProvider.notifier).itemPositionsListener;
+void _setPositions(ProviderContainer container, List<ItemPosition> positions) {
+  final listener = container
+      .read(mangaReaderProvider.notifier)
+      .itemPositionsListener;
   (listener as ItemPositionsNotifier).itemPositions.value = positions;
 }
 
@@ -110,10 +108,12 @@ void main() {
         urls: _pages('chapter-1', 3),
       );
       final slots = container.read(mangaReaderProvider.notifier).currentSlots();
-      expect(
-        slots.map((s) => s.kind).toList(),
-        [SlotKind.seriesStart, SlotKind.page, SlotKind.page, SlotKind.page],
-      );
+      expect(slots.map((s) => s.kind).toList(), [
+        SlotKind.seriesStart,
+        SlotKind.page,
+        SlotKind.page,
+        SlotKind.page,
+      ]);
     });
 
     test('junction lands between the two loaded chapters', () {
@@ -135,17 +135,14 @@ void main() {
         atSeriesStart: true,
         atSeriesEnd: true,
       );
-      expect(
-        slots.map((s) => s.kind).toList(),
-        [
-          SlotKind.seriesStart,
-          SlotKind.page,
-          SlotKind.page,
-          SlotKind.junction,
-          SlotKind.page,
-          SlotKind.seriesEnd,
-        ],
-      );
+      expect(slots.map((s) => s.kind).toList(), [
+        SlotKind.seriesStart,
+        SlotKind.page,
+        SlotKind.page,
+        SlotKind.junction,
+        SlotKind.page,
+        SlotKind.seriesEnd,
+      ]);
     });
 
     test('loading segment contributes one placeholder slot', () {
@@ -168,10 +165,11 @@ void main() {
         atSeriesStart: false,
         atSeriesEnd: false,
       );
-      expect(
-        slots.map((s) => s.kind).toList(),
-        [SlotKind.page, SlotKind.junction, SlotKind.loading],
-      );
+      expect(slots.map((s) => s.kind).toList(), [
+        SlotKind.page,
+        SlotKind.junction,
+        SlotKind.loading,
+      ]);
     });
 
     test('failed segment contributes one error slot', () {
@@ -226,7 +224,11 @@ void main() {
       // Only the anchor exists at open; nothing loads until the viewport
       // nears an edge.
       expect(
-        container.read(mangaReaderProvider).segments.map((s) => s.episodeIndex).toList(),
+        container
+            .read(mangaReaderProvider)
+            .segments
+            .map((s) => s.episodeIndex)
+            .toList(),
         [0],
       );
       // Position the viewport on the last anchor page — the prefetch trigger
@@ -235,7 +237,11 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       await Future<void>.delayed(Duration.zero);
       expect(
-        container.read(mangaReaderProvider).segments.map((s) => s.episodeIndex).toList(),
+        container
+            .read(mangaReaderProvider)
+            .segments
+            .map((s) => s.episodeIndex)
+            .toList(),
         [0, 1],
       );
       // The junction tile sits at flat 2 — scroll into it and the next chapter
@@ -244,10 +250,7 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       await Future<void>.delayed(Duration.zero);
       final state = container.read(mangaReaderProvider);
-      expect(
-        state.segments.map((s) => s.episodeIndex).toList(),
-        [0, 1, 2],
-      );
+      expect(state.segments.map((s) => s.episodeIndex).toList(), [0, 1, 2]);
       expect(state.segments[1].items, isNotNull);
       expect(state.segments[1].loading, isFalse);
       expect(state.segments[2].items, isNotNull);
@@ -268,70 +271,73 @@ void main() {
       final state = container.read(mangaReaderProvider);
       // Near the top loads A; the same prefetch loads C at the other edge —
       // both neighbors are legitimate prefetches of a small window.
-      expect(
-        state.segments.map((s) => s.episodeIndex).toList(),
-        [0, 1, 2],
-      );
+      expect(state.segments.map((s) => s.episodeIndex).toList(), [0, 1, 2]);
       // The anchor moved one slot into the list; the tracked index follows.
       expect(state.trackedSegmentIndex, 1);
       expect(state.totalPage, 2);
     });
 
-    test('crossing the junction flips attribution to the next chapter', () async {
-      final flips = <int>[];
-      final container = _container();
-      _open(
-        container,
-        episodes: _episodes(3),
-        episodeIndex: 0,
-        urls: _pages('chapter-1', 2),
-        onFlip: (groupIndex, episodeIndex) => flips.add(episodeIndex),
-      );
-      _setPositions(container, [_at(2)]);
-      await Future<void>.delayed(Duration.zero);
-      await Future<void>.delayed(Duration.zero);
-      // Slots now: [seriesStart=0, a0=1, a1=2, junction=3, b0=4, b1=5]
-      _setPositions(container, [_at(4)]);
-      final state = container.read(mangaReaderProvider);
-      expect(state.trackedSegmentIndex, 1);
-      expect(state.totalPage, 2);
-      expect(state.itemPosition, 0);
-      expect(flips, [1]);
-      // The shell consumes the flip exactly once.
-      expect(
-        container.read(mangaReaderProvider.notifier).consumeChapterFlip(),
-        isTrue,
-      );
-      expect(
-        container.read(mangaReaderProvider.notifier).consumeChapterFlip(),
-        isFalse,
-      );
-    });
+    test(
+      'crossing the junction flips attribution to the next chapter',
+      () async {
+        final flips = <int>[];
+        final container = _container();
+        _open(
+          container,
+          episodes: _episodes(3),
+          episodeIndex: 0,
+          urls: _pages('chapter-1', 2),
+          onFlip: (groupIndex, episodeIndex) => flips.add(episodeIndex),
+        );
+        _setPositions(container, [_at(2)]);
+        await Future<void>.delayed(Duration.zero);
+        await Future<void>.delayed(Duration.zero);
+        // Slots now: [seriesStart=0, a0=1, a1=2, junction=3, b0=4, b1=5]
+        _setPositions(container, [_at(4)]);
+        final state = container.read(mangaReaderProvider);
+        expect(state.trackedSegmentIndex, 1);
+        expect(state.totalPage, 2);
+        expect(state.itemPosition, 0);
+        expect(flips, [1]);
+        // The shell consumes the flip exactly once.
+        expect(
+          container.read(mangaReaderProvider.notifier).consumeChapterFlip(),
+          isTrue,
+        );
+        expect(
+          container.read(mangaReaderProvider.notifier).consumeChapterFlip(),
+          isFalse,
+        );
+      },
+    );
 
-    test('flipping upward into the previous chapter attributes pages to it', () async {
-      final flips = <int>[];
-      final container = _container();
-      _open(
-        container,
-        episodes: _episodes(3),
-        episodeIndex: 1,
-        urls: _pages('chapter-2', 2),
-        onFlip: (groupIndex, episodeIndex) => flips.add(episodeIndex),
-      );
-      _setPositions(container, [_at(1)]);
-      await Future<void>.delayed(Duration.zero);
-      await Future<void>.delayed(Duration.zero);
-      // Slots now: [seriesStart=0, a0=1, a1=2, junction=3, b0=4, b1=5]
-      for (var frame = 0; frame < 4; frame++) {
+    test(
+      'flipping upward into the previous chapter attributes pages to it',
+      () async {
+        final flips = <int>[];
+        final container = _container();
+        _open(
+          container,
+          episodes: _episodes(3),
+          episodeIndex: 1,
+          urls: _pages('chapter-2', 2),
+          onFlip: (groupIndex, episodeIndex) => flips.add(episodeIndex),
+        );
         _setPositions(container, [_at(1)]);
         await Future<void>.delayed(Duration.zero);
-      }
-      final state = container.read(mangaReaderProvider);
-      expect(state.trackedSegmentIndex, 0);
-      expect(state.totalPage, 2);
-      expect(state.itemPosition, 0);
-      expect(flips, [0]);
-    });
+        await Future<void>.delayed(Duration.zero);
+        // Slots now: [seriesStart=0, a0=1, a1=2, junction=3, b0=4, b1=5]
+        for (var frame = 0; frame < 4; frame++) {
+          _setPositions(container, [_at(1)]);
+          await Future<void>.delayed(Duration.zero);
+        }
+        final state = container.read(mangaReaderProvider);
+        expect(state.trackedSegmentIndex, 0);
+        expect(state.totalPage, 2);
+        expect(state.itemPosition, 0);
+        expect(flips, [0]);
+      },
+    );
 
     test('failed fetch lands an error slot and retry refetches', () async {
       var failNext = true;
@@ -391,7 +397,14 @@ void main() {
         }
         attrs.add('ch${state.trackedSegmentIndex}:p${state.itemPosition}');
       }
-      expect(attrs, ['ch0:p0', 'ch0:p1', 'ch1:p0', 'ch1:p1', 'ch2:p0', 'ch2:p1']);
+      expect(attrs, [
+        'ch0:p0',
+        'ch0:p1',
+        'ch1:p0',
+        'ch1:p1',
+        'ch2:p0',
+        'ch2:p1',
+      ]);
       // Crossing each boundary forward fires the flip exactly once.
       expect(flips, [0, 1, 2]);
     });

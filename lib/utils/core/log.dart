@@ -4,6 +4,7 @@ import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
+
 import '../store/storage_index.dart';
 
 final logger = Logger('Miru_alpha');
@@ -30,9 +31,8 @@ class MiruLog {
 
   // Write log to the dir that contains the executable file
   static void defaultError(Object error, StackTrace stack) {
-    File(
-      defaultLogFilePath,
-    ).writeAsStringSync('${error.toString()}\n${stack.toString()}');
+    File(defaultLogFilePath)
+        .writeAsStringSync('${error.toString()}\n${stack.toString()}');
   }
 
   static void _recordLog(LogRecord record) {
@@ -91,9 +91,8 @@ class MiruLog {
           'error: $error\n'
           'stack:\n$stack\n'
           '----------------------------------------\n';
-      File(
-        crashLogFilePath,
-      ).writeAsStringSync(entry, mode: FileMode.append, flush: true);
+      File(crashLogFilePath)
+          .writeAsStringSync(entry, mode: FileMode.append, flush: true);
       if (File(crashLogFilePath).lengthSync() > 1024 * 1024 * 5) {
         File(crashLogFilePath).deleteSync();
       }

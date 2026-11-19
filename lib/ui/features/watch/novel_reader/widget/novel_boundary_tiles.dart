@@ -76,11 +76,7 @@ class NovelBoundaryTile extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           if (loading) ...[
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: FCircularProgress(),
-            ),
+            const SizedBox(width: 20, height: 20, child: FCircularProgress()),
             const SizedBox(height: 6),
             Text(
               'reader.manga.loading_chapter'.i18n,
@@ -118,17 +114,11 @@ class NovelBoundaryTile extends StatelessWidget {
     );
 
     if (!failed) {
-      return SizedBox(
-        height: NovelSpacing.boundaryExtent,
-        child: body,
-      );
+      return SizedBox(height: NovelSpacing.boundaryExtent, child: body);
     }
     return FTappable(
       onPress: onRetry,
-      child: SizedBox(
-        height: NovelSpacing.boundaryExtent,
-        child: body,
-      ),
+      child: SizedBox(height: NovelSpacing.boundaryExtent, child: body),
     );
   }
 }
@@ -179,7 +169,9 @@ class NovelSeriesBoundaryTile extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
-                style: typography.body(color: paper.muted).copyWith(fontSize: 12),
+                style: typography
+                    .body(color: paper.muted)
+                    .copyWith(fontSize: 12),
               ),
             ],
           ],

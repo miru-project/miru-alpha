@@ -86,9 +86,8 @@ class DetailView extends HookConsumerWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        MiruRequest.proxyUrl(
-                          viewModelAsync.value!.cover!,
-                        ).toString(),
+                        MiruRequest.proxyUrl(viewModelAsync.value!.cover!)
+                            .toString(),
                         width: 160,
                         height: 220,
                         fit: BoxFit.cover,

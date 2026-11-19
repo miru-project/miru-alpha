@@ -24,7 +24,8 @@ class WatchChapterCache {
     required String detailUrl,
     required ExtensionMeta meta,
     String? mirrorUrl,
-  }) resolver = _defaultResolve;
+  })
+  resolver = _defaultResolve;
 
   static Future<WatchResult> _defaultResolve({
     required String watchUrl,

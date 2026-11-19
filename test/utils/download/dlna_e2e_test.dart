@@ -330,9 +330,9 @@ class _FakeDlnaRenderer {
         switch (action) {
           case 'SetAVTransportURI':
             final raw =
-                RegExp(
-                  r'<CurrentURI>([^<]+)</CurrentURI>',
-                ).firstMatch(body)?.group(1) ??
+                RegExp(r'<CurrentURI>([^<]+)</CurrentURI>')
+                    .firstMatch(body)
+                    ?.group(1) ??
                 '';
             currentUri = raw
                 .replaceAll('&', '&')
@@ -362,9 +362,9 @@ class _FakeDlnaRenderer {
               return;
             }
             pushedPi.add(
-              RegExp(
-                    r'<res protocolInfo="([^"]+)"',
-                  ).firstMatch(body)?.group(1) ??
+              RegExp(r'<res protocolInfo="([^"]+)"')
+                      .firstMatch(body)
+                      ?.group(1) ??
                   '',
             );
             pushedExt.add(
@@ -418,9 +418,9 @@ class _FakeDlnaRenderer {
             );
           case 'Seek':
             seekCount++;
-            final target = RegExp(
-              r'<Target>([^<]+)</Target>',
-            ).firstMatch(body)?.group(1);
+            final target = RegExp(r'<Target>([^<]+)</Target>')
+                .firstMatch(body)
+                ?.group(1);
             final m = RegExp(r'(\d+):(\d+):(\d+)').firstMatch(target ?? '');
             if (m != null) {
               position = Duration(

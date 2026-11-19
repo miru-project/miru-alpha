@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:miru_alpha/model/anilist_model.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
