@@ -36,6 +36,13 @@ class MainActivity : FlutterActivity() {
                             }
                         }
                     }
+                    "getSupportedAbis" -> {
+                        try {
+                            result.success(supportedAbis())
+                        } catch (error: Exception) {
+                            result.error("ABI_UNAVAILABLE", error.message, null)
+                        }
+                    }
                     else -> result.notImplemented()
                 }
             }
@@ -57,4 +64,15 @@ class MainActivity : FlutterActivity() {
         }
         startActivity(intent)
     }
+
+    /**
+     * The ABIs this build can run, most preferred first.
+     *
+     * Dart cannot ask Android which ABIs it supports, and the update feed
+     * carries one APK per ABI — choosing one by name needs this list, or a
+     * device is handed an APK it cannot install
+     * (INSTALL_FAILED_NO_MATCHING_ABIS).
+     */
+    private fun supportedAbis(): List<String> =
+        android.os.Build.SUPPORTED_ABIS.toList()
 }

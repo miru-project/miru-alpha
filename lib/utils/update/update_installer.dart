@@ -37,6 +37,89 @@ class UpdateInstaller {
       currentUpdatePlatform == UpdatePlatform.linux ||
       currentUpdatePlatform == UpdatePlatform.windows;
 
+  /// The CPU architecture the release names use (`x64`, `arm64`, `armv7l`), or
+  /// null when the host will not say.
+  ///
+  /// Only used to break a tie when a release carries one archive per
+  /// architecture; with a single build per OS it changes nothing.
+  ///
+  /// Windows reads the environment rather than spawning `cmd /c echo ...`,
+  /// which would flash a console window. Linux asks `uname -m`, which has no
+  /// window to flash.
+  static String? _archToken;
+
+  static String? get desktopArchToken {
+    final cached = _archToken;
+    if (cached != null) return cached;
+
+    String? raw;
+    try {
+      if (Platform.isWindows) {
+        raw = Platform.environment['PROCESSOR_ARCHITECTURE'];
+      } else if (Platform.isLinux) {
+        raw = Process.runSync('uname', ['-m']).stdout.trim();
+      }
+    } catch (error, stackTrace) {
+      logger.warning(
+        'Could not detect the CPU architecture',
+        error,
+        stackTrace,
+      );
+    }
+
+    _archToken = switch (raw?.toLowerCase()) {
+      'x86_64' || 'amd64' || 'x64' => 'x64',
+      'aarch64' || 'arm64' => 'arm64',
+      'armv7l' || 'armv8l' || 'arm' => 'armv7l',
+      _ => null,
+    };
+    return _archToken;
+  }
+
+  /// The ABIs this Android build can run, most preferred first.
+  ///
+  /// `Build.SUPPORTED_ABIS` from the host side: Dart exposes no equivalent,
+  /// and the asset name is the only thing that says which APK is which. Empty
+  /// on every other platform, and empty on Android until
+  /// [warmUpPlatformInfo] has run — [pickUpdateAsset] then falls back to its
+  /// generic preference order instead of guessing wrong.
+  static List<String> _supportedAbis = const [];
+
+  static List<String> get supportedAbis => _supportedAbis;
+
+  /// Resolves everything [pickUpdateAsset] needs about the host.
+  ///
+  /// Called once per update check, off the widget path: the ABI list costs a
+  /// platform-channel round trip and the Linux architecture costs a process
+  /// spawn, and neither should happen inside `build`.
+  static Future<void> warmUpPlatformInfo() async {
+    if (_supportedAbis.isEmpty &&
+        currentUpdatePlatform == UpdatePlatform.android) {
+      try {
+        final abis = await _channel.invokeListMethod<String>(
+          'getSupportedAbis',
+        );
+        if (abis != null && abis.isNotEmpty) {
+          _supportedAbis = abis;
+          logger.info('This build supports the ABIs: ${abis.join(', ')}');
+        }
+      } catch (error, stackTrace) {
+        // An older app, or a build without the Kotlin shim: pickUpdateAsset's
+        // fallback order still lands on a working APK for a 64-bit device.
+        logger.warning('Could not read the supported ABIs', error, stackTrace);
+      }
+    }
+    if (currentUpdatePlatform == UpdatePlatform.linux ||
+        currentUpdatePlatform == UpdatePlatform.windows) {
+      // Touch the getter now so the widget's `asset` lookup reads the cache
+      // instead of spawning `uname` during a build.
+      logger.fine(
+        'Release assets will be matched for arch: '
+        '${desktopArchToken ?? 'unknown'}',
+      );
+    }
+  }
+
   /// Opens the release page in the system browser — the fallback when the
   /// release carries no installable asset for this platform, or when the
   /// update itself was refused.

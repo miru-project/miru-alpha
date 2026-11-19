@@ -94,7 +94,12 @@ class AppUpdateState {
 
   MiruReleaseAsset? get asset => release == null
       ? null
-      : pickUpdateAsset(release!.assets, platform: currentUpdatePlatform);
+      : pickUpdateAsset(
+          release!.assets,
+          platform: currentUpdatePlatform,
+          androidAbis: UpdateInstaller.supportedAbis,
+          desktopArch: UpdateInstaller.desktopArchToken,
+        );
 
   /// Whether the release page should be offered instead of a download —
   /// no asset for this platform, or nothing to install at all.
@@ -270,6 +275,10 @@ class AppUpdate extends _$AppUpdate {
     try {
       final service = ref.read(updateServiceProvider);
       _token = CancelToken();
+      // Resolved before the state lands: the banner reads `asset` while
+      // building, and both values (an Android ABI list, a Linux `uname`) cost
+      // a platform round trip that must not happen there.
+      await UpdateInstaller.warmUpPlatformInfo();
       final release = await service.fetchLatestRelease(cancelToken: _token);
       if (!ref.mounted) return;
 
