@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Paths the app's FileProvider may expose to other apps. Only the private
+  files dir is shared, and only so the update flow can hand a downloaded APK
+  to the system package installer.
+-->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <files-path name="files" path="." />
+    <cache-path name="cache" path="." />
+</paths>

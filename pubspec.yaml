@@ -104,6 +104,7 @@ dependencies:
   share_plus: ^13.3.0
   sensors_plus: ^7.1.1
   dlna_dart: ^0.1.1
+  flutter_markdown_plus: ^1.0.12
 
 dev_dependencies:
   flutter_test:

@@ -5,11 +5,14 @@ import 'package:forui/forui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:miru_alpha/ui/features/setting/setting_network.dart';
 import 'package:miru_alpha/ui/features/setting/setting_general.dart';
+import 'package:miru_alpha/ui/features/setting/widget/settings_update_alert.dart';
 import 'package:miru_alpha/ui/features/main_page/desktop_sidebar.dart'
     show SafeFSidebar;
 import 'package:miru_alpha/utils/router/router_util.dart';
+
 import 'setting_extension.dart';
 import 'setting_log.dart';
+
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/ui/core/index.dart';
 import 'package:miru_alpha/provider/dev_tool_provider.dart';
@@ -127,6 +130,10 @@ class _SettingItemsState extends ConsumerState<SettingPage> {
       ],
       desktopBody: _DesktopSettingsBody(selected: widget.selected),
       slivers: [
+        // The auto-update banner is the first thing on the settings landing
+        // page (user directive 2026-11-19) — it renders nothing when there is
+        // no newer build, so a clean check leaves the list untouched.
+        const SliverToBoxAdapter(child: SettingsUpdateAlert()),
         SliverPadding(
           padding: .only(bottom: 80),
           sliver: SliverList(

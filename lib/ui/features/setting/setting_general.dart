@@ -8,7 +8,9 @@ import 'package:miru_alpha/ui/features/extension/view_models/extension_view_mode
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
 import 'package:miru_alpha/ui/core/index.dart';
+import 'package:miru_alpha/ui/features/setting/widget/settings_update_alert.dart';
 import 'package:miru_alpha/utils/setting_dir_index.dart';
+import 'package:miru_alpha/provider/app_update_provider.dart';
 
 class SettingGeneral extends HookConsumerWidget {
   const SettingGeneral({super.key, this.isMobileLayout = false});
@@ -22,6 +24,9 @@ class SettingGeneral extends HookConsumerWidget {
       // reads as truncation). 40 keeps a clear gap at max scroll.
       padding: .fromLTRB(0, 0, 0, 40),
       children: [
+        // Desktop only: the mobile settings root page already shows this
+        // banner above the section list, so the General pane would repeat it.
+        if (!isMobileLayout) const SettingsUpdateAlert(),
         SettingGroup(
           isMobileLayout: isMobileLayout,
           title: 'settings.labels.content.name',
@@ -161,6 +166,17 @@ class SettingGeneral extends HookConsumerWidget {
                   value.toString(),
                 );
               },
+            ),
+
+            // Manual trigger: the automatic check only runs at launch and
+            // only when the toggle above is on, so the banner needs a way to
+            // be summoned (and retried) from the page it lives on.
+            SettingPressTile(
+              isMobileLayout: isMobileLayout,
+              title: 'settings.update.check_now',
+              subtitle: 'settings.update.check_now_information',
+              prefix: const Icon(FLucideIcons.refreshCw),
+              onPress: () => ref.read(appUpdateProvider.notifier).checkNow(),
             ),
 
             SettingsToggleTile(

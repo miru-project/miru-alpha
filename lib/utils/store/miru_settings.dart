@@ -112,6 +112,9 @@ class MiruSettings {
     SettingKey.miruRepoUrl: "https://miru-repo.0n0.dev",
     SettingKey.tmdbKey: "",
     SettingKey.autoCheckUpdate: 'true',
+    // Version the user chose to skip in the launch prompt ('' = never).
+    SettingKey.ignoredUpdateVersion: '',
+    SettingKey.laterUpdateVersion: '',
     SettingKey.language: 'en',
     SettingKey.novelFontSize: "18.0",
     SettingKey.theme: 'system',
@@ -370,6 +373,15 @@ class SettingKey {
   static const miruRepoUrl = "MiruRepoUrl";
   static const tmdbKey = 'TMDBKey';
   static const autoCheckUpdate = 'AutoCheckUpdate';
+
+  /// Version tag the user ignored in the launch update prompt (`v`-less, e.g.
+  /// `2.1.0`). A newer release clears the effect on its own.
+  static const ignoredUpdateVersion = 'IgnoredUpdateVersion';
+
+  /// Version tag the user pressed *Later* on. Only the launch prompt is
+  /// silenced — the settings banner keeps offering the update — and a newer
+  /// release raises the prompt again on its own.
+  static const laterUpdateVersion = 'LaterUpdateVersion';
   static const language = 'Language';
   static const novelFontSize = 'NovelFontSize';
   static const enableNSFW = 'EnableNSFW';

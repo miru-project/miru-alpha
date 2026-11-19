@@ -6,6 +6,9 @@
     <uses-permission android:name="android.permission.WRITE_MANAGE_STORAGE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- In-app updates: the app hands a downloaded APK to the system package
+         installer. Android 8+ blocks that intent without this permission. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <!-- DLNA/SSDP discovery: multicast UDP 239.255.255.250:1900 (dlna_dart). -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
     <application
@@ -37,6 +40,18 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Exposes the app's private files dir so the update flow can hand a
+             downloaded APK to the system package installer (content:// URI —
+             file:// intents are blocked between apps since Android 7). -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

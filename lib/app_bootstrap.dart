@@ -13,6 +13,8 @@ import 'package:macos_window_utils/window_manipulator.dart';
 import 'package:miru_alpha/miru_core/core.dart';
 import 'package:miru_alpha/model/extension_meta_data.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
+import 'package:miru_alpha/provider/app_update_provider.dart';
+import 'package:miru_alpha/ui/features/setting/widget/update_prompt_listener.dart';
 import 'package:miru_alpha/provider/backend_connection_provider.dart';
 import 'package:miru_alpha/utils/store/storage_index.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
@@ -21,6 +23,7 @@ import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/utils/core/log.dart';
 import 'package:miru_alpha/utils/core/system_ui.dart';
 import 'package:miru_alpha/utils/download/ffmpeg_util.dart';
+import 'package:miru_alpha/utils/update/update_installer.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/utils/router/router_util.dart';
 import 'package:miru_alpha/ui/core/core/toast.dart';
@@ -67,6 +70,21 @@ Future<void> runMiruApp({required void Function() ensureBinding}) async {
       ensureBinding();
       await MiruDirectory.ensureInitialized();
       MiruLog.ensureInitialized();
+
+      // A build an earlier launch prepared is applied here, before the window
+      // exists: the archive was unpacked next to the install when the download
+      // finished, so the swap is two renames and the new process starts
+      // itself. The user sees nothing — the old window never appears, and the
+      // new one comes up on the new build. When nothing is waiting (the usual
+      // case) this returns immediately and the launch continues normally.
+      //
+      // It runs before any file the old build might hold open is touched, and
+      // before the window is created, so no frame of the outdated app is
+      // ever shown. On Windows the swap is queued to run the moment this pid
+      // exits, so it is equally happy here.
+      if (UpdateInstaller.appliesItself) {
+        await UpdateInstaller.applyPendingUpdate();
+      }
 
       bool errPrint(
         Object error,
@@ -130,6 +148,14 @@ Future<void> runMiruApp({required void Function() ensureBinding}) async {
         }
       }
       FFMpegUtils.ensureInitialized();
+      // Housekeeping for the in-place desktop updater: drop the backup and
+      // staged folders an earlier update left behind (a build that was
+      // replaced but never launched, or a download that died before the swap).
+      // Fire-and-forget and desktop-only — it touches nothing but the
+      // updater's own folders, and it must never delay the window.
+      if (!kIsWeb && (Platform.isLinux || Platform.isWindows)) {
+        unawaited(UpdateInstaller.pruneUpdateBackups());
+      }
       Core.loadConfig();
       // Seed synchronous defaults so the first frames resolve theme/language
       // while the backend connection gate is still pending — the init page
@@ -244,6 +270,17 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
       await ref.read(backendConnectionProvider.future);
       miruEventService.start();
     });
+
+    // Auto-update (settings.labels.auto_update): one silent check per launch,
+    // after the backend gate so the network is up. Silent means the settings
+    // banner stays hidden unless a newer build exists — a launch with no news
+    // must not nag.
+    if (AppUpdate.autoCheckEnabled) {
+      Future.microtask(() async {
+        await ref.read(backendConnectionProvider.future);
+        await ref.read(appUpdateProvider.notifier).check();
+      });
+    }
     miruEventService.extensionStream.listen((data) {
       ref
           .read(extensionPageProvider.notifier)
@@ -309,7 +346,11 @@ class _App extends ConsumerState<App> with WidgetsBindingObserver {
       // one fired from the error handler re-enters that handler every frame.
       builder: (context, child) => FTheme(
         data: c.themeData,
-        child: FToaster(child: child!),
+        child: FToaster(
+          // Above the router: sees the update state for every route, and
+          // raises the launch prompt when a newer build is found.
+          child: UpdatePromptListener(child: child!),
+        ),
       ),
       themeMode: c.themeMode,
       title: 'Miru Alpha',
