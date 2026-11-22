@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:forui/forui.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -7,9 +8,13 @@ import 'package:miru_alpha/model/user_data.dart';
 import 'package:miru_alpha/provider/extension_page_notifier_provider.dart';
 import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/ui/core/index.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:miru_alpha/ui/features/favorite/widget/desktop_favorite_search_bar.dart';
 import 'package:miru_alpha/ui/features/favorite/widget/favorite_group_sheet.dart';
+import 'package:miru_alpha/ui/features/search/widget/search_filter_controls.dart';
 import 'package:miru_alpha/ui/features/history_favorite/shared/list_helpers.dart';
+import 'package:miru_alpha/ui/features/search/widget/search_field.dart';
+import 'package:miru_alpha/ui/features/search/widget/search_page_header.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 
@@ -70,12 +75,22 @@ class _FavoriteViewState extends ConsumerState<FavoriteView> {
   }
 
   Widget _buildTile(BuildContext context, Favorite favorite) {
-    final meta = ref
-        .read(extensionPageProvider)
-        .metaData
-        .where((e) => e.packageName == favorite.package)
-        .firstOrNull;
-    final subtitle = meta?.name ?? 'common.package_not_found'.i18n;
+    // AniList progress line (Rank 3): "WATCHING · Ep 8/12" when the account
+    // is linked and the title matches an entry. Read from the favorite state's
+    // `anilistByTitle` join via `select` — the favorite page is ONE service
+    // now (no separate lookup provider). `select` on the specific title's
+    // entry so only the cards whose AniList data changes rebuild.
+    final anilist = ref.watch(
+      favoritePageProvider.select(
+        (s) => s.anilistByTitle[normalizeTitle(favorite.title)],
+      ),
+    );
+    // When a type is selected, every card is that type — the type badge on
+    // each cover is redundant (the header already says "Video"/"Manga"/
+    // "Novel"), so hide it to declutter.
+    final hideTypeBadge = ref
+        .watch(favoritePageProvider.select((s) => s.selectedTypes))
+        .isNotEmpty;
     return Dismissible(
       key: Key(favorite.id.toString()),
       direction: DismissDirection.endToStart,
@@ -95,10 +110,17 @@ class _FavoriteViewState extends ConsumerState<FavoriteView> {
         await _confirmDelete(context, favorite);
         return false;
       },
-      child: MiruMobileTile(
+      child: _FavoriteCard(
         title: favorite.title,
-        subtitle: subtitle,
+        // Subtitle is the AniList progress line only (e.g. "WATCHING · Ep
+        // 8/12"). The extension name is deliberately NOT shown — it's not
+        // useful at a glance on the card (the source is implied by the
+        // cover/type). When there's no AniList link, the subtitle is empty.
+        subtitle: anilist?.progressLabel ?? '',
         imageUrl: favorite.cover,
+        type: stringToExtensionType(favorite.type),
+        score: anilist?.score,
+        hideTypeBadge: hideTypeBadge,
         onTap: () => _openDetail(context, favorite),
         onLongPress: () {
           showRemoveSheet(
@@ -125,11 +147,7 @@ class _FavoriteViewState extends ConsumerState<FavoriteView> {
         onTap: _openDetail,
         onManage: () => _manageGroups(context),
       ),
-      mobile: _FavoriteMobileView(
-        favorites: favorites,
-        buildTile: _buildTile,
-        onManage: () => _manageGroups(context),
-      ),
+      mobile: _FavoriteMobileView(favorites: favorites, buildTile: _buildTile),
     );
   }
 }
@@ -375,52 +393,80 @@ class _FavoriteGrid extends ConsumerWidget {
   }
 }
 
-class _FavoriteMobileView extends StatelessWidget {
-  const _FavoriteMobileView({
-    required this.favorites,
-    required this.buildTile,
-    required this.onManage,
-  });
+class _FavoriteMobileView extends HookConsumerWidget {
+  const _FavoriteMobileView({required this.favorites, required this.buildTile});
 
   final List<Favorite> favorites;
   final Widget Function(BuildContext, Favorite) buildTile;
-  final VoidCallback onManage;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scrollController = useScrollController();
+    final scrollPosition = useValueNotifier(0.0);
     final axisCnt = DeviceUtil.isMobileLayout(context)
         ? (MediaQuery.of(context).size.width ~/ 140).clamp(2, 8)
         : (MediaQuery.of(context).size.width * .875 ~/ 160).clamp(2, 12);
 
     return MiruScaffold.mobile(
       childPad: false,
-      slivers: [
-        SliverPersistentHeader(
-          pinned: true,
-          delegate: StaticSliverHeaderDelegate(
-            maxExtent: 110,
-            minExtent: 110,
-            child: _FavoriteHeader(onManage: onManage),
-          ),
+      scrollController: scrollController,
+      onScrollChange: (offset, _) => scrollPosition.value = offset,
+      sliverHeaders: [
+        // Title bar: Forui SnapSheetHeader (same as the extension page),
+        // collapsing like the sibling pages.
+        FlexibleHeaderDelegate(
+          maxExtent: 56,
+          minExtent: 0,
+          scrollPosition: scrollPosition,
+          builder: (context, shrinkOffset, shrinkProgress) {
+            return SnapSheetHeader(
+              title: 'favorite.name'.i18n,
+              // Left padding 8 to align the title with the grid's left edge
+              // (grid uses horizontal 8, matching Search/Extension).
+              padding: const EdgeInsets.only(left: 8, bottom: 10, right: 4),
+              suffix: const [_FavoriteHeaderActions()],
+            );
+          },
         ),
+        // Pinned search + tag row under the title (Forui style, same pattern
+        // as the extension page's searchHeaderSliver). The type filter now
+        // lives in the header's upper-right (_HeaderTypeTabs), so this block
+        // is just search + the tag row — no separate type row.
+        searchHeaderSliver(
+          context,
+          // search field (~54) + gap (2) + tag row (40) = ~96, plus the
+          // Column's own vertical padding (2+4). 104 leaves headroom so the
+          // Column never overflows inside the pinned header.
+          extent: 104,
+          child: const _FavoriteControls(),
+        ),
+      ],
+      slivers: [
         if (favorites.isEmpty)
           SliverFillRemaining(
             child: Center(child: Text('common.no_results'.i18n)),
           )
         else
           SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              8,
-              8,
-              8,
-              DeviceUtil.isMobileLayout(context) ? 190 : 16,
-            ),
+            // Match MiruGridView's mobile padding but tighter (user: compact):
+            // horizontal 6, bottom 190 for the bottom-nav clearance.
+            padding: const EdgeInsets.fromLTRB(6, 6, 6, 190),
             sliver: SliverGrid(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+                // Compact grid gutters (user: compact, not large gaps). 4px
+                // cross / 6px main — tighter than NLM's 6/8, prioritizing
+                // density on mobile. The cover art is the content; minimal
+                // gutters maximize card width and on-screen density.
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 6,
                 crossAxisCount: axisCnt,
-                childAspectRatio: 0.65,
+                // Cover (2/3) is the card's only content — the title/subtitle
+                // are overlaid on it, so the cell is exactly the cover's
+                // aspect (width/height = 1/1.5 = 0.667). The old 0.5 forced
+                // each cell to 2× its width, leaving ~0.5×width of empty
+                // space below the 2/3 cover — that was the "large gap". 0.667
+                // makes the cell hug the cover with no dead space.
+                childAspectRatio: 0.667,
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) => buildTile(context, favorites[index]),
@@ -433,78 +479,317 @@ class _FavoriteMobileView extends StatelessWidget {
   }
 }
 
-class _FavoriteHeader extends ConsumerWidget {
-  const _FavoriteHeader({required this.onManage});
+/// Pinned controls: a Forui search field, then the two filter tiers as
+/// DISTINCT grouped blocks — a labelled "type" track and a labelled "tags"
+/// row. Two identically-styled stacked rows read as one homogeneous list
+/// (Gestalt similarity/proximity); the labels make the hierarchy explicit
+/// instead of leaving the user to guess which row is which.
+class _FavoriteControls extends HookConsumerWidget {
+  const _FavoriteControls();
 
-  final VoidCallback onManage;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(favoritePageProvider);
+    final searchController = useTextEditingController(text: state.query);
+
+    // No own headerDecoration: the controls sit on the PAGE CANVAS (same
+    // background as the grid below), not on a dark band.
+    //
+    // COMPACT (NLM): the old 3-tier stack (search + Type label + Type pills
+    // + Tags label + tag rail) ate ~450px of chrome before the grid. Now:
+    //   - search is a thin 40px field,
+    //   - Type pills + tag chips share ONE horizontal rail (labels removed,
+    //     a divider between the two facets), with the pinned Filter button
+    //     at the end.
+    // This reclaims ~300px, so the grid starts ~y=140 instead of ~y=490.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 2, 8, 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SearchFieldRow(
+            field: searchField(
+              controller: searchController,
+              hint: 'common.search_for_favorites'.i18n,
+              onChange: (value) {
+                ref
+                    .read(favoritePageProvider.notifier)
+                    .filterWithKeyword(value);
+              },
+              onSubmit: (value) {
+                ref
+                    .read(favoritePageProvider.notifier)
+                    .filterWithKeyword(value);
+              },
+            ),
+          ),
+          const SizedBox(height: 2),
+          // Type filter now lives in the header's upper-right (see
+          // _HeaderTypeTabs). This block keeps only search + the tag row.
+          const SizedBox(height: 40, child: _FavoriteTagRow()),
+        ],
+      ),
+    );
+  }
+}
+
+/// A tag chip for the favorites "tags" row.
+///
+/// Deliberately distinct from the type-filter chips: a tag chip leads with a
+/// small primary-colored dot + the group name + a dimmed count, so the tags
+/// row reads as a different facet. Uses Forui theme colors only (user
+/// directive: too many colors confuse) — the dot and the selected fill both
+/// use the single `primary` token, so all tags read as one cohesive set.
+class _TagChip extends StatelessWidget {
+  const _TagChip({
+    required this.label,
+    required this.count,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final int? count;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    // Reuse the Search page's SearchPill (the app's real filter-pill, built on
+    // FButton with primary/outline variants + count). Same component as the
+    // search filter strip — one filter-chip language across the app, no
+    // lookalike. Uses the default minHeight (28) exactly like the search
+    // filter strip, so the pills are pixel-identical.
+    return SearchPill(
+      label: label,
+      count: count,
+      selected: selected,
+      onTap: onTap,
+    );
+  }
+}
+
+class _FavoriteHeaderActions extends ConsumerWidget {
+  const _FavoriteHeaderActions();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Type filter as a compact icon-only segmented control in the header's
+        // upper-right. The first icon is a general "All" tab that clears the
+        // type filter; Video / Manga / Novel follow. The active segment is
+        // already highlighted, so no separate "Favorite · Manga" label is
+        // needed — it would duplicate the state (NLM: remove the redundant
+        // inline label; the segmented control is the single source of truth).
+        const _HeaderTypeTabs(),
+      ],
+    );
+  }
+}
+
+/// Compact icon-only type filter for the header's upper-right (user
+/// directive: Video / Manga / Novel live in the header, not a separate row).
+/// Each type is a 36px tappable segment; the selected one fills with the
+/// primary accent, the rest are muted icons. Tapping the selected type again
+/// clears it (back to All). Sits in the SnapSheetHeader suffix next to the
+/// title, so it costs zero extra vertical rows.
+class _HeaderTypeTabs extends ConsumerWidget {
+  const _HeaderTypeTabs();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedTypes = ref.watch(
       favoritePageProvider.select((s) => s.selectedTypes),
     );
-    final typeTabs = <Map<String, dynamic>>[
-      {'label': 'common.all'.i18n, 'type': null},
-      {'label': 'media.video'.i18n, 'type': ExtensionType.bangumi},
-      {'label': 'media.manga'.i18n, 'type': ExtensionType.manga},
-      {'label': 'media.novel'.i18n, 'type': ExtensionType.fikushon},
+    // Compact icon-only segmented control for the header's upper-right (user
+    // directive: icons, not text, in the top-right). The first segment is a
+    // GENERAL "All" icon (clears the type filter); then Video / Manga / Novel
+    // with their media glyphs. The selected one fills with the primary accent.
+    final tabs = <(ExtensionType?, IconData)>[
+      (null, FLucideIcons.layers), // All — general Lucide layers icon (reads as "all", avoids grid/list collision)
+      (ExtensionType.bangumi, FLucideIcons.clapperboard),
+      (ExtensionType.manga, FLucideIcons.bookOpen),
+      (ExtensionType.fikushon, FLucideIcons.scrollText),
     ];
-
-    return FScaffold(
-      childPad: false,
-      resizeToAvoidBottomInset: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const HeaderBack(),
-                Expanded(
-                  child: Text(
-                    'favorite.name'.i18n,
-                    maxLines: 1,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+    final colors = context.theme.colors;
+    return Container(
+      height: 44,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: colors.muted.withAlpha(40),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final tab in tabs)
+            FTappable(
+              onPress: () {
+                final notifier = ref.read(favoritePageProvider.notifier);
+                // The "All" tab (type == null) clears the type filter; a
+                // selected media type toggles off back to All.
+                if (tab.$1 == null || selectedTypes.contains(tab.$1)) {
+                  notifier.filterWithType({});
+                } else {
+                  notifier.filterWithType({tab.$1!});
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 120),
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color:
+                      (tab.$1 == null
+                          ? selectedTypes.isEmpty
+                          : selectedTypes.contains(tab.$1))
+                      ? colors.primary
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                _GroupBadgeRow(onManage: onManage),
-              ],
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 36,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: typeTabs.length,
-                separatorBuilder: (_, _) => const SizedBox(width: 6),
-                itemBuilder: (context, index) {
-                  final tab = typeTabs[index];
-                  final type = tab['type'] as ExtensionType?;
-                  final isSelected = type == null
-                      ? selectedTypes.isEmpty
-                      : selectedTypes.contains(type);
-                  return FButton(
-                    size: .xs,
-                    variant: isSelected
-                        ? FButtonVariant.primary
-                        : FButtonVariant.secondary,
-                    onPress: () {
-                      ref
-                          .read(favoritePageProvider.notifier)
-                          .filterWithType(type == null ? {} : {type});
-                    },
-                    child: Text(tab['label'] as String),
-                  );
-                },
+                child: Icon(
+                  tab.$2,
+                  size: 18,
+                  color:
+                      (tab.$1 == null
+                          ? selectedTypes.isEmpty
+                          : selectedTypes.contains(tab.$1))
+                      ? colors.background
+                      : colors.mutedForeground,
+                ),
               ),
             ),
-            const FDivider(
-              style: FDividerStyleDelta.delta(padding: .value(.only(top: 10))),
+        ],
+      ),
+    );
+  }
+}
+
+/// The tag row of the filter block: a single horizontal scroll of ALL the
+/// user's tags, with the Filter button PINNED at the end (outside the scroll
+/// — `Row([Expanded(scrolling tags), FilterButton])`). The user can have
+/// unlimited tags; they all scroll, and the Filter button opens the full
+/// filter sheet for the long tail. No '+N' chip, no 'All' chip (the header's
+/// 'All' type tab + the filter sheet handle clearing).
+/// (The type filter lives in the header's upper-right — see
+/// [_HeaderTypeTabs].)
+class _FavoriteTagRow extends ConsumerWidget {
+  const _FavoriteTagRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final groups = ref.watch(
+      favoritePageProvider.select((s) => s.favoriteGroups),
+    );
+    final selectedGroups = ref.watch(
+      favoritePageProvider.select((s) => s.selectedFavoriteGroups),
+    );
+    final selectedNames = {for (final g in selectedGroups) g.name};
+    final sortedGroups = [...groups]..sort((a, b) => a.name.compareTo(b.name));
+
+    return Row(
+      children: [
+        Expanded(
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            itemCount: sortedGroups.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 6),
+            itemBuilder: (context, index) {
+              final group = sortedGroups[index];
+              return SizedBox(
+                height: 44,
+                child: Center(
+                  child: _TagChip(
+                    label: group.name,
+                    count: group.favorites.length,
+                    selected: selectedNames.contains(group.name),
+                    onTap: () => ref
+                        .read(favoritePageProvider.notifier)
+                        .toggleGroupName(group.name),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        // Vertical divider between the scrolling tag chips and the pinned
+        // filter button, at the end — separates the two facets so the filter
+        // action reads as a distinct control, not another chip.
+        Container(
+          width: 1,
+          height: 20,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
+          color: context.theme.colors.border,
+        ),
+        // Pinned filter button with a wide fade — always reachable at the end.
+        // The fade clearly signals that the tags scroll underneath it (NLM:
+        // alpha fade = scroll affordance at the boundary).
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                context.theme.colors.background.withAlpha(0),
+                context.theme.colors.background.withAlpha(180),
+                context.theme.colors.background,
+              ],
+              stops: const [0.0, 0.5, 1.0],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+            ),
+          ),
+          padding: const EdgeInsets.only(right: 12, left: 24),
+          child: Center(
+            child: _FilterButton(onTap: () => showFavoriteGroupSheet(context)),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Trailing filter button on the tag rail — opens the full filter sheet.
+class _FilterButton extends StatelessWidget {
+  const _FilterButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.theme.colors;
+    // Secondary/outline style (NLM: the solid primary fill made the Filter
+    // button the brightest element on the page, overpowering the tag chips —
+    // a visual hierarchy inversion). Now it's a subtle outlined control so
+    // the active/selected tag chips carry the primary visual weight.
+    final radius = context.theme.style.borderRadius.md;
+    return FTappable(
+      onPress: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: colors.muted.withAlpha(40),
+          borderRadius: radius,
+          border: Border.all(color: colors.border, width: 1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              FLucideIcons.slidersHorizontal,
+              size: 12,
+              color: colors.foreground,
+            ),
+            const SizedBox(width: 4),
+            Text(
+              'common.filter'.i18n,
+              style: context.theme.typography.body.xs.copyWith(
+                color: colors.foreground,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),
@@ -513,6 +798,317 @@ class _FavoriteHeader extends ConsumerWidget {
   }
 }
 
+/// Forui-style favorite card: a 2/3 cover on top, then title + source on the
+/// solid card canvas below (the FCard media-browser pattern). Replaces the
+/// old `MiruMobileTile`, which drew title/source text over the cover art and
+/// failed WCAG AA contrast.
+///
+/// History and Favorites are SEPARATE — this card renders ONLY the favorites
+/// backend's own fields (title, cover, type, source). No History progress bar
+/// or episode labels; "continue watching" belongs to Home, not here.
+class _FavoriteCard extends StatelessWidget {
+  const _FavoriteCard({
+    required this.title,
+    required this.subtitle,
+    required this.imageUrl,
+    this.type,
+    this.score,
+    this.hideTypeBadge = false,
+    this.onTap,
+    this.onLongPress,
+  });
+
+  final String title;
+  final String subtitle;
+  final String? imageUrl;
+  final ExtensionType? type;
+  final double? score;
+  final bool hideTypeBadge;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.theme.colors;
+    final radius = context.theme.style.borderRadius.md;
+    // Subtitle is the AniList progress line only (e.g. "WATCHING · Ep 8/12").
+    // The "<TYPE> · Added <Mon Year>" fallback was removed (user directive) —
+    // the type is already shown by the top-left badge, and the date is not
+    // useful at a glance on the cover. When there's no AniList link, the
+    // subtitle is empty and only the title shows.
+    final subtitleText = subtitle;
+    return GestureDetector(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: MiruCard(
+        style: FCardStyleDelta.delta(
+          decoration: .boxDelta(
+            borderRadius: radius,
+            border: .all(color: colors.border, width: 1),
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        // Single cohesive tile: the title + subtitle are overlaid on the
+        // bottom of the cover with a gradient scrim (Netflix/Apple TV poster
+        // style) — one image tile instead of image + text-below. The type
+        // badge (top-left) and score badge (top-right) stay as overlays. The
+        // gradient ramps to ~92% black at the bottom edge so white text keeps
+        // WCAG AA contrast over unpredictable cover art, plus a text shadow.
+        child: AspectRatio(
+          aspectRatio: 2 / 3,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              ImageWidget(
+                imageUrl: imageUrl,
+                fit: BoxFit.cover,
+                errChild: _CoverFallback(title: title, type: type),
+              ),
+              // Bottom gradient scrim: transparent at 40% height, ramping to
+              // 95% black at the bottom so the overlaid text stays readable
+              // over bright/busy cover art (NLM: 60% scrim height + 95% black
+              // bottom guarantees WCAG AA contrast; a shallow scrim failed on
+              // light covers).
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.4, 0.6, 0.8, 1.0],
+                      colors: [
+                        Colors.black.withAlpha(0),
+                        Colors.black.withAlpha(60),
+                        Colors.black.withAlpha(190),
+                        Colors.black.withAlpha(242),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Type badge overlay (top-left) — only when NO type filter is
+              // active. When a type is selected, every card is that type and
+              // the header already names it, so the per-card badge is
+              // redundant noise.
+              if (!hideTypeBadge)
+                Positioned(top: 6, left: 6, child: _TypeBadge(type: type)),
+              // AniList score badge (top-right) when the title is linked and
+              // scored — NLM Rank 4/3.
+              if (score != null && score! > 0)
+                Positioned(top: 6, right: 6, child: _ScoreBadge(score: score!)),
+              // Title + subtitle overlaid at the bottom of the cover. Padding
+              // (8 horizontal, 8 bottom) — the scrim guarantees contrast, and
+              // 8px bottom gives the 2-line title room to breathe above the
+              // card edge (NLM: too-tight bottom padding clipped descenders).
+              Positioned(
+                left: 8,
+                right: 8,
+                bottom: 8,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.theme.typography.body.sm.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        // NLM: long CJK/English titles in a 2-line overlay
+                        // were cramped at height ~1.1. 1.25 gives the 2 lines
+                        // breathing room so ascenders/descenders don't collide
+                        // and the title reads cleanly over the scrim.
+                        height: 1.25,
+                        shadows: const [
+                          Shadow(
+                            color: Colors.black54,
+                            blurRadius: 4,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    if (subtitleText.isNotEmpty)
+                      Text(
+                        subtitleText,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.theme.typography.body.xs.copyWith(
+                          color: Colors.white.withAlpha(204),
+                          fontWeight: FontWeight.w500,
+                          shadows: const [
+                            Shadow(
+                              color: Colors.black45,
+                              blurRadius: 3,
+                              offset: Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Compact media-type chip for a favorite card (VIDEO / MANGA / NOVEL).
+///
+/// [type] may be null (unknown type): the widget then renders an empty box,
+/// so the card keeps its fixed height and the grid rows still align.
+class _TypeBadge extends StatelessWidget {
+  const _TypeBadge({required this.type});
+
+  final ExtensionType? type;
+
+  @override
+  Widget build(BuildContext context) {
+    final resolved = type;
+    if (resolved == null) return const SizedBox(height: 16);
+    final (label, icon) = switch (resolved) {
+      ExtensionType.bangumi => ('VIDEO', FLucideIcons.clapperboard),
+      ExtensionType.manga => ('MANGA', FLucideIcons.bookOpen),
+      ExtensionType.fikushon => ('NOVEL', FLucideIcons.bookText),
+      _ => ('MIXED', FLucideIcons.library),
+    };
+    return Container(
+      // Solid dark background so the badge reads over any cover art (it is
+      // an overlay now, not a footer row on the card canvas).
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.black.withAlpha(160),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 10, color: Colors.white),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: context.theme.typography.body.xs.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 9,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// AniList score badge for the top-right of a favorite card's cover.
+/// Shows the mean score (0-100) as "★ 85". Hidden when unscored.
+class _ScoreBadge extends StatelessWidget {
+  const _ScoreBadge({required this.score});
+
+  final double score;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: Colors.black.withAlpha(160),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.star, size: 10, color: Colors.amber),
+          const SizedBox(width: 3),
+          Text(
+            '${score.round()}',
+            style: context.theme.typography.body.xs.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 9,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Styled fallback for a favorite whose extension returned no cover (common
+/// for torrent/fansub sources). A layered charcoal gradient + a media-type
+/// glyph + the title's leading characters — deliberately NOT a bare
+/// "missing image" icon, which reads as a broken UI in the primary focal spot.
+class _CoverFallback extends StatelessWidget {
+  const _CoverFallback({required this.title, this.type});
+
+  final String title;
+  final ExtensionType? type;
+
+  /// Strips release-group brackets and takes the first meaningful token, so
+  /// the fallback shows something readable instead of "[Group] …".
+  String get _initials {
+    final cleaned = title
+        .replaceAll(RegExp(r'\[[^\]]*\]'), ' ')
+        .replaceAll(RegExp(r'[_\-]+'), ' ')
+        .trim();
+    if (cleaned.isEmpty) return '?';
+    final words = cleaned.split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+    final head = words.take(2).join(' ');
+    return head.length > 14 ? head.substring(0, 14) : head;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.theme.colors;
+    final icon = switch (type) {
+      ExtensionType.bangumi => FLucideIcons.clapperboard,
+      ExtensionType.manga => FLucideIcons.bookOpen,
+      ExtensionType.fikushon => FLucideIcons.bookText,
+      _ => FLucideIcons.library,
+    };
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            colors.muted.withAlpha(55),
+            colors.muted.withAlpha(20),
+            colors.background,
+          ],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 26, color: colors.mutedForeground),
+            const Spacer(),
+            Text(
+              _initials,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: context.theme.typography.body.sm.copyWith(
+                color: colors.mutedForeground,
+                fontWeight: FontWeight.w600,
+                height: 1.3,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Desktop group badge row (kept for the desktop view's header): shows the
+/// selected favorite-group chips, or "All tags" when none are selected.
 class _GroupBadgeRow extends ConsumerWidget {
   const _GroupBadgeRow({required this.onManage});
 

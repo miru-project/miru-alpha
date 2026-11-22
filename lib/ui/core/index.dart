@@ -8,6 +8,7 @@ export 'scroll_view/miru_single_child_view.dart';
 export 'refresh/forui_header.dart';
 export 'amination/animated_box.dart';
 export 'animted_icon/block.dart';
+export 'animted_icon/bookmark.dart';
 export 'animted_icon/compass.dart';
 export 'animted_icon/heart.dart';
 export 'animted_icon/home.dart';

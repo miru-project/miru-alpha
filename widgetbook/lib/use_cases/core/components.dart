@@ -28,14 +28,20 @@ WidgetbookFolder buildDesignSystemFolder() {
 
 /// The app's real theme factory, exported for area files that need a theme
 /// entry of their own (the catalog ThemeAddon already applies it globally).
+///
+/// Uses the `.touch` (mobile) variant so phone-framed stories render with
+/// mobile tokens (touch targets, mobile typography) instead of desktop ones.
+/// LIGHT is first so the catalog defaults to it — `main.dart` also pins it as
+/// the `initialTheme`, so no story accidentally renders dark. Dark stays
+/// available as a toggle for contrast checks.
 List<WidgetbookTheme<FThemeData>> miruThemeEntries() => [
   WidgetbookTheme(
-    name: 'Dark desktop (zinc)',
-    data: ThemeUtils.resolveDarkTheme('zinc', 'none').desktop,
+    name: 'Light (zinc · mobile)',
+    data: ThemeUtils.resolveTheme('zinc', 'none').touch,
   ),
   WidgetbookTheme(
-    name: 'Light desktop (zinc)',
-    data: ThemeUtils.resolveTheme('zinc', 'none').desktop,
+    name: 'Dark (zinc · mobile)',
+    data: ThemeUtils.resolveDarkTheme('zinc', 'none').touch,
   ),
 ];
 

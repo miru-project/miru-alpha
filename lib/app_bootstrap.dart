@@ -461,11 +461,6 @@ class _MiruMobilePreviewShellState
     // never scaled.
     return LayoutBuilder(
       builder: (context, window) {
-        final labelSpace = 24.0;
-        final frameH = (window.maxHeight - labelSpace).clamp(
-          0.0,
-          double.infinity,
-        );
         // Desktop passthrough: the frame IS the real window — full-bleed
         // 1:1, so the width breakpoints (forui `lg` 1024) see the desktop
         // size and the desktop layouts render.
@@ -496,18 +491,25 @@ class _MiruMobilePreviewShellState
                 const SizedBox.shrink()
               else
                 const SizedBox(height: 6),
-              SizedBox(
-                width: window.maxWidth,
-                height: _desktop ? window.maxHeight : frameH,
-                child: FittedBox(
-                  // scaleDown, never contain: a frame smaller than the
-                  // window renders 1:1 (true phone sizes) — only a frame
-                  // taller than the window is scaled DOWN to fit. The
-                  // desktop frame equals the window, so it is also 1:1.
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.center,
-                  child: SizedBox(
-                    width: frameSize.width,
+              // The phone frame height is clamped to the available window
+              // height (minus the label) so it never overflows — no
+              // FittedBox, no layout-vs-paint gap. On a tall window the
+              // phone is its natural 915; on a short window it shrinks to
+              // fit (e.g. 834). The app is responsive to the width (412), so
+              // it renders correctly at any height.
+              Builder(
+                builder: (context) {
+                  final frameH = _desktop
+                      ? window.maxHeight
+                      : (window.maxHeight - 24.0).clamp(
+                          0.0,
+                          _modes[_mode].height,
+                        );
+                  final frameSize = _desktop
+                      ? Size(window.maxWidth, window.maxHeight)
+                      : Size(_modes[_mode].width, frameH);
+                  return SizedBox(
+                    width: _desktop ? window.maxWidth : frameSize.width,
                     height: frameSize.height,
                     child: MediaQuery(
                       data: real.copyWith(
@@ -517,8 +519,8 @@ class _MiruMobilePreviewShellState
                       ),
                       child: widget.child,
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ],
           ),

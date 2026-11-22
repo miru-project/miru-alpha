@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:miru_alpha/model/user_data.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
-import 'package:miru_alpha/ui/core/grid_view/miru_grid_tile.dart';
+import 'package:miru_alpha/ui/core/widget/miru_card.dart';
 import 'package:miru_alpha/provider/home/favorite_page_provider.dart';
 import 'package:miru_alpha/ui/features/favorite/views/favorite_view.dart';
 import 'package:miru_alpha/utils/theme/theme.dart';
@@ -156,6 +156,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(FavoriteView), findsOneWidget);
-    expect(find.byType(MiruMobileTile), findsOneWidget);
+    // The tile is now the Forui-style _FavoriteCard (cover + title/source
+    // below), a private widget — assert the card renders via its public
+    // surface instead.
+    expect(find.byType(MiruCard), findsWidgets);
   });
 }

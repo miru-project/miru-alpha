@@ -77,9 +77,9 @@ import '../use_case_harness.dart';
 /// `test/ui/features/search` suite pumps, rendered with the tests' own fakes.
 WidgetbookFolder buildSearchMirroredFolder() {
   // The source-list surfaces read settings synchronously during build (the
-  // NSFW filter, the pinned/hidden sets); seed the same in-memory defaults
-  // the widget tests seed in setUpAll.
-  MiruSettings.seedDefaultsForTest();
+  // NSFW filter, the pinned/hidden sets); seed the shipped defaults the way
+  // the app's bootstrap does, so those reads resolve instead of returning null.
+  MiruSettings.seedDefaults();
   return WidgetbookFolder(
     name: 'Search (mirrored)',
     children: [

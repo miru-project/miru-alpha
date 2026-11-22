@@ -1,10 +1,60 @@
+import 'package:miru_alpha/model/anilist_model.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/model/user_data.dart';
 import 'package:miru_alpha/provider/backend_connection_provider.dart';
+import 'package:miru_alpha/provider/tracking/anilist_provider.dart';
 import 'package:miru_alpha/utils/store/database_service.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
+import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'favorite_page_provider.g.dart';
+
+/// Per-favorite AniList summary, derived by matching a [Favorite] to an
+/// AniList entry by title. `null` when the account is unlinked, the collection
+/// hasn't loaded, or no entry matches.
+class FavoriteAnilist {
+  const FavoriteAnilist({
+    required this.status,
+    required this.progress,
+    required this.total,
+    required this.score,
+    required this.unit,
+  });
+
+  /// AniList list status (WATCHING / COMPLETED / PAUSED / DROPPED / PLANNING).
+  final String status;
+
+  /// Episodes watched / chapters read.
+  final int progress;
+
+  /// Total episodes / chapters (0 when unknown).
+  final int total;
+
+  /// Mean score (0-100), or 0 when unscored.
+  final double score;
+
+  /// "Ep" for anime, "Ch" for manga — the unit for [progress]/[total].
+  final String unit;
+
+  /// A short label for the card subtitle, e.g. "WATCHING · Ep 8/12".
+  String get progressLabel {
+    if (total <= 0) return status;
+    return '$status · $unit $progress/$total';
+  }
+}
+
+/// Normalizes a title for matching: lowercase, strip punctuation and
+/// bracketed release-group tags, collapse whitespace. AniList titles and
+/// extension titles differ in casing/punctuation, so a loose match is the
+/// only reliable join.
+String normalizeTitle(String title) {
+  return title
+      .toLowerCase()
+      .replaceAll(RegExp(r'\[[^\]]*\]'), ' ')
+      .replaceAll(RegExp(r'[^\w\s]'), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+}
 
 enum FavoriteFilterMode { and, or }
 
@@ -16,7 +66,13 @@ class FavoritePageState {
   final Set<ExtensionType> selectedTypes;
   final FavoriteFilterMode filterMode;
   final String query;
+  final Duration duration;
   final String filterSummary;
+  // AniList join: normalized title → progress/score summary. Derived from
+  // the AniList collections (watched in build). Empty when the account is
+  // unlinked or nothing matches. Kept in the same state so the favorite page
+  // is ONE service (no separate anilist lookup provider).
+  final Map<String, FavoriteAnilist> anilistByTitle;
   FavoritePageState({
     required this.favorites,
     required this.favoriteGroups,
@@ -25,7 +81,9 @@ class FavoritePageState {
     this.selectedTypes = const {},
     this.filterMode = FavoriteFilterMode.or,
     this.query = '',
+    this.duration = const Duration(days: 36500),
     this.filterSummary = '',
+    this.anilistByTitle = const {},
   });
 
   FavoritePageState copyWith({
@@ -36,7 +94,9 @@ class FavoritePageState {
     Set<ExtensionType>? selectedTypes,
     FavoriteFilterMode? filterMode,
     String? query,
+    Duration? duration,
     String? filterSummary,
+    Map<String, FavoriteAnilist>? anilistByTitle,
   }) {
     return FavoritePageState(
       filteredFavorites: filteredFavorites ?? this.filteredFavorites,
@@ -47,20 +107,22 @@ class FavoritePageState {
       selectedTypes: selectedTypes ?? this.selectedTypes,
       filterMode: filterMode ?? this.filterMode,
       query: query ?? this.query,
+      duration: duration ?? this.duration,
       filterSummary: filterSummary ?? this.filterSummary,
+      anilistByTitle: anilistByTitle ?? this.anilistByTitle,
     );
   }
 }
 
 @Riverpod(keepAlive: true)
 class FavoritePageNotifier extends _$FavoritePageNotifier {
-  String cacheKeyword = '';
-  Duration cacheDuration = const Duration(days: 36500);
-  Set<ExtensionType> cacheType = {};
-  List<FavoriteGroup> cacheFavGroup = [];
-  FavoriteFilterMode cacheFilterMode = FavoriteFilterMode.or;
   @override
   FavoritePageState build() {
+    // Watch the AniList collections so the join recomputes when AniList data
+    // loads or refreshes (the single favorite service owns the AniList join
+    // now — no separate lookup provider).
+    final anime = ref.watch(anilistCollectionProvider(AnilistType.anime)).value;
+    final manga = ref.watch(anilistCollectionProvider(AnilistType.manga)).value;
     Future.microtask(init);
     return FavoritePageState(
       favorites: [],
@@ -69,7 +131,53 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
       selectedFavoriteGroups: [],
       selectedTypes: {},
       filterMode: FavoriteFilterMode.or,
+      anilistByTitle: _joinAnilist(anime, manga),
     );
+  }
+
+  /// Joins the AniList anime + manga collections into a normalized-title →
+  /// [FavoriteAnilist] map. Shared by `build()` so the favorite cards read the
+  /// join from the state (via `select`) instead of a separate provider.
+  Map<String, FavoriteAnilist> _joinAnilist(
+    List<AnilistList>? anime,
+    List<AnilistList>? manga,
+  ) {
+    if ((anime == null || anime.isEmpty) && (manga == null || manga.isEmpty)) {
+      return const {};
+    }
+    final map = <String, FavoriteAnilist>{};
+    void ingest(List<AnilistList>? lists, String mediaType) {
+      if (lists == null) return;
+      final unit = mediaType == 'ANIME' ? 'Ep' : 'Ch';
+      for (final list in lists) {
+        for (final entry in list.entries) {
+          final media = entry.media;
+          if (media == null) continue;
+          final titles = [
+            media.title.english,
+            media.title.romaji,
+            media.title.userPreferred,
+            media.title.native,
+          ].whereType<String>();
+          final total =
+              (mediaType == 'ANIME' ? media.episodes : media.chapters) ?? 0;
+          final info = FavoriteAnilist(
+            status: entry.status,
+            progress: entry.progress,
+            total: total,
+            score: entry.score,
+            unit: unit,
+          );
+          for (final title in titles) {
+            map.putIfAbsent(normalizeTitle(title), () => info);
+          }
+        }
+      }
+    }
+
+    ingest(anime, 'ANIME');
+    ingest(manga, 'MANGA');
+    return map;
   }
 
   // INIT
@@ -79,7 +187,7 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     await ref.read(backendConnectionProvider.future);
     if (!ref.mounted) return;
     await refreshFavoritesAndGroup();
-    state = state.copyWith(filteredFavorites: state.favorites);
+    _refilter();
   }
 
   //REFRESH
@@ -92,8 +200,7 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
       favoriteGroups: futures[0] as List<FavoriteGroup>,
       favorites: futures[1] as List<Favorite>,
     );
-    filterFavoriteGroups(cacheFavGroup);
-    filter(cacheType, cacheKeyword, cacheDuration);
+    _refilter();
   }
 
   // DELETE
@@ -130,45 +237,54 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     );
   }
 
-  // FILTER FAVORITES
-  void filter(Set<ExtensionType> type, String keyword, Duration duration) {
+  /// Single derivation: `filteredFavorites` is computed from the CURRENT
+  /// state (selectedTypes + query + duration + selectedFavoriteGroups +
+  /// filterMode). This is the ONE source of truth — no parallel cache. Every
+  /// filter setter updates its state field and calls this.
+  void _refilter() {
     final now = DateTime.now();
-    List<Favorite> typeResult = state.favorites;
-    if (type.isNotEmpty) {
-      typeResult = state.favorites
-          .where((e) => type.contains(stringToExtensionType(e.type)))
+    // 1. Type filter.
+    var result = state.selectedTypes.isEmpty
+        ? state.favorites
+        : state.favorites
+              .where(
+                (e) =>
+                    state.selectedTypes.contains(stringToExtensionType(e.type)),
+              )
+              .toList();
+    // 2. Keyword filter.
+    if (state.query.isNotEmpty) {
+      result = result.where((e) => e.title.contains(state.query)).toList();
+    }
+    // 3. Duration filter (added within X days).
+    if (state.duration != const Duration(days: 36500)) {
+      result = result
+          .where((e) => now.difference(e.date) <= state.duration)
           .toList();
     }
-    List<Favorite> keywordResult = typeResult;
-    if (keyword.isNotEmpty) {
-      keywordResult = typeResult
-          .where((e) => e.title.contains(keyword))
+    // 4. Group filter (AND/OR) — if groups are selected, narrow further.
+    if (state.selectedFavoriteGroups.isNotEmpty) {
+      result = favoritesInGroups(state.selectedFavoriteGroups)
+          .where((f) => result.contains(f))
           .toList();
     }
-    List<Favorite> durationResult = keywordResult;
-    if (duration != const Duration(days: 36500)) {
-      durationResult = keywordResult
-          .where((e) => now.difference(e.date) <= duration)
-          .toList();
-    }
+    // Build the summary for the active-filter chip.
     final summary = <String>[];
-    if (type.isNotEmpty) {
-      summary.add('type: ${type.map((e) => e.name).join(',')}');
+    if (state.selectedTypes.isNotEmpty) {
+      summary.add('type: ${state.selectedTypes.map((e) => e.name).join(',')}');
     }
-    if (keyword.isNotEmpty) {
-      summary.add('keyword: $keyword');
+    if (state.query.isNotEmpty) {
+      summary.add('keyword: ${state.query}');
     }
     state = state.copyWith(
-      filteredFavorites: durationResult,
-      query: keyword,
+      filteredFavorites: result,
       filterSummary: summary.join(' | '),
     );
   }
 
   void filterWithType(Set<ExtensionType> type) {
-    cacheType = type;
     state = state.copyWith(selectedTypes: type);
-    filter(type, cacheKeyword, cacheDuration);
+    _refilter();
   }
 
   /// Convenience used by the router-driven list views. `null` or
@@ -180,32 +296,25 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
 
   /// Toggle the AND/OR filtering mode for selected favorite groups.
   void setFilterMode(FavoriteFilterMode mode) {
-    // The state field is what the UI watches — writing only the cache left
-    // the segmented control stuck on the default mode (UX-review: "make
-    // sure the buttons are function").
-    cacheFilterMode = mode;
     state = state.copyWith(filterMode: mode);
-    filterFavoriteGroups(state.selectedFavoriteGroups);
+    _refilter();
   }
 
   void filterWithKeyword(String keyword) {
-    cacheKeyword = keyword;
-    filter(cacheType, keyword, cacheDuration);
+    state = state.copyWith(query: keyword);
+    _refilter();
   }
 
   void filterWithDuration(Duration duration) {
-    cacheDuration = duration;
-    filter(cacheType, cacheKeyword, duration);
+    state = state.copyWith(duration: duration);
+    _refilter();
   }
 
   // FILTER FAVORITE GROUPS
   //  At mobile home favorite page
   void filterFavoriteGroups(List<FavoriteGroup> favGroups) {
-    cacheFavGroup = favGroups;
-    state = state.copyWith(
-      filteredFavorites: favoritesInGroups(favGroups),
-      selectedFavoriteGroups: favGroups,
-    );
+    state = state.copyWith(selectedFavoriteGroups: favGroups);
+    _refilter();
   }
 
   /// Group-scoped favorites: the union (OR mode) or intersection (AND mode)
@@ -232,7 +341,7 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
         .where((e) => favGroups.any((g) => g.name == e.name))
         .toList();
     if (hidden.isEmpty) {
-      return cacheFilterMode == FavoriteFilterMode.and
+      return state.filterMode == FavoriteFilterMode.and
           ? _intersectFavorites(favGroup)
           : favGroup.expand((e) => e.favorites).toList();
     }
@@ -245,7 +354,7 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
           favorites: g.favorites.where(visible).toList(),
         ),
     ];
-    return cacheFilterMode == FavoriteFilterMode.and
+    return state.filterMode == FavoriteFilterMode.and
         ? _intersectFavorites(visibleGroups)
         : visibleGroups.expand((e) => e.favorites).toList();
   }

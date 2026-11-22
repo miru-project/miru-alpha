@@ -89,7 +89,7 @@ final class MangaReaderProvider
   }
 }
 
-String _$mangaReaderHash() => r'a661f99ba9bab65cff17132a6191b65b41bf6c50';
+String _$mangaReaderHash() => r'29c0763b8e2d522c1e11d257a012d71698c2776b';
 
 /// The one manga reader state.
 ///

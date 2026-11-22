@@ -88,11 +88,14 @@ void main() {
   }
 
   testWidgets(
-    'default renders the 412x915 phone frame with touch-theme width',
+    'default renders the phone frame clamped to the window (touch-theme width)',
     (tester) async {
       await pumpShell(tester);
 
-      expect(probedSize, const Size(412, 915));
+      // The frame height is adaptive: min(915, windowHeight - label). The test
+      // window is 800px, so the frame clamps to 800 - 24 = 776 (not a fixed
+      // 915) — this is what keeps the phone from overflowing a shorter window.
+      expect(probedSize, const Size(412, 776));
       expect(ThemeUtils.mobilePreviewWidth, 412.0);
       expect(_ProbeState.mounts, 1);
     },
@@ -113,7 +116,8 @@ void main() {
 
       await pressCombo(tester, LogicalKeyboardKey.keyD);
 
-      expect(probedSize, const Size(412, 915));
+      // Back to the phone frame: height clamps to the window (800 - 24 = 776).
+      expect(probedSize, const Size(412, 776));
       expect(ThemeUtils.mobilePreviewWidth, 412.0);
       expect(_ProbeState.mounts, 1);
     },

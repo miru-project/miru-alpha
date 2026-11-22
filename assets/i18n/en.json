@@ -12,6 +12,7 @@
     "library_description": "Pick up where you left off or manage your downloads.",
     "wip": "WIP",
     "all": "All",
+    "filter": "Filter",
     "manage": "Manage",
     "type": "Type",
     "status": "Status",
@@ -114,6 +115,7 @@
     "and": "Match ALL (AND)",
     "or": "Match ANY (OR)",
     "all-tags": "All tags",
+    "show_all_tags": "Show all {count} more",
     "name_exists": "Name already exists"
   },
   "media": {

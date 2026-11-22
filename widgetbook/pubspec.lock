@@ -396,7 +396,7 @@ packages:
     source: hosted
     version: "2.4.0"
   flutter_test:
-    dependency: "direct dev"
+    dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -669,6 +669,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
+  marionette_flutter:
+    dependency: "direct dev"
+    description:
+      name: marionette_flutter
+      sha256: f74b192ddd7e486b026203caa35b5a5d0c515de023e73958ba2035531c0a62bf
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.0"
+  marionette_logging:
+    dependency: "direct dev"
+    description:
+      name: marionette_logging
+      sha256: c590377f8badee6eb4c161293e99b8568610b3f151ed3fe1d4b8da58e564e282
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.0"
   markdown:
     dependency: transitive
     description:

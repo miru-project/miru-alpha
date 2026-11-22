@@ -68,7 +68,7 @@ final class NovelReaderProvider
   }
 }
 
-String _$novelReaderHash() => r'6a7039abe31a856751b4a1cd958d92a9a7783d54';
+String _$novelReaderHash() => r'ef3d747979caf705f5fd98eb2e530d988c10fba1';
 
 /// The one novel reader state.
 ///

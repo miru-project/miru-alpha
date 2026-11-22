@@ -28,9 +28,13 @@ dependencies:
     path: ../
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
   flutter_lints: ^6.0.0
+  # Debug-only: lets the marionette CLI / MCP drive and SCREENSHOT the catalog
+  # (main_debug.dart does the same for the main app). Widgetbook is launched
+  # without it unless this is present, so keep it in dev deps only — release
+  # builds of the catalog never see it.
+  marionette_flutter: any
+  marionette_logging: any
 
 flutter:
   uses-material-design: true

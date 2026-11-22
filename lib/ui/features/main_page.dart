@@ -319,6 +319,7 @@ class _MainPageState extends ConsumerState<MainPage>
   // late final MainController c;
   static const List<NavItem> _navItems = [
     NavItem(text: 'common.home', icon: Icons.home_outlined),
+    NavItem(text: 'favorite.name', icon: Icons.bookmark_outlined),
     NavItem(text: 'common.search', icon: Icons.explore_outlined),
     NavItem(text: 'extension.name', icon: Icons.extension_outlined),
     NavItem(text: 'common.settings', icon: Icons.settings_outlined),
@@ -339,6 +340,11 @@ class _MainPageState extends ConsumerState<MainPage>
       applicationControllerProvider.select((s) => s.themeData),
     );
     final selected = useState(0);
+    // The nav highlight follows the shell's current branch index (the source
+    // of truth), so a deep-link to /home/favorite or a Home-card push lights
+    // the right tab. `selected.value` is the tap-driven fallback before the
+    // shell is mounted.
+    final effectiveIndex = widget.child?.currentIndex ?? selected.value;
 
     useEffect(() {
       Future.microtask(() async {
@@ -496,7 +502,7 @@ class _MainPageState extends ConsumerState<MainPage>
                         ),
                       ),
                     ),
-                    index: selected.value,
+                    index: effectiveIndex,
                     onChange: (value) {
                       if (widget.child != null) {
                         widget.child!.goBranch(value);
@@ -504,40 +510,54 @@ class _MainPageState extends ConsumerState<MainPage>
                       selected.value = value;
                     },
                     children: [
+                      // 0: Home
                       FBottomNavigationBarItem(
                         label: Text(_navItems[0].text.i18n),
                         icon: HomeIcon(
-                          color: selected.value == 0
+                          color: effectiveIndex == 0
                               ? themeData.colors.primary
                               : themeData.colors.mutedForeground,
-                          isTriggered: selected.value == 0,
+                          isTriggered: effectiveIndex == 0,
                         ),
                       ),
+                      // 1: Favorite (bookmark fills when selected)
                       FBottomNavigationBarItem(
                         label: Text(_navItems[1].text.i18n),
-                        icon: CompassIcon(
-                          color: selected.value == 1
+                        icon: BookmarkIcon(
+                          color: effectiveIndex == 1
                               ? themeData.colors.primary
                               : themeData.colors.mutedForeground,
-                          isTriggered: selected.value == 1,
+                          isTriggered: effectiveIndex == 1,
                         ),
                       ),
+                      // 2: Search
                       FBottomNavigationBarItem(
                         label: Text(_navItems[2].text.i18n),
-                        icon: BlocksPathLoopIcon(
-                          color: selected.value == 2
+                        icon: CompassIcon(
+                          color: effectiveIndex == 2
                               ? themeData.colors.primary
                               : themeData.colors.mutedForeground,
-                          isTriggered: selected.value == 2,
+                          isTriggered: effectiveIndex == 2,
                         ),
                       ),
+                      // 3: Extension (the supply chain)
                       FBottomNavigationBarItem(
                         label: Text(_navItems[3].text.i18n),
-                        icon: SettingsIcon(
-                          color: selected.value == 3
+                        icon: BlocksPathLoopIcon(
+                          color: effectiveIndex == 3
                               ? themeData.colors.primary
                               : themeData.colors.mutedForeground,
-                          isTriggered: selected.value == 3,
+                          isTriggered: effectiveIndex == 3,
+                        ),
+                      ),
+                      // 4: Settings
+                      FBottomNavigationBarItem(
+                        label: Text(_navItems[4].text.i18n),
+                        icon: SettingsIcon(
+                          color: effectiveIndex == 4
+                              ? themeData.colors.primary
+                              : themeData.colors.mutedForeground,
+                          isTriggered: effectiveIndex == 4,
                         ),
                       ),
                     ],

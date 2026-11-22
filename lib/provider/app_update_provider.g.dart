@@ -44,7 +44,7 @@ final class AppUpdateProvider
   }
 }
 
-String _$appUpdateHash() => r'9881ec49fd43fcb82cff01931894c7af717b6f3b';
+String _$appUpdateHash() => r'ca1f1fe005981d9fc6128fa9e4d1a8232950bc1d';
 
 /// Checks GitHub for a newer Miru build and drives the installer hand-off.
 

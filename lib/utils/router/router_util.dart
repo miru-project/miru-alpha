@@ -170,13 +170,8 @@ class RouterUtil {
                       child: HistoryView(type: _listPageType(state)),
                     ),
                   ),
-                  GoRoute(
-                    path: 'favorite',
-                    pageBuilder: (context, state) => noTransitionPage(
-                      state: state,
-                      child: FavoriteView(type: _listPageType(state)),
-                    ),
-                  ),
+                  // `favorite` moved to its own top-level branch (see below)
+                  // so it can be a mobile bottom-nav tab.
                   GoRoute(
                     path: 'download',
                     pageBuilder: (context, state) => noTransitionPage(
@@ -206,6 +201,21 @@ class RouterUtil {
                 path: '/home',
                 pageBuilder: (context, state) =>
                     noTransitionPage(state: state, child: const HomeView()),
+              ),
+            ],
+          ),
+          // Favorite as its own top-level branch (mobile bottom-nav tab #2).
+          // The route stays `/home/favorite` (same path as before), but it is
+          // now its own branch so `goBranch(1)` lands on it directly instead of
+          // being a sub-route of Home reached via a 'View All' card.
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/home/favorite',
+                pageBuilder: (context, state) => noTransitionPage(
+                  state: state,
+                  child: FavoriteView(type: _listPageType(state)),
+                ),
               ),
             ],
           ),
@@ -262,6 +272,9 @@ class RouterUtil {
               ),
             ],
           ),
+          // Extension (and Tracking) as its own branch, placed AFTER Search so
+          // the mobile bottom-nav order is Home/Favorite/Search/Extension/
+          // Settings (search before the extension store).
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -305,9 +318,20 @@ class RouterUtil {
           ),
         ],
         pageBuilder: (context, state, navigationShell) {
-          if (DeviceUtil.isMobileLayout(context) &&
-              (state.fullPath?.split('/') ?? []).length > 2 &&
-              state.fullPath?.contains('settings') == false) {
+          // Full-screen (no bottom nav) only for PUSHED detail routes deeper
+          // than a top-level tab — e.g. `/search/single/detail`. Top-level tab
+          // routes (`/home`, `/home/favorite`, `/search`, `/extension`) keep
+          // the nav. `/home/favorite` has 3 path segments like a pushed route,
+          // so it must be explicitly excluded or it loses the nav bar.
+          final segments = (state.fullPath?.split('/') ?? [])
+              .where((s) => s.isNotEmpty)
+              .toList();
+          final isPushedDetail =
+              DeviceUtil.isMobileLayout(context) &&
+              segments.length > 2 &&
+              !state.fullPath!.contains('settings') &&
+              state.fullPath != '/home/favorite';
+          if (isPushedDetail) {
             return noTransitionPage(state: state, child: navigationShell);
           }
           return noTransitionPage(

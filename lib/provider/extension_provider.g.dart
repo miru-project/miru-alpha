@@ -56,7 +56,7 @@ final class WatchSessionProvider
   }
 }
 
-String _$watchSessionHash() => r'9fcfa7acb2df6bd6791ba118569df1001d656c09';
+String _$watchSessionHash() => r'36624e6a57681eacd1466be965ecb914e892766c';
 
 /// The one watch session: the content pipeline for whichever watch surface is
 /// open. The shell injects the request on entry — and re-injects on every

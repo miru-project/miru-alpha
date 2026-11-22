@@ -116,7 +116,9 @@ Widget _shellHarness({
   bool collapsedSidebar = false,
   bool searchOverlayOpen = false,
 }) {
-  MiruSettings.seedDefaultsForTest();
+  // The shell reads settings synchronously during build (theme, language,
+  // download path); seed the shipped defaults the way bootstrap does.
+  MiruSettings.seedDefaults();
   if (savedDownloadPath) {
     MiruSettings.setSettingSync(
       SettingKey.downloadPath,

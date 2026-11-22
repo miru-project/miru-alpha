@@ -1,12 +1,11 @@
 /// Mirrors test/ui/features/download/desktop_download_page_test.dart states
 /// for the catalog.
 ///
-/// Desktop pages render bare — the viewport addon picks the size (the test
-/// pins 1280x800). Both widgets read `MiruSettings.getSettingSync` (the
-/// header's download path, the notifier's max-concurrent), so every builder
-/// seeds the settings cache with the shipped defaults — the production
-/// bootstrap call, mirroring the test's `seedDefaultsForTest`. i18n keys
-/// render raw here (no delegates — expected).
+/// Desktop pages render bare — the viewport addon picks the size. Both
+/// widgets read `MiruSettings.getSettingSync` (the header's download path,
+/// the notifier's max-concurrent), so every builder seeds the settings cache
+/// with the shipped defaults — the same call the app's bootstrap makes. i18n
+/// keys render raw here (no delegates — expected).
 library;
 
 import 'package:go_router/go_router.dart';
