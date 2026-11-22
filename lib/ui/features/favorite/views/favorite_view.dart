@@ -75,7 +75,7 @@ class _FavoriteViewState extends ConsumerState<FavoriteView> {
   }
 
   Widget _buildTile(BuildContext context, Favorite favorite) {
-    // AniList progress line (Rank 3): "WATCHING · Ep 8/12" when the account
+    // AniList progress line: "WATCHING · Ep 8/12" when the account
     // is linked and the title matches an entry. Read from the favorite state's
     // `anilistByTitle` join via `select` — the favorite page is ONE service
     // now (no separate lookup provider). `select` on the specific title's
@@ -803,7 +803,7 @@ class _FavoriteCard extends StatelessWidget {
     final colors = context.theme.colors;
     final radius = context.theme.style.borderRadius.md;
     // Subtitle is the AniList progress line only (e.g. "WATCHING · Ep 8/12").
-    // The "<TYPE> · Added <Mon Year>" fallback was removed (user directive) —
+    // The "<TYPE> · Added <Mon Year>" fallback was removed —
     // the type is already shown by the top-left badge, and the date is not
     // useful at a glance on the cover. When there's no AniList link, the
     // subtitle is empty and only the title shows.
@@ -873,7 +873,7 @@ class _FavoriteCard extends StatelessWidget {
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: context.theme.typography.body.sm.copyWith(
+                      style: context.theme.typography.body.xs2.copyWith(
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                         height: 1.25,
