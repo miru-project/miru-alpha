@@ -453,10 +453,6 @@ class _FavoriteMobileView extends HookConsumerWidget {
             padding: const EdgeInsets.fromLTRB(6, 6, 6, 190),
             sliver: SliverGrid(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                // Compact grid gutters (user: compact, not large gaps). 4px
-                // cross / 6px main — tighter than NLM's 6/8, prioritizing
-                // density on mobile. The cover art is the content; minimal
-                // gutters maximize card width and on-screen density.
                 crossAxisSpacing: 4,
                 mainAxisSpacing: 6,
                 crossAxisCount: axisCnt,
@@ -492,16 +488,6 @@ class _FavoriteControls extends HookConsumerWidget {
     final state = ref.watch(favoritePageProvider);
     final searchController = useTextEditingController(text: state.query);
 
-    // No own headerDecoration: the controls sit on the PAGE CANVAS (same
-    // background as the grid below), not on a dark band.
-    //
-    // COMPACT (NLM): the old 3-tier stack (search + Type label + Type pills
-    // + Tags label + tag rail) ate ~450px of chrome before the grid. Now:
-    //   - search is a thin 40px field,
-    //   - Type pills + tag chips share ONE horizontal rail (labels removed,
-    //     a divider between the two facets), with the pinned Filter button
-    //     at the end.
-    // This reclaims ~300px, so the grid starts ~y=140 instead of ~y=490.
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 2, 8, 4),
       child: Column(
@@ -577,15 +563,7 @@ class _FavoriteHeaderActions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [
-        // Type filter as a compact icon-only segmented control in the header's
-        // upper-right. The first icon is a general "All" tab that clears the
-        // type filter; Video / Manga / Novel follow. The active segment is
-        // already highlighted, so no separate "Favorite · Manga" label is
-        // needed — it would duplicate the state (NLM: remove the redundant
-        // inline label; the segmented control is the single source of truth).
-        const _HeaderTypeTabs(),
-      ],
+      children: [const _HeaderTypeTabs()],
     );
   }
 }
@@ -726,9 +704,6 @@ class _FavoriteTagRow extends ConsumerWidget {
           margin: const EdgeInsets.symmetric(horizontal: 2),
           color: context.theme.colors.border,
         ),
-        // Pinned filter button with a wide fade — always reachable at the end.
-        // The fade clearly signals that the tags scroll underneath it (NLM:
-        // alpha fade = scroll affordance at the boundary).
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -761,10 +736,6 @@ class _FilterButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.theme.colors;
-    // Secondary/outline style (NLM: the solid primary fill made the Filter
-    // button the brightest element on the page, overpowering the tag chips —
-    // a visual hierarchy inversion). Now it's a subtle outlined control so
-    // the active/selected tag chips carry the primary visual weight.
     final radius = context.theme.style.borderRadius.md;
     return FTappable(
       onPress: onTap,
@@ -864,11 +835,6 @@ class _FavoriteCard extends StatelessWidget {
                 fit: BoxFit.cover,
                 errChild: _CoverFallback(title: title, type: type),
               ),
-              // Bottom gradient scrim: transparent at 40% height, ramping to
-              // 95% black at the bottom so the overlaid text stays readable
-              // over bright/busy cover art (NLM: 60% scrim height + 95% black
-              // bottom guarantees WCAG AA contrast; a shallow scrim failed on
-              // light covers).
               Positioned.fill(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -892,14 +858,9 @@ class _FavoriteCard extends StatelessWidget {
               // redundant noise.
               if (!hideTypeBadge)
                 Positioned(top: 6, left: 6, child: _TypeBadge(type: type)),
-              // AniList score badge (top-right) when the title is linked and
-              // scored — NLM Rank 4/3.
+
               if (score != null && score! > 0)
                 Positioned(top: 6, right: 6, child: _ScoreBadge(score: score!)),
-              // Title + subtitle overlaid at the bottom of the cover. Padding
-              // (8 horizontal, 8 bottom) — the scrim guarantees contrast, and
-              // 8px bottom gives the 2-line title room to breathe above the
-              // card edge (NLM: too-tight bottom padding clipped descenders).
               Positioned(
                 left: 8,
                 right: 8,
@@ -915,10 +876,6 @@ class _FavoriteCard extends StatelessWidget {
                       style: context.theme.typography.body.sm.copyWith(
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
-                        // NLM: long CJK/English titles in a 2-line overlay
-                        // were cramped at height ~1.1. 1.25 gives the 2 lines
-                        // breathing room so ascenders/descenders don't collide
-                        // and the title reads cleanly over the scrim.
                         height: 1.25,
                         shadows: const [
                           Shadow(

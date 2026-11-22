@@ -284,33 +284,6 @@ flutter test               # unit, provider, per-feature widget, integration
 Suites are grouped by feature: `test/unit`, `test/provider`, `test/ui`,
 `test/domain`, `test/utils`, and `integration_test/`.
 
-### UI review (Widgetbook ⇄ NLM)
-
-The component catalog (`widgetbook/`) is a separate Flutter app. UI review
-runs on it: rate a story in Widgetbook, implement in the main app, verify on
-the live app with marionette (MCP + CLI).
-
-- **Widgetbook is FRONTEND-ONLY prototyping with DUMMY data.** No miru-core,
-  no gRPC, no database, no network calls in a widgetbook story — never
-  initialize miru-core there (it crashes on hot restart with a native
-  `InitProgram` panic). The catalog renders UI states with fixtures/fakes; it
-  is not for normal app usage.
-- **Pixel capture is marionette-only — never the operating system.** Do NOT
-  screenshot through `spectacle`, `grim`, KWin `ScreenShot2`/DBus,
-  `xdotool`/`import`/`scrot`/`maim`, XWayland, or `wf-recorder`. The only
-  sanctioned way to capture the app's pixels is
-  `marionette ... take-screenshots -o out.png` (or the marionette MCP)
-  against a marionette-bound instance (`lib/main_debug.dart`).
-- If the target has no marionette binding (the Widgetbook workspace, or a
-  `--release` build), marionette cannot shoot it — stop and ask for a
-  `lib/main_debug.dart` relaunch instead of falling back to an OS screen grab.
-- **Never pop up or steal focus on the main window.** Do not run KWin
-  scripts, `wmctrl`, `xdotool windowactivate`, or anything that raises,
-  activates or focuses a window. If a relaunch steals focus, push the window
-  to the background (lower / unfocus) rather than raising it.
-
----
-
 ## Known limitations
 
 - **No built-in content.** The app ships no extensions and no catalogue; it
