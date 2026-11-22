@@ -24,7 +24,6 @@ class MiruCoreIsolateData {
 }
 
 class Core {
-  // config location
   static String configLoc = '';
   static Map<String, dynamic>? configData;
   static bool isInit = false;
@@ -267,7 +266,6 @@ class Core {
             source: 'miru-core',
           );
         }
-        // Log to the main isolate's logger
         logger.log(level, message['message']);
       }
     });

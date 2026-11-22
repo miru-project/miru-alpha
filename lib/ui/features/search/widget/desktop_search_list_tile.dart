@@ -106,9 +106,6 @@ class DesktopSearchListTile extends HookConsumerWidget {
                 prefix: const Icon(FLucideIcons.trash),
                 title: Text('extension.uninstall'.i18n),
                 onPress: () {
-                  // final context = RouterUtil.rootNavigatorKey.currentContext;
-                  // if (context == null) return;
-                  // showFToast(context: context, title: Text("Test"));
                   if (MiruSettings.getSettingSync<bool>(
                     SettingKey.showDeleteExtensionDialog,
                   )) {

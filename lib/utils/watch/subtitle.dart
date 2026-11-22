@@ -9,7 +9,6 @@ class SubtitleUtil {
     String url, {
     Map<String, String> headers = const {},
   }) async {
-    // #todo
     final dynamic rawData = await MiruRequest.get(
       url,
       options: Options(headers: headers),

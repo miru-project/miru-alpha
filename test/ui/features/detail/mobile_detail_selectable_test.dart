@@ -173,7 +173,6 @@ Future<ProviderContainer> _pumpSilverlist(WidgetTester tester) async {
 void main() {
   setUpAll(MiruSettings.seedDefaultsForTest);
   setUp(() async {
-    // I18nUtils.flutterI18nDelegate reads the language setting at first use.
     MiruSettings.setSettingSync(SettingKey.language, 'en');
   });
 

@@ -42,7 +42,6 @@ class MiruGridTileLoadingBox extends StatelessWidget {
                 vertical: 5,
               ),
               child: Container(
-                // width: width ?? 200,
                 height: 10,
                 decoration: BoxDecoration(
                   color: context.theme.colors.mutedForeground,

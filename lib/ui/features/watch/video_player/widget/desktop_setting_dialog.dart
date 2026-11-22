@@ -37,12 +37,9 @@ class DesktopSettingDialog extends HookConsumerWidget {
     final width = MediaQuery.of(context).size.width;
     final epController = ref.watch(epProvdier);
     final epNotifier = ref.read(epProvdier.notifier);
-    // final subController = ref.watch(subtitleProvider);
-    // final subNotifier = ref.read(subtitleProvider.notifier);
     final controller = ref.read(vidPr);
     final notifer = ref.read(vidPr.notifier);
     final dialogContent = [
-      // episodes
       ListView.builder(
         itemBuilder: (context, index) => Column(
           children: [
@@ -82,7 +79,6 @@ class DesktopSettingDialog extends HookConsumerWidget {
         },
         itemCount: controller.qualityMap.length,
       ),
-      // subtitle
       ListView.builder(
         itemCount: controller.subtitlesRaw.length,
         itemBuilder: (context, int index) => FButton(
@@ -94,7 +90,6 @@ class DesktopSettingDialog extends HookConsumerWidget {
           child: Text(controller.subtitlesRaw[index].title),
         ),
       ),
-      // settings
       Container(),
     ];
     final dialogFactor = DeviceUtil.isMobileLayout(context) ? 0.8 : .5;
@@ -123,7 +118,6 @@ class DesktopSettingDialog extends HookConsumerWidget {
               child: Container(
                 height: height * dialogFactor,
                 decoration: BoxDecoration(
-                  // color: Theme.of(context).colorScheme.surface,
                   borderRadius: const BorderRadius.horizontal(
                     right: Radius.circular(10),
                   ),

@@ -134,7 +134,6 @@ class AnilistSearchDialog extends HookConsumerWidget {
                             ),
                           ),
                           onPress: () async {
-                            // Check if tracker already exists in local DB
                             final dState = ref.read(detailPr);
                             final trackers = dState.detailInfo?.trackers ?? [];
                             final existing = trackers

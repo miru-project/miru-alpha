@@ -183,7 +183,6 @@ class RouterUtil {
                       ),
                     ),
                     routes: [
-                      // for mobile layout  only
                       GoRoute(
                         path: 'history',
                         pageBuilder: (context, state) => noTransitionPage(

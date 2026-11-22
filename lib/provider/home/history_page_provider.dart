@@ -55,7 +55,6 @@ class HistoryPageNotifier extends _$HistoryPageNotifier {
     return HistoryPageState(history: [], filteredHistory: []);
   }
 
-  // ADD
   Future<void> addHistory(History history) async {
     await DatabaseService.putHistory(history);
     if (!ref.mounted) return;
@@ -72,7 +71,6 @@ class HistoryPageNotifier extends _$HistoryPageNotifier {
     logger.fine('register history ${history.title}');
   }
 
-  // DELETE
   void deleteHistory(History history) {
     state = state.copyWith(
       history: state.history.where((e) => e.id != history.id).toList(),
@@ -83,7 +81,6 @@ class HistoryPageNotifier extends _$HistoryPageNotifier {
     DatabaseService.deleteHistoryByPackageAndUrl(history.package, history.url);
   }
 
-  // FILTER
   void filterWithDuration(Duration duration) {
     this.duration = duration;
     final history = state.history;

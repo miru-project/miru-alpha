@@ -112,7 +112,6 @@ Future<WatchResult> resolveWatch({
   String? mirrorUrl,
 }) async {
   try {
-    // Get download info if exists
     final downloaded = await MiruGrpcClient.downloadClient
         .getDownloadByPackageWatchUrlDetailUrl(
           proto.GetDownloadByPackageWatchUrlDetailUrlRequest(
@@ -157,7 +156,6 @@ Future<WatchResult> resolveWatch({
                 : group.mirrors.first;
           }
 
-          // Call mirror which now returns the specialized mirror object
           try {
             final resolved = await MiruCoreEndpoint.mirror(
               meta.packageName,

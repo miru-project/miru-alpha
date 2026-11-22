@@ -188,10 +188,6 @@ class DownloadNotifier extends _$DownloadNotifier {
     if (state.value != null) state = AsyncData(updated);
   }
 
-  // ---------------------------------------------------------------------------
-  // Drag-order helpers
-  // ---------------------------------------------------------------------------
-
   /// Mark drag start/end so stream updates can skip list replacement.
   void setDragging(bool dragging) {
     _dragInProgress = dragging;
@@ -211,10 +207,8 @@ class DownloadNotifier extends _$DownloadNotifier {
       if (task != null) ordered.add(task);
     }
 
-    // New tasks not yet in user order → append
     ordered.addAll(taskMap.values);
 
-    // Sync order list to current active set
     _userOrderedTaskIds = ordered.map((t) => t.taskId).toList();
     return ordered;
   }
@@ -281,7 +275,6 @@ class DownloadNotifier extends _$DownloadNotifier {
       ),
     );
 
-    // Process any tasks that need frontend processing (e.g. HLS conversion)
     for (final download in allTasks) {
       if (_isProcessingStatus(download.status)) {
         _processDownload(download);
@@ -307,7 +300,6 @@ class DownloadNotifier extends _$DownloadNotifier {
       // task's status hasn't moved to a terminal state.
       final merged = _mergeProgress(allTasks);
 
-      // Sort by user drag order (unknown tasks appended at end).
       final sortedActive = _sortActiveByOrder(merged);
 
       // While the user is dragging, never replace the active list – doing so
@@ -319,14 +311,12 @@ class DownloadNotifier extends _$DownloadNotifier {
         });
       }
 
-      // Process tasks needing frontend processing (e.g. HLS conversion)
       for (final download in merged) {
         if (_isProcessingStatus(download.status)) {
           _processDownload(download);
         }
       }
 
-      // Detect download status transitions and show notifications
       _handleStatusTransitions(merged);
     });
   }
@@ -339,7 +329,6 @@ class DownloadNotifier extends _$DownloadNotifier {
       final previousStatus = _previousStatuses[task.taskId];
       _previousStatuses[task.taskId] = task.status;
 
-      // Detect transition to FAILED status
       if (task.status == proto.DownloadStatus.FAILED &&
           previousStatus != null &&
           previousStatus != proto.DownloadStatus.FAILED) {
@@ -357,11 +346,9 @@ class DownloadNotifier extends _$DownloadNotifier {
             'reason': errorInfo,
           }),
         );
-        // Clean up temporary files for failed download
         _cleanupTempFiles(task);
       }
 
-      // Detect transition to COMPLETED status
       if (task.status == proto.DownloadStatus.COMPLETED &&
           previousStatus != null &&
           previousStatus != proto.DownloadStatus.COMPLETED) {
@@ -377,7 +364,6 @@ class DownloadNotifier extends _$DownloadNotifier {
         // here to avoid race conditions, but we rely on the processing logic.
       }
 
-      // Detect transition to CANCELLED status
       if (task.status == proto.DownloadStatus.CANCELLED &&
           previousStatus != null &&
           previousStatus != proto.DownloadStatus.CANCELLED) {
@@ -385,12 +371,10 @@ class DownloadNotifier extends _$DownloadNotifier {
           'Download cancelled: ${task.title} '
           '(taskId: ${task.taskId}, mediaType: ${task.mediaType})',
         );
-        // Clean up temporary files for cancelled download
         _cleanupTempFiles(task);
       }
     }
 
-    // Clean up entries for tasks no longer in active list
     final activeIds = tasks.map((t) => t.taskId).toSet();
     _previousStatuses.keys
         .where((id) => !activeIds.contains(id))
@@ -431,7 +415,6 @@ class DownloadNotifier extends _$DownloadNotifier {
     final currentState = state.value;
     if (currentState == null) return incoming;
 
-    // Build a taskId → existing task lookup.
     final existingMap = <int, proto.DownloadProgress>{};
     for (final t in currentState.active) {
       existingMap[t.taskId] = t;
@@ -441,11 +424,8 @@ class DownloadNotifier extends _$DownloadNotifier {
       final existing = existingMap[newTask.taskId];
       if (existing == null) return newTask;
 
-      // If the status is unchanged and the incoming progress is lower,
-      // keep the existing (higher) progress value so the UI never regresses.
       if (existing.progress > newTask.progress &&
           existing.status == newTask.status) {
-        // Return a copy with the higher progress.
         return proto.DownloadProgress()
           ..mergeFromMessage(newTask)
           ..progress = existing.progress;
@@ -675,7 +655,6 @@ class DownloadNotifier extends _$DownloadNotifier {
           "Failed to report FAILED for task ${download.taskId}: $reportError",
         );
       }
-      // Optimistically update local state too.
       _optimisticallyUpdateStatus(download.taskId, proto.DownloadStatus.FAILED);
       // Remove from _processedTasks so the user can retry by hitting Resume.
       _processedTasks.remove(key);
@@ -694,7 +673,6 @@ class DownloadNotifier extends _$DownloadNotifier {
       await for (final entity in dir.list()) {
         if (entity is! File) continue;
         final name = p.basename(entity.path);
-        // Strip extension and check if the base is a number.
         final dotIndex = name.lastIndexOf('.');
         final base = dotIndex > 0 ? name.substring(0, dotIndex) : name;
         final index = int.tryParse(base);
@@ -881,7 +859,6 @@ class DownloadNotifier extends _$DownloadNotifier {
           if (task != null && task.isNotEmpty) {
             _cleanupTempFiles(task.first);
           }
-          // Remove cancelled task from active list.
           state.whenData((currentState) {
             state = AsyncData(
               currentState.copyWith(

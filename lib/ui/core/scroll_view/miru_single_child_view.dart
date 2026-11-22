@@ -23,7 +23,6 @@ class MiruSingleChildView extends StatelessWidget {
 
     EdgeInsets widthPadding = EdgeInsets.zero;
 
-    // 计算需要添加的 padding
     if (maxWidth != null) {
       double widthPaddingValue =
           (MediaQuery.of(context).size.width - maxWidth!) / 2;

@@ -46,7 +46,6 @@ class MobileLoadedPage extends HookConsumerWidget {
     final screenW = MediaQuery.widthOf(context);
     final inset = screenW > 752 ? (screenW - 720) / 2 : 16.0;
     return EasyRefresh(
-      // The header's fail X shows the reason the refresh did nothing —
       // _handleRefreshFailure stores it in lastError before the task returns.
       header: ForuiHeader(errorText: () => ref.read(detailPr).lastError),
       triggerAxis: Axis.vertical,

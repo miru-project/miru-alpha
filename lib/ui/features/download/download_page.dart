@@ -125,7 +125,6 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
 
         return CustomScrollView(
           slivers: [
-            // -- Pinned "Download" header
             SliverPersistentHeader(
               pinned: true,
               delegate: SimpleSliverHeaderDelegate(
@@ -189,7 +188,6 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
                 ),
               ),
             ),
-            // -- Settings row
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
               sliver: SliverToBoxAdapter(
@@ -243,7 +241,6 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
               ),
             ),
 
-            // -- Active Tasks
             if (activeTasks.isNotEmpty) ...[
               SliverPadding(
                 padding: const EdgeInsets.symmetric(
@@ -297,7 +294,6 @@ class DownloadPageDesktopLayout extends ConsumerWidget {
               ),
               const SliverPadding(padding: EdgeInsets.only(bottom: 16)),
             ],
-            // -- History
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
               sliver: SliverToBoxAdapter(

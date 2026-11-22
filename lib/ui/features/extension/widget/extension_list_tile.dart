@@ -318,7 +318,6 @@ class _ExtensionAction extends StatelessWidget {
   }
 }
 
-/// Desktop grid tile - kept unchanged
 class ExtensionGridTile extends StatelessWidget {
   const ExtensionGridTile({
     super.key,

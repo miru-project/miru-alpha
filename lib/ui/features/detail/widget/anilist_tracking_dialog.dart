@@ -29,7 +29,6 @@ class AnilistTrackingDialog extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final state = ref.watch(anilistTrackPageProvider(param.mediaId));
     final isLoading = ref.watch(
       anilistTrackPageProvider(param.mediaId).select((e) => e.isLoading),
     );

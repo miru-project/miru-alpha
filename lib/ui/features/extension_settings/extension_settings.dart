@@ -154,9 +154,6 @@ class _InputSetting extends HookWidget with FTileMixin {
 
   @override
   Widget build(BuildContext context) {
-    // final controller = useTextEditingController(
-    //   text: setting.value ?? setting.defaultValue,
-    // );
     final timer = useState<Timer?>(null);
 
     void saveWithTimer(String value) {
@@ -256,18 +253,5 @@ class _ToggleSetting extends HookWidget with FTileMixin {
         ExtensionSetting.saveSettings(setting.package, [setting]);
       },
     );
-    // SettingBaseTile(
-    //   isMobileLayout: isMobile,
-    //   title: setting.title,
-    //   subtitle: setting.description,
-    //   child: FSwitch(
-    //     value: isSwitched.value,
-    //     onChange: (val) {
-    //       isSwitched.value = val;
-    //       setting.value = val.toString();
-    //       ExtensionSetting.saveSettings(setting.package, [setting]);
-    //     },
-    //   ),
-    // );
   }
 }

@@ -23,7 +23,6 @@ class NetworkView extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         FTileGroup.builder(
-          // shrinkWrap: true,
           count: filteredRequests.length,
           tileBuilder: (context, index) {
             final req = filteredRequests[index];

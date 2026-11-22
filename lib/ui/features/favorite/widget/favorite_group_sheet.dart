@@ -13,7 +13,7 @@ import 'package:miru_alpha/utils/core/i18n.dart';
 /// the sheet updates live while it is open — there is no Apply/Done step; a
 /// barrier tap, back gesture or drag dismisses. The barrier is tinted lighter
 /// than forui's default so the live update stays readable behind it
-/// (UX-review: real-time preview, top half of the screen visible).
+/// (real-time preview, top half of the screen visible).
 Future<void> showFavoriteGroupSheet(BuildContext context) {
   return showFSheet<void>(
     context: context,
@@ -95,7 +95,7 @@ class FavoriteGroupSheet extends HookConsumerWidget {
         border: Border(top: BorderSide(color: context.theme.colors.border)),
       ),
       // Low-height sheet: the feed above stays visible for live preview, so
-      // the body is kept dense (UX-review: sheet must not pass mid-screen).
+      // the body is kept dense (the sheet must not pass mid-screen).
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -211,7 +211,7 @@ class FavoriteGroupSheet extends HookConsumerWidget {
           _SectionLabel('favorite.current_groups'.i18n),
           const SizedBox(height: 8),
           // Chips flow directly on the sheet background — wrapping short
-          // chips in a second box added an unnecessary layer (UX-review).
+          // chips in a second box added an unnecessary layer.
           ConstrainedBox(
             constraints: BoxConstraints(maxHeight: chipViewport),
             child: SingleChildScrollView(
@@ -239,7 +239,7 @@ class FavoriteGroupSheet extends HookConsumerWidget {
 /// Label of a BROWSING chip (the dashboard's favorite-tag strip).
 ///
 /// The count is informative while browsing but noise in a selection sheet —
-/// [FavoriteGroupSheet] chips show the bare name (UX-review: hide secondary
+/// [FavoriteGroupSheet] chips show the bare name (hide secondary
 /// counters during selection). Zeros are suppressed either way: an empty
 /// group reads as `anime1`, a populated one as `test (3)`. Favorites from
 /// hidden extensions never reach the count.

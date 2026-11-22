@@ -72,8 +72,6 @@ class EpisodeNotifier extends _$EpisodeNotifier {
     );
     _capturedState = initialState;
 
-    // ref.onDispose(() );
-
     return initialState;
   }
 
@@ -176,7 +174,6 @@ class EpisodeNotifier extends _$EpisodeNotifier {
                       progress: newProgress,
                       status: AniListProvider.stringToMediaListStatus(t.status),
                     );
-                    // Update local tracker
                     t.progress = newProgress;
                     await syncLocalTracker(t);
                   }

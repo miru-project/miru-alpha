@@ -83,10 +83,10 @@ class _CompassPainter extends CustomPainter {
 
     // 3. Draw the animated Needle
     canvas.save();
-    canvas.translate(centerX, centerY); // Move origin to center
-    canvas.rotate(rotationRadians); // Rotate around center
-    canvas.scale(scale); // Scale the path
-    canvas.translate(-12, -12); // Move back to path origin for drawing
+    canvas.translate(centerX, centerY);
+    canvas.rotate(rotationRadians);
+    canvas.scale(scale);
+    canvas.translate(-12, -12);
 
     Path needle = parseSvgPathData(needleData);
     canvas.drawPath(needle, paint);

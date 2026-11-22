@@ -133,10 +133,6 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     ProportionalToViewportSheetOffset(1.0),
   ];
 
-  // ---------------------------------------------------------------------------
-  // SnapSheet mode
-  // Composition: header slivers + snapSheet items in a CustomScrollView
-  // ---------------------------------------------------------------------------
   Widget _buildSnapSheetMode(bool isMobileTitleOnTop) {
     final slivers = <Widget>[
       // Add all sliver headers wrapped in SliverPersistentHeader
@@ -176,10 +172,6 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Non-snapSheet mode
-  // Composition: sliver headers + body in a CustomScrollView
-  // ---------------------------------------------------------------------------
   Widget _buildNonSnapSheetMode() {
     final slivers = <Widget>[
       ...widget.sliverHeaders.map(
@@ -231,7 +223,6 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     final newOffset = notification.metrics.pixels;
     final delta = (newOffset - _nonSnapScrollOffset).abs();
 
-    // Apply throttle threshold
     final threshold = switch (widget.scrollThrottle) {
       ScrollUpdateThrottle.none => 0.1,
       ScrollUpdateThrottle.low => 1.0,
@@ -243,7 +234,6 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
       _nonSnapScrollOffset = newOffset;
       _scrollPositionNotifier.value = newOffset;
       if (widget.onScrollChange != null) {
-        // Calculate progress based on maxExtent from sliver headers
         final maxExtent = widget.sliverHeaders.isNotEmpty
             ? widget.sliverHeaders.first.maxExtent
             : widget.headerHeight;
@@ -254,9 +244,6 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     return false;
   }
 
-  // ---------------------------------------------------------------------------
-  // Snap sheet content widget (the draggable sheet itself)
-  // ---------------------------------------------------------------------------
   Widget _buildSnapSheetContent({required List<Widget> slivers}) {
     final snaps = widget.snappingOffsets ?? _defaultSnappingOffsets;
 
@@ -285,9 +272,6 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Shared helpers
-  // ---------------------------------------------------------------------------
   Widget _buildBodyBackground() {
     return Positioned.fill(
       child: FScaffold(
@@ -375,12 +359,9 @@ class _MiruScaffoldState extends ConsumerState<MiruScaffold> {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Desktop mode
   // Composition: sliver headers + body/slivers in a CustomScrollView.
   // Mirrors the mobile non-snapSheet path so callers may pass content via
   // [slivers] (a list of slivers) instead of a box [body] on desktop too.
-  // ---------------------------------------------------------------------------
   Widget _buildDesktopWidget() {
     if (widget.desktopBody != null || widget.body != null) {
       return widget.desktopBody ?? widget.body!;

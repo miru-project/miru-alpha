@@ -40,7 +40,6 @@ class MobileVideoSheet extends HookConsumerWidget {
       maxChildSize: 0.9,
       builder: (context, scrollController) {
         final dialogContent = [
-          // episodes
           SingleChildScrollView(
             controller: scrollController,
             child: Column(
@@ -81,7 +80,6 @@ class MobileVideoSheet extends HookConsumerWidget {
               ),
             ),
           ),
-          // resolution
           SingleChildScrollView(
             controller: scrollController,
             child: FTileGroup.builder(
@@ -98,7 +96,6 @@ class MobileVideoSheet extends HookConsumerWidget {
               },
             ),
           ),
-          // subtitle
           SingleChildScrollView(
             controller: scrollController,
             child: FTileGroup.builder(
@@ -115,7 +112,6 @@ class MobileVideoSheet extends HookConsumerWidget {
               },
             ),
           ),
-          // settings
           SingleChildScrollView(
             controller: scrollController,
             child: Container(),
@@ -134,14 +130,6 @@ class MobileVideoSheet extends HookConsumerWidget {
               ),
             ),
 
-            // (style) => style.copyWith(
-            //   decoration: BoxDecoration(
-            //     color: context.theme.colors.background.withAlpha(150),
-            //     borderRadius: style.decoration.borderRadius,
-            //     border: style.decoration.border,
-            //     shape: style.decoration.shape,
-            //   ),
-            // ),
             child: Column(
               children: [
                 const SizedBox(height: 10),
@@ -154,7 +142,6 @@ class MobileVideoSheet extends HookConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Custom Tab Bar
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),

@@ -150,7 +150,6 @@ class _Loaded extends HookConsumerWidget {
                   height: 200,
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      // Use Flexible/Expanded to prevent overflow
                       return Row(
                         children: [
                           DetailImageView(detail: detail, coverUrl: coverUrl),
@@ -240,7 +239,6 @@ class _Loaded extends HookConsumerWidget {
                 ),
                 const SizedBox(height: 20),
               ],
-              // Use Wrap for responsive layout that wraps on small screens
               Wrap(
                 spacing: 12,
                 runSpacing: 12,

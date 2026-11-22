@@ -62,13 +62,6 @@ class _HeaderState extends ConsumerState<PlayerHeader> {
           color: context.theme.colors.background.withAlpha(200),
         ),
       ),
-      //  FCardStyle.inherit(
-      //   colors: context.theme.colors.copyWith(
-      //     background: context.theme.colors.background.withAlpha(200),
-      //   ),
-      //   typography: context.theme.typography,
-      //   style: context.theme.style,
-      // ).call,
       child: Blur(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),

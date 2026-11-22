@@ -229,7 +229,6 @@ class DownloadProcessTile extends ConsumerWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Drag handle for reordering
               Padding(
                 padding: const EdgeInsets.only(right: 8, top: 4),
                 child: Icon(

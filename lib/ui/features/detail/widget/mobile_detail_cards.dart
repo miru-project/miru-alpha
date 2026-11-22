@@ -540,7 +540,6 @@ class _TrackerPanel extends HookConsumerWidget {
             ),
           ),
           _divider(context),
-          // auto-sync footer
           const _AutoSyncFooter(),
         ],
       ),
@@ -737,7 +736,6 @@ class _ServiceRow extends ConsumerWidget {
           ),
           if (service.isLinked && notifier != null) ...[
             const SizedBox(height: 6),
-            // quick status pills + score
             Row(
               children: [
                 for (final status in const [

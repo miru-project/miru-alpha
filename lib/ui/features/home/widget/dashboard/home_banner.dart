@@ -562,12 +562,12 @@ class _BannerSlide extends StatelessWidget {
                       const SizedBox(height: 12),
                       _BannerActions(item: item),
                     ],
-                  ), // Column
-                ); // ConstrainedBox
-              }, // LayoutBuilder builder
-            ), // LayoutBuilder
-          ), // Align
-        ), // Padding
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
       ],
     );
   }

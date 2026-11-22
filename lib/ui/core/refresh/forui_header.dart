@@ -250,7 +250,6 @@ class _ForuiIndicatorState extends State<_ForuiIndicator>
     final double triggerOffset = widget.state.actualTriggerOffset;
     final double opacity = math.min(_offset / triggerOffset, 1.0);
 
-    // Calculate a scale effect for the progress indicator as you pull
     final double scale = _mode == IndicatorMode.drag
         ? math.min(_offset / triggerOffset, 1.0)
         : 1.0;

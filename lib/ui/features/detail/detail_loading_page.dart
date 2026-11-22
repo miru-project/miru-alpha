@@ -352,10 +352,8 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Desktop detail: header (Back / Prev / Next / Refresh) + breadcrumb, with
 // scaffold loading shown on the present page while the MVVM model re-fetches.
-// ---------------------------------------------------------------------------
 
 /// Wraps [child] in a desktop scaffold that always renders the detail header
 /// (Back / Prev / Next / Refresh + breadcrumb) so the present page keeps its

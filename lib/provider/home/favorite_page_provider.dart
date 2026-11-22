@@ -180,7 +180,6 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     return map;
   }
 
-  // INIT
   Future<void> init() async {
     // Favorites read the backend DB; hold on the connection gate so a cold
     // start shows the section's loading state instead of a failed fetch.
@@ -190,7 +189,6 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     _refilter();
   }
 
-  //REFRESH
   Future<void> refreshFavoritesAndGroup() async {
     final futures = await Future.wait([
       DatabaseService.getAllFavoriteGroup(),
@@ -203,7 +201,6 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     _refilter();
   }
 
-  // DELETE
   void deleteFavorite(Favorite favorite) {
     state = state.copyWith(
       favorites: state.favorites.where((e) => e.id != favorite.id).toList(),
@@ -223,7 +220,6 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     DatabaseService.deleteFavoriteGroup([favoriateGroup.name]);
   }
 
-  // ADD
   void addFavorite(Favorite favorite) {
     state = state.copyWith(favorites: [favorite, ...state.favorites]);
   }
@@ -310,8 +306,6 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     _refilter();
   }
 
-  // FILTER FAVORITE GROUPS
-  //  At mobile home favorite page
   void filterFavoriteGroups(List<FavoriteGroup> favGroups) {
     state = state.copyWith(selectedFavoriteGroups: favGroups);
     _refilter();
@@ -384,13 +378,11 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     return groups.first.favorites.where((f) => result.contains(f)).toList();
   }
 
-  // CREATE FAVORITE GROUP
   Future<void> createFavoriteGroup(String name) async {
     final newGroup = await DatabaseService.putFavoriteGroup(name);
     state = state.copyWith(favoriteGroups: [newGroup, ...state.favoriteGroups]);
   }
 
-  // UPDATE
   void updateFavorites({
     List<FavoriteGroup>? favoriteGroup,
     List<Favorite>? favorites,

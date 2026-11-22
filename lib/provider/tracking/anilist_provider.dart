@@ -25,15 +25,12 @@ class AnilistAccount extends _$AnilistAccount {
     final url = Uri.parse("http://127.0.0.1:3000/anilist");
     await launchUrl(url, mode: LaunchMode.externalApplication);
 
-    // Cancel existing timer if any
     _timer?.cancel();
 
-    // Start polling for user data
     int attempts = 0;
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) async {
       attempts++;
       if (attempts > 10) {
-        // Timeout after 2 minutes
         timer.cancel();
         return;
       }
@@ -43,7 +40,6 @@ class AnilistAccount extends _$AnilistAccount {
         state = AsyncValue.data(user);
         timer.cancel();
       } catch (_) {
-        // Keep polling
       }
     });
   }

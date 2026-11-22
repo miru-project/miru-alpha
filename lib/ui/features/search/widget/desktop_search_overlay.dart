@@ -474,7 +474,7 @@ class SearchOverlayPopup extends HookConsumerWidget {
                           _SingleFilterFooter(meta: singleMeta),
                       ],
                     ),
-                  ); // Added semicolon for return statement in block function
+                  );
                 },
               ),
             ),

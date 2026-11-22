@@ -60,7 +60,6 @@ class DesktopTileList extends ConsumerWidget {
 
       if (res.variantSummary.isNotEmpty) {
         if (!context.mounted) return;
-        // Show variant selection dialog
         showFDialog(
           context: context,
           builder: (context, _, animation) => MiruDialog(
@@ -125,7 +124,6 @@ class DesktopTileList extends ConsumerWidget {
           final url = group.urls[index];
           final key = "${meta.packageName}_${group.title}_${url.name}";
 
-          // Watch active downloads for this key
           final progress = ref.watch(
             downloadProvider.select((s) {
               final active = s.value?.active ?? [];
@@ -133,7 +131,6 @@ class DesktopTileList extends ConsumerWidget {
             }),
           );
 
-          // Watch download history for this key
           final history = ref.watch(
             downloadProvider.select((s) {
               final history = s.value?.history ?? [];
@@ -141,7 +138,6 @@ class DesktopTileList extends ConsumerWidget {
             }),
           );
 
-          // Watch preparing (loading) state from the provider
           final isLoading = ref.watch(
             downloadProvider.select(
               (s) => s.value?.preparingKeys.contains(key) ?? false,

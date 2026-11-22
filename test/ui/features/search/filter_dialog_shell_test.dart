@@ -94,7 +94,7 @@ void main() {
       await _openDialog(tester);
 
       // No i18n delegate in widget tests, so raw keys render.
-      expect(find.text('common.filters'), findsOneWidget); // title
+      expect(find.text('common.filters'), findsOneWidget);
       // The subtitle went with the footer the user removed.
       expect(find.text('search.filters_subtitle'), findsNothing);
       expect(find.text('common.reset'), findsOneWidget);

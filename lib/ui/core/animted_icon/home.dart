@@ -7,7 +7,7 @@ import 'package:path_drawing/path_drawing.dart';
 class HomeIcon extends StatelessWidget {
   final double size;
   final Color color;
-  final bool isTriggered; // Changed from isAnimating to isTriggered
+  final bool isTriggered;
 
   const HomeIcon({
     super.key,

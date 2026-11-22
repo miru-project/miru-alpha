@@ -91,8 +91,6 @@ CubicPath reverseCubics(CubicPath p) {
   return CubicPath(out, x, y, closed: p.closed);
 }
 
-// ---------------------------------------------------------------------------
-
 List<CubicPath> parsePath(String d) {
   final subs = <(_Buf, bool)>[];
   var buf = _Buf();

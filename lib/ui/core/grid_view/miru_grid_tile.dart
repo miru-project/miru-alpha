@@ -43,13 +43,11 @@ class MiruDesktopGridTile extends HookWidget {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Image fills the area
                     ImageWidget.defaultErr(
                       imageUrl: imageUrl,
                       fit: BoxFit.cover,
                       title: title,
                     ),
-                    // Bottom gradient shadow
                     Positioned(
                       left: 0,
                       right: 0,
@@ -128,9 +126,6 @@ class MiruMobileTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // if (imageUrl == null) {
-    //   return _TextTile(title: title, subtitle: subtitle);
-    // }
     return SizedBox(
       width: width,
       height: height,
@@ -140,7 +135,6 @@ class MiruMobileTile extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Image fills the area
             if (imageUrl == null)
               Container(
                 decoration: BoxDecoration(
@@ -180,7 +174,6 @@ class MiruMobileTile extends StatelessWidget {
                 ),
               ),
 
-            // Bottom gradient shadow
             Positioned(
               left: 0,
               right: 0,

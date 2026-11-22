@@ -16,7 +16,6 @@ class BlocksPathLoopIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Path Data from your React code
     const String path1Initial =
         "M10 22V7c0-.6-.4-1-1-1H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-5c0-.6-.4-1-1-1H2";
     const String path1Animate =
@@ -117,7 +116,6 @@ class _PathPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Path path = parseSvgPathData(pathData);
 
-    // Scale SVG 24x24 to widget size
     final matrix = Matrix4.diagonal3Values(
       size.width / 24,
       size.height / 24,

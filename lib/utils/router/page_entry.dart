@@ -17,7 +17,6 @@ class WatchParams {
     this.detailPr,
   });
   final ExtensionMeta meta;
-  // Watch Url
   final String url;
   final List<ExtensionEpisodeGroup>? epGroup;
   final int selectedGroupIndex;

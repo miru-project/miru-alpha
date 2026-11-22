@@ -259,7 +259,6 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
   void setFileNotifier(Map<String, ExtensionFilter> m) {
     final Map<String, List<String>> newSelected = Map.from(state.selected);
     for (final key in m.keys) {
-      // Initialize if selection is empty and a default is available
       if (newSelected[key] == null || newSelected[key]!.isEmpty) {
         final def = _defaultSelection(m[key]!);
         newSelected[key] = def;
@@ -310,7 +309,6 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
     final effectiveMax = view.isSingleSelect ? 1 : view.max;
 
     List<String> newVal = val;
-    // Enforce max count
     if (newVal.length > effectiveMax) {
       if (effectiveMax == 1) {
         newVal = [newVal.last];
@@ -319,7 +317,6 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
       }
     }
 
-    // Enforce min count
     if (newVal.length < effectiveMin) {
       final current = state.selected[key] ?? [];
       if (current.length >= effectiveMin) {
@@ -424,7 +421,6 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
             mergedKeys.add(k);
           }
         }
-        // Remove keys that are no longer present
         mergedKeys.removeWhere((k) => !newKeys.contains(k));
 
         state = state.copyWith(filter: newFilters, filterOrder: mergedKeys);
@@ -456,7 +452,6 @@ class SearchPageSingleProvider extends _$SearchPageSingleProvider {
       defaultSelected[key] = _defaultSelection(state.filter[key]!);
     }
 
-    // Check if changed
     bool changed = false;
     for (final key in state.filterOrder) {
       final current = state.selected[key] ?? [];

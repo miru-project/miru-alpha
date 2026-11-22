@@ -71,10 +71,6 @@ enum ScrollUpdateThrottle {
   high, // ~64ms (15fps)
 }
 
-// ---------------------------------------------------------------------------
-// Concrete delegates
-// ---------------------------------------------------------------------------
-
 /// Delegate for headers that shrink when scrolling up.
 class ShrinkableHeaderDelegate extends ScrollDrivenHeaderDelegate {
   ShrinkableHeaderDelegate({
@@ -197,7 +193,7 @@ class FlexibleHeaderDelegate extends ScrollDrivenHeaderDelegate {
   final Widget Function(
     BuildContext context,
     double shrinkOffset,
-    double shrinkProgress, // 0.0 to 1.0
+    double shrinkProgress,
   )
   builder;
 

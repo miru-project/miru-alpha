@@ -39,7 +39,6 @@ class FavoriteDialog extends HookConsumerWidget {
     final selectedGroups = useState<Set<String>>(
       groupsWithFav.map((e) => e.name).toSet(),
     );
-    // final isLoading = useState(true);
     final isCreatingGroup = useState(false);
     final newGroupNameController = useTextEditingController();
     final textFieldKey = useState(UniqueKey());
@@ -54,7 +53,6 @@ class FavoriteDialog extends HookConsumerWidget {
           meta.type,
         );
 
-        // 2. Update Groups
         final groupsToUpdate = <FavoriteGroup>[];
 
         for (final group in allGroups) {
@@ -62,11 +60,9 @@ class FavoriteDialog extends HookConsumerWidget {
           bool hasFav = group.favorites.any((f) => f.id == fav.id);
 
           if (isSelected && !hasFav) {
-            // Add
             group.favorites.add(fav);
             groupsToUpdate.add(group);
           } else if (!isSelected && hasFav) {
-            // Remove
             group.favorites.removeWhere((f) => f.id == fav.id);
             groupsToUpdate.add(group);
           }
@@ -84,7 +80,6 @@ class FavoriteDialog extends HookConsumerWidget {
         debugPrint("Error saving favorite: $e");
         if (context.mounted) showSimpleToast("Error saving: $e");
       } finally {
-        // isLoading.value = false;
       }
     }
 
@@ -95,7 +90,6 @@ class FavoriteDialog extends HookConsumerWidget {
         ref.read(favoritePageProvider.notifier).createFavoriteGroup(text);
         selectedGroups.value = {...selectedGroups.value, text};
 
-        // Clear text
         newGroupNameController.clear();
         textFieldKey.value = UniqueKey();
 

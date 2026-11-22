@@ -167,8 +167,6 @@ class SearchSourceFilterBar extends ConsumerWidget {
                 ),
               ),
             ),
-            // const SizedBox(width: 8),
-            // const _SearchSourceSyncButton(),
           ],
         ),
       ),

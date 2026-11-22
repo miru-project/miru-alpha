@@ -18,7 +18,7 @@ Float64List resamplePath(CubicPath p, int n) {
   var x = p.sx, y = p.sy;
   for (var i = 0; i < m; i++) {
     final o = i * 6;
-    final ax = x, ay = y; // segment start
+    final ax = x, ay = y;
     final c1x = p.pts[o], c1y = p.pts[o + 1];
     final c2x = p.pts[o + 2], c2y = p.pts[o + 3];
     final ex = p.pts[o + 4], ey = p.pts[o + 5];

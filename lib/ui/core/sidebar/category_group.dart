@@ -24,7 +24,6 @@ class CategoryGroup extends HookWidget {
   final String? initialValue;
   @override
   Widget build(BuildContext context) {
-    // final selected = useState(0);
     final controller = useFRadioMultiValueNotifier(value: initialValue);
     return FSelectTileGroup<String>(
       control: .managedRadio(
@@ -66,7 +65,6 @@ class CategoryMultiGroup extends HookWidget {
   final Set<String>? initialValue;
   @override
   Widget build(BuildContext context) {
-    // final selected = useState(0);
 
     return FSelectTileGroup<String>(
       control: .managed(

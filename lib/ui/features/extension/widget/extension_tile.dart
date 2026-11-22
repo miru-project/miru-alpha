@@ -77,7 +77,6 @@ class ExtensionTile extends HookConsumerWidget with FTileMixin {
       );
     }
     return DeviceUtil.deviceWidget(
-      // Mobile widget
       context: context,
       mobile: ExtensionListTile(
         isNSFW: data.nsfw,

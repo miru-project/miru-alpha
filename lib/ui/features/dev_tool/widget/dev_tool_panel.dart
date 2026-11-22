@@ -107,16 +107,6 @@ class _DevToolFilter extends ConsumerWidget {
         ? devState.filterPackage!
         : 'all';
 
-    // return FSelect<String>(
-    //   items: items.map((key, value) => MapEntry(value, key)),
-    //   builder: (context, style, varSet, value) {
-    //     return value;
-    //   },
-    //   control: .managed(
-    //     initial: initial,
-    //     onChange: (val) => notifier.setFilterPackage(val == 'all' ? null : val),
-    //   ),
-    // );
     return FSelect<String>.rich(
       hint: 'extension.name'.i18n,
       format: (s) {
@@ -129,13 +119,6 @@ class _DevToolFilter extends ConsumerWidget {
       children: items.keys
           .map(
             (e) => FSelectItem(
-              // prefix: meta.firstWhere((m) => m.packageName == e).icon == null
-              //     ? Icon(FLucideIcons.toyBrick)
-              //     : ImageWidget(
-              //         imageUrl: meta
-              //             .firstWhere((m) => m.packageName == e)
-              //             .icon!,
-              //       ),
               subtitle: Text(e),
               title: Text(items[e]!),
               value: e,

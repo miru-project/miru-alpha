@@ -381,10 +381,6 @@ class NovelReader extends _$NovelReader {
     );
   }
 
-  // ---------------------------------------------------------------------
-  // Infinite webtoon window
-  // ---------------------------------------------------------------------
-
   /// The flat block list the canvas renders: every loaded chapter as a
   /// [NovelChapterHeader] block plus its content, an [NovelJunction] block
   /// between consecutive chapters and [NovelSeriesBoundary] blocks at the
@@ -859,10 +855,6 @@ class NovelReader extends _$NovelReader {
     return snapped.clamp(min, max);
   }
 
-  // ---------------------------------------------------------------------
-  // Measured layout and position
-  // ---------------------------------------------------------------------
-
   /// Publishes the canvas's measurement for the current typography and size.
   ///
   /// The position is re-anchored rather than kept. A reflow — a different font
@@ -1163,20 +1155,12 @@ class NovelReader extends _$NovelReader {
     );
   }
 
-  // ---------------------------------------------------------------------
-  // HUD
-  // ---------------------------------------------------------------------
-
   void setHudVisible(bool visible) {
     if (visible == state.hudVisible) return;
     state = state.copyWith(hudVisible: visible);
   }
 
   void toggleHud() => setHudVisible(!state.hudVisible);
-
-  // ---------------------------------------------------------------------
-  // Display settings
-  // ---------------------------------------------------------------------
 
   void changeReadMode(NovelReadMode mode) {
     if (mode == state.readMode) return;
@@ -1281,10 +1265,6 @@ class NovelReader extends _$NovelReader {
     setBrightnessMode(kNovelBrightnessModeDefault);
     setBrightness(kNovelBrightnessDefault);
   }
-
-  // ---------------------------------------------------------------------
-  // Bookmarks
-  // ---------------------------------------------------------------------
 
   /// Whether [episodeIndex] in [groupIndex] is bookmarked.
   bool isBookmarked(int groupIndex, int episodeIndex) =>

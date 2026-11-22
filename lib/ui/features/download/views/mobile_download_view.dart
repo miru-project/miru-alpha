@@ -91,10 +91,6 @@ class MobileDownloadView extends HookConsumerWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Header
-// -----------------------------------------------------------------------------
-
 class _MobileDownloadHeader extends ConsumerWidget {
   const _MobileDownloadHeader();
 
@@ -145,10 +141,6 @@ class _MobileDownloadHeader extends ConsumerWidget {
     );
   }
 }
-
-// -----------------------------------------------------------------------------
-// Storage indicator
-// -----------------------------------------------------------------------------
 
 /// Per-category storage breakdown shown on the mobile storage card.
 class _StorageBreakdown {
@@ -402,10 +394,6 @@ class _StorageLegendItem extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Filter tabs — MiruExpandableTabs bar + one filtered content area
-// -----------------------------------------------------------------------------
-
 class _DownloadFilterTabs extends ConsumerStatefulWidget {
   const _DownloadFilterTabs({required this.state});
 
@@ -549,10 +537,6 @@ class _DownloadTabContent extends ConsumerWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Section header
-// -----------------------------------------------------------------------------
-
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.title, this.trailing});
 
@@ -583,10 +567,6 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Active download item
-// -----------------------------------------------------------------------------
-
 class _MobileActiveDownloadItem extends ConsumerWidget {
   const _MobileActiveDownloadItem({required this.task});
 
@@ -608,14 +588,12 @@ class _MobileActiveDownloadItem extends ConsumerWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            // Drag handle
             Icon(
               FLucideIcons.gripVertical,
               size: 20,
               color: context.theme.colors.mutedForeground,
             ),
             const SizedBox(width: 8),
-            // Title + info + progress
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -662,7 +640,6 @@ class _MobileActiveDownloadItem extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 8),
-            // Pause / resume
             FButton.icon(
               variant: FButtonVariant.ghost,
               size: .sm,
@@ -681,7 +658,6 @@ class _MobileActiveDownloadItem extends ConsumerWidget {
                     : FLucideIcons.pause,
               ),
             ),
-            // Cancel
             FButton.icon(
               variant: FButtonVariant.ghost,
               size: .sm,
@@ -700,10 +676,6 @@ class _MobileActiveDownloadItem extends ConsumerWidget {
     );
   }
 }
-
-// -----------------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------------
 
 String _formatBytes(int bytes) {
   if (bytes <= 0) return '0 B';

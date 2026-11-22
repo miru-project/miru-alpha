@@ -5,10 +5,6 @@ import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/provider/download_provider.dart';
 
-// ---------------------------------------------------------------------------
-// Helpers to build DownloadProgress / DownloadState without gRPC
-// ---------------------------------------------------------------------------
-
 /// Shorthand for a [proto.DownloadProgress] with enough fields to simulate state.
 proto.DownloadProgress _task({
   required int taskId,
@@ -41,9 +37,7 @@ DownloadState _stateWithActive(List<proto.DownloadProgress> active) {
   return DownloadState(active: active);
 }
 
-// ---------------------------------------------------------------------------
 // mergeProgress re-implementation for testing
-// ---------------------------------------------------------------------------
 
 /// Same contract as [DownloadNotifier._mergeProgress]: keep the higher
 /// [progress] when status hasn't changed.
@@ -68,9 +62,7 @@ Iterable<proto.DownloadProgress> _mergeProgress(
   });
 }
 
-// ---------------------------------------------------------------------------
 // Torrent/magnet status transition detection re-implementation
-// ---------------------------------------------------------------------------
 
 /// Same contract as [DownloadNotifier._handleStatusTransitions].
 List<
@@ -133,14 +125,8 @@ _detectStatusChanges(
   return actions;
 }
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
 void main() {
-  // =========================================================================
   // 1. MergeProgress logic — works identically for all media types
-  // =========================================================================
 
   group('MergeProgress logic', () {
     group('keeps higher progress when status unchanged', () {
@@ -352,9 +338,7 @@ void main() {
     });
   });
 
-  // =========================================================================
   // 2. MergeProgress across all media types — identical behavior
-  // =========================================================================
 
   group('MergeProgress across media types', () {
     test('HLS progress updates flow through mergeProgress', () {
@@ -538,9 +522,7 @@ void main() {
     });
   });
 
-  // =========================================================================
   // 3. DownloadState helpers
-  // =========================================================================
 
   group('DownloadState helpers', () {
     test('filterActive returns only active statuses', () {
@@ -739,9 +721,7 @@ void main() {
     });
   });
 
-  // =========================================================================
   // 4. isActive / retry behavior tests
-  // =========================================================================
 
   group('isActive includes retryable statuses', () {
     test('CONVERTING is active', () {
@@ -765,9 +745,7 @@ void main() {
     });
   });
 
-  // =========================================================================
   // 5. Status transition detection — all media types
-  // =========================================================================
 
   group('Status transition detection — all media types', () {
     test('torrent DOWNLOADING → FAILED triggers failure action', () {
@@ -1075,9 +1053,7 @@ void main() {
     });
   });
 
-  // =========================================================================
   // 6. Progress sync simulation — all media types
-  // =========================================================================
 
   group('Progress sync to frontend — all media types', () {
     test('HLS progress syncs through state updates', () {
@@ -1176,7 +1152,6 @@ void main() {
         expect(state.active[0].progress, 276000000 * pct ~/ 100);
       }
 
-      // Completed
       state = state.copyWith(active: []);
       expect(state.active, isEmpty);
     });
@@ -1512,9 +1487,7 @@ void main() {
     });
   });
 
-  // =========================================================================
   // 7. Torrent/magnet failure + notification simulation
-  // =========================================================================
 
   group('Torrent/magnet failure notification simulation', () {
     test('torrent failure detected from state transition', () {
@@ -1629,9 +1602,7 @@ void main() {
     });
   });
 
-  // =========================================================================
   // 8. URL and error logging on failure
-  // =========================================================================
 
   group('URL and error on failure', () {
     test('torrent failure includes URL and error', () {

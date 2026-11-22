@@ -18,7 +18,6 @@ class TMDBNotifier extends _$TMDBNotifier {
   }
 
   Future<TMDBDetail?> getDetail(int tmdbId, String mediaType) async {
-    // 1. Check Backend
     try {
       final cache = await MiruGrpcClient.dbClient.getTrack(
         proto.GetTrackRequest()
@@ -33,11 +32,9 @@ class TMDBNotifier extends _$TMDBNotifier {
       showSimpleToast(e.toString());
     }
 
-    // 2. Fetch from TMDB API
     final detail = await TMDBProvider.apiGetDetail(tmdbId, mediaType);
     if (detail == null) return null;
 
-    // 3. Save to Backend
     try {
       await MiruGrpcClient.dbClient.putTrack(
         proto.PutTrackRequest()

@@ -18,7 +18,6 @@ class DesktopDownloadView extends HookConsumerWidget {
     final downloadAsync = ref.watch(downloadProvider);
 
     return MiruScaffold.mobile(
-      // snapSheet: [SnapSheetNested.back(title: 'download.name'.i18n)],
       sliverHeaders: [
         SimpleSliverHeaderDelegate(
           maxExtent: 56,

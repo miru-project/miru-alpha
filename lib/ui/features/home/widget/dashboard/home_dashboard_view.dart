@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_quick_access_grid.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_dynamic_feed.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_resume_rail.dart';
-// import 'package:miru_alpha/ui/features/home/widget/dashboard/home_source_feed.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_tag_strip.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_trending_rail.dart';
 import 'package:miru_alpha/ui/features/home/widget/dashboard/home_type_switch.dart';
@@ -40,8 +39,6 @@ class HomeDashboardView extends StatelessWidget {
         const SizedBox(height: kHomeSectionGap),
         const HomeTrendingRail(),
         const SizedBox(height: kHomeSectionGap),
-        // WIP
-        // const HomeSourceFeed(),
         // Clearance for the bottom navigation dock.
         const SizedBox(height: 200),
       ],

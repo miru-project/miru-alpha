@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
-// import 'package:permission_handler/permission_handler.dart';
-
 class MiruDirectory {
   static late final Directory _appDocDir;
   static late final Directory _appSupportDir;

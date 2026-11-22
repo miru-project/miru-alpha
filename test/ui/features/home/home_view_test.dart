@@ -131,7 +131,6 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    // Verify the HomeView renders
     expect(find.byType(HomeView), findsOneWidget);
     expect(find.byType(HomeViewDesktop), findsOneWidget);
   });

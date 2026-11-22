@@ -65,7 +65,6 @@ class AnilistTrackPage extends _$AnilistTrackPage {
 
   Future<void> _loadData() async {
     try {
-      // 1. Try to fetch from local cache (Track table)
       final cache = await MiruGrpcClient.dbClient.getTrack(
         proto.GetTrackRequest()
           ..trackingId = mediaId.toString()
@@ -92,10 +91,8 @@ class AnilistTrackPage extends _$AnilistTrackPage {
           state = newState;
         }
 
-        // 2. Then fetch from AniList to update cache
         await _fetchFromAniList();
       } else {
-        // 3. If no local record, fetch from online
         await _fetchFromAniList();
       }
     } catch (e) {
@@ -123,7 +120,6 @@ class AnilistTrackPage extends _$AnilistTrackPage {
         state = newState;
       }
 
-      // Save to local cache
       await MiruGrpcClient.dbClient.putTrack(
         proto.PutTrackRequest()
           ..trackingId = mediaId.toString()
@@ -172,7 +168,6 @@ class AnilistTrackPage extends _$AnilistTrackPage {
       // Refresh cache from AniList to get latest entry state
       await _fetchFromAniList();
 
-      // Save to local tracker db
       try {
         await MiruGrpcClient.dbClient.upsertTracker(
           proto.UpsertTrackerRequest()

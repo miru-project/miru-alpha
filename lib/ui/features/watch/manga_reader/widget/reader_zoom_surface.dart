@@ -213,7 +213,6 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
   /// Live pointers, oldest first. Only the first two take part in a gesture.
   final Map<int, Offset> _pointers = {};
 
-  /// TEMP DIAGNOSTIC: where each live pointer went down.
   final Map<int, Offset> _downAt = {};
 
   double _scale = 1;

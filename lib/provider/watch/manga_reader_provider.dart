@@ -908,7 +908,6 @@ class MangaReader extends _$MangaReader {
     setTapToTurnPage(true);
   }
 
-  // Set the page number
   void setPageNumber(int page) {
     // Listener echoes only: while a jump is animating the stream reports the
     // intermediate pages it flies over, which must not overwrite the target.

@@ -29,7 +29,6 @@ class HeartButton extends StatelessWidget {
   }
 }
 
-/// Internal View that handles the Drawing and the Animation Logic
 class _HeartIconView extends StatelessWidget {
   final double size;
   final Color color;
@@ -51,7 +50,6 @@ class _HeartIconView extends StatelessWidget {
           painter: _HeartPainter(
             pathData: svgPath,
             color: color,
-            // Animates opacity from 0 to 1 when isAnimated is true
             fillOpacity: isAnimated ? 1.0 : 0.0,
           ),
         )
@@ -98,13 +96,11 @@ class _HeartPainter extends CustomPainter {
     matrix.scaleByVector3(vec.Vector3(size.width / 22, size.height / 22, 0));
     path = path.transform(matrix.storage);
 
-    // Draw Fill Layer
     final fillPaint = Paint()
       ..color = color.withAlpha((fillOpacity * 255).toInt())
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
 
-    // Draw Stroke/Border Layer
     final strokePaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke

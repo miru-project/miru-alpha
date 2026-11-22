@@ -32,13 +32,6 @@ class MobilePlayerFooter extends ConsumerWidget {
           ),
         ),
 
-        //  FCardStyle.inherit(
-        //   colors: context.theme.colors.copyWith(
-        //     background: context.theme.colors.background.withAlpha(100),
-        //   ),
-        //   typography: overrideTheme.typography,
-        //   style: context.theme.style,
-        // ).call,
         child: Blur(
           borderRadius: BorderRadius.circular(10),
           child: Padding(
@@ -56,7 +49,6 @@ class MobilePlayerFooter extends ConsumerWidget {
                 );
                 final c = ref.read(vidPr.notifier);
                 return Row(
-                  // mainAxisAlignment: .spaceBetween,
                   children: [
                     PlayerButton(
                       onPressed: epIndex > 0

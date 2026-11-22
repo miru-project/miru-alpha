@@ -127,9 +127,6 @@ class MiruCoreEndpoint {
     final response = await MiruGrpcClient.dbClient.getDetail(
       proto.GetDetailRequest()..package = package,
     );
-    // This assumes getDetail returns a single response, but the UI expects a list?
-    // Actually the original code had getDetailsByPackage returning List<Detail>.
-    // Let's check proto service definition.
     return [
       Detail.fromExtensionDetail(
         pb_extension.ExtensionDetail.fromJson(response.detail.episodes),

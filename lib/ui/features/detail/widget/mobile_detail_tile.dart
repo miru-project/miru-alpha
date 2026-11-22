@@ -510,7 +510,6 @@ class MobileDetailTile extends ConsumerWidget {
             title: Text('media.select_resolution'.i18n),
             body: SizedBox(
               width: 300,
-              // height: 300,
               child: FTileGroup.builder(
                 count: res.variantSummary.length,
                 tileBuilder: (context, index) {

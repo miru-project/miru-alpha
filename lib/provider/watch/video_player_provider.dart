@@ -274,7 +274,6 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
   /// Watchdog: never hold the displayed target longer than this.
   static const _seekHoldCap = Duration(seconds: 6);
 
-  /// Manually set showControls state and cancel existing timer if hiding.
   void setShowControls(bool v) {
     _hideTimer?.cancel();
     state = state.copyWith(showControls: v);
@@ -343,7 +342,6 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
         buffered: vidController.value.buffered,
       );
     });
-    // Don't  get quality when using torrent or local file
     if (torrent != null || url == null || localPath != null) {
       return;
     }
@@ -359,7 +357,6 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
     });
   }
 
-  // player management
   List<double> get speedList => const [
     0.25,
     0.5,
@@ -570,7 +567,6 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
     state = state.copyWith(speed: speed);
   }
 
-  //subtitle management
   void setSubtitles(List<Subtitle> subtitles, int index) {
     state = state.copyWith(subtitles: subtitles, selectedSubtitleIndex: index);
   }
@@ -661,7 +657,6 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
     final currentPosition = vidController.value.position;
     final isPlaying = vidController.value.isPlaying;
 
-    // Optional: show loading or some UI feedback
     vidController.pause();
 
     try {
@@ -708,7 +703,6 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
           qualityMap: src.qualityMap,
         );
 
-        // Subtitles re-init if needed
         initSubtitle(watchResult.subtitles);
 
         // The old controller stays the bound surface until this state write

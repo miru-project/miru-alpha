@@ -15,20 +15,16 @@ import 'package:miru_alpha/ui/core/grid_view/index.dart';
 import 'package:miru_alpha/ui/core/platform_widget.dart';
 
 class SearchGridView extends HookConsumerWidget {
-  // final int page;
   final List<ExtensionListItem> res;
   final BoxConstraints cons;
   final ScrollController scrollController;
-  // final bool isLoading;
   final ExtensionMeta meta;
   const SearchGridView({
     super.key,
     required this.scrollController,
     required this.cons,
-    // required this.page,
     required this.meta,
     required this.res,
-    // required this.isLoading,
   });
   final desktopLayoutWidth = 200;
   final mobileLayoutWidth = 110;
@@ -48,7 +44,6 @@ class SearchGridView extends HookConsumerWidget {
           isLoading.value = true;
           final c = ref.read(searchPageSingleProviderProvider);
           try {
-            // Serach Mode
             if (c.query.isNotEmpty || c.filterSelection.selections.isNotEmpty) {
               final res = await MiruCoreEndpoint.search(
                 meta.packageName,
@@ -70,7 +65,6 @@ class SearchGridView extends HookConsumerWidget {
               return;
             }
 
-            // Latest Mode
             final res = await MiruCoreEndpoint.latest(
               meta.packageName,
               page + 1,

@@ -20,7 +20,6 @@ class History {
   String detailUrl;
   String? cover;
 
-  // Store enum as String
   String type;
   int episodeGroupId;
   int episodeId;
@@ -203,7 +202,6 @@ class FavoriteGroup {
   }
 }
 
-// Recored download for saving downlading progress
 class DownloadRecord {
   int id;
 

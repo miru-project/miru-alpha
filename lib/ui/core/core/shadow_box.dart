@@ -34,7 +34,6 @@ class ShadowBox extends StatelessWidget {
   final double? width;
   final double? aspectRatio;
   final int shadowAlpha;
-  // final Widget Function(Widget) func ;
 
   Widget buildBox(Widget child) => Positioned(
     left: left,

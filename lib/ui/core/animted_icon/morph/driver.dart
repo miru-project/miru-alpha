@@ -14,7 +14,6 @@ import 'spring.dart';
 import 'surface.dart';
 
 /// DOM driver port: createMorph over a MorphSurface — one rAF (ticker) for
-/// all instances, controlled seeks, spring flights, region-chunk budget
 /// with a pop fallback.
 
 enum ReducedMotionMode { never, user, always }
@@ -56,7 +55,6 @@ Morph createMorph(
   MotionProbe? motionProbe,
 }) => _Driver(el, icon, reducedMotion, strokeWidth, motionProbe);
 
-// ---------------------------------------------------------------------------
 // Singleton scheduler: a Set of tickers, one live Ticker while any exist.
 // dt in seconds clamped to 0.1; first frame after start gets dt = 0.
 
@@ -91,7 +89,6 @@ void _removeTicker(_TickFn fn) {
   }
 }
 
-// ---------------------------------------------------------------------------
 // Caches by identity. Strings re-derived; plans cached per (src, dst) pair.
 // Plans from intermediate shapes are never cached.
 

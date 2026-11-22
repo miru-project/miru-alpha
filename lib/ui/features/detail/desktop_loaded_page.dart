@@ -80,7 +80,6 @@ class DesktopLoadedPage extends HookConsumerWidget {
                     ],
                   ),
                 ),
-                // Handle view for screen size that beteen desktop and mobile usually for tablet
                 if (!isTablet) ...[
                   Spacer(),
                   Expanded(

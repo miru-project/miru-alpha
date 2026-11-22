@@ -141,25 +141,6 @@ class Detial extends _$Detial {
       retryToken: 0,
     );
 
-    // query db LEAVE FOR FUTURE USE
-    //   Future.microtask(() async {
-    //   final historyList = await DatabaseService.getHistoryByPackageAndDetailUrl(
-    //     packageName,
-    //     detailUrl,
-    //   );
-    //   putHistoryList(historyList);
-
-    //   final favorite = await DatabaseService.getFavoriteByPackageAndUrl(
-    //     packageName,
-    //     detailUrl,
-    //   );
-    //   final favoriateGroup = await DatabaseService.getFavoriteGroupsByFavorite(
-    //     packageName,
-    //     detailUrl,
-    //   );
-    //   putFavorite(favorite);
-    //   putFavoriateGroup(favoriateGroup);
-    // });
   }
 
   void putHistory(History h) {
@@ -256,7 +237,6 @@ class Detial extends _$Detial {
   /// DB re-read could never recover the error tile when the DB row doesn't
   /// exist yet — e.g. the first load failed while the extension was down.
   Future<void> retry() async {
-    // Bump retryToken so widgets can react, clear lastError
     state = state.copyWith(lastError: null, retryToken: state.retryToken + 1);
 
     debugPrint(
@@ -313,7 +293,6 @@ class Detial extends _$Detial {
         lastError: errorMsg,
       );
     } else {
-      // No cached data - show error state
       state = state.copyWith(
         status: DetialStatus.error,
         lastError: errorMsg,
@@ -323,7 +302,6 @@ class Detial extends _$Detial {
   }
 
   Future<void> fetchTMDBDetail(String title, String mediaType) async {
-    // 1. Check if we already have the ID in our DB
     String? tmdbIdStr = state.detailInfo?.trackIds['TMDB'];
 
     if (tmdbIdStr != null) {
@@ -335,7 +313,6 @@ class Detial extends _$Detial {
       return;
     }
 
-    // 2. Not found, search for it
     final searchResult = await ref
         .read(tMDBProvider.notifier)
         .searchAndGetDetail(title, mediaType);
@@ -343,7 +320,6 @@ class Detial extends _$Detial {
     if (!ref.mounted) return;
     if (searchResult != null) {
       final tmdbId = searchResult.id;
-      // 3. Update our DB with this mapping
       final detailInfo =
           state.detailInfo ??
           (proto.Detail()

@@ -40,14 +40,11 @@ class MiruLog {
       final log =
           '${record.loggerName} ${record.level.name} ${record.time}: ${record.message} ${record.error ?? ''} ${record.stackTrace ?? ''}';
       debugPrint(log);
-      // if (kReleaseMode) {
       Future.microtask(() => writeLogToFile(log)).catchError((e, s) {
-        // Use debugPrint here to avoid triggering logger again.
         debugPrint('Failed to write log to file: $e');
         debugPrint(s.toString());
         defaultError(e, s);
       });
-      // }
     } catch (e, s) {
       debugPrint('Logging listener error: $e');
       debugPrint(s.toString());
@@ -76,7 +73,6 @@ class MiruLog {
     hasInit = true;
   }
 
-  // crash identification + persistence
   static void recordCrash(
     Object error,
     StackTrace stack, {
@@ -116,7 +112,6 @@ class MiruLog {
     ];
   }
 
-  // 写入日志到文件
   static void writeLogToFile(String log) {
     if (!(MiruSettings.getSetting<bool>(SettingKey.saveLog) ?? true)) {
       return;

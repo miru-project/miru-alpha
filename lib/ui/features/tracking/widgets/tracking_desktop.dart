@@ -108,7 +108,6 @@ class _StatChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return FBadge(
       style: .delta(
-        // padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

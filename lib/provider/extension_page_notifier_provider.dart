@@ -71,10 +71,8 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
     return initial;
   }
 
-  // Fetch
   Future<void> loadRepos({bool force = false}) async {
     if (!force && state.fetchedRepo.isNotEmpty) return;
-    // set loading
     state = state.copyWith(loading: true);
     try {
       final list = await GithubNetwork.fetchRepo();
@@ -94,10 +92,8 @@ class ExtensionPageNotifier extends _$ExtensionPageNotifier {
     await loadRepos(force: true);
   }
 
-  /// Return available repo names for UI selects
   List<String> getRepoNames() => state.fetchedRepo.map((r) => r.name).toList();
 
-  /// FILTER
   void filter() {
     List<ExtensionRepo> repoResult = state.fetchedRepo;
 
