@@ -10,6 +10,8 @@ import 'package:flutter/rendering.dart' show ScrollDirection;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:miru_alpha/utils/core/log.dart';
+
 import 'item_positions_notifier.dart';
 import 'positioned_list.dart';
 import 'post_mount_callback.dart';
@@ -212,6 +214,11 @@ class ItemScrollController {
   /// * 1 aligns the left edge of the item with the right edge of the view.
   /// * 0.5 aligns the left edge of the item with the center of the view.
   void jumpTo({required int index, double alignment = 0}) {
+    diag(
+      'SLV jumpTo index=$index alignment=$alignment '
+      'attached=${_scrollableListState != null}\n'
+      '${StackTrace.current}',
+    );
     _scrollableListState!._jumpTo(index: index, alignment: alignment);
   }
 
@@ -223,6 +230,11 @@ class ItemScrollController {
   /// at does not move. Unlike [jumpTo] this never stops an in-flight scroll.
   void notifyItemsInsertedBefore(int count) {
     assert(count > 0);
+    diag(
+      'SLV notifyItemsInsertedBefore count=$count '
+      'attached=${_scrollableListState != null}\n'
+      '${StackTrace.current}',
+    );
     _scrollableListState?._notifyItemsInsertedBefore(count);
   }
 
@@ -397,6 +409,12 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
     if (widget.itemCount > 0 && primary.target > widget.itemCount - 1) {
       primary.target = widget.itemCount - 1;
     }
+    diag(
+      'SLV initState initialScrollIndex=${widget.initialScrollIndex} '
+      'pageStorage=${initialPosition?.index ?? 'none'} '
+      '-> target=${primary.target} itemCount=${widget.itemCount}',
+    );
+    diag('SLV initState STACK\n${StackTrace.current}');
     widget.itemScrollController?._attach(this);
     widget.scrollOffsetController?._attach(this);
     primary.itemPositionsNotifier.itemPositions.addListener(_updatePositions);
@@ -449,18 +467,31 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
       widget.itemScrollController?._attach(this);
     }
 
+    diag(
+      'SLV didUpdateWidget itemCount=${oldWidget.itemCount}->${widget.itemCount} '
+      'initialScrollIndex=${oldWidget.initialScrollIndex}->${widget.initialScrollIndex} '
+      'target=${primary.target} offset=${primary.scrollController.hasClients ? primary.scrollController.offset : 'n/a'}',
+    );
+
     if (widget.itemCount == 0) {
+      diag('SLV didUpdateWidget itemCount==0 -> target reset to 0');
       setState(() {
         primary.target = 0;
         secondary.target = 0;
       });
     } else {
       if (primary.target > widget.itemCount - 1) {
+        diag(
+          'SLV didUpdateWidget CLAMP primary.target ${primary.target} -> ${widget.itemCount - 1}',
+        );
         setState(() {
           primary.target = widget.itemCount - 1;
         });
       }
       if (secondary.target > widget.itemCount - 1) {
+        diag(
+          'SLV didUpdateWidget CLAMP secondary.target ${secondary.target} -> ${widget.itemCount - 1}',
+        );
         setState(() {
           secondary.target = widget.itemCount - 1;
         });
@@ -559,6 +590,11 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
     // identical item. Scroll offset is already measured relative to the
     // anchor, so the content on screen does not move — and unlike a jumpTo
     // this never stops an in-flight scroll.
+    diag(
+      'SLV _notifyItemsInsertedBefore count=$count '
+      'target=${primary.target}->${primary.target + count} '
+      'offset=${primary.scrollController.hasClients ? primary.scrollController.offset : 'n/a'}',
+    );
     setState(() {
       primary.target += count;
       secondary.target += count;
@@ -566,6 +602,11 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
   }
 
   void _jumpTo({required int index, required double alignment}) {
+    diag(
+      'SLV _jumpTo index=$index alignment=$alignment '
+      'target=${primary.target} offset=${primary.scrollController.hasClients ? primary.scrollController.offset : 'n/a'}\n'
+      '${StackTrace.current}',
+    );
     _stopScroll(canceled: true);
     if (index > widget.itemCount - 1) {
       index = widget.itemCount - 1;
@@ -619,6 +660,11 @@ class _ScrollablePositionedListState extends State<ScrollablePositionedList>
     Curve curve = Curves.linear,
     required List<double> opacityAnimationWeights,
   }) async {
+    diag(
+      'SLV _startScroll index=$index alignment=$alignment '
+      'target=${primary.target} offset=${primary.scrollController.hasClients ? primary.scrollController.offset : 'n/a'}\n'
+      '${StackTrace.current}',
+    );
     final direction = index > primary.target ? 1 : -1;
     final itemPosition = primary.itemPositionsNotifier.itemPositions.value
         .firstWhereOrNull(

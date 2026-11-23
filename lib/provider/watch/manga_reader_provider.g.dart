@@ -24,6 +24,14 @@ part of 'manga_reader_provider.dart';
 /// The page URLs are not state either: the viewport reads them from the watch
 /// data it already holds, and the live scroll position streams to the canvas
 /// through [ScrollOffsetListener] instead of Riverpod state.
+///
+/// Kept alive on purpose. The reader subtree is only built inside
+/// `watchSessionProvider`'s `AsyncData` branch, so every chapter transition
+/// (which re-keys the watch session and passes through `AsyncLoading`)
+/// momentarily leaves this provider with no listeners. Auto-dispose tore the
+/// notifier down there: `_openKey` reset to null and the window emptied, so
+/// the next `open()` saw a fresh session and threw the reader back to slot 0 —
+/// the scroll-up flicker that survived every guard inside `open()`.
 
 @ProviderFor(MangaReader)
 final mangaReaderProvider = MangaReaderProvider._();
@@ -44,6 +52,14 @@ final mangaReaderProvider = MangaReaderProvider._();
 /// The page URLs are not state either: the viewport reads them from the watch
 /// data it already holds, and the live scroll position streams to the canvas
 /// through [ScrollOffsetListener] instead of Riverpod state.
+///
+/// Kept alive on purpose. The reader subtree is only built inside
+/// `watchSessionProvider`'s `AsyncData` branch, so every chapter transition
+/// (which re-keys the watch session and passes through `AsyncLoading`)
+/// momentarily leaves this provider with no listeners. Auto-dispose tore the
+/// notifier down there: `_openKey` reset to null and the window emptied, so
+/// the next `open()` saw a fresh session and threw the reader back to slot 0 —
+/// the scroll-up flicker that survived every guard inside `open()`.
 final class MangaReaderProvider
     extends $NotifierProvider<MangaReader, MangaReaderState> {
   /// The one manga reader state.
@@ -62,13 +78,21 @@ final class MangaReaderProvider
   /// The page URLs are not state either: the viewport reads them from the watch
   /// data it already holds, and the live scroll position streams to the canvas
   /// through [ScrollOffsetListener] instead of Riverpod state.
+  ///
+  /// Kept alive on purpose. The reader subtree is only built inside
+  /// `watchSessionProvider`'s `AsyncData` branch, so every chapter transition
+  /// (which re-keys the watch session and passes through `AsyncLoading`)
+  /// momentarily leaves this provider with no listeners. Auto-dispose tore the
+  /// notifier down there: `_openKey` reset to null and the window emptied, so
+  /// the next `open()` saw a fresh session and threw the reader back to slot 0 —
+  /// the scroll-up flicker that survived every guard inside `open()`.
   MangaReaderProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'mangaReaderProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -89,7 +113,7 @@ final class MangaReaderProvider
   }
 }
 
-String _$mangaReaderHash() => r'29c0763b8e2d522c1e11d257a012d71698c2776b';
+String _$mangaReaderHash() => r'fa9d5ff1446175d69e6033a2bd676aff858a696b';
 
 /// The one manga reader state.
 ///
@@ -107,6 +131,14 @@ String _$mangaReaderHash() => r'29c0763b8e2d522c1e11d257a012d71698c2776b';
 /// The page URLs are not state either: the viewport reads them from the watch
 /// data it already holds, and the live scroll position streams to the canvas
 /// through [ScrollOffsetListener] instead of Riverpod state.
+///
+/// Kept alive on purpose. The reader subtree is only built inside
+/// `watchSessionProvider`'s `AsyncData` branch, so every chapter transition
+/// (which re-keys the watch session and passes through `AsyncLoading`)
+/// momentarily leaves this provider with no listeners. Auto-dispose tore the
+/// notifier down there: `_openKey` reset to null and the window emptied, so
+/// the next `open()` saw a fresh session and threw the reader back to slot 0 —
+/// the scroll-up flicker that survived every guard inside `open()`.
 
 abstract class _$MangaReader extends $Notifier<MangaReaderState> {
   MangaReaderState build();

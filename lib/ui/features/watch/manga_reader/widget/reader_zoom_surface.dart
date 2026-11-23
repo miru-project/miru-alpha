@@ -528,7 +528,7 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
     _rebase();
     // The second finger pins the scrollable, so the physics have to change
     // before the gesture can move anything.
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _onPointerMove(PointerMoveEvent event) {
@@ -648,7 +648,10 @@ class _ReaderZoomSurfaceState extends State<ReaderZoomSurface>
     // Whatever is left on screen is what the reader keeps looking at, so the
     // gesture re-baselines and the scrollable is handed back on the next build.
     _rebase();
-    setState(() {});
+    // A pointer up can land after the canvas was torn down (a chapter flip
+    // unmounts it mid-gesture): the ticker teardown is async relative to the
+    // widget, so guard the setState rather than crashing on a defunct State.
+    if (mounted) setState(() {});
     // The last finger leaving a magnified pan is a flick: let it coast.
     if (_pointers.isEmpty && wasZoomed) _startFling();
   }

@@ -188,7 +188,15 @@ class MangaReaderState {
 /// The page URLs are not state either: the viewport reads them from the watch
 /// data it already holds, and the live scroll position streams to the canvas
 /// through [ScrollOffsetListener] instead of Riverpod state.
-@riverpod
+///
+/// Kept alive on purpose. The reader subtree is only built inside
+/// `watchSessionProvider`'s `AsyncData` branch, so every chapter transition
+/// (which re-keys the watch session and passes through `AsyncLoading`)
+/// momentarily leaves this provider with no listeners. Auto-dispose tore the
+/// notifier down there: `_openKey` reset to null and the window emptied, so
+/// the next `open()` saw a fresh session and threw the reader back to slot 0 —
+/// the scroll-up flicker that survived every guard inside `open()`.
+@Riverpod(keepAlive: true)
 class MangaReader extends _$MangaReader {
   bool isAdjusting = false;
 
@@ -205,6 +213,18 @@ class MangaReader extends _$MangaReader {
   /// Identity of the episode currently opened, so a shell rebuild that passes
   /// the same episode does not reset the reader's position.
   String? _openKey;
+
+  /// Bumped only when [open] starts a genuinely new session (a chapter the
+  /// window does not already hold). In-flight adjacent fetches are voided when
+  /// this moves on — and ONLY then.
+  ///
+  /// This is deliberately NOT `_openKey`: that key now follows the tracked
+  /// chapter across flips, and a flip is not a new session — the window and
+  /// its in-flight fetches persist through it. Gating the fetch on `_openKey`
+  /// voided every neighbour fetch the moment the reader crossed a junction
+  /// (the tracked chapter changed, the key followed, the pending ch1 fill was
+  /// discarded), which is what re-broke the three-prepend drag test.
+  int _sessionId = 0;
 
   /// Episode list of the open group, captured at [open] time. The infinite
   /// webtoon window uses it to find sibling chapters' names and watch URLs.
@@ -246,9 +266,52 @@ class MangaReader extends _$MangaReader {
   /// from the offset delta between consecutive reports instead.
   double _lastReportedOffset = 0;
 
+  /// The itemPosition the session opened at: the adopted resume page, or 0.
+  ///
+  /// The anchor for "has the reader moved since the session began" — see
+  /// [_readerMoved].
+  int _sessionStartItemPosition = 0;
+
+  /// Whether the reader has live attribution away from where the session
+  /// started — it scrolled, scrubbed, or flipped into another chapter.
+  ///
+  /// A resume page that disagrees with the current position afterwards is
+  /// stale history, not a missed adopt: re-adopting it yanks the reader off
+  /// the page it is looking at. Device log of the failure:
+  ///
+  ///   JUMP flip seg=2 page=0 prevEp=27 newEp=28   <- reader crosses back
+  ///   SHELL effect ep=28 total=18 resume=18       <- history says page 18
+  ///   JUMP open ep=28 resume=18 currentKey=0:28:18 <- dedupe re-adopts!
+  ///   SLV jumpTo index=56                          <- teleported to the END
+  ///   POS flat=56 offset=0.0 delta=8426.1
+  ///
+  /// The jump threw the reader from ep28's first page to its last, and the
+  /// forward scrolling at that end cascaded appends of chapters 29-33.
+  bool _readerMoved = false;
+
   /// Test seam: replaces the network fetch for adjacent chapters.
   @visibleForTesting
   Future<List<String>?> Function(String url)? debugChapterFetcher;
+
+  /// Test seam: observes the (groupIndex, episodeIndex) passed to
+  /// [onTrackedEpisodeChanged], so a test can assert the provider state has
+  /// already moved to the new chapter at that moment.
+  @visibleForTesting
+  void Function(int groupIndex, int episodeIndex)? debugOnTrackedEpisodeChanged;
+
+  /// Test seam: prepends the adjacent chapter on [direction]'s side, the same
+  /// thing a threshold crossing in [_webtoonPositionChanged] triggers.
+  ///
+  /// The live path threads the URL and episode lookups through the shell, so
+  /// only [debugChapterFetcher] can stand in for the network here.
+  @visibleForTesting
+  Future<void> debugEnsureAdjacent(int direction) => _ensureAdjacent(direction);
+
+  /// Test seam: flips the tracked chapter to [segmentIndex] at [localPage],
+  /// which is what a position report landing in a neighbouring chapter does.
+  @visibleForTesting
+  void debugFlipTo(int segmentIndex, int localPage) =>
+      _flipTrackedChapter(segmentIndex, localPage);
 
   List<WindowSlot> _slots([MangaReaderState? s]) {
     s ??= state;
@@ -274,6 +337,32 @@ class MangaReader extends _$MangaReader {
   /// pages). The webtoon canvas renders these one-for-one.
   List<WindowSlot> currentSlots() => _slots();
 
+  /// The flat slot the list should open at, so the first layout lands on the
+  /// resumed page.
+  ///
+  /// Resuming must not be a post-frame `jumpTo`: the canvas lays out at slot 0
+  /// first and paints that frame before jumping, which the reader sees as the
+  /// chapter's first page flashing before the page they left. The canvas seeds
+  /// `ScrollablePositionedList.initialScrollIndex` from this instead, so the
+  /// very first layout is already at the resume slot.
+  int initialScrollSlot() {
+    final page = state.itemPosition;
+    final segments = state.segments;
+    if (segments.isEmpty || page <= 0) return 0;
+    return _flatIndexOfPage(state.trackedSegmentIndex, page);
+  }
+
+  /// A slot the viewport must move the list to.
+  ///
+  /// `ScrollablePositionedList.initialScrollIndex` is read only in `initState`,
+  /// so changing it on an already-mounted list does nothing. A resume page
+  /// adopted after the canvas mounted — which is what a re-entry into the same
+  /// episode does, because `open()`'s dedupe early-return keeps the existing
+  /// segment list — therefore cannot reach the list through
+  /// `initialScrollIndex`. It is published here instead, and the viewport
+  // listens and issues a `jumpTo`. Null when there is no pending jump.
+  final ValueNotifier<int?> pendingJumpSlot = ValueNotifier(null);
+
   int _flatIndexOfPage(int segmentIndex, int pageIndex) {
     final slots = _slots();
     for (var i = 0; i < slots.length; i++) {
@@ -287,10 +376,26 @@ class MangaReader extends _$MangaReader {
     return 0;
   }
 
+  /// Bumped per notifier construction, so the log shows the provider being
+  /// torn down and rebuilt mid-session — the only way `_openKey` is null and
+  /// the window is empty at once.
+  int _providerBirths = 0;
+
   @override
   MangaReaderState build() {
+    // `_providerBirths` is a field initializer, so it survives the empty
+    // `build()` — but nothing else about this notifier does. Log without
+    // touching `state` (uninitialised at this point) or `_openKey` (reset
+    // per instance).
+    _providerBirths++;
+    diag('PROVIDER create #$_providerBirths');
     ref.onDispose(() {
+      // `onDispose` runs inside a lifecycle where touching `state` throws, so
+      // only the dispose signal is logged here; the live identity is logged
+      // from the shell instead (see `debugOpenKey`).
+      diag('PROVIDER dispose #$_providerBirths');
       pageController.dispose();
+      pendingJumpSlot.dispose();
       itemPositionsListener.itemPositions.removeListener(
         _whenItemPositionChange,
       );
@@ -334,9 +439,89 @@ class MangaReader extends _$MangaReader {
     onChapterCompleted,
   }) {
     final key = '$groupIndex:$episodeIndex:$totalPage';
-    if (key == _openKey && ref.mounted) return;
+    diag(
+      'JUMP open group=$groupIndex ep=$episodeIndex total=$totalPage '
+      'resume=$resumePage currentKey=$_openKey '
+      'segments=${state.segments.map((s) => s.episodeIndex).toList()} '
+      'tracked=${state.trackedSegmentIndex}',
+    );
+    if (key == _openKey && ref.mounted) {
+      // A re-open of the same episode is normally a no-op, but it must still
+      // adopt a resume page that has only now become available: history loads
+      // asynchronously, so a session opened before the entry arrived has none.
+      // [needsResumeAdopt] refuses once the reader has live attribution
+      // elsewhere — that position is the reader's, not a missed adopt.
+      //
+      // Setting `itemPosition` alone is not enough: the canvas is already
+      // mounted and `ScrollablePositionedList.initialScrollIndex` is read only
+      // in `initState`, so the list keeps the slot it opened at. Publishing the
+      // slot is what lets the viewport move the list to the adopted page.
+      if (needsResumeAdopt(resumePage) && state.totalPage > 0) {
+        final page = resumePage!.clamp(0, state.totalPage - 1);
+        state = state.copyWith(itemPosition: page);
+        pendingJumpSlot.value = _flatIndexOfPage(
+          state.trackedSegmentIndex,
+          page,
+        );
+      }
+      // Re-entry: the canvas is remounting at the tracked chapter's current
+      // row, but the hysteresis anchor still describes the PREVIOUS session's
+      // layout (it survives in this keepAlive notifier). Left stale, the boot
+      // report is judged a backward blip against it: scrolling toward lower
+      // slots attributed after the hysteresis, scrolling toward higher ones
+      // stayed suppressed until the reader passed the old anchor — the pill
+      // worked for the previous chapter but froze for the next one.
+      _stableFirstVisible = _flatIndexOfPage(
+        state.trackedSegmentIndex,
+        state.itemPosition,
+      );
+      return;
+    }
     _openKey = key;
+
+    // Re-opening a chapter the window already holds must NEVER reset the
+    // session. The old guard compared `key` with `_openKey`, but `_openKey`
+    // only described the chapter the reader opened on: after a chain flip it
+    // named the outgoing chapter, so the re-open slipped through, wiped the
+    // session and remounted the canvas at slot 0 — the flicker.
+    //
+    // The window, not the open key, is the truth about what is mounted: if it
+    // already holds this chapter, the reader is looking at it right now and a
+    // reset would throw away that position. This cannot be defeated by stale
+    // bookkeeping because it reads the same segments the canvas renders.
+    if (ref.mounted && state.segments.isNotEmpty) {
+      final already = state.segments.any((s) => s.episodeIndex == episodeIndex);
+      if (already) {
+        diag(
+          'JUMP open ignored: ep=$episodeIndex already in window '
+          'segs=${state.segments.map((s) => s.episodeIndex).toList()} '
+          'tracked=${state.trackedSegmentIndex}',
+        );
+        if (needsResumeAdopt(resumePage) && state.totalPage > 0) {
+          final page = resumePage!.clamp(0, state.totalPage - 1);
+          state = state.copyWith(itemPosition: page);
+          pendingJumpSlot.value = _flatIndexOfPage(
+            state.trackedSegmentIndex,
+            page,
+          );
+        }
+        // Same re-entry re-seed as the dedupe path above: the canvas mounts
+        // at the tracked chapter's row, so the anchor must describe THIS
+        // layout, not the previous session's.
+        _stableFirstVisible = _flatIndexOfPage(
+          state.trackedSegmentIndex,
+          state.itemPosition,
+        );
+        return;
+      }
+    }
+
     isAdjusting = false;
+
+    // A genuinely new session: in-flight neighbour fetches from the previous
+    // one must not land in this window (see `_sessionId`).
+    _sessionId++;
+    _readerMoved = false;
 
     _groupIndex = groupIndex;
     _episodes = List<ExtensionEpisode>.unmodifiable(episodes);
@@ -382,13 +567,29 @@ class MangaReader extends _$MangaReader {
         : resumePage.clamp(0, anchorTotal <= 0 ? 0 : anchorTotal - 1);
     _backwardFrames = 0;
     _lastReportedOffset = 0;
+    // PAGE coordinates (itemPosition), not flat slots — this is what
+    // [_readerMoved] compares against. Both session states below carry
+    // exactly this position.
+    _sessionStartItemPosition =
+        resumePage == null || resumePage <= 0 || anchorTotal <= 0
+        ? 0
+        : resumePage.clamp(0, anchorTotal - 1);
+    // A fresh session does NOT remount the canvas when the switch stays
+    // within the same group (the shell keys the canvas on groupIndex only):
+    // the mounted fork keeps the OLD anchor (its didUpdateWidget only clamps
+    // targets, never re-pins), and the next position report attributes
+    // whatever slot the shrunken list shows there — the "fresh episode starts
+    // at page 15" report. Publishing the start slot on pendingJumpSlot makes
+    // the viewport jump the mounted list to the new session's first page.
+    final startPage = resumePage == null || resumePage <= 0 || anchorTotal <= 0
+        ? 0
+        : resumePage.clamp(0, anchorTotal - 1);
     if (resumePage == null || resumePage <= 0 || anchorTotal <= 0) {
       state = session;
-      return;
+    } else {
+      state = session.copyWith(itemPosition: startPage);
     }
-    state = session.copyWith(
-      itemPosition: resumePage.clamp(0, anchorTotal - 1),
-    );
+    pendingJumpSlot.value = _flatIndexOfPage(0, startPage);
   }
 
   /// Instant restore of [page] onto the canvas.
@@ -399,6 +600,11 @@ class MangaReader extends _$MangaReader {
   /// through a resumed chapter churns the position stream and builds pages the
   /// reader never looks at.
   void restorePosition(int page) {
+    diag(
+      'JUMP restorePosition page=$page total=${state.totalPage} '
+      'tracked=${state.trackedSegmentIndex} '
+      'segs=${state.segments.map((s) => s.episodeIndex).toList()}',
+    );
     if (!ref.mounted || state.totalPage == 0) return;
     final target = page.clamp(0, state.totalPage - 1);
     switch (state.readMode) {
@@ -517,8 +723,8 @@ class MangaReader extends _$MangaReader {
     }
     final firstVisible = visible.reduce((a, b) => a.index < b.index ? a : b);
     final slots = _slots();
+    final segmentsAtEntry = state.segments;
     if (slots.isEmpty) return;
-
     // Direction from the offset delta: the positions stream fires
     // post-frame, by which time `userScrollDirection` has been reset to
     // idle. The offset itself is the ground truth — negative delta = head
@@ -534,8 +740,38 @@ class MangaReader extends _$MangaReader {
         : delta > 0.5
         ? ScrollDirection.forward
         : ScrollDirection.idle;
+    diag(
+      'POS flat=${firstVisible.index} stable=$_stableFirstVisible '
+      'offset=${offset.toStringAsFixed(1)} delta=${delta.toStringAsFixed(1)} '
+      'dir=$direction adjusting=$isAdjusting',
+    );
     if (!isAdjusting) {
       _maybeLoadAdjacent(firstVisible.index, direction);
+    }
+
+    // A synchronous prepend (_maybeLoadAdjacent -> _ensureAdjacent) re-indexed
+    // the window under THIS report. The report's index belongs to the OLD
+    // layout, but the hysteresis anchor was already shifted to the new one;
+    // comparing them directly would misjudge a stationary reader as a
+    // backward blip. Re-base the index by the slot delta — for the hysteresis
+    // comparison only.
+    //
+    // The slot lookup below deliberately stays in OLD coordinates (that is
+    // what the index was measured against); the segment it names is
+    // translated by episode identity instead, which is exact for prepends and
+    // a no-op for appends.
+    var hysteresisIndex = firstVisible.index;
+    final headInserted =
+        state.segments.isNotEmpty &&
+        segmentsAtEntry.isNotEmpty &&
+        !identical(state.segments.first, segmentsAtEntry.first);
+    if (headInserted) {
+      final slotsAfterLoad = _slots();
+      hysteresisIndex += slotsAfterLoad.length - slots.length;
+      diag(
+        'POS re-based flat=${firstVisible.index} -> $hysteresisIndex '
+        'after head insert ${slotsAfterLoad.length - slots.length}',
+      );
     }
 
     // Backward blip filter: the positions stream sometimes re-reports a slot
@@ -543,24 +779,52 @@ class MangaReader extends _$MangaReader {
     // list. Require the backward position to persist across consecutive frames
     // before letting attribution follow it.
     final stable = _stableFirstVisible;
-    if (firstVisible.index < stable) {
+    if (hysteresisIndex < stable) {
       _backwardFrames++;
       if (_backwardFrames < _backwardHysteresisFrames) {
-        logger.fine(
-          'window_track suppressed-blip flat=${firstVisible.index} ($_backwardFrames < $_backwardHysteresisFrames)',
+        diag(
+          'window_track suppressed-blip flat=$hysteresisIndex '
+          'raw=${firstVisible.index} '
+          'stable=$stable dir=$direction segs=${state.segments.map((s) => s.episodeIndex).toList()} '
+          'tracked=${state.trackedSegmentIndex} total=${state.totalPage}',
         );
         return;
       }
     } else {
       _backwardFrames = 0;
-      _stableFirstVisible = firstVisible.index;
+      _stableFirstVisible = hysteresisIndex;
     }
 
     final slot = slots[firstVisible.index.clamp(0, slots.length - 1)];
     if (slot.kind == SlotKind.page) {
-      if (slot.segmentIndex != state.trackedSegmentIndex) {
-        _flipTrackedChapter(slot.segmentIndex, slot.pageIndex);
+      var segmentIndex = slot.segmentIndex;
+      if (headInserted && segmentIndex < segmentsAtEntry.length) {
+        // The slot names a segment by its OLD position; find that chapter's
+        // position in the CURRENT window. A prepend shifted every existing
+        // segment; without this the stale index lands on the freshly
+        // inserted loading placeholder and the flip cascade begins.
+        final episode = segmentsAtEntry[segmentIndex].episodeIndex;
+        final translated = state.segments.indexWhere(
+          (s) => s.episodeIndex == episode,
+        );
+        if (translated >= 0) segmentIndex = translated;
+        diag(
+          'POS segment re-based ${slot.segmentIndex} -> $segmentIndex '
+          '(ep $episode) after head insert',
+        );
+      }
+      if (segmentIndex != state.trackedSegmentIndex) {
+        diag(
+          'window_track FLIP seg=$segmentIndex page=${slot.pageIndex} '
+          'tracked=${state.trackedSegmentIndex} dir=$direction '
+          'segs=${state.segments.map((s) => s.episodeIndex).toList()}',
+        );
+        _flipTrackedChapter(segmentIndex, slot.pageIndex);
       } else {
+        // Reaching here means the hysteresis let the report through: either it
+        // was not a backward move, or it persisted long enough to be accepted.
+        // The early return above already swallowed the transient backward blips,
+        // so this is the first point where writing the page number is safe.
         setPageNumber(slot.pageIndex);
       }
     }
@@ -568,8 +832,31 @@ class MangaReader extends _$MangaReader {
 
   void _flipTrackedChapter(int segmentIndex, int localPage) {
     final segment = state.segments[segmentIndex];
+    // A loading or failed segment has no pages: attributing the reader to it
+    // would zero the page and park the session on a chapter that cannot be
+    // read yet (its flat index lookup also misses, resetting the hysteresis
+    // anchor to 0). A report landing here is a measurement artifact of the
+    // window growing under it; the real crossing is attributed once the pages
+    // arrive and the stream re-reports.
+    if (segment.items == null) {
+      diag(
+        'JUMP flip ignored: seg=$segmentIndex ep=${segment.episodeIndex} '
+        'has no pages (loading=${segment.loading} failed=${segment.failed})',
+      );
+      return;
+    }
     final previous = state.segments[state.trackedSegmentIndex];
     _internalChapterFlip = true;
+    // A flip is live attribution: the reader crossed into another chapter and
+    // its position is the reader's, however it compares with history.
+    _readerMoved = true;
+    diag(
+      'JUMP flip seg=$segmentIndex page=$localPage '
+      'prevSeg=${state.trackedSegmentIndex} prevEp=${previous.episodeIndex} '
+      'newEp=${segment.episodeIndex} '
+      'forward=${segment.episodeIndex > previous.episodeIndex} '
+      'total=${state.totalPage} itemPos=${state.itemPosition}',
+    );
     if (segment.episodeIndex > previous.episodeIndex) {
       // Crossing forward: the reader scrolled past the outgoing chapter's
       // end, so it is finished — its history is written as complete
@@ -592,7 +879,21 @@ class MangaReader extends _$MangaReader {
     // Re-seed it at the flipped page so attribution resumes immediately.
     _stableFirstVisible = _flatIndexOfPage(segmentIndex, localPage);
     _backwardFrames = 0;
-    _onTrackedEpisodeChanged?.call(_groupIndex, segment.episodeIndex);
+    // The session identity has to follow the tracked chapter. The shell's open
+    // effect re-runs when `onTrackedEpisodeChanged` moves the episode
+    // provider, and it checks `isOpenFor` against `_openKey`: left describing
+    // the outgoing chapter, that check fails, the effect calls `open()`, and
+    // the session is wiped and remounted at slot 0 — the flicker. Only the
+    // episode changes; the total page count follows the segment's own items.
+    _openKey =
+        '$_groupIndex:${segment.episodeIndex}:'
+        '${segment.items?.length ?? state.totalPage}';
+    // State must land BEFORE the listeners fire. `selectEpisode` refreshes the
+    // episode notifier's `_capturedState`, and `prepareHistorySave` bakes the
+    // episode identity (url, episodeId, title) out of it. Calling the listeners
+    // first let a history save armed from the outgoing state write the new
+    // chapter's progress onto the PREVIOUS chapter's row — the "page 18 of
+    // chapter 231 saved as chapter 230" report.
     state = state.copyWith(
       trackedSegmentIndex: segmentIndex,
       totalPage: segment.items?.length ?? state.totalPage,
@@ -600,6 +901,8 @@ class MangaReader extends _$MangaReader {
           ? 0
           : localPage.clamp(0, segment.items!.length - 1),
     );
+    _onTrackedEpisodeChanged?.call(_groupIndex, segment.episodeIndex);
+    debugOnTrackedEpisodeChanged?.call(_groupIndex, segment.episodeIndex);
   }
 
   /// One-shot: returns true when the reader itself flipped the tracked
@@ -611,9 +914,8 @@ class MangaReader extends _$MangaReader {
     return flipped;
   }
 
-  /// Whether the infinite window's tracked chapter is already
-  /// [episodeIndex] — its pages are loaded at the reader's live scroll
-  /// position.
+  /// Whether the tracked chapter is [episodeIndex] — its pages are loaded at
+  /// the reader's live scroll position.
   ///
   /// The shell's open effect also re-runs when the watch session refreshes
   /// the new episode's page list after a chain flip (the flip's one-shot
@@ -629,6 +931,56 @@ class MangaReader extends _$MangaReader {
         tracked < segments.length &&
         segments[tracked].episodeIndex == episodeIndex;
   }
+
+  /// Whether the reader already has a session open for [groupIndex]/[episodeIndex].
+  ///
+  /// Unlike [tracksEpisode] this does not read `state.segments`, which is
+  /// rebuilt asynchronously — during a chain flip it is momentarily empty, and
+  /// the shell's open effect then saw "not tracked" and called [open], which
+  /// wiped the session and remounted the canvas at slot 0. `_openKey` is set
+  /// once by [open] and survives that churn, so it is the reliable identity.
+  bool isOpenFor(int groupIndex, int episodeIndex) {
+    final key = _openKey;
+    if (key == null) return false;
+    return key == '$groupIndex:$episodeIndex:${state.totalPage}';
+  }
+
+  /// Whether a resume page is now available that the current session did not
+  /// adopt when it opened.
+  ///
+  /// [HistoryPageNotifier.build] returns an empty history synchronously and
+  /// fills it from the DB a microtask later. A reader opened in that first
+  /// window has no resume page, so it starts at page one; when the entry
+  /// arrives the shell re-runs its open effect, and this is what tells it to
+  /// re-open rather than bail out on [tracksEpisode]. Without it the first
+  /// open wins forever and the reader sits on page one while the HUD reports
+  /// the saved page.
+  ///
+  /// Only while the reader still sits where the session started, though. Once
+  /// it has live attribution elsewhere — it scrolled, or flipped into another
+  /// chapter and back — the position is the reader's, and a disagreeing
+  /// history page is stale, not a missed adopt. Adopting it then threw the
+  /// reader from a chapter's first page to its last (see [_readerMoved]).
+  ///
+  /// [resumePage] is null when history has no entry for this episode, so a
+  /// reader with nothing to resume never re-opens.
+  bool needsResumeAdopt(int? resumePage) {
+    if (resumePage == null || resumePage <= 0) return false;
+    if (_readerMoved) return false;
+    return state.itemPosition != resumePage;
+  }
+
+  /// The session key of the currently open chapter (`group:episode:pages`), or
+  /// null when nothing has been opened yet.
+  String? get debugOpenKey => _openKey;
+
+  /// Diagnostics for the shell's effect log: current attribution without
+  /// handing out the mutable state.
+  int get debugTrackedSegmentIndex => state.trackedSegmentIndex;
+
+  /// Diagnostics: the window's chapter list.
+  List<int> get debugSegments =>
+      state.segments.map((s) => s.episodeIndex).toList();
 
   /// Kicks off an adjacent-chapter fetch when the viewport is near the end of
   /// the loaded window **in the direction the reader is travelling**.
@@ -675,10 +1027,12 @@ class MangaReader extends _$MangaReader {
     if (state.segments.any((s) => s.episodeIndex == boundary)) return;
     if (_loadingSegments.contains(boundary)) return;
     final episode = _episodes[boundary];
-    // The session this fetch belongs to: a re-open (`open` with a different
-    // episode) or a dispose must void the result, or stale data lands in the
-    // NEW session's segment with the same episodeIndex.
-    final session = _openKey;
+    // The session this fetch belongs to: a re-open that starts a NEW session
+    // (or a dispose) must void the result, or stale data lands in the NEW
+    // session's segment with the same episodeIndex. A chapter FLIP is not a
+    // new session — the window persists — so this is `_sessionId`, not the
+    // open-key that follows the tracked chapter.
+    final session = _sessionId;
     _loadingSegments.add(boundary);
     final loading = ChapterSegment<String>(
       episodeIndex: boundary,
@@ -696,7 +1050,7 @@ class MangaReader extends _$MangaReader {
     _loadingSegments.remove(boundary);
     // Async gap: the notifier may be disposed (reader closed) or the
     // session may have moved on (chapter re-opened) while the fetch ran.
-    if (!ref.mounted || _openKey != session) return;
+    if (!ref.mounted || _sessionId != session) return;
     if (!state.segments.any((s) => s.episodeIndex == boundary)) return;
     _replaceSegment(
       boundary,
@@ -724,12 +1078,28 @@ class MangaReader extends _$MangaReader {
     if (atHead) {
       final delta = after - before;
       final insertedSegments = segments.length - state.segments.length;
+      diag(
+        'JUMP commitSegments atHead delta=$delta '
+        'insertedSegments=$insertedSegments '
+        'before=$before after=$after '
+        'tracked=$trackedSegmentIndex stable=$_stableFirstVisible '
+        'segs=${state.segments.map((s) => s.episodeIndex).toList()} '
+        '-> ${segments.map((s) => s.episodeIndex).toList()}',
+      );
       if (insertedSegments > 0) {
         // The same logical chapter is now further into the list; the index
         // it is tracked by moves with it.
         trackedSegmentIndex += insertedSegments;
       }
       if (delta > 0 && state.readMode == MangaReadMode.webToon) {
+        // The anchored layout re-pins on the same logical row, so every slot
+        // index after the insertion point moves by `delta`. The hysteresis
+        // anchor is such an index: leaving it unshifted made the next position
+        // report look like a backward blip, which the guard then swallowed for
+        // four frames — the reader sat on the wrong chapter until it settled.
+        // This is the "scroll up into the previous chapter and it jumps to the
+        // next one" report.
+        _stableFirstVisible += delta;
         itemScrollController.notifyItemsInsertedBefore(delta);
       }
     }
@@ -748,7 +1118,7 @@ class MangaReader extends _$MangaReader {
     if (_episodes.isEmpty || _meta == null || _detailUrl == null) return;
     if (_loadingSegments.contains(episodeIndex)) return;
     final episode = _episodes[episodeIndex];
-    final session = _openKey;
+    final session = _sessionId;
     _loadingSegments.add(episodeIndex);
     _replaceSegment(
       episodeIndex,
@@ -759,7 +1129,7 @@ class MangaReader extends _$MangaReader {
     _loadingSegments.remove(episodeIndex);
     // Async gap: the notifier may be disposed or the session may have
     // moved on while the fetch ran (see `_ensureAdjacent`).
-    if (!ref.mounted || _openKey != session) return;
+    if (!ref.mounted || _sessionId != session) return;
     final current = state.segments.indexWhere(
       (s) => s.episodeIndex == episodeIndex,
     );
@@ -932,6 +1302,11 @@ class MangaReader extends _$MangaReader {
   void _writePage(int page) {
     if (state.totalPage == 0) return;
     final next = page.clamp(0, state.totalPage - 1);
+    // Any position away from where the session started is live attribution:
+    // a resume page that disagrees with it afterwards is stale history, not a
+    // missed adopt (see [needsResumeAdopt]). Checked before the echo guard —
+    // the check must run even when the write is a no-op.
+    if (next != _sessionStartItemPosition) _readerMoved = true;
     // The item-position stream fires on every scroll frame. Without this
     // guard, every frame allocated a fresh state and rebuilt every watcher —
     // the reader shell, the viewport and both HUD halves — while the pages
@@ -969,6 +1344,11 @@ class MangaReader extends _$MangaReader {
   // Jump to the page and set the page number. [page] is the zero-based index
   // the position stream reports.
   void jumpTo(int page) {
+    diag(
+      'JUMP jumpTo page=$page itemPosition=${state.itemPosition} '
+      'total=${state.totalPage} adjusting=$isAdjusting '
+      'segs=${state.segments.map((s) => s.episodeIndex).toList()}',
+    );
     if (state.totalPage == 0) return;
     _writePage(page);
     final token = ++_jumpGeneration;

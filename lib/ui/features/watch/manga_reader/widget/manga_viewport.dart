@@ -10,6 +10,7 @@ import 'package:miru_alpha/ui/features/watch/manga_reader/widget/manag_image.dar
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_chapter_boundary.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/reader_zoom_surface.dart';
 import 'package:miru_alpha/ui/features/watch/manga_reader/widget/webtoon_zoom_surface.dart';
+import 'package:miru_alpha/utils/core/log.dart';
 
 /// Horizontal share of the viewport treated as a "previous page" tap zone.
 const kReaderTapZoneExtent = 0.3;
@@ -234,7 +235,7 @@ class _PagedPages extends HookConsumerWidget {
   }
 }
 
-class _WebtoonPages extends ConsumerWidget {
+class _WebtoonPages extends HookConsumerWidget {
   const _WebtoonPages({
     required this.state,
     required this.gap,
@@ -258,6 +259,45 @@ class _WebtoonPages extends ConsumerWidget {
     // the series-end markers) and memoizes it against the segments list
     // identity — this build runs on every scroll-driven state change.
     final slots = reader.currentSlots();
+
+    // The slot the list opens at. `ScrollablePositionedList.initialScrollIndex`
+    // is read only in `initState`, so a fresh mount must already carry the
+    // resume slot — that is what makes a first entry land on the saved page.
+    //
+    // Keyed on [state.segments], not the page: a re-entry into the same episode
+    // takes `open()`'s dedupe early-return, which adopts a resume page that has
+    // only just arrived from history but does NOT reinstall the segments.
+    // Keying on the page would re-capture on every scroll-driven rebuild and
+    // yank the anchor backwards.
+    final initialScrollSlot = useMemoized(() => reader.initialScrollSlot(), [
+      state.segments,
+    ]);
+    diag(
+      'SLV-WIDGET build slots=${slots.length} initialScrollSlot=$initialScrollSlot '
+      'keyedOnSegments=${identityHashCode(state.segments)} '
+      'itemPosition=${state.itemPosition} tracked=${state.trackedSegmentIndex}',
+    );
+
+    // A resume page adopted after this canvas mounted cannot arrive through
+    // `initialScrollIndex` (read once, in initState). The provider publishes it
+    // on `pendingJumpSlot` instead.
+    //
+    // Only consume it when the list actually has rows: `jumpTo` on an empty
+    // list is a no-op, so taking the value early would drop the jump and the
+    // reader would stay at slot 0 forever — the "resumed on the wrong page"
+    // report. Leaving it pending means the next build (with segments installed)
+    // applies it.
+    final pending = reader.pendingJumpSlot.value;
+    if (pending != null && slots.isNotEmpty) {
+      reader.pendingJumpSlot.value = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!context.mounted) return;
+        final controller = reader.itemScrollController;
+        if (controller.isAttached && pending < slots.length) {
+          controller.jumpTo(index: pending);
+        }
+      });
+    }
 
     // Zoom is a paint-only transform over the list rather than an
     // InteractiveViewer wrapper: the viewer's pan/scale recognisers would win
@@ -286,6 +326,7 @@ class _WebtoonPages extends ConsumerWidget {
         doubleTapEnabled: doubleTapEnabled,
         onViewMoved: onViewMoved,
         itemCount: slots.length,
+        initialScrollIndex: initialScrollSlot,
         // The gap belongs *between* pages, not around the list: a trailing pad on
         // every page but the last separates them while letting the first page
         // start at the top edge and the last one run to the bottom edge. Padding

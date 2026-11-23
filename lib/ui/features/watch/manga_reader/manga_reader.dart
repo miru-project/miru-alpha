@@ -76,7 +76,28 @@ class MiruMangaReader extends HookConsumerWidget {
     // an episode switch rebuilds the canvas from page one instead of keeping
     // the previous chapter's scroll position.
     final mangaProvider = mangaReaderProvider;
-    final state = container.watch(mangaProvider);
+    // One watch per variable: a change to any one rebuilds the shell, but a
+    // HUD toggle no longer rebuilds the canvas gate and vice versa. Selecting
+    // derived getters (page, progress) keeps the HUD arithmetic in the
+    // notifier, so widgets below compare primitives.
+    final segmentsEmpty = container.watch(
+      mangaProvider.select((s) => s.segments.isEmpty),
+    );
+    final hudVisible = container.watch(
+      mangaProvider.select((s) => s.hudVisible),
+    );
+    final brightnessMode = container.watch(
+      mangaProvider.select((s) => s.brightnessMode),
+    );
+    final brightness = container.watch(
+      mangaProvider.select((s) => s.brightness),
+    );
+    final keepScreenOn = container.watch(
+      mangaProvider.select((s) => s.keepScreenOn),
+    );
+    final page = container.watch(mangaProvider.select((s) => s.page));
+    final totalPage = container.watch(mangaProvider.select((s) => s.totalPage));
+    final progress = container.watch(mangaProvider.select((s) => s.progress));
     final totalPages = value?.urls.length ?? 0;
     final chapterLabel = episodes.isEmpty ? '' : episodes[episodeIndex].name;
 
@@ -95,10 +116,46 @@ class MiruMangaReader extends HookConsumerWidget {
     // Declared before the open effect because its completion callback clears
     // the armed save (see `onChapterCompleted` below).
     final historySave = useRef<Future<void> Function()?>(null);
+
+    // The open effect must re-run once history has loaded.
+    //
+    // [HistoryPageNotifier.build] returns an empty history synchronously and
+    // fills it from the DB in a later microtask, so the first pass of the open
+    // effect sees no saved page and opens at page one. Without this the effect
+    // never re-runs, the reader stays on page one, and the HUD shows the
+    // history-derived page — the "indicator says page 6, the canvas is on
+    // page 1" report. Watching the history length gives the effect a key that
+    // flips the moment the entry arrives, so `findSavedReadingProgress` sees it
+    // and the canvas opens on the saved page.
+    final historyCount = container.watch(
+      historyPageProvider.select((history) => history.history.length),
+    );
+
     void flushHistory() {
       final save = historySave.value;
       historySave.value = null;
       if (save != null) unawaited(save());
+    }
+
+    // Captured while mounted: the flip/completion callbacks fire from the
+    // provider long after this element may be gone, and Riverpod throws
+    // "Using ref when a widget is about to or has been unmounted" for any
+    // read they attempt then.
+    // Episode writes are routed through this guard: the episode provider is
+    // a family keyed by WatchParams (which includes the selected episode), so
+    // every selectEpisode re-keys it and auto-disposes the element this shell
+    // captured. Calling into a disposed notifier throws "Cannot use the Ref
+    // of episodeProvider after it has been disposed" — which fired on every
+    // scroll after a history chapter jump. A dropped write is correct there:
+    // nobody listens to the dead element, and the live session re-arms its
+    // own save.
+    final epNotifier = container.read(epProvider.notifier);
+    void withEpisode(void Function(EpisodeNotifier notifier) action) {
+      try {
+        action(epNotifier);
+      } catch (error, stack) {
+        logger.fine('Episode write skipped (provider disposed)', error, stack);
+      }
     }
 
     useEffect(() {
@@ -107,12 +164,6 @@ class MiruMangaReader extends HookConsumerWidget {
       // reset the canvas — the effect would otherwise jump the scroller
       // back to the top and reload the chapter.
       if (reader.consumeChapterFlip()) return null;
-      // The window already tracks this chapter (a chain flip landed here):
-      // the session refresh that follows re-runs this effect with a new
-      // page count, and re-opening would collapse the window and jump to
-      // the chapter's history position. The flip's one-shot guard is spent
-      // by then, so the tracked-chapter check is what holds the line.
-      if (reader.tracksEpisode(episodeIndex)) return null;
       final episodeUrl = episodes.isEmpty ? '' : episodes[episodeIndex].url;
       final saved = findSavedReadingProgress(
         history: container.read(historyPageProvider).history,
@@ -120,6 +171,43 @@ class MiruMangaReader extends HookConsumerWidget {
         episodeUrl: episodeUrl,
       );
       final resumePage = saved == null ? null : saved.progress - 1;
+      // The window already tracks this chapter (a chain flip landed here):
+      // the session refresh that follows re-runs this effect with a new
+      // page count, and re-opening would collapse the window and jump to
+      // the chapter's history position. The flip's one-shot guard is spent
+      // by then, so the tracked-chapter check is what holds the line.
+      //
+      // Exception: the session was opened before history loaded, so it has no
+      // resume page yet. [HistoryPageNotifier.build] returns an empty list
+      // synchronously and fills it from the DB in a later microtask, so this
+      // effect re-runs when the entry arrives (`historyCount` is a key).
+      // Re-opening then is the only way the reader reaches the saved page —
+      // without it the first open wins, the canvas stays on page one, and the
+      // HUD shows the history page: the "indicator says 6, the canvas is on 1"
+      // report.
+      //
+      // The marker alone is NOT enough here. `_openKey` only describes the
+      // chapter the reader OPENED on, so after an infinite-scroll flip it
+      // names the outgoing chapter and every re-run for the new one slipped
+      // through: `open()` wiped the window, the canvas remounted at slot 0
+      // and the reader was thrown back to the top — the scroll-up flicker.
+      // The durable identity is the window's own segments (see [isOpenFor]).
+      diag(
+        'SHELL effect group=$groupIndex ep=$episodeIndex total=$totalPages '
+        'historyCount=$historyCount resume=$resumePage '
+        'tracked=${reader.debugTrackedSegmentIndex} '
+        'segs=${reader.debugSegments} '
+        'openKey=${reader.debugOpenKey}',
+      );
+      diag('SHELL effect STACK\n${StackTrace.current}');
+      if (reader.tracksEpisode(episodeIndex) &&
+          !reader.needsResumeAdopt(resumePage)) {
+        return null;
+      }
+      if (reader.isOpenFor(groupIndex, episodeIndex) &&
+          !reader.needsResumeAdopt(resumePage)) {
+        return null;
+      }
       Future.microtask(() {
         reader.open(
           groupIndex: groupIndex,
@@ -131,31 +219,30 @@ class MiruMangaReader extends HookConsumerWidget {
           chapterName: chapterLabel,
           meta: meta,
           detailUrl: detailUrl,
-          onTrackedEpisodeChanged: (flipGroup, flipEpisode) => container
-              .read(epProvider.notifier)
-              .selectEpisode(flipGroup, flipEpisode),
+          onTrackedEpisodeChanged: (flipGroup, flipEpisode) =>
+              withEpisode((n) => n.selectEpisode(flipGroup, flipEpisode)),
           // Crossing forward finishes the outgoing chapter: its completion
           // write supersedes the armed snapshot (which holds the last
           // reported page, possibly mid-chapter after a fast fling).
           onChapterCompleted: (flipGroup, flipEpisode, totalFlipped) {
             historySave.value = null;
-            container
-                .read(epProvider.notifier)
-                .saveHistory(
-                  progress: totalFlipped,
-                  totalProgress: totalFlipped,
-                );
+            withEpisode(
+              (n) => n.saveHistory(
+                progress: totalFlipped,
+                totalProgress: totalFlipped,
+              ),
+            );
           },
         );
-        // Always land on the entry page — a direct chapter switch (drawer,
-        // prev/next, restore) must not keep a stale offset from the
-        // previous chapter.
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          reader.restorePosition(resumePage ?? 0);
-        });
+        // No post-frame restore here. `open` already adopted the resume page
+        // into `itemPosition`, and the canvas seeds
+        // `ScrollablePositionedList.initialScrollIndex` from it, so the first
+        // layout lands on the right page. A `jumpTo` after the frame laid out
+        // and painted slot 0 first — the reader saw the chapter's opening page
+        // flash before the page they had left.
       });
       return null;
-    }, [groupIndex, episodeIndex, totalPages]);
+    }, [groupIndex, episodeIndex, totalPages, historyCount]);
 
     // Screen preferences are a side effect of the settings, so they are an
     // effect rather than a build side effect: the applied values are remembered
@@ -165,12 +252,12 @@ class MiruMangaReader extends HookConsumerWidget {
     useEffect(() {
       applyReaderScreenPreferences(
         applied,
-        state.brightnessMode,
-        state.brightness,
-        state.keepScreenOn,
+        brightnessMode,
+        brightness,
+        keepScreenOn,
       );
       return null;
-    }, [state.brightnessMode, state.brightness, state.keepScreenOn]);
+    }, [brightnessMode, brightness, keepScreenOn]);
     useEffect(
       () =>
           () => unawaited(releaseReaderScreen()),
@@ -193,9 +280,12 @@ class MiruMangaReader extends HookConsumerWidget {
       container.listenManual(
         mangaProvider.select((s) => (s.historyProgress, s.totalPage)),
         (_, next) {
-          historySave.value = container
-              .read(epProvider.notifier)
-              .prepareHistorySave(progress: next.$1, totalProgress: next.$2);
+          withEpisode(
+            (n) => historySave.value = n.prepareHistorySave(
+              progress: next.$1,
+              totalProgress: next.$2,
+            ),
+          );
         },
       );
       // The manual listener lives until the element unmounts; the cleanup is
@@ -224,7 +314,7 @@ class MiruMangaReader extends HookConsumerWidget {
                 notification is ScrollStartNotification &&
                 notification.dragDetails != null &&
                 notification.metrics.axis == Axis.vertical;
-            if (isDrag && state.hudVisible) {
+            if (isDrag && hudVisible) {
               logger.fine('HUD hide via scrollStart drag');
               reader.setHudVisible(false);
             }
@@ -232,23 +322,37 @@ class MiruMangaReader extends HookConsumerWidget {
           },
           child: KeyedSubtree(
             key: ValueKey('manga-canvas-$groupIndex'),
-            child: MiruMangaViewPort(
-              data: value,
-              epProvider: epProvider,
-              mangaProvider: mangaProvider,
-              meta: meta,
-              name: name,
-              onTapCenter: reader.toggleHud,
-              // A magnified pan is raw pointer tracking: the view pins its
-              // scrollable, so there is no drag for the notification listener
-              // above to see and the view reports the move itself.
-              onViewMoved: () {
-                if (container.read(mangaProvider).hudVisible) {
-                  logger.fine('HUD hide via onViewMoved');
-                  reader.setHudVisible(false);
-                }
-              },
-            ),
+            child: segmentsEmpty
+                // The session is not open yet: `open` runs from the shell's
+                // effect, one microtask after this build. Mounting the canvas
+                // here would make the list read `initialScrollIndex` while
+                // `itemPosition` is still 0, pinning it to page one — and the
+                // fork reads that value only in initState, so the correct slot
+                // the session adopts a frame later never reaches the list.
+                //
+                // Holding off one frame is what makes a history resume land on
+                // the saved page: the canvas mounts on the build where
+                // `segments` first has content, which is the same build that
+                // carries the adopted `itemPosition`.
+                ? const SizedBox.shrink()
+                : MiruMangaViewPort(
+                    data: value,
+                    epProvider: epProvider,
+                    mangaProvider: mangaProvider,
+                    meta: meta,
+                    name: name,
+                    onTapCenter: reader.toggleHud,
+                    // A magnified pan is raw pointer tracking: the view pins
+                    // its scrollable, so there is no drag for the notification
+                    // listener above to see and the view reports the move
+                    // itself.
+                    onViewMoved: () {
+                      if (hudVisible) {
+                        logger.fine('HUD hide via onViewMoved');
+                        reader.setHudVisible(false);
+                      }
+                    },
+                  ),
           ),
         ),
         // The HUD halves and the status pill cross-fade rather than being swapped
@@ -267,7 +371,7 @@ class MiruMangaReader extends HookConsumerWidget {
           right: 0,
           top: 0,
           child: ReaderOverlayLayer(
-            visible: state.hudVisible,
+            visible: hudVisible,
             offset: -8,
             // The bar carries the safe-area inset INSIDE its chrome, so the
             // frosted surface covers the status-bar strip instead of leaving
@@ -280,8 +384,8 @@ class MiruMangaReader extends HookConsumerWidget {
               onToggleChapters: () => showChapterDrawer(
                 context,
                 epProvider: epProvider,
-                openPosition: state.page,
-                openTotal: state.totalPage,
+                openPosition: page,
+                openTotal: totalPage,
               ),
               onOpenSettings: () => showReaderSettingsSheet(
                 context,
@@ -295,7 +399,7 @@ class MiruMangaReader extends HookConsumerWidget {
           right: 0,
           bottom: mediaPadding.bottom + 24,
           child: ReaderOverlayLayer(
-            visible: state.hudVisible,
+            visible: hudVisible,
             offset: 24,
             child: Padding(
               // Reference footer: px-4 horizontally, pb-6 at the bottom.
@@ -306,8 +410,8 @@ class MiruMangaReader extends HookConsumerWidget {
                 onOpenChapters: () => showChapterDrawer(
                   context,
                   epProvider: epProvider,
-                  openPosition: state.page,
-                  openTotal: state.totalPage,
+                  openPosition: page,
+                  openTotal: totalPage,
                 ),
               ),
             ),
@@ -319,16 +423,16 @@ class MiruMangaReader extends HookConsumerWidget {
           top: 0,
           bottom: 0,
           child: ReaderOverlayLayer(
-            visible: !state.hudVisible,
+            visible: !hudVisible,
             offset: 8,
             child: ReaderPositionPill(
-              isolated: state.hudVisible,
+              isolated: hudVisible,
               childBuilder: (borderRadius, compact, showGrip) =>
                   ReaderStatusPill(
                     chapterLabel: chapterLabel,
-                    page: state.page,
-                    totalPage: state.totalPage,
-                    progress: state.progress,
+                    page: page,
+                    totalPage: totalPage,
+                    progress: progress,
                     borderRadius: borderRadius,
                     compact: compact,
                     showGrip: showGrip,

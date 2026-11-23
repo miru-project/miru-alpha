@@ -20,6 +20,7 @@ class WebtoonZoomSurface extends StatelessWidget {
     required this.scrollOffsetController,
     required this.scrollOffsetListener,
     required this.itemScrollController,
+    this.initialScrollIndex = 0,
     this.onTap,
     this.doubleTapEnabled = true,
     this.minScale = 1,
@@ -35,6 +36,15 @@ class WebtoonZoomSurface extends StatelessWidget {
   final ScrollOffsetController scrollOffsetController;
   final ScrollOffsetListener scrollOffsetListener;
   final ItemScrollController itemScrollController;
+
+  /// Slot the list opens at, so the first layout already lands on the resumed
+  /// page instead of laying out from the top and jumping a frame later.
+  ///
+  /// Resuming must NOT go through a post-frame `jumpTo`: the canvas lays out at
+  /// slot 0 first, paints that frame, and only then jumps — the reader sees the
+  /// chapter's first page flash before the page they left. Seeding the list's
+  /// own initial index makes the very first layout land on the resume slot.
+  final int initialScrollIndex;
 
   /// Fired on a tap (no drag), so the reader can toggle its HUD.
   final VoidCallback? onTap;
@@ -95,6 +105,10 @@ class WebtoonZoomSurface extends StatelessWidget {
           scrollOffsetController: scrollOffsetController,
           scrollOffsetListener: scrollOffsetListener,
           itemScrollController: itemScrollController,
+          // Only the first value matters: the fork reads this in initState and
+          // ignores later changes, so it must not be a value that moves as the
+          // reader scrolls. The caller captures the resume slot once.
+          initialScrollIndex: initialScrollIndex,
           physics: zoom.scrollingEnabled
               ? const AlwaysScrollableScrollPhysics()
               : const NeverScrollableScrollPhysics(),
