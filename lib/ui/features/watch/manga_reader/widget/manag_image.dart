@@ -157,14 +157,25 @@ class _RingPainter extends CustomPainter {
 /// of a chapter is decoded the surrounding loading pages can reserve the
 /// identical height and the list never reflows. Bounded so a long binge
 /// session does not accumulate it without limit.
+///
+/// Values are **width / height**, matching [AspectRatio.aspectRatio]: a page
+/// that is twice as tall as it is wide stores `0.5`, so a 200-wide placeholder
+/// reserves 400px — the decoded page's own height. Storing `height / width`
+/// here would invert it and make every placeholder half-height.
 final Map<String, double> _decodedAspect = <String, double>{};
 const _maxAspectCacheEntries = 64;
+
+/// Width / height of the fallback placeholder: the 2:3 manga page.
+const double _fallbackPageAspect = 2 / 3;
+
 double aspectRatioFor(String? chapterUrl) {
   final direct = chapterUrl == null ? null : _decodedAspect[chapterUrl];
   if (direct != null) return direct;
   // No measurement for this chapter yet — reuse the most recently decoded
   // aspect from a sibling chapter; manga from the same source shares paper.
-  return _decodedAspect.isEmpty ? 2 / 3 : _decodedAspect.values.last;
+  return _decodedAspect.isEmpty
+      ? _fallbackPageAspect
+      : _decodedAspect.values.last;
 }
 
 /// Test-only: wipe the chapter aspect cache between tests.
@@ -174,11 +185,24 @@ void clearDecodedAspectCacheForTest() => _decodedAspect.clear();
 void _rememberDecodedAspect(String chapterUrl, Size size) {
   if (size.width <= 0 || size.height <= 0) return;
   _decodedAspect.remove(chapterUrl);
-  _decodedAspect[chapterUrl] = size.height / size.width;
+  // width / height, so [MobileMangaLoading] can hand it straight to
+  // [AspectRatio] and reserve the same height the decoded page will take.
+  _decodedAspect[chapterUrl] = size.width / size.height;
   while (_decodedAspect.length > _maxAspectCacheEntries) {
     _decodedAspect.remove(_decodedAspect.keys.first);
   }
 }
+
+/// Test-only: write through the same path the decoded-page callback uses.
+///
+/// The real write lives in `_rememberDecodedAspect`, which is reached from
+/// [MangaImage]'s `onCompletedSize`. A test that asserted on a hand-computed
+/// ratio would restate the production formula instead of exercising it, so
+/// this seam lets the test drive the actual write and then read the store
+/// back through the public [aspectRatioFor].
+@visibleForTesting
+void rememberDecodedAspectForTest(String chapterUrl, Size size) =>
+    _rememberDecodedAspect(chapterUrl, size);
 
 class MangaImage extends StatelessWidget {
   const MangaImage({

@@ -581,6 +581,17 @@ class MangaReader extends _$MangaReader {
         previous.items?.length ?? 0,
       );
     }
+    // The attribution anchor is monotone — it is only ever raised, because a
+    // backward report is usually an image re-laying out above the viewport.
+    // After a flip the flat indices of the chapter the reader is in change
+    // completely, so the old anchor no longer describes where they are: left
+    // stale it sits ABOVE the reader's new index and the next forward report
+    // is swallowed by the backward-hysteresis guard, leaving the pill on the
+    // previous chapter until the reader jiggles the scroll.
+    //
+    // Re-seed it at the flipped page so attribution resumes immediately.
+    _stableFirstVisible = _flatIndexOfPage(segmentIndex, localPage);
+    _backwardFrames = 0;
     _onTrackedEpisodeChanged?.call(_groupIndex, segment.episodeIndex);
     state = state.copyWith(
       trackedSegmentIndex: segmentIndex,

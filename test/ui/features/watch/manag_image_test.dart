@@ -339,4 +339,43 @@ void main() {
       );
     },
   );
+
+  testWidgets(
+    'the cached aspect is width/height, so a tall page reserves its real height',
+    (tester) async {
+      clearDecodedAspectCacheForTest();
+
+      // A 200x400 page decodes: the production write is exercised directly.
+      rememberDecodedAspectForTest('tall', const Size(200, 400));
+
+      final aspect = aspectRatioFor('tall');
+      debugPrint('ASPECT cached=$aspect (expect 0.5 = width/height)');
+      expect(
+        aspect,
+        closeTo(0.5, 0.01),
+        reason: 'a 200x400 page caches width/height, not height/width',
+      );
+
+      // The consequence: a 200-wide placeholder reserves 400px, exactly the
+      // decoded page's height, so the strip does not grow when it lands.
+      await tester.pumpWidget(
+        _wrap(
+          SizedBox(width: 200, child: MobileMangaLoading(aspectRatio: aspect)),
+        ),
+      );
+      final box = tester.widget<AspectRatio>(
+        find.descendant(
+          of: find.byType(MobileMangaLoading),
+          matching: find.byType(AspectRatio),
+        ),
+      );
+      final reservedHeight = 200 / box.aspectRatio;
+      debugPrint('ASPECT reserved=$reservedHeight real=400');
+      expect(
+        reservedHeight,
+        closeTo(400, 0.5),
+        reason: 'placeholder must match the decoded page height',
+      );
+    },
+  );
 }
