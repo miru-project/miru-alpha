@@ -84,11 +84,9 @@ void main() {
     // The session is still there afterwards: nothing re-created the notifier,
     // so the window the reader scrolled to was never thrown away.
     final after = container.read(mangaReaderProvider);
-    expect(
-      after.segments.map((s) => s.episodeIndex),
-      <int>[6],
-      reason: 'the window survived the listener gap',
-    );
+    expect(after.segments.map((s) => s.episodeIndex), <int>[
+      6,
+    ], reason: 'the window survived the listener gap');
     expect(after.totalPage, 2);
     expect(after.itemPosition, 0);
   });
@@ -108,6 +106,36 @@ void main() {
     final state = container.read(mangaReaderProvider);
     expect(state.segments.map((s) => s.episodeIndex), <int>[6]);
     expect(state.itemPosition, 0, reason: 'the position was not thrown away');
+  });
+
+  test('endSession wipes the window so a re-entry reloads fresh', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    container.listen(mangaReaderProvider, (_, _) {});
+    final reader = container.read(mangaReaderProvider.notifier);
+    openAt(container, reader, 6);
+    expect(
+      container.read(mangaReaderProvider).segments.map((s) => s.episodeIndex),
+      <int>[6],
+    );
+
+    // Leaving the watch route ends the session.
+    reader.endSession();
+
+    final wiped = container.read(mangaReaderProvider);
+    expect(wiped.segments, isEmpty, reason: 'the window is gone');
+    expect(wiped.totalPage, 0);
+    expect(wiped.itemPosition, 0);
+    expect(reader.debugOpenKey, isNull, reason: 'the session identity is gone');
+    expect(reader.pendingJumpSlot.value, isNull);
+
+    // Re-entry on a different chapter takes the fresh path: a single-chapter
+    // anchor for the entered episode, not a reuse of the old window.
+    openAt(container, reader, 3);
+    final state = container.read(mangaReaderProvider);
+    expect(state.segments.map((s) => s.episodeIndex), <int>[3]);
+    expect(state.trackedSegmentIndex, 0);
+    expect(state.totalPage, 2);
   });
 
   test('the provider is not auto-dispose', () {
