@@ -12,6 +12,7 @@ import 'package:miru_alpha/ui/features/watch/video_player/video_player.dart';
 import 'package:miru_alpha/provider/application_controller_provider.dart';
 import 'package:miru_alpha/model/index.dart';
 import 'package:miru_alpha/provider/watch/epidsode_provider.dart';
+import 'package:miru_alpha/provider/watch/manga_reader_provider.dart';
 import 'package:miru_alpha/utils/core/device_util.dart';
 import 'package:miru_alpha/utils/router/page_entry.dart';
 import 'package:miru_alpha/ui/core/error.dart';
@@ -32,6 +33,11 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
   late EpisodeNotifierProvider _epProvider;
   bool _hasOriented = false;
 
+  /// Captured while mounted so [dispose] can end the reader session without
+  /// touching `ref` (a ref read in dispose throws). The notifier is kept
+  /// alive, so this reference stays valid after the route is gone.
+  MangaReader? _reader;
+
   @override
   void initState() {
     super.initState();
@@ -42,6 +48,14 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
   @override
   void dispose() {
     WakelockPlus.disable();
+    // Leaving the watch route ends the reader session: the keepAlive window,
+    // anchors and flags must not leak into the next entry. A microtask keeps
+    // the provider mutation out of the dispose lifecycle; chapter transitions
+    // never reach here — only this route's own teardown does.
+    final reader = _reader;
+    if (reader != null) {
+      Future.microtask(reader.endSession);
+    }
     if (_hasOriented) {
       Future.microtask(() async {
         await Future.delayed(const Duration(microseconds: 100));
@@ -67,6 +81,7 @@ class _WatchLoadEntryState extends ConsumerState<WatchLoadEntry> {
         ]);
       });
     }
+    _reader = ref.read(mangaReaderProvider.notifier);
     final epNotifier = ref.watch(_epProvider);
     if (epNotifier.epGroup.isEmpty) {
       return Center(

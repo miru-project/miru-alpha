@@ -592,6 +592,31 @@ class MangaReader extends _$MangaReader {
     pendingJumpSlot.value = _flatIndexOfPage(0, startPage);
   }
 
+  /// Ends the session when the watch route is left (back to detail).
+  ///
+  /// keepAlive keeps this notifier alive through the watch session's
+  /// `AsyncLoading` gaps — but the window, anchors and flags must not survive
+  /// the route itself, or a re-entry starts entangled with the previous
+  /// session's ref (the "every chapter intertwined with the previous one"
+  /// report). This is the explicit teardown: controllers are NOT disposed
+  /// (the notifier is kept alive, so its `build` never re-runs to recreate
+  /// them); everything session-scoped is.
+  void endSession() {
+    _sessionId++;
+    _openKey = null;
+    _internalChapterFlip = false;
+    _readerMoved = false;
+    _backwardFrames = 0;
+    _stableFirstVisible = 0;
+    _lastReportedOffset = 0;
+    _sessionStartItemPosition = 0;
+    _loadingSegments.clear();
+    _slotsCache = null;
+    _slotsCacheKey = null;
+    pendingJumpSlot.value = null;
+    state = _sessionState();
+  }
+
   /// Instant restore of [page] onto the canvas.
   ///
   /// The shell calls this one frame after [open] — the fresh canvas attaches
