@@ -9,6 +9,32 @@ import '../store/storage_index.dart';
 
 final logger = Logger('Miru_alpha');
 
+/// Reader scroll diagnostics (POS / JUMP / SLV / PROVIDER / SHELL /
+/// window_track lines). Off by default; enable with
+/// `flutter run --dart-define=READER_DIAGNOSTICS=true`. A const, so a
+/// disabled release build tree-shakes the calls away.
+const bool kReaderDiagnostics = bool.fromEnvironment(
+  'READER_DIAGNOSTICS',
+  defaultValue: false,
+);
+
+/// Dedicated sink for the reader's scroll tracing (POS / JUMP / SLV /
+/// PROVIDER / SHELL / window_track). The gate lives here rather than at the
+/// ~30 call sites.
+///
+/// A child logger is used instead of setting a child `Level` — package:logging
+/// throws for non-root levels unless `hierarchicalLoggingEnabled` is set, and
+/// flipping that globally changes [MiruLog]'s behaviour. When the flag is off
+/// this is a single boolean check per call; when on, records still flow
+/// through [Logger.root.onRecord] into miru.log.
+final diagLogger = Logger('Miru_alpha.diag');
+
+/// Emits [message] only when [kReaderDiagnostics] is on.
+void diag(String message, [Object? error, StackTrace? stackTrace]) {
+  if (!kReaderDiagnostics) return;
+  diagLogger.fine(message, error, stackTrace);
+}
+
 class MiruLog {
   static final logFilePath = path.join(MiruDirectory.getDirectory, 'miru.log');
   static final coreLogFilePath = path.join(
