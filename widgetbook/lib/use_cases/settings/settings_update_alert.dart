@@ -69,10 +69,7 @@ class _SeededAppUpdate extends AppUpdate {
 Widget buildUpdateAlertHost(AppUpdateState seed) {
   return ProviderScope(
     overrides: [appUpdateProvider.overrideWith(() => _SeededAppUpdate(seed))],
-    child: const SizedBox(
-      width: 460,
-      child: SettingsUpdateAlert(),
-    ),
+    child: const SizedBox(width: 460, child: SettingsUpdateAlert()),
   );
 }
 

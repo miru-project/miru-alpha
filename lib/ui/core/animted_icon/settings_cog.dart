@@ -34,8 +34,7 @@ class SettingsIcon extends StatelessWidget {
             height: size,
             child: Transform.rotate(
               angle: rotationAngle,
-              alignment:
-                  Alignment.center,
+              alignment: Alignment.center,
               child: CustomPaint(
                 painter: _SettingsPainter(pathData: gearPath, color: color),
               ),

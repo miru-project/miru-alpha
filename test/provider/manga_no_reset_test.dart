@@ -60,52 +60,55 @@ void main() {
     return container;
   }
 
-  test('re-opening a chapter already in the window keeps the segments', () async {
-    final container = await openAt(2);
-    final reader = container.read(mangaReaderProvider.notifier);
+  test(
+    're-opening a chapter already in the window keeps the segments',
+    () async {
+      final container = await openAt(2);
+      final reader = container.read(mangaReaderProvider.notifier);
 
-    // Pull episode 1 in ahead of 2, as an upward crossing does.
-    await reader.debugEnsureAdjacent(-1);
-    final before = container.read(mangaReaderProvider);
-    expect(
-      before.segments.map((s) => s.episodeIndex).toList(),
-      containsAllInOrder(<int>[1, 2]),
-    );
-
-    // The reader flips into the prepended chapter.
-    reader.debugFlipTo(0, 0);
-    final afterFlip = container.read(mangaReaderProvider);
-    final tracked =
-        afterFlip.segments[afterFlip.trackedSegmentIndex].episodeIndex;
-
-    // The shell now re-runs its open effect for the tracked chapter. Both
-    // chapters it might name are already mounted, so neither may reset.
-    for (final ep in <int>[tracked, 1, 2]) {
-      reader.open(
-        groupIndex: 0,
-        episodeIndex: ep,
-        totalPage: 18,
-        episodes: [
-          for (var e = 0; e < 6; e++)
-            ExtensionEpisode(name: 'C$e', url: 'https://e.com/c$e'),
-        ],
-        urls: const ['p0', 'p1'],
-        meta: meta,
-        detailUrl: 'https://e.com/d',
-      );
-      final state = container.read(mangaReaderProvider);
+      // Pull episode 1 in ahead of 2, as an upward crossing does.
+      await reader.debugEnsureAdjacent(-1);
+      final before = container.read(mangaReaderProvider);
       expect(
-        state.segments.map((s) => s.episodeIndex).toList(),
+        before.segments.map((s) => s.episodeIndex).toList(),
         containsAllInOrder(<int>[1, 2]),
-        reason: 're-opening ep $ep must not wipe the window',
       );
-      expect(
-        state.trackedSegmentIndex,
-        afterFlip.trackedSegmentIndex,
-        reason: 're-opening ep $ep must not move the attribution anchor',
-      );
-    }
-  });
+
+      // The reader flips into the prepended chapter.
+      reader.debugFlipTo(0, 0);
+      final afterFlip = container.read(mangaReaderProvider);
+      final tracked =
+          afterFlip.segments[afterFlip.trackedSegmentIndex].episodeIndex;
+
+      // The shell now re-runs its open effect for the tracked chapter. Both
+      // chapters it might name are already mounted, so neither may reset.
+      for (final ep in <int>[tracked, 1, 2]) {
+        reader.open(
+          groupIndex: 0,
+          episodeIndex: ep,
+          totalPage: 18,
+          episodes: [
+            for (var e = 0; e < 6; e++)
+              ExtensionEpisode(name: 'C$e', url: 'https://e.com/c$e'),
+          ],
+          urls: const ['p0', 'p1'],
+          meta: meta,
+          detailUrl: 'https://e.com/d',
+        );
+        final state = container.read(mangaReaderProvider);
+        expect(
+          state.segments.map((s) => s.episodeIndex).toList(),
+          containsAllInOrder(<int>[1, 2]),
+          reason: 're-opening ep $ep must not wipe the window',
+        );
+        expect(
+          state.trackedSegmentIndex,
+          afterFlip.trackedSegmentIndex,
+          reason: 're-opening ep $ep must not move the attribution anchor',
+        );
+      }
+    },
+  );
 
   test('opening a chapter outside the window still resets', () async {
     final container = await openAt(2);
@@ -125,10 +128,8 @@ void main() {
     );
 
     final state = container.read(mangaReaderProvider);
-    expect(
-      state.segments.map((s) => s.episodeIndex).toList(),
-      <int>[4],
-      reason: 'a genuinely different chapter starts a fresh session',
-    );
+    expect(state.segments.map((s) => s.episodeIndex).toList(), <int>[
+      4,
+    ], reason: 'a genuinely different chapter starts a fresh session');
   });
 }

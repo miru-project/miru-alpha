@@ -82,7 +82,7 @@ void main() {
       final state = container.read(mangaReaderProvider);
       expect(state.itemPosition, 5, reason: 'state carries the resume page');
       // The flat slot is offset by the leading seriesStart marker, so page N
-    // sits at slot N+1.
+      // sits at slot N+1.
       expect(
         reader.initialScrollSlot(),
         6,

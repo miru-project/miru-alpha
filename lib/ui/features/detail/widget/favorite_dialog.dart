@@ -79,8 +79,7 @@ class FavoriteDialog extends HookConsumerWidget {
       } catch (e) {
         debugPrint("Error saving favorite: $e");
         if (context.mounted) showSimpleToast("Error saving: $e");
-      } finally {
-      }
+      } finally {}
     }
 
     Future<void> handleCreateGroup() async {

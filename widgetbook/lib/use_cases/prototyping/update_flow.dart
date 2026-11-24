@@ -245,10 +245,7 @@ WidgetbookComponent updateFlowComponent() {
                   () => _SeededAppUpdate(knobs.state),
                 ),
               ],
-              child: const SizedBox(
-                width: 460,
-                child: SettingsUpdateAlert(),
-              ),
+              child: const SizedBox(width: 460, child: SettingsUpdateAlert()),
             ),
             center: false,
           );
@@ -269,10 +266,7 @@ WidgetbookComponent updateFlowComponent() {
               // the same strings get far more line length than the 460-wide
               // mobile frame above — that is the comparison this story exists
               // for.
-              child: SizedBox(
-                width: 720,
-                child: SettingsUpdateAlert(),
-              ),
+              child: SizedBox(width: 720, child: SettingsUpdateAlert()),
             ),
             center: false,
           );
@@ -296,10 +290,7 @@ WidgetbookComponent updateFlowComponent() {
                 ),
               ),
             ],
-            child: const SizedBox(
-              width: 460,
-              child: SettingsUpdateAlert(),
-            ),
+            child: const SizedBox(width: 460, child: SettingsUpdateAlert()),
           ),
           center: false,
         ),
@@ -463,10 +454,7 @@ WidgetbookComponent updateFlowComponent() {
                 ),
               ],
               child: const PhoneFrame(
-                child: SizedBox(
-                  width: 380,
-                  child: SettingsUpdateAlert(),
-                ),
+                child: SizedBox(width: 380, child: SettingsUpdateAlert()),
               ),
             ),
             center: false,
@@ -511,10 +499,7 @@ WidgetbookComponent updateFlowComponent() {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(
-                    width: 460,
-                    child: SettingsUpdateAlert(),
-                  ),
+                  const SizedBox(width: 460, child: SettingsUpdateAlert()),
                   const SizedBox(height: 24),
                   const _PromptHost(signature: 'both'),
                 ],

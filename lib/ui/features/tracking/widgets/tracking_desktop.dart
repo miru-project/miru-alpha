@@ -107,8 +107,7 @@ class _StatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FBadge(
-      style: .delta(
-      ),
+      style: .delta(),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

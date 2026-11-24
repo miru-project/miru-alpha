@@ -65,7 +65,6 @@ class CategoryMultiGroup extends HookWidget {
   final Set<String>? initialValue;
   @override
   Widget build(BuildContext context) {
-
     return FSelectTileGroup<String>(
       control: .managed(
         initial: initialValue,

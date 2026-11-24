@@ -39,8 +39,7 @@ class AnilistAccount extends _$AnilistAccount {
         final user = await AniListProvider.getuserData();
         state = AsyncValue.data(user);
         timer.cancel();
-      } catch (_) {
-      }
+      } catch (_) {}
     });
   }
 

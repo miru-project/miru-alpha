@@ -55,10 +55,9 @@ class PhoneFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final platform =
-        context.theme.colors.brightness == Brightness.dark
-            ? MiruThemes.zinc.dark
-            : MiruThemes.zinc.light;
+    final platform = context.theme.colors.brightness == Brightness.dark
+        ? MiruThemes.zinc.dark
+        : MiruThemes.zinc.light;
     final touch = platform.touch;
 
     return Center(
