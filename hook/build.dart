@@ -284,7 +284,15 @@ Future<void> _buildMiruCore(BuildInput input, BuildOutputBuilder output) async {
       final toolchain = '$ndkPath/toolchains/llvm/prebuilt/linux-x86_64/bin';
       final (ccName, cxxName, goArch, abi) = _abiToolchain(arch);
       outDirPath = 'build/android/lib/$abi/';
-      ldflags = '-s -w -checklinkname=0';
+      // -linkmode=external routes the final link through the NDK's lld, which
+      // honours -Wl,-z,max-page-size=16384. Go's internal linker drops
+      // -extldflags: only arm64 happens to default to 16 KiB segments, while
+      // armv7a and x86_64 stay at 4 KiB and cannot be mapped on a 16 KiB-page
+      // device.
+      ldflags =
+          '-linkmode=external '
+          '-extldflags "-Wl,-z,max-page-size=16384" '
+          '-s -w -checklinkname=0';
       env = {
         'ANDROID_HOME': sdkRoot,
         'ANDROID_SDK_ROOT': sdkRoot,
