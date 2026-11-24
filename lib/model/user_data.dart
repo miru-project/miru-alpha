@@ -146,6 +146,20 @@ class Favorite {
       ..cover = cover ?? ''
       ..date = date.toIso8601String();
   }
+
+  /// Value identity on (package, url) — the key the DB itself uses
+  /// (getFavoriteByPackageAndUrl / deleteFavorite). Favorites deserialized
+  /// from a group's edge list are separate instances from the flat-table
+  /// read, so set/list membership across the two must compare by value, not
+  /// object identity. `id` is deliberately excluded: a freshly built
+  /// favorite and its stored row share package+url but may differ in id.
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Favorite && other.package == package && other.url == url;
+
+  @override
+  int get hashCode => Object.hash(package, url);
 }
 
 class EnumToString {

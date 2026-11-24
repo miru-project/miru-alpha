@@ -140,7 +140,6 @@ class Detial extends _$Detial {
       status: DetialStatus.loading,
       retryToken: 0,
     );
-
   }
 
   void putHistory(History h) {
@@ -166,9 +165,19 @@ class Detial extends _$Detial {
     state = state.copyWith(favoriateGroup: f);
   }
 
-  void removeFavorite(Favorite f) {
-    state = state.copyWith(favorite: null);
-    ref.read(favoritePageProvider.notifier).deleteFavorite(f);
+  Future<void> removeFavorite(Favorite f) async {
+    // Clear optimistically only once the DB delete is confirmed: the
+    // notifier refetches, so clearing first would flash the favorite away
+    // and back if the delete failed.
+    final removed = await ref
+        .read(favoritePageProvider.notifier)
+        .deleteFavorite(f);
+    if (!ref.mounted) return;
+    if (removed) {
+      state = state.copyWith(favorite: null);
+    } else {
+      showSimpleToast('favorite.remove_favorite_failed'.i18n);
+    }
   }
 
   void setSelectedGroup(int v) {

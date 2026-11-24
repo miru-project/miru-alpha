@@ -267,10 +267,10 @@ class _Loaded extends HookConsumerWidget {
                       inactiveColor: context.theme.colors.primary,
                       isLiked: favorite != null,
                     ),
-                    onPress: () {
+                    onPress: () async {
                       final fav = favorite;
                       if (fav != null) {
-                        ref.read(detailPr.notifier).removeFavorite(fav);
+                        await ref.read(detailPr.notifier).removeFavorite(fav);
                         return;
                       }
                       showDialog(

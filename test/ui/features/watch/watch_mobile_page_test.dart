@@ -132,11 +132,12 @@ class _FakeFavorites extends FavoritePageNotifier {
   }
 
   @override
-  void deleteFavorite(Favorite favorite) {
+  Future<bool> deleteFavorite(Favorite favorite) async {
     deleted.add(favorite);
     state = state.copyWith(
       favorites: state.favorites.where((f) => f.id != favorite.id).toList(),
     );
+    return true;
   }
 }
 

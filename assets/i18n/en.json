@@ -77,6 +77,7 @@
     "no_results": "No Results Found",
     "no_licenses_found": "No licenses found",
     "remove_favorite": "Remove Favorite",
+    "remove_favorite_failed": "Could not remove this favorite.",
     "package_not_found": "Package not found",
     "saved_to": "Saved to",
     "just_now": "Just now",
@@ -91,7 +92,10 @@
     "download": "Download",
     "retry": "Retry",
     "connected": "connected",
-    "offline": "offline"
+    "offline": "offline",
+    "details": {
+      "details": "Details"
+    }
   },
   "history_tools": {
     "clear_all": "Clear All",
@@ -694,7 +698,13 @@
     "view_relevance": "Relevance",
     "view_by_extension": "By Extension",
     "empty_shelves": "No results from other extensions",
-    "empty_shelves_desc": "{count} queried extensions returned empty"
+    "empty_shelves_desc": "{count} queried extensions returned empty",
+    "view_flat": "Flat",
+    "view_by_source": "By source",
+    "results_meta_sources": "{count} sources",
+    "global_hint": "Search anime, manga, novels…",
+    "lang": "Lang",
+    "results_title": "Search results"
   },
   "home": {
     "continue_playing": "Continue Playing",

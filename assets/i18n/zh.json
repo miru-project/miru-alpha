@@ -97,6 +97,7 @@
     "no_results": "未找到结果",
     "no_licenses_found": "未找到许可证",
     "remove_favorite": "取消收藏",
+    "remove_favorite_failed": "无法取消收藏。",
     "package_not_found": "未找到包",
     "saved_to": "已保存到",
     "just_now": "刚刚",
@@ -113,7 +114,10 @@
     "manage": "管理",
     "retry": "重试",
     "connected": "已连接",
-    "offline": "离线"
+    "offline": "离线",
+    "details": {
+      "details": "详情"
+    }
   },
   "media": {
     "episode": {
@@ -691,7 +695,13 @@
     "view_relevance": "相关性",
     "view_by_extension": "按扩展",
     "empty_shelves": "其他扩展没有结果",
-    "empty_shelves_desc": "{count} 个扩展查询为空"
+    "empty_shelves_desc": "{count} 个扩展查询为空",
+    "view_flat": "平铺",
+    "view_by_source": "按源",
+    "results_meta_sources": "{count} 个源",
+    "global_hint": "搜索动漫、漫画、小说…",
+    "lang": "语言",
+    "results_title": "搜索结果"
   },
   "history_tools": {
     "clear_all": "清除全部",

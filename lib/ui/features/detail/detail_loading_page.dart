@@ -206,9 +206,9 @@ class _DetailLoadPageState extends ConsumerState<DetailLoadingPage> {
                         height: 40,
                         child: FButton.icon(
                           variant: .ghost,
-                          onPress: () {
+                          onPress: () async {
                             if (favorite != null) {
-                              ref
+                              await ref
                                   .read(detailPr.notifier)
                                   .removeFavorite(favorite);
                               return;

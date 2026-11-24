@@ -1,3 +1,4 @@
+import 'package:logging/logging.dart';
 import 'package:miru_alpha/model/anilist_model.dart';
 import 'package:miru_alpha/model/model.dart';
 import 'package:miru_alpha/model/user_data.dart';
@@ -7,7 +8,10 @@ import 'package:miru_alpha/utils/store/database_service.dart';
 import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:miru_alpha/utils/tracking/anilist_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 part 'favorite_page_provider.g.dart';
+
+final _log = Logger('Miru_alpha.favorite');
 
 /// Per-favorite AniList summary, derived by matching a [Favorite] to an
 /// AniList entry by title. `null` when the account is unlinked, the collection
@@ -57,6 +61,19 @@ String normalizeTitle(String title) {
 }
 
 enum FavoriteFilterMode { and, or }
+
+/// Canonical key for a favorite-group name.
+///
+/// Groups are matched by name across two separate DB reads (getAllFavorite
+/// vs getAllFavoriteGroup), and the tag strip, the manager sheet and the
+/// sidebar each hold their own [FavoriteGroup] instances. Raw `==` on those
+/// names fails for non-ASCII tags: the same visible string can arrive with
+/// different outer whitespace or casing than the instance the UI holds, so
+/// a byte-equal comparison misses and the tag never joins the selection.
+///
+/// Trim and case-fold so `あ１`, ` あ１ ` and any case variant all resolve to
+/// ONE key.
+String favoriteGroupKey(String name) => name.trim().toLowerCase();
 
 class FavoritePageState {
   final List<Favorite> favorites;
@@ -201,23 +218,37 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     _refilter();
   }
 
-  void deleteFavorite(Favorite favorite) {
-    state = state.copyWith(
-      favorites: state.favorites.where((e) => e.id != favorite.id).toList(),
-      filteredFavorites: state.filteredFavorites
-          .where((e) => e.id != favorite.id)
-          .toList(),
-    );
-    DatabaseService.deleteFavorite(favorite.url, favorite.package);
+  /// Removes the favorite and REFETCHES both lists: the group snapshots in
+  /// [favoriteGroups] still carry the deleted favorite otherwise, so tag
+  /// counts and tag filtering keep showing it until the next app start.
+  ///
+  /// Returns whether the delete reached the backend. A `false` means the
+  /// favorite is still stored, so callers must NOT clear their optimistic
+  /// state (the follow-up refresh would restore it anyway).
+  Future<bool> deleteFavorite(Favorite favorite) async {
+    try {
+      await DatabaseService.deleteFavorite(favorite.url, favorite.package);
+    } catch (e, st) {
+      _log.severe('deleteFavorite failed', e, st);
+      return false;
+    }
+    await refreshFavoritesAndGroup();
+    return true;
   }
 
-  void deleteFavoriteGroup(FavoriteGroup favoriateGroup) {
-    state = state.copyWith(
-      favoriteGroups: state.favoriteGroups
-          .where((e) => e.id != favoriateGroup.id)
-          .toList(),
-    );
-    DatabaseService.deleteFavoriteGroup([favoriateGroup.name]);
+  /// Same refetch contract as [deleteFavorite]: the DB delete must land
+  /// before the groups are re-read, or the deleted group reappears.
+  ///
+  /// Returns whether the delete reached the backend.
+  Future<bool> deleteFavoriteGroup(FavoriteGroup favoriateGroup) async {
+    try {
+      await DatabaseService.deleteFavoriteGroup([favoriateGroup.name]);
+    } catch (e, st) {
+      _log.severe('deleteFavoriteGroup failed', e, st);
+      return false;
+    }
+    await refreshFavoritesAndGroup();
+    return true;
   }
 
   void addFavorite(Favorite favorite) {
@@ -259,10 +290,12 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
           .toList();
     }
     // 4. Group filter (AND/OR) — if groups are selected, narrow further.
+    //    A group's nested favorites come from a separate DB read than the
+    //    flat list, so the join goes through Favorite's value equality; the
+    //    set also drops a favorite belonging to several selected groups.
     if (state.selectedFavoriteGroups.isNotEmpty) {
-      result = favoritesInGroups(state.selectedFavoriteGroups)
-          .where((f) => result.contains(f))
-          .toList();
+      final inGroups = favoritesInGroups(state.selectedFavoriteGroups).toSet();
+      result = result.where(inGroups.contains).toList();
     }
     // Build the summary for the active-filter chip.
     final summary = <String>[];
@@ -330,14 +363,22 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
           : state.favorites.where(visible).toList();
     }
     // Match by name: the database keys groups by name, and a captured
-    // [FavoriteGroup] object breaks equality after a favorites refresh.
+    // [FavoriteGroup] object breaks equality after a favorites refresh. The
+    // name is compared through [favoriteGroupKey] so non-ASCII tags whose
+    // instances differ only in Unicode normalization form still join.
     final favGroup = state.favoriteGroups
-        .where((e) => favGroups.any((g) => g.name == e.name))
+        .where(
+          (e) => favGroups.any(
+            (g) => favoriteGroupKey(g.name) == favoriteGroupKey(e.name),
+          ),
+        )
         .toList();
     if (hidden.isEmpty) {
       return state.filterMode == FavoriteFilterMode.and
           ? _intersectFavorites(favGroup)
-          : favGroup.expand((e) => e.favorites).toList();
+          // OR across groups dedupes: the same favorite in two selected
+          // groups must appear once, or the grids hit duplicate item keys.
+          : favGroup.expand((e) => e.favorites).toSet().toList();
     }
     final visibleGroups = [
       for (final g in favGroup)
@@ -350,19 +391,26 @@ class FavoritePageNotifier extends _$FavoritePageNotifier {
     ];
     return state.filterMode == FavoriteFilterMode.and
         ? _intersectFavorites(visibleGroups)
-        : visibleGroups.expand((e) => e.favorites).toList();
+        : visibleGroups.expand((e) => e.favorites).toSet().toList();
   }
 
   /// Toggles a group in the selection BY NAME. The dashboard's tag strip and
   /// the manager sheet both call this, so the two surfaces cannot disagree
   /// about which groups the feed filters by.
   void toggleGroupName(String name) {
-    final isSelected = state.selectedFavoriteGroups.any((g) => g.name == name);
+    final key = favoriteGroupKey(name);
+    final isSelected = state.selectedFavoriteGroups.any(
+      (g) => favoriteGroupKey(g.name) == key,
+    );
     final next = isSelected
-        ? state.selectedFavoriteGroups.where((g) => g.name != name).toList()
+        ? state.selectedFavoriteGroups
+              .where((g) => favoriteGroupKey(g.name) != key)
+              .toList()
         : [
             ...state.selectedFavoriteGroups,
-            ...state.favoriteGroups.where((g) => g.name == name),
+            ...state.favoriteGroups.where(
+              (g) => favoriteGroupKey(g.name) == key,
+            ),
           ];
     filterFavoriteGroups(next);
   }

@@ -64,8 +64,14 @@ class _FavoriteViewState extends ConsumerState<FavoriteView> {
       ref: ref,
       title: 'common.remove_favorite'.i18n,
       body: 'favorite.remove_favorite_confirm'.i18n,
-      onConfirm: () =>
-          ref.read(favoritePageProvider.notifier).deleteFavorite(favorite),
+      onConfirm: () async {
+        final removed = await ref
+            .read(favoritePageProvider.notifier)
+            .deleteFavorite(favorite);
+        if (!removed && context.mounted) {
+          showSimpleToast('favorite.remove_favorite_failed'.i18n);
+        }
+      },
     );
   }
 
@@ -647,6 +653,17 @@ class _HeaderTypeTabs extends ConsumerWidget {
   }
 }
 
+/// Ordering for two favorite-group names.
+///
+/// Case-folded compare first so casing never reorders a tag, then raw code
+/// points as a tie-break so names that fold equal (e.g. `あ１` vs a full-width
+/// variant) keep a stable, deterministic order instead of depending on the
+/// list's incoming order.
+int compareFavoriteGroupNames(String a, String b) {
+  final folded = a.trim().toLowerCase().compareTo(b.trim().toLowerCase());
+  return folded != 0 ? folded : a.compareTo(b);
+}
+
 /// The tag row of the filter block: a single horizontal scroll of ALL the
 /// user's tags, with the Filter button PINNED at the end (outside the scroll
 /// — `Row([Expanded(scrolling tags), FilterButton])`). The user can have
@@ -666,8 +683,16 @@ class _FavoriteTagRow extends ConsumerWidget {
     final selectedGroups = ref.watch(
       favoritePageProvider.select((s) => s.selectedFavoriteGroups),
     );
-    final selectedNames = {for (final g in selectedGroups) g.name};
-    final sortedGroups = [...groups]..sort((a, b) => a.name.compareTo(b.name));
+    final selectedNames = {
+      for (final g in selectedGroups) favoriteGroupKey(g.name),
+    };
+    // Locale-aware ordering: raw UTF-16 `compareTo` orders non-ASCII tags
+    // (kana, hangul, accented Latin) by code unit, which does not match what
+    // the user reads as alphabetical. Compare through a case-folded key with
+    // a code-point tie-break so `あ１` and its variants sort together and
+    // deterministically.
+    final sortedGroups = [...groups]
+      ..sort((a, b) => compareFavoriteGroupNames(a.name, b.name));
 
     return Row(
       children: [
@@ -685,7 +710,9 @@ class _FavoriteTagRow extends ConsumerWidget {
                   child: _TagChip(
                     label: group.name,
                     count: group.favorites.length,
-                    selected: selectedNames.contains(group.name),
+                    selected: selectedNames.contains(
+                      favoriteGroupKey(group.name),
+                    ),
                     onTap: () => ref
                         .read(favoritePageProvider.notifier)
                         .toggleGroupName(group.name),

@@ -80,16 +80,16 @@ class _FakeFavoritePageNotifier extends FavoritePageNotifier {
   @override
   FavoritePageState build() => _state;
 
-  // Hermetic delete: the real method fires an unawaited gRPC persist whose
-  // client does not exist in the test zone. State mutation mirrors the
-  // real method.
+  // Hermetic delete: the real method hits gRPC, whose client does not exist in
+  // the test zone. State mutation mirrors the real method's post-delete state.
   @override
-  void deleteFavoriteGroup(FavoriteGroup favoriateGroup) {
+  Future<bool> deleteFavoriteGroup(FavoriteGroup favoriateGroup) async {
     state = state.copyWith(
       favoriteGroups: state.favoriteGroups
           .where((e) => e.id != favoriateGroup.id)
           .toList(),
     );
+    return true;
   }
 }
 

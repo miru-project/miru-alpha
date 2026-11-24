@@ -96,7 +96,9 @@ class HomeTagStrip extends ConsumerWidget {
                       group: visibleGroups[index],
                       hidden: hidden,
                       selected: selectedFavGrp.any(
-                        (g) => g.name == visibleGroups[index].name,
+                        (g) =>
+                            favoriteGroupKey(g.name) ==
+                            favoriteGroupKey(visibleGroups[index].name),
                       ),
                     ),
             ),

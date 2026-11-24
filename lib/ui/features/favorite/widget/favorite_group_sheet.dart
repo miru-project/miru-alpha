@@ -77,14 +77,25 @@ class FavoriteGroupSheet extends HookConsumerWidget {
         // picking a group here updates the homepage's strip and feed live.
         ref.read(favoritePageProvider.notifier).toggleGroupName(group.name);
 
-    void deleteGroup(FavoriteGroup group) {
-      ref.read(favoritePageProvider.notifier).deleteFavoriteGroup(group);
+    Future<void> deleteGroup(FavoriteGroup group) async {
+      final removed = await ref
+          .read(favoritePageProvider.notifier)
+          .deleteFavoriteGroup(group);
       // A deleted group cannot stay selected.
-      if (selectedFavGrp.any((g) => g.name == group.name)) {
+      if (removed &&
+          selectedFavGrp.any(
+            (g) => favoriteGroupKey(g.name) == favoriteGroupKey(group.name),
+          )) {
         ref
             .read(favoritePageProvider.notifier)
             .filterFavoriteGroups(
-              selectedFavGrp.where((g) => g.name != group.name).toList(),
+              selectedFavGrp
+                  .where(
+                    (g) =>
+                        favoriteGroupKey(g.name) !=
+                        favoriteGroupKey(group.name),
+                  )
+                  .toList(),
             );
       }
     }
@@ -222,7 +233,11 @@ class FavoriteGroupSheet extends HookConsumerWidget {
                   for (final group in favoriteGrp)
                     _GroupChip(
                       group: group,
-                      selected: selectedFavGrp.any((g) => g.name == group.name),
+                      selected: selectedFavGrp.any(
+                        (g) =>
+                            favoriteGroupKey(g.name) ==
+                            favoriteGroupKey(group.name),
+                      ),
                       onToggle: () => toggleGroup(group),
                       onDelete: () => deleteGroup(group),
                     ),

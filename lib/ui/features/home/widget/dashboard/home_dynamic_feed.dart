@@ -46,7 +46,13 @@ class HomeDynamicFeed extends ConsumerWidget {
     // read favoritePageProvider's selected groups (resolved by name, so a
     // favorites refresh cannot break the highlight).
     final selectedGroups = selected
-        .map((g) => groups.where((e) => e.name == g.name).firstOrNull)
+        .map(
+          (g) => groups
+              .where(
+                (e) => favoriteGroupKey(e.name) == favoriteGroupKey(g.name),
+              )
+              .firstOrNull,
+        )
         .whereType<FavoriteGroup>()
         .toList();
     final scoped = selectedGroups.isEmpty
