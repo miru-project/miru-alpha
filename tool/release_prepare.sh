@@ -121,8 +121,11 @@ git-cliff --config "$CONFIG" -o CHANGELOG.md
 bash tool/pubspec_from_tag.sh "$TAG"
 
 # 3. Release body = just this release's section, without the leading blank.
+#    `--current` bounds git-cliff to the commits of the tag being released
+#    (i.e. previous tag..this tag). Without it the body spans the whole
+#    history and the GitHub release shows commits from many releases back.
 if [[ -n $BODY_FILE ]]; then
-  git-cliff --config "$CONFIG" --tag "$TAG" --strip header 2>/dev/null \
+  git-cliff --config "$CONFIG" --current --strip header 2>/dev/null \
     | sed '/./,$!d' >"$BODY_FILE"
   echo "release body written: $BODY_FILE"
 fi
