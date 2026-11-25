@@ -94,8 +94,8 @@ class SettingsUpdateAlert extends HookConsumerWidget {
 
   /// Placeholder values for the detail line's i18n params.
   Map<String, String> _params(AppUpdateState state) => {
-    'current': state.currentVersion,
-    'latest': state.release?.version ?? '',
+    'current': shortVersion(state.currentVersion),
+    'latest': shortVersion(state.release?.version ?? ''),
     'progress': '${(state.progress * 100).round()}%',
     'path': state.localPath ?? '',
   };

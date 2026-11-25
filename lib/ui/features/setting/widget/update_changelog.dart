@@ -1,6 +1,7 @@
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:forui/forui.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:miru_alpha/ui/features/setting/widget/update_status_icon.dart';
 import 'package:miru_alpha/utils/core/i18n.dart';
 import 'package:miru_alpha/utils/update/miru_release.dart';
 import 'package:miru_alpha/utils/update/update_installer.dart';
@@ -229,7 +230,7 @@ class _ChangelogDialog extends StatelessWidget {
                 ),
               ),
               Text(
-                release.version,
+                shortVersion(release.version),
                 style: context.theme.typography.body.xs.copyWith(
                   color: colors.mutedForeground,
                 ),

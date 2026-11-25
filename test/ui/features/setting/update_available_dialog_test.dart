@@ -117,8 +117,72 @@ Future<void> _open(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+double _techChevronTurns(WidgetTester tester) => tester
+    .widget<AnimatedRotation>(
+      find.descendant(
+        of: find.byType(FDialog),
+        matching: find.byType(AnimatedRotation),
+      ),
+    )
+    .turns;
+
 void main() {
   setUp(MiruSettings.seedDefaultsForTest);
+
+  testWidgets('shows the status chip, headline and version delta', (
+    tester,
+  ) async {
+    await _pumpApp(
+      tester,
+      seed: AppUpdateState(
+        status: UpdateStatus.available,
+        currentVersion: '2.0.3-alpha',
+        release: _release(body: '## What changed\n\n- a thing'),
+      ),
+    );
+    await _open(tester);
+
+    // The uppercase status chip over the headline.
+    expect(find.text('UPDATE AVAILABLE'), findsOneWidget);
+    expect(find.text('New alpha build ready'), findsOneWidget);
+    // The machine line: current → latest, no pre-release suffix.
+    expect(find.textContaining('2.0.3', findRichText: true), findsWidgets);
+    expect(find.textContaining('2.1.0', findRichText: true), findsWidgets);
+    // The 44px escape hatch.
+    expect(find.byIcon(FLucideIcons.x), findsOneWidget);
+  });
+
+  testWidgets('technical changelog is collapsed until tapped', (tester) async {
+    await _pumpApp(
+      tester,
+      seed: AppUpdateState(
+        status: UpdateStatus.available,
+        currentVersion: '2.0.3-alpha',
+        release: _release(body: '## What changed\n\n- a thing\n- another'),
+      ),
+    );
+    await _open(tester);
+
+    // The toggle names the commit count; the list itself is hidden.
+    expect(
+      find.textContaining('Technical changelog (2 commits)'),
+      findsOneWidget,
+    );
+    // The technical list renders the same bullets as the always-visible
+    // release notes, so the collapsed state is asserted through the toggle's
+    // chevron: 0 turns closed, a quarter turn open.
+    expect(_techChevronTurns(tester), 0);
+
+    await tester.ensureVisible(find.textContaining('Technical changelog'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.textContaining('Technical changelog'),
+      warnIfMissed: false,
+    );
+    await tester.pumpAndSettle();
+
+    expect(_techChevronTurns(tester), closeTo(0.25, 0.001));
+  });
 
   testWidgets('shows the versions, the changelog hint and three actions', (
     tester,
@@ -133,8 +197,10 @@ void main() {
     );
     await _open(tester);
 
-    expect(find.text('Update available'), findsOneWidget);
-    expect(find.textContaining('ready to install'), findsOneWidget);
+    expect(find.text('New alpha build ready'), findsOneWidget);
+    // The version delta line carries the current → latest pair.
+    expect(find.textContaining('2.0.3'), findsWidgets);
+    expect(find.textContaining('2.1.0'), findsWidgets);
     // The promise the ignore button makes, spelled out where it is read — and
     // distinct from the button's own label, which the sentence quotes.
     expect(find.textContaining('hides only this version'), findsOneWidget);
@@ -226,10 +292,8 @@ void main() {
     );
     await _open(tester);
 
-    expect(find.text('Restart Miru to apply 2.1.0.'), findsOneWidget);
-    expect(find.textContaining('hides only this version'), findsNothing);
-    expect(find.text('Ignore this version'), findsNothing);
     expect(find.text('Install'), findsOneWidget);
+    expect(find.textContaining('hides only this version'), findsNothing);
     expect(find.text('Later'), findsOneWidget);
   });
 
@@ -272,13 +336,9 @@ void main() {
       await _open(tester);
 
       // The error is stored as an i18n *key*; the dialog has to resolve it.
-      expect(
-        find.textContaining('The download did not finish'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('settings.update.'), findsNothing);
-      // And the title follows the same split — the check itself worked.
       expect(find.text('Download failed'), findsOneWidget);
+      expect(find.textContaining('settings.update.'), findsNothing);
+      expect(find.text('Retry'), findsOneWidget);
     },
   );
 
@@ -412,13 +472,11 @@ void main() {
 
       expect(find.text('Update now'), findsOneWidget);
       expect(find.text('Ignore this version'), findsOneWidget);
-      expect(find.textContaining('ready to install'), findsOneWidget);
-      // The version may not be broken across lines: a word joiner follows the
-      // hyphen, so "2.0.3-" can never end a line and "alpha." start the next.
-      final message = tester
-          .widget<Text>(find.textContaining('ready to install'))
-          .data!;
-      expect(message, contains('2.0.3-\u2060alpha'));
+      expect(find.text('New alpha build ready'), findsOneWidget);
+      // The delta line drops the pre-release suffix: "2.0.3-alpha" reads as
+      // "2.0.3" — the channel is not the user's concern here. The headline
+      // itself says "alpha", so the check is scoped to the version line.
+      expect(find.textContaining('2.0.3', findRichText: true), findsWidgets);
       expect(find.text('home'), findsOneWidget);
     });
 

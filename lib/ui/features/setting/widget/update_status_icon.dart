@@ -18,3 +18,8 @@ IconData updateStatusIcon(UpdateStatus status) => switch (status) {
   UpdateStatus.failed => FLucideIcons.triangleAlert,
   UpdateStatus.idle => FLucideIcons.circleAlert,
 };
+
+/// The version as the user should read it: the numeric core, without the
+/// pre-release suffix. "2.0.3-alpha" reads as "2.0.3" — the release channel
+/// is the app's business, not something the update surfaces must spell out.
+String shortVersion(String version) => version.split('-').first;
