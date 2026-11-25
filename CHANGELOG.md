@@ -3,12 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## Unreleased
-
-### Other Changes
-- Add bump target for version-bump commits (make)
-- Bump version to 2.0.3-alpha
-## 2.0.3-alpha - 2026-11-14
+## 2.0.4-alpha - 2026-11-25
 
 ### Bug Fixes
 - Prevent CI overwrite (CI/release)
@@ -24,18 +19,64 @@ All notable changes to this project will be documented in this file.
 - Two-phase pop for the toggle glyph, not a path morph (sidebar)
 - Give the re-created tag a CI identity, not just the commit (release)
 - Stop build-job uploads from wiping the release notes (release)
+- Use flutter 3.50 (CI)
+- Fix the bug that cannot refresh the mobile detail page (mobile/detail)
+- Fix zooming and wrong positioning on infinite scroll (mobile/manga/webtoon)
+- Pick the asset the running build can actually install (update)
+- Card the card size from `sm` to `xs2` for more text allocation and less crowded (mobile/favorites)
+- Reserve the decoded page height so the strip stops reflowing (manga/webtoon)
+- Stable infinite scroll and history resume across chapter flips (manga/webtoon)
+- End the reader session when the watch route is left (manga/webtoon)
+- Value-equality joins, key-matched tags, awaited deletes (favorite)
+- Bound the release body to the tagged range with git-cliff --current (release)
+
+### Build
+- Link libmiru_core.so with 16 KiB page alignment (android)
+
+### Documentation
+- Unify zh-Hant terminology (readme)
 
 ### Features
 - Smooth horizontal scroll , double tap zoom(unzoom) and image loading progress (mobille/manga)
 - Reader overhaul - scroll-together chapter sheet, scrubber rework, zoom tap fix (watch/manga)
 - Unified shell, hero banner and dashboard overhaul (desktop)
 - Collapsed rail keeps Frequent Extensions as icon rows (sidebar)
+- TMDB movie/show selectable next to AniList (banner)
+- Resume-where-you-left + zoom/HUD fixes on Android touch (reader)
+- Make title and desciption text selectable (mobile/detail)
+- Hide hidden extensions in home rails, feeds and tags (home)
+- Add infinite scroll for manga(tested) and novel (mobile/manga & mobile/novel)
+- Cutomize page indicator with lower left ,lower right , center by drag and drop (mobile/manga)
+- Add book flip animation on the "current reading" episode list (mobile/manga)
+- Seamless desktop self-update applied on next launch (update)
+- Top-level tab, overlaid cards, single service provider (favorite)
+- Rebuild launch dialog with status chip, version delta and technical changelog (update)
 
 ### Other Changes
 - Extend slide time to 800ms (ui/home)
+- Add bump target for version-bump commits (make)
+- Bump version to 2.0.3-alpha
+- Sync CHANGELOG.md with v2.0.3-alpha
+- Update to flutter 3.50 and `flutter pub upgrade` (flutter&dependencies)
+- 增加繁中簡中翻譯 (readme)
+- Catalog stories for the update flow, real phone frame (widgetbook)
+- Update deps (deps)
+- Bump version to 2.0.4-alpha
 
 ### Refactor
 - Single-session riverpod watch content to prevent OOM (ui/watch)
+- Remove some messy comment (code-comment)
+
+### Styling
+- Reflow untouched files with dart format
+- Apply dart format to files left unformatted in the tree
+
+### Tests
+- Add more test on widgetbook for previewing (widget_book)
+- EndSession wipes the window so re-entry reloads fresh (manga/webtoon)
+
+### Dev
+- Adding flag for noising loggin (logging)
 ## 2.0.2-alpha - 2026-10-31
 
 ### Bug Fixes
@@ -68,16 +109,12 @@ All notable changes to this project will be documented in this file.
 ## 2.0.1-alpha+100002 - 2026-10-15
 
 ### Bug Fixes
+- Migrate from flutter_in_app_webview to webview_all (CI)
+- Shrink-wrap desktop detail action buttons (ui)
 - Drive pubspec from the tag instead of guarding against it (ci)
-## 2.0.1-alpha1 - 2026-10-15
 
 ### CI
 - Automate versioning and changelog generation (release)
-## 2.0.1-alpha - 2026-10-15
-
-### Bug Fixes
-- Migrate from flutter_in_app_webview to webview_all (CI)
-- Shrink-wrap desktop detail action buttons (ui)
 ## 2.0.0-alpha1 - 2026-05-02
 
 ### Bug Fixes
