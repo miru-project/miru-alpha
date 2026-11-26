@@ -1,6 +1,5 @@
 export 'extension.dart';
 export 'download.dart';
-export 'settings.dart';
 export 'history.dart';
 export 'favorite.dart';
 export 'detail.dart';
