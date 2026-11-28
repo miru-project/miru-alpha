@@ -374,6 +374,111 @@
       "name": "观看设置",
       "information": "播放器设置, 阅读器 ..."
     },
+    "player": {
+      "name": "播放器设置",
+      "seek_step": {
+        "name": "快进步长",
+        "information": "方向键每次跳转的秒数"
+      },
+      "seek_feedback": {
+        "name": "跳转提示",
+        "information": "键盘跳转时显示提示"
+      },
+      "subtitle": {
+        "name": "字幕"
+      },
+      "subtitle_appearance": {
+        "name": "外观与样式",
+        "information": "字幕的颜色、大小、延迟与字体"
+      },
+      "subtitle_delay": {
+        "name": "延迟",
+        "information": "相对视频平移字幕的时间，单位为秒"
+      },
+      "subtitle_size": {
+        "name": "字号",
+        "information": "每条字幕文字的高度"
+      },
+      "subtitle_weight": {
+        "name": "字重",
+        "information": "常规或加粗",
+        "normal": "常规",
+        "bold": "加粗"
+      },
+      "subtitle_align": {
+        "name": "对齐",
+        "information": "文字水平对齐方式",
+        "left": "左对齐",
+        "center": "居中",
+        "right": "右对齐"
+      },
+      "subtitle_color": {
+        "name": "文字颜色",
+        "information": "字幕文字的颜色"
+      },
+      "subtitle_background": {
+        "name": "背景色",
+        "information": "文字后方绘制的颜色"
+      },
+      "subtitle_opacity": {
+        "name": "背景透明度",
+        "information": "0 表示不绘制背景框"
+      },
+      "subtitle_customize": {
+        "name": "自定义 (ASS)",
+        "information": "将 ASS 转为文本以应用颜色和大小"
+      },
+      "subtitle_vertical": {
+        "name": "位置",
+        "information": "字幕的垂直位置",
+        "top": "顶部",
+        "center": "居中",
+        "bottom": "底部"
+      },
+      "subtitle_font": {
+        "name": "字体",
+        "information": "字幕使用的字体",
+        "default": "默认",
+        "sans-serif": "无衬线",
+        "serif": "衬线",
+        "monospace": "等宽"
+      },
+      "subtitle_italic": {
+        "name": "斜体",
+        "information": "字幕文字倾斜"
+      },
+      "subtitle_underline": {
+        "name": "下划线",
+        "information": "文字下方绘制横线"
+      },
+      "subtitle_strikeout": {
+        "name": "删除线",
+        "information": "文字中间绘制横线"
+      },
+      "subtitle_outline_size": {
+        "name": "描边大小",
+        "information": "文字描边的粗细"
+      },
+      "subtitle_outline_color": {
+        "name": "描边颜色",
+        "information": "文字周围绘制的颜色"
+      },
+      "subtitle_timing": {
+        "name": "时间"
+      },
+      "subtitle_typography": {
+        "name": "字体"
+      },
+      "subtitle_colors": {
+        "name": "颜色与背景"
+      },
+      "subtitle_layout_section": {
+        "name": "对齐"
+      },
+      "subtitle_style_flags": {
+        "name": "样式"
+      }
+    },
     "about": {
       "name": "关于"
     },

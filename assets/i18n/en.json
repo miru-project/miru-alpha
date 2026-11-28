@@ -377,6 +377,111 @@
       "name": "Watch Settings",
       "information": "player, readers ..."
     },
+    "player": {
+      "name": "Player Settings",
+      "seek_step": {
+        "name": "Seek step",
+        "information": "Seconds the arrow keys jump per press"
+      },
+      "seek_feedback": {
+        "name": "Seek feedback",
+        "information": "Show the jump indicator on a keyboard seek"
+      },
+      "subtitle": {
+        "name": "Subtitles"
+      },
+      "subtitle_appearance": {
+        "name": "Appearance & Styling",
+        "information": "Colour, size, delay and font of the cues"
+      },
+      "subtitle_delay": {
+        "name": "Delay",
+        "information": "Shift the cues against the video, in seconds"
+      },
+      "subtitle_size": {
+        "name": "Font size",
+        "information": "Text height of each subtitle cue"
+      },
+      "subtitle_weight": {
+        "name": "Weight",
+        "information": "Normal or bold",
+        "normal": "Normal",
+        "bold": "Bold"
+      },
+      "subtitle_align": {
+        "name": "Alignment",
+        "information": "Horizontal text alignment",
+        "left": "Left",
+        "center": "Center",
+        "right": "Right"
+      },
+      "subtitle_color": {
+        "name": "Text colour",
+        "information": "Colour of the subtitle text"
+      },
+      "subtitle_background": {
+        "name": "Background",
+        "information": "Colour drawn behind the text"
+      },
+      "subtitle_opacity": {
+        "name": "Background opacity",
+        "information": "0 hides the background box"
+      },
+      "subtitle_customize": {
+        "name": "Customize (ASS)",
+        "information": "Convert ASS to text so colour and size apply"
+      },
+      "subtitle_vertical": {
+        "name": "Position",
+        "information": "Vertical placement of the cue",
+        "top": "Top",
+        "center": "Center",
+        "bottom": "Bottom"
+      },
+      "subtitle_font": {
+        "name": "Font",
+        "information": "Typeface used for the cue",
+        "default": "Default",
+        "sans-serif": "Sans serif",
+        "serif": "Serif",
+        "monospace": "Monospace"
+      },
+      "subtitle_italic": {
+        "name": "Italic",
+        "information": "Slant the subtitle text"
+      },
+      "subtitle_underline": {
+        "name": "Underline",
+        "information": "Draw a line under the text"
+      },
+      "subtitle_strikeout": {
+        "name": "Strikethrough",
+        "information": "Draw a line through the text"
+      },
+      "subtitle_outline_size": {
+        "name": "Outline size",
+        "information": "Thickness of the text outline"
+      },
+      "subtitle_outline_color": {
+        "name": "Outline colour",
+        "information": "Colour drawn around each glyph"
+      },
+      "subtitle_timing": {
+        "name": "Timing"
+      },
+      "subtitle_typography": {
+        "name": "Typography"
+      },
+      "subtitle_colors": {
+        "name": "Colour & Surface"
+      },
+      "subtitle_layout_section": {
+        "name": "Alignment"
+      },
+      "subtitle_style_flags": {
+        "name": "Style"
+      }
+    },
     "about": {
       "name": "About"
     },

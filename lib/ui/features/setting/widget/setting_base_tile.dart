@@ -11,6 +11,7 @@ class SettingBaseTile extends StatelessWidget with FTileMixin {
     this.isMobileLayout = false,
     this.prefix,
     this.onTap,
+    this.controlHeight = 36,
   });
   final String title;
   final String? subtitle;
@@ -18,6 +19,21 @@ class SettingBaseTile extends StatelessWidget with FTileMixin {
   final bool isMobileLayout;
   final Widget? prefix;
   final VoidCallback? onTap;
+
+  /// The control slot's height. Sliders need a taller slot than a switch or a
+  /// dropdown because they carry their own readout line.
+  final double controlHeight;
+
+  /// Below this width the description leaves the row and becomes a tooltip.
+  /// Label + description + control stacked three deep costs ~70px per setting;
+  /// in a tall narrow panel that buries everything below the first screenful.
+  /// The label and control stay on ONE line at every width — the old fixed
+  /// 300px control slot is what used to starve the label onto the control.
+  static const double _hideDescriptionBelow = 560;
+
+  static const double _controlMaxWidth = 300;
+  static const double _controlShare = 0.45;
+
   @override
   Widget build(BuildContext context) {
     var name = '$title.name'.i18n;
@@ -39,28 +55,51 @@ class SettingBaseTile extends StatelessWidget with FTileMixin {
         details: child,
       );
     }
+
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 5),
-      child: Row(
-        children: [
-          if (prefix != null) ...[prefix!, const SizedBox(width: 12)],
-          Expanded(
-            child: FLabel(
-              layout: .vertical,
-              description: subtitleText == null ? null : Text(subtitleText),
-              child: Text(
-                titleText,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final compact = width.isFinite && width < _hideDescriptionBelow;
+          final controlWidth = width.isFinite
+              ? (width * _controlShare).clamp(0.0, _controlMaxWidth)
+              : _controlMaxWidth;
+
+          final label = FLabel(
+            layout: .vertical,
+            description: compact || subtitleText == null
+                ? null
+                : Text(
+                    subtitleText,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+            child: Text(
+              titleText,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            constraints: const BoxConstraints(maxWidth: 300),
-            height: 40,
-            child: child,
-          ),
-        ],
+          );
+
+          final labelled = compact && subtitleText != null
+              ? Tooltip(message: subtitleText, child: label)
+              : label;
+
+          return Row(
+            children: [
+              if (prefix != null) ...[prefix!, const SizedBox(width: 10)],
+              Expanded(child: labelled),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: controlWidth,
+                height: controlHeight,
+                child: child,
+              ),
+            ],
+          );
+        },
       ),
     );
   }

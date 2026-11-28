@@ -125,6 +125,8 @@ class MiruSettings {
     SettingKey.keyJ: "-10.0",
     SettingKey.arrowLeft: "-2.0",
     SettingKey.arrowRight: "2.0",
+    SettingKey.playerSeekStep: "10",
+    SettingKey.playerSeekFeedback: "true",
     SettingKey.mangaReadingMode: "standard",
     SettingKey.aniListToken: '',
     SettingKey.aniListUserId: '',
@@ -143,6 +145,15 @@ class MiruSettings {
     SettingKey.subtitleBackgroundColor: Colors.black.toARGB32().toString(),
     SettingKey.subtitleBackgroundOpacity: "0.5",
     SettingKey.subtitleTextAlign: TextAlign.center.index.toString(),
+    SettingKey.subtitleCustomized: 'false',
+    SettingKey.subtitleFontFamily: '',
+    SettingKey.subtitleVerticalAlign: 'bottom',
+    SettingKey.subtitleItalic: 'false',
+    SettingKey.subtitleUnderline: 'false',
+    SettingKey.subtitleStrikeout: 'false',
+    SettingKey.subtitleOutlineSize: "1.2",
+    SettingKey.subtitleOutlineColor: Colors.black.toARGB32().toString(),
+    SettingKey.subtitleDelay: "0.0",
     SettingKey.accentColor: "none",
     SettingKey.baseColor: "zinc",
     SettingKey.baseColorTintStrength: "0.5",
@@ -199,10 +210,17 @@ class MiruSettings {
     }
   }
 
+  /// Bumped on every write. [MiruSettings] is a static map with no listeners,
+  /// so a widget that reads a setting in `build` has no way to know it changed;
+  /// watching this counter is what makes such a widget rebuild. Read it through
+  /// [settingsRevisionProvider] rather than directly.
+  static final ValueNotifier<int> revision = ValueNotifier<int>(0);
+
   static void setSettingSync(String key, String value) {
     _settingsCache[key] = value;
     if (_isSessionTracked(key)) persistSessionSettings();
     setSetting(key, value);
+    revision.value++;
   }
 
   /// Test-only: seeds the in-memory settings cache with the default values
@@ -392,6 +410,12 @@ class SettingKey {
   static const keyJ = 'KeyJ';
   static const arrowLeft = 'Arrowleft';
   static const arrowRight = 'Arrowright';
+
+  /// Seconds the video player seeks per arrow-key press.
+  static const playerSeekStep = 'PlayerSeekStep';
+
+  /// Show the seek feedback overlay on a keyboard seek.
+  static const playerSeekFeedback = 'PlayerSeekFeedback';
   static const mangaReadingMode = 'ReadingMode';
   // Reader display settings, all persisted as strings by MiruSettings.
   // Fit mode is a [MangaFitMode] name, canvas a [MangaCanvasBackground] name,
@@ -424,6 +448,15 @@ class SettingKey {
   static const subtitleBackgroundColor = "SubtitleBackgroundColor";
   static const subtitleBackgroundOpacity = "SubtitleBackgroundOpacity";
   static const subtitleTextAlign = "SubtitleTextAlign";
+  static const subtitleCustomized = "SubtitleCustomized";
+  static const subtitleFontFamily = "SubtitleFontFamily";
+  static const subtitleVerticalAlign = "SubtitleVerticalAlign";
+  static const subtitleItalic = "SubtitleItalic";
+  static const subtitleUnderline = "SubtitleUnderline";
+  static const subtitleStrikeout = "SubtitleStrikeout";
+  static const subtitleOutlineSize = "SubtitleOutlineSize";
+  static const subtitleOutlineColor = "SubtitleOutlineColor";
+  static const subtitleDelay = "SubtitleDelay";
   static const subtitleLastLanguageSelected = "SubtitleLastLanguageSelected";
   static const subtitleLastTitleSelected = "SubtitleLastTitleSelected";
   static const accentColor = "AccentColor";

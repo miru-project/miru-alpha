@@ -14,6 +14,8 @@ import 'package:miru_alpha/provider/watch/video_player_provider.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
 import 'package:miru_alpha/ui/core/core/miru_expandable_tabs.dart';
 import 'package:miru_alpha/ui/features/detail/widget/mobile_detail_tile.dart';
+import 'package:miru_alpha/ui/features/setting/setting_player.dart';
+import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:miru_alpha/ui/features/watch/video_player/widget/player_overlay_atoms.dart';
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
     as pb_extension;
@@ -74,9 +76,6 @@ class PlayerSettingsTabs extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final subtitleIndex = ref.watch(
-      vidPr.select((s) => s.selectedSubtitleIndex),
-    );
     final qualityMap = ref.watch(vidPr.select((s) => s.qualityMap));
     final v2watch = ref.watch(vidPr.select((s) => s.v2watch));
     // The stream the controller is actually playing — the selection mark
@@ -119,11 +118,7 @@ class PlayerSettingsTabs extends HookConsumerWidget {
       (
         icon: FLucideIcons.captions,
         label: 'watch.tab_subtitle'.i18n,
-        child: _SubtitleSection(
-          vidPr: vidPr,
-          selectedIndex: subtitleIndex,
-          onClose: onClose,
-        ),
+        child: _SubtitleSection(vidPr: vidPr, onClose: onClose),
       ),
       (
         // Speed lives in the sheet since the header's speed pill retired —
@@ -550,51 +545,256 @@ class _ResolutionSection extends ConsumerWidget {
   }
 }
 
-class _SubtitleSection extends ConsumerWidget {
-  const _SubtitleSection({
+/// The subtitle pane host: the track list is the page, and the styling
+/// controls live on a page of their own one tap deeper, with a back row to
+/// return. A drill-down instead of an inline accordion keeps the track list
+/// free of fifteen rows it does not need.
+class _SubtitleSection extends HookWidget {
+  const _SubtitleSection({required this.vidPr, required this.onClose});
+
+  final VideoPlayerNotifierProvider vidPr;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final showStyling = useState(false);
+    return showStyling.value
+        ? _SubtitleStylingPage(
+            vidPr: vidPr,
+            onBack: () => showStyling.value = false,
+          )
+        : _SubtitleTrackPage(
+            vidPr: vidPr,
+            onClose: onClose,
+            onOpenStyling: () => showStyling.value = true,
+          );
+  }
+}
+
+/// Track selection — the pane's landing page.
+class _SubtitleTrackPage extends ConsumerWidget {
+  const _SubtitleTrackPage({
     required this.vidPr,
-    required this.selectedIndex,
     required this.onClose,
+    required this.onOpenStyling,
   });
 
   final VideoPlayerNotifierProvider vidPr;
-  final int selectedIndex;
   final VoidCallback onClose;
+  final VoidCallback onOpenStyling;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final subtitles = ref.watch(vidPr.select((s) => s.subtitlesRaw));
-    if (subtitles.isEmpty) {
-      return _EmptyOptionList('watch.no_subtitles'.i18n);
-    }
+    final selected = ref.watch(vidPr.select((s) => s.selectedSubtitleIndex));
+    final kind = ref.watch(vidPr.select((s) => s.subtitleTrackKind));
+    final customize = ref.watch(
+      vidPr.select(
+        (_) => MiruSettings.getSetting<bool>(SettingKey.subtitleCustomized),
+      ),
+    );
     final notifier = ref.read(vidPr.notifier);
 
     return ListView(
       padding: const EdgeInsets.only(bottom: 12),
       children: [
         _OptionGroup(
-          title: 'watch.tab_subtitle'.i18n,
+          title: 'settings.player.subtitle.name'.i18n,
           children: [
-            FTileGroup.builder(
-              count: subtitles.length,
-              tileBuilder: (context, i) => FTile(
-                selected: i == selectedIndex,
-                title: Text(
-                  subtitles[i].title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(subtitles[i].language),
-                onPress: () {
-                  notifier.setSubSelectedIndex(i);
-                  onClose();
-                },
+            FTile(
+              title: Text('settings.player.subtitle_appearance.name'.i18n),
+              subtitle: Text(
+                'settings.player.subtitle_appearance.information'.i18n,
               ),
+              suffix: Icon(
+                FLucideIcons.chevronRight,
+                size: 16,
+                color: context.theme.colors.mutedForeground,
+              ),
+              onPress: onOpenStyling,
             ),
           ],
         ),
+        if (subtitles.isEmpty)
+          _EmptyOptionList('watch.no_subtitles'.i18n)
+        else
+          _OptionGroup(
+            title: 'watch.tab_subtitle'.i18n,
+            children: [
+              FTileGroup.builder(
+                count: subtitles.length,
+                tileBuilder: (context, i) => FTile(
+                  selected: i == selected,
+                  enabled:
+                      kind != SubtitleTrackKind.ass ||
+                      customize == true ||
+                      i != selected,
+                  title: Text(
+                    subtitles[i].title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(subtitles[i].language),
+                  onPress: () {
+                    notifier.setSubSelectedIndex(i);
+                    onClose();
+                  },
+                ),
+              ),
+            ],
+          ),
       ],
     );
+  }
+}
+
+/// The styling page behind the Appearance & Styling row.
+class _SubtitleStylingPage extends ConsumerWidget {
+  const _SubtitleStylingPage({required this.vidPr, required this.onBack});
+
+  final VideoPlayerNotifierProvider vidPr;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final kind = ref.watch(vidPr.select((s) => s.subtitleTrackKind));
+    final customize = ref.watch(
+      vidPr.select(
+        (_) => MiruSettings.getSetting<bool>(SettingKey.subtitleCustomized),
+      ),
+    );
+    final notifier = ref.read(vidPr.notifier);
+    // ASS is the only format whose own styling mdk refuses to override, so the
+    // Customize row is ASS-only: on a text track there is nothing to convert
+    // and the row would just be another switch that does nothing. Before a
+    // track is picked the kind is unknown, and the row stays as a disabled
+    // placeholder so the page does not change shape mid-session.
+    final showCustomize = kind != SubtitleTrackKind.text;
+    final customizeEnabled = kind == SubtitleTrackKind.ass;
+    final styleEnabled =
+        kind == SubtitleTrackKind.text ||
+        (kind == SubtitleTrackKind.ass && customize == true);
+
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 12),
+      children: [
+        _OptionGroup(
+          title: 'settings.player.subtitle_appearance.name'.i18n,
+          children: [
+            FTile(
+              title: Text('common.back'.i18n),
+              prefix: const Icon(FLucideIcons.chevronLeft, size: 16),
+              onPress: onBack,
+            ),
+            if (showCustomize)
+              FTile(
+                enabled: customizeEnabled,
+                title: Text('settings.player.subtitle_customize.name'.i18n),
+                subtitle: Text(
+                  'settings.player.subtitle_customize.information'.i18n,
+                ),
+                suffix: FSwitch(
+                  value: customize ?? false,
+                  enabled: customizeEnabled,
+                  onChange: (v) {
+                    MiruSettings.setSettingSync(
+                      SettingKey.subtitleCustomized,
+                      v.toString(),
+                    );
+                    notifier.reloadSubtitleTrack();
+                  },
+                ),
+              ),
+          ],
+        ),
+        // Timing is separate: `subtitle.delay` is honoured on every track
+        // type, including an unconverted ASS, so it stays live when the
+        // styling groups below are gated.
+        _SubtitleGroup(
+          title: 'settings.player.subtitle_timing.name',
+          initiallyExpanded: true,
+          children: buildSubtitleTimingTiles(ref, vidPr: vidPr),
+        ),
+        _SubtitleGroup(
+          title: 'settings.player.subtitle_typography.name',
+          initiallyExpanded: true,
+          dimmed: !styleEnabled,
+          children: buildSubtitleTypographyTiles(
+            ref,
+            vidPr: vidPr,
+            enabled: styleEnabled,
+          ),
+        ),
+        _SubtitleGroup(
+          title: 'settings.player.subtitle_colors.name',
+          dimmed: !styleEnabled,
+          children: buildSubtitleColorTiles(
+            ref,
+            vidPr: vidPr,
+            enabled: styleEnabled,
+          ),
+        ),
+        _SubtitleGroup(
+          title: 'settings.player.subtitle_layout_section.name',
+          dimmed: !styleEnabled,
+          children: buildSubtitleLayoutTiles(
+            ref,
+            vidPr: vidPr,
+            enabled: styleEnabled,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// One collapsible band of the styling page.
+///
+/// The page holds four groups of rows; a flat stack made every control look
+/// equally important and pushed the common ones (size, colour) far apart.
+/// Collapsing the secondary groups keeps the page short without hiding
+/// anything — every row is still one tap away.
+class _SubtitleGroup extends StatelessWidget {
+  const _SubtitleGroup({
+    required this.title,
+    required this.children,
+    this.initiallyExpanded = false,
+    this.dimmed = false,
+  });
+
+  final String title;
+  final List<FTileMixin> children;
+  final bool initiallyExpanded;
+
+  /// True when the engine will ignore these rows (an ASS track with Customize
+  /// off). Dimming them keeps the values editable-looking without pretending
+  /// a change takes effect, and the reason is stated once above the groups.
+  final bool dimmed;
+
+  @override
+  Widget build(BuildContext context) {
+    final body = Padding(
+      padding: const EdgeInsets.fromLTRB(14, 2, 14, 2),
+      child: FAccordion(
+        children: [
+          FAccordionItem(
+            initiallyExpanded: initiallyExpanded,
+            title: Text(
+              title.i18n,
+              style: context.theme.typography.body.sm.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: children.cast<Widget>(),
+            ),
+          ),
+        ],
+      ),
+    );
+    return dimmed ? Opacity(opacity: 0.45, child: body) : body;
   }
 }
 

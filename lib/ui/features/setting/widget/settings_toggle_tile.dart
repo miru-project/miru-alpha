@@ -14,6 +14,7 @@ class SettingsToggleTile extends HookWidget with FTileMixin {
     this.isMobileLayout = false,
     this.onTap,
     this.icon,
+    this.enabled = true,
   });
 
   final String title;
@@ -23,16 +24,21 @@ class SettingsToggleTile extends HookWidget with FTileMixin {
   final void Function()? onTap;
   final IconData? icon;
   final bool isMobileLayout;
+
+  /// UI-only: gates the control; the persisted value is left untouched.
+  final bool enabled;
   @override
   Widget build(BuildContext context) {
     final val = useState(value);
     if (isMobileLayout) {
+      // The tile's own onPress would steal the switch's taps before the FSwitch
+      // sees them, so the parent stays inert and the switch owns the gesture.
       return FTile(
-        onPress: onTap,
         title: Text(title.i18n),
         subtitle: subtitle == null ? null : Text(subtitle!.i18n),
         suffix: FSwitch(
           value: val.value,
+          enabled: enabled,
           onChange: (value) {
             val.value = value;
             onChanged(value);
@@ -45,6 +51,7 @@ class SettingsToggleTile extends HookWidget with FTileMixin {
       subtitle: subtitle,
       child: FSwitch(
         value: val.value,
+        enabled: enabled,
         onChange: (value) {
           val.value = value;
           onChanged(value);

@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show listEquals;
+import 'package:logging/logging.dart';
 import 'package:miru_alpha/miru_core/network.dart';
 import 'package:miru_alpha/miru_core/grpc_client.dart';
 import 'package:miru_alpha/miru_core/proto/proto.dart' as proto;
@@ -10,6 +12,9 @@ import 'package:miru_alpha/provider/cast/dlna_cast_bridge.dart';
 import 'package:miru_alpha/provider/cast/dlna_cast_provider.dart';
 import 'package:miru_alpha/provider/network_provider.dart';
 import 'package:miru_alpha/utils/watch/subtitle.dart';
+import 'package:miru_alpha/utils/watch/subtitle_style.dart';
+import 'package:miru_alpha/utils/core/log.dart';
+import 'package:miru_alpha/utils/store/miru_settings.dart';
 import 'package:miru_alpha/utils/http/request.dart';
 import 'package:miru_alpha/miru_core/proto/generate/proto/extension_model.pb.dart'
     as pb_extension;
@@ -21,6 +26,31 @@ import 'package:fvp/fvp.dart';
 
 import 'package:material_ui/material_ui.dart';
 part 'video_player_provider.g.dart';
+
+/// Pushes the persisted subtitle style into [controller] via fvp's
+/// extension setProperty.
+///
+/// The receiver must be statically typed: fvp's setProperty is an extension
+/// method, invisible to dynamic dispatch — a dynamic call throws
+/// NoSuchMethodError on every property. The per-property catch also keeps a
+/// non-fvp platform (fvp's platform check throws there) a no-op so the
+/// software overlay path still works.
+void applySubtitleStyleToEngine(VideoPlayerController controller) {
+  for (final entry in SubtitleStyle.current().toMdkProperties().entries) {
+    try {
+      controller.setProperty(entry.key, entry.value);
+    } catch (_) {
+      // A single unsupported property must not skip the rest.
+    }
+  }
+}
+
+/// What the currently selected subtitle track is, as far as styling goes.
+///
+/// [unknown] covers the window before any track is loaded and after new media
+/// arrives — the player cannot yet tell whether the engine will honour
+/// `subtitle.*` for it.
+enum SubtitleTrackKind { unknown, ass, text }
 
 class VideoPlayerTickState {
   Duration duration;
@@ -36,6 +66,12 @@ class VideoPlayerTickState {
   final String currentSubtitle;
   final bool showControls;
   final bool showSettings;
+
+  /// The selected track's kind. [SubtitleTrackKind.ass] means the engine
+  /// renders the file's own style and ignores `subtitle.*` colour/size/bold,
+  /// so the style controls are gated and the ASS-only Customize switch is the
+  /// way back to a styleable track.
+  final SubtitleTrackKind subtitleTrackKind;
 
   /// The pane the settings surface opens on — the landscape meta chips
   /// deep-link here (mirror / resolution / subtitle / speed); 0 keeps the
@@ -74,6 +110,7 @@ class VideoPlayerTickState {
     this.currentSubtitle = '',
     this.showControls = false,
     this.showSettings = false,
+    this.subtitleTrackKind = SubtitleTrackKind.unknown,
     this.settingsTab = 0,
     this.locked = false,
     this.v2watch,
@@ -96,6 +133,7 @@ class VideoPlayerTickState {
     bool? isShowSubtitle,
     bool? showControls,
     bool? showSettings,
+    SubtitleTrackKind? subtitleTrackKind,
     int? settingsTab,
     bool? locked,
     int? selectedGroupIndex,
@@ -126,6 +164,7 @@ class VideoPlayerTickState {
       qualityMap: qualityMap ?? this.qualityMap,
       showControls: showControls ?? this.showControls,
       showSettings: showSettings ?? this.showSettings,
+      subtitleTrackKind: subtitleTrackKind ?? this.subtitleTrackKind,
       settingsTab: settingsTab ?? this.settingsTab,
       locked: locked ?? this.locked,
       // The error is CLEARABLE: clearPlayerError resets it (retry/switch
@@ -161,6 +200,7 @@ const videoExtensions = [
 @riverpod
 class VideoPlayerNotifier extends _$VideoPlayerNotifier
     implements DlnaPlayerSurface {
+  static final _log = Logger('${logger.name}.player');
   late VideoPlayerController vidController;
   late final Size defaultSize;
   VideoPlayerController get videoPlayerController => vidController;
@@ -209,6 +249,28 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
 
     Future.microtask(() => _init(mediaUrl, headers ?? const {}, qualityMap));
     return initialState;
+  }
+
+  /// Re-pushes the persisted subtitle style into the running engine. Called by
+  /// the Player settings pane after a write; the software overlay re-reads the
+  /// same values on its own rebuild.
+  void applySubtitleStyle() {
+    _log.info(
+      'applySubtitleStyle color=${SubtitleStyle.current().toMdkProperties()[SubtitleProperty.color]} '
+      'controller=${vidController.hashCode} init=${vidController.value.isInitialized}',
+    );
+    applySubtitleStyleToEngine(vidController);
+  }
+
+  /// Re-loads the current subtitle track — used when the "customize" switch
+  /// flips so an ASS track swaps between its raw (fidelity) and converted
+  /// (styleable srt) form.
+  void reloadSubtitleTrack() {
+    final subs = state.subtitlesRaw;
+    final idx = state.selectedSubtitleIndex;
+    if (subs.isNotEmpty && idx >= 0 && idx < subs.length) {
+      setSubSelectedIndex(idx);
+    }
   }
 
   /// Injects the session data the shell resolved — the watch protobuf and the
@@ -335,6 +397,14 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
     vidController.initialize().then((_) {
       vidController.addListener(_updatePosition);
       vidController.play();
+      // mdk applies subtitle.* properties only once the player is initialized;
+      // a setProperty before init (the build-time call) is a silent no-op, so
+      // the persisted style is pushed here — this is what makes the colour/
+      // size survive a restart instead of rendering libass defaults.
+      _log.info(
+        'post-init applySubtitleStyle color=${SubtitleStyle.current().toMdkProperties()[SubtitleProperty.color]}',
+      );
+      applySubtitleStyleToEngine(vidController);
 
       state = state.copyWith(
         isPlaying: true,
@@ -582,23 +652,36 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
   }
 
   void setSubSelectedIndex(int index) {
-    // Native (libass) render path first: mdk loads the subtitle as an
-    // external media track and draws it into the frame — no Dart-side VTT
-    // parsing, no software text overlay. The URL rides the app's standard
-    // image/media proxy, exactly like covers and screenshots do; a source
-    // that needs special fetching (TLS fingerprinting, tokens) is the
-    // EXTENSION'S job to hand back as a working proxyable URL. Falls back
-    // to the Dart VTT overlay when the fvp platform is not the engine.
     final subUrl = state.subtitlesRaw[index].url;
+    _log.info(
+      'setSubSelectedIndex $index customize=${MiruSettings.getSetting<bool>(SettingKey.subtitleCustomized) ?? false} url=$subUrl',
+    );
+    state = state.copyWith(selectedSubtitleIndex: index, isShowSubtitle: false);
+    // Customize switch ON: convert the track to SRT (text) so mdk honours
+    // subtitle.* color/size/font — mdk ignores them on ASS. The converter
+    // passes non-ASS text through unchanged, so this is safe for srt/vtt too;
+    // the extension check is skipped because proxy URLs hide the real suffix.
+    final customize =
+        MiruSettings.getSetting<bool>(SettingKey.subtitleCustomized) ?? false;
+    state = state.copyWith(
+      subtitleTrackKind: SubtitleUtil.isAss(subUrl)
+          ? SubtitleTrackKind.ass
+          : SubtitleTrackKind.text,
+    );
+    if (customize) {
+      _loadConvertedSrt(subUrl, index);
+      return;
+    }
     try {
       vidController.setExternalSubtitle(
         MiruRequest.proxyUrl(subUrl).toString(),
       );
-      state = state.copyWith(
-        selectedSubtitleIndex: index,
-        isShowSubtitle: false,
-        subtitles: const [],
-      );
+      // mdk discards style set before the external track exists ("pending
+      // style changes being discarded"), so re-push after the track is loaded
+      // — otherwise the first cue renders with libass defaults and later
+      // setProperty calls look like no-ops.
+      applySubtitleStyleToEngine(vidController);
+      state = state.copyWith(subtitles: const []);
       return;
     } catch (_) {
       // Not the fvp platform — software overlay fallback below.
@@ -610,6 +693,59 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
     ) {
       setSubtitles(value, index);
     });
+  }
+
+  /// Fetches an ASS track, strips its styling to SRT, writes it to a temp
+  /// file, and loads that so `subtitle.*` color/size take effect. mdk's
+  /// setMedia does not accept a `data:` URI, so a temp file is used. Falls
+  /// back to the raw track (and the software overlay) on any failure.
+  Future<void> _loadConvertedSrt(String subUrl, int index) async {
+    try {
+      final raw = await MiruRequest.get(
+        subUrl,
+        options: Options(headers: _streamHeaders),
+      );
+      final text = raw is String ? raw : raw.toString();
+      final srt = SubtitleUtil.assToSrt(text);
+      _log.info(
+        'converted track: ${text.length} chars -> ${srt.length} srt, isAss=${SubtitleUtil.isAss(subUrl)}',
+      );
+      final dir = await Directory.systemTemp.createTemp('miru_sub');
+      final file = File('${dir.path}/sub.srt');
+      await file.writeAsString(srt);
+      _log.info('loading converted srt: ${file.path}');
+      vidController.setExternalSubtitle(file.path);
+      applySubtitleStyleToEngine(vidController);
+      // The track decodes asynchronously; a one-shot apply right after
+      // setExternalSubtitle races the load and colour/alignment set before the
+      // track is ready are dropped (italic, set by a later change, sticks).
+      // Re-apply once the decoder has had time to attach.
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (vidController.value.isInitialized) {
+          applySubtitleStyleToEngine(vidController);
+        }
+      });
+      return;
+    } catch (_) {
+      // Conversion failed — fall through to the raw track / overlay.
+    }
+    try {
+      vidController.setExternalSubtitle(
+        MiruRequest.proxyUrl(subUrl).toString(),
+      );
+      applySubtitleStyleToEngine(vidController);
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (vidController.value.isInitialized) {
+          applySubtitleStyleToEngine(vidController);
+        }
+      });
+    } catch (_) {
+      SubtitleUtil.parseVttSubtitles(subUrl, headers: _streamHeaders).then((
+        value,
+      ) {
+        setSubtitles(value, index);
+      });
+    }
   }
 
   void closeSubtitle() {
@@ -628,6 +764,7 @@ class VideoPlayerNotifier extends _$VideoPlayerNotifier
       isShowSubtitle: false,
       selectedSubtitleIndex: 0,
       subtitles: const [],
+      subtitleTrackKind: SubtitleTrackKind.unknown,
     );
   }
 
