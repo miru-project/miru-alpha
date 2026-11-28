@@ -90,11 +90,9 @@ void main() {
         expect(sidebarIndexForLocation('/home/history', sidebarNavItems), 1);
         expect(sidebarIndexForLocation('/home/favorite', sidebarNavItems), 2);
         expect(sidebarIndexForLocation('/home/download', sidebarNavItems), 3);
-        // Audit 2026-11-12: Search is NOT a sidebar destination — the
-        // header command search owns that surface (single source of truth).
-        expect(sidebarIndexForLocation('/search', sidebarNavItems), isNull);
-        expect(sidebarIndexForLocation('/extension', sidebarNavItems), 4);
-        expect(sidebarIndexForLocation('/tracking', sidebarNavItems), 5);
+        expect(sidebarIndexForLocation('/search', sidebarNavItems), 4);
+        expect(sidebarIndexForLocation('/extension', sidebarNavItems), 5);
+        expect(sidebarIndexForLocation('/tracking', sidebarNavItems), 6);
       });
 
       test(
@@ -267,15 +265,16 @@ void main() {
       expect(find.text('common.webdav'), findsOneWidget);
       expect(find.text('sidebar.not_synced'), findsOneWidget);
       expect(find.text('sidebar.webdav_caption'), findsOneWidget);
-      // The label uppercases the raw key (mock: uppercase micro-label).
-      expect(find.text('SIDEBAR.LIBRARY'), findsOneWidget);
+      // forui's own FSidebarGroup.label renders the heading (not uppercased).
+      expect(find.text('sidebar.library'), findsOneWidget);
+      expect(find.text('sidebar.discover'), findsOneWidget);
       expect(tester.getRect(find.byType(DesktopSidebar)).width, 240);
 
-      // Root nav: the five Library destinations in order (2026-11-12 audit —
-      // Search consolidated into the header command field; Settings via the
-      // header gear + page-local sidebar).
+      // Root nav: the Library destinations in order (Search is a nav tile →
+      // /search; Settings via the header gear + page-local sidebar).
       for (final label in [
         'common.home',
+        'common.search',
         'common.history',
         'favorite.name',
         'download.name',

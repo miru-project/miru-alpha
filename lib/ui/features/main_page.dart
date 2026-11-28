@@ -95,14 +95,14 @@ class _UnifiedHeader extends ConsumerWidget {
                   children: [
                     Text(
                       'common.miru'.i18n,
-                      style: context.theme.typography.body.sm.copyWith(
+                      style: context.theme.typography.body.md.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(width: 3),
                     Text(
                       'common.alpha'.i18n,
-                      style: context.theme.typography.body.sm.copyWith(
+                      style: context.theme.typography.body.md.copyWith(
                         fontWeight: FontWeight.w700,
                         color: colors.mutedForeground,
                       ),

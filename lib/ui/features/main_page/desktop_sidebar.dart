@@ -28,14 +28,11 @@ class FIconNavItem {
   const FIconNavItem({required this.text, required this.icon, this.page});
 }
 
-/// The root nav's destinations (2026-11-12 audit end-state: ONE "Library"
-/// group). Search is deliberately NOT here — the audit's Omni-Search
-/// consolidation (single source of truth) overrides the earlier mock's
-/// re-add: the header command search (Ctrl K) owns all search entry.
-/// Settings is also absent: the header gear is the entry, `/settings/*`
-/// keeps the root nav dark, and the settings page owns a page-local
-/// section sidebar (user directive 2026-11-12).
-final List<FIconNavItem> sidebarNavItems = [
+/// The Library group's destinations (mock: Home, History, Favorite,
+/// Download). Settings is absent from the nav: the header gear is the entry,
+/// `/settings/*` keeps the root nav dark, and the settings page owns a
+/// page-local section sidebar (user directive 2026-11-12).
+final List<FIconNavItem> libraryNavItems = [
   FIconNavItem(text: 'common.home', icon: FLucideIcons.house, page: "/home"),
   FIconNavItem(
     text: 'common.history',
@@ -52,6 +49,17 @@ final List<FIconNavItem> sidebarNavItems = [
     icon: FLucideIcons.download,
     page: "/home/download",
   ),
+];
+
+/// The Discover group's destinations (mock: Search, Extensions). Search is a
+/// normal per-extension source page; the header's command search (Ctrl K) is
+/// the separate quick-access overlay (favorites + history + global search).
+final List<FIconNavItem> discoverNavItems = [
+  FIconNavItem(
+    text: 'common.search',
+    icon: FLucideIcons.search,
+    page: "/search",
+  ),
   FIconNavItem(
     text: 'extension.name',
     icon: FLucideIcons.blocks,
@@ -62,6 +70,13 @@ final List<FIconNavItem> sidebarNavItems = [
     icon: FLucideIcons.clipboardClock,
     page: "/tracking",
   ),
+];
+
+/// Every root-nav destination in render order — the list the selection
+/// resolver and the collapsed rail index into.
+final List<FIconNavItem> sidebarNavItems = [
+  ...libraryNavItems,
+  ...discoverNavItems,
 ];
 
 /// Root-nav selection resolver: the sidebar index whose [FIconNavItem.page]
@@ -207,7 +222,7 @@ class DesktopSidebar extends HookConsumerWidget {
                                   'common.webdav'.i18n,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: context.theme.typography.body.xs2
+                                  style: context.theme.typography.body.sm
                                       .copyWith(fontWeight: FontWeight.w600),
                                 ),
                               ),
@@ -221,7 +236,7 @@ class DesktopSidebar extends HookConsumerWidget {
                             'sidebar.webdav_caption'.i18n,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: context.theme.typography.body.xs2.copyWith(
+                            style: context.theme.typography.body.sm.copyWith(
                               color: context.theme.colors.mutedForeground,
                             ),
                           ),
@@ -236,80 +251,44 @@ class DesktopSidebar extends HookConsumerWidget {
         ),
       ),
       children: [
-        FSidebarGroup(
-          label: const SizedBox.shrink(),
-          children: [
-            // Uppercase micro-label (mock: "Library" group header, same
-            // treatment as the Pinned Shelves label below).
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'sidebar.library'.i18n.toUpperCase(),
-                  style: context.theme.typography.body.xs2.copyWith(
-                    color: colors.mutedForeground,
-                    letterSpacing: 0.6,
-                  ),
-                ),
-              ),
-            ),
-            for (var i = 0; i < sidebarNavItems.length; i++) ...[
-              FSidebarItem(
-                label: _NavLabel(index: i),
-                icon: Icon(sidebarNavItems[i].icon),
-                onPress: () {
-                  if (sidebarNavItems[i].page != null) {
-                    context.go(sidebarNavItems[i].page!);
-                  }
-                },
-                selected: selected == i,
-              ),
-            ],
-          ],
+        _NavGroup(
+          label: 'sidebar.library'.i18n,
+          items: libraryNavItems,
+          startIndex: 0,
+          selected: selected,
+        ),
+        _NavGroup(
+          label: 'sidebar.discover'.i18n,
+          items: discoverNavItems,
+          startIndex: libraryNavItems.length,
+          selected: selected,
         ),
         // Frequent Extensions (mock): installed sources the user's favorites
         // come from — connected-favorite count descending, max 4. "+"
         // browses the store.
         if (frequentExtensions.isNotEmpty)
           FSidebarGroup(
-            label: const SizedBox.shrink(),
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'sidebar.frequent_extensions'.i18n.toUpperCase(),
-                        style: context.theme.typography.body.xs2.copyWith(
-                          color: colors.mutedForeground,
-                          letterSpacing: 0.6,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: FTappable(
-                        onPress: () => context.go('/extension'),
-                        child: Center(
-                          child: Icon(
-                            FLucideIcons.plus,
-                            size: 14,
-                            color: colors.mutedForeground,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+            label: Text('sidebar.frequent_extensions'.i18n),
+            action: FTappable(
+              onPress: () => context.go('/extension'),
+              child: SizedBox(
+                width: 28,
+                height: 28,
+                child: Center(
+                  child: Icon(
+                    FLucideIcons.plus,
+                    size: 14,
+                    color: colors.mutedForeground,
+                  ),
                 ),
               ),
+            ),
+            children: [
               for (final (meta, _) in frequentExtensions)
                 FSidebarItem(
-                  // The source's real icon — the shared 20px tile (same
-                  // treatment as the collapsed rail and the extension list
-                  // tiles).
+                  style: .delta(
+                    padding: .value(.symmetric(horizontal: 8, vertical: 6)),
+                  ),
                   icon: _ExtensionIcon20(meta: meta),
                   label: Row(
                     children: [
@@ -318,7 +297,7 @@ class DesktopSidebar extends HookConsumerWidget {
                           meta.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: context.theme.typography.body.xs2.copyWith(
+                          style: context.theme.typography.body.sm.copyWith(
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -338,42 +317,29 @@ class DesktopSidebar extends HookConsumerWidget {
         // count, count DESCENDING, unlimited length — the sidebar column
         // scrolls. "+" opens the tag manager.
         FSidebarGroup(
-          label: const SizedBox.shrink(),
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'sidebar.tags'.i18n.toUpperCase(),
-                      style: context.theme.typography.body.xs2.copyWith(
-                        color: colors.mutedForeground,
-                        letterSpacing: 0.6,
-                      ),
-                    ),
-                  ),
-                  // 28px hit target around the 14px glyph (Fitts: the bare
-                  // icon was a 14x14 tap box), forui's own hover/press states.
-                  SizedBox(
-                    width: 28,
-                    height: 28,
-                    child: FTappable(
-                      onPress: () => showFavoriteGroupSheet(context),
-                      child: Center(
-                        child: Icon(
-                          FLucideIcons.plus,
-                          size: 14,
-                          color: colors.mutedForeground,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+          label: Text('sidebar.tags'.i18n),
+          // 28px hit target around the 14px glyph (Fitts: the bare icon was
+          // a 14x14 tap box), forui's own hover/press states.
+          action: FTappable(
+            onPress: () => showFavoriteGroupSheet(context),
+            child: SizedBox(
+              width: 28,
+              height: 28,
+              child: Center(
+                child: Icon(
+                  FLucideIcons.plus,
+                  size: 14,
+                  color: colors.mutedForeground,
+                ),
               ),
             ),
+          ),
+          children: [
             for (final (i, group) in sortedGroups.indexed)
               FSidebarItem(
+                style: .delta(
+                  padding: .value(.symmetric(horizontal: 8, vertical: 6)),
+                ),
                 label: Row(
                   children: [
                     Icon(
@@ -419,6 +385,45 @@ class DesktopSidebar extends HookConsumerWidget {
     return SizedBox(
       width: collapsed ? 56 : 240,
       child: collapsed ? _CollapsedRail(selected: selected) : expandedRail,
+    );
+  }
+}
+
+/// One labelled nav group (mock: "Library", "Discover"): forui's own
+/// [FSidebarGroup.label] renders the heading, indices offset by [startIndex]
+/// so the shared selection resolver's index matches [sidebarNavItems].
+class _NavGroup extends StatelessWidget {
+  const _NavGroup({
+    required this.label,
+    required this.items,
+    required this.startIndex,
+    required this.selected,
+  });
+
+  final String label;
+  final List<FIconNavItem> items;
+  final int startIndex;
+  final int? selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return FSidebarGroup(
+      label: Text(label),
+      children: [
+        for (var j = 0; j < items.length; j++) ...[
+          FSidebarItem(
+            style: .delta(
+              padding: .value(.symmetric(horizontal: 8, vertical: 6)),
+            ),
+            label: _NavLabel(index: startIndex + j),
+            icon: Icon(items[j].icon),
+            onPress: () {
+              if (items[j].page != null) context.go(items[j].page!);
+            },
+            selected: selected == startIndex + j,
+          ),
+        ],
+      ],
     );
   }
 }
@@ -652,19 +657,19 @@ class _NavLabel extends ConsumerWidget {
                 .whenOrNull(data: (state) => state.active.length),
           ),
         ] else if (item.page == '/home/favorite') ...[
-          const SizedBox(width: 8),
-          _NavCountBadge(
-            count: ref.watch(
-              favoritePageProvider.select((s) => s.favorites.length),
-            ),
-          ),
+          // const SizedBox(width: 8),
+          // _NavCountBadge(
+          //   count: ref.watch(
+          //     favoritePageProvider.select((s) => s.favorites.length),
+          //   ),
+          // ),
         ] else if (item.page == '/extension') ...[
-          const SizedBox(width: 8),
-          _NavCountBadge(
-            count: ref.watch(
-              extensionPageProvider.select((s) => s.installedPackages.length),
-            ),
-          ),
+          // const SizedBox(width: 8),
+          // _NavCountBadge(
+          //   count: ref.watch(
+          //     extensionPageProvider.select((s) => s.installedPackages.length),
+          //   ),
+          // ),
         ],
       ],
     );
