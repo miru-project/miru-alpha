@@ -79,3 +79,7 @@ src/miru_core/windows/miru_core.dll
 AGENTS.md
 # Widget Preview related
 .widget_preview/
+
+# Local-only render/harness tests: created ad hoc, never committed.
+# Commit-able suites are test/unit, test/utils, test/provider, test/domain.
+/test/ui_render/
