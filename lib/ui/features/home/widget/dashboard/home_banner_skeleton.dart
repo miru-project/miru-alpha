@@ -98,8 +98,16 @@ class HomeBannerSkeleton extends StatelessWidget {
                 ],
               ),
             ),
-            // Dock placeholder bottom-right: header bar + two thumbnails.
-            const Positioned(right: 12, bottom: 12, child: _SkeletonDock()),
+            // Dock placeholder bottom-right. Spans the full banner width the
+            // way the loaded dock's Positioned does, so the shared slot
+            // formula ([bannerDockSlots]) resolves against the same width and
+            // the two footprints match.
+            const Positioned(
+              left: 16,
+              right: 12,
+              bottom: 12,
+              child: _SkeletonDock(),
+            ),
           ],
         ),
       ),
@@ -107,36 +115,59 @@ class HomeBannerSkeleton extends StatelessWidget {
   }
 }
 
-/// Dock placeholder bottom-right: a rounded panel with a header bar and two
-/// thumbnail bars, mirroring the loaded dock's footprint.
+/// Dock placeholder bottom-right: mirrors the loaded dock's footprint using
+/// the SAME slot formula ([bannerDockSlots]) — a fixed width would reserve
+/// the wrong space and make the swap visibly jump.
 class _SkeletonDock extends StatelessWidget {
   const _SkeletonDock();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      key: const Key('skeleton-dock'),
-      width: 220,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0x9609090B),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF3F3F46)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 8,
-        children: [
-          const _SkeletonBar(width: 120, height: 10, radius: 4),
-          Row(
-            children: const [
-              _SkeletonBar(width: 94, height: 56, radius: 6),
-              SizedBox(width: 8),
-              _SkeletonBar(width: 94, height: 56, radius: 6),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final slots = bannerDockSlots(constraints.maxWidth);
+        return Align(
+          alignment: Alignment.bottomRight,
+          child: Container(
+            key: const Key('skeleton-dock'),
+            // Outer footprint = reserved slots (68px of panel) + the panel's
+            // own 20px horizontal padding, matching the loaded dock's
+            // Padding(SizedBox(308)) composition.
+            width: slots * kBannerDockSlotCost + 40,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0x9609090B),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF3F3F46)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              spacing: 8,
+              children: [
+                // Header bar height matches the loaded dock's header row
+                // (`n / N` text over the cluster arrows), so the panel's total
+                // height is identical in both states: 10 pad + 32 + 8 + 40 +
+                // 10 pad = 100.
+                const _SkeletonBar(width: 120, height: 32, radius: 4),
+                Row(
+                  children: [
+                    for (var i = 0; i < slots; i++)
+                      Padding(
+                        padding: EdgeInsets.only(right: i == slots - 1 ? 0 : 8),
+                        child: const _SkeletonBar(
+                          width: 64,
+                          height: 40,
+                          radius: 6,
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

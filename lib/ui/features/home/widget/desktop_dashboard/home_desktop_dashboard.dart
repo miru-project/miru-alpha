@@ -40,7 +40,10 @@ class HomeDesktopDashboard extends StatelessWidget {
             kDesktopDockClearance,
           ),
           children: [
-            HomeBannerSection(),
+            // gutter: 0 — the ListView already pads by kDesktopHomeGutter, so
+            // the hero artwork lines up with the sections below instead of
+            // sitting 16px narrower.
+            HomeBannerSection(gutter: 0),
             SizedBox(height: kDesktopSectionGap),
             // (mock Chunk C density strip removed 2026-11-12: static labels
             // only — viewport mode badge + sort caption — zero controls.)

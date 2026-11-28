@@ -51,7 +51,15 @@ bool _useSkeletonVisible(bool isLoading) {
 /// carousel cluster (dots, counter, prev/next). Manual navigation only — the
 /// mock carries no autoplay. Desktop-layout exclusive.
 class HomeBannerSection extends HookConsumerWidget {
-  const HomeBannerSection({super.key});
+  const HomeBannerSection({super.key, this.gutter = 16});
+
+  /// Horizontal inset the carousel applies INSIDE this section.
+  ///
+  /// [HomeDesktopDashboard] already pads its ListView by
+  /// [kDesktopHomeGutter] (28), so the desktop composition passes `0` to make
+  /// the hero's artwork line up with the Continue and Shelves sections below
+  /// it. Standalone hosts (the catalog stories) keep the 16px default.
+  final double gutter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -66,25 +74,38 @@ class HomeBannerSection extends HookConsumerWidget {
         // 280/300 swap.
         const height = 340.0;
         // Skeleton first — including the linger after a fast failure — so
-        // every phase swap reads as skeleton → outcome, never empty-box.
+        // every phase swap reads as skeleton → outcome, never empty-box. The
+        // catalogue picker is NOT part of the skeleton: the source/format
+        // selection is already known before any bytes arrive, so it stays
+        // mounted and interactive over the placeholder instead of vanishing.
         if (skeletonVisible) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: HomeBannerSkeleton(height: height),
+          return _bannerFramed(
+            selection: selection,
+            gutter: gutter,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: gutter),
+              child: HomeBannerSkeleton(height: height),
+            ),
           );
         }
         if (banner.hasError) {
           return _bannerFramed(
             selection: selection,
-            child: _BannerError(height: height, error: banner.error),
+            gutter: gutter,
+            child: _BannerError(
+              height: height,
+              error: banner.error,
+              gutter: gutter,
+            ),
           );
         }
         final items = banner.value ?? const [];
         if (items.isEmpty) {
           return _bannerFramed(
             selection: selection,
+            gutter: gutter,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: gutter),
               child: SizedBox(
                 height: height,
                 child: HomeEmpty(text: 'home.banner.empty'.i18n),
@@ -94,11 +115,13 @@ class HomeBannerSection extends HookConsumerWidget {
         }
         return _bannerFramed(
           selection: selection,
+          gutter: gutter,
           child: _BannerCarousel(
             key: ValueKey((selection.source, selection.format)),
             items: items,
             height: height,
             selection: selection,
+            gutter: gutter,
           ),
         );
       },
@@ -113,12 +136,13 @@ class HomeBannerSection extends HookConsumerWidget {
   Widget _bannerFramed({
     required HomeBannerSelectionState selection,
     required Widget child,
+    required double gutter,
   }) {
     return Stack(
       children: [
         child,
         Positioned(
-          left: 28,
+          left: gutter + 12,
           top: 12,
           child: _BannerCataloguePicker(
             key: const Key('bannerCataloguePicker'),
@@ -136,11 +160,13 @@ class _BannerCarousel extends HookConsumerWidget {
     required this.items,
     required this.height,
     required this.selection,
+    required this.gutter,
   });
 
   final List<HomeBannerItem> items;
   final double height;
   final HomeBannerSelectionState selection;
+  final double gutter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -152,7 +178,7 @@ class _BannerCarousel extends HookConsumerWidget {
     final index = useState(0);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: gutter),
       child: ClipRRect(
         borderRadius: context.theme.style.borderRadius.lg,
         child: SizedBox(
@@ -286,6 +312,20 @@ class _PickerChip extends StatelessWidget {
 const kBannerEmerald = Color(0xFF10B981);
 const kBannerAmber = Color(0xFFFBBF24);
 
+/// Thumbnail slot cost in the hero dock (64px thumb + 8px gap).
+const kBannerDockSlotCost = 72.0;
+
+/// Thumbnail count the dock reserves at [availableWidth].
+///
+/// The dock reserves its FULL slot count and leaves trailing slots empty
+/// rather than shrinking to the item count — the same rule the Continue row
+/// follows (`items.take(columns)` with empty trailing slots keeping column
+/// width). Without it the panel resizes every time a catalogue returns a
+/// different number of items, and the loading skeleton (which cannot know the
+/// count) can never match the loaded footprint.
+int bannerDockSlots(double availableWidth) =>
+    ((availableWidth - 20 - 130) ~/ kBannerDockSlotCost).clamp(1, 4);
+
 /// Bottom-right interactive dock (mock rev 4): the trending-queue header
 /// ("n / N" + prev/next) over a strip of mini thumbnails — tapping one
 /// animates the carousel to that page; the active thumbnail carries the
@@ -302,8 +342,6 @@ class _BannerDock extends StatelessWidget {
   final List<HomeBannerItem> items;
   final int index;
 
-  static const _slotCost = 72.0;
-
   @override
   Widget build(BuildContext context) {
     final colors = context.theme.colors;
@@ -312,9 +350,7 @@ class _BannerDock extends StatelessWidget {
       alignment: Alignment.bottomRight,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final maxThumbs =
-              ((constraints.maxWidth - 20 - 130) ~/ _BannerDock._slotCost)
-                  .clamp(1, 4);
+          final slots = bannerDockSlots(constraints.maxWidth);
           return ClipRRect(
             key: const Key('bannerCarouselCluster'),
             borderRadius: BorderRadius.circular(12),
@@ -330,99 +366,115 @@ class _BannerDock extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(10),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 8,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'home.dock_queue'.i18n.fill({
-                              'count': '${index + 1} / ${items.length}',
-                            }),
-                            style: typography.body.xs2.copyWith(
-                              color: colors.mutedForeground,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.6,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          _ClusterArrow(
-                            icon: FLucideIcons.chevronLeft,
-                            enabled: index > 0,
-                            onTap: () => controller.previousPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeOutCubic,
-                            ),
-                          ),
-                          _ClusterArrow(
-                            icon: FLucideIcons.chevronRight,
-                            enabled: index < items.length - 1,
-                            onTap: () => controller.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeOutCubic,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (final (i, item) in items.take(maxThumbs).indexed)
-                            GestureDetector(
-                              onTap: () => controller.animateToPage(
-                                i,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeOutCubic,
-                              ),
-                              child: Opacity(
-                                opacity: i == index ? 1 : 0.75,
-                                child: Container(
-                                  width: 64,
-                                  height: 40,
-                                  margin: const EdgeInsets.only(right: 8),
-                                  clipBehavior: Clip.antiAlias,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(
-                                      color: i == index
-                                          ? colors.foreground
-                                          : colors.border,
-                                      width: i == index ? 2 : 1,
-                                    ),
-                                  ),
-                                  child: Stack(
-                                    fit: StackFit.expand,
-                                    children: [
-                                      ImageWidget(
-                                        imageUrl: item.backdrop,
-                                        fit: BoxFit.cover,
-                                        borderRadius: 0,
-                                        errChild: const HomeCoverFallback(
-                                          showLabel: false,
-                                        ),
-                                      ),
-                                      Positioned(
-                                        left: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        child: Container(
-                                          height: i == index ? 2 : 0,
-                                          color: i == index
-                                              ? kBannerEmerald
-                                              : const Color(0x00000000),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                  child: SizedBox(
+                    // Pinned to the reserved slot count: the header text and
+                    // the thumbnail strip must not drive the panel's width, or
+                    // it resizes per catalogue and no placeholder can match it.
+                    // +20 for the panel's own 10px horizontal padding.
+                    width: slots * kBannerDockSlotCost + 20,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 8,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'home.dock_queue'.i18n.fill({
+                                  'count': '${index + 1} / ${items.length}',
+                                }),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: typography.body.xs2.copyWith(
+                                  color: colors.mutedForeground,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.6,
                                 ),
                               ),
                             ),
-                        ],
-                      ),
-                    ],
+                            const SizedBox(width: 8),
+                            _ClusterArrow(
+                              icon: FLucideIcons.chevronLeft,
+                              enabled: index > 0,
+                              onTap: () => controller.previousPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOutCubic,
+                              ),
+                            ),
+                            _ClusterArrow(
+                              icon: FLucideIcons.chevronRight,
+                              enabled: index < items.length - 1,
+                              onTap: () => controller.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOutCubic,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (var i = 0; i < slots; i++)
+                              if (i < items.length)
+                                GestureDetector(
+                                  onTap: () => controller.animateToPage(
+                                    i,
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeOutCubic,
+                                  ),
+                                  child: Opacity(
+                                    opacity: i == index ? 1 : 0.75,
+                                    child: Container(
+                                      width: 64,
+                                      height: 40,
+                                      margin: const EdgeInsets.only(right: 8),
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(
+                                          color: i == index
+                                              ? colors.foreground
+                                              : colors.border,
+                                          width: i == index ? 2 : 1,
+                                        ),
+                                      ),
+                                      child: Stack(
+                                        fit: StackFit.expand,
+                                        children: [
+                                          ImageWidget(
+                                            imageUrl: items[i].backdrop,
+                                            fit: BoxFit.cover,
+                                            borderRadius: 0,
+                                            errChild: const HomeCoverFallback(
+                                              showLabel: false,
+                                            ),
+                                          ),
+                                          Positioned(
+                                            left: 0,
+                                            right: 0,
+                                            bottom: 0,
+                                            child: Container(
+                                              height: i == index ? 2 : 0,
+                                              color: i == index
+                                                  ? kBannerEmerald
+                                                  : const Color(0x00000000),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              else
+                                // Reserved empty slot: keeps the dock's footprint
+                                // stable across catalogues that return fewer
+                                // items than the width allows.
+                                const SizedBox(width: 72, height: 40),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -803,16 +855,21 @@ class _ClusterArrow extends StatelessWidget {
 /// Error state: a TMDB key hint when that is the cause, generic offline text
 /// otherwise, plus retry.
 class _BannerError extends ConsumerWidget {
-  const _BannerError({required this.height, required this.error});
+  const _BannerError({
+    required this.height,
+    required this.error,
+    required this.gutter,
+  });
 
   final double height;
   final Object? error;
+  final double gutter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final noKey = error is TmdbApiKeyMissingException;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.symmetric(horizontal: gutter),
       child: SizedBox(
         height: height,
         child: HomeEmpty(

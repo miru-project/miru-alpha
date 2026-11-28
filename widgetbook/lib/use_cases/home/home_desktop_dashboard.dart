@@ -108,7 +108,7 @@ History _history(String title, String type) => History(
   package: 'pkg',
   url: 'url-$title',
   detailUrl: 'detail-$title',
-  cover: '',
+  cover: 'https://picsum.photos/200/300',
   type: type,
   episodeGroupId: 0,
   episodeId: 2,
@@ -124,7 +124,7 @@ Favorite _favorite(String title, String type) => Favorite(
   url: 'url-$title',
   type: type,
   title: title,
-  cover: '',
+  cover: 'https://picsum.photos/200/300',
   date: DateTime.now(),
 );
 
@@ -224,7 +224,16 @@ Widget _desktopDashboard({
       ),
       routerConfig: GoRouter(
         routes: [
-          GoRoute(path: '/', builder: (_, _) => const HomeDesktopDashboard()),
+          // Scaffold supplies the Material ancestor every Text needs — a bare
+          // route child renders Flutter's yellow double "missing Material"
+          // underline under each glyph.
+          GoRoute(
+            path: '/',
+            builder: (context, _) => Scaffold(
+              backgroundColor: context.theme.colors.background,
+              body: const HomeDesktopDashboard(),
+            ),
+          ),
           GoRoute(
             path: '/home/favorite',
             builder: (_, _) =>
@@ -253,6 +262,26 @@ WidgetbookComponent buildHomeDesktopDashboardComponent() {
             _favorite('Anime B', 'bangumi'),
           ],
           historyItems: [_history('H1', 'bangumi'), _history('H2', 'bangumi')],
+          bannerItems: [
+            HomeBannerItem(
+              title: 'Attack on Titan',
+              rank: 1,
+              backdrop: 'https://picsum.photos/200/300',
+              description: 'The last remnants of humanity live behind walls, hunted by giants.',
+              score: 8.9,
+              episodeCount: 24,
+              externalUrl: 'https://anilist.co/anime/16498',
+            ),
+            HomeBannerItem(
+              title: 'Chainsaw Man',
+              rank: 2,
+              backdrop: 'https://picsum.photos/200/300',
+              description: 'A young man with a chainsaw devil must navigate a world of contracts.',
+              score: 8.5,
+              episodeCount: 12,
+              externalUrl: 'https://anilist.co/anime/127230',
+            ),
+          ],
         ),
       ),
       // The empty-library invite: the dashed Favorites panel and the

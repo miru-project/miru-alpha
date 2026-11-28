@@ -212,7 +212,16 @@ Widget _dashboard({required HomeBanner Function() bannerFactory}) {
       ),
       routerConfig: GoRouter(
         routes: [
-          GoRoute(path: '/', builder: (_, _) => const HomeDesktopDashboard()),
+          // Scaffold supplies the Material ancestor every Text needs — a bare
+          // route child renders Flutter's yellow double "missing Material"
+          // underline under each glyph.
+          GoRoute(
+            path: '/',
+            builder: (context, _) => Scaffold(
+              backgroundColor: context.theme.colors.background,
+              body: const HomeDesktopDashboard(),
+            ),
+          ),
           GoRoute(
             path: '/home/favorite',
             builder: (_, _) => const _ProbePage('probe-favorite'),
@@ -265,6 +274,23 @@ WidgetbookComponent buildHomeBannerSkeletonComponent() {
         name: 'Skeleton · standalone leaf',
         builder: (context) =>
             catalogFrame(const HomeBannerSkeleton(height: 340)),
+      ),
+      // Loading with the catalogue picker already mounted over the
+      // placeholder: source/format are known before any bytes arrive, so the
+      // selection stays visible and switchable while the fetch is in flight.
+      WidgetbookUseCase(
+        name: 'Dashboard · loading with known picker',
+        builder: (context) => _dashboard(
+          bannerFactory: () =>
+              _PendingHomeBanner(Completer<List<HomeBannerItem>>().future),
+        ),
+      ),
+      // A catalogue that returns ONE item: the dock keeps its reserved slot
+      // footprint instead of shrinking, so the panel width is stable.
+      WidgetbookUseCase(
+        name: 'Dashboard · loaded single item (dock keeps slots)',
+        builder: (context) =>
+            _dashboard(bannerFactory: () => _FakeHomeBanner([_bannerItem(1)])),
       ),
     ],
   );

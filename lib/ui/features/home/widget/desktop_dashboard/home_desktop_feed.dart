@@ -523,6 +523,7 @@ class _FavoriteCard extends HookConsumerWidget {
                             const SizedBox(width: 6),
                             SmallBadge(
                               label: sourceName ?? item.package,
+                              onCover: true,
                               labelColor:
                                   _sourceAccents[_fnv(item.package) %
                                       _sourceAccents.length],
@@ -615,15 +616,24 @@ class _FavoriteCard extends HookConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Tooltip(
-                        message: displayTitle(item.title),
-                        child: Text(
-                          displayTitle(item.title),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: context.theme.typography.body.sm.copyWith(
-                            fontWeight: FontWeight.w600,
-                            height: 1.25,
+                      // Fixed two-line box: titles of unequal length otherwise
+                      // give neighbouring cards different heights and the grid
+                      // rows drift out of alignment.
+                      SizedBox(
+                        height:
+                            (context.theme.typography.body.sm.fontSize ?? 14) *
+                            1.25 *
+                            2,
+                        child: Tooltip(
+                          message: displayTitle(item.title),
+                          child: Text(
+                            displayTitle(item.title),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.theme.typography.body.sm.copyWith(
+                              fontWeight: FontWeight.w600,
+                              height: 1.25,
+                            ),
                           ),
                         ),
                       ),
